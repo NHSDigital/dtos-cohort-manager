@@ -1,0 +1,94 @@
+name: "Test stage"
+
+on:
+  workflow_call:
+    inputs:
+      build_datetime:
+        description: "Build datetime, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      build_timestamp:
+        description: "Build timestamp, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      build_epoch:
+        description: "Build epoch, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      nodejs_version:
+        description: "Node.js version, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      python_version:
+        description: "Python version, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      terraform_version:
+        description: "Terraform version, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+      version:
+        description: "Version of the software, set by the CI/CD pipeline workflow"
+        required: true
+        type: string
+
+jobs:
+  test-unit:
+    name: "Unit tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run unit test suite"
+        run: |
+          make test-unit
+      - name: "Save the result of fast test suite"
+        run: |
+          echo "Nothing to save"
+  test-lint:
+    name: "Linting"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run linting"
+        run: |
+          make test-lint
+      - name: "Save the linting result"
+        run: |
+          echo "Nothing to save"
+  test-coverage:
+    name: "Test coverage"
+    needs: [test-unit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+      - name: "Run test coverage check"
+        run: |
+          make test-coverage
+      - name: "Save the coverage check result"
+        run: |
+          echo "Nothing to save"
+  perform-static-analysis:
+    name: "Perform static analysis"
+    needs: [test-unit]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 5
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
+      - name: "Perform static analysis"
+        uses: ./.github/actions/perform-static-analysis
+        with:
+          sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
+          sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
+          sonar_token: "${{ secrets.SONAR_TOKEN }}"
