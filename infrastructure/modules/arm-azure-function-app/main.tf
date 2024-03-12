@@ -9,7 +9,9 @@ data "azurerm_storage_account" "sa" {
 }
 
 resource "azurerm_windows_function_app" "function" {
-  name                = var.name
+  count               = var.fnapp_count
+
+  name                = "${var.name}-${format("%03d", count.index + 1)}"
   resource_group_name = var.resource_group_name
   location            = var.location
   service_plan_id     = data.azurerm_service_plan.appserviceplan.id

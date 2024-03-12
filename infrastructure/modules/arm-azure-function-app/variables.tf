@@ -6,7 +6,7 @@ variable "resource_group_name" {
 
 variable "name" {
   type        = string
-  description = "The name of the FunctionApp."
+  description = "The name of the Function App."
 }
 
 variable "location" {
@@ -22,6 +22,11 @@ variable "appsvcplan_name" {
 variable "sa_name" {
   type        = string
   description = "The name of the Storage Account."
+}
+
+variable "fnapp_count" {
+  default     = 1
+  description = "The counter for creating multiple function apps."
 }
 
 variable "tags" {

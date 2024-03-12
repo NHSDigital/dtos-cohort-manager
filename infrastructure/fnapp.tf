@@ -5,6 +5,7 @@ module "functionapp" {
     module.storage
   ]
 
+  fnapp_count = var.function_app.fnapp_count
   name                = module.config.names.function-app
   resource_group_name = module.baseline.resource_groups[var.function_app.resource_group_index].name
   location            = module.baseline.resource_groups[var.function_app.resource_group_index].location
