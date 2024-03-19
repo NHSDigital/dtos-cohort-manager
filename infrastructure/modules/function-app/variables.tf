@@ -14,9 +14,9 @@ variable "location" {
   description = "The location/region where the Function App is created."
 }
 
-variable "appsvcplan_name" {
+variable "asp_id" {
   type        = string
-  description = "The name of the AppServicePlan."
+  description = "The ID of the AppServicePlan."
 }
 
 variable "sa_name" {
@@ -24,12 +24,19 @@ variable "sa_name" {
   description = "The name of the Storage Account."
 }
 
+variable "sa_prm_key" {
+  type        = string
+  description = "The Storage Account Primary Access Key."
+}
+
 variable "fnapp_count" {
+  type        = number
   default     = 1
   description = "The counter for creating multiple function apps."
 }
 
 variable "tags" {
+  type        = map(string)
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }

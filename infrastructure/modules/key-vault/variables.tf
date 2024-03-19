@@ -1,4 +1,6 @@
-variable "names" {}
+variable "names" {
+  type = map(string)
+}
 
 variable "resource_group_name" {
   type        = string
@@ -19,19 +21,23 @@ variable "disk_encryption" {
 variable "soft_delete_retention" {
   type        = number
   description = "Name of the  Key Vault which is created."
+  default     = "7"
 }
 
 variable "purge_protection_enabled" {
   type        = bool
   description = "Should the purge protection be enabled."
+  default     = false
 }
 
 variable "sku_name" {
   type        = string
   description = "Type of the Key Vault's SKU."
+  default     = "standard"
 }
 
 variable "tags" {
+  type        = map(string)
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }

@@ -1,9 +1,5 @@
 module "key_vault" {
-  source = ".//modules/arm-key-vault"
-
-  depends_on = [
-    module.baseline
-  ]
+  source = ".//modules/key-vault"
 
   names                    = module.config.names
   resource_group_name      = module.baseline.resource_groups[var.key_vault.resource_group_index].name

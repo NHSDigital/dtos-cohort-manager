@@ -1,5 +1,5 @@
 module "baseline" {
-  source = ".//modules/arm-baseline"
+  source = ".//modules/baseline"
 
   location        = var.location
   names           = module.config.names

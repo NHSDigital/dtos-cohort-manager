@@ -1,9 +1,5 @@
 module "app-plan" {
-  source = ".//modules/arm-app-service-plan"
-
-  depends_on = [
-    module.baseline
-  ]
+  source = ".//modules/app-service-plan"
 
   names               = module.config.names
   resource_group_name = module.baseline.resource_groups[var.app_service_plan.resource_group_index].name

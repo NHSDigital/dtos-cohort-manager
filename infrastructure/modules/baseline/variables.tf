@@ -1,5 +1,7 @@
 variable "location" {}
-variable "names" {}
+variable "names" {
+  type = map(string)
+}
 variable "tags" {
   default = {}
 }

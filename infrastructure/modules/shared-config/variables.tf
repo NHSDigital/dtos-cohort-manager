@@ -90,5 +90,6 @@ variable "application" {
 }
 
 variable "tags" {
+  type        = map(string)
   description = "Default tags for the deployment"
 }

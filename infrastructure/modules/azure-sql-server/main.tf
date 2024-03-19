@@ -1,13 +1,8 @@
-data "azurerm_key_vault" "keyvault" {
-  name                = var.names.key-vault
-  resource_group_name = var.resource_group_name
-}
-
 
 resource "azurerm_key_vault_secret" "sqllogin" {
   name         = "az-sql-login"
   value        = "sqldtosadmin"
-  key_vault_id = data.azurerm_key_vault.keyvault.id
+  key_vault_id = var.kv_id
 
   lifecycle {
     ignore_changes = [tags]
@@ -23,7 +18,7 @@ resource "random_password" "randompass" {
 resource "azurerm_key_vault_secret" "sqlpass" {
   name         = "az-sql-pass"
   value        = random_password.randompass.result
-  key_vault_id = data.azurerm_key_vault.keyvault.id
+  key_vault_id = var.kv_id
 
   lifecycle {
     ignore_changes = [tags]

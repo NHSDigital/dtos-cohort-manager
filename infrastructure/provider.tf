@@ -12,7 +12,7 @@ provider "azurerm" {
 }
 
 module "config" {
-  source      = ".//modules/arm-shared-config"
+  source      = ".//modules/shared-config"
   location    = var.location
   application = var.application
   env         = var.environment

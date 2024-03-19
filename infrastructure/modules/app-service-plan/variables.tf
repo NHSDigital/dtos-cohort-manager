@@ -9,17 +9,23 @@ variable "location" {
 }
 
 variable "names" {
+  type        = map(string)
   description = "Standard naming configuration object for sub-resources."
 }
 
 variable "os_type" {
+  type        = string
   description = "OS type for deployed App Service Plan."
+  default     = "Windows"
 }
 
 variable "sku_name" {
+  type        = string
   description = "SKU name for deployed App Service Plan."
+  default     = "B1"
 }
 variable "tags" {
+  type        = map(string)
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }
