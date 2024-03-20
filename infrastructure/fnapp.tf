@@ -1,8 +1,9 @@
 module "functionapp" {
   source = ".//modules/function-app"
 
-  fnapp_count         = var.function_app.fnapp_count
-  name                = module.config.names.function-app
+  names = module.config.names
+
+  function_app        = var.function_app
   resource_group_name = module.baseline.resource_groups[var.function_app.resource_group_index].name
   location            = module.baseline.resource_groups[var.function_app.resource_group_index].location
 

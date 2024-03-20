@@ -4,9 +4,19 @@ variable "resource_group_name" {
   description = "The name of the resource group in which to create the Function App. Changing this forces a new resource to be created."
 }
 
-variable "name" {
-  type        = string
-  description = "The name of the Function App."
+variable "names" {
+  type        = map(string)
+  description = "The basic part of the Function App name."
+}
+
+variable "function_app" {
+  type = object({
+    resource_group_index = string
+    fa_config = list(object({
+      name_suffix = string
+    }))
+  })
+  description = "Definition of Function Apps configuration"
 }
 
 variable "location" {
