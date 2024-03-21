@@ -1,7 +1,7 @@
 
 locals {
   function_apps = { for fa in var.function_app.fa_config : fa.name_suffix => {
-    name                = "${var.names.function-app}-${fa.name_suffix}"
+    name                = "${var.names.function-app}-${lower(fa.name_suffix)}"
     resource_group_name = var.resource_group_name
     location            = var.location
     service_plan_id     = var.asp_id
