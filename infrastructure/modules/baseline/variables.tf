@@ -7,5 +7,4 @@ variable "tags" {
 }
 
 variable "resource_groups" {
-  type = list(string)
 }
