@@ -23,7 +23,7 @@ variable "tags" {
 
 variable "resource_groups" {
   description = "Map of resource groups"
-  type        = map(object({
+  type = map(object({
     name = optional(string, "rg-dtos-dev-suk-baseline")
   }))
 }
