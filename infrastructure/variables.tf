@@ -21,7 +21,12 @@ variable "tags" {
   type        = map(string)
 }
 
-variable "resource_groups" {}
+variable "resource_groups" {
+  description = "Map of resource groups"
+  type        = map(object({
+    name = optional(string, "rg-dtos-dev-suk-baseline")
+  }))
+}
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
@@ -36,7 +41,7 @@ variable "storage_accounts" {
   })
 }
 
-variable "key_vault" { # default = {}
+variable "key_vault" {
   description = "Configuration for the baseline key vault"
   type = object({
     resource_group_index = optional(string, "baseline")
@@ -76,11 +81,11 @@ variable "app_service_plan" {
 }
 
 variable "function_app" {
-  description = "Definition of Function Apps configuration"
+  description = "Configuration for the function app"
   type = object({
     resource_group_index = optional(string, "baseline")
-    fa_config = list(object({
-      name_suffix = optional(string, "baseline")
+    fa_config = map(object({
+      name_suffix = string
     }))
   })
 }

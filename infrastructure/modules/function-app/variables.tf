@@ -10,12 +10,6 @@ variable "names" {
 }
 
 variable "function_app" {
-  type = object({
-    resource_group_index = string
-    fa_config = list(object({
-      name_suffix = string
-    }))
-  })
   description = "Definition of Function Apps configuration"
 }
 
