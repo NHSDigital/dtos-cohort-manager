@@ -33,12 +33,6 @@ variable "sa_prm_key" {
   description = "The Storage Account Primary Access Key."
 }
 
-variable "fnapp_count" {
-  type        = number
-  default     = 1
-  description = "The counter for creating multiple function apps."
-}
-
 variable "tags" {
   type        = map(string)
   description = "Resource tags to be applied throughout the deployment."
