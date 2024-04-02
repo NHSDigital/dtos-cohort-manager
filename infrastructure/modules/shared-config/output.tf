@@ -13,6 +13,7 @@ locals {
     docker-worker-windows       = upper("WWK-${var.env}-${var.location_map[var.location]}-${var.application}")
     docker-worker-windows-nb    = upper("WWK${var.env}${var.location_map[var.location]}${var.application}")
     external-load-balancer      = upper("ELB-${var.env}-${var.location_map[var.location]}-${var.application}")
+    event-grid-topic            = lower("EVGT-${var.env}-${var.location_map[var.location]}")
     function-app                = lower("${var.env}-${var.location_map[var.location]}")
     internal-load-balancer      = upper("ILB-${var.env}-${var.location_map[var.location]}-${var.application}")
     key-vault                   = upper("KV-${var.application}-${var.env}-${var.location_map[var.location]}")
@@ -67,6 +68,7 @@ output "names" {
     docker-worker-windows       = local.names.docker-worker-windows
     docker-worker-windows-nb    = local.names.docker-worker-windows-nb
     external-load-balancer      = local.names.external-load-balancer
+    event-grid-topic            = local.names.event-grid-topic
     function-app                = local.names.function-app
     internal-load-balancer      = local.names.internal-load-balancer
     key-vault                   = local.names.key-vault

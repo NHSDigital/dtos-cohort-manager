@@ -89,3 +89,13 @@ variable "function_app" {
     }))
   })
 }
+
+variable "event_grid" {
+  description = "Configuration for the event grid"
+  type = object({
+    topic = object({
+      resource_group_index = optional(string, "baseline")
+      name_suffix          = optional(string, "baseline")
+    })
+  })
+}
