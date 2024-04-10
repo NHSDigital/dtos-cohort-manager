@@ -38,3 +38,13 @@ variable "tags" {
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }
+
+variable "ai_connstring" {
+  type        = string
+  description = "The App Insights connection string."
+}
+
+variable "ai_key" {
+  type        = string
+  description = "The App Insights instrumentation key."
+}
