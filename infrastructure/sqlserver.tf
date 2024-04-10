@@ -3,8 +3,8 @@ module "azuresql" {
 
   # Azure SQL Server
   names               = module.config.names
-  resource_group_name = module.baseline.resource_group_names[var.sqlserver.resource_group_index]
-  location            = module.baseline.resource_group_locations[var.sqlserver.resource_group_index]
+  resource_group_name = module.baseline.resource_group_names[var.sqlserver.resource_group_key]
+  location            = module.baseline.resource_group_locations[var.sqlserver.resource_group_key]
   sqlversion          = var.sqlserver.sqlversion
   tlsver              = var.sqlserver.tlsversion
   kv_id               = module.key_vault.key_vault_id
