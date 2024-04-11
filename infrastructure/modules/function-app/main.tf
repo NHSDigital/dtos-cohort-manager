@@ -12,7 +12,7 @@ resource "azurerm_windows_function_app" "function" {
 
   site_config {
     application_insights_connection_string = var.ai_connstring
-    use_32_bit_worker = var.worker_32bit
+    use_32_bit_worker                      = var.worker_32bit
   }
 
   tags = var.tags

@@ -84,7 +84,7 @@ variable "function_app" {
   description = "Configuration for the function app"
   type = object({
     resource_group_key = optional(string, "baseline")
-    worker_32bit = optional(bool, false)
+    worker_32bit       = optional(bool, false)
     fa_config = map(object({
       name_suffix = string
     }))

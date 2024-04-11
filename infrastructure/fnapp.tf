@@ -12,7 +12,7 @@ module "functionapp" {
   sa_prm_key = module.storage.storage_account_primary_access_key
 
   ai_connstring = module.app_insights.ai_connection_string
-  worker_32bit = var.function_app.worker_32bit
+  worker_32bit  = var.function_app.worker_32bit
 
   tags = var.tags
 
