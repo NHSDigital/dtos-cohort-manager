@@ -40,3 +40,10 @@ resource "azurerm_mssql_server" "sqlserver" {
     ignore_changes = [tags]
   }
 }
+
+resource "azurerm_mssql_firewall_rule" "azurepassthrough" {
+  name             = var.fw_rule_name
+  server_id        = azurerm_mssql_server.sqlserver.id
+  start_ip_address = var.start_ip
+  end_ip_address   = var.end_ip
+}

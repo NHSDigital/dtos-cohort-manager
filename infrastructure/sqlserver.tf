@@ -19,5 +19,9 @@ module "azuresql" {
   read_scale     = var.sqlserver.read_scale
   sku            = var.sqlserver.sku
 
+  # FW Rules
+  fw_rule_name = var.sqlserver.fw_rule_name
+  start_ip     = var.sqlserver.start_ip
+  end_ip       = var.sqlserver.end_ip
 }
 

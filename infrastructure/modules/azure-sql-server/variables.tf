@@ -72,3 +72,21 @@ variable "tags" {
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }
+
+
+# fw rule
+
+variable "fw_rule_name" {
+  type        = string
+  description = "The name of the firewall rule. Changing this forces a new resource to be created."
+}
+
+variable "start_ip" {
+  type        = string
+  description = "The starting IP address to allow through the firewall for this rule."
+}
+
+variable "end_ip" {
+  type        = string
+  description = "The ending IP address to allow through the firewall for this rule."
+}
