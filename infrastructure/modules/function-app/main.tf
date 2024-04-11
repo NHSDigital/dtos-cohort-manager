@@ -12,7 +12,6 @@ resource "azurerm_windows_function_app" "function" {
 
   site_config {
     application_insights_connection_string = var.ai_connstring
-    application_insights_key               = var.ai_key
   }
 
   tags = var.tags
