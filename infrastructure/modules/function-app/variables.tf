@@ -43,3 +43,8 @@ variable "ai_connstring" {
   type        = string
   description = "The App Insights connection string."
 }
+
+variable "worker_32bit" {
+  type        = bool
+  description = "Should the Windows Function App use a 32-bit worker process. Defaults to true"
+}
