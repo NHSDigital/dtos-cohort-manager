@@ -42,6 +42,9 @@ resource "azurerm_mssql_server" "sqlserver" {
 }
 
 resource "azurerm_mssql_firewall_rule" "azurepassthrough" {
+
+  count = var.azurepassthrough ? 1 : 0
+
   name             = var.fw_rule_name
   server_id        = azurerm_mssql_server.sqlserver.id
   start_ip_address = var.start_ip

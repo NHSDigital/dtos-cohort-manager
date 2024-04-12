@@ -3,25 +3,26 @@ module "azuresql" {
 
   # Azure SQL Server
   names               = module.config.names
-  resource_group_name = module.baseline.resource_group_names[var.sqlserver.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.sqlserver.resource_group_key]
-  sqlversion          = var.sqlserver.sqlversion
-  tlsver              = var.sqlserver.tlsversion
+  resource_group_name = module.baseline.resource_group_names[var.sqlserver.server.resource_group_key]
+  location            = module.baseline.resource_group_locations[var.sqlserver.server.resource_group_key]
+  sqlversion          = var.sqlserver.server.sqlversion
+  tlsver              = var.sqlserver.server.tlsversion
   kv_id               = module.key_vault.key_vault_id
 
   tags = var.tags
 
   # Default database
-  db_name_suffix = var.sqlserver.db_name_suffix
-  collation      = var.sqlserver.collation
-  licence_type   = var.sqlserver.licence_type
-  max_gb         = var.sqlserver.max_gb
-  read_scale     = var.sqlserver.read_scale
-  sku            = var.sqlserver.sku
+  db_name_suffix = var.sqlserver.dbs.baseline.db_name_suffix
+  collation      = var.sqlserver.dbs.baseline.collation
+  licence_type   = var.sqlserver.dbs.baseline.licence_type
+  max_gb         = var.sqlserver.dbs.baseline.max_gb
+  read_scale     = var.sqlserver.dbs.baseline.read_scale
+  sku            = var.sqlserver.dbs.baseline.sku
 
   # FW Rules
-  fw_rule_name = var.sqlserver.fw_rule_name
-  start_ip     = var.sqlserver.start_ip
-  end_ip       = var.sqlserver.end_ip
+  azurepassthrough = var.sqlserver.server.azure_services_access_enabled
+  fw_rule_name     = var.sqlserver.fw_rules.passthrough.fw_rule_name
+  start_ip         = var.sqlserver.fw_rules.passthrough.start_ip
+  end_ip           = var.sqlserver.fw_rules.passthrough.end_ip
 }
 

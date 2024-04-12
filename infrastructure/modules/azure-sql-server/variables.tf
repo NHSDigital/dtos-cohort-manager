@@ -75,7 +75,11 @@ variable "tags" {
 
 
 # fw rule
-
+variable "azurepassthrough" {
+  type        = bool
+  description = "If the FW rule enabling Azure Services Passthrough should be deployed."
+  default     = true
+}
 variable "fw_rule_name" {
   type        = string
   description = "The name of the firewall rule. Changing this forces a new resource to be created."
