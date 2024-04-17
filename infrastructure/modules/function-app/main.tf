@@ -10,12 +10,15 @@ resource "azurerm_windows_function_app" "function" {
   storage_account_name       = var.sa_name
   storage_account_access_key = var.sa_prm_key
 
-  site_config {}
+  site_config {
+    application_insights_connection_string = var.ai_connstring
+    use_32_bit_worker                      = var.worker_32bit
+  }
 
   tags = var.tags
 
   lifecycle {
-    ignore_changes = [tags]
+    ignore_changes = [tags, app_settings, connection_string]
   }
 
 }
