@@ -44,11 +44,13 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
+      working-directory: ./infrastructure/
 
     # Checks that all Terraform configuration files adhere to a canonical format
     # Will fail the build if not
     - name: Terraform Format
       run: terraform fmt -check
+      working-directory: ./infrastructure/
 
     # Generates an execution plan for Terraform
     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
@@ -66,6 +68,7 @@ jobs:
         else
           exit 0
         fi
+      working-directory: ./infrastructure/
 
     # Save plan to artifacts
     - name: Publish Terraform Plan
@@ -134,6 +137,7 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
+      working-directory: ./infrastructure/
 
     # Download saved plan from artifacts
     - name: Download Terraform Plan
@@ -144,3 +148,4 @@ jobs:
     # Terraform Apply
     - name: Terraform Apply
       run: terraform apply -auto-approve tfplan
+      working-directory: ./infrastructure/
