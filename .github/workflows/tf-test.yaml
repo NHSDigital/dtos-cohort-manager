@@ -25,14 +25,17 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init -backend=false
+      working-directory: ./infrastructure/
 
     # Validate terraform files
     - name: Terraform Validate
       run: terraform validate
+      working-directory: ./infrastructure/
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
       run: terraform fmt -check -recursive
+      working-directory: ./infrastructure/
 
     # Perform a security scan of the terraform code using checkov
     - name: Run Checkov action
