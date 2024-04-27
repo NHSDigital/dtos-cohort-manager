@@ -1,6 +1,6 @@
 
-terraform {
-  backend "azurerm" {
+# terraform {
+#   backend "azurerm" {
 
-  }
-}
+#   }
+# }
