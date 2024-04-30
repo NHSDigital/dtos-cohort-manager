@@ -1,7 +1,15 @@
-# Guide: Setup GPG Key for Mac os
+# Guide: Setup GPG Key
+
+- [Guide: Setup GPG Key](#guide-setup-gpg-key)
+  - [Overview](#overview)
+  - [Checking for existing key and creating a new one](#checking-for-existing-key-and-creating-a-new-one)
+  - [Creating your GPG key](#creating-your-gpg-key)
+  - [Adding the GPG Key to your github account](#adding-the-gpg-key-to-your-github-account)
+  - [Setting your GPG key in your local Git Config](#setting-your-gpg-key-in-your-local-git-config)
 
 ## Overview
-This document will guide you to setup a new GPG key if you don not have one and assign it to your git account.
+
+This document will guide you to setup a new GPG key if you don't not have one and assign it to your git account.
 
 ## Checking for existing key and creating a new one
 
