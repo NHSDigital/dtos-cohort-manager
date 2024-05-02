@@ -4,6 +4,7 @@
   - [Overview](#overview)
   - [Signing commits using GPG](#signing-commits-using-gpg)
     - [Generate GPG key](#generate-gpg-key)
+    - [Importing your GPG key](#importing-your-gpg-key)
     - [Configure Git](#configure-git)
     - [Configure GitHub](#configure-github)
     - [Troubleshooting](#troubleshooting)
@@ -24,34 +25,50 @@ There are two ways to sign commits in GitHub, using a GPG or an SSH signature. D
 
 ### Generate GPG key
 
-<!-- markdownlint-disable-next-line no-inline-html -->
-If you do not have it already generate a new pair of GPG keys. Please change the passphrase (<span style="color:red">pleaseChooseYourKeyPassphrase</span>) below and save it in your password manager.
+First check if you have the GPG command line tool installed by running the below command.
 
 ```shell
-USER_NAME="Your Name"
-USER_EMAIL="your.name@email"
-file=$(echo $USER_EMAIL | sed "s/[^[:alpha:]]/-/g")
-
-mkdir -p "$HOME/.gnupg"
-chmod 0700 "$HOME/.gnupg"
-cd "$HOME/.gnupg"
-cat > "$file.gpg-key.script" <<EOF
-  %echo Generating a GPG key
-  Key-Type: ECDSA
-  Key-Curve: nistp256
-  Subkey-Type: ECDH
-  Subkey-Curve: nistp256
-  Name-Real: $USER_NAME
-  Name-Email: $USER_EMAIL
-  Expire-Date: 0
-  Passphrase: pleaseChooseYourKeyPassphrase
-  %commit
-  %echo done
-EOF
-gpg --batch --generate-key "$file.gpg-key.script"
-rm "$file.gpg-key.script"
-# or do it manually by running `gpg --full-gen-key`
+gpg --version
 ```
+
+If you already have the GPG command line tool installed you will see an output similar to the below telling you the information about your installed version. If you do not get an output then you will have to install the GPG command line tool for your operating system, you can find this here - <https://www.gnupg.org/download/>. If you are using Windows os, you can download the required GPG command line tool from winget package manager here - <https://gpg4win.org/download.html>.
+
+```shell
+gpg (GnuPG) 2.4.5
+libgcrypt 1.10.3
+Copyright (C) 2024 g10 Code GmbH
+License GNU GPL-3.0-or-later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Home: /.gnupg
+Supported algorithms:
+Pubkey: RSA, ELG, DSA, ECDH, ECDSA, EDDSA
+Cipher: IDEA, 3DES, CAST5, BLOWFISH, AES, AES192, AES256, TWOFISH,
+        CAMELLIA128, CAMELLIA192, CAMELLIA256
+Hash: SHA1, RIPEMD160, SHA256, SHA384, SHA512, SHA224
+Compression: Uncompressed, ZIP, ZLIB, BZIP2
+```
+
+Now Generate a new GPG key pair. Since there are multiple versions of GPG, you need to use different commands for key generation.
+
+If you are on GPG version 2.1.17 or newer then use the below command
+
+```shell
+gpg --full-generate-key
+```
+
+At the prompt, specify the kind of key you want, or press Enter to accept the default and at the next prompt, specify the key size you want, or press Enter to accept the default. Enter the length of time you want the key valid for and press Enter.
+
+If you are not on GPG version 2.1.17 or newer then use the below command to generate your GPG Key.
+
+```shell
+gpg --default-new-key-algo rsa4096 --gen-key
+```
+
+Enter the length of time you want the key valid for and press Enter.
+
+Enter your user ID information.
 
 Make note of the ID and save the keys.
 
@@ -62,21 +79,27 @@ gpg --list-secret-keys --keyid-format LONG $USER_EMAIL
 You should see a similar output to this:
 
 ```shell
-sec   nistp256/AAAAAAAAAAAAAAAA 2023-01-01 [SCA]
-      XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-uid                 [ultimate] Your Name <your.name@email>
-ssb   nistp256/BBBBBBBBBBBBBBBB 2023-01-01 [E]
+gpg --list-secret-keys --keyid-format=long
+/Users/hubot/.gnupg/secring.gpg
+------------------------------------
+sec   4096R/3AA5C34371567BD2 2016-03-10 [expires: 2017-03-10]
+uid                          Hubot <hubot@example.com>
+ssb   4096R/4BB6D45482678BE3 2016-03-10
 ```
 
-Export your keys.
+Copy the long form of the GPG Key ID you'd like to use, in this case it would be `3AA5C34371567BD2`
+
+Once you have your GPG key you can run the below command to print the GPG key ID, in ASCII armor format. Replace `3AA5C34371567BD2` with your gpg key id.
 
 ```shell
-ID=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-gpg --armor --export $ID > $file.gpg-key.pub
-gpg --armor --export-secret-keys $ID > $file.gpg-key
+gpg --armor --export 3AA5C34371567BD2
 ```
 
-Import already existing private key. GPG keys are stored in the `~/.gnupg` directory.
+Copy your GPG key, beginning with -----BEGIN PGP PUBLIC KEY BLOCK----- and ending with -----END PGP PUBLIC KEY BLOCK-----.
+
+### Importing your GPG key
+
+Import your private key. GPG keys are stored in the `~/.gnupg` directory.
 
 ```shell
 gpg --import $file.gpg-key
@@ -91,17 +114,48 @@ gpg --delete-keys $ID
 
 ### Configure Git
 
-Use the [following commands](https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key#telling-git-about-your-gpg-key) to set your default signing key in Git to the ID of the GPG key you generated. Replace `$ID` with your actual GPG key ID from the script above.
+If you have multiple GPG Keys, you need to tell Git which one to use.
 
-  ```shell
-  git config --global user.signingkey $ID
-  ```
+To start with, just to make sure, you need to unset the current GPG key, you can do this with the below command.
 
-Then enable automatic signing of Git commits by running:
+```shell
+git config --global --unset gpg.format
+```
+
+Use the below command to list the long form of the GPG keys for which you have both a public and private key. A private key is required for signing commits or tags.
+
+```shell
+gpg --list-secret-keys --keyid-format=long
+```
+
+You should have an output similar to the below.
+
+```shell
+$ gpg --list-secret-keys --keyid-format=long
+/Users/hubot/.gnupg/secring.gpg
+------------------------------------
+sec   4096R/3AA5C34371567BD2 2016-03-10 [expires: 2017-03-10]
+uid                          Hubot <hubot@example.com>
+ssb   4096R/4BB6D45482678BE3 2016-03-10
+```
+
+From the list of GPG keys, copy the long form of the GPG key ID you'd like to use. In this example, the GPG key ID is `3AA5C34371567BD2`.
+
+To set your primary GPG key you will need to run the below command but replacing `3AA5C34371567BD2` with your key ID.
+
+If you wish to configure git to sign all commits by default then run the below command.
 
 ```shell
 git config --global commit.gpgsign true
 ```
+
+You need to ensure that your local git is using the same email as the email used for your github account. to do this run the below command to see which email your local git is configured to.
+
+```shell
+git config user.email
+```
+
+This wil give you the email that is configured to your local git, make sure this matches with the primary email associated with your github account.
 
 ### Configure GitHub
 
