@@ -7,3 +7,8 @@ echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
 source ~/.bashrc
 git config --global --add safe.directory /workspaces/dtos-landing-zone
 make config
+
+echo "*******************************************"
+echo "*** Initial DToS configuration complete ***"
+echo "If you want to configure your local git settings, use the script below:"
+echo "bash -i scripts/config/devcontainer/post-build-cfg.sh"
