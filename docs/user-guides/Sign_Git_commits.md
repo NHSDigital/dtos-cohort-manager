@@ -99,18 +99,40 @@ Copy your GPG key, beginning with -----BEGIN PGP PUBLIC KEY BLOCK----- and endin
 
 ### Importing your GPG key
 
-Import your private key. GPG keys are stored in the `~/.gnupg` directory.
+Import your private key. GPG keys are stored in the `~/.gnupg` directory. You can import the key using the uid, in this case it is `hubot`
 
 ```shell
-gpg --import $file.gpg-key
+gpg --import Hubot.gpg
 ```
 
-Remove keys from the GPG agent if no longer needed.
+Remove keys from the GPG agent if no longer needed, firs list the keys.
+
+To list public keys on both Linux and Mac os:
 
 ```shell
-gpg --delete-secret-keys $ID
-gpg --delete-keys $ID
+gpg --list-keys
 ```
+
+To list private keys on both Linux and Mac os:
+
+```shell
+gpg --list-secret-keys
+```
+
+For your keys to be deleted properly, make sure you delete the private key before deleting the public one.
+There are a few ways you can delete your gpg keys.
+
+Delete keys for a single user:
+  Private Key:
+    ```ssh
+    gpg --delete-secret-key [uid]
+    ```
+  Public Key:
+    ```ssh
+    gpg --delete-key [uid]
+    ```
+
+This will now ask you if you are suire you want to delte the key, press `y` for yes the you will get a pop-up that again asks if you are sure, click delete key and your key will be deleted.
 
 ### Configure Git
 
@@ -149,13 +171,58 @@ If you wish to configure git to sign all commits by default then run the below c
 git config --global commit.gpgsign true
 ```
 
-You need to ensure that your local git is using the same email as the email used for your github account. to do this run the below command to see which email your local git is configured to.
+You need to ensure that your local git is using the same email as the email used for your github account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
 
 ```shell
-git config user.email
+ cat .git/config
 ```
 
-This wil give you the email that is configured to your local git, make sure this matches with the primary email associated with your github account.
+This wil output something similar to the following which will show all your git credentials.
+
+```shell
+[filter "lfs"]
+        required = true
+        clean = git-lfs clean -- %f
+        smudge = git-lfs smudge -- %f
+        process = git-lfs filter-process
+[user]
+        name = First_Name Last_Name
+        email = Name@example.com
+        signingkey = ABCDEFGHIJKLMNOPQRS123
+[commit]
+        gpgsign = true
+[core]
+        editor = vim
+```
+
+If any of the above details are incorrect you can amend them using the following commands if you want to set them globally.
+To set your username:
+
+```shell
+git config --global user.name "FIRST_NAME LAST_NAME"
+```
+
+To sety your email:
+
+```shell
+git config --global user.email "MY_NAME@example.com"
+```
+
+If you want to set the credentials for the specific repository, make sureyou are in the repoositary directory and run the following commands.
+
+```shell
+it config user.name "FIRST_NAME LAST_NAME"
+```
+
+```shell
+git config user.email "MY_NAME@example.com"
+```
+
+Now verify that these have been set correctly by again running the below. The `.git/config` should be your path to your git config file
+
+```shell
+ cat .git/config
+ ```
 
 ### Configure GitHub
 
@@ -174,6 +241,20 @@ To [add your GPG public key to your GitHub account](https://docs.github.com/en/a
 6. Click "**Add GPG key**" to save.
 
 After completing these steps, your new signing key will be listed in the "**SSH and GPG keys**" section of your GitHub profile.
+
+To verify that your key is working you can do the following, change the working directory to the folder where your file and signature are saved.
+
+```shell
+gpg --verify [signature-file] [file]
+```
+
+For example if you have the tor browser bundle file and the signature file you would use the following command.
+
+```shell
+gpg --verify tor-browser.tar.gz.asc tor-browser.tar.gz
+```
+
+This method works on Linux, Windows and Mac operating systems.
 
 ### Troubleshooting
 
