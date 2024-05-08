@@ -171,7 +171,7 @@ If you wish to configure git to sign all commits by default then run the below c
 git config --global commit.gpgsign true
 ```
 
-You need to ensure that your local git is using the same email as the email used for your github account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
+You need to ensure that your local git is using the same email as the email used for your Github account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
 
 ```shell
  cat .git/config
@@ -202,13 +202,13 @@ To set your username:
 git config --global user.name "FIRST_NAME LAST_NAME"
 ```
 
-To sety your email:
+To set your email:
 
 ```shell
 git config --global user.email "MY_NAME@example.com"
 ```
 
-If you want to set the credentials for the specific repository, make sureyou are in the repoositary directory and run the following commands.
+If you want to set the credentials for the specific repository, make sure you are in the repository directory and run the following commands.
 
 ```shell
 it config user.name "FIRST_NAME LAST_NAME"
