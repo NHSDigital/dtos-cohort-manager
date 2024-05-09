@@ -15,7 +15,6 @@ idempotence
 onboarding
 toolchain
 [A-Z]+s
-Github
 config
 winget
 uid
