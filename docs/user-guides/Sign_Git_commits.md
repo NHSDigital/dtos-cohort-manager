@@ -89,7 +89,7 @@ ssb   4096R/4BB6D45482678BE3 2016-03-10
 
 Copy the long form of the GPG Key ID you'd like to use, in this case it would be `3AA5C34371567BD2`
 
-Once you have your GPG key you can run the below command to print the GPG key ID, in ASCII armor format. Replace `3AA5C34371567BD2` with your gpg key id.
+Once you have your GPG key you can run the below command to print the GPG key ID, in ASCII armor format. Replace `3AA5C34371567BD2` with your GPG key id.
 
 ```shell
 gpg --armor --export 3AA5C34371567BD2
@@ -120,7 +120,7 @@ gpg --list-secret-keys
 ```
 
 For your keys to be deleted properly, make sure you delete the private key before deleting the public one.
-There are a few ways you can delete your gpg keys.
+There are a few ways you can delete your GPG keys.
 
 Delete keys for a single user:
   Private Key:
@@ -132,7 +132,7 @@ Delete keys for a single user:
     gpg --delete-key [uid]
     ```
 
-This will now ask you if you are suire you want to delte the key, press `y` for yes the you will get a pop-up that again asks if you are sure, click delete key and your key will be deleted.
+This will now ask you if you are sure you want to delete the key, press `y` for yes the you will get a pop-up that again asks if you are sure, click delete key and your key will be deleted.
 
 ### Configure Git
 
@@ -177,7 +177,7 @@ You need to ensure that your local git is using the same email as the email used
  cat .git/config
 ```
 
-This wil output something similar to the following which will show all your git credentials.
+This will output something similar to the following which will show all your git credentials.
 
 ```shell
 [filter "lfs"]
