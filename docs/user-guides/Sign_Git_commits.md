@@ -171,7 +171,7 @@ If you wish to configure git to sign all commits by default then run the below c
 git config --global commit.gpgsign true
 ```
 
-You need to ensure that your local git is using the same email as the email used for your Github account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
+You need to ensure that your local git is using the same email as the email used for your GitHub account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
 
 ```shell
  cat .git/config
