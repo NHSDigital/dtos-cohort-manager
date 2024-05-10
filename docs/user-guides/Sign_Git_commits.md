@@ -60,7 +60,7 @@ gpg --full-generate-key
 
 At the prompt, specify the kind of key you want, or press Enter to accept the default and at the next prompt, specify the key size you want, or press Enter to accept the default. Enter the length of time you want the key valid for and press Enter.
 
-If you are not on GPG version 2.1.17 or newer then use the below command to generate your GPG Key.
+If you are on a version older than GPG 2.1.17 then use the below command to generate your GPG Key.
 
 ```shell
 gpg --default-new-key-algo rsa4096 --gen-key
@@ -73,7 +73,7 @@ Enter your user ID information.
 Make note of the ID and save the keys.
 
 ```shell
-gpg --list-secret-keys --keyid-format LONG $USER_EMAIL
+gpg --list-secret-keys --keyid-format=LONG
 ```
 
 You should see a similar output to this:
@@ -105,7 +105,7 @@ Import your private key. GPG keys are stored in the `~/.gnupg` directory. You ca
 gpg --import Hubot.gpg
 ```
 
-Remove keys from the GPG agent if no longer needed, firs list the keys.
+Remove keys from the GPG agent if no longer needed, first list the keys.
 
 To list public keys on both Linux and Mac os:
 
