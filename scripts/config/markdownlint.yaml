@@ -1,6 +1,6 @@
 # SEE: https://github.com/DavidAnson/markdownlint/blob/main/schema/.markdownlint.yaml
 
-# https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
+# https://github.com/DavidAnson/markdownlint/blob/main/doc/md012.md
 MD012: false
 
 # https://github.com/DavidAnson/markdownlint/blob/main/doc/md013.md
