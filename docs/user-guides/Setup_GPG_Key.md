@@ -4,8 +4,8 @@
   - [Overview](#overview)
   - [Checking for existing key and creating a new one](#checking-for-existing-key-and-creating-a-new-one)
   - [Creating your GPG key](#creating-your-gpg-key)
-  - [Adding the GPG Key to your github account](#adding-the-gpg-key-to-your-github-account)
-  - [Setting your GPG key in your local Git Config](#setting-your-gpg-key-in-your-local-git-config)
+  - [Adding the GPG Key to your GitHub account](#adding-the-gpg-key-to-your-github-account)
+  - [Setting your GPG key in your local Git config](#setting-your-gpg-key-in-your-local-git-config)
 
 ## Overview
 
@@ -96,7 +96,7 @@ ssb   4096R/4BB6D45482678BE3 2016-03-10
 
 Copy the long form of the GPG Key ID you'd like to use, in this case it would be `3AA5C34371567BD2`
 
-Once you have your GPG key you can run the below command to print the GPG key ID, in ASCII armor format. Replace `3AA5C34371567BD2` with your gpg key id.
+Once you have your GPG key you can run the below command to print the GPG key ID, in ASCII armor format. Replace `3AA5C34371567BD2` with your GPG key id.
 
 ```shell
 gpg --armor --export 3AA5C34371567BD2
@@ -104,15 +104,15 @@ gpg --armor --export 3AA5C34371567BD2
 
 Copy your GPG key, beginning with -----BEGIN PGP PUBLIC KEY BLOCK----- and ending with -----END PGP PUBLIC KEY BLOCK-----.
 
-## Adding the GPG Key to your github account
+## Adding the GPG Key to your GitHub account
 
-Go to your Github account settings, then navigate to 'Access'.
+Go to your GitHub account settings, then navigate to 'Access'.
 Under GPG Keys, Click New GPG Key.
 Create a name for your key in the 'Title' field.
 in the 'Key' field paste your GPG Key Which you copied above, then click 'Add GPG Key'
 Once you have authenticated, your GPG Key should now be added to your account.
 
-## Setting your GPG key in your local Git Config
+## Setting your GPG key in your local Git config
 
 If you have multiple GPG Keys, you need to tell Git which one to use.
 
@@ -157,4 +157,4 @@ If you get an error when you try to commit for the first time after setting your
 export GPG_TTY=$(tty)
 ```
 
-This should set the correct local variables and nif you try to commit again it should prompt you for your password as it should.
+This should set the correct local variables and if you try to commit again it should prompt you for your password as it should.

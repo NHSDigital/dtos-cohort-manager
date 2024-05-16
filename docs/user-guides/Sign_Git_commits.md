@@ -107,15 +107,13 @@ gpg --import Hubot.gpg
 
 Remove keys from the GPG agent if no longer needed, first list the keys.
 
-To list public keys on both Linux and Mac os:
+Run below commands for listing public and private keys on both Linux and Mac os:
 
 ```shell
+# listing public keys
 gpg --list-keys
-```
 
-To list private keys on both Linux and Mac os:
-
-```shell
+# listing private keys
 gpg --list-secret-keys
 ```
 
@@ -124,13 +122,9 @@ There are a few ways you can delete your GPG keys.
 
 Delete keys for a single user:
   Private Key:
-    ```ssh
-    gpg --delete-secret-key [uid]
-    ```
+    `gpg --delete-secret-key [uid]`
   Public Key:
-    ```ssh
-    gpg --delete-key [uid]
-    ```
+    `gpg --delete-key [uid]`
 
 This will now ask you if you are sure you want to delete the key, press `y` for yes the you will get a pop-up that again asks if you are sure, click delete key and your key will be deleted.
 
@@ -171,7 +165,7 @@ If you wish to configure git to sign all commits by default then run the below c
 git config --global commit.gpgsign true
 ```
 
-You need to ensure that your local git is using the same email as the email used for your Github account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
+You need to ensure that your local git is using the same email as the email used for your GitHub account. To do this run the below command to see which email your local git is configured to. The `.git/config` should be your path to your git config file
 
 ```shell
  cat .git/config
