@@ -1,0 +1,22 @@
+# Text Editors
+.vscode
+_ReSharper.*/
+
+# Azurite
+__azurite*
+__blobstorage__
+__queuestorage__
+
+# Tests
+TestResults
+
+# Builds
+bin
+obj
+OutputDirectory
+
+# Mac
+.DS_Store
+
+# User Settings
+local.settings.json

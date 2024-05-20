@@ -1,0 +1,146 @@
+name: cohort-manager
+
+services:
+  # External Dependencies
+  azurite:
+    container_name: azurite
+    network_mode: host
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+
+  sql-edge:
+    container_name: db
+    network_mode: host
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=   # Enter a db password here with 8 chars, a num/ special character, and a capital letter
+    cap_add:
+      - SYS_PTRACE
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+
+  db-setup:
+    container_name: db-setup
+    network_mode: host
+    build: Set-up/database
+    depends_on:
+      sql-edge:
+        condition: service_healthy
+
+
+
+  # CaaS Integration Service
+  receive-caas-file:
+    container_name: receive-caas-file
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CaasIntegration/receiveCaasFile/Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - caasfolder_STORAGE=UseDevelopmentStorage=true
+      - ASPNETCORE_URLS=http://*:7060
+    depends_on:
+      - azurite
+
+  process-caas-file:
+    container_name: process-caas-file
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CaasIntegration/processCaasFile/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7061
+
+
+
+  # Participant Management Service
+  add-participant:
+    container_name: add-participant
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/addParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7062
+
+  remove-participant:
+    container_name: remove-participant
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7063
+
+  update-eligibility:
+    container_name: update-eligibility
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7064
+
+  update-participant:
+    container_name: update-participant
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7065
+
+
+
+  # Screening Data Service
+  create-participant:
+    container_name: create-participant
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/createParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7066
+
+  mark-participant-eligible:
+    container_name: mark-participant-eligible
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/markParticipantAsEligible/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7067
+
+  mark-participant-ineligible:
+    container_name: mark-participant-ineligible
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/markParticipantAsIneligible/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7068
+
+  update-participant-details:
+    container_name: update-participant-details
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7069
+
+
+networks:
+  cohort-manager-network:
+    driver: bridge
