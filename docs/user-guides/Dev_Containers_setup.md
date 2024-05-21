@@ -15,7 +15,7 @@ The following software packages, or their equivalents, are expected to be instal
 
 To be able to use the Dev Container feature:
 
-1. first make sure that the cloned repository has a folder named `.devcontainer.`, with a file named `devcontainer.json` inside.
+1. Make sure that the cloned repository has a folder named `.devcontainer.`, with a file named `devcontainer.json` inside.
 2. Run the command palette in Visual Studio Code by pressing `CMD+SHIFT+P` (MacOS) / `CTRL+SHIFT+P` (Windows). In the command palette search for `Rebuild and Reopen in Container`.
 3. Visual Studio Code windows should reopen and automatic Docker image download and configuration will start.
 After the process is complete, user should be presented with a complete and working development environment. This can be tested by going into the main repository folder (`dtos-landing-zone` - should be there by default) and running below command:
