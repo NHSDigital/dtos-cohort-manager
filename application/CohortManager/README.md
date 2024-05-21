@@ -14,7 +14,7 @@
 
 ### 1. Import the NHS DToS Profile
 
-To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `NHS/Set-up/NHS_DToS.code-profile`
+To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `Set-up/NHS_DToS.code-profile`
 
 On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
 
@@ -37,7 +37,7 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 First, insert a database password in compose.yaml and Set-up/database/db-setup-entrypoint.sh, and enable host networking mode in docker desktop settings >> Features in development.
 
-To run the system locally, in the root directory, run `docker compose up`, this will run all of the functions.
+To run the system locally, in the CohortManager directory, run `docker compose up`, this will run all of the functions.
 
 Other useful commands:
 
