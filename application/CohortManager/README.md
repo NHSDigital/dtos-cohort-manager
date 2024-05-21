@@ -1,14 +1,15 @@
 # Cohort Manager
 
-## Pre-requisites
+## Prerequisites
 
 - Visual Studio Code - VS Code is the chosen editor for the project due to VS for Mac being retired
 - Git
-- added as a collaborator to the repository
 - HomeBrew (Mac Only): \
     `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 - [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [Docker Desktop](https://docs.docker.com/desktop/install/)
+- Member of the NHSDigital GitHub organisation
+- Signed Git commits: <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Set-up
 
