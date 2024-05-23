@@ -315,6 +315,7 @@ public class UpdateParticipantDetailsTests
         Assert.AreEqual("123456", result.NHSId);
     }
 
+    [TestMethod]
     public async Task UpdateParticipantDetails_Validate_rule_1()
     {
         // Arrange
