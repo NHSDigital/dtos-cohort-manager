@@ -9,22 +9,22 @@ using Model;
 
 namespace updateEligibility
 {
-    public class updateEligibility
+    public class UpdateEligibility
     {
         private readonly ILogger _logger;
 
         private readonly ICreateResponse _createResponse;
 
-        private ICallFunction _callFunction;
+        private readonly ICallFunction _callFunction;
 
-        public updateEligibility(ILogger<updateEligibility> logger, ICreateResponse createResponse, ICallFunction callFunction)
+        public UpdateEligibility(ILogger<UpdateEligibility> logger, ICreateResponse createResponse, ICallFunction callFunction)
         {
             _logger = logger;
             _createResponse = createResponse;
             _callFunction = callFunction;
         }
 
-        [Function("updateEligibility")]
+        [Function("UpdateEligibility")]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
             _logger.LogInformation("C# Update called.");
@@ -43,7 +43,7 @@ namespace updateEligibility
             try
             {
                 var json = JsonSerializer.Serialize(input);
-                createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAseligible"), json);
+                createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsEligible"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)
                 {
