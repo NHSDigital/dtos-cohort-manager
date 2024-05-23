@@ -3,11 +3,11 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Model;
 using Moq;
 using Model;
 

@@ -55,7 +55,7 @@ public class CreateParticipantTests
         var response = await createParticipant.Run(mockRequest);
 
         // Assert
-        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>()), Times.Once);
+        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
         mockCreateResponse.VerifyNoOtherCalls();
     }
 
@@ -70,8 +70,8 @@ public class CreateParticipantTests
         // Act
         var response = await createParticipant.Run(mockRequest.Object);
 
-        // Assert
-        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>()), Times.Once);
+        // Assert 
+        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
         mockCreateResponse.VerifyNoOtherCalls();
     }
 

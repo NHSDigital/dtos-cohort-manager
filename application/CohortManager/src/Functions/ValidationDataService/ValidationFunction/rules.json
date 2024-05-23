@@ -1,0 +1,48 @@
+[
+  {
+    "WorkflowName": "BreastCancerScreening",
+    "Rules": [
+      {
+        "RuleName": "39.FamilyNameProvidedRule",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.surname) || !string.IsNullOrWhiteSpace(newParticipant.surname)"
+      },
+      {
+        "RuleName": "40.GivenNameProvidedRule",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.firstName) || !string.IsNullOrWhiteSpace(newParticipant.firstName)"
+      },
+      {
+        "RuleName": "35.TwoOfFamilyNameDateOfBirthGenderMustMatchRule",
+        "Expression": "(existingParticipant.surname == newParticipant.surname && existingParticipant.gender == newParticipant.gender) || (existingParticipant.surname == newParticipant.surname && existingParticipant.dateOfBirth == newParticipant.dateOfBirth) || (existingParticipant.gender == newParticipant.gender && existingParticipant.dateOfBirth == newParticipant.dateOfBirth)"
+      }
+    ]
+  },
+  {
+    "WorkflowName": "BreastCancerScreening2",
+    "Rules": [
+      {
+        "RuleName": "SerialNumberRule",
+        "Expression": "existingParticipant.SerialChangeNumber < newParticipant.SerialChangeNumber"
+      },
+      {
+        "RuleName": "BlankAddressLinesRule",
+        "Expression": "string.IsNullOrEmpty(existingParticipant.addressLine1) && string.IsNullOrEmpty(existingParticipant.addressLine2) && string.IsNullOrEmpty(existingParticipant.addressLine3) && string.IsNullOrEmpty(existingParticipant.addressLine4) && string.IsNullOrEmpty(existingParticipant.addressLine5) && (!string.IsNullOrEmpty(newParticipant.addressLine1) || !string.IsNullOrEmpty(newParticipant.addressLine2) || !string.IsNullOrEmpty(newParticipant.addressLine3) || !string.IsNullOrEmpty(newParticipant.addressLine4) || !string.IsNullOrEmpty(newParticipant.addressLine5))"
+      },
+      {
+        "RuleName": "SuppliedNHSNotExistsRule",
+        "Expression": "string.IsNullOrEmpty(newParticipant.NHSId)"
+      },
+      {
+        "RuleName": "DataItemsNotNullOrBlankRule",
+        "Expression": "string.IsNullOrEmpty(existingParticipant.reasonForRemoval) || string.IsNullOrEmpty(existingParticipant.reasonForRemovalEffectiveFromDate) || string.IsNullOrEmpty(existingParticipant.dateOfDeath)"
+      },
+      {
+        "RuleName": "SuppliedPrimaryCareCodeNotNullRule",
+        "Expression": "!string.IsNullOrEmpty(input.PrimaryCareProvider)"
+      },
+      {
+        "RuleName": "GPPracticeCodeNotInTableRule",
+        "Expression": "!string.IsNullOrEmpty(newParticipant.gpConnect)"
+      }
+    ]
+  }
+]

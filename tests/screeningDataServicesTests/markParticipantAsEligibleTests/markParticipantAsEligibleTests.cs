@@ -32,7 +32,7 @@ namespace screeningDataServicesTests
             await markParticipantAsEligible.Run(mockRequest);
 
             // Assert
-            mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>()), Times.Once);
+            mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), null), Times.Once);
             mockCreateResponse.VerifyNoOtherCalls();
 
         }
@@ -52,7 +52,7 @@ namespace screeningDataServicesTests
             await markParticipantAsEligible.Run(mockRequest);
 
             // Assert
-            mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>()), Times.Once);
+            mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), null), Times.Once);
             mockCreateResponse.VerifyNoOtherCalls();
         }
     }

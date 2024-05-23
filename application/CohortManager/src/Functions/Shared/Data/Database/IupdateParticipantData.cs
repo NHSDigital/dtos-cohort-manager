@@ -7,6 +7,6 @@ namespace Data.Database;
 public interface IUpdateParticipantData
 {
     public bool UpdateParticipantAsEligible(Participant participant, char isActive);
-    public bool UpdateParticipantDetails(Participant participantData);
-    public int GetParticipantId(string NHSId);
+    public Task<bool> UpdateParticipantDetails(Participant participantData);
+    public Participant GetParticipant(string NHSId);
 }

@@ -36,7 +36,7 @@ namespace updateParticipantDetails
                     participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
 
-                var isAdded = _updateParticipantData.UpdateParticipantDetails(participantData);
+                var isAdded = await _updateParticipantData.UpdateParticipantDetails(participantData);
                 if (isAdded)
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

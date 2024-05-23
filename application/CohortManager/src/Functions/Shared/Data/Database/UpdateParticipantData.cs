@@ -3,29 +3,37 @@ using System.Data;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using Model;
+using Common;
+using System.Text.Json;
+using System.Net;
 
 public class UpdateParticipantData : IUpdateParticipantData
 {
-    private IDbConnection _dbConnection;
-    private IDatabaseHelper _databaseHelper;
+    private readonly IDbConnection _dbConnection;
+    private readonly IDatabaseHelper _databaseHelper;
     private readonly string connectionString;
     private readonly ILogger<UpdateParticipantData> _logger;
 
-    public UpdateParticipantData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<UpdateParticipantData> logger)
+    private readonly ICallFunction _callFunction;
+
+    public UpdateParticipantData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<UpdateParticipantData> logger, ICallFunction callFunction)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
+        _callFunction = callFunction;
+        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
     {
-        var allRecordsToUpdate = UpdateOldRecords(GetParticipantId(participant.NHSId), isActive);
+        var oldParticipant = GetParticipant(participant.NHSId);
+
+        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.NHSId), isActive);
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public bool UpdateParticipantDetails(Participant participantData)
+    public async Task<bool> UpdateParticipantDetails(Model.Participant participantData)
     {
         var cohort_id = 1;
 
@@ -36,10 +44,20 @@ public class UpdateParticipantData : IUpdateParticipantData
 
 
         //end all old records ready for new ones to be created
-        var oldId = GetParticipantId(participantData.NHSId);
+        var oldParticipant = GetParticipant(participantData.NHSId);
+        var ValidateDataResponse = await ValidateData(oldParticipant, participantData);
+        if (ValidateDataResponse.Count > 0)
+        {
+            foreach (var ValidationMessage in ValidateDataResponse)
+            {
+                _logger.LogInformation("validation has thrown an error: {ValidationMessage}", ValidationMessage);
 
-        var oldRecordsToEnd = EndOldRecords(participantData, oldId);
-        if (oldRecordsToEnd == null)
+            }
+            return false;
+        }
+
+        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.NHSId));
+        if (oldRecordsToEnd.Count == 0)
         {
             return false;
         }
@@ -112,7 +130,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         };
 
-        //common params already contains all the parameters we need for this
+        //common params already contains all the parameters we need for this 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
             commandType = CommandType.Scalar,
@@ -123,19 +141,18 @@ public class UpdateParticipantData : IUpdateParticipantData
         SQLToExecuteInOrder.Add(AddNewAddress(participantData));
         SQLToExecuteInOrder.Add(InsertContactPreference(participantData));
 
-        return ExecuteBulkCommand(SQLToExecuteInOrder, commonParameters, participantData.NHSId);
+        return ExecuteBulkCommand(SQLToExecuteInOrder, commonParameters);
     }
 
-    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NHSId)
+    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
-        foreach (var SqlCommand in sqlCommands)
-        {
-            if (SqlCommand.parameters != null)
-            {
-                AddParameters(SqlCommand.parameters, command);
-            }
-        }
+
+        sqlCommands
+            .Where(sqlCommand => sqlCommand.parameters != null)
+            .Select(sqlCommand => sqlCommand.parameters)
+            .ToList()
+            .ForEach(parameters => AddParameters(parameters, command));
 
         var transaction = BeginTransaction();
         command.Transaction = transaction;
@@ -173,21 +190,21 @@ public class UpdateParticipantData : IUpdateParticipantData
             return true;
 
         }
-        catch (Exception ex)
+        catch (Exception EX)
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
+            _logger.LogError("An error occurred while updating records: {EX}", EX);
             return false;
         }
     }
 
-    private List<SQLReturnModel> EndOldRecords(Participant participantData, int oldId)
+    private List<SQLReturnModel> EndOldRecords(int oldId)
     {
         //We don't want to get a record that is less than 0 or 0 as records start 1
         if (oldId <= 0)
         {
-            return null;
+            return new List<SQLReturnModel>();
         }
 
         return UpdateOldRecords(oldId, 'N');
@@ -207,9 +224,9 @@ public class UpdateParticipantData : IUpdateParticipantData
             {
                 commandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[ADDRESS] " +
-                    " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
-                    " ACTIVE_FLAG = @IsActiveOldRecords " +
-                    " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
+                      " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
+                      " ACTIVE_FLAG = @IsActiveOldRecords " +
+                      " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
                 // we don't need to add params to all items as we don't want to duplicate them
                 parameters = new Dictionary<string, object>
                 {
@@ -240,9 +257,30 @@ public class UpdateParticipantData : IUpdateParticipantData
         return listToReturn;
     }
 
-    public int GetParticipantId(string NHSId)
+    public Participant GetParticipant(string NHSId)
     {
-        var SQL = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSId AND ACTIVE_FLAG = @IsActive ";
+        var SQL = "SELECT " +
+            "[PARTICIPANT].[NHS_NUMBER], " +
+            "[PARTICIPANT].[SUPERSEDED_BY_NHS_NUMBER], " +
+            "[PARTICIPANT].[PRIMARY_CARE_PROVIDER], " +
+            "[PARTICIPANT].[GP_CONNECT], " +
+            "[PARTICIPANT].[PARTICIPANT_PREFIX], " +
+            "[PARTICIPANT].[PARTICIPANT_FIRST_NAME], " +
+            "[PARTICIPANT].[OTHER_NAME], " +
+            "[PARTICIPANT].[PARTICIPANT_LAST_NAME], " +
+            "[PARTICIPANT].[PARTICIPANT_BIRTH_DATE], " +
+            "[PARTICIPANT].[PARTICIPANT_GENDER], " +
+            "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
+            "[PARTICIPANT].[REMOVAL_DATE], " +
+            "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
+            "[ADDRESS].[ADDRESS_LINE_1], " +
+            "[ADDRESS].[ADDRESS_LINE_2], " +
+            "[ADDRESS].[CITY], " +
+            "[ADDRESS].[COUNTY], " +
+            "[ADDRESS].[POST_CODE] " +
+        "FROM [dbo].[PARTICIPANT] " +
+        "INNER JOIN [dbo].[ADDRESS] ON [PARTICIPANT].[PARTICIPANT_ID]=[ADDRESS].[PARTICIPANT_ID] " +
+        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NHSId AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
 
         var parameters = new Dictionary<string, object>
         {
@@ -253,7 +291,37 @@ public class UpdateParticipantData : IUpdateParticipantData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return ExecuteQuery(command);
+        return GetParticipant(command);
+    }
+
+    public Participant GetParticipant(IDbCommand command)
+    {
+        return ExecuteQuery(command, reader =>
+        {
+            var participant = new Participant();
+            while (reader.Read())
+            {
+                participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
+                participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
+                participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
+                participant.GpConnect = reader["GP_CONNECT"] == DBNull.Value ? null : reader["GP_CONNECT"].ToString();
+                participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
+                participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
+                participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
+                participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
+                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
+                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? null : reader["PARTICIPANT_GENDER"].ToString();
+                participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
+                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
+                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
+                participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
+                participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
+                participant.AddressLine3 = reader["CITY"] == DBNull.Value ? null : reader["CITY"].ToString();
+                participant.AddressLine4 = reader["COUNTY"] == DBNull.Value ? null : reader["COUNTY"].ToString();
+                participant.AddressLine5 = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
+            }
+            return participant;
+        });
     }
 
     private SQLReturnModel AddNewAddress(Participant participantData)
@@ -324,9 +392,9 @@ public class UpdateParticipantData : IUpdateParticipantData
         };
     }
 
-    private int ExecuteQuery(IDbCommand command)
+    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var id = 0;
+        var result = default(T);
         using (_dbConnection)
         {
             _dbConnection.ConnectionString = connectionString;
@@ -335,14 +403,11 @@ public class UpdateParticipantData : IUpdateParticipantData
             {
                 using (IDataReader reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
-                    {
-                        id = reader.GetInt32(0);
-                    }
+                    result = mapFunction(reader);
                 }
                 _dbConnection.Close();
             }
-            return id;
+            return result;
         }
     }
 
@@ -358,9 +423,9 @@ public class UpdateParticipantData : IUpdateParticipantData
                 return false;
             }
         }
-        catch (Exception ex)
+        catch (Exception EX)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError("an error happened, {EX}", EX);
             return false;
         }
 
@@ -378,7 +443,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             command.CommandText = SQL;
             _logger.LogInformation($"{SQL}");
 
-            var newParticipantResult = command.ExecuteNonQuery();
+            command.ExecuteNonQuery();
             var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag ";
 
             command.CommandText = SQLGet;
@@ -398,6 +463,30 @@ public class UpdateParticipantData : IUpdateParticipantData
             _logger.LogError($"an error happened: {ex.Message}");
             return -1;
         }
+    }
+
+    private async Task<List<string>> ValidateData(Model.Participant existingParticipant, Model.Participant newParticipant)
+    {
+        var responseText = "";
+        var json = JsonSerializer.Serialize(new List<Model.Participant>()
+        {
+            existingParticipant,
+            newParticipant
+        });
+
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("VaildationURL"), json);
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                StreamReader reader = new StreamReader(responseStream);
+                responseText = reader.ReadToEnd();
+            }
+        }
+
+        return responseText == "" ? new List<string>() : responseText.Split(',').ToList();
+
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
