@@ -1,7 +1,5 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.5.002.0
-MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CaasIntegration", "CaasIntegration", "{937A8411-5A71-43D8-906A-35614DEFD201}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningDataServices", "ScreeningDataServices", "{3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}"
