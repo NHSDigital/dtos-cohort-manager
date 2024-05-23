@@ -17,13 +17,17 @@ services:
     image: mcr.microsoft.com/azure-sql-edge
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=   # Enter a db password here with 8 chars, a num/ special character, and a capital letter
+      - MSSQL_SA_PASSWORD= # Enter a db password here with 8 chars, a num/ special character, and a capital letter
     cap_add:
       - SYS_PTRACE
     ports:
       - "1433:1433"
     healthcheck:
-      test: ["CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"
+        ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -36,8 +40,6 @@ services:
     depends_on:
       sql-edge:
         condition: service_healthy
-
-
 
   # CaaS Integration Service
   receive-caas-file:
@@ -61,8 +63,6 @@ services:
       dockerfile: CaasIntegration/processCaasFile/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7061
-
-
 
   # Participant Management Service
   add-participant:
@@ -88,7 +88,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
+      dockerfile: ParticipantManagementServices/UpdateEligibility/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7064
 
@@ -100,8 +100,6 @@ services:
       dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7065
-
-
 
   # Screening Data Service
   create-participant:
@@ -139,7 +137,6 @@ services:
       dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7069
-
 
 networks:
   cohort-manager-network:

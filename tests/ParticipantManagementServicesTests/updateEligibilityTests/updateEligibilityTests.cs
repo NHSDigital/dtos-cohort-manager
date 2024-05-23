@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.Tests.ParticipantManagementService;
+
 using Moq;
 using Microsoft.Extensions.Logging;
 using Common;
@@ -7,9 +9,7 @@ using Model;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Text;
-using updateEligibility;
-
-namespace NHS.CohortManager.Tests.ParticipantManagementService;
+using NHS.CohortManager.CaasIntegration.UpdateEligibility;
 
 [TestClass]
 public class UpdateEligibilityTests
