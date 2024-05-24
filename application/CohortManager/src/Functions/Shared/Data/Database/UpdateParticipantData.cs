@@ -130,7 +130,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         };
 
-        //common params already contains all the parameters we need for this 
+        //common params already contains all the parameters we need for this
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
             commandType = CommandType.Scalar,
@@ -224,9 +224,9 @@ public class UpdateParticipantData : IUpdateParticipantData
             {
                 commandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[ADDRESS] " +
-                      " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
-                      " ACTIVE_FLAG = @IsActiveOldRecords " +
-                      " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
+                    " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
+                    " ACTIVE_FLAG = @IsActiveOldRecords " +
+                    " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
                 // we don't need to add params to all items as we don't want to duplicate them
                 parameters = new Dictionary<string, object>
                 {
@@ -270,7 +270,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[PARTICIPANT].[PARTICIPANT_LAST_NAME], " +
             "[PARTICIPANT].[PARTICIPANT_BIRTH_DATE], " +
             "[PARTICIPANT].[PARTICIPANT_GENDER], " +
-            "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
+        "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
             "[PARTICIPANT].[REMOVAL_DATE], " +
             "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
             "[ADDRESS].[ADDRESS_LINE_1], " +

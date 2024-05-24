@@ -239,8 +239,8 @@ public class UpdateParticipantDetailsTests
         var nhsId = "123456";
         var expectedParticipantId = 123456;
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(expectedParticipantId);
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
@@ -280,8 +280,8 @@ public class UpdateParticipantDetailsTests
         var nhsId = "123456";
 
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false);
+            .Returns(true)
+            .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(0);
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
@@ -319,12 +319,12 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false)
-               .Returns(true)
-               .Returns(false)
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false)
+        .Returns(true)
+        .Returns(false)
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1); // Return expected id
 
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
