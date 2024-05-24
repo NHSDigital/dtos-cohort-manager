@@ -70,7 +70,7 @@ public class CreateParticipantTests
         // Act
         var response = await createParticipant.Run(mockRequest.Object);
 
-        // Assert 
+        // Assert
         mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
         mockCreateResponse.VerifyNoOtherCalls();
     }
