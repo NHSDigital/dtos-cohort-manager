@@ -1,10 +1,9 @@
-using System.Net;
-using System.Text;
-using Common;
-using Grpc.Core;
-using Microsoft.Azure.Functions.Worker.Http;
 
 namespace Common;
+
+using System.Net;
+using System.Text;
+using Microsoft.Azure.Functions.Worker.Http;
 
 public class CreateResponse : ICreateResponse
 {
