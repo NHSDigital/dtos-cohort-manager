@@ -34,3 +34,6 @@ OutputDirectory
 
 # User Settings
 local.settings.json
+
+# Docker
+.env
