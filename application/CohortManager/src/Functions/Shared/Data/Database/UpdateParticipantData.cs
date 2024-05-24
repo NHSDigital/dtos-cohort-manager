@@ -33,7 +33,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public async Task<bool> UpdateParticipantDetails(Model.Participant participantData)
+    public async Task<bool> UpdateParticipantDetails(Participant participantData)
     {
         var cohort_id = 1;
 
@@ -465,7 +465,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
     }
 
-    private async Task<List<string>> ValidateData(Model.Participant existingParticipant, Model.Participant newParticipant)
+    private async Task<List<string>> ValidateData(Participant existingParticipant, Model.Participant newParticipant)
     {
         var responseText = "";
         var json = JsonSerializer.Serialize(new List<Model.Participant>()
@@ -474,7 +474,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             newParticipant
         });
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("VaildationURL"), json);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ValidationURL"), json);
 
         if (response.StatusCode == HttpStatusCode.OK)
         {
@@ -516,7 +516,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             _dbConnection.Close();
             _logger.LogError($"An error occurred while updating records: {ex.Message}");
             return false;
-
         }
     }
 

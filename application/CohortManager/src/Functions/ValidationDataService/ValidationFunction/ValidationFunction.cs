@@ -60,26 +60,35 @@ public class ValidationFunction
             if (!result.IsSuccess)
             {
                 validationErrors.Add(result.Rule.RuleName);
-                _createValidationData.UpdateRecords(new SQLReturnModel()
-                {
-                    commandType = CommandType.Command,
-                    SQL = " INSERT INTO [dbo].[RULE_VIOLATED] ([RULE], TIME_VIOLATED, PARTICIPANT_ID) " +
-                            " VALUES (@Rule_Violated, @TimeViolated, @ParticipantId) ",
-                    parameters = new Dictionary<string, object>()
-                        {
-                            {"@Rule_Violated", result.Rule.RuleName },
-                            {"@TimeViolated", DateTime.UtcNow },
-                            {"@ParticipantId", existingParticipant.NHSId },
-                        }
-                });
             }
+
+            var ruleDetails = result.Rule.RuleName.Split('.');
+            _createValidationData.UpdateRecords(new SQLReturnModel()
+            {
+                commandType = CommandType.Command,
+                SQL = " INSERT INTO [dbo].[RULE_VIOLATED] (RULE_ID], [DATE_CREATED],[NHS_ID],[DESCRIPTION],[RESOLVED]) " +
+                        " VALUES (@Rule_ID, @Rule_Violated, @TimeViolated, @ParticipantId, @Description, @Resolved) ",
+                parameters = new Dictionary<string, object>()
+                {
+                    {"@Rule_Violated", ruleDetails[0] },
+                    {"@Rule_ID", ruleDetails[1]},
+                    {"@NHS_Id", newParticipant.NHSId ?? null },
+                    {"Description", $"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}"},
+                    {"@TimeViolated", DateTime.UtcNow },
+                    {"@Resolved", result.IsSuccess }
+                }
+            });
+
             _logger.LogInformation($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
         }
 
         var httpStatusCode = validationErrors.Count == 0 ? HttpStatusCode.OK : HttpStatusCode.BadRequest;
         var response = req.CreateResponse(httpStatusCode);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-        byte[] data = Encoding.UTF8.GetBytes(string.Join(",", validationErrors));
+        var errors = string.Join(",", validationErrors);
+        byte[] data = Encoding.UTF8.GetBytes(errors);
+
+
         response.Body = new MemoryStream(data);
 
         return response;

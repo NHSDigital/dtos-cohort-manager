@@ -3,8 +3,8 @@
     "WorkflowName": "BreastCancerScreening",
     "Rules": [
       {
-        "RuleName": "SuppliedNHSNotExistsRule",
-        "Expression": "string.IsNullOrEmpty(newParticipant.NHSId)"
+        "RuleName": "1.SuppliedNHSNotExistsRule",
+        "Expression": "!string.IsNullOrEmpty(newParticipant.NHSId)"
       }
     ]
   }

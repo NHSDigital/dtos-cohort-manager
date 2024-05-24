@@ -1,5 +1,3 @@
-using Grpc.Core;
-
 namespace Data.Database;
 
 public class ValidationDataDto
