@@ -1,3 +1,4 @@
 # SEE: https://github.com/gitleaks/gitleaks/blob/master/README.md#gitleaksignore
 
 cd9c0efec38c5d63053dd865e5d4e207c0760d91:docs/guides/Perform_static_analysis.md:generic-api-key:37
+1f87a049dbf78cbc394bbfee208a46fcb81b6ffa:application/CohortManager/src/Functions/Functions.sln:ipv4:3
