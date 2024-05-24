@@ -6,10 +6,6 @@ services:
     container_name: azurite
     network_mode: host
     image: mcr.microsoft.com/azure-storage/azurite
-    ports:
-      - "10000:10000"
-      - "10001:10001"
-      - "10002:10002"
 
   sql-edge:
     container_name: db
@@ -17,11 +13,9 @@ services:
     image: mcr.microsoft.com/azure-sql-edge
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=   # Enter a db password here with 8 chars, a num/ special character, and a capital letter
+      - MSSQL_SA_PASSWORD=${PASSWORD}
     cap_add:
       - SYS_PTRACE
-    ports:
-      - "1433:1433"
     healthcheck:
       test: ["CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"]
       interval: 15s
@@ -32,11 +26,12 @@ services:
   db-setup:
     container_name: db-setup
     network_mode: host
-    build: Set-up/database
+    build: ./Set-up/database
     depends_on:
       sql-edge:
         condition: service_healthy
-
+    environment:
+      - PASSWORD=${PASSWORD}
 
 
   # CaaS Integration Service
@@ -50,6 +45,7 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7060
+      - targetFunction=http://localhost:7061/api/processCaasFile
     depends_on:
       - azurite
 
@@ -61,6 +57,9 @@ services:
       dockerfile: CaasIntegration/processCaasFile/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7061
+      - PMSAddParticipant=http://localhost:7062/api/addParticipant
+      - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
+      - PMSUpdateParticipanthttp://localhost:7065/api/updateParticipant
 
 
 
@@ -72,7 +71,12 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/addParticipant/Dockerfile
     environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7062
+      - DSaddParticipant=http://localhost:7066/api/CreateParticipant
+      - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
+      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - AZURE_FUNCTIONS_ENVIRONMENT=Development
 
   remove-participant:
     container_name: remove-participant
@@ -82,6 +86,7 @@ services:
       dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7063
+      - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
 
   update-eligibility:
     container_name: update-eligibility
@@ -91,6 +96,7 @@ services:
       dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7064
+      - DSmarkParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
 
   update-participant:
     container_name: update-participant
@@ -100,6 +106,7 @@ services:
       dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7065
+      - UpdateParticipant=http://localhost:7069/api/updateParticipantDetails
 
 
 
@@ -112,6 +119,8 @@ services:
       dockerfile: screeningDataServices/createParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7066
+      - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
 
   mark-participant-eligible:
     container_name: mark-participant-eligible
@@ -121,6 +130,8 @@ services:
       dockerfile: screeningDataServices/markParticipantAsEligible/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7067
+      - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   mark-participant-ineligible:
     container_name: mark-participant-ineligible
@@ -130,6 +141,7 @@ services:
       dockerfile: screeningDataServices/markParticipantAsIneligible/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7068
+      - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   update-participant-details:
     container_name: update-participant-details
@@ -139,6 +151,7 @@ services:
       dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7069
+      - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
 
 networks:
