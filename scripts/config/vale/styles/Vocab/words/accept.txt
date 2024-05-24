@@ -15,3 +15,8 @@ idempotence
 onboarding
 toolchain
 [A-Z]+s
+config
+winget
+uid
+Dev
+dev

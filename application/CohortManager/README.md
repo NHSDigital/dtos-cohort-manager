@@ -1,20 +1,21 @@
 # Cohort Manager
 
-## Pre-requisites
+## Prerequisites
 
 - Visual Studio Code - VS Code is the chosen editor for the project due to VS for Mac being retired
 - Git
-- added as a collaborator to the repository
 - HomeBrew (Mac Only): \
     `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 - [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [Docker Desktop](https://docs.docker.com/desktop/install/)
+- Member of the NHSDigital GitHub organisation
+- Signed Git commits: <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Set-up
 
 ### 1. Import the NHS DToS Profile
 
-To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `NHS/Set-up/NHS_DToS.code-profile`
+To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `Set-up/NHS_DToS.code-profile`
 
 On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
 
@@ -35,9 +36,9 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 ## Running the Application Locally
 
-First, insert a database password in compose.yaml and Set-up/database/db-setup-entrypoint.sh, and enable host networking mode in docker desktop settings >> Features in development.
+First, copy the .env.example file, rename it to just ".env" and enter a password that meets the security requirements, and enable host networking mode in docker desktop settings >> Features in development.
 
-To run the system locally, in the root directory, run `docker compose up`, this will run all of the functions.
+To run the system locally, in the CohortManager directory, run `docker compose up`, this will run all of the functions.
 
 Other useful commands:
 
