@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.Tests.ParticipantManagementService;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -9,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using RemoveParticipant;
-
-namespace NHS.CohortManager.Tests.ParticipantManagementService;
 
 [TestClass]
 public class RemoveParticipantTests
