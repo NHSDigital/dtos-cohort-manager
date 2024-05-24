@@ -69,8 +69,7 @@ public class UpdateParticipantDetailsTests
 
         // Setup the IdbConnection Mock with the mocked command
         mockDBConnection.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
-        commandMock.Setup(m => m.Parameters.Add
-                   (It.IsAny<IDbDataParameter>())).Verifiable();
+        commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
         commandMock.Setup(m => m.ExecuteReader())
         .Returns(moqDataReader.Object);
         mockDBConnection.Setup(conn => conn.Open());
@@ -87,12 +86,12 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false)
-               .Returns(true)
-               .Returns(false)
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false)
+        .Returns(true)
+        .Returns(false)
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1); // Return expected id
 
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
@@ -126,8 +125,8 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1); // Return expected id
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
@@ -163,8 +162,8 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
@@ -201,8 +200,8 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         moqDataReader.SetupSequence(reader => reader.Read())
-               .Returns(true)
-               .Returns(false);
+        .Returns(true)
+        .Returns(false);
         moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 

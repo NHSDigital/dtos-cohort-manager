@@ -65,17 +65,15 @@ namespace ValidationDataService
                     {
                         commandType = CommandType.Command,
                         SQL = " INSERT INTO [dbo].[RULE_VIOLATED] ([RULE], TIME_VIOLATED, PARTICIPANT_ID) " +
-                              " VALUES (@Rule_Violated, @TimeViolated, @ParticipantId) ",
+                                " VALUES (@Rule_Violated, @TimeViolated, @ParticipantId) ",
                         parameters = new Dictionary<string, object>()
                         {
                             {"@Rule_Violated", result.Rule.RuleName },
                             {"@TimeViolated", DateTime.UtcNow },
                             {"@ParticipantId", existingParticipant.NHSId },
                         }
-
                     });
                 }
-
                 _logger.LogInformation($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
             }
 

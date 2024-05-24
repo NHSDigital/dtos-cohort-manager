@@ -53,12 +53,12 @@ public class RemoveParticipantTests
         setupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), null))
-               .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-               {
-                   var response = req.CreateResponse(statusCode);
-                   response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                   return response;
-               });
+        .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -82,12 +82,12 @@ public class RemoveParticipantTests
         setupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), null))
-               .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-               {
-                   var response = req.CreateResponse(statusCode);
-                   response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                   return response;
-               });
+        .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
@@ -109,12 +109,12 @@ public class RemoveParticipantTests
         setupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), null))
-               .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-               {
-                   var response = req.CreateResponse(statusCode);
-                   response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                   return response;
-               });
+        .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));

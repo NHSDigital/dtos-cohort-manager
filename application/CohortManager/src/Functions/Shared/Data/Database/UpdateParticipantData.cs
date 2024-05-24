@@ -327,32 +327,32 @@ public class UpdateParticipantData : IUpdateParticipantData
     private SQLReturnModel AddNewAddress(Participant participantData)
     {
         string updateAddress =
-            " INSERT INTO dbo.ADDRESS " +
-            " ( PARTICIPANT_ID," +
-            " ADDRESS_TYPE, " +
-            " ADDRESS_LINE_1,  " +
-            " ADDRESS_LINE_2, " +
-            " CITY, " +
-            " COUNTY,  " +
-            " POST_CODE,  " +
-            " LSOA,  " +
-            " RECORD_START_DATE,  " +
-            " RECORD_END_DATE, " +
-            " ACTIVE_FLAG,  " +
-            " LOAD_DATE)  " +
-            " VALUES  " +
-            " ( @NewParticipantId, " +
-            " null, " +
-            " @addressLine1, " +
-            " @addressLine2, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " @RecordStartDate,  " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate)";
+        " INSERT INTO dbo.ADDRESS " +
+        " ( PARTICIPANT_ID," +
+        " ADDRESS_TYPE, " +
+        " ADDRESS_LINE_1, " +
+        " ADDRESS_LINE_2, " +
+        " CITY, " +
+        " COUNTY,  " +
+        " POST_CODE,  " +
+        " LSOA,  " +
+        " RECORD_START_DATE,  " +
+        " RECORD_END_DATE, " +
+        " ACTIVE_FLAG,  " +
+        " LOAD_DATE)  " +
+        " VALUES  " +
+        " ( @NewParticipantId, " +
+        " null, " +
+        " @addressLine1, " +
+        " @addressLine2, " +
+        " null, " +
+        " null, " +
+        " null, " +
+        " null, " +
+        " @RecordStartDate,  " +
+        " @RecordEndDate, " +
+        " @ActiveFlag, " +
+        " @LoadDate)";
 
         var parameters = new Dictionary<string, object>()
         {

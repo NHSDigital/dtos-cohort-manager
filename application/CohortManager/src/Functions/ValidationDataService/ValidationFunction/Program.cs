@@ -12,11 +12,11 @@ var host = new HostBuilder()
     {
         DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
         services.AddTransient<IDbConnection>(provider =>
-           {
-               var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-               var conn = providerFactory.CreateConnection();
-               return conn;
-           });
+        {
+            var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
+            var conn = providerFactory.CreateConnection();
+            return conn;
+        });
         services.AddSingleton<IValidationData, ValidationData>();
     })
     .Build();
