@@ -465,7 +465,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
     }
 
-    private async Task<List<string>> ValidateData(Participant existingParticipant, Model.Participant newParticipant)
+    private async Task<List<string>> ValidateData(Participant existingParticipant, Participant newParticipant)
     {
         var responseText = "";
         var json = JsonSerializer.Serialize(new List<Model.Participant>()
