@@ -6,6 +6,7 @@ services:
     container_name: azurite
     network_mode: host
     image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite --silent
 
   sql-edge:
     container_name: db
@@ -36,6 +37,7 @@ services:
         condition: service_healthy
     environment:
       - PASSWORD=${PASSWORD}
+      - DB_NAME=${DB_NAME}
 
   # CaaS Integration Service
   receive-caas-file:
@@ -62,7 +64,7 @@ services:
       - ASPNETCORE_URLS=http://*:7061
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
-      - PMSUpdateParticipanthttp://localhost:7065/api/updateParticipant
+      - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
 
   # Participant Management Service
   add-participant:
@@ -141,6 +143,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7068
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   update-participant-details:
     container_name: update-participant-details
@@ -151,6 +154,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7069
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
 networks:
   cohort-manager-network:

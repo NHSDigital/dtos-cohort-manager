@@ -87,7 +87,7 @@ namespace NHS.Screening.ReceiveCaasFile
             try
             {
                 var json = JsonSerializer.Serialize(cohort);
-                _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
             }
             catch (Exception ex)
             {
