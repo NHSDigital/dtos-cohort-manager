@@ -4,14 +4,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Data.Database;
-using global::ValidationDataService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using ValidationDataService;
+using NHS.CohortManager.ValidationDataService;
 
 [TestClass]
 public class ValidationDataServiceTests
@@ -86,37 +85,13 @@ public class ValidationDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("1", "")]
-    [DataRow("1", null)]
-    [DataRow("1", " ")]
-    public async Task Run_Should_Return_FamilyNameProvidedRule_Violation_When_Rule_Validation_Fails(string existingSurname, string newSurname)
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow(" ")]
+    public async Task Run_Should_Return_Rule1_Violation_When_NHS_Number_Missing(string newParticipantNhsNumber)
     {
         // Arrange
-        participants[0].Surname = existingSurname;
-        participants[1].Surname = newSurname;
-        participants[0].NHSId = "";
-        participants[1].NHSId = "";
-        var json = JsonSerializer.Serialize(participants);
-        SetupRequest(json);
-
-        // Act
-        var result = await function.RunAsync(request.Object);
-
-        // Assert
-        string body = ReadStream(result.Body);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.IsTrue(body.Contains("1.SuppliedNHSNotExistsRule"));
-    }
-
-    [TestMethod]
-    [DataRow("")]
-    [DataRow("")]
-    [DataRow("")]
-    public async Task Run_Should_Not_Return_Rule1_Violation_When_Rule_Validation_DotnetSucceed(string nhsId)
-    {
-        // Arrange
-        participants[1].NHSId = nhsId;
-
+        participants[1].NHSId = newParticipantNhsNumber;
         var json = JsonSerializer.Serialize(participants);
         SetupRequest(json);
 
@@ -127,6 +102,26 @@ public class ValidationDataServiceTests
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         Assert.IsTrue(body.Contains("1.SuppliedNHSNotExistsRule"));
+    }
+
+    [TestMethod]
+    [DataRow("1")]
+    [DataRow("9999999999")]
+    public async Task Run_Should_Not_Return_Rule1_Violation_When_NHS_Number_Present(string newParticipantNhsNumber)
+    {
+        // Arrange
+        participants[1].NHSId = newParticipantNhsNumber;
+
+        var json = JsonSerializer.Serialize(participants);
+        SetupRequest(json);
+
+        // Act
+        var result = await function.RunAsync(request.Object);
+
+        // Assert
+        string body = ReadStream(result.Body);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.IsTrue(!body.Contains("1.SuppliedNHSNotExistsRule"));
     }
 
     private void SetupRequest(string json)

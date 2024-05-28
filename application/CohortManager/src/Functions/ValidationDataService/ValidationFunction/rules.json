@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "1.SuppliedNHSNotExistsRule",
-        "Expression": "!string.IsNullOrEmpty(newParticipant.NHSId)"
+        "Expression": "!string.IsNullOrWhiteSpace(newParticipant.NHSId)"
       }
     ]
   }

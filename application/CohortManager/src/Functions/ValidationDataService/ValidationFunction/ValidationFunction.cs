@@ -1,4 +1,4 @@
-namespace ValidationDataService;
+namespace NHS.CohortManager.ValidationDataService;
 
 using System.Net;
 using System.Text;
