@@ -1,4 +1,5 @@
 namespace Data.Database;
+
 using System.Data;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;

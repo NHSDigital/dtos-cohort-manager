@@ -1,8 +1,6 @@
-using System.Data;
-using Microsoft.Identity.Client;
-using Model;
-
 namespace Data.Database;
+
+using Model;
 
 public interface IUpdateParticipantData
 {

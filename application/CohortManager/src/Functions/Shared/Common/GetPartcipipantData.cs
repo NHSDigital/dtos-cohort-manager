@@ -7,8 +7,6 @@ using Model;
 
 public class GetParticipantData : IGetParticipantData
 {
-
-
     public async Task<Participant> GetParticipantDetails(HttpRequestData req)
     {
         // parse through the HTTP request
