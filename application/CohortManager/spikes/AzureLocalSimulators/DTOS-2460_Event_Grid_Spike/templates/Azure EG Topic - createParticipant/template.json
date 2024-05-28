@@ -1,0 +1,58 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01-preview/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "inputSchema": {
+            "type": "String"
+        },
+        "tags": {
+            "type": "Object"
+        },
+        "identity": {
+            "type": "Object"
+        },
+        "kind": {
+            "type": "String"
+        },
+        "publicNetworkAccess": {
+            "type": "String"
+        },
+        "inboundIpRules": {
+            "type": "Array"
+        },
+        "disableLocalAuth": {
+            "type": "Bool"
+        },
+        "dataResidencyBoundary": {
+            "type": "String"
+        },
+        "minimumTlsVersionAllowed": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.EventGrid/topics",
+            "apiVersion": "2023-12-15-preview",
+            "name": "[parameters('name')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "kind": "[parameters('kind')]",
+            "identity": "[parameters('identity')]",
+            "properties": {
+                "inputSchema": "[parameters('inputSchema')]",
+                "minimumTlsVersionAllowed": "[parameters('minimumTlsVersionAllowed')]",
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+                "inboundIpRules": "[parameters('inboundIpRules')]",
+                "disableLocalAuth": "[parameters('disableLocalAuth')]",
+                "dataResidencyBoundary": "[parameters('dataResidencyBoundary')]"
+            }
+        }
+    ]
+}

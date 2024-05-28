@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "value": "sp-topic-createParticipant"
+        },
+        "location": {
+            "value": "uksouth"
+        },
+        "inputSchema": {
+            "value": "EventGridSchema"
+        },
+        "tags": {
+            "value": {}
+        },
+        "identity": {
+            "value": {
+                "type": "None"
+            }
+        },
+        "kind": {
+            "value": "Azure"
+        },
+        "publicNetworkAccess": {
+            "value": "Enabled"
+        },
+        "inboundIpRules": {
+            "value": []
+        },
+        "disableLocalAuth": {
+            "value": false
+        },
+        "dataResidencyBoundary": {
+            "value": "WithinGeopair"
+        },
+        "minimumTlsVersionAllowed": {
+            "value": "1.2"
+        }
+    }
+}
