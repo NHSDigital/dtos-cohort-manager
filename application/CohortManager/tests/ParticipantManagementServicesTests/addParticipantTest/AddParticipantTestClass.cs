@@ -67,6 +67,7 @@ public class AddNewParticipantTestClass
 
         var result = await sut.Run(_request.Object);
         System.Console.WriteLine(result.StatusCode);
+        System.Console.WriteLine("hello");
 
         // Assert
         _loggerMock.Verify(log =>
