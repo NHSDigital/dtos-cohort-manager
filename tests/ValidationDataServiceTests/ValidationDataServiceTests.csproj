@@ -22,9 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
-    <ProjectReference Include="..\..\src\Functions\ValidationDataService\ValidationFunction\ValidationDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ValidationDataService\ValidationFunction\ValidationDataService.csproj" />
 
   </ItemGroup>
 
