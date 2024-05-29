@@ -55,7 +55,7 @@ public class UpdateEligibility
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation($"Unable to call function. Message:{ex.Message} Stack Trace: {ex.StackTrace}");
         }
 
         _logger.LogInformation("the user has not been updated due to a bad request");
