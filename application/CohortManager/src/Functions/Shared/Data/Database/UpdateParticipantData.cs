@@ -67,7 +67,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
-            " cohortId, " +
+            " COHORT_ID, " +
             " GENDER_CD," +
             " NHS_NUMBER," +
             " SUPERSEDED_BY_NHS_NUMBER," +
