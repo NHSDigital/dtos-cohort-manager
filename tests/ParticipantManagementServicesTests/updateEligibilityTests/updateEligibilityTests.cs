@@ -39,37 +39,61 @@ public class UpdateEligibilityTests
     [TestMethod]
     public async Task Run_UpdateEligibility_ValidRequest_ReturnsSuccess()
     {
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         var json = JsonSerializer.Serialize(_participant);
+        var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
+
+        SetupRequest(json);
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+                return response;
+            });
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsEligible")), It.IsAny<string>()))
                 .Returns(Task.FromResult(_webResponse.Object));
 
-        SetupRequest(json);
-        var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        await sut.Run(_request.Object);
+        var result = await sut.Run(_request.Object);
 
         _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>()), Times.Once);
         _createResponse.VerifyNoOtherCalls();
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_UpdateEligibility_InvalidRequest_ReturnsBadRequest()
     {
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         var json = JsonSerializer.Serialize(_participant);
+        var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
+
+        SetupRequest(json);
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+                return response;
+            });
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsEligible")), It.IsAny<string>()))
                 .Returns(Task.FromResult(_webResponse.Object));
 
-        SetupRequest(json);
-        var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        await sut.Run(_request.Object);
+        var result = await sut.Run(_request.Object);
 
         _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>()), Times.Once);
         _createResponse.VerifyNoOtherCalls();
+
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
 
     }
 
