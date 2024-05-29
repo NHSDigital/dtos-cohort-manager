@@ -3,6 +3,8 @@ namespace NHS.CohortManger.Tests.ScreeningDataServices;
 using System.Data;
 using Data.Database;
 using Microsoft.Extensions.Logging;
+using Model;
+using Model.Enums;
 using Moq;
 
 [TestClass]
@@ -193,20 +195,19 @@ public class UpdateParticipantDetailsTests
         Assert.AreEqual(0, result);
     }
 
-    private Model.Participant GetParticipant()
+    private Participant GetParticipant()
     {
-        return new Model.Participant()
+        return new Participant()
         {
             NHSId = "123456",
             SupersededByNhsNumber = "789012",
             PrimaryCareProvider = "ABC Clinic",
-            GpConnect = "GP Connect ID",
             NamePrefix = "Mr.",
             FirstName = "John",
             OtherGivenNames = "Middle",
             Surname = "Doe",
             DateOfBirth = "1990-01-01",
-            Gender = "Male",
+            Gender = Gender.Male,
             AddressLine1 = "123 Main Street",
             AddressLine2 = "Apt 101",
             AddressLine3 = "Suburb",
@@ -221,7 +222,7 @@ public class UpdateParticipantDetailsTests
             EmailAddress = "john.doe@example.com",
             PreferredLanguage = "English",
             IsInterpreterRequired = "No",
-            Action = "Update"
+            RecordType = Actions.Amended
         };
     }
 }

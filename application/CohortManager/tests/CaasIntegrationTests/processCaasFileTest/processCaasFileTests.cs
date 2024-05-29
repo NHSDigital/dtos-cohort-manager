@@ -44,10 +44,10 @@ public class processCaasFileTests
         //Arrange
         var cohort = new Cohort
         {
-            cohort = new List<Participant>
+            Participants = new List<Participant>
                 {
-                    new Participant { Action = "ADD" },
-                    new Participant { Action = "ADD" }
+                    new Participant { RecordType = Actions.New },
+                    new Participant { RecordType = Actions.New }
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -61,7 +61,7 @@ public class processCaasFileTests
         //Assert
         callFunctionMock.Verify(
             x => x.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()),
-            Times.Exactly(2)); // Expected to be called twice for each participant
+            Times.Exactly(2));
     }
 
     [TestMethod]
@@ -70,10 +70,10 @@ public class processCaasFileTests
         //Arrange
         var cohort = new Cohort
         {
-            cohort = new List<Participant>
+            Participants = new List<Participant>
                 {
-                    new Participant { Action = "UPDATE" },
-                    new Participant { Action = "UPDATE" }
+                    new Participant { RecordType = Actions.Amended },
+                    new Participant { RecordType = Actions.Amended }
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -96,9 +96,9 @@ public class processCaasFileTests
         //Arrange
         var cohort = new Cohort
         {
-            cohort = new List<Participant>
+            Participants = new List<Participant>
                 {
-                    new() { Action = "UPDATE" }
+                    new() { RecordType = Actions.Amended }
                 }
         };
         var exception = new Exception("Unable to call function");
@@ -131,10 +131,10 @@ public class processCaasFileTests
         //Arrange
         var cohort = new Cohort
         {
-            cohort = new List<Participant>
+            Participants = new List<Participant>
                 {
-                    new Participant { Action = "DEL" },
-                    new Participant { Action = "DEL" }
+                    new Participant { RecordType = Actions.Removed },
+                    new Participant { RecordType = Actions.Removed }
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -157,9 +157,9 @@ public class processCaasFileTests
         //Arrange
         var cohort = new Cohort
         {
-            cohort = new List<Participant>
+            Participants = new List<Participant>
                 {
-                    new Participant { Action = "DEL" }
+                    new Participant { RecordType = Actions.Removed }
                 }
         };
         var exception = new Exception("Unable to call function");
