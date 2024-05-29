@@ -19,7 +19,7 @@ public class ValidationDataServiceTests
     private readonly ServiceCollection serviceCollection;
     private readonly Mock<FunctionContext> context;
     private readonly Mock<HttpRequestData> request;
-    private readonly List<Participant> participants;
+    private readonly ValidationFunctionRequestBody requestBody;
     private readonly ValidationFunction function;
     private readonly Mock<IValidationData> _validationDataService = new();
 
@@ -34,53 +34,21 @@ public class ValidationDataServiceTests
 
         context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        participants =
-        [
-            new Participant
-            {
-                NHSId = "1",
-                FirstName = "John",
-                Surname = "Smith"
-            },
-            new Participant
-            {
-                NHSId = "1",
-                FirstName = "John",
-                Surname = "Smith"
-            }
-        ];
+        var existingParticipant = new Participant
+        {
+            NHSId = "1",
+            FirstName = "John",
+            Surname = "Smith"
+        };
+        var newParticipant = new Participant
+        {
+            NHSId = "1",
+            FirstName = "John",
+            Surname = "Smith"
+        };
+        requestBody = new ValidationFunctionRequestBody("UpdateParticipant", existingParticipant, newParticipant);
 
         function = new ValidationFunction(loggerMock.Object, _validationDataService.Object);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Two_Participants_Not_Received()
-    {
-        // Arrange
-        participants.RemoveAt(1);
-        var json = JsonSerializer.Serialize(participants);
-        SetupRequest(json);
-
-        // Act
-        var result = await function.RunAsync(request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_Ok_When_All_Rules_Pass()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(participants);
-        SetupRequest(json);
-
-        // Act
-        var result = await function.RunAsync(request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.AreEqual(0, result.Body.Length);
     }
 
     [TestMethod]
@@ -90,8 +58,8 @@ public class ValidationDataServiceTests
     public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Not_Exist(string nhsNumber)
     {
         // Arrange
-        participants[0].NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(participants);
+        requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(requestBody);
         SetupRequest(json);
 
         // Act
@@ -109,9 +77,8 @@ public class ValidationDataServiceTests
     public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Exist(string nhsNumber)
     {
         // Arrange
-        participants[0].NHSId = nhsNumber;
-
-        var json = JsonSerializer.Serialize(participants);
+        requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(requestBody);
         SetupRequest(json);
 
         // Act
@@ -121,6 +88,47 @@ public class ValidationDataServiceTests
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.IsTrue(!body.Contains("ParticipantMustAlreadyExist"));
+    }
+
+    [TestMethod]
+    [DataRow("0000000000")]
+    [DataRow("9999999999")]
+    public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Already_Exists(string nhsNumber)
+    {
+        // Arrange
+        requestBody.Workflow = "AddParticipant";
+        requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(requestBody);
+        SetupRequest(json);
+
+        // Act
+        var result = await function.RunAsync(request.Object);
+
+        // Assert
+        string body = ReadStream(result.Body);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.IsTrue(body.Contains("1.ParticipantMustNotAlreadyExist"));
+    }
+
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow(" ")]
+    public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Does_Not_Already_Exist(string nhsNumber)
+    {
+        // Arrange
+        requestBody.Workflow = "AddParticipant";
+        requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(requestBody);
+        SetupRequest(json);
+
+        // Act
+        var result = await function.RunAsync(request.Object);
+
+        // Assert
+        string body = ReadStream(result.Body);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.IsTrue(!body.Contains("1.ParticipantMustNotAlreadyExist"));
     }
 
     private void SetupRequest(string json)

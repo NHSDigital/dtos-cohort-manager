@@ -7,7 +7,6 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Model;
 using RulesEngine.Models;
 
 public class ValidationFunction
@@ -24,24 +23,21 @@ public class ValidationFunction
     [Function("ValidationFunction")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // TODO: Get workflow from request body
-        var workflowName = "UpdateParticipant";
-
-        string requestBody;
+        string requestBodyJson;
         using (var reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            requestBody = reader.ReadToEnd();
+            requestBodyJson = reader.ReadToEnd();
         }
 
-        var participantData = JsonSerializer.Deserialize<List<Participant>>(requestBody);
+        var requestBody = JsonSerializer.Deserialize<ValidationFunctionRequestBody>(requestBodyJson);
 
-        if (participantData is null || participantData.Count != 2)
+        if (requestBody is null)
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        var existingParticipant = participantData[0];
-        var newParticipant = participantData[1];
+        var existingParticipant = requestBody.ExistingParticipant;
+        var newParticipant = requestBody.NewParticipant;
 
         string json = File.ReadAllText("rules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -52,7 +48,7 @@ public class ValidationFunction
             new RuleParameter("newParticipant", newParticipant),
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(workflowName, ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync(requestBody.Workflow, ruleParameters);
 
         var validationErrors = new List<string>();
 
