@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipant", "ParticipantManagementServices\addParticipant\addParticipant.csproj", "{A47CFB75-1972-4BFB-98A1-9933FD5E086F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateEligibility", "ParticipantManagementServices\updateEligibility\updateEligibility.csproj", "{BE10A415-5474-4393-A5E4-2743C905C422}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateEligibility", "ParticipantManagementServices\UpdateEligibility\UpdateEligibility.csproj", "{BE10A415-5474-4393-A5E4-2743C905C422}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processCaasFile", "CaasIntegration\processCaasFile\processCaasFile.csproj", "{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}"
 EndProject
@@ -32,21 +32,23 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Shared\Common\Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Shared\Model\Model.csproj", "{682DDE9F-2868-4477-B159-9EB7D255D565}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\tests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{8DF1A047-4800-4668-877F-8AC8708AB238}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{8DF1A047-4800-4668-877F-8AC8708AB238}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processCaasFileTest", "..\..\tests\CaasIntegrationTests\processCaasFileTest\processCaasFileTest.csproj", "{EB66E913-21D4-491D-8674-9DD4B20CA820}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processCaasFileTest", "..\..\..\..\tests\CaasIntegrationTests\processCaasFileTest\processCaasFileTest.csproj", "{EB66E913-21D4-491D-8674-9DD4B20CA820}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Shared\Data\Data.csproj", "{ABA8CD5A-BEF7-4962-9C23-AE69F430CC1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipant", "ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj", "{40B97A2D-B75C-417B-90DB-4EE423250314}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipantTest", "..\..\tests\ParticipantManagementServicesTests\addParticipantTest\addParticipantTest.csproj", "{70B919BD-95C8-4789-B29E-07F6205CBF5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipantTest", "..\..\..\..\tests\ParticipantManagementServicesTests\addParticipantTest\addParticipantTest.csproj", "{70B919BD-95C8-4789-B29E-07F6205CBF5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantTests", "..\..\tests\ParticipantManagementServicesTests\UpdateParticipantTests\updateParticipantTests.csproj", "{F607A020-CA9C-4E65-8237-1EB663807058}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\UpdateParticipantTests\updateParticipantTests.csproj", "{F607A020-CA9C-4E65-8237-1EB663807058}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", "..\..\tests\ParticipantManagementServicesTests\RemoveParticipantTests\RemoveParticipantTests.csproj", "{D6EC5F88-1726-485B-AF84-9737293E7250}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\RemoveParticipantTests\RemoveParticipantTests.csproj", "{D6EC5F88-1726-485B-AF84-9737293E7250}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServicesTests", "..\..\tests\screeningDataServicesTests\screeningDataServicesTests.csproj", "{3300BE0C-A811-47CA-80AB-8917CDE0D946}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServicesTests", "..\..\..\..\tests\screeningDataServicesTests\screeningDataServicesTests.csproj", "{3300BE0C-A811-47CA-80AB-8917CDE0D946}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateEligibilityTests", "..\..\..\..\tests\ParticipantManagementServicesTests\updateEligibilityTests\updateEligibilityTests.csproj", "{7CC233E4-25CE-4493-88E1-8B580685C434}"
 EndProject
 Global
   GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,6 +148,10 @@ Global
     {3300BE0C-A811-47CA-80AB-8917CDE0D946}.Debug|Any CPU.Build.0 = Debug|Any CPU
     {3300BE0C-A811-47CA-80AB-8917CDE0D946}.Release|Any CPU.ActiveCfg = Release|Any CPU
     {3300BE0C-A811-47CA-80AB-8917CDE0D946}.Release|Any CPU.Build.0 = Release|Any CPU
+    {7CC233E4-25CE-4493-88E1-8B580685C434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {7CC233E4-25CE-4493-88E1-8B580685C434}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {7CC233E4-25CE-4493-88E1-8B580685C434}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {7CC233E4-25CE-4493-88E1-8B580685C434}.Release|Any CPU.Build.0 = Release|Any CPU
   EndGlobalSection
   GlobalSection(SolutionProperties) = preSolution
     HideSolutionNode = FALSE

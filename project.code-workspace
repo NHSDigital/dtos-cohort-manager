@@ -1,8 +1,32 @@
 {
   "folders": [
     {
-      "name": "Repository Template",
+      "name": "DToS Landing Zone",
       "path": "."
     }
-  ]
+  ],
+  "settings": {
+    "debug.internalConsoleOptions": "neverOpen"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": ".NET Core Attach",
+        "type": "coreclr",
+        "request": "attach"
+      },
+      {
+        "name": "processCaasFile",
+        "type": "coreclr",
+        "request": "launch",
+        "preLaunchTask": "build",
+        "program": "${workspaceFolder}/bin/Debug/processCaasFile.dll",
+        "args": [],
+        "cwd": "${workspaceFolder}",
+        "stopAtEntry": false,
+        "console": "internalConsole"
+      }
+    ]
+  }
 }

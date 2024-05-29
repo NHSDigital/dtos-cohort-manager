@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\CaasIntegration\receiveCaasFile\receiveCaasFile.csproj" />
   </ItemGroup>
 
 </Project>
