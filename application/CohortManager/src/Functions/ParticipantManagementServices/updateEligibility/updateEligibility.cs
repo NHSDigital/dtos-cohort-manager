@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.CaasIntegration.UpdateEligibility;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -7,59 +9,57 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace updateEligibility
+
+public class UpdateEligibility
 {
-    public class updateEligibility
+    private readonly ILogger _logger;
+
+    private readonly ICreateResponse _createResponse;
+
+    private readonly ICallFunction _callFunction;
+
+    public UpdateEligibility(ILogger<UpdateEligibility> logger, ICreateResponse createResponse, ICallFunction callFunction)
     {
-        private readonly ILogger _logger;
+        _logger = logger;
+        _createResponse = createResponse;
+        _callFunction = callFunction;
+    }
 
-        private readonly ICreateResponse _createResponse;
+    [Function("UpdateEligibility")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    {
+        _logger.LogInformation("C# Update called.");
+        HttpWebResponse createResponse;
 
-        private ICallFunction _callFunction;
-
-        public updateEligibility(ILogger<updateEligibility> logger, ICreateResponse createResponse, ICallFunction callFunction)
+        // convert body to json and then deserialize to object
+        string postdata = "";
+        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            _logger = logger;
-            _createResponse = createResponse;
-            _callFunction = callFunction;
+            postdata = reader.ReadToEnd();
         }
+        var input = JsonSerializer.Deserialize<Participant>(postdata);
 
-        [Function("updateEligibility")]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        // Any validation or decisions go in here
+
+        try
         {
-            _logger.LogInformation("C# Update called.");
-            HttpWebResponse createResponse;
+            var json = JsonSerializer.Serialize(input);
+            createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsEligible"), json);
 
-            // convert body to json and then deserialize to object
-            string postdata = "";
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            if (createResponse.StatusCode == HttpStatusCode.OK)
             {
-                postdata = reader.ReadToEnd();
+                _logger.LogInformation("participant updated");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-            var input = JsonSerializer.Deserialize<Participant>(postdata);
-
-            // Any validation or decisions go in here
-
-            try
-            {
-                var json = JsonSerializer.Serialize(input);
-                createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAseligible"), json);
-
-                if (createResponse.StatusCode == HttpStatusCode.OK)
-                {
-                    _logger.LogInformation("participant updated");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
-            }
-
-            _logger.LogInformation("the user has not been updated due to a bad request");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
         }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Unable to call function. Message:{ex.Message} Stack Trace: {ex.StackTrace}");
+        }
+
+        _logger.LogInformation("the user has not been updated due to a bad request");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
     }
 }
