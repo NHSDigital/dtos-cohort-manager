@@ -39,7 +39,7 @@ public class RemoveParticipantTests
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "ADD"
+            RecordType = Actions.New
         };
         removeParticipant = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
     }
