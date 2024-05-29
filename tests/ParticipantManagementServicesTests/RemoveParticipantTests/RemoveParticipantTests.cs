@@ -22,10 +22,8 @@ public class RemoveParticipantTests
     private readonly Mock<HttpRequestData> request;
     private readonly Mock<HttpWebResponse> webResponse = new();
 
-
     Participant participant;
     ServiceCollection serviceCollection = new();
-    RemoveParticipantFunction removeParticipant;
 
     public RemoveParticipantTests()
     {
@@ -41,7 +39,6 @@ public class RemoveParticipantTests
             NHSId = "1",
             RecordType = Actions.New
         };
-        removeParticipant = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
     }
 
     [TestMethod]
@@ -49,6 +46,7 @@ public class RemoveParticipantTests
     {
         //Arrange
         var json = JsonSerializer.Serialize(participant);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         setupRequest(json);
 
@@ -66,7 +64,7 @@ public class RemoveParticipantTests
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
-        var result = await removeParticipant.Run(request.Object);
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -78,6 +76,7 @@ public class RemoveParticipantTests
 
         //Arrange
         var json = JsonSerializer.Serialize(participant);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         setupRequest(json);
 
@@ -95,7 +94,7 @@ public class RemoveParticipantTests
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
-        var result = await removeParticipant.Run(request.Object);
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -105,6 +104,7 @@ public class RemoveParticipantTests
     public async Task Run_AnErrorIsThrown_BadRequest()
     {
         var json = JsonSerializer.Serialize(participant);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         setupRequest(json);
 
@@ -119,7 +119,7 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));
 
-        var result = await removeParticipant.Run(request.Object);
+        var result = await sut.Run(request.Object);
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
