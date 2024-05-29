@@ -61,24 +61,24 @@ public class ValidationFunction
             if (!result.IsSuccess)
             {
                 validationErrors.Add(result.Rule.RuleName);
-            }
 
-            var ruleDetails = result.Rule.RuleName.Split('.');
-            _createValidationData.UpdateRecords(new SQLReturnModel()
-            {
-                commandType = CommandType.Command,
-                SQL = " INSERT INTO [dbo].[RULE_VIOLATED] (RULE_ID], [DATE_CREATED],[NHS_ID],[DESCRIPTION],[RESOLVED]) " +
-                        " VALUES (@Rule_ID, @Rule_Violated, @TimeViolated, @ParticipantId, @Description, @Resolved) ",
-                parameters = new Dictionary<string, object>()
+                var ruleDetails = result.Rule.RuleName.Split('.');
+                _createValidationData.UpdateRecords(new SQLReturnModel()
                 {
-                    {"@Rule_Violated", ruleDetails[0] },
-                    {"@Rule_ID", ruleDetails[1]},
-                    {"@NHS_Id", newParticipant.NHSId ?? null },
-                    {"Description", $"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}"},
-                    {"@TimeViolated", DateTime.UtcNow },
-                    {"@Resolved", result.IsSuccess }
-                }
-            });
+                    commandType = CommandType.Command,
+                    SQL = " INSERT INTO [dbo].[RULE_VIOLATED] (RULE_ID], [DATE_CREATED],[NHS_ID],[DESCRIPTION],[RESOLVED]) " +
+                            " VALUES (@Rule_ID, @Rule_Violated, @TimeViolated, @ParticipantId, @Description, @Resolved) ",
+                    parameters = new Dictionary<string, object>()
+                    {
+                        {"@Rule_Violated", ruleDetails[0] },
+                        {"@Rule_ID", ruleDetails[1]},
+                        {"@NHS_Id", newParticipant.NHSId ?? null },
+                        {"Description", $"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}"},
+                        {"@TimeViolated", DateTime.UtcNow },
+                        {"@Resolved", result.IsSuccess }
+                    }
+                });
+            }
 
             _logger.LogInformation($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
         }

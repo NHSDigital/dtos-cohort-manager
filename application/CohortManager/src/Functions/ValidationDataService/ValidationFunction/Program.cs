@@ -1,6 +1,5 @@
 using System.Data;
 using System.Data.Common;
-using Common;
 using Data.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;

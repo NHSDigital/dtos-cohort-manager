@@ -21,7 +21,6 @@ public class ValidationDataServiceTests
     private readonly Mock<HttpRequestData> request;
     private readonly List<Participant> participants;
     private readonly ValidationFunction function;
-
     private readonly Mock<IValidationData> _validationDataService = new();
 
     public ValidationDataServiceTests()
