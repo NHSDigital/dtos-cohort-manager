@@ -1,0 +1,11 @@
+[
+  {
+    "WorkflowName": "Static",
+    "Rules": [
+      {
+        "RuleName": "1.NhsNumberMustBeTenDigits",
+        "Expression": "Regex.IsMatch(participant.NHSId, \"^\\d{10}$\");"
+      }
+    ]
+  }
+]

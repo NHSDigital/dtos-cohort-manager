@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ValidationDataService": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7116",
+      "launchBrowser": false
+    }
+  }
+}

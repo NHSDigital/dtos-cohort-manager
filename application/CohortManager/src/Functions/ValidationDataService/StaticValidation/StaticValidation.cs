@@ -3,24 +3,26 @@ namespace NHS.CohortManager.ValidationDataService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
 using RulesEngine.Models;
 
-public class LookupValidation
+public class StaticValidation
 {
-    private readonly ILogger<LookupValidation> _logger;
+    private readonly ILogger< StaticValidation> _logger;
     private readonly IValidationData _createValidationData;
 
-    public LookupValidation(ILogger<LookupValidation> logger, IValidationData createValidationData)
+    public  StaticValidation(ILogger< StaticValidation> logger, IValidationData createValidationData)
     {
         _logger = logger;
         _createValidationData = createValidationData;
     }
 
-    [Function("LookupValidation")]
+    [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         string requestBodyJson;
@@ -29,26 +31,27 @@ public class LookupValidation
             requestBodyJson = reader.ReadToEnd();
         }
 
-        var requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
+        var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
 
-        if (requestBody is null)
+        if (participant is null)
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        var existingParticipant = requestBody.ExistingParticipant;
-        var newParticipant = requestBody.NewParticipant;
-
-        string json = File.ReadAllText("lookupRules.json");
+        string json = File.ReadAllText("staticRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var re = new RulesEngine.RulesEngine(rules);
 
-        var ruleParameters = new[] {
-            new RuleParameter("existingParticipant", existingParticipant),
-            new RuleParameter("newParticipant", newParticipant),
+        var reSettings = new ReSettings{
+            CustomTypes = [typeof(Regex)]
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(requestBody.Workflow, ruleParameters);
+        var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+        var ruleParameters = new[] {
+            new RuleParameter("participant", participant),
+        };
+
+        var resultList = await re.ExecuteAllRulesAsync("Static", ruleParameters);
 
         var validationErrors = new List<string>();
 
@@ -68,7 +71,7 @@ public class LookupValidation
                     {
                         {"@Rule_Violated", ruleDetails[0] },
                         {"@Rule_ID", ruleDetails[1]},
-                        {"@NHS_Id", newParticipant.NHSId ?? null },
+                        {"@NHS_Id", participant.NHSId ?? null },
                         {"Description", $"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}"},
                         {"@TimeViolated", DateTime.UtcNow },
                         {"@Resolved", result.IsSuccess }

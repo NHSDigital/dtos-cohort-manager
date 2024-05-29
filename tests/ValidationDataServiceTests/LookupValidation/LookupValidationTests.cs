@@ -13,7 +13,7 @@ using Moq;
 using NHS.CohortManager.ValidationDataService;
 
 [TestClass]
-public class ValidationDataServiceTests
+public class LookupValidationTests
 {
     private readonly Mock<ILogger<LookupValidation>> loggerMock;
     private readonly ServiceCollection serviceCollection;
@@ -23,7 +23,7 @@ public class ValidationDataServiceTests
     private readonly LookupValidation function;
     private readonly Mock<IValidationData> _validationDataService = new();
 
-    public ValidationDataServiceTests()
+    public LookupValidationTests()
     {
         loggerMock = new Mock<ILogger<LookupValidation>>();
         context = new Mock<FunctionContext>();
