@@ -15,17 +15,17 @@ using NHS.CohortManager.ValidationDataService;
 [TestClass]
 public class ValidationDataServiceTests
 {
-    private readonly Mock<ILogger<ValidationFunction>> loggerMock;
+    private readonly Mock<ILogger<LookupValidation>> loggerMock;
     private readonly ServiceCollection serviceCollection;
     private readonly Mock<FunctionContext> context;
     private readonly Mock<HttpRequestData> request;
-    private readonly ValidationFunctionRequestBody requestBody;
-    private readonly ValidationFunction function;
+    private readonly LookupValidationRequestBody requestBody;
+    private readonly LookupValidation function;
     private readonly Mock<IValidationData> _validationDataService = new();
 
     public ValidationDataServiceTests()
     {
-        loggerMock = new Mock<ILogger<ValidationFunction>>();
+        loggerMock = new Mock<ILogger<LookupValidation>>();
         context = new Mock<FunctionContext>();
         request = new Mock<HttpRequestData>(context.Object);
 
@@ -46,9 +46,9 @@ public class ValidationDataServiceTests
             FirstName = "John",
             Surname = "Smith"
         };
-        requestBody = new ValidationFunctionRequestBody("UpdateParticipant", existingParticipant, newParticipant);
+        requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
 
-        function = new ValidationFunction(loggerMock.Object, _validationDataService.Object);
+        function = new LookupValidation(loggerMock.Object, _validationDataService.Object);
     }
 
     [TestMethod]

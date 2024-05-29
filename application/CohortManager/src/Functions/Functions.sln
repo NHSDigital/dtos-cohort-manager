@@ -48,9 +48,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServicesTests", "..\..\..\..\tests\screeningDataServicesTests\screeningDataServicesTests.csproj", "{3300BE0C-A811-47CA-80AB-8917CDE0D946}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ValidationDataService", "ValidationDataService", "{C5B90A38-4C45-4FC5-BC56-2B205B7744AB}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "ValidationDataService\GetValidationExceptions\GetValidationExceptions.csproj", "{E2F3C6A1-E11A-4BF5-BF27-54D777F81046}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationDataService", "ValidationDataService\ValidationFunction\ValidationDataService.csproj", "{331AE6E1-3D5D-4E65-994C-6E7B749B980C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidation", "ValidationDataService\LookupValidation\LookupValidation.csproj", "{331AE6E1-3D5D-4E65-994C-6E7B749B980C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationDataServiceTests", "..\..\..\..\tests\ValidationDataServiceTests\ValidationDataServiceTests.csproj", "{D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}"
 EndProject
@@ -162,6 +164,8 @@ Global
     {682DDE9F-2868-4477-B159-9EB7D255D565} = {198995B8-A14C-4890-BF05-10C65C1E790F}
     {ABA8CD5A-BEF7-4962-9C23-AE69F430CC1B} = {198995B8-A14C-4890-BF05-10C65C1E790F}
     {40B97A2D-B75C-417B-90DB-4EE423250314} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
+    {E2F3C6A1-E11A-4BF5-BF27-54D777F81046} = {C5B90A38-4C45-4FC5-BC56-2B205B7744AB}
+    {331AE6E1-3D5D-4E65-994C-6E7B749B980C} = {C5B90A38-4C45-4FC5-BC56-2B205B7744AB}
   EndGlobalSection
   GlobalSection(ExtensibilityGlobals) = postSolution
     SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

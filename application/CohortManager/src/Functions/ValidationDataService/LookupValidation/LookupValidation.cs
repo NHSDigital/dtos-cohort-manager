@@ -9,18 +9,18 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using RulesEngine.Models;
 
-public class ValidationFunction
+public class LookupValidation
 {
-    private readonly ILogger<ValidationFunction> _logger;
+    private readonly ILogger<LookupValidation> _logger;
     private readonly IValidationData _createValidationData;
 
-    public ValidationFunction(ILogger<ValidationFunction> logger, IValidationData createValidationData)
+    public LookupValidation(ILogger<LookupValidation> logger, IValidationData createValidationData)
     {
         _logger = logger;
         _createValidationData = createValidationData;
     }
 
-    [Function("ValidationFunction")]
+    [Function("LookupValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         string requestBodyJson;
@@ -29,7 +29,7 @@ public class ValidationFunction
             requestBodyJson = reader.ReadToEnd();
         }
 
-        var requestBody = JsonSerializer.Deserialize<ValidationFunctionRequestBody>(requestBodyJson);
+        var requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
 
         if (requestBody is null)
         {
