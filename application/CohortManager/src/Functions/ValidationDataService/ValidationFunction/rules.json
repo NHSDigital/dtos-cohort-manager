@@ -1,10 +1,19 @@
 [
   {
-    "WorkflowName": "BreastCancerScreening",
+    "WorkflowName": "AddParticipant",
     "Rules": [
       {
-        "RuleName": "1.SuppliedNHSNotExistsRule",
-        "Expression": "!string.IsNullOrWhiteSpace(newParticipant.NHSId)"
+        "RuleName": "ParticipantMustNotAlreadyExist",
+        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
+      }
+    ]
+  },
+  {
+    "WorkflowName": "UpdateParticipant",
+    "Rules": [
+      {
+        "RuleName": "ParticipantMustAlreadyExist",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
       }
     ]
   }

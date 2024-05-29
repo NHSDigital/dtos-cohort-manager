@@ -88,10 +88,10 @@ public class ValidationDataServiceTests
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Return_Rule1_Violation_When_NHS_Number_Missing(string newParticipantNhsNumber)
+    public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Not_Exist(string nhsNumber)
     {
         // Arrange
-        participants[1].NHSId = newParticipantNhsNumber;
+        participants[0].NHSId = nhsNumber;
         var json = JsonSerializer.Serialize(participants);
         SetupRequest(json);
 
@@ -101,16 +101,16 @@ public class ValidationDataServiceTests
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        Assert.IsTrue(body.Contains("1.SuppliedNHSNotExistsRule"));
+        Assert.IsTrue(body.Contains("ParticipantMustAlreadyExist"));
     }
 
     [TestMethod]
-    [DataRow("1")]
+    [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Not_Return_Rule1_Violation_When_NHS_Number_Present(string newParticipantNhsNumber)
+    public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Exist(string nhsNumber)
     {
         // Arrange
-        participants[1].NHSId = newParticipantNhsNumber;
+        participants[0].NHSId = nhsNumber;
 
         var json = JsonSerializer.Serialize(participants);
         SetupRequest(json);
@@ -121,7 +121,7 @@ public class ValidationDataServiceTests
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.IsTrue(!body.Contains("1.SuppliedNHSNotExistsRule"));
+        Assert.IsTrue(!body.Contains("ParticipantMustAlreadyExist"));
     }
 
     private void SetupRequest(string json)

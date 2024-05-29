@@ -24,7 +24,8 @@ public class ValidationFunction
     [Function("ValidationFunction")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var workflowName = "BreastCancerScreening";
+        // TODO: Get workflow from request body
+        var workflowName = "UpdateParticipant";
 
         string requestBody;
         using (var reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -47,9 +48,9 @@ public class ValidationFunction
         var re = new RulesEngine.RulesEngine(rules);
 
         var ruleParameters = new[] {
-                new RuleParameter("existingParticipant", existingParticipant),
-                new RuleParameter("newParticipant", newParticipant),
-            };
+            new RuleParameter("existingParticipant", existingParticipant),
+            new RuleParameter("newParticipant", newParticipant),
+        };
 
         var resultList = await re.ExecuteAllRulesAsync(workflowName, ruleParameters);
 

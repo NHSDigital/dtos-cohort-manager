@@ -14,7 +14,6 @@ public class UpdateParticipantData : IUpdateParticipantData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string connectionString;
     private readonly ILogger<UpdateParticipantData> _logger;
-
     private readonly ICallFunction _callFunction;
 
     public UpdateParticipantData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<UpdateParticipantData> logger, ICallFunction callFunction)
@@ -36,15 +35,13 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     public async Task<bool> UpdateParticipantDetails(Participant participantData)
     {
-        var cohort_id = 1;
+        var cohortId = 1;
 
-        var date_today = DateTime.Today;
-        var max_end_date = DateTime.MaxValue;
+        var dateToday = DateTime.Today;
+        var maxEndDate = DateTime.MaxValue;
 
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
-
-        //end all old records ready for new ones to be created
         var oldParticipant = GetParticipant(participantData.NHSId);
         var ValidateDataResponse = await ValidateData(oldParticipant, participantData);
         if (ValidateDataResponse.Count > 0)
@@ -57,6 +54,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             return false;
         }
 
+        // End all old records ready for new ones to be created
         var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.NHSId));
         if (oldRecordsToEnd.Count == 0)
         {
@@ -69,7 +67,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
-            " COHORT_ID, " +
+            " cohortId, " +
             " GENDER_CD," +
             " NHS_NUMBER," +
             " SUPERSEDED_BY_NHS_NUMBER," +
@@ -88,7 +86,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             " ACTIVE_FLAG, " +
             " LOAD_DATE " +
             " ) VALUES( " +
-            " @cohort_id, " +
+            " @cohortId, " +
             " @gender, " +
             " @NHSNumber, " +
             " @supersededByNhsNumber, " +
@@ -110,7 +108,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         var commonParameters = new Dictionary<string, object>
         {
-            {"@cohort_id", cohort_id},
+            {"@cohortId", cohortId},
             {"@gender", participantData.Gender},
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
@@ -124,14 +122,14 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
             { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(participantData.ReasonForRemovalEffectiveFromDate)},
-            { "@RecordStartDate", date_today},
-            { "@RecordEndDate", max_end_date},
+            { "@RecordStartDate", dateToday},
+            { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
-            { "@LoadDate", date_today },
+            { "@LoadDate", dateToday },
 
         };
 
-        //common params already contains all the parameters we need for this
+        // Common params already contains all the parameters we need for this
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
             commandType = CommandType.Scalar,
@@ -166,7 +164,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
                 if (sqlCommand.commandType == CommandType.Scalar)
                 {
-                    //when the new participant ID has been created as a scalar we can get back the new participant ID
+                    // When the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
                     AddParameters(new Dictionary<string, object>()
                     {
@@ -191,18 +189,18 @@ public class UpdateParticipantData : IUpdateParticipantData
             return true;
 
         }
-        catch (Exception EX)
+        catch (Exception ex)
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError("An error occurred while updating records: {EX}", EX);
+            _logger.LogError("An error occurred while updating records: {ex}", ex);
             return false;
         }
     }
 
     private List<SQLReturnModel> EndOldRecords(int oldId)
     {
-        //We don't want to get a record that is less than 0 or 0 as records start 1
+        // We don't want to get a record that is less than 0 or 0 as records start 1
         if (oldId <= 0)
         {
             return new List<SQLReturnModel>();
@@ -228,7 +226,7 @@ public class UpdateParticipantData : IUpdateParticipantData
                     " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
                     " ACTIVE_FLAG = @IsActiveOldRecords " +
                     " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
-                // we don't need to add params to all items as we don't want to duplicate them
+                // We don't need to add params to all items as we don't want to duplicate them
                 parameters = new Dictionary<string, object>
                 {
                     {"@recordEndDateOldRecords", recordEndDate},
@@ -271,7 +269,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[PARTICIPANT].[PARTICIPANT_LAST_NAME], " +
             "[PARTICIPANT].[PARTICIPANT_BIRTH_DATE], " +
             "[PARTICIPANT].[PARTICIPANT_GENDER], " +
-        "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
+            "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
             "[PARTICIPANT].[REMOVAL_DATE], " +
             "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
             "[ADDRESS].[ADDRESS_LINE_1], " +
@@ -371,7 +369,6 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private SQLReturnModel InsertContactPreference(Participant participantData)
     {
-
         string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
         "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
 
@@ -435,7 +432,6 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private int ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
     {
-
         command.Transaction = transaction;
         var newParticipantPk = -1;
 
@@ -487,7 +483,6 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         return responseText == "" ? new List<string>() : responseText.Split(',').ToList();
-
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
