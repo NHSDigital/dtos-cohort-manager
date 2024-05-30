@@ -49,7 +49,6 @@ namespace updateParticipantDetails
                 _logger.LogError(ex.Message, ex);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
-
         }
     }
 }

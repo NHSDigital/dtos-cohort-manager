@@ -1,4 +1,4 @@
-namespace GetValidationExceptions;
+namespace NHS.CohortManager.ValidationDataService;
 
 using System.Net;
 using Common;
@@ -11,7 +11,6 @@ public class GetValidationExceptions
 {
     private readonly ILogger<GetValidationExceptions> _logger;
     private readonly ICreateResponse _createResponse;
-
     private readonly IValidationData _validationData;
 
     public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationData validationData)
