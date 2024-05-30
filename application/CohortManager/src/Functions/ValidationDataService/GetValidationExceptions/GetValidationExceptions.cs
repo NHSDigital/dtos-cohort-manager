@@ -26,7 +26,7 @@ public class GetValidationExceptions
     {
         foreach (var ruleBroken in _validationData.GetAllBrokenRules())
         {
-            _logger.LogInformation($"rule broken {ruleBroken.Rule}");
+            _logger.LogInformation($"Broken rule - {ruleBroken.RuleName}");
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

@@ -1,16 +1,13 @@
-using System.Data;
-using System.Security;
-using Data.Database;
-using Microsoft.Extensions.Logging;
-
 namespace Data.Database;
+
+using System.Data;
+using Microsoft.Extensions.Logging;
 
 public class ValidationData : IValidationData
 {
     private readonly IDbConnection _dbConnection;
     private readonly string connectionString;
     private readonly ILogger<ValidationData> _logger;
-
 
     public ValidationData(IDbConnection IdbConnection, ILogger<ValidationData> logger)
     {
@@ -21,10 +18,7 @@ public class ValidationData : IValidationData
 
     public List<ValidationDataDto> GetAllBrokenRules()
     {
-        var SQL = "SELECT [RULE] " +
-        ", [TIME_VIOLATED] " +
-        ", [PARTICIPANT_ID] " +
-        " FROM [dbo].[RULE_VIOLATED] ";
+        var SQL = "SELECT * FROM [dbo].[RULE_VIOLATION]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
@@ -35,9 +29,11 @@ public class ValidationData : IValidationData
             {
                 rules.Add(new ValidationDataDto
                 {
-                    Rule = reader["RULE"] == DBNull.Value ? null : reader["RULE"].ToString(),
-                    TimeViolated = DateTime.TryParse(reader["TIME_VIOLATED"].ToString(), out var result) ? result : null,
-                    ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? null : reader["PARTICIPANT_ID"].ToString()
+                    RuleId = reader["RULE_ID"] == DBNull.Value ? null : reader["RULE_ID"].ToString(),
+                    RuleName = reader["RULE_NAME"] == DBNull.Value ? null : reader["RULE_NAME"].ToString(),
+                    Workflow = reader["WORKFLOW"] == DBNull.Value ? null : reader["WORKFLOW"].ToString(),
+                    NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString(),
+                    DateCreated = reader["DATE_CREATED"] == DBNull.Value ? null : reader["DATE_CREATED"].ToString()
                 });
             }
 
