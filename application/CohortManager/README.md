@@ -36,7 +36,7 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 ## Running the Application Locally
 
-First, insert a database password in compose.yaml and Set-up/database/db-setup-entrypoint.sh, and enable host networking mode in docker desktop settings >> Features in development.
+First, copy the .env.example file, rename it to just ".env" and enter a password that meets the security requirements, and enable host networking mode in docker desktop settings >> Features in development.
 
 To run the system locally, in the CohortManager directory, run `docker compose up`, this will run all of the functions.
 
