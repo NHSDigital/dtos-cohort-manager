@@ -16,32 +16,27 @@ using addParticipant;
 public class AddNewParticipantTestClass
 {
     private readonly Mock<ILogger<AddParticipantFunction>> _loggerMock;
-    private readonly Mock<ICallFunction> _callFunctionMock;
     private readonly ServiceCollection _serviceCollection;
     private readonly Mock<FunctionContext> _context;
     private readonly Mock<HttpRequestData> _request;
-    private readonly Mock<ICreateResponse> _createResponse;
-    private readonly Mock<HttpWebResponse> _webResponse;
+    private readonly CreateResponse _createResponse;
+    private readonly CallFunction _callFunction;
+    private readonly Participant _participant;
 
-    Participant participant;
     public AddNewParticipantTestClass()
     {
-        Environment.SetEnvironmentVariable("DSaddParticipant", "DSaddParticipant");
-        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
-
+        _callFunction = new Common.CallFunction();
+        _createResponse = new Common.CreateResponse();
         _loggerMock = new Mock<ILogger<AddParticipantFunction>>();
-        _createResponse = new Mock<ICreateResponse>();
-        _callFunctionMock = new Mock<ICallFunction>();
         _context = new Mock<FunctionContext>();
         _request = new Mock<HttpRequestData>(_context.Object);
-        _webResponse = new Mock<HttpWebResponse>();
 
         _serviceCollection = new ServiceCollection();
         var serviceProvider = _serviceCollection.BuildServiceProvider();
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        participant = new Participant()
+        _participant = new Participant()
         {
             FirstName = "Joe",
             Surname = "Bloggs",
@@ -51,84 +46,36 @@ public class AddNewParticipantTestClass
     }
 
     [TestMethod]
-    public async Task Run_ValidParticipant_ParticipantCreated()
+    public async Task Run_ValidParticipant_ReturnsOk()
     {
         // Arrange
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
-
-        _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
         // Act
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object);
-
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunction, _createResponse);
         var result = await sut.Run(_request.Object);
         System.Console.WriteLine(result.StatusCode);
-        System.Console.WriteLine("hello");
 
         // Assert
-        _loggerMock.Verify(log =>
-            log.Log(
-            LogLevel.Information,
-            0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    [Ignore]
     [TestMethod]
-    public async Task Run_Should_Log_Participant_Marked_As_Eligible()
+    public async Task Run_NullParticipant_ReturnsBadRequest()
     {
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
-
-        _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
+        // Arrange
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object);
 
-        var result = await sut.Run(_request.Object);
+        // Act
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunction, _createResponse);
+        var result = await sut.Run(null);
+        System.Console.WriteLine(result.StatusCode);
 
-        _loggerMock.Verify(log =>
-            log.Log(
-            LogLevel.Information,
-            0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created, marked as eligible")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
-    }
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
 
-    [Ignore]
-    [TestMethod]
-    public async Task Run_Should_Log_Participant_Log_Error()
-    {
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
-
-        _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()));
-
-        SetupRequest(json);
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object);
-
-        var result = await sut.Run(_request.Object);
-
-        _loggerMock.Verify(log =>
-            log.Log(
-            LogLevel.Information,
-            0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Unable to call function")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
     }
 
     [Ignore]

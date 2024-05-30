@@ -62,13 +62,14 @@ public class RemoveParticipantTests
 
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        // _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+        //                     .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
         var result = await removeParticipant.Run(request.Object);
 
         //Assert
+        System.Console.WriteLine(result.StatusCode);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 

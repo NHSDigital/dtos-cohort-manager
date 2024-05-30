@@ -21,10 +21,4 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj" />
-  </ItemGroup>
-
 </Project>

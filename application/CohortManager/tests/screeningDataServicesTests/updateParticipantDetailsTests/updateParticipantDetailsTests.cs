@@ -1,4 +1,4 @@
-namespace NHS.CohortManger.Tests.ScreeningDataServices;
+namespace NHS.CohortManger.Tests.ScreeningDataServicesTests;
 
 using System.Data;
 using Data.Database;

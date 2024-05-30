@@ -1,4 +1,4 @@
-namespace screeningDataServices;
+namespace NHS.CohortManager.Tests.shared;
 
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
