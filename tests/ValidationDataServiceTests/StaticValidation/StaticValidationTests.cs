@@ -57,11 +57,13 @@ public class StaticValidationTests
     }
 
     [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
     [DataRow("0")]
-    [DataRow("123456789")]
-    [DataRow("99.9999999")]
-    [DataRow("100000000A")]
-    [DataRow("10000000000")]
+    [DataRow("123456789")]      // 9 digits
+    [DataRow("12.3456789")]     // 9 digits and 1 non-digit
+    [DataRow("12.34567899")]    // 10 digits and 1 non-digit
+    [DataRow("10000000000")]    // 11 digits
     public async Task Run_Should_Return_Rule_Violation_When_Nhs_Number_Is_Not_Ten_Digits(string nhsNumber)
     {
         // Arrange
