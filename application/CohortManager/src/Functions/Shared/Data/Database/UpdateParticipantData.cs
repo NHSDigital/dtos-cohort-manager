@@ -465,10 +465,11 @@ public class UpdateParticipantData : IUpdateParticipantData
     private async Task<List<string>> ValidateData(Participant existingParticipant, Participant newParticipant)
     {
         var responseText = "";
-        var json = JsonSerializer.Serialize(new List<Model.Participant>()
+        var json = JsonSerializer.Serialize(new
         {
-            existingParticipant,
-            newParticipant
+            ExistingParticipant = existingParticipant,
+            NewParticipant = newParticipant,
+            Workflow = "UpdateParticipant"
         });
 
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ValidationURL"), json);

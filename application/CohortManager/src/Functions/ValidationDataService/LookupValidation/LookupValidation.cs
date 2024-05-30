@@ -38,6 +38,7 @@ public class LookupValidation
 
         var existingParticipant = requestBody.ExistingParticipant;
         var newParticipant = requestBody.NewParticipant;
+        var workflow = requestBody.Workflow;
 
         string json = File.ReadAllText("lookupRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -48,7 +49,7 @@ public class LookupValidation
             new RuleParameter("newParticipant", newParticipant),
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(requestBody.Workflow, ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
 
         var validationErrors = new List<string>();
 
@@ -62,16 +63,15 @@ public class LookupValidation
                 _createValidationData.UpdateRecords(new SQLReturnModel()
                 {
                     commandType = CommandType.Command,
-                    SQL = " INSERT INTO [dbo].[RULE_VIOLATED] (RULE_ID], [DATE_CREATED],[NHS_ID],[DESCRIPTION],[RESOLVED]) " +
-                            " VALUES (@Rule_ID, @Rule_Violated, @TimeViolated, @ParticipantId, @Description, @Resolved) ",
+                    SQL = "INSERT INTO [dbo].[RULE_VIOLATION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
+                            "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);",
                     parameters = new Dictionary<string, object>()
                     {
-                        {"@Rule_Violated", ruleDetails[0] },
-                        {"@Rule_ID", ruleDetails[1]},
-                        {"@NHS_Id", newParticipant.NHSId ?? null },
-                        {"Description", $"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}"},
-                        {"@TimeViolated", DateTime.UtcNow },
-                        {"@Resolved", result.IsSuccess }
+                        {"@ruleId", ruleDetails[0]},
+                        {"@ruleName", ruleDetails[1]},
+                        {"@workflow", workflow},
+                        {"@nhsNumber", newParticipant.NHSId ?? null},
+                        {"@dateCreated", DateTime.UtcNow}
                     }
                 });
             }
@@ -79,13 +79,15 @@ public class LookupValidation
             _logger.LogInformation($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
         }
 
-        var httpStatusCode = validationErrors.Count == 0 ? HttpStatusCode.OK : HttpStatusCode.BadRequest;
-        var response = req.CreateResponse(httpStatusCode);
+        if (validationErrors.Count == 0)
+        {
+            return req.CreateResponse(HttpStatusCode.OK);
+        }
+
+        var response = req.CreateResponse(HttpStatusCode.BadRequest);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
         var errors = string.Join(",", validationErrors);
         byte[] data = Encoding.UTF8.GetBytes(errors);
-
-
         response.Body = new MemoryStream(data);
 
         return response;
