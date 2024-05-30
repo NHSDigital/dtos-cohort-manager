@@ -6,6 +6,7 @@ services:
     container_name: azurite
     network_mode: host
     image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite --silent
 
   sql-edge:
     container_name: db
@@ -17,7 +18,11 @@ services:
     cap_add:
       - SYS_PTRACE
     healthcheck:
-      test: ["CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"
+        ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -32,7 +37,7 @@ services:
         condition: service_healthy
     environment:
       - PASSWORD=${PASSWORD}
-
+      - DB_NAME=${DB_NAME}
 
   # CaaS Integration Service
   receive-caas-file:
@@ -59,9 +64,7 @@ services:
       - ASPNETCORE_URLS=http://*:7061
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
-      - PMSUpdateParticipanthttp://localhost:7065/api/updateParticipant
-
-
+      - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
 
   # Participant Management Service
   add-participant:
@@ -93,7 +96,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
+      dockerfile: ParticipantManagementServices/UpdateEligibility/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7064
       - DSmarkParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
@@ -107,8 +110,6 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7065
       - UpdateParticipant=http://localhost:7069/api/updateParticipantDetails
-
-
 
   # Screening Data Service
   create-participant:
@@ -142,6 +143,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7068
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   update-participant-details:
     container_name: update-participant-details
@@ -152,7 +154,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7069
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
 networks:
   cohort-manager-network:
