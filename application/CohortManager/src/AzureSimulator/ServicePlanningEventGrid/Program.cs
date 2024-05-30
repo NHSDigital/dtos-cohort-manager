@@ -6,8 +6,8 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        string connectionString = "";
-        string topicEndpoint = "";
+        string connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+        string topicEndpoint = Environment.GetEnvironmentVariable("CREATE_PARTICIPANT_TOPIC");
 
         var options = new EventGridPublisherClientOptions()
         {
