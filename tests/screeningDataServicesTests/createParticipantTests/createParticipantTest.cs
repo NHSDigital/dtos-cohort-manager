@@ -84,7 +84,6 @@ public class CreateParticipantTests
         participantMock.Object.NHSId = "1234567890";
         participantMock.Object.SupersededByNhsNumber = "0987654321";
         participantMock.Object.PrimaryCareProvider = "";
-        //participantMock.Object.GpConnect = ""; wp // todo - check this value
         participantMock.Object.NamePrefix = "";
         participantMock.Object.FirstName = "";
         participantMock.Object.OtherGivenNames = "";
