@@ -1,17 +1,35 @@
-name: "Conventional Commit Checker"
-description: "validate PR for conventional commit"
-branding:
-  icon: "git-commit"
-  color: "green"
+name: 'Commit Message Checker'
+description: 'Check the commit message against a regex pattern'
 inputs:
-  pr-title-regex:
-    description: "You can override the regex that is used to match PR title "
+  pattern:
+    description: 'A regex pattern to check if a commit message is valid.'
+    required: true
+  flags:
+    description: 'Expression flags change how the expression is interpreted.'
     required: false
-    default: "^(.+)(?:(([^)s]+)))?: (.+)"
-  pr-body-regex:
-    description: "You can override the regex that is used to match PR body "
+    default: 'gm'
+  error:
+    description: 'A error message which will be returned in case of an error.'
+    required: true
+  excludeTitle:
+    description: 'Setting this input to true will exclude the Pull Request title from the check.'
     required: false
-    default: '(.*\n)+(.*)'
+    default: 'false'
+  excludeDescription:
+    description: 'Setting this input to true will exclude the Pull Request description from the check.'
+    required: false
+    default: 'false'
+  checkAllCommitMessages:
+    description: 'Setting this input to true will check all Pull Request commits'
+    required: false
+    default: 'false'
+  accessToken:
+    description: 'you must provide GITHUB_TOKEN to this input if checkAllCommitMessages is true'
+    required: false
+    default: 'false'
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: node16
+  main: dist/index.js
+branding:
+  icon: 'check'
+  color: 'blue'
