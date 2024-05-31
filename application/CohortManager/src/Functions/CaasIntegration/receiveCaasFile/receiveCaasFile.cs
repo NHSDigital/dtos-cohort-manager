@@ -1,10 +1,11 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Model;
 using Common;
-using Model.Enums;
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
 
 namespace NHS.Screening.ReceiveCaasFile
 {
@@ -23,85 +24,59 @@ namespace NHS.Screening.ReceiveCaasFile
         [Function(nameof(ReceiveCaasFile))]
         public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
         {
-            using var blobStreamReader = new StreamReader(stream);
-            string content = await blobStreamReader.ReadToEndAsync();
-            var lines = content.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
-            Cohort cohort = new();
-            int failures = 0;
+            var badRecords = new Dictionary<int, string>();
+            var cohort = new List<Participant>();
+            var rowNumber = 0;
 
-            foreach (var item in lines)
+            CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
-                {
-                    Regex CSVParser = new Regex(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
-                    var values = CSVParser.Split(item);
+                IgnoreBlankLines = true,
+                TrimOptions = TrimOptions.Trim,
+                Delimiter = ",",
+                MissingFieldFound = null,
+            };
 
-                    var model = new Participant
+            try
+            {
+                using var blobStreamReader = new StreamReader(stream);
+                using var csv = new CsvReader(blobStreamReader, config);
+
+                csv.Context.RegisterClassMap<ParticipantMap>();
+
+                while (csv.Read())
+                {
+                    rowNumber++;
+                    try
                     {
-                        RecordType = values[0],
-                        ChangeTimeStamp = values[1],
-                        SerialChangeNumber = values[2],
-                        NHSId = values[3],
-                        SupersededByNhsNumber = values[4],
-                        PrimaryCareProvider = values[5],
-                        PrimaryCareProviderEffectiveFrom = values[6],
-                        CurrentPosting = values[7],
-                        CurrentPostingEffectiveFrom = values[8],
-                        PreviousPosting = values[9],
-                        PreviousPostingEffectiveFrom = values[10],
-                        NamePrefix = values[11],
-                        FirstName = values[12],
-                        OtherGivenNames = values[13],
-                        Surname = values[14],
-                        PreviousSurname = values[15],
-                        DateOfBirth = values[16],
-                        Gender = (Gender)Enum.Parse(typeof(Gender), values[17]),
-                        AddressLine1 = values[18],
-                        AddressLine2 = values[19],
-                        AddressLine3 = values[20],
-                        AddressLine4 = values[21],
-                        AddressLine5 =  values[22],
-                        Postcode = values[23],
-                        PafKey = values[24],
-                        UsualAddressEffectiveFromDate = values[25],
-                        ReasonForRemoval = values[26],
-                        ReasonForRemovalEffectiveFromDate = values[27],
-                        DateOfDeath = values[28],
-                        DeathStatus = values[28] == "null" ? null : (Status)Enum.Parse(typeof(Status), values[29]),
-                        TelephoneNumber = values[30],
-                        TelephoneNumberEffectiveFromDate = values[31],
-                        MobileNumber = values[32],
-                        MobileNumberEffectiveFromDate = values[33],
-                        EmailAddress = values[34],
-                        EmailAddressEffectiveFromDate = values[35],
-                        PreferredLanguage = values[36],
-                        IsInterpreterRequired = values[37],
-                        InvalidFlag = values[38],
-                        RecordIdentifier = values[39],
-                        ChangeReasonCode = values[40].Trim(),
-                    };
-
-                    cohort.Participants.Add(model);
+                        var participant = csv.GetRecord<Participant>();
+                        cohort.Add(participant);
+                    }
+                    catch (Exception ex)
+                    {
+                        badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
+                        _logger.LogError($"Unable to create object on line {rowNumber}.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    failures++;
-                    _logger.LogInformation($"Unable to create object on line {cohort.Participants.Count}.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to read csv.\nMessage:{ex.Message}.\nStack Trace: {ex.StackTrace}");
             }
 
             try
             {
-                var json = JsonSerializer.Serialize(cohort);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                if (cohort.Count > 0)
+                {
+                    var json = JsonSerializer.Serialize(cohort);
+                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                    _logger.LogInformation($"Created {cohort.Count} Objects.");
+                }
             }
             catch (Exception ex)
             {
-            _logger.LogInformation("Unable to call function.\nMessage:{Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogError($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
             }
 
-            _logger.LogInformation("Created {ParticipantCount} Objects.", cohort.Participants.Count);
-            _logger.LogInformation("Failed to create {Failures} Objects.", failures);
         }
     }
 
