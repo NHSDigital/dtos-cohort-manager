@@ -32,7 +32,7 @@ public class UpdateEligibilityTests
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "UPDATE"
+            RecordType = Actions.Amended
         };
     }
 
