@@ -1,5 +1,6 @@
 namespace Data.Database;
 
+using System;
 using System.Data;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +17,7 @@ public class ValidationData : IValidationData
         connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
-    public List<ValidationDataDto> GetAllBrokenRules()
+    public List<ValidationDataDto> GetAll()
     {
         var SQL = "SELECT * FROM [dbo].[RULE_VIOLATION]";
 
@@ -33,7 +34,7 @@ public class ValidationData : IValidationData
                     RuleName = reader["RULE_NAME"] == DBNull.Value ? null : reader["RULE_NAME"].ToString(),
                     Workflow = reader["WORKFLOW"] == DBNull.Value ? null : reader["WORKFLOW"].ToString(),
                     NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString(),
-                    DateCreated = reader["DATE_CREATED"] == DBNull.Value ? null : reader["DATE_CREATED"].ToString()
+                    DateCreated = reader["DATE_CREATED"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_CREATED"].ToString())
                 });
             }
 
@@ -41,15 +42,27 @@ public class ValidationData : IValidationData
         });
     }
 
-    public bool UpdateRecords(SQLReturnModel sqlToExecute)
+    public bool Create(ValidationDataDto dto)
     {
-        var command = CreateCommand(sqlToExecute.parameters);
+        var SQL = "INSERT INTO [dbo].[RULE_VIOLATION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
+                    "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);";
+
+        var parameters = new Dictionary<string, object>()
+        {
+            {"@ruleId", dto.RuleId},
+            {"@ruleName", dto.RuleName},
+            {"@workflow", dto.Workflow},
+            {"@nhsNumber", dto.NhsNumber},
+            {"@dateCreated", dto.DateCreated}
+        };
+
+        var command = CreateCommand(parameters);
         var transaction = BeginTransaction();
         try
         {
             command.Transaction = transaction;
+            command.CommandText = SQL;
 
-            command.CommandText = sqlToExecute.SQL;
             if (!Execute(command))
             {
                 transaction.Rollback();
@@ -67,7 +80,6 @@ public class ValidationData : IValidationData
             _dbConnection.Close();
             _logger.LogError($"An error occurred while updating records: {ex.Message}");
             return false;
-
         }
     }
 

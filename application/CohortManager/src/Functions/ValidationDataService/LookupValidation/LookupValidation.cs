@@ -60,23 +60,18 @@ public class LookupValidation
                 validationErrors.Add(result.Rule.RuleName);
 
                 var ruleDetails = result.Rule.RuleName.Split('.');
-                _createValidationData.UpdateRecords(new SQLReturnModel()
-                {
-                    commandType = CommandType.Command,
-                    SQL = "INSERT INTO [dbo].[RULE_VIOLATION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
-                            "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);",
-                    parameters = new Dictionary<string, object>()
-                    {
-                        {"@ruleId", ruleDetails[0]},
-                        {"@ruleName", ruleDetails[1]},
-                        {"@workflow", workflow},
-                        {"@nhsNumber", newParticipant.NHSId ?? null},
-                        {"@dateCreated", DateTime.UtcNow}
-                    }
-                });
-            }
 
-            _logger.LogInformation($"Rule - {result.Rule.RuleName}, IsSuccess - {result.IsSuccess}");
+                var dto = new ValidationDataDto
+                {
+                    RuleId = ruleDetails[0],
+                    RuleName = ruleDetails[1],
+                    Workflow = workflow,
+                    NhsNumber = newParticipant.NHSId ?? null,
+                    DateCreated = DateTime.UtcNow
+                };
+
+                _createValidationData.Create(dto);
+            }
         }
 
         if (validationErrors.Count == 0)

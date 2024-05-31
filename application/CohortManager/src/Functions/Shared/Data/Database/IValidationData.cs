@@ -2,6 +2,6 @@ namespace Data.Database;
 
 public interface IValidationData
 {
-    public bool UpdateRecords(SQLReturnModel sqlToExecute);
-    public List<ValidationDataDto> GetAllBrokenRules();
+    public bool Create(ValidationDataDto dto);
+    public List<ValidationDataDto> GetAll();
 }

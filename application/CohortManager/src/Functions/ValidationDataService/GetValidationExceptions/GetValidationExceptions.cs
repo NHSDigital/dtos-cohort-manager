@@ -23,7 +23,7 @@ public class GetValidationExceptions
     [Function("GetValidationExceptions")]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        foreach (var ruleBroken in _validationData.GetAllBrokenRules())
+        foreach (var ruleBroken in _validationData.GetAll())
         {
             _logger.LogInformation($"Broken rule - {ruleBroken.RuleName}");
         }
