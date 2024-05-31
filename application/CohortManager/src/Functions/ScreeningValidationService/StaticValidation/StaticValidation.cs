@@ -1,26 +1,28 @@
-namespace NHS.CohortManager.ValidationDataService;
+namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
 using RulesEngine.Models;
 
-public class LookupValidation
+public class StaticValidation
 {
-    private readonly ILogger<LookupValidation> _logger;
+    private readonly ILogger< StaticValidation> _logger;
     private readonly IValidationData _createValidationData;
 
-    public LookupValidation(ILogger<LookupValidation> logger, IValidationData createValidationData)
+    public  StaticValidation(ILogger< StaticValidation> logger, IValidationData createValidationData)
     {
         _logger = logger;
         _createValidationData = createValidationData;
     }
 
-    [Function("LookupValidation")]
+    [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         string requestBodyJson;
@@ -29,24 +31,25 @@ public class LookupValidation
             requestBodyJson = reader.ReadToEnd();
         }
 
-        var requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
+        var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
+        var workflow = "Static";
 
-        if (requestBody is null)
+        if (participant is null)
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        var existingParticipant = requestBody.ExistingParticipant;
-        var newParticipant = requestBody.NewParticipant;
-        var workflow = requestBody.Workflow;
-
-        string json = File.ReadAllText("lookupRules.json");
+        string json = File.ReadAllText("staticRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var re = new RulesEngine.RulesEngine(rules);
+
+        var reSettings = new ReSettings{
+            CustomTypes = [typeof(Regex)]
+        };
+
+        var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("existingParticipant", existingParticipant),
-            new RuleParameter("newParticipant", newParticipant),
+            new RuleParameter("participant", participant),
         };
 
         var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
@@ -66,7 +69,7 @@ public class LookupValidation
                     RuleId = ruleDetails[0],
                     RuleName = ruleDetails[1],
                     Workflow = workflow,
-                    NhsNumber = newParticipant.NHSId ?? null,
+                    NhsNumber = participant.NHSId ?? null,
                     DateCreated = DateTime.UtcNow
                 };
 

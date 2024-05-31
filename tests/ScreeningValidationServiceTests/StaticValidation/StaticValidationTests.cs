@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.ValidationDataService;
+namespace NHS.CohortManager.Tests.ScreeningValidationService;
 
 using System.Net;
 using System.Text;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using NHS.CohortManager.ValidationDataService;
+using NHS.CohortManager.ScreeningValidationService;
 
 [TestClass]
 public class StaticValidationTests

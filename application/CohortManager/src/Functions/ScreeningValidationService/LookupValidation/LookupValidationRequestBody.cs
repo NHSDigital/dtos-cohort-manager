@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ValidationDataService;
+namespace NHS.CohortManager.ScreeningValidationService;
 
 using Model;
 

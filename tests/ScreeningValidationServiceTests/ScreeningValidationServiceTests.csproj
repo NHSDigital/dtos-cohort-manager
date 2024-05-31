@@ -24,8 +24,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ValidationDataService\LookupValidation\LookupValidation.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ValidationDataService\StaticValidation\StaticValidation.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\StaticValidation\StaticValidation.csproj" />
   </ItemGroup>
 
 </Project>
