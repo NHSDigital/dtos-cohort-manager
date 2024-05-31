@@ -32,7 +32,7 @@ public class StaticValidation
         }
 
         var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
-        var workflow = "Static";
+        var workflow = "Common";
 
         if (participant is null)
         {

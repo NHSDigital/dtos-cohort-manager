@@ -1,6 +1,6 @@
 [
   {
-    "WorkflowName": "Static",
+    "WorkflowName": "Common",
     "Rules": [
       {
         "RuleName": "1.NhsNumberMustBeTenDigits",
