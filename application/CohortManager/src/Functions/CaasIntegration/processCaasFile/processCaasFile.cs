@@ -26,7 +26,6 @@ namespace processCaasFile
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
 
-            // convert body to json and then deserialize to object
             string postdata = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
@@ -35,17 +34,17 @@ namespace processCaasFile
             Cohort input = JsonSerializer.Deserialize<Cohort>(postdata);
 
             // debug info
-            _logger.LogInformation("Records received: \n" + input.cohort.Count);
+            _logger.LogInformation("Records received: \n" + input.Participants.Count);
 
-            _logger.LogInformation($"Records received {input.cohort.Count}");
+            _logger.LogInformation($"Records received {input.Participants.Count}");
             int add = 0, upd = 0, del = 0, err = 0, row = 0;
 
-            foreach (Participant p in input.cohort)
+            foreach (Participant p in input.Participants)
             {
                 row++;
-                switch (p.Action.Trim())
+                switch (p.RecordType.Trim())
                 {
-                    case "ADD":
+                    case Actions.New:
                         add++;
                         try
                         {
@@ -58,7 +57,7 @@ namespace processCaasFile
                             _logger.LogError($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
                         }
                         break;
-                    case "UPDATE":
+                    case Actions.Amended:
                         upd++;
                         try
                         {
@@ -72,7 +71,7 @@ namespace processCaasFile
                             _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
                         }
                         break;
-                    case "DEL":
+                    case Actions.Removed:
                         del++;
                         try
                         {

@@ -7,6 +7,7 @@ using Model;
 using Common;
 using System.Text.Json;
 using System.Net;
+using Model.Enums;
 
 public class UpdateParticipantData : IUpdateParticipantData
 {
@@ -112,7 +113,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
             { "@otherGivenNames", _databaseHelper.ConvertNullToDbNull(participantData.OtherGivenNames) },
-            { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.GpConnect) },
+            { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
             { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(participantData.ReasonForRemovalEffectiveFromDate)},
@@ -297,13 +298,12 @@ public class UpdateParticipantData : IUpdateParticipantData
                 participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
                 participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
-                participant.GpConnect = reader["GP_CONNECT"] == DBNull.Value ? null : reader["GP_CONNECT"].ToString();
                 participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
                 participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
                 participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
                 participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
                 participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
-                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? null : reader["PARTICIPANT_GENDER"].ToString();
+                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Gender.NotKnown : (Gender)(int)reader["PARTICIPANT_GENDER"];
                 participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
                 participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
                 participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();

@@ -37,7 +37,7 @@ public class RemoveParticipantTests
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "ADD"
+            RecordType = Actions.New
         };
     }
 

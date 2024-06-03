@@ -44,7 +44,7 @@ public class AddNewParticipantTestClass
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "ADD"
+            RecordType = Actions.New
         };
     }
 
