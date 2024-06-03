@@ -15,24 +15,21 @@ using NHS.CohortManager.ScreeningValidationService;
 [TestClass]
 public class LookupValidationTests
 {
-    private readonly Mock<ILogger<LookupValidation>> loggerMock;
-    private readonly ServiceCollection serviceCollection;
-    private readonly Mock<FunctionContext> context;
-    private readonly Mock<HttpRequestData> request;
-    private readonly LookupValidationRequestBody requestBody;
-    private readonly LookupValidation function;
+    private readonly Mock<ILogger<LookupValidation>> _logger = new();
     private readonly Mock<IValidationData> _validationDataService = new();
+    private readonly Mock<FunctionContext> _context = new();
+    private readonly Mock<HttpRequestData> _request;
+    private readonly ServiceCollection _serviceCollection = new();
+    private readonly LookupValidationRequestBody _requestBody;
+    private readonly LookupValidation _function;
 
     public LookupValidationTests()
     {
-        loggerMock = new Mock<ILogger<LookupValidation>>();
-        context = new Mock<FunctionContext>();
-        request = new Mock<HttpRequestData>(context.Object);
+        _request = new Mock<HttpRequestData>(_context.Object);
 
-        serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
 
-        context.SetupProperty(c => c.InstanceServices, serviceProvider);
+        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
         var existingParticipant = new Participant
         {
@@ -46,9 +43,9 @@ public class LookupValidationTests
             FirstName = "John",
             Surname = "Smith"
         };
-        requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
+        _requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
 
-        function = new LookupValidation(loggerMock.Object, _validationDataService.Object);
+        _function = new LookupValidation(_logger.Object, _validationDataService.Object);
     }
 
     [TestMethod]
@@ -58,17 +55,17 @@ public class LookupValidationTests
     public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Not_Exist(string nhsNumber)
     {
         // Arrange
-        requestBody.ExistingParticipant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(requestBody);
+        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        Assert.IsTrue(body.Contains("ParticipantMustAlreadyExist"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
     }
 
     [TestMethod]
@@ -77,17 +74,17 @@ public class LookupValidationTests
     public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Exist(string nhsNumber)
     {
         // Arrange
-        requestBody.ExistingParticipant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(requestBody);
+        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.IsTrue(!body.Contains("ParticipantMustAlreadyExist"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
     }
 
     [TestMethod]
@@ -96,18 +93,18 @@ public class LookupValidationTests
     public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Already_Exists(string nhsNumber)
     {
         // Arrange
-        requestBody.Workflow = "AddParticipant";
-        requestBody.ExistingParticipant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(requestBody);
+        _requestBody.Workflow = "AddParticipant";
+        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        Assert.IsTrue(body.Contains("1.ParticipantMustNotAlreadyExist"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
     }
 
     [TestMethod]
@@ -117,18 +114,18 @@ public class LookupValidationTests
     public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Does_Not_Already_Exist(string nhsNumber)
     {
         // Arrange
-        requestBody.Workflow = "AddParticipant";
-        requestBody.ExistingParticipant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(requestBody);
+        _requestBody.Workflow = "AddParticipant";
+        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.IsTrue(!body.Contains("1.ParticipantMustNotAlreadyExist"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
     }
 
     private void SetupRequest(string json)
@@ -136,10 +133,10 @@ public class LookupValidationTests
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);
 
-        request.Setup(r => r.Body).Returns(bodyStream);
-        request.Setup(r => r.CreateResponse()).Returns(() =>
+        _request.Setup(r => r.Body).Returns(bodyStream);
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
-            var response = new Mock<HttpResponseData>(context.Object);
+            var response = new Mock<HttpResponseData>(_context.Object);
             response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
             response.SetupProperty(r => r.StatusCode);
             response.SetupProperty(r => r.Body, new MemoryStream());

@@ -15,26 +15,23 @@ using NHS.CohortManager.ScreeningValidationService;
 [TestClass]
 public class StaticValidationTests
 {
-    private readonly Mock<ILogger<StaticValidation>> loggerMock;
-    private readonly ServiceCollection serviceCollection;
-    private readonly Mock<FunctionContext> context;
-    private readonly Mock<HttpRequestData> request;
-    private readonly Participant participant = new();
-    private readonly StaticValidation function;
+    private readonly Mock<ILogger<StaticValidation>> _logger = new();
     private readonly Mock<IValidationData> _validationDataService = new();
+    private readonly Mock<FunctionContext> _context = new();
+    private readonly Mock<HttpRequestData> _request;
+    private readonly ServiceCollection _serviceCollection = new();
+    private readonly Participant _participant = new();
+    private readonly StaticValidation _function;
 
     public StaticValidationTests()
     {
-        loggerMock = new Mock<ILogger<StaticValidation>>();
-        context = new Mock<FunctionContext>();
-        request = new Mock<HttpRequestData>(context.Object);
+        _request = new Mock<HttpRequestData>(_context.Object);
 
-        serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
 
-        context.SetupProperty(c => c.InstanceServices, serviceProvider);
+        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        function = new StaticValidation(loggerMock.Object, _validationDataService.Object);
+        _function = new StaticValidation(_logger.Object, _validationDataService.Object);
     }
 
     [TestMethod]
@@ -43,17 +40,17 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Return_Rule_Violation_When_Nhs_Number_Is_Ten_Digits(string nhsNumber)
     {
         // Arrange
-        participant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(participant);
+        _participant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        Assert.IsTrue(!body.Contains("1.NhsNumberMustBeTenDigits"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
     }
 
     [TestMethod]
@@ -67,17 +64,17 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Rule_Violation_When_Nhs_Number_Is_Not_Ten_Digits(string nhsNumber)
     {
         // Arrange
-        participant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(participant);
+        _participant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
         // Act
-        var result = await function.RunAsync(request.Object);
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        Assert.IsTrue(body.Contains("1.NhsNumberMustBeTenDigits"));
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
     }
 
     private void SetupRequest(string json)
@@ -85,10 +82,10 @@ public class StaticValidationTests
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);
 
-        request.Setup(r => r.Body).Returns(bodyStream);
-        request.Setup(r => r.CreateResponse()).Returns(() =>
+        _request.Setup(r => r.Body).Returns(bodyStream);
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
-            var response = new Mock<HttpResponseData>(context.Object);
+            var response = new Mock<HttpResponseData>(_context.Object);
             response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
             response.SetupProperty(r => r.StatusCode);
             response.SetupProperty(r => r.Body, new MemoryStream());
