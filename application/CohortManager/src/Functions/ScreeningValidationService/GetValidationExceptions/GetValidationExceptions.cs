@@ -23,9 +23,9 @@ public class GetValidationExceptions
     [Function("GetValidationExceptions")]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        foreach (var ruleBroken in _validationData.GetAll())
+        foreach (var exception in _validationData.GetAll())
         {
-            _logger.LogInformation($"Broken rule - {ruleBroken.RuleName}");
+            _logger.LogInformation($"Exception {exception.RuleName} at {exception.DateCreated}");
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

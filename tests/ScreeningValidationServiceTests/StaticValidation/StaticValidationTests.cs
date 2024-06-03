@@ -57,7 +57,7 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("0")]
-    [DataRow("123456789")]      // 9 digits
+    [DataRow("999999999")]      // 9 digits
     [DataRow("12.3456789")]     // 9 digits and 1 non-digit
     [DataRow("12.34567899")]    // 10 digits and 1 non-digit
     [DataRow("10000000000")]    // 11 digits

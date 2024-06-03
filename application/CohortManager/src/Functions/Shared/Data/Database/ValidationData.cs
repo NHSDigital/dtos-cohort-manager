@@ -19,7 +19,7 @@ public class ValidationData : IValidationData
 
     public List<ValidationDataDto> GetAll()
     {
-        var SQL = "SELECT * FROM [dbo].[RULE_VIOLATION]";
+        var SQL = "SELECT * FROM [dbo].[VALIDATION_EXCEPTION]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
@@ -44,7 +44,7 @@ public class ValidationData : IValidationData
 
     public bool Create(ValidationDataDto dto)
     {
-        var SQL = "INSERT INTO [dbo].[RULE_VIOLATION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
+        var SQL = "INSERT INTO [dbo].[VALIDATION_EXCEPTION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
                     "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);";
 
         var parameters = new Dictionary<string, object>()
