@@ -79,12 +79,6 @@ public class LookupValidation
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
-        var response = req.CreateResponse(HttpStatusCode.BadRequest);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-        var errors = string.Join(",", validationErrors);
-        byte[] data = Encoding.UTF8.GetBytes(errors);
-        response.Body = new MemoryStream(data);
-
-        return response;
+        return req.CreateResponse(HttpStatusCode.BadRequest);
     }
 }

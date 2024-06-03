@@ -35,8 +35,7 @@ public class UpdateParticipantFunction
         }
         var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
 
-        // Any validation or decisions go in here
-        if (await ValidateData(participant))
+        if (!await ValidateData(participant))
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -54,7 +53,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
         }
 
         _logger.LogInformation("the user has not been updated due to a bad request");
@@ -66,11 +65,19 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participant);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-
-        if (response.StatusCode == HttpStatusCode.OK)
+        try
         {
-            return true;
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return false;
         }
 
         return false;

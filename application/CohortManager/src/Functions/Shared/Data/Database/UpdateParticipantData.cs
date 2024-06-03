@@ -43,14 +43,8 @@ public class UpdateParticipantData : IUpdateParticipantData
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
         var oldParticipant = GetParticipant(participantData.NHSId);
-        var ValidateDataResponse = await ValidateData(oldParticipant, participantData);
-        if (ValidateDataResponse.Count > 0)
+        if (!await ValidateData(oldParticipant, participantData))
         {
-            foreach (var ValidationMessage in ValidateDataResponse)
-            {
-                _logger.LogInformation("validation has thrown an error: {ValidationMessage}", ValidationMessage);
-
-            }
             return false;
         }
 
@@ -462,9 +456,8 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
     }
 
-    private async Task<List<string>> ValidateData(Participant existingParticipant, Participant newParticipant)
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant)
     {
-        var responseText = "";
         var json = JsonSerializer.Serialize(new
         {
             ExistingParticipant = existingParticipant,
@@ -472,18 +465,22 @@ public class UpdateParticipantData : IUpdateParticipantData
             Workflow = "UpdateParticipant"
         });
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ValidationURL"), json);
-
-        if (response.StatusCode == HttpStatusCode.OK)
+        try
         {
-            using (Stream responseStream = response.GetResponseStream())
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                StreamReader reader = new StreamReader(responseStream);
-                responseText = reader.ReadToEnd();
+                return true;
             }
         }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return false;
+        }
 
-        return responseText == "" ? new List<string>() : responseText.Split(',').ToList();
+        return false;
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
