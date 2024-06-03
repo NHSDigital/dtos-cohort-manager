@@ -15,11 +15,14 @@ namespace RemoveParticipant
         private readonly ICreateResponse _createResponse;
         private ICallFunction _callFunction;
 
-        public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+        private readonly ICheckDemographic _checkDemographic;
+
+        public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic)
         {
             _logger = logger;
             _createResponse = createResponse;
             _callFunction = callFunction;
+            _checkDemographic = checkDemographic;
         }
 
         [Function("RemoveParticipant")]
@@ -37,7 +40,10 @@ namespace RemoveParticipant
                     postdata = reader.ReadToEnd();
                 }
                 var input = JsonSerializer.Deserialize<Participant>(postdata);
-
+                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+                {
+                    _logger.LogInformation("demographic function failed");
+                }
                 // Any validation or decisions go in here
 
                 // call data service create Participant

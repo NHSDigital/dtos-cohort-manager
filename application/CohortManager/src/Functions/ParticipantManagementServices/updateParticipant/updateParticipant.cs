@@ -21,11 +21,14 @@ namespace updateParticipant
         private readonly ICreateResponse _createResponse;
         private readonly ICallFunction _callFunction;
 
-        public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+        private readonly ICheckDemographic _checkDemographic;
+
+        public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic)
         {
             _logger = logger;
             _createResponse = createResponse;
             _callFunction = callFunction;
+            _checkDemographic = checkDemographic;
         }
 
         [Function("updateParticipant")]
@@ -47,6 +50,10 @@ namespace updateParticipant
             try
             {
                 var json = JsonSerializer.Serialize(input);
+                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+                {
+                    _logger.LogInformation("demographic function failed");
+                }
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)

@@ -16,11 +16,14 @@ namespace addParticipant
 
         private readonly ICreateResponse _createResponse;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse)
+        private readonly ICheckDemographic _checkDemographic;
+
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
+            _checkDemographic = checkDemographic;
         }
 
         [Function("addParticipant")]
@@ -42,13 +45,18 @@ namespace addParticipant
             // call data service create Participant
             try
             {
+                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+                {
+                    _logger.LogInformation("demographic function failed");
+                }
                 var json = JsonSerializer.Serialize(input);
+                createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)
                 {
                     _logger.LogInformation("participant created");
-                    _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
                 }
             }
             catch (Exception ex)
