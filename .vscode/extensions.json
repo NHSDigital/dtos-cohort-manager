@@ -31,7 +31,8 @@
     "wayou.vscode-todo-highlight",
     "yzane.markdown-pdf",
     "yzhang.dictionary-completion",
-    "yzhang.markdown-all-in-one"
+    "yzhang.markdown-all-in-one",
+    "ms-dotnettools.csdevkit"
   ],
   "unwantedRecommendations": []
 }
