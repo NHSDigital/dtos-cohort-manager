@@ -39,16 +39,21 @@ namespace RemoveParticipant
                 {
                     postdata = reader.ReadToEnd();
                 }
+
                 var input = JsonSerializer.Deserialize<Participant>(postdata);
-                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
-                {
-                    _logger.LogInformation("demographic function failed");
-                }
+
                 // Any validation or decisions go in here
 
                 // call data service create Participant
 
+                var demographicData = await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
                 var json = JsonSerializer.Serialize(input);
+
+                if (demographicData == null)
+                {
+                    _logger.LogInformation("demographic function failed");
+                }
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)

@@ -49,8 +49,10 @@ namespace updateParticipant
 
             try
             {
+                var demographicData = await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
                 var json = JsonSerializer.Serialize(input);
-                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+
+                if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
