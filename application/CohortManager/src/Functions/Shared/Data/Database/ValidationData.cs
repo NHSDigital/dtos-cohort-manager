@@ -7,14 +7,14 @@ using Microsoft.Extensions.Logging;
 public class ValidationData : IValidationData
 {
     private readonly IDbConnection _dbConnection;
-    private readonly string connectionString;
+    private readonly string _connectionString;
     private readonly ILogger<ValidationData> _logger;
 
     public ValidationData(IDbConnection IdbConnection, ILogger<ValidationData> logger)
     {
         _dbConnection = IdbConnection;
         _logger = logger;
-        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public List<ValidationDataDto> GetAll()
@@ -57,30 +57,14 @@ public class ValidationData : IValidationData
         };
 
         var command = CreateCommand(parameters);
-        var transaction = BeginTransaction();
-        try
-        {
-            command.Transaction = transaction;
-            command.CommandText = SQL;
+        command.CommandText = SQL;
 
-            if (!Execute(command))
-            {
-                transaction.Rollback();
-                _dbConnection.Close();
-                return false;
-            }
+        _dbConnection.ConnectionString = _connectionString;
+        _dbConnection.Open();
+        var result = Execute(command);
+        _dbConnection.Close();
 
-            transaction.Commit();
-            _dbConnection.Close();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            transaction.Rollback();
-            _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
-            return false;
-        }
+        return result;
     }
 
     private bool Execute(IDbCommand command)
@@ -109,7 +93,7 @@ public class ValidationData : IValidationData
         var result = default(T);
         using (_dbConnection)
         {
-            _dbConnection.ConnectionString = connectionString;
+            _dbConnection.ConnectionString = _connectionString;
             _dbConnection.Open();
             using (command)
             {
@@ -121,13 +105,6 @@ public class ValidationData : IValidationData
             }
             return result;
         }
-    }
-
-    private IDbTransaction BeginTransaction()
-    {
-        _dbConnection.ConnectionString = connectionString;
-        _dbConnection.Open();
-        return _dbConnection.BeginTransaction();
     }
 
     private IDbCommand CreateCommand(Dictionary<string, object> parameters)
@@ -150,5 +127,4 @@ public class ValidationData : IValidationData
 
         return dbCommand;
     }
-
 }
