@@ -12,6 +12,7 @@ using Moq;
 using Common;
 using Data.Database;
 using Model;
+using Model.Enums;
 
 [TestClass]
 public class CreateParticipantTests
@@ -83,13 +84,12 @@ public class CreateParticipantTests
         participantMock.Object.NHSId = "1234567890";
         participantMock.Object.SupersededByNhsNumber = "0987654321";
         participantMock.Object.PrimaryCareProvider = "";
-        participantMock.Object.GpConnect = "";
         participantMock.Object.NamePrefix = "";
         participantMock.Object.FirstName = "";
         participantMock.Object.OtherGivenNames = "";
         participantMock.Object.Surname = "";
         participantMock.Object.DateOfBirth = "";
-        participantMock.Object.Gender = "";
+        participantMock.Object.Gender = Gender.NotKnown;
         participantMock.Object.AddressLine1 = "";
         participantMock.Object.AddressLine2 = "";
         participantMock.Object.AddressLine3 = "";
@@ -104,7 +104,7 @@ public class CreateParticipantTests
         participantMock.Object.EmailAddress = "";
         participantMock.Object.PreferredLanguage = "";
         participantMock.Object.IsInterpreterRequired = "";
-        participantMock.Object.Action = "";
+        participantMock.Object.RecordType = "";
 
         return participantMock;
     }
