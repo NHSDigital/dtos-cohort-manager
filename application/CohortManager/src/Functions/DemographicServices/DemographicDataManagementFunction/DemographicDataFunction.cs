@@ -36,13 +36,31 @@ namespace DemographicDataManagementFunction
 
             try
             {
-                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), participantData.NHSId);
 
-                if (res.StatusCode != HttpStatusCode.OK)
+                if (req.Method == "POST")
                 {
-                    _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(res.StatusCode, req);
+                    var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), participantData.NHSId);
+
+                    if (res.StatusCode != HttpStatusCode.OK)
+                    {
+                        _logger.LogInformation("demographic function failed");
+                        return _createResponse.CreateHttpResponse(res.StatusCode, req);
+                    }
                 }
+                else
+                {
+                    var res = await _callFunction.SendGet(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), participantData.NHSId);
+
+                    if (res.StatusCode != HttpStatusCode.OK)
+                    {
+                        _logger.LogInformation("demographic function failed");
+                        return _createResponse.CreateHttpResponse(res.StatusCode, req);
+                    }
+                }
+
+
+
+
             }
             catch (Exception ex)
             {

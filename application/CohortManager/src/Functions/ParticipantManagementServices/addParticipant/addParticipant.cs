@@ -16,14 +16,14 @@ namespace addParticipant
 
         private readonly ICreateResponse _createResponse;
 
-        private readonly ICheckDemographic _checkDemographic;
+        private readonly ICheckDemographic _getDemographicData;
 
         public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
-            _checkDemographic = checkDemographic;
+            _getDemographicData = checkDemographic;
         }
 
         [Function("addParticipant")]
@@ -40,17 +40,15 @@ namespace addParticipant
             }
             Participant input = JsonSerializer.Deserialize<Participant>(postdata);
 
-            // Any validation or decisions go in here
-
-            // call data service create Participant
             try
             {
-                if (!await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+                var demographicData = await _getDemographicData.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
                 var json = JsonSerializer.Serialize(input);
-                createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)

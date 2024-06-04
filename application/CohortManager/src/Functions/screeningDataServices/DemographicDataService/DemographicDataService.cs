@@ -38,11 +38,25 @@ namespace screeningDataServices
 
             try
             {
-                var created = _createDemographicData.InsertDemographicData(participantData);
-                if (!created)
+                if (req.Method == "POST")
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                    var created = _createDemographicData.InsertDemographicData(participantData);
+                    if (!created)
+                    {
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                    }
                 }
+                else
+                {
+                    var demographicData = _createDemographicData.GetDemographicData(participantData.NHSId);
+                    if (demographicData != null)
+                    {
+                        var responseBody = JsonSerializer.Serialize<Demographic>(demographicData);
+
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
+                    }
+                }
+
             }
             catch (Exception ex)
             {
