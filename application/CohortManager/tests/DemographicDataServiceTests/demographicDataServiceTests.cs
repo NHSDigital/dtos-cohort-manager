@@ -17,10 +17,8 @@ public class DemographicDataServiceTests
 {
     private readonly Mock<ILogger<DemographicDataService>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> context = new();
     private readonly Mock<HttpRequestData> request;
-    private readonly Mock<HttpWebResponse> webResponse = new();
     private readonly ServiceCollection serviceCollection = new();
     private readonly Participant participant;
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
