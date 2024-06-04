@@ -11,6 +11,7 @@
     "ghcr.io/devcontainers-contrib/features/asdf-package:1": {},
     "ghcr.io/devcontainers-contrib/features/curl-apt-get:1": {},
     "ghcr.io/devcontainers-contrib/features/npm-package:1": {},
+    "ghcr.io/devcontainers/features/dotnet:2": {},
     "ghcr.io/azure/azure-dev/azd:0": {}
   },
   "postCreateCommand": "bash -i scripts/config/devcontainer/post-build-cfg.sh",
@@ -48,7 +49,8 @@
         "wayou.vscode-todo-highlight",
         "yzane.markdown-pdf",
         "yzhang.dictionary-completion",
-        "yzhang.markdown-all-in-one"
+        "yzhang.markdown-all-in-one",
+        "ms-dotnettools.csdevkit"
       ]
     }
   }
