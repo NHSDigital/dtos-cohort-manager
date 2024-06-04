@@ -5,22 +5,22 @@ using Model.Enums;
 public class Participant
 {
     public string? RecordType { get; set; }
-    public string? ChangeTimeStamp { get; set; }
-    public string? SerialChangeNumber { get; set; }
-    public string? NHSId { get; set; }
+    public DateTime? ChangeTimeStamp { get; set; }
+    public int SerialChangeNumber { get; set; }
+    public long NHSId { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
-    public string? PrimaryCareProviderEffectiveFrom { get; set; }
+    public DateTime? PrimaryCareProviderEffectiveFromDate { get; set; }
     public string? CurrentPosting { get; set; }
-    public string? CurrentPostingEffectiveFrom { get; set; }
+    public DateTime? CurrentPostingEffectiveFromDate { get; set; }
     public string? PreviousPosting { get; set; }
-    public string? PreviousPostingEffectiveFrom { get; set; }
+    public DateTime? PreviousPostingEffectiveFromDate { get; set; }
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }
     public string? Surname { get; set; }
     public string? PreviousSurname { get; set; }
-    public string? DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string? AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
@@ -29,20 +29,20 @@ public class Participant
     public string? AddressLine5 { get; set; }
     public string? Postcode { get; set; }
     public string? PafKey { get; set; }
-    public string? UsualAddressEffectiveFromDate { get; set; }
+    public DateTime? UsualAddressEffectiveFromDate { get; set; }
     public string? ReasonForRemoval { get; set; }
-    public string? ReasonForRemovalEffectiveFromDate { get; set; }
-    public string? DateOfDeath { get; set; }
-    public Status? DeathStatus { get; set;}
+    public DateTime? ReasonForRemovalEffectiveFromDate { get; set; }
+    public DateTime? DateOfDeath { get; set; }
+    public string? DeathStatus { get; set;}
     public string? TelephoneNumber { get; set; }
-    public string? TelephoneNumberEffectiveFromDate { get; set; }
+    public DateTime? TelephoneNumberEffectiveFromDate { get; set; }
     public string? MobileNumber { get; set; }
     public string? MobileNumberEffectiveFromDate { get; set; }
     public string? EmailAddress { get; set; }
-    public string? EmailAddressEffectiveFromDate { get; set; }
+    public DateTime? EmailAddressEffectiveFromDate { get; set; }
     public string? PreferredLanguage { get; set; }
-    public string? IsInterpreterRequired { get; set; }
-    public string? InvalidFlag { get; set; }
-    public string? RecordIdentifier { get; set; }
+    public bool IsInterpreterRequired { get; set; }
+    public bool InvalidFlag { get; set; }
+    public int? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
 }
