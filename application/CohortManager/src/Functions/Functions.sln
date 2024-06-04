@@ -56,6 +56,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemographicServices", "Demo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataManagementFunction", "DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj", "{9A53EEBB-3DE4-41FD-8552-94F79E88D674}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataFunctionTests", "..\..\tests\DemographicDataFunctionTests\DemographicDataFunctionTests.csproj", "{FACE1131-32C8-4211-9815-718E8C42974C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataServiceTests", "..\..\tests\DemographicDataServiceTests\DemographicDataServiceTests.csproj", "{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -166,6 +170,14 @@ Global
 		{9A53EEBB-3DE4-41FD-8552-94F79E88D674}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A53EEBB-3DE4-41FD-8552-94F79E88D674}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A53EEBB-3DE4-41FD-8552-94F79E88D674}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FACE1131-32C8-4211-9815-718E8C42974C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FACE1131-32C8-4211-9815-718E8C42974C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FACE1131-32C8-4211-9815-718E8C42974C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FACE1131-32C8-4211-9815-718E8C42974C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

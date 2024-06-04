@@ -36,11 +36,20 @@ namespace screeningDataServices
                 participantData = JsonSerializer.Deserialize<Participant>(requestBody);
             }
 
-            var created = _createDemographicData.InsertDemographicData(participantData);
-            if (!created)
+            try
             {
+                var created = _createDemographicData.InsertDemographicData(participantData);
+                if (!created)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"An error has occoured while inserting data {ex.Message}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
     }

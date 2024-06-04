@@ -26,7 +26,7 @@ public class CreateDemographicData : ICreateDemographicData
             new SQLReturnModel()
             {
                 commandType = CommandType.Command,
-                SQL = " INSERT INTO DEMOGRAPHIC_DATA (column1, column2, column3, ...)" +
+                SQL = " INSERT INTO DEMOGRAPHIC_DATA (column1, column2, column3)" +
                     "VALUES (value1, value2, value3)",
                 // we don't need to add params to all items as we don't want to duplicate them
                 parameters = new Dictionary<string, object>
