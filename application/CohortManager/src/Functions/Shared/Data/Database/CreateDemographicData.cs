@@ -26,8 +26,41 @@ public class CreateDemographicData : ICreateDemographicData
             new SQLReturnModel()
             {
                 commandType = CommandType.Command,
-                SQL = " INSERT INTO DEMOGRAPHIC_DATA (column1, column2, column3)" +
-                    "VALUES (value1, value2, value3)",
+                SQL = " INSERT INTO [dbo].[DEMOGRAPHIC_DATA]" +
+                "(" +
+                    " [resource_id] " +
+                    ", [nhs_number] " +
+                    ", [prefix] "+
+                    ", [given_name] "+
+                    ", [family_name] "+
+                    ", [gender] "+
+                    ", [birth_date] "+
+                    ", [deceased_datetime] " +
+                    ", [general_practitioner_code] "+
+                    ", [managing_organization_code] " +
+                    ", [communication_language] "+
+                    ", [interpreter_required] "+
+                    ", [preferred_communication_format] "+
+                    ", [preferred_contact_method] "+
+                    ", [preferred_contact_time] "+
+                    ", [birth_place_city] "+
+                    ", [birth_place_district] "+
+                    ", [birth_place_country] "+
+                    ", [removal_reason_code] "+
+                    ", [removal_effective_start] " +
+                    " ,[removal_effective_end] " +
+                    " ,[home_address_line1] " +
+                    " ,[home_address_line2] " +
+                    " ,[home_address_line3] " +
+                   " ,[home_address_city] " +
+                   " ,[home_address_postcode] " +
+                   " ,[home_phone_number] " +
+                   " ,[home_email_address] " +
+                   " ,[home_phone_textphone] " +
+                   " ,[emergency_contact_phone_number] ) " +
+                   " VALUES " +
+                "(" +
+                "VALUES (value1, value2, value3)",
                 // we don't need to add params to all items as we don't want to duplicate them
                 parameters = new Dictionary<string, object>
                 {
