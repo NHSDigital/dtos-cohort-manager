@@ -48,7 +48,6 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
     }
@@ -72,7 +71,6 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        string body = ReadStream(result.Body);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
     }
@@ -91,15 +89,5 @@ public class StaticValidationTests
             response.SetupProperty(r => r.Body, new MemoryStream());
             return response.Object;
         });
-    }
-
-    private static string ReadStream(Stream stream)
-    {
-        string str;
-        using (var reader = new StreamReader(stream, Encoding.UTF8))
-        {
-            str = reader.ReadToEnd();
-        }
-        return str;
     }
 }
