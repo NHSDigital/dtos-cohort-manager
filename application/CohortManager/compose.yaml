@@ -110,6 +110,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7065
       - UpdateParticipant=http://localhost:7069/api/updateParticipantDetails
+      - StaticValidationURL=http://localhost:7071/api/StaticValidation
 
   # Screening Data Service
   create-participant:
@@ -154,6 +155,38 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7069
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - LookupValidationURL=http://localhost:7072/api/LookupValidation
+
+  exception-data-service:
+    container_name: exception-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ExceptionDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7070
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  # Screening Validation Service
+  static-validation:
+    container_name: static-validation
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7071
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  lookup-validation:
+    container_name: lookup-validation
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ScreeningValidationService/LookupValidation/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7072
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
 networks:
