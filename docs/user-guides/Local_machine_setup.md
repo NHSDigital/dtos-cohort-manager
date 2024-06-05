@@ -65,7 +65,7 @@ Open the Azure Storage Explorer and in the Explorer, you will see **Azurite (Key
 
 On Azure Storage Explorer, collapse **Emulator & Attached > Storage Accounts > Azurite (Key)** and right click on **Blob containers** and select Create Blob Container and type in `inbound` to create a container with that name.
 
-![inbound blob container](/Set-up/img/azure_storage.png)
+![inbound blob container](../assets/azure_storage.png)
 
 Once created, use the sample csv files upload it to that new inbound container.
 
