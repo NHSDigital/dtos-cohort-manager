@@ -21,6 +21,10 @@ public class RemoveParticipantTests
     private readonly Mock<FunctionContext> context = new();
     private readonly Mock<HttpRequestData> request;
     private readonly Mock<HttpWebResponse> webResponse = new();
+    private readonly Mock<ICheckDemographic> checkDemographic = new();
+    private readonly Mock<ICreateParticipant> createParticipant = new();
+
+
 
     Participant participant;
     ServiceCollection serviceCollection = new();
@@ -46,12 +50,12 @@ public class RemoveParticipantTests
     {
         //Arrange
         var json = JsonSerializer.Serialize(participant);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
         setupRequest(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -76,12 +80,12 @@ public class RemoveParticipantTests
 
         //Arrange
         var json = JsonSerializer.Serialize(participant);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
         setupRequest(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -104,12 +108,12 @@ public class RemoveParticipantTests
     public async Task Run_AnErrorIsThrown_BadRequest()
     {
         var json = JsonSerializer.Serialize(participant);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
         setupRequest(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");

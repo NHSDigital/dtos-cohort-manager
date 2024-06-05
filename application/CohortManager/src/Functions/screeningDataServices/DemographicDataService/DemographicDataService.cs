@@ -55,6 +55,7 @@ namespace screeningDataServices
 
                         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
                     }
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
                 }
 
             }

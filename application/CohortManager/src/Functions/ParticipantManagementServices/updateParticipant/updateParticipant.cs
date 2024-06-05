@@ -23,12 +23,15 @@ namespace updateParticipant
 
         private readonly ICheckDemographic _checkDemographic;
 
-        public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic)
+        private readonly ICreateParticipant _createParticipant;
+
+        public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
         {
             _logger = logger;
             _createResponse = createResponse;
             _callFunction = callFunction;
             _checkDemographic = checkDemographic;
+            _createParticipant = createParticipant;
         }
 
         [Function("updateParticipant")]
@@ -43,19 +46,23 @@ namespace updateParticipant
             {
                 postdata = reader.ReadToEnd();
             }
-            var input = JsonSerializer.Deserialize<Participant>(postdata);
+            var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
             // Any validation or decisions go in here
 
             try
             {
-                var demographicData = await _checkDemographic.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
-                var json = JsonSerializer.Serialize(input);
-
+                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
+
+
+                var json = JsonSerializer.Serialize(participant);
+
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)

@@ -1,4 +1,5 @@
 
+using System.ComponentModel;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -16,7 +17,7 @@ namespace Common
             _logger = logger;
         }
 
-        public async Task<Demographic> CheckDemographicAsync(string NhsId, string DemographicFunctionURI)
+        public async Task<Demographic> GetDemographicAsync(string NhsId, string DemographicFunctionURI)
         {
             var DemographicData = await _callFunction.SendGet(DemographicFunctionURI, JsonSerializer.Serialize(NhsId));
             if (DemographicData.StatusCode == HttpStatusCode.OK)
@@ -32,6 +33,16 @@ namespace Common
                 return demographicDataResponse;
             }
             return null;
+        }
+
+        public async Task<bool> PostDemographicDataAsync(Participant participant, string DemographicFunctionURI)
+        {
+            var response = await _callFunction.SendPost(DemographicFunctionURI, JsonSerializer.Serialize(participant));
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

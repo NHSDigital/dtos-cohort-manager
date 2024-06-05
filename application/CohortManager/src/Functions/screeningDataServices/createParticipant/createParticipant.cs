@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Data.Database;
 using Common;
 using Model;
+using System.Runtime.CompilerServices;
 
 public class CreateParticipant
 {
@@ -18,12 +19,14 @@ public class CreateParticipant
     private readonly ICreateResponse _createResponse;
     private readonly ICreateParticipantData _createParticipantData;
     private readonly string connectionString;
+    private readonly ICheckDemographic _checkDemographic;
 
-    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData)
+    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, ICheckDemographic checkDemographic)
     {
         _logger = logger;
         _createResponse = createResponse;
         _createParticipantData = createParticipantData;
+        _checkDemographic = checkDemographic;
         connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
         _logger.LogInformation("Connection String: " + connectionString);
     }

@@ -18,12 +18,15 @@ namespace addParticipant
 
         private readonly ICheckDemographic _getDemographicData;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic)
+        private readonly ICreateParticipant _createParticipant;
+
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
             _getDemographicData = checkDemographic;
+            _createParticipant = createParticipant;
         }
 
         [Function("addParticipant")]
@@ -38,16 +41,18 @@ namespace addParticipant
             {
                 postdata = reader.ReadToEnd();
             }
-            Participant input = JsonSerializer.Deserialize<Participant>(postdata);
+            var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
             try
             {
-                var demographicData = await _getDemographicData.CheckDemographicAsync(input.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
-                var json = JsonSerializer.Serialize(input);
+
+                var json = JsonSerializer.Serialize(participant);
 
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
@@ -65,7 +70,7 @@ namespace addParticipant
             // call data service mark as eligible
             try
             {
-                var json = JsonSerializer.Serialize(input);
+                var json = JsonSerializer.Serialize(participant);
                 eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), json);
 
                 if (eligibleResponse.StatusCode == HttpStatusCode.Created)

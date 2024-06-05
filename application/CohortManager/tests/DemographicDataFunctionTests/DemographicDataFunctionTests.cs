@@ -40,20 +40,9 @@ public class DemographicDataFunctionTests
             NHSId = "1",
             RecordType = Actions.New
         };
-    }
 
-
-    [TestMethod]
-    public async Task Run_return_DemographicDataSaved_OK()
-    {
-
-        var json = JsonSerializer.Serialize(participant);
-        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
-
-        setupRequest(json);
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -62,16 +51,67 @@ public class DemographicDataFunctionTests
 
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DemographicDataFunctionURI")), It.IsAny<string>()))
+        _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
+        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>(), It.IsAny<string>()))
+                        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+    }
+
+    [TestMethod]
+    public async Task Run_return_DemographicDataSavedPostRequest_OK()
+    {
+
+        var json = JsonSerializer.Serialize(participant);
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+
+        setupRequest(json);
+
         //Act
+        request.Setup(r => r.Method).Returns("POST");
         var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_return_DemographicDataSavedPostRequest_InternalServerEver()
+    {
+
+        var json = JsonSerializer.Serialize(participant);
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+
+        setupRequest(json);
+        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
+        _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+
+        //Act
+        request.Setup(r => r.Method).Returns("POST");
+        var result = await sut.Run(request.Object);
+
+        //Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_return_DemographicDataGetRequest_OK()
+    {
+
+        var json = JsonSerializer.Serialize(participant);
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+
+        setupRequest(json);
+
+        //Act
+        request.Setup(r => r.Method).Returns("GET");
+        var result = await sut.Run(request.Object);
+
+        //Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
 
     [TestMethod]
     public async Task Run_return_DemographicDataNotSaved_InternalServerError()
@@ -82,8 +122,8 @@ public class DemographicDataFunctionTests
 
         setupRequest(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -111,8 +151,8 @@ public class DemographicDataFunctionTests
 
         setupRequest(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -125,6 +165,7 @@ public class DemographicDataFunctionTests
                             .ThrowsAsync(new Exception("there was an error"));
 
         //Act
+        request.Setup(r => r.Method).Returns("POST");
         var result = await sut.Run(request.Object);
 
         //Assert

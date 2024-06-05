@@ -4,5 +4,6 @@ namespace Common;
 
 public interface ICheckDemographic
 {
-    Task<Demographic> CheckDemographicAsync(string NhsId, string DemographicFunctionURI);
+    Task<Demographic> GetDemographicAsync(string NhsId, string DemographicFunctionURI);
+    Task<bool> PostDemographicDataAsync(Participant participant, string DemographicFunctionURI);
 }

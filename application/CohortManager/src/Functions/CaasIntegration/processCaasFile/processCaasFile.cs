@@ -44,7 +44,8 @@ namespace processCaasFile
             foreach (var p in input.Participants)
             {
                 row++;
-                if (!await _checkDemographic.CheckDemographicAsync(p.NHSId, Environment.GetEnvironmentVariable("DemographicURI")))
+                var DemographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
+                if (DemographicDataInserted == false)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
