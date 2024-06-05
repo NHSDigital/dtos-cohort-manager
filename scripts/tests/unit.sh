@@ -18,16 +18,16 @@ cd "$(git rev-parse --show-toplevel)"
 # tasks in scripts/test.mk.
 
 UnitDir="tests/"
-ResDir="$UnitDir"results-unit
+# ResDir="$UnitDir"results-unit
 Format="trx"
 
 find "$UnitDir" -name '*.csproj' | while read -r file; do
     dotnet test "$file" --logger $Format
 done
 
-mkdir -p "$ResDir"
-find "$UnitDir" -name "*.$Format" -not -path "$ResDir/*" | while read -r resfile; do
-    mv "$resfile" "$ResDir"
-done
+# mkdir -p "$ResDir"
+# find "$UnitDir" -name "*.$Format" -not -path "$ResDir/*" | while read -r resfile; do
+#     mv "$resfile" "$ResDir"
+# done
 
 # echo "Unit tests are not yet implemented. See scripts/tests/unit.sh for more."
