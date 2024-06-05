@@ -22,7 +22,7 @@ UnitDir="tests/"
 Format="trx"
 
 find "$UnitDir" -name '*.csproj' | while read -r file; do
-    dotnet test "$file" --logger $Format
+    dotnet test --no-build "$file" --logger $Format
 done
 
 # mkdir -p "$ResDir"
