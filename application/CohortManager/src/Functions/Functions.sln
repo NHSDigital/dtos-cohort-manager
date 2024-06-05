@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateEligibilityTests", ".
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningValidationService", "ScreeningValidationService", "{C5B90A38-4C45-4FC5-BC56-2B205B7744AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "ScreeningValidationService\GetValidationExceptions\GetValidationExceptions.csproj", "{E2F3C6A1-E11A-4BF5-BF27-54D777F81046}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionDataService", "ScreeningValidationService\ExceptionDataService\ExceptionDataService.csproj", "{E2F3C6A1-E11A-4BF5-BF27-54D777F81046}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidation", "ScreeningValidationService\LookupValidation\LookupValidation.csproj", "{331AE6E1-3D5D-4E65-994C-6E7B749B980C}"
 EndProject

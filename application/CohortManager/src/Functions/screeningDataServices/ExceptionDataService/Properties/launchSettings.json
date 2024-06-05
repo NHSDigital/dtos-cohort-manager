@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "GetValidationExceptions": {
+    "ExceptionDataService": {
       "commandName": "Project",
       "commandLineArgs": "--port 7024",
       "launchBrowser": false
