@@ -23,15 +23,14 @@ namespace Common
             if (DemographicData.StatusCode == HttpStatusCode.OK)
             {
                 var demographicDataResponse = new Demographic();
-                _logger.LogError($"The demographic function has failed with NHSId {NhsId}");
                 using (var reader = new StreamReader(DemographicData.GetResponseStream()))
                 {
                     var dataRead = reader.ReadToEnd();
-
                     demographicDataResponse = JsonSerializer.Deserialize<Demographic>(dataRead);
                 }
                 return demographicDataResponse;
             }
+            _logger.LogError($"The demographic function has failed with NHSId {NhsId}");
             return null;
         }
 
