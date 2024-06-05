@@ -52,37 +52,7 @@ Save your changes. Then in the Terminal/Command line, run the function using the
 
     func start
 
-#### Set-up: Event Grid Simulator Using Postman
-
-##### Install Postman
-
-Postman is an API Platform for building and using APIs. It helps test and ensure that APIs can be called to get applications to talk to each other. You can send HTTP Request (GET, POST, PUT, UPDATE, DELETE, etc.) and see how the API responds to different inputs.
-
-To simulate the functionality of an Azure Event Grid, Postman is can be used to create "events" and trigger the Function(s) for that event. To install Postman use this link: https://learning.postman.com/docs/getting-started/installation/installation-and-updates/.
-
-##### Expose Locally Running Azure Function to the Public
-
-To expose your locally running Azure Function to the public, you need to install `ngrok`. This allows you to create secure ingress to any app, device, or service without spencing hours learning network technologies.
-
-For Mac users...
-
-To install `ngrok`, open a Terminal and run this command...
-
-    brew install --cask ngrok
-
-For Windows users...
-
-Follow the steps here https://ngrok.com/docs/guides/device-gateway/windows/.
-
-After successfully installing  `ngork` , sign-up using our Github or using your email in https://dashboard.ngrok.com/signup. Once you have successfully signed up, you can get the Authtoken from https://dashboard.ngrok.com/get-started/your-authtoken (On the ngork dashboard, Getting Started > Your Authtoken). It will have a command there to save in default config file. Run this command in your terminal to configure:
-
-    ngrok config add-authtoken [YOUR_AUTH_TOKEN]
-
-You will also need a mobile phone and install the Authenticator App for MFA (I've used the Microsoft Authenticater as this is what the NHS Programme uses as well). It will display a QR code to scan, scan this using the Authenticator app.
-
-On the terminal again, run the command, replacing `[PORT_NUMBER]` with the port number you set in the Function earlier:
-
-    ngrok http [PORT_NUMBER]
+#### Set-up: Event Grid Simulator Using PodMan
 
 #### NuGet Packages
 
@@ -93,23 +63,6 @@ Install the following NuGet packages and run the restore, clean and build.
     dotnet add package Microsoft.Azure.Functions.Worker
     dotnet add package Microsoft.Azure.Functions.Worker.Extensions.EventGrid
     dotnet restore && dotnet clean && dotnet build
-
-#### End-to-End Test
-
-##### Configure Postman
-
-Create a new HTTP POST request with the URL 'http://localhost:7071/runtime/webhooks/EventGrid?functionName=[FUNCTION_NAME], replacing the `[FUNCTION_NAME]` with the name of the function.
-
-Click on the Body tab and select raw from the radio buttons and JSON from the dropdown. In the body of the text, copy and paste the JSON below:
-
-    TODO: Add JSON here...
-
-Click on the Headers tab and add the following Headers:
-
-    Content-Type: application/json
-    aeg-event-type: Notification
-
-Clik on the Send button and you should see the logs in your Azure function with some logs.
 
 
 #### Useful Resources
