@@ -14,24 +14,28 @@ public class LookupValidation
     private readonly ILogger<LookupValidation> _logger;
     private readonly IValidationData _createValidationData;
 
-    public LookupValidation(ILogger<LookupValidation> logger, IValidationData createValidationData)
+    public LookupValidation(ILogger<LookupValidation> logger, IValidationData validationData)
     {
         _logger = logger;
-        _createValidationData = createValidationData;
+        _createValidationData = validationData;
     }
 
     [Function("LookupValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        string requestBodyJson;
-        using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+        LookupValidationRequestBody requestBody;
+
+        try
         {
-            requestBodyJson = reader.ReadToEnd();
+            string requestBodyJson;
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBodyJson = reader.ReadToEnd();
+            }
+
+            requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
         }
-
-        var requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
-
-        if (requestBody is null)
+        catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }

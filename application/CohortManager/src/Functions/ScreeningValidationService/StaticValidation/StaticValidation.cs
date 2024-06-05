@@ -16,25 +16,29 @@ public class StaticValidation
     private readonly ILogger< StaticValidation> _logger;
     private readonly IValidationData _createValidationData;
 
-    public  StaticValidation(ILogger< StaticValidation> logger, IValidationData createValidationData)
+    public StaticValidation(ILogger< StaticValidation> logger, IValidationData validationData)
     {
         _logger = logger;
-        _createValidationData = createValidationData;
+        _createValidationData = validationData;
     }
 
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        string requestBodyJson;
-        using (var reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            requestBodyJson = reader.ReadToEnd();
-        }
-
-        var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
         var workflow = "Common";
+        Participant participant;
 
-        if (participant is null)
+        try
+        {
+            string requestBodyJson;
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBodyJson = reader.ReadToEnd();
+            }
+
+            participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
+        }
+        catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }

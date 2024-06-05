@@ -32,6 +32,40 @@ public class StaticValidationTests
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
         _function = new StaticValidation(_logger.Object, _validationDataService.Object);
+
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(_context.Object);
+            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
+            response.SetupProperty(r => r.StatusCode);
+            response.SetupProperty(r => r.Body, new MemoryStream());
+            return response.Object;
+        });
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    {
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    {
+        // Arrange
+        SetUpRequestBody("Invalid request body");
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
     }
 
     [TestMethod]
@@ -42,7 +76,7 @@ public class StaticValidationTests
         // Arrange
         _participant.NHSId = nhsNumber;
         var json = JsonSerializer.Serialize(_participant);
-        SetupRequest(json);
+        SetUpRequestBody(json);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -65,7 +99,7 @@ public class StaticValidationTests
         // Arrange
         _participant.NHSId = nhsNumber;
         var json = JsonSerializer.Serialize(_participant);
-        SetupRequest(json);
+        SetUpRequestBody(json);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -75,19 +109,11 @@ public class StaticValidationTests
         _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
     }
 
-    private void SetupRequest(string json)
+    private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);
 
         _request.Setup(r => r.Body).Returns(bodyStream);
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
     }
 }
