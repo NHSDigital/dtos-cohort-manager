@@ -1,3 +1,5 @@
+namespace NHS.Screening.ReceiveCaasFile;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
@@ -7,8 +9,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 
-namespace NHS.Screening.ReceiveCaasFile
-{
+
     public class ReceiveCaasFile
     {
         private readonly ILogger<ReceiveCaasFile> _logger;
@@ -43,24 +44,30 @@ namespace NHS.Screening.ReceiveCaasFile
 
                 csv.Context.RegisterClassMap<ParticipantMap>();
 
-                while (csv.Read())
+                foreach (var participant in csv.GetRecords<Participant>())
                 {
                     rowNumber++;
                     try
                     {
-                        var participant = csv.GetRecord<Participant>();
-                        cohort.Add(participant);
+                        if (participant != null)
+                        {
+                            cohort.Add(participant);
+                        }
                     }
                     catch (Exception ex)
                     {
                         badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
-                        _logger.LogError($"Unable to create object on line {rowNumber}.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                        _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
                     }
                 }
             }
+            catch (HeaderValidationException ex)
+            {
+                _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to read csv.\nMessage:{ex.Message}.\nStack Trace: {ex.StackTrace}");
+                _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             }
 
             try
@@ -69,15 +76,17 @@ namespace NHS.Screening.ReceiveCaasFile
                 {
                     var json = JsonSerializer.Serialize(cohort);
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                    _logger.LogInformation($"Created {cohort.Count} Objects.");
+                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Count);
+                }
+                else
+                {
+                    _logger.LogError("Created {CohortCount} Objects.", cohort.Count);
+                    _logger.LogError("Failed to create {CohortCount} Objects.", cohort.Count);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             }
-
         }
     }
-
-}

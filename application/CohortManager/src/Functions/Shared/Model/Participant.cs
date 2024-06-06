@@ -7,7 +7,7 @@ public class Participant
     public string? RecordType { get; set; }
     public DateTime? ChangeTimeStamp { get; set; }
     public int SerialChangeNumber { get; set; }
-    public long NHSId { get; set; }
+    public string NHSId { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public DateTime? PrimaryCareProviderEffectiveFromDate { get; set; }
@@ -20,7 +20,7 @@ public class Participant
     public string? OtherGivenNames { get; set; }
     public string? Surname { get; set; }
     public string? PreviousSurname { get; set; }
-    public DateTime? DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string? AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
@@ -33,7 +33,7 @@ public class Participant
     public string? ReasonForRemoval { get; set; }
     public DateTime? ReasonForRemovalEffectiveFromDate { get; set; }
     public DateTime? DateOfDeath { get; set; }
-    public string? DeathStatus { get; set;}
+    public Status? DeathStatus { get; set;}
     public string? TelephoneNumber { get; set; }
     public DateTime? TelephoneNumberEffectiveFromDate { get; set; }
     public string? MobileNumber { get; set; }
