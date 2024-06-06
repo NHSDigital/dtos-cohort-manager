@@ -30,7 +30,6 @@ public class ReceiveCaasFileTests
         receiveCaasFileInstance = new ReceiveCaasFile(mockLogger.Object, mockICallFunction.Object);
         blobName = "testBlob";
 
-
         validCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n" +
         "New,20240524153000,1,1111111111,,B83006,20240410,Manchester,20240410,Edinburgh,20230410,Mr,Joe,,Bloggs,,19711221,1,HEXAGON HOUSE,PYNES HILL,RYDON LANE,EXETER,DEVON,BV3 9ZA,1234,,,,,,,,,,,,English,0,0,1,\n" +
         "Amended,20240524153000,2,2222222222,,D81026,20240411,Liverpool,20240411,Birmingham,20230411,Mrs,Jane,,Doe,,19680801,2,1 New Road,SOLIHULL,West Midlands,,,B91 3DL,4321,,,,20240501,1,,,,,,,English,0,0,2,\n" +
@@ -69,8 +68,7 @@ public class ReceiveCaasFileTests
 
         mockICallFunction.Verify(
             x => x.SendPost(It.IsAny<string>(),
-          //  It.Is<string>(json => json == expectedJson)),
-          It.IsAny<string>()),
+            It.IsAny<string>()),
             Times.Once);
     }
 
@@ -81,7 +79,7 @@ public class ReceiveCaasFileTests
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(invalidCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);
         mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
-                        .Returns(() => new StreamReader(memoryStream));
+        .Returns(() => new StreamReader(memoryStream));
 
         mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
 
@@ -89,21 +87,19 @@ public class ReceiveCaasFileTests
         await receiveCaasFileInstance.Run(memoryStream, blobName);
 
         //Assert
-        mockLogger.Verify(
-                x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                            It.IsAny<EventId>(),
-                            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Created 0 Objects")),
-                            It.IsAny<Exception>(),
-                            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                            Times.Once);
+        mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Created 0 Objects")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
-        mockLogger.Verify(
-                x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                            It.IsAny<EventId>(),
-                            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to create 0 Objects")),
-                            It.IsAny<Exception>(),
-                            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                            Times.Once);
+        mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to create 0 Objects")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
     }
 
     [TestMethod]
@@ -121,10 +117,10 @@ public class ReceiveCaasFileTests
 
         // Assert
         mockLogger.Verify(l => l.Log(LogLevel.Information,
-                                        It.IsAny<EventId>(),
-                                        It.IsAny<It.IsAnyType>(),
-                                        It.IsAny<Exception>(),
-                                        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                                        Times.AtLeastOnce());
+        It.IsAny<EventId>(),
+        It.IsAny<It.IsAnyType>(),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.AtLeastOnce());
     }
 }
