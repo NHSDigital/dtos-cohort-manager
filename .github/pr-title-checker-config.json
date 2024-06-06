@@ -1,6 +1,6 @@
 {
   "LABEL": {
-    "name": "title needs formatting",
+    "name": "PR title must use conventional commits",
     "color": "EEEEEE"
   },
   "CHECKS": {
