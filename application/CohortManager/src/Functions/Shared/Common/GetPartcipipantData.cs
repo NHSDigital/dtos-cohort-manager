@@ -1,19 +1,12 @@
-using System.Globalization;
-using System.Net.Http.Json;
-using System.Net.WebSockets;
-using System.Reflection;
+namespace Common;
+
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker.Http;
 using Model;
 
-namespace Common;
-
 public class GetParticipantData : IGetParticipantData
 {
-
-
     public async Task<Participant> GetParticipantDetails(HttpRequestData req)
     {
         // parse through the HTTP request

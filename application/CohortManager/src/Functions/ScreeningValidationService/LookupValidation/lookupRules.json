@@ -1,0 +1,20 @@
+[
+  {
+    "WorkflowName": "AddParticipant",
+    "Rules": [
+      {
+        "RuleName": "1.ParticipantMustNotAlreadyExist",
+        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
+      }
+    ]
+  },
+  {
+    "WorkflowName": "UpdateParticipant",
+    "Rules": [
+      {
+        "RuleName": "2.ParticipantMustAlreadyExist",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
+      }
+    ]
+  }
+]

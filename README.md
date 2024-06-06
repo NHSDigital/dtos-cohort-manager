@@ -71,7 +71,7 @@ make config
 
 ## Usage
 
-After a successful installation, provide an informative example of how this project can be used. Additional code snippets, screenshots and demos work well in this space. You may also link to the other documentation resources, e.g. the [User Guide](./docs/user-guide.md) to demonstrate more use cases and to show more features.
+After a successful installation, please follow this [User Guide](./docs/user-guides/Local_machine_setup.md) to setup your local development environment.
 
 ### Testing
 

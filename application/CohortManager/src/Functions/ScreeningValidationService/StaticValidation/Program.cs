@@ -1,6 +1,5 @@
 using System.Data;
 using System.Data.Common;
-using Common;
 using Data.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +16,7 @@ var host = new HostBuilder()
             var conn = providerFactory.CreateConnection();
             return conn;
         });
-        services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<IGetParticipantData, GetParticipantData>();
-        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
-        services.AddSingleton<ICallFunction, CallFunction>();
+        services.AddSingleton<IValidationData, ValidationData>();
     })
     .Build();
 
