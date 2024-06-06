@@ -10,7 +10,7 @@
     "ignoreLabels" : ["dont-check-PRs-with-this-label", "meta"]
   },
   "MESSAGES": {
-    "success": "All OK",
+    "success": "Success",
     "failure": "Failing CI test",
     "notice": ""
   }
