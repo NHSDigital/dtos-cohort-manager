@@ -1,10 +1,10 @@
 {
   "LABEL": {
-    "name": "title needs formatting",
+    "name": "PR title must use conventional commits",
     "color": "EEEEEE"
   },
   "CHECKS": {
-    "prefixes": ["fix: ", "feat: "],
+    "prefixes": ["fix: ", "feat: ", "build: ", "chore: ", "style: ", "refactor: ", "perf: ", "test: ", "docs: "],
     "regexp": "docs\\(v[0-9]\\): ",
     "regexpFlags": "i",
     "ignoreLabels" : ["dont-check-PRs-with-this-label", "meta"]
@@ -15,3 +15,7 @@
     "notice": ""
   }
 }
+
+
+
+
