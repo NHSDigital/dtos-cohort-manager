@@ -20,7 +20,7 @@ public class Participant
     public string? OtherGivenNames { get; set; }
     public string? Surname { get; set; }
     public string? PreviousSurname { get; set; }
-    public DateTime DateOfBirth { get; set; }
+    public DateTime? DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string? AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
