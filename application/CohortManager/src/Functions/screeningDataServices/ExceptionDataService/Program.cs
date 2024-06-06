@@ -17,11 +17,8 @@ var host = new HostBuilder()
             var conn = providerFactory.CreateConnection();
             return conn;
         });
+        services.AddSingleton<IValidationData, ValidationData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<IGetParticipantData, GetParticipantData>();
-        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
-        services.AddSingleton<ICallFunction, CallFunction>();
     })
     .Build();
 
