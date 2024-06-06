@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
+    <ProjectReference Include="..\..\testUtils\testUtils.csproj" />
   </ItemGroup>
 
 </Project>

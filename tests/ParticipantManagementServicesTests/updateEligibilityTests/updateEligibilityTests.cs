@@ -42,7 +42,7 @@ public class UpdateEligibilityTests
         var json = JsonSerializer.Serialize(_participant);
         var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
@@ -72,7 +72,7 @@ public class UpdateEligibilityTests
         var json = JsonSerializer.Serialize(_participant);
         var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req) =>

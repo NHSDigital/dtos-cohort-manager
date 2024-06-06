@@ -1,15 +1,18 @@
-namespace updateParticipant;
+namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Model;
+
+using NHS.CohortManager.ParticipantManagementService;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class UpdateParticipantTests
@@ -18,21 +21,22 @@ public class UpdateParticipantTests
     Mock<ICallFunction> callFunctionMock;
     ServiceCollection serviceCollection;
     Mock<FunctionContext> context;
-    Mock<HttpRequestData> request;
+    private Mock<HttpRequestData> _request;
     Mock<ICreateResponse> createResponse;
-
     Mock<HttpWebResponse> webResponse;
-
     Participant participant;
+    private readonly SetupRequest _setupRequest;
+
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
 
+        _setupRequest = new SetupRequest();
         loggerMock = new Mock<ILogger<UpdateParticipantFunction>>();
         createResponse = new Mock<ICreateResponse>();
         callFunctionMock = new Mock<ICallFunction>();
         context = new Mock<FunctionContext>();
-        request = new Mock<HttpRequestData>(context.Object);
+        _request = new Mock<HttpRequestData>(context.Object);
         webResponse = new Mock<HttpWebResponse>();
 
         serviceCollection = new ServiceCollection();
@@ -49,11 +53,11 @@ public class UpdateParticipantTests
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _request = _setupRequest.Setup(json);
 
-        setupRequest(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
         loggerMock.Verify(log =>
             log.Log(
@@ -74,10 +78,10 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
         loggerMock.Verify(log =>
             log.Log(
@@ -100,10 +104,10 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
         .ThrowsAsync(exception);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
         loggerMock.Verify(log =>
             log.Log(
@@ -113,22 +117,5 @@ public class UpdateParticipantTests
             null,
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
-    }
-
-    private void setupRequest(string json)
-    {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
-
-        request.Setup(r => r.Body).Returns(bodyStream);
-        request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
-
     }
 }

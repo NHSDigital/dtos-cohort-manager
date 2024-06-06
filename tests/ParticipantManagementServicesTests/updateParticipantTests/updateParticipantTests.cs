@@ -50,7 +50,7 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
         var result = await sut.Run(request.Object);
@@ -74,7 +74,7 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
         var result = await sut.Run(request.Object);
@@ -100,7 +100,7 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
         .ThrowsAsync(exception);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
 
         var result = await sut.Run(request.Object);

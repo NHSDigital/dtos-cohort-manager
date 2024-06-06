@@ -1,4 +1,4 @@
-namespace processCaasFileTest;
+namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
 using Moq;
 using System;
@@ -14,6 +14,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Model;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class processCaasFileTests
@@ -52,7 +53,7 @@ public class processCaasFileTests
         };
         var json = JsonSerializer.Serialize(cohort);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
         //Act
@@ -79,7 +80,7 @@ public class processCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         //Act
         var result = await sut.Run(request.Object);
@@ -103,7 +104,7 @@ public class processCaasFileTests
         };
         var exception = new Exception("Unable to call function");
         var json = JsonSerializer.Serialize(cohort);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
@@ -140,7 +141,7 @@ public class processCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         //Act
         var result = await sut.Run(request.Object);
@@ -164,7 +165,7 @@ public class processCaasFileTests
         };
         var exception = new Exception("Unable to call function");
         var json = JsonSerializer.Serialize(cohort);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()))

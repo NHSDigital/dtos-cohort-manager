@@ -8,7 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using screeningDataServices;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
@@ -18,7 +18,7 @@ public class MarkParticipantAsEligibleTests
     private readonly Mock<IUpdateParticipantData> mockUpdateParticipantData = new();
 
     [TestMethod]
-    public async Task Run_MarkParticipantAsEligible_ValidRequest_ReturnsSuccess()
+    public async Task Run_ValidRequest_ReturnsOk()
     {
         // Arrange
         string requestBody = @"{
@@ -38,7 +38,7 @@ public class MarkParticipantAsEligibleTests
     }
 
     [TestMethod]
-    public async Task Run_MarkParticipantAsEligible_InvalidRequest_ReturnsBadRequest()
+    public async Task Run_InvalidRequest_ReturnsBadRequest()
     {
         // Arrange
         string requestBody = @"{

@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.shared;
+namespace NHS.CohortManager.Tests.TestUtils;
 
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;

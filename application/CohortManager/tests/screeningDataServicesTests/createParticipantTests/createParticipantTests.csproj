@@ -28,6 +28,6 @@
     <ProjectReference Include="..\..\..\src\Functions\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\..\src\Functions\Shared\Data\Data.csproj" />
     <ProjectReference Include="..\..\..\src\Functions\Shared\Model\Model.csproj" />
-    <ProjectReference Include="..\..\shared\shared.csproj" />
+    <ProjectReference Include="..\..\testUtils\testUtils.csproj" />
   </ItemGroup>
 </Project>

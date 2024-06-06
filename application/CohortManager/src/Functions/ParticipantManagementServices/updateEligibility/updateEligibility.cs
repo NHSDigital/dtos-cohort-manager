@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CaasIntegration.UpdateEligibility;
+namespace NHS.CohortManager.ParticipantManagementService;
 
 using System.Net;
 using System.Text;

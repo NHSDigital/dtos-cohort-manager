@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
+    <ProjectReference Include="..\..\testUtils\testUtils.csproj" />
   </ItemGroup>
 
 </Project>

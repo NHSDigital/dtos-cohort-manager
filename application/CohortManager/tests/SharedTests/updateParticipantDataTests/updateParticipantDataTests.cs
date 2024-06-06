@@ -74,10 +74,10 @@ public class UpdateParticipantDetailsTests
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
         var participantData = GetParticipant();
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantDetails(participantData);
+        var result = sut.UpdateParticipantDetails(participantData);
 
         // Assert
         Assert.IsTrue(result);
@@ -97,10 +97,10 @@ public class UpdateParticipantDetailsTests
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
         var participantData = GetParticipant();
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantDetails(participantData);
+        var result = sut.UpdateParticipantDetails(participantData);
 
         // Assert
         Assert.IsFalse(result);
@@ -117,10 +117,10 @@ public class UpdateParticipantDetailsTests
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         var participantData = GetParticipant();
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
 
         // Assert
         Assert.IsTrue(result);
@@ -137,10 +137,10 @@ public class UpdateParticipantDetailsTests
         commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         var participantData = GetParticipant();
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
 
         // Assert
         Assert.IsFalse(result);
@@ -160,11 +160,11 @@ public class UpdateParticipantDetailsTests
 
 
         // Mock ExecuteQuery and CreateCommand
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Create an instance of the class under test
         // Act
-        var result = updateParticipantData.GetParticipantId(nhsId);
+        var result = sut.GetParticipantId(nhsId);
 
         // Assert
         Assert.AreEqual(expectedParticipantId, result);
@@ -183,11 +183,11 @@ public class UpdateParticipantDetailsTests
 
 
         // Mock ExecuteQuery and CreateCommand
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Create an instance of the class under test
         // Act
-        var result = updateParticipantData.GetParticipantId(nhsId);
+        var result = sut.GetParticipantId(nhsId);
 
         // Assert
         Assert.AreEqual(0, result);

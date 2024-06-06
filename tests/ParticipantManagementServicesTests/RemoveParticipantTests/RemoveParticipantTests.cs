@@ -48,7 +48,7 @@ public class RemoveParticipantTests
         var json = JsonSerializer.Serialize(participant);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
@@ -78,7 +78,7 @@ public class RemoveParticipantTests
         var json = JsonSerializer.Serialize(participant);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
@@ -106,7 +106,7 @@ public class RemoveParticipantTests
         var json = JsonSerializer.Serialize(participant);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
