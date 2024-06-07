@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS installer-env
 
-COPY ./screeningDataServices/ExceptionDataService /src/dotnet-function-app
+COPY ./screeningDataServices/GetValidationExceptions /src/dotnet-function-app
 COPY ./Shared /Shared
 RUN cd /src/dotnet-function-app && \
 mkdir -p /home/site/wwwroot && \

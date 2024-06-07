@@ -158,12 +158,12 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7072/api/LookupValidation
 
-  exception-data-service:
-    container_name: exception-data-service
+  get-validation-exceptions:
+    container_name: get-validation-exceptions
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/ExceptionDataService/Dockerfile
+      dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
