@@ -3,6 +3,7 @@ namespace Data.Database;
 using System;
 using System.Data;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class ValidationData : IValidationData
 {
@@ -17,7 +18,7 @@ public class ValidationData : IValidationData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
-    public List<ValidationDataDto> GetAll()
+    public List<ValidationException> GetAll()
     {
         var SQL = "SELECT * FROM [dbo].[VALIDATION_EXCEPTION]";
 
@@ -25,10 +26,10 @@ public class ValidationData : IValidationData
         command.CommandText = SQL;
         return ExecuteQuery(command, reader =>
         {
-            var rules = new List<ValidationDataDto>();
+            var rules = new List<ValidationException>();
             while (reader.Read())
             {
-                rules.Add(new ValidationDataDto
+                rules.Add(new ValidationException
                 {
                     RuleId = reader["RULE_ID"] == DBNull.Value ? null : reader["RULE_ID"].ToString(),
                     RuleName = reader["RULE_NAME"] == DBNull.Value ? null : reader["RULE_NAME"].ToString(),
@@ -42,18 +43,18 @@ public class ValidationData : IValidationData
         });
     }
 
-    public bool Create(ValidationDataDto dto)
+    public bool Create(ValidationException exception)
     {
         var SQL = "INSERT INTO [dbo].[VALIDATION_EXCEPTION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
                     "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);";
 
         var parameters = new Dictionary<string, object>()
         {
-            {"@ruleId", dto.RuleId},
-            {"@ruleName", dto.RuleName},
-            {"@workflow", dto.Workflow},
-            {"@nhsNumber", dto.NhsNumber},
-            {"@dateCreated", dto.DateCreated}
+            {"@ruleId", exception.RuleId},
+            {"@ruleName", exception.RuleName},
+            {"@workflow", exception.Workflow},
+            {"@nhsNumber", exception.NhsNumber},
+            {"@dateCreated", exception.DateCreated}
         };
 
         var command = CreateCommand(parameters);

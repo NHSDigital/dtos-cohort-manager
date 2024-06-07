@@ -3,21 +3,22 @@ namespace NHS.CohortManager.ScreeningValidationService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Data.Database;
+using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
 using RulesEngine.Models;
 
 public class LookupValidation
 {
     private readonly ILogger<LookupValidation> _logger;
-    private readonly IValidationData _createValidationData;
+    private readonly ICallFunction _callFunction;
 
-    public LookupValidation(ILogger<LookupValidation> logger, IValidationData validationData)
+    public LookupValidation(ILogger<LookupValidation> logger, ICallFunction callFunction)
     {
         _logger = logger;
-        _createValidationData = validationData;
+        _callFunction = callFunction;
     }
 
     [Function("LookupValidation")]
@@ -65,7 +66,7 @@ public class LookupValidation
 
                 var ruleDetails = result.Rule.RuleName.Split('.');
 
-                var dto = new ValidationDataDto
+                var exception = new ValidationException
                 {
                     RuleId = ruleDetails[0],
                     RuleName = ruleDetails[1],
@@ -74,7 +75,8 @@ public class LookupValidation
                     DateCreated = DateTime.UtcNow
                 };
 
-                _createValidationData.Create(dto);
+                var exceptionJson = JsonSerializer.Serialize(exception);
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
             }
         }
 

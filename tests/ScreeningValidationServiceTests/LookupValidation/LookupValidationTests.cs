@@ -65,7 +65,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Never());
     }
 
     [TestMethod]
@@ -79,7 +79,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Never());
     }
 
     [TestMethod]
@@ -98,7 +98,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Once());
     }
 
     [TestMethod]
@@ -116,7 +116,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Never());
     }
 
     [TestMethod]
@@ -135,7 +135,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Once());
     }
 
     [TestMethod]
@@ -155,7 +155,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationException>()), Times.Never());
     }
 
     private void SetUpRequestBody(string json)

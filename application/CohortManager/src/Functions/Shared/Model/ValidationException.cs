@@ -1,6 +1,6 @@
-namespace Data.Database;
+namespace Model;
 
-public class ValidationDataDto
+public class ValidationException
 {
     public string? RuleId { get; set; }
     public string? RuleName { get; set; }
