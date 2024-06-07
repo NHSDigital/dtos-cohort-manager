@@ -3,6 +3,7 @@ using System.Data;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using Model;
+using Microsoft.Data.SqlClient;
 
 public class CreateDemographicData : ICreateDemographicData
 {
@@ -249,8 +250,19 @@ public class CreateDemographicData : ICreateDemographicData
                 return false;
             }
         }
+        catch (SqlException sqlEx)
+        {
+            if (sqlEx.Number == 2627)
+            {
+                _logger.LogInformation($"Sql message: {sqlEx.Message}");
+                return true;
+            }
+            _logger.LogError($"an error happened: {sqlEx.Message}");
+            return false;
+        }
         catch (Exception ex)
         {
+
             _logger.LogError($"an error happened: {ex.Message}");
             return false;
         }
