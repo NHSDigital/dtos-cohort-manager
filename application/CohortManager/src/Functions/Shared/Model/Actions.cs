@@ -2,7 +2,7 @@
 
 public static class Actions
 {
-    public const string New = "NEW";
-    public const string Amended = "AMENDED";
-    public const string Removed = "REMOVED";
+    public const string? New = "new";
+    public const string? Amended = "Amended";
+    public const string? Removed = "Removed";
 }

@@ -9,9 +9,9 @@ public class CreateDemographicData : ICreateDemographicData
     private IDbConnection _dbConnection;
     private IDatabaseHelper _databaseHelper;
     private readonly string connectionString;
-    private readonly ILogger _logger;
+    private readonly ILogger<CreateDemographicData> _logger;
 
-    public CreateDemographicData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger logger)
+    public CreateDemographicData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateDemographicData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
@@ -26,70 +26,70 @@ public class CreateDemographicData : ICreateDemographicData
             new SQLReturnModel()
             {
                 commandType = CommandType.Command,
-                SQL = " INSERT INTO [dbo].[DEMOGRAPHIC_DATA]" +
+                SQL = "INSERT INTO [dbo].[DEMOGRAPHIC_DATA] " +
                 "(" +
                     " [resource_id] " +
                     ", [nhs_number] " +
-                    ", [prefix] "+
-                    ", [given_name] "+
-                    ", [family_name] "+
-                    ", [gender] "+
-                    ", [birth_date] "+
+                    ", [prefix] " +
+                    ", [given_name] " +
+                    ", [family_name] " +
+                    ", [gender] " +
+                    ", [birth_date] " +
                     ", [deceased_datetime] " +
-                    ", [general_practitioner_code] "+
+                    ", [general_practitioner_code] " +
                     ", [managing_organization_code] " +
-                    ", [communication_language] "+
-                    ", [interpreter_required] "+
-                    ", [preferred_communication_format] "+
-                    ", [preferred_contact_method] "+
-                    ", [preferred_contact_time] "+
-                    ", [birth_place_city] "+
-                    ", [birth_place_district] "+
-                    ", [birth_place_country] "+
-                    ", [removal_reason_code] "+
+                    ", [communication_language] " +
+                    ", [interpreter_required] " +
+                    ", [preferred_communication_format] " +
+                    ", [preferred_contact_method] " +
+                    ", [preferred_contact_time] " +
+                    ", [birth_place_city] " +
+                    ", [birth_place_district] " +
+                    ", [birth_place_country] " +
+                    ", [removal_reason_code] " +
                     ", [removal_effective_start] " +
                     " ,[removal_effective_end] " +
                     " ,[home_address_line1] " +
                     " ,[home_address_line2] " +
                     " ,[home_address_line3] " +
-                   " ,[home_address_city] " +
-                   " ,[home_address_postcode] " +
-                   " ,[home_phone_number] " +
-                   " ,[home_email_address] " +
-                   " ,[home_phone_textphone] " +
-                   " ,[emergency_contact_phone_number] ) " +
-                   " VALUES " +
+                    " ,[home_address_city] " +
+                    " ,[home_address_postcode] " +
+                    " ,[home_phone_number] " +
+                    " ,[home_email_address] " +
+                    " ,[home_phone_textphone] " +
+                    " ,[emergency_contact_phone_number] ) " +
+                "VALUES " +
                 "(" +
-                  " @resource_id, " +
-                    " @NHSNumber, " +
-                    " @namePrefix, " +
-                    " @firstName, " +
-                    " @surname, " +
+                    " @resource_id, " +
+                    " @nhs_number, " +
+                    " @prefix, " +
+                    " @given_name, " +
+                    " @family_name, " +
                     " @gender, " +
-                    " @dateOfBirth, " +
-                    " @dateOfDeath, " +
-                    " @generalPractitionerCode, " +
-                    " @managingOrganizationCode, " +
-                    " @communicationLanguage, " +
-                    " @interpreterRequired, " +
-                    " @preferredCommunicationFormat," +
-                    " @preferredContactMethod, " +
-                    " @preferredContactTime, " +
-                    " @birthPlaceCity, " +
-                    " @birthPlaceDistrict, " +
-                    " @birthPlaceCountry, " +
-                    " @removalReasonCode, " +
-                    " @removalEffectiveStart, " +
-                    " @removalEffectiveEnd, " +
-                    " @homeAddressLine1, " +
-                    " @homeAddressLine2, " +
-                    " @homeAddressLine3, " +
-                    " @homeAddressCity, " +
-                    " @homeAddressPostcode, " +
-                    " @homePhoneNumber, " +
-                    " @homeEmailAddress, " +
-                    " @homePhoneTextphone, " +
-                    " @emergencyContactPhoneNumber" +
+                    " @birth_date, " +
+                    " @deceased_datetime, " +
+                    " @general_practitioner_code, " +
+                    " @managing_organization_code, " +
+                    " @communication_language, " +
+                    " @interpreter_required, " +
+                    " @preferred_communication_format," +
+                    " @preferred_contact_method, " +
+                    " @preferred_contact_time, " +
+                    " @birth_place_city, " +
+                    " @birth_place_district, " +
+                    " @birth_place_country, " +
+                    " @removal_reason_code, " +
+                    " @removal_effective_start, " +
+                    " @removal_effective_end, " +
+                    " @home_address_line1, " +
+                    " @home_address_line2, " +
+                    " @home_address_line3, " +
+                    " @home_address_city, " +
+                    " @home_address_postcode, " +
+                    " @home_phone_number, " +
+                    " @home_email_address, " +
+                    " @home_phone_textphone, " +
+                    " @emergency_contact_phone_number" +
                 ")",
                 parameters = new Dictionary<string, object>
                 {
@@ -99,8 +99,8 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@given_name", _databaseHelper.ConvertNullToDbNull(participant.FirstName)},
                     {"@family_name", _databaseHelper.ConvertNullToDbNull(participant.Surname)},
                     {"@gender", participant.Gender.ToString()},
-                    {"@birth_date", _databaseHelper.parseDates(participant.DateOfBirth)},
-                    {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDateToString(participant.DateOfDeath)},
+                    {"@birth_date", _databaseHelper.CheckIfDateNull(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfBirth)},
+                    {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfDeath)},
                     {"@general_practitioner_code", _databaseHelper.ConvertNullToDbNull(participant.PrimaryCareProvider)},
                     {"@managing_organization_code", DBNull.Value},
                     {"@communication_language", _databaseHelper.ConvertNullToDbNull(participant.PreferredLanguage)},
@@ -124,6 +124,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@home_phone_textphone", DBNull.Value},
                     {"@emergency_contact_phone_number", _databaseHelper.ConvertNullToDbNull(participant.MobileNumber)}
                 },
+
             }
         };
 

@@ -1,4 +1,3 @@
-using System.Data.Common;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -27,19 +26,20 @@ namespace screeningDataServices
         [Function("DemographicDataService")]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
+            // parse through the HTTP request
             string requestBody = "";
-            var participantData = new Participant();
-
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-                participantData = JsonSerializer.Deserialize<Participant>(requestBody);
-            }
+            Participant participantData = new Participant();
 
             try
             {
                 if (req.Method == "POST")
                 {
+                    using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+                    {
+                        requestBody = await reader.ReadToEndAsync();
+                        participantData = JsonSerializer.Deserialize<Participant>(requestBody);
+                    }
+
                     var created = _createDemographicData.InsertDemographicData(participantData);
                     if (!created)
                     {
@@ -48,7 +48,9 @@ namespace screeningDataServices
                 }
                 else
                 {
-                    var demographicData = _createDemographicData.GetDemographicData(participantData.NHSId);
+                    string Id = req.Query["Id"];
+
+                    var demographicData = _createDemographicData.GetDemographicData(Id);
                     if (demographicData != null)
                     {
                         var responseBody = JsonSerializer.Serialize<Demographic>(demographicData);

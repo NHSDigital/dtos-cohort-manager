@@ -44,14 +44,15 @@ namespace processCaasFile
             foreach (var p in input.Participants)
             {
                 row++;
+                var recordTypeTrimmed = p.RecordType.Trim();
                 var DemographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
                 if (DemographicDataInserted == false)
                 {
-                    _logger.LogInformation("demographic function failed");
+                    _logger.LogError("demographic function failed");
                 }
-
-                switch (p.RecordType.Trim())
+                switch (recordTypeTrimmed)
                 {
+
                     case Actions.New:
                         add++;
                         try
@@ -135,6 +136,7 @@ namespace processCaasFile
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
         }
     }
 }

@@ -1,8 +1,5 @@
-
-using System.ComponentModel;
 using System.Net;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
 using Model;
 
 namespace Common
@@ -10,33 +7,26 @@ namespace Common
     public class CheckDemographic : ICheckDemographic
     {
         private readonly ICallFunction _callFunction;
-        public readonly ILogger _logger;
-        public CheckDemographic(ICallFunction callFunction, ILogger logger)
+        public CheckDemographic(ICallFunction callFunction)
         {
             _callFunction = callFunction;
-            _logger = logger;
         }
 
-        public async Task<Demographic> GetDemographicAsync(string NhsId, string DemographicFunctionURI)
+        public async Task<Demographic> GetDemographicAsync(string NHSId, string DemographicFunctionURI)
         {
-            var DemographicData = await _callFunction.SendGet(DemographicFunctionURI, JsonSerializer.Serialize(NhsId));
-            if (DemographicData.StatusCode == HttpStatusCode.OK)
-            {
-                var demographicDataResponse = new Demographic();
-                using (var reader = new StreamReader(DemographicData.GetResponseStream()))
-                {
-                    var dataRead = reader.ReadToEnd();
-                    demographicDataResponse = JsonSerializer.Deserialize<Demographic>(dataRead);
-                }
-                return demographicDataResponse;
-            }
-            _logger.LogError($"The demographic function has failed with NHSId {NhsId}");
-            return null;
+
+            var url = $"{DemographicFunctionURI}?Id={NHSId}";
+            Console.WriteLine(url);
+            var response = await _callFunction.SendGet(url);
+            var DemographicData = JsonSerializer.Deserialize<Demographic>(response);
+
+            return DemographicData;
         }
 
         public async Task<bool> PostDemographicDataAsync(Participant participant, string DemographicFunctionURI)
         {
-            var response = await _callFunction.SendPost(DemographicFunctionURI, JsonSerializer.Serialize(participant));
+            var json = JsonSerializer.Serialize(participant);
+            var response = await _callFunction.SendPost(DemographicFunctionURI, json);
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 return false;

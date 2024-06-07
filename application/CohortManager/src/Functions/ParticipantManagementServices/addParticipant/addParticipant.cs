@@ -45,7 +45,7 @@ namespace addParticipant
 
             try
             {
-                var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 if (demographicData == null)
                 {

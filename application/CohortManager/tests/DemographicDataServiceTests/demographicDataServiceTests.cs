@@ -56,11 +56,11 @@ public class DemographicDataServiceTests
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
                 return response;
             });
-
+        request.Setup(x => x.Method).Returns("POST");
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(true);
 
         //Act
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -87,7 +87,7 @@ public class DemographicDataServiceTests
 
         //Act
         request.Setup(x => x.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert 
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -114,7 +114,7 @@ public class DemographicDataServiceTests
 
         //Act
         request.Setup(x => x.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert 
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -145,7 +145,7 @@ public class DemographicDataServiceTests
 
         // Act
         request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -172,7 +172,7 @@ public class DemographicDataServiceTests
 
         // Act
         request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
@@ -199,7 +199,7 @@ public class DemographicDataServiceTests
 
         // Act
         request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);

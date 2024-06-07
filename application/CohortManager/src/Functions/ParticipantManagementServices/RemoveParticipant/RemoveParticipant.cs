@@ -45,7 +45,7 @@ namespace RemoveParticipant
 
                 var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
-                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
 
                 if (demographicData == null)

@@ -23,10 +23,15 @@ public class UpdateParticipantTests
 
     Mock<HttpWebResponse> webResponse;
 
+    Mock<ICheckDemographic> checkDemographic = new();
+
+    Mock<ICreateParticipant> createParticipant = new();
+
     Participant participant;
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
+        Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
 
         loggerMock = new Mock<ILogger<UpdateParticipantFunction>>();
         createResponse = new Mock<ICreateResponse>();
@@ -39,6 +44,11 @@ public class UpdateParticipantTests
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         context.SetupProperty(c => c.InstanceServices, serviceProvider);
+
+        participant = new Participant()
+        {
+            NHSId = "1",
+        };
     }
 
     [TestMethod]
@@ -50,8 +60,15 @@ public class UpdateParticipantTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
+        callFunctionMock.Setup(call => call.SendGet(It.IsAny<string>()))
+                        .Returns(Task.FromResult<string>(""));
+
+        checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURI"))))
+                        .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
+
+        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 
@@ -75,7 +92,7 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
+        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 
@@ -101,7 +118,7 @@ public class UpdateParticipantTests
         .ThrowsAsync(exception);
 
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object);
+        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 

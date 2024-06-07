@@ -52,17 +52,14 @@ namespace updateParticipant
 
             try
             {
-                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURI"));
+                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                 }
 
-
                 var json = JsonSerializer.Serialize(participant);
-
-
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)

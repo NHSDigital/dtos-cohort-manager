@@ -55,8 +55,8 @@ public class DemographicDataFunctionTests
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendGet(It.IsAny<string>(), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
+                        .Returns(Task.FromResult<string>(""));
     }
 
     [TestMethod]
@@ -70,7 +70,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -90,7 +90,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -107,7 +107,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -136,7 +136,7 @@ public class DemographicDataFunctionTests
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -166,7 +166,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(request.Object, "");
 
         //Assert
 

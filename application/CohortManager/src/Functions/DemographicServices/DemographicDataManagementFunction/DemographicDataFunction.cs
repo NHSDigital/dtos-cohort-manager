@@ -28,18 +28,17 @@ namespace DemographicDataManagementFunction
         {
             string requestBody = "";
             var participantData = new Participant();
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-                participantData = JsonSerializer.Deserialize<Participant>(requestBody);
-            }
-
             try
             {
-
                 if (req.Method == "POST")
                 {
-                    var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), participantData.NHSId);
+                    using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+                    {
+                        requestBody = await reader.ReadToEndAsync();
+                        participantData = JsonSerializer.Deserialize<Participant>(requestBody);
+                    }
+
+                    var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), JsonSerializer.Serialize(participantData));
 
                     if (res.StatusCode != HttpStatusCode.OK)
                     {
@@ -49,18 +48,18 @@ namespace DemographicDataManagementFunction
                 }
                 else
                 {
-                    var res = await _callFunction.SendGet(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), participantData.NHSId);
+                    var functionUrl = Environment.GetEnvironmentVariable("DemographicDataFunctionURI");
+                    string Id = req.Query["Id"];
 
-                    if (res.StatusCode != HttpStatusCode.OK)
+                    var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
+
+                    if (string.IsNullOrEmpty(data))
                     {
                         _logger.LogInformation("demographic function failed");
-                        return _createResponse.CreateHttpResponse(res.StatusCode, req);
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
                     }
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
                 }
-
-
-
-
             }
             catch (Exception ex)
             {
