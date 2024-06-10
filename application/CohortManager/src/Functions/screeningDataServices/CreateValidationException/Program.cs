@@ -17,7 +17,7 @@ var host = new HostBuilder()
             var conn = providerFactory.CreateConnection();
             return conn;
         });
-        services.AddSingleton<IValidationData, ValidationData>();
+        services.AddSingleton<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
     .Build();

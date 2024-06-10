@@ -11,9 +11,9 @@ public class GetValidationExceptions
 {
     private readonly ILogger<GetValidationExceptions> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IValidationData _validationData;
+    private readonly IValidationExceptionData _validationData;
 
-    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationData validationData)
+    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData)
     {
         _logger = logger;
         _createResponse = createResponse;

@@ -5,13 +5,13 @@ using System.Data;
 using Microsoft.Extensions.Logging;
 using Model;
 
-public class ValidationData : IValidationData
+public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly IDbConnection _dbConnection;
     private readonly string _connectionString;
-    private readonly ILogger<ValidationData> _logger;
+    private readonly ILogger<ValidationExceptionData> _logger;
 
-    public ValidationData(IDbConnection IdbConnection, ILogger<ValidationData> logger)
+    public ValidationExceptionData(IDbConnection IdbConnection, ILogger<ValidationExceptionData> logger)
     {
         _dbConnection = IdbConnection;
         _logger = logger;
