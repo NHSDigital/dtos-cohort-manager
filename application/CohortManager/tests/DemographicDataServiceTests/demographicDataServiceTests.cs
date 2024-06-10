@@ -205,7 +205,6 @@ public class DemographicDataServiceTests
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
-
     private void setupRequest(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
