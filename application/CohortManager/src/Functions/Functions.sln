@@ -199,7 +199,7 @@ Global
       {96AD14C8-67A1-4DC4-8593-F2D64F999223} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
       {9A53EEBB-3DE4-41FD-8552-94F79E88D674} = {8546F1DA-6055-4224-8A2B-36CDE94CBD07}
     EndGlobalSection
-   GlobalSection(ExtensibilityGlobals) = postSolution
-   SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
- EndGlobalSection
+      GlobalSection(ExtensibilityGlobals) = postSolution
+      SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
+  EndGlobalSection
 EndGlobal

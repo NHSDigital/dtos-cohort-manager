@@ -296,5 +296,4 @@ public class CreateDemographicData : ICreateDemographicData
 
         return dbCommand;
     }
-
 }

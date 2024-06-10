@@ -70,7 +70,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object, "");
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -90,7 +90,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object, "");
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -107,7 +107,7 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("GET");
-        var result = await sut.Run(request.Object, "");
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -136,7 +136,7 @@ public class DemographicDataFunctionTests
                             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
-        var result = await sut.Run(request.Object, "");
+        var result = await sut.Run(request.Object);
 
         //Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -166,18 +166,18 @@ public class DemographicDataFunctionTests
 
         //Act
         request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(request.Object, "");
+        var result = await sut.Run(request.Object);
 
         //Assert
 
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _logger.Verify(log =>
            log.Log(
-           LogLevel.Error,
-           0,
-           It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("there has been an error saving demographic data:")),
-           null,
-           (Func<object, Exception, string>)It.IsAny<object>()
+                LogLevel.Error,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("there has been an error saving demographic data:")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
            ));
     }
 
