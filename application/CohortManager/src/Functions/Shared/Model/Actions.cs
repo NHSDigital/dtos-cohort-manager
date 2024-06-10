@@ -1,4 +1,4 @@
-﻿namespace Model;
+namespace Model;
 
 public static class Actions
 {
