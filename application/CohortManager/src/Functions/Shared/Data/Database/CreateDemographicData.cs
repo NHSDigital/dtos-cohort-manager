@@ -282,6 +282,7 @@ public class CreateDemographicData : ICreateDemographicData
         var dbCommand = _dbConnection.CreateCommand();
         return AddParameters(parameters, dbCommand);
     }
+
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         foreach (var param in parameters)
