@@ -109,13 +109,13 @@ public class UpdateParticipantTests
 
         // Assert
         _logger.Verify(log =>
-           log.Log(
-           LogLevel.Information,
-           0,
-           It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Participant updated.")),
-           null,
-           (Func<object, Exception, string>)It.IsAny<object>()
-           ));
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Participant updated.")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
     }
 
     [TestMethod]
