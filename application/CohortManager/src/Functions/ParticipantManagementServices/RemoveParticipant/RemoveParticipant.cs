@@ -51,6 +51,7 @@ namespace RemoveParticipant
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
                 var json = JsonSerializer.Serialize(participant);
 
