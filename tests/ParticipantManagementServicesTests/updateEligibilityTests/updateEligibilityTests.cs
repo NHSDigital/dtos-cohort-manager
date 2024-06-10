@@ -32,7 +32,7 @@ public class UpdateEligibilityTests
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "UPDATE"
+            RecordType = Actions.Amended
         };
     }
 
@@ -44,8 +44,8 @@ public class UpdateEligibilityTests
 
         _request = _setupRequest.Setup(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -60,7 +60,7 @@ public class UpdateEligibilityTests
 
         var result = await sut.Run(_request.Object);
 
-        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>()), Times.Once);
+        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _createResponse.VerifyNoOtherCalls();
 
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -74,8 +74,8 @@ public class UpdateEligibilityTests
 
         _request = _setupRequest.Setup(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -90,7 +90,7 @@ public class UpdateEligibilityTests
 
         var result = await sut.Run(_request.Object);
 
-        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>()), Times.Once);
+        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _createResponse.VerifyNoOtherCalls();
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);

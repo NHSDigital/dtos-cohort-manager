@@ -21,9 +21,8 @@ public class RemoveParticipantTests
     private readonly Mock<FunctionContext> context = new();
     private readonly Mock<HttpRequestData> request;
     private readonly Mock<HttpWebResponse> webResponse = new();
-
-    Participant participant;
-    ServiceCollection serviceCollection = new();
+    private readonly Participant participant;
+    private readonly ServiceCollection serviceCollection = new();
 
     public RemoveParticipantTests()
     {
@@ -37,7 +36,7 @@ public class RemoveParticipantTests
             FirstName = "Joe",
             Surname = "Bloggs",
             NHSId = "1",
-            Action = "ADD"
+            RecordType = Actions.New
         };
     }
 
@@ -50,18 +49,17 @@ public class RemoveParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
         var result = await sut.Run(request.Object);
@@ -73,25 +71,23 @@ public class RemoveParticipantTests
     [TestMethod]
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
-
         //Arrange
         var json = JsonSerializer.Serialize(participant);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         _request = _setupRequest.Setup(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
         var result = await sut.Run(request.Object);
@@ -108,13 +104,13 @@ public class RemoveParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));
@@ -138,6 +134,5 @@ public class RemoveParticipantTests
             response.SetupProperty(r => r.Body, new MemoryStream());
             return response.Object;
         });
-
     }
 }

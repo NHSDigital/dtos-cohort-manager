@@ -4,7 +4,6 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
 using System.Text;
 using Model;
 using System.Text.Json;
@@ -26,38 +25,62 @@ public class UpdateParticipantFunction
     [Function("updateParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        _logger.LogInformation("C# Update called.");
+        _logger.LogInformation("Update participant called.");
         HttpWebResponse createResponse;
 
-        // convert body to json and then deserialize to object
-        string postdata = "";
+        string requestBodyJson;
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            postdata = reader.ReadToEnd();
+            requestBodyJson = reader.ReadToEnd();
         }
-        var input = JsonSerializer.Deserialize<Participant>(postdata);
+        var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
 
-        // Any validation or decisions go in here
+        if (!await ValidateData(participant))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
 
         try
         {
-            var json = JsonSerializer.Serialize(input);
+            var json = JsonSerializer.Serialize(participant);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
             if (createResponse.StatusCode == HttpStatusCode.OK)
             {
-                _logger.LogInformation("participant updated");
+                _logger.LogInformation("Participant updated.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
-        _logger.LogInformation("the user has not been updated due to a bad request");
-        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        _logger.LogInformation("The participant has not been updated due to a bad request.");
 
+        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+    }
+
+    private async Task<bool> ValidateData(Participant participant)
+    {
+        var json = JsonSerializer.Serialize(participant);
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return false;
+        }
+
+        return false;
     }
 }

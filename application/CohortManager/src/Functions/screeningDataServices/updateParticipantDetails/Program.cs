@@ -5,7 +5,6 @@ using Data.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -22,6 +21,7 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<IGetParticipantData, GetParticipantData>();
         services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
+        services.AddSingleton<ICallFunction, CallFunction>();
     })
     .Build();
 
