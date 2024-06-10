@@ -34,7 +34,6 @@ namespace screeningDataServicesTests
             // Assert
             mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
             mockCreateResponse.VerifyNoOtherCalls();
-
         }
 
         [TestMethod]

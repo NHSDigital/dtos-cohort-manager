@@ -61,6 +61,7 @@ public class UpdateEligibilityTests
         var result = await sut.Run(_request.Object);
 
         _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _createResponse.VerifyNoOtherCalls();
 
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -90,6 +91,7 @@ public class UpdateEligibilityTests
 
         var result = await sut.Run(_request.Object);
 
+        _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _createResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _createResponse.VerifyNoOtherCalls();
 

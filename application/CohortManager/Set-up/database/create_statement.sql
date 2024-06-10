@@ -1,4 +1,3 @@
-
 /*==============================================================*/
 /* Table: ADDRESS                                               */
 /*==============================================================*/
@@ -59,7 +58,6 @@ create table dbo.GENDER_MASTER (
     constraint PK_GENDER_MASTER primary key (GENDER_CD)
 );
 
-
 /*==============================================================*/
 /* Table: PARTICIPANT                                     */
 /*==============================================================*/
@@ -101,6 +99,19 @@ create table dbo.SCREENING_PROGRAMS (
     SCREENING_PROGRAM_NAME VARCHAR(50)          null,
     PROGRAM_DESC         VARCHAR(200)         null,
     constraint PK_SCREENING_PROGRAMS primary key (SCREENING_PROGRAM_ID)
+);
+
+/*==============================================================*/
+/* Table: VALIDATION_EXCEPTION                                  */
+/*==============================================================*/
+create table dbo.VALIDATION_EXCEPTION (
+    VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
+    RULE_ID INT not null,
+    RULE_NAME NVARCHAR(200) not null,
+    WORKFLOW NVARCHAR(50) not null,
+    NHS_NUMBER BIGINT not null,
+    DATE_CREATED DATETIME not null,
+    constraint PK_VALIDATION_EXCEPTION primary key (VALIDATION_EXCEPTION_ID)
 );
 
 

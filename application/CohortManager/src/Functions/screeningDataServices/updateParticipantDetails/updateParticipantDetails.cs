@@ -36,7 +36,7 @@ namespace updateParticipantDetails
                     participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
 
-                var isAdded = _updateParticipantData.UpdateParticipantDetails(participantData);
+                var isAdded = await _updateParticipantData.UpdateParticipantDetails(participantData);
                 if (isAdded)
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -49,7 +49,6 @@ namespace updateParticipantDetails
                 _logger.LogError(ex.Message, ex);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
-
         }
     }
 }

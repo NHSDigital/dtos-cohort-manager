@@ -62,10 +62,9 @@ public class RemoveParticipantTests
                 return response;
             });
 
-
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
         var result = await sut.Run(request.Object);
@@ -77,7 +76,6 @@ public class RemoveParticipantTests
     [TestMethod]
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
-
         //Arrange
         var json = JsonSerializer.Serialize(participant);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
@@ -92,10 +90,9 @@ public class RemoveParticipantTests
                 return response;
             });
 
-
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         //Act
         var result = await sut.Run(request.Object);
@@ -142,6 +139,5 @@ public class RemoveParticipantTests
             response.SetupProperty(r => r.Body, new MemoryStream());
             return response.Object;
         });
-
     }
 }

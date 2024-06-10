@@ -1,6 +1,5 @@
 namespace Common;
 
-using System.Runtime.InteropServices;
 using System.Net;
 using Microsoft.Azure.Functions.Worker.Http;
 
