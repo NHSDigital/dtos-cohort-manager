@@ -172,13 +172,13 @@ public class DemographicDataFunctionTests
 
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _logger.Verify(log =>
-           log.Log(
-                LogLevel.Error,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("there has been an error saving demographic data:")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-           ));
+        log.Log(
+            LogLevel.Error,
+            0,
+            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("there has been an error saving demographic data:")),
+            null,
+            (Func<object, Exception, string>)It.IsAny<object>()
+        ));
     }
 
     private void setupRequest(string json)
