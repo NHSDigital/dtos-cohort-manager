@@ -2,7 +2,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Grpc.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -66,9 +65,8 @@ namespace DemographicDataManagementFunction
                 _logger.LogError($"there has been an error saving demographic data: {ex.Message}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
-
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
     }
 }
+
