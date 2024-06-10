@@ -61,8 +61,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataServiceTests", "..\..\tests\DemographicDataServiceTests\DemographicDataServiceTests.csproj", "{B943A69E-43EC-4646-BBDF-EEA3A8D0C16F}"
 EndProject
 Global
- GlobalSection(SolutionConfigurationPlatforms) = preSolution
-   Debug|Any CPU = Debug|Any CPU
+  GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|Any CPU = Debug|Any CPU
    Release|Any CPU = Release|Any CPU
    EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
