@@ -15,38 +15,42 @@ using Model;
 [TestClass]
 public class UpdateParticipantTests
 {
-    Mock<ILogger<UpdateParticipantFunction>> loggerMock;
-    Mock<ICallFunction> callFunctionMock;
+    Mock<ILogger<UpdateParticipantFunction>> _logger;
+    Mock<ICallFunction> _callFunction;
     ServiceCollection serviceCollection;
-    Mock<FunctionContext> context;
-    Mock<HttpRequestData> request;
-    Mock<ICreateResponse> createResponse;
+    Mock<FunctionContext> _context;
+    Mock<HttpRequestData> _request;
+    Mock<ICreateResponse> _createResponse;
 
-    Mock<HttpWebResponse> webResponse;
+    Mock<HttpWebResponse> _webResponse;
 
     Mock<ICheckDemographic> checkDemographic = new();
 
     Mock<ICreateParticipant> createParticipant = new();
 
-    Participant participant;
+    Mock<HttpWebResponse> _validationWebResponse = new();
+
+    Mock<HttpWebResponse> _updateParticipantWebResponse = new();
+
+    Participant _participant;
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
         Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
 
-        loggerMock = new Mock<ILogger<UpdateParticipantFunction>>();
-        createResponse = new Mock<ICreateResponse>();
-        callFunctionMock = new Mock<ICallFunction>();
-        context = new Mock<FunctionContext>();
-        request = new Mock<HttpRequestData>(context.Object);
-        webResponse = new Mock<HttpWebResponse>();
+        _logger = new Mock<ILogger<UpdateParticipantFunction>>();
+        _createResponse = new Mock<ICreateResponse>();
+        _callFunction = new Mock<ICallFunction>();
+        _context = new Mock<FunctionContext>();
+        _request = new Mock<HttpRequestData>(_context.Object);
+        _webResponse = new Mock<HttpWebResponse>();
 
         serviceCollection = new ServiceCollection();
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        context.SetupProperty(c => c.InstanceServices, serviceProvider);
+        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        participant = new Participant()
+        _participant = new Participant()
         {
             NHSId = "1",
         };
@@ -55,13 +59,13 @@ public class UpdateParticipantTests
     [TestMethod]
     public async Task Run_Should_Return_BadRequest_And_Not_Update_Participant_When_Validation_Fails()
     {
-        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        var json = JsonSerializer.Serialize(participant);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        var json = JsonSerializer.Serialize(_participant);
 
-        callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        callFunctionMock.Setup(call => call.SendGet(It.IsAny<string>()))
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
                         .Returns(Task.FromResult<string>(""));
 
         checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURI"))))
@@ -69,7 +73,7 @@ public class UpdateParticipantTests
 
         setupRequest(json);
 
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -84,11 +88,11 @@ public class UpdateParticipantTests
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
-        loggerMock.Verify(log =>
+        _logger.Verify(log =>
             log.Log(
             LogLevel.Information,
             0,
@@ -113,7 +117,7 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), json))
             .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -128,11 +132,11 @@ public class UpdateParticipantTests
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(loggerMock.Object, createResponse.Object, callFunctionMock.Object, checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, checkDemographic.Object, createParticipant.Object);
 
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
-        loggerMock.Verify(log =>
+        _logger.Verify(log =>
             log.Log(
             LogLevel.Information,
             0,

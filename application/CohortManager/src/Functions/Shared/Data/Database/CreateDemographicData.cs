@@ -1,6 +1,6 @@
 namespace Data.Database;
+
 using System.Data;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using Model;
 using Microsoft.Data.SqlClient;
