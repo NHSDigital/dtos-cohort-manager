@@ -89,16 +89,16 @@ public class UpdateParticipantTests
         var json = JsonSerializer.Serialize(_participant);
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
-                        .Returns(Task.FromResult<string>(""));
+            .Returns(Task.FromResult<string>(""));
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-                        .Returns(Task.FromResult<Demographic>(new Demographic()));
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         setupRequest(json);
 
@@ -135,12 +135,12 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-               .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-               {
-                   var response = req.CreateResponse(statusCode);
-                   response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                   return response;
-               });
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
@@ -169,12 +169,12 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-               .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-               {
-                   var response = req.CreateResponse(statusCode);
-                   response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                   return response;
-               });
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 
@@ -185,13 +185,13 @@ public class UpdateParticipantTests
         _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.InternalServerError, _request.Object, ""), Times.Once());
 
         _logger.Verify(log =>
-          log.Log(
-          LogLevel.Information,
-          0,
-          It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Update participant failed")),
-          null,
-          (Func<object, Exception, string>)It.IsAny<object>()
-          ));
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Update participant failed")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
     }
 
     private void setupRequest(string json)
