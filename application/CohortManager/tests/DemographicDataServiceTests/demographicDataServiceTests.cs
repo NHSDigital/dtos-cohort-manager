@@ -137,6 +137,7 @@ public class DemographicDataServiceTests
                 response.WriteString(ResponseBody);
                 return response;
             });
+        request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
         {
@@ -159,6 +160,8 @@ public class DemographicDataServiceTests
         var json = JsonSerializer.Serialize(participant);
         setupRequest(json);
 
+
+        request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {

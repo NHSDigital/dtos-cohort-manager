@@ -23,7 +23,7 @@ public class CreateParticipantTests
     private Mock<ICreateParticipantData> mockCreateParticipantData;
     private Mock<Participant> mockParticipantDetails;
 
-    private readonly Mock<ICheckDemographic> CheckDemographic;
+    private readonly Mock<ICheckDemographic> CheckDemographic = new();
 
     Mock<FunctionContext> mockContext;
     Mock<HttpRequestData> mockRequest;

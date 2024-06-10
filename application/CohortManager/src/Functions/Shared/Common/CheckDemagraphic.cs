@@ -16,7 +16,7 @@ namespace Common
         {
 
             var url = $"{DemographicFunctionURI}?Id={NHSId}";
-            Console.WriteLine(url);
+
             var response = await _callFunction.SendGet(url);
             var DemographicData = JsonSerializer.Deserialize<Demographic>(response);
 

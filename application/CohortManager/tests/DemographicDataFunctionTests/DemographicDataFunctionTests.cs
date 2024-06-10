@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
+using Microsoft.Extensions.Primitives;
 
 namespace DemographicDataFunctionTests;
 
@@ -42,6 +43,14 @@ public class DemographicDataFunctionTests
         };
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+                return response;
+            });
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
@@ -106,6 +115,12 @@ public class DemographicDataFunctionTests
         setupRequest(json);
 
         //Act
+        request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
+                            .Returns(Task.FromResult<string>("data"));
+
+
         request.Setup(r => r.Method).Returns("GET");
         var result = await sut.Run(request.Object);
 
