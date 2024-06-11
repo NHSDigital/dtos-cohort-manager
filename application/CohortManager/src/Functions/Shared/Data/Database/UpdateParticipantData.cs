@@ -30,7 +30,7 @@ public class UpdateParticipantData : IUpdateParticipantData
     {
         var oldParticipant = GetParticipant(participant.NHSId);
 
-        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.NHSId), isActive);
+        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.participantId), isActive);
         return UpdateRecords(allRecordsToUpdate);
     }
 
@@ -50,7 +50,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         // End all old records ready for new ones to be created
-        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.NHSId));
+        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.participantId));
         if (oldRecordsToEnd.Count == 0)
         {
             return false;
@@ -254,6 +254,7 @@ public class UpdateParticipantData : IUpdateParticipantData
     public Participant GetParticipant(string NHSId)
     {
         var SQL = "SELECT " +
+            "[PARTICIPANT].[PARTICIPANT_ID], "  +
             "[PARTICIPANT].[NHS_NUMBER], " +
             "[PARTICIPANT].[SUPERSEDED_BY_NHS_NUMBER], " +
             "[PARTICIPANT].[PRIMARY_CARE_PROVIDER], " +
@@ -295,6 +296,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             var participant = new Participant();
             while (reader.Read())
             {
+                participant.participantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
                 participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
                 participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
