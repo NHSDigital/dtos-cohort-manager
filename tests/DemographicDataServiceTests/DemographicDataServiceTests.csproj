@@ -22,6 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Functions\screeningDataServices\DemographicDataService\screeningDataServices.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\DemographicDataService\screeningDataServices.csproj" />
   </ItemGroup>
 </Project>
