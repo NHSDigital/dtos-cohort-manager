@@ -134,6 +134,9 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+        .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
         .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
         {
@@ -167,6 +170,9 @@ public class UpdateParticipantTests
         _updateParticipantWebResponse.Setup(x => x.StatusCode).Throws(new Exception("an error occurred"));
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+                        .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
         .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
