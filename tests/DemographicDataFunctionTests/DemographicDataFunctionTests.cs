@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using Microsoft.Extensions.Primitives;
-using NHS.demographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction;
+using NHS.DemographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction;
 
 namespace DemographicDataFunctionTests;
 

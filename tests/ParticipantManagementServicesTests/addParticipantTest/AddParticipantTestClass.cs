@@ -20,15 +20,16 @@ public class AddNewParticipantTestClass
     private readonly Mock<HttpRequestData> request;
     private readonly Mock<ICreateResponse> createResponse;
     private readonly Mock<HttpWebResponse> webResponse;
-    private readonly Mock<ICheckDemographic> _CheckDemographic = new();
+    private readonly Mock<ICheckDemographic> _checkDemographic = new();
 
-    private readonly Mock<ICreateParticipant> _CreateParticipant = new();
+    private readonly Mock<ICreateParticipant> _createParticipant = new();
 
     Participant participant;
     public AddNewParticipantTestClass()
     {
         Environment.SetEnvironmentVariable("DSaddParticipant", "DSaddParticipant");
         Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
+        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
 
         loggerMock = new Mock<ILogger<AddParticipantFunction>>();
         createResponse = new Mock<ICreateResponse>();
@@ -60,8 +61,11 @@ public class AddNewParticipantTestClass
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         SetupRequest(json);
-        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _CheckDemographic.Object, _CreateParticipant.Object);
+        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 
@@ -85,8 +89,11 @@ public class AddNewParticipantTestClass
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+                        .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         SetupRequest(json);
-        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _CheckDemographic.Object, _CreateParticipant.Object);
+        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 
@@ -109,8 +116,11 @@ public class AddNewParticipantTestClass
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()));
 
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         SetupRequest(json);
-        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _CheckDemographic.Object, _CreateParticipant.Object);
+        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 
@@ -133,8 +143,11 @@ public class AddNewParticipantTestClass
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()));
 
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         SetupRequest(json);
-        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _CheckDemographic.Object, _CreateParticipant.Object);
+        var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
         var result = await sut.Run(request.Object);
 

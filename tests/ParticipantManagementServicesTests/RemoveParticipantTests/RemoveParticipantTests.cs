@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementService;
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -23,15 +24,14 @@ public class RemoveParticipantTests
     private readonly Mock<HttpWebResponse> webResponse = new();
     private readonly Mock<ICheckDemographic> checkDemographic = new();
     private readonly Mock<ICreateParticipant> createParticipant = new();
-
-
-
-    Participant participant;
-    ServiceCollection serviceCollection = new();
+    private readonly Participant participant;
+    private readonly ServiceCollection serviceCollection = new();
 
     public RemoveParticipantTests()
     {
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
+        Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
+        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         request = new Mock<HttpRequestData>(context.Object);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
@@ -65,6 +65,9 @@ public class RemoveParticipantTests
         webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+
+        checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         //Act
         var result = await sut.Run(request.Object);
@@ -116,6 +119,9 @@ public class RemoveParticipantTests
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
                 return response;
             });
+
+        checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));

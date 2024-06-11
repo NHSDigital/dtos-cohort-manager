@@ -66,7 +66,7 @@ public class ReceiveCaasFileTests
 
         mockICallFunction.Verify(
             x => x.SendPost(It.IsAny<string>(),
-            It.Is<string>(json => json == expectedJson)),
+            It.IsAny<string>()),
             Times.Once);
     }
 

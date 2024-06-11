@@ -7,65 +7,65 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace NHS.demographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction
+namespace NHS.DemographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction;
+
+public class DemographicDataFunction
 {
-    public class DemographicDataFunction
+    private readonly ILogger<DemographicDataFunction> _logger;
+    private readonly ICreateResponse _createResponse;
+    private readonly ICallFunction _callFunction;
+
+    public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
     {
-        private readonly ILogger<DemographicDataFunction> _logger;
-        private readonly ICreateResponse _createResponse;
-        private readonly ICallFunction _callFunction;
+        _logger = logger;
+        _createResponse = createResponse;
+        _callFunction = callFunction;
+    }
 
-        public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+    [Function("DemographicDataFunction")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    {
+        string requestBody = "";
+        var participantData = new Participant();
+        try
         {
-            _logger = logger;
-            _createResponse = createResponse;
-            _callFunction = callFunction;
-        }
-
-        [Function("DemographicDataFunction")]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
-        {
-            string requestBody = "";
-            var participantData = new Participant();
-            try
+            if (req.Method == "POST")
             {
-                if (req.Method == "POST")
+                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
-                    using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-                    {
-                        requestBody = await reader.ReadToEndAsync();
-                        participantData = JsonSerializer.Deserialize<Participant>(requestBody);
-                    }
-
-                    var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), JsonSerializer.Serialize(participantData));
-
-                    if (res.StatusCode != HttpStatusCode.OK)
-                    {
-                        _logger.LogInformation("demographic function failed");
-                        return _createResponse.CreateHttpResponse(res.StatusCode, req);
-                    }
+                    requestBody = await reader.ReadToEndAsync();
+                    participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
-                else
+
+                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), JsonSerializer.Serialize(participantData));
+
+                if (res.StatusCode != HttpStatusCode.OK)
                 {
-                    var functionUrl = Environment.GetEnvironmentVariable("DemographicDataFunctionURI");
-                    string Id = req.Query["Id"];
-
-                    var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
-
-                    if (string.IsNullOrEmpty(data))
-                    {
-                        _logger.LogInformation("demographic function failed");
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
-                    }
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
+                    _logger.LogInformation("demographic function failed");
+                    return _createResponse.CreateHttpResponse(res.StatusCode, req);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError($"there has been an error saving demographic data: {ex.Message}");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                var functionUrl = Environment.GetEnvironmentVariable("DemographicDataFunctionURI");
+                string Id = req.Query["Id"];
+
+                var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
+
+                if (string.IsNullOrEmpty(data))
+                {
+                    _logger.LogInformation("demographic function failed");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
+                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError($"there has been an error saving demographic data: {ex.Message}");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
+

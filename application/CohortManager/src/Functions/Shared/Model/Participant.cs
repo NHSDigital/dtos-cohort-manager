@@ -46,5 +46,5 @@ public class Participant
     public string? InvalidFlag { get; set; }
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
-    public string? participantId { get; set; }
+    public string? ParticipantId { get; set; }
 }

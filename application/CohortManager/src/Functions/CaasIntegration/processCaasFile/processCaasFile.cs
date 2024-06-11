@@ -45,8 +45,8 @@ namespace processCaasFile
             {
                 row++;
                 var recordTypeTrimmed = p.RecordType.Trim();
-                var DemographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
-                if (DemographicDataInserted == false)
+                var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
+                if (demographicDataInserted == false)
                 {
                     _logger.LogError("demographic function failed");
                 }
