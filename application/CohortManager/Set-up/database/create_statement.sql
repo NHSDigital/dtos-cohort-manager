@@ -139,3 +139,42 @@ alter table dbo.PARTICIPANT
 alter table dbo.COHORT
     add constraint FK_COHORT_PROGRAM_FK_PROGRAM foreign key (PROGRAM_ID)
         references SCREENING_PROGRAMS (SCREENING_PROGRAM_ID);
+
+
+/*==============================================================*/
+/* Table: DEMOGRAPHIC_DATA Table                                */
+/*==============================================================*/
+
+
+CREATE TABLE DEMOGRAPHIC_DATA (
+  resource_id VARCHAR(255) PRIMARY KEY,
+  nhs_number VARCHAR(255),
+  prefix TEXT,
+  given_name TEXT,
+  family_name TEXT,
+  gender VARCHAR(255),
+  birth_date DATE,
+  deceased_datetime DATETIME,
+  general_practitioner_code VARCHAR(255),
+  managing_organization_code VARCHAR(255),
+  communication_language VARCHAR(255),
+  interpreter_required BIT,
+  preferred_communication_format VARCHAR(255),
+  preferred_contact_method VARCHAR(255),
+  preferred_contact_time TEXT,
+  birth_place_city VARCHAR(255),
+  birth_place_district VARCHAR(255),
+  birth_place_country VARCHAR(255),
+  removal_reason_code VARCHAR(255),
+  removal_effective_start DATETIME,
+  removal_effective_end DATETIME,
+  home_address_line1 TEXT,
+  home_address_line2 TEXT,
+  home_address_line3 TEXT,
+  home_address_city TEXT,
+  home_address_postcode VARCHAR(255),
+  home_phone_number VARCHAR(255),
+  home_email_address VARCHAR(255),
+  home_phone_textphone BIT,
+  emergency_contact_phone_number VARCHAR(255)
+);

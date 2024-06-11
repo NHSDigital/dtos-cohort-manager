@@ -7,7 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace DemographicDataManagementFunction
+namespace NHS.demographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction
 {
     public class DemographicDataFunction
     {
