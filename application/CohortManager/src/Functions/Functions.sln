@@ -66,6 +66,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataServiceTests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataFunctionTests", "..\..\..\..\tests\DemographicDataFunctionTests\DemographicDataFunctionTests.csproj", "{A99A0090-6DDF-45D7-B387-025C986DF078}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningValidationServiceTests", "..\..\..\..\tests\ScreeningValidationServiceTests\ScreeningValidationServiceTests.csproj", "{D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}"
+EndProject
 Global
   GlobalSection(SolutionConfigurationPlatforms) = preSolution
     Debug|Any CPU = Debug|Any CPU
@@ -147,6 +149,10 @@ Global
     {40B97A2D-B75C-417B-90DB-4EE423250314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
     {40B97A2D-B75C-417B-90DB-4EE423250314}.Debug|Any CPU.Build.0 = Debug|Any CPU
     {40B97A2D-B75C-417B-90DB-4EE423250314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {D4D5D8D2-B2CE-47A1-93A8-D6CA34A546B9}.Release|Any CPU.Build.0 = Release|Any CPU
     {40B97A2D-B75C-417B-90DB-4EE423250314}.Release|Any CPU.Build.0 = Release|Any CPU
     {70B919BD-95C8-4789-B29E-07F6205CBF5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
     {70B919BD-95C8-4789-B29E-07F6205CBF5C}.Debug|Any CPU.Build.0 = Debug|Any CPU

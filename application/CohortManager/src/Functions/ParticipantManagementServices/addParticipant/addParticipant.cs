@@ -46,12 +46,12 @@ namespace addParticipant
             try
             {
                 var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
-                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
 
                 var json = JsonSerializer.Serialize(participant);
 

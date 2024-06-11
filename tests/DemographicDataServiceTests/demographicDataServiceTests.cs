@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using screeningDataServices;
+using ScreeningDataServices;
 
 [TestClass]
 public class DemographicDataServiceTests

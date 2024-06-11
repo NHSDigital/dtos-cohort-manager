@@ -37,7 +37,7 @@ public class DemographicDataFunction
                     participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
 
-                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataFunctionURI"), JsonSerializer.Serialize(participantData));
+                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataServiceURI"), JsonSerializer.Serialize(participantData));
 
                 if (res.StatusCode != HttpStatusCode.OK)
                 {
@@ -47,7 +47,7 @@ public class DemographicDataFunction
             }
             else
             {
-                var functionUrl = Environment.GetEnvironmentVariable("DemographicDataFunctionURI");
+                var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
                 string Id = req.Query["Id"];
 
                 var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");

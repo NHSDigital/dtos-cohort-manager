@@ -46,13 +46,13 @@ namespace RemoveParticipant
                 var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
                 var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
-                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
-
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
+
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
                 var json = JsonSerializer.Serialize(participant);
 
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);

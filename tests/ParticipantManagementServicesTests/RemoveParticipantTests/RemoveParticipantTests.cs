@@ -30,7 +30,6 @@ public class RemoveParticipantTests
     public RemoveParticipantTests()
     {
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
-        Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         request = new Mock<HttpRequestData>(context.Object);
         var serviceProvider = serviceCollection.BuildServiceProvider();
