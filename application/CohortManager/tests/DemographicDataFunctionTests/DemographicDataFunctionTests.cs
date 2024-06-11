@@ -1,5 +1,3 @@
-
-using DemographicDataManagementFunction;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using Microsoft.Extensions.Primitives;
+using NHS.demographicServices.DemographicDataManagementFunction.DemographicDataManagementFunction;
 
 namespace DemographicDataFunctionTests;
 
