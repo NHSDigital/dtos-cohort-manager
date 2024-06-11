@@ -68,8 +68,12 @@ public class UpdateParticipantTests
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
+        // Act
         var result = await sut.Run(_request.Object);
+
+        // Assert
+        _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _request.Object, ""), Times.Once());
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Never());
 
         _logger.Verify(log =>
             log.Log(
