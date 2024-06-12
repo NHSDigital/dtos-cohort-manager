@@ -68,6 +68,7 @@ public class UpdateParticipantTests
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
         // Act
         var result = await sut.Run(_request.Object);
 
