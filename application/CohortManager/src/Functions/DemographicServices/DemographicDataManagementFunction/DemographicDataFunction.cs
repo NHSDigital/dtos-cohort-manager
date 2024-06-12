@@ -25,7 +25,7 @@ public class DemographicDataFunction
     [Function("DemographicDataFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        string requestBody = "";
+        var requestBody = "";
         var participantData = new Participant();
         try
         {
