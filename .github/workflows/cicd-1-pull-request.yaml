@@ -126,5 +126,12 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: amannn/action-semantic-pull-request@v5
+        id: validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: thollander/actions-comment-pull-request@v2
+        if: ${{ failure() && steps.validate.conclusion == 'failure' }}
+        with:
+          message: |
+            Your Pull Request title must meet the conventional commit standards - https://www.conventionalcommits.org/en/v1.0.0/#specification
