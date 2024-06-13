@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateValidationException",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj", "{B6719E71-5BBE-4F24-B728-EE92AC5C8E07}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateValidationException", "screeningDataServices\CreateValidationException\CreateValidationException.csproj", "{25E86771-1148-420E-8854-EA20216BD6D4}"
+EndProject
 Global
   GlobalSection(SolutionConfigurationPlatforms) = preSolution
     Debug|Any CPU = Debug|Any CPU
