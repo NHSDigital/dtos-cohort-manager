@@ -48,7 +48,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServicesTests", "..\..\..\..\tests\screeningDataServicesTests\screeningDataServicesTests.csproj", "{3300BE0C-A811-47CA-80AB-8917CDE0D946}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateEligibilityTests", "..\..\..\..\tests\ParticipantManagementServicesTests\updateEligibilityTests\updateEligibilityTests.csproj", "{7CC233E4-25CE-4493-88E1-8B580685C434}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateEligibilityTests", "..\..\..\..\tests\ParticipantManagementServicesTests\UpdateEligibilityTests\UpdateEligibilityTests.csproj", "{7CC233E4-25CE-4493-88E1-8B580685C434}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningValidationService", "ScreeningValidationService", "{C5B90A38-4C45-4FC5-BC56-2B205B7744AB}"
 EndProject
