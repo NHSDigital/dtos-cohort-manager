@@ -43,9 +43,11 @@ jobs:
       - name: "Run unit test suite"
         run: |
           make test-unit
-      - name: "Save the result of fast test suite"
-        run: |
-          echo "Nothing to save"
+      - name: "Unit Tests Results"
+        uses: bibipkins/dotnet-test-reporter@v1.4.0
+        with:
+          comment-title: 'Unit Test Results'
+          results-path: ./tests/results-unit/*.trx
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest

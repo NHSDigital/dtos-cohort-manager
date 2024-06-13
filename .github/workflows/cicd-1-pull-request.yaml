@@ -120,3 +120,18 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
     secrets: inherit
+  validate-title-stage:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        id: validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: thollander/actions-comment-pull-request@v2
+        if: ${{ failure() && steps.validate.conclusion == 'failure' }}
+        with:
+          message: |
+            Your Pull Request title must meet the conventional commit standards, please see the following documentation - https://www.conventionalcommits.org/en/v1.0.0/#specification

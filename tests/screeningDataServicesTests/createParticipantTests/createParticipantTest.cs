@@ -51,7 +51,7 @@ public class CreateParticipantTests
             }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
 
-        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object, CheckDemographic.Object);
+        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(true);
 
         // Act
@@ -67,7 +67,7 @@ public class CreateParticipantTests
     {
         // Arrange
         mockRequest = new Mock<HttpRequestData>(mockContext.Object);
-        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object, CheckDemographic.Object);
+        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(false);
 
         // Act
