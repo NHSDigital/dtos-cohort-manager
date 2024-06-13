@@ -100,7 +100,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@given_name", _databaseHelper.ConvertNullToDbNull(participant.FirstName)},
                     {"@family_name", _databaseHelper.ConvertNullToDbNull(participant.Surname)},
                     {"@gender", participant.Gender.ToString()},
-                    {"@birth_date", _databaseHelper.CheckIfDateNull(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfBirth)},
+                    {"@birth_date", string.IsNullOrEmpty(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfBirth)},
                     {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfDeath)},
                     {"@general_practitioner_code", _databaseHelper.ConvertNullToDbNull(participant.PrimaryCareProvider)},
                     {"@managing_organization_code", DBNull.Value},
