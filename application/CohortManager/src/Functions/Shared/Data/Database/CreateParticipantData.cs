@@ -298,7 +298,7 @@ public class CreateParticipantData : ICreateParticipantData
             {"@isInterpreterRequired", participantData.IsInterpreterRequired.IsNullOrEmpty() ? "0" : "1"},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", participantData.EmailAddress},
+            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
         };
 
         return new SQLReturnModel()
