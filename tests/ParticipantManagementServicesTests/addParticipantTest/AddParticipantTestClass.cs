@@ -57,7 +57,7 @@ public class AddNewParticipantTestClass
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
         var result = await sut.Run(request.Object);
@@ -82,7 +82,7 @@ public class AddNewParticipantTestClass
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
         var result = await sut.Run(request.Object);
@@ -106,7 +106,7 @@ public class AddNewParticipantTestClass
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()));
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
         var result = await sut.Run(request.Object);
@@ -130,7 +130,7 @@ public class AddNewParticipantTestClass
 
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()));
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object);
 
         var result = await sut.Run(request.Object);

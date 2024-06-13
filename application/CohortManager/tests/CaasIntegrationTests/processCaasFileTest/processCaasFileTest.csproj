@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Functions\CaasIntegration\processCaasFile\processCaasFile.csproj" />
+    <ProjectReference Include="..\..\testUtils\testUtils.csproj" />
   </ItemGroup>
 
 </Project>

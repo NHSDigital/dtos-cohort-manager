@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
@@ -22,7 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\..\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
+    <ProjectReference Include="..\..\..\src\Functions\ScreeningValidationService\StaticValidation\StaticValidation.csproj" />
+    <ProjectReference Include="..\..\..\src\Functions\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\..\src\Functions\Shared\Model\Model.csproj" />
   </ItemGroup>
 
 </Project>
