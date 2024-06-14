@@ -27,6 +27,7 @@ namespace NHS.Screening.ReceiveCaasFile
             string content = await blobStreamReader.ReadToEndAsync();
             var lines = content.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries).Skip(1);
             Cohort cohort = new();
+            cohort.FileName = name;
             int failures = 0;
 
             foreach (var item in lines)

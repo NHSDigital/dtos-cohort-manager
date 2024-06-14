@@ -70,7 +70,12 @@ namespace processCaasFile
                         upd++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(p);
+                            var updateAction = new ParticipantUpdateAction
+                            {
+                                Participant = p,
+                                FileName = input.FileName
+                            };
+                            var json = JsonSerializer.Serialize(updateAction);
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                             _logger.LogInformation("Called update participant");
 

@@ -34,8 +34,10 @@ public class UpdateParticipantData : IUpdateParticipantData
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public async Task<bool> UpdateParticipantDetails(Participant participantData)
+    public async Task<bool> UpdateParticipantDetails(ParticipantUpdateAction participantUpdateAction)
     {
+        var participantData = participantUpdateAction.Participant;
+
         var cohortId = 1;
 
         var dateToday = DateTime.Today;
@@ -44,7 +46,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
         var oldParticipant = GetParticipant(participantData.NHSId);
-        if (!await ValidateData(oldParticipant, participantData))
+        if (!await ValidateData(oldParticipant, participantData, participantUpdateAction.FileName))
         {
             return false;
         }
@@ -458,13 +460,14 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
     }
 
-    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant)
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
         var json = JsonSerializer.Serialize(new
         {
             ExistingParticipant = existingParticipant,
             NewParticipant = newParticipant,
-            Workflow = "UpdateParticipant"
+            Workflow = "UpdateParticipant",
+            FileName = fileName
         });
 
         try
