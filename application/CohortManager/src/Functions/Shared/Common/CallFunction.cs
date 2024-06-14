@@ -1,5 +1,6 @@
 namespace Common;
 
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
@@ -9,11 +10,42 @@ public class CallFunction : ICallFunction
 {
     public async Task<HttpWebResponse> SendPost(string url, string postData)
     {
+        return await GetHttpWebRequest(url, postData, "POST");
+    }
+
+    public async Task<string> SendGet(string url)
+    {
+
+        return await GetAsync(url);
+    }
+
+    private async Task<string> GetAsync(string uri)
+    {
+        var request = (HttpWebRequest)WebRequest.Create(uri);
+
+        using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+        {
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    using (StreamReader reader = new StreamReader(stream))
+                    {
+                        return await reader.ReadToEndAsync();
+                    }
+                }
+            }
+        }
+
+        return null;
+
+    }
+
+    private async Task<HttpWebResponse> GetHttpWebRequest(string url, string dataToSend, string Method)
+    {
         var request = (HttpWebRequest)WebRequest.Create(url);
-
-        var data = Encoding.ASCII.GetBytes(postData);
-
-        request.Method = "POST";
+        var data = Encoding.ASCII.GetBytes(dataToSend);
+        request.Method = Method;
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = data.Length;
 

@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Data.Database;
 using Common;
 using Model;
+using System.Runtime.CompilerServices;
 
 public class CreateParticipant
 {

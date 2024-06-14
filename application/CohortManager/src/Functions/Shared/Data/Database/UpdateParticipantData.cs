@@ -30,7 +30,7 @@ public class UpdateParticipantData : IUpdateParticipantData
     {
         var oldParticipant = GetParticipant(participant.NHSId);
 
-        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.NHSId), isActive);
+        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.ParticipantId), isActive);
         return UpdateRecords(allRecordsToUpdate);
     }
 
@@ -50,7 +50,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         // End all old records ready for new ones to be created
-        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.NHSId));
+        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.ParticipantId));
         if (oldRecordsToEnd.Count == 0)
         {
             return false;
@@ -107,8 +107,8 @@ public class UpdateParticipantData : IUpdateParticipantData
             {"@gender", participantData.Gender},
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
-            {"@dateOfBirth", _databaseHelper.parseDates(participantData.DateOfBirth)},
-            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDateToString(participantData.DateOfBirth)},
+            {"@dateOfBirth", _databaseHelper.CheckIfDateNull(participantData.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.parseDates(participantData.DateOfBirth)},
+            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participantData.DateOfDeath)},
             { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
@@ -254,6 +254,7 @@ public class UpdateParticipantData : IUpdateParticipantData
     public Participant GetParticipant(string NHSId)
     {
         var SQL = "SELECT " +
+            "[PARTICIPANT].[PARTICIPANT_ID], " +
             "[PARTICIPANT].[NHS_NUMBER], " +
             "[PARTICIPANT].[SUPERSEDED_BY_NHS_NUMBER], " +
             "[PARTICIPANT].[PRIMARY_CARE_PROVIDER], " +
@@ -295,6 +296,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             var participant = new Participant();
             while (reader.Read())
             {
+                participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
                 participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
                 participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
@@ -373,7 +375,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             {"@isInterpreterRequired", participantData.IsInterpreterRequired.IsNullOrEmpty() ? "0" : "1"},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", participantData.EmailAddress},
+            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
         };
 
         return new SQLReturnModel()

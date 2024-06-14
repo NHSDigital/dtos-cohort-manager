@@ -33,8 +33,11 @@ public class DatabaseHelper : IDatabaseHelper
 
     public DateTime parseDates(string dateString)
     {
+        dateString = dateString.Split(' ')[0];
         DateTime tempDate = new DateTime();
-        bool success = DateTime.TryParseExact(dateString, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+        string[] formats = { "dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy" };
+        bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+
 
         if (!success)
         {

@@ -14,12 +14,14 @@ namespace processCaasFile
         private readonly ILogger<ProcessCaasFileFunction> _logger;
         private readonly ICallFunction _callFunction;
         private readonly ICreateResponse _createResponse;
+        private readonly ICheckDemographic _checkDemographic;
 
-        public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse)
+        public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
+            _checkDemographic = checkDemographic;
         }
 
         [Function("processCaasFile")]
@@ -39,11 +41,18 @@ namespace processCaasFile
             _logger.LogInformation($"Records received {input.Participants.Count}");
             int add = 0, upd = 0, del = 0, err = 0, row = 0;
 
-            foreach (Participant p in input.Participants)
+            foreach (var p in input.Participants)
             {
                 row++;
-                switch (p.RecordType.Trim())
+                var recordTypeTrimmed = p.RecordType.Trim();
+                var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
+                if (demographicDataInserted == false)
                 {
+                    _logger.LogError("demographic function failed");
+                }
+                switch (recordTypeTrimmed)
+                {
+
                     case Actions.New:
                         add++;
                         try
@@ -127,6 +136,7 @@ namespace processCaasFile
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
         }
     }
 }

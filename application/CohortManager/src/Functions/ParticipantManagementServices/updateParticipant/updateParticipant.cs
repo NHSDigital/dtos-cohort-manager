@@ -15,11 +15,17 @@ public class UpdateParticipantFunction
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+    private readonly ICheckDemographic _checkDemographic;
+
+    private readonly ICreateParticipant _createParticipant;
+
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
+        _checkDemographic = checkDemographic;
+        _createParticipant = createParticipant;
     }
 
     [Function("updateParticipant")]
@@ -28,20 +34,30 @@ public class UpdateParticipantFunction
         _logger.LogInformation("Update participant called.");
         HttpWebResponse createResponse;
 
-        string requestBodyJson;
+        // convert body to json and then deserialize to object
+        string postdata = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            requestBodyJson = reader.ReadToEnd();
+            postdata = reader.ReadToEnd();
         }
-        var participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
+        var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
         if (!await ValidateData(participant))
         {
+            _logger.LogInformation("The participant has not been updated due to a bad request.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
         try
         {
+            var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            if (demographicData == null)
+            {
+                _logger.LogInformation("demographic function failed");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+
+            participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
             var json = JsonSerializer.Serialize(participant);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 

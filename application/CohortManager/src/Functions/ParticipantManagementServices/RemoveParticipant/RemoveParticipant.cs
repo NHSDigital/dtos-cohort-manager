@@ -15,11 +15,17 @@ namespace RemoveParticipant
         private readonly ICreateResponse _createResponse;
         private ICallFunction _callFunction;
 
-        public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+        private readonly ICheckDemographic _checkDemographic;
+
+        private ICreateParticipant _createParticipant;
+
+        public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
         {
             _logger = logger;
             _createResponse = createResponse;
             _callFunction = callFunction;
+            _checkDemographic = checkDemographic;
+            _createParticipant = createParticipant;
         }
 
         [Function("RemoveParticipant")]
@@ -36,13 +42,19 @@ namespace RemoveParticipant
                 {
                     postdata = reader.ReadToEnd();
                 }
-                var input = JsonSerializer.Deserialize<Participant>(postdata);
 
-                // Any validation or decisions go in here
+                var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
-                // call data service create Participant
+                var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                if (demographicData == null)
+                {
+                    _logger.LogInformation("demographic function failed");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                }
 
-                var json = JsonSerializer.Serialize(input);
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
+                var json = JsonSerializer.Serialize(participant);
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.OK)

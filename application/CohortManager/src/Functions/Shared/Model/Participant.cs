@@ -1,5 +1,6 @@
 namespace Model;
 
+using System.Diagnostics.Contracts;
 using Model.Enums;
 
 public class Participant
@@ -33,7 +34,7 @@ public class Participant
     public string? ReasonForRemoval { get; set; }
     public string? ReasonForRemovalEffectiveFromDate { get; set; }
     public string? DateOfDeath { get; set; }
-    public Status? DeathStatus { get; set;}
+    public Status? DeathStatus { get; set; }
     public string? TelephoneNumber { get; set; }
     public string? TelephoneNumberEffectiveFromDate { get; set; }
     public string? MobileNumber { get; set; }
@@ -45,4 +46,5 @@ public class Participant
     public string? InvalidFlag { get; set; }
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
+    public string? ParticipantId { get; set; }
 }

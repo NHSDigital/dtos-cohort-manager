@@ -16,11 +16,17 @@ namespace addParticipant
 
         private readonly ICreateResponse _createResponse;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse)
+        private readonly ICheckDemographic _getDemographicData;
+
+        private readonly ICreateParticipant _createParticipant;
+
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
+            _getDemographicData = checkDemographic;
+            _createParticipant = createParticipant;
         }
 
         [Function("addParticipant")]
@@ -35,20 +41,26 @@ namespace addParticipant
             {
                 postdata = reader.ReadToEnd();
             }
-            Participant input = JsonSerializer.Deserialize<Participant>(postdata);
+            var participant = JsonSerializer.Deserialize<Participant>(postdata);
 
-            // Any validation or decisions go in here
-
-            // call data service create Participant
             try
             {
-                var json = JsonSerializer.Serialize(input);
+                var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                if (demographicData == null)
+                {
+                    _logger.LogInformation("demographic function failed");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                }
+                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
+
+                var json = JsonSerializer.Serialize(participant);
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)
                 {
                     _logger.LogInformation("participant created");
-                    _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
                 }
             }
             catch (Exception ex)
@@ -59,7 +71,7 @@ namespace addParticipant
             // call data service mark as eligible
             try
             {
-                var json = JsonSerializer.Serialize(input);
+                var json = JsonSerializer.Serialize(participant);
                 eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), json);
 
                 if (eligibleResponse.StatusCode == HttpStatusCode.Created)
