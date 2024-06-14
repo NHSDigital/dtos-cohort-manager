@@ -4,5 +4,5 @@ namespace Common;
 
 public interface ICreateBasicParticipantData
 {
-    public BasicParticipantData basicParticipantData(Participant participant);
+    public BasicParticipantData BasicParticipantData(Participant participant);
 }

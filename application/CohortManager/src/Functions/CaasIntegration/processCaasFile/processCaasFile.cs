@@ -59,7 +59,7 @@ namespace processCaasFile
                         add++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.basicParticipantData(p));
+                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                             _logger.LogInformation("Called add participant");
                         }
@@ -72,7 +72,7 @@ namespace processCaasFile
                         upd++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.basicParticipantData(p));
+                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                             _logger.LogInformation("Called update participant");
 
@@ -86,7 +86,7 @@ namespace processCaasFile
                         del++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.basicParticipantData(p));
+                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                             _logger.LogInformation("Called remove participant");
                         }

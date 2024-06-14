@@ -4,7 +4,7 @@ namespace Common;
 
 public class CreateBasicParticipantData : ICreateBasicParticipantData
 {
-    public BasicParticipantData basicParticipantData(Participant participant)
+    public BasicParticipantData BasicParticipantData(Participant participant)
     {
         return new BasicParticipantData
         {
