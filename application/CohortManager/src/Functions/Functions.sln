@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServicesTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateEligibilityTests", "..\..\..\..\tests\ParticipantManagementServicesTests\UpdateEligibilityTests\UpdateEligibilityTests.csproj", "{7CC233E4-25CE-4493-88E1-8B580685C434}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screeningDataServices", "screeningDataServices\DemographicDataService\screeningDataServices.csproj", "{96AD14C8-67A1-4DC4-8593-F2D64F999223}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataService", "screeningDataServices\DemographicDataService\DemographicDataService.csproj", "{96AD14C8-67A1-4DC4-8593-F2D64F999223}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemographicServices", "DemographicServices", "{8546F1DA-6055-4224-8A2B-36CDE94CBD07}"
 EndProject
@@ -72,7 +72,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateValidationException",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj", "{B6719E71-5BBE-4F24-B728-EE92AC5C8E07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateValidationException", "screeningDataServices\CreateValidationException\CreateValidationException.csproj", "{25E86771-1148-420E-8854-EA20216BD6D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidation", "ScreeningValidationService\LookupValidation\LookupValidation.csproj", "{5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}"
 EndProject
 Global
   GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -212,6 +212,10 @@ Global
         {B6719E71-5BBE-4F24-B728-EE92AC5C8E07}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {B6719E71-5BBE-4F24-B728-EE92AC5C8E07}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {B6719E71-5BBE-4F24-B728-EE92AC5C8E07}.Release|Any CPU.Build.0 = Release|Any CPU
+        {5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}.Release|Any CPU.Build.0 = Release|Any CPU
     EndGlobalSection
     GlobalSection(SolutionProperties) = preSolution
         HideSolutionNode = FALSE
@@ -233,6 +237,7 @@ Global
         {96AD14C8-67A1-4DC4-8593-F2D64F999223} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
         {9A53EEBB-3DE4-41FD-8552-94F79E88D674} = {8546F1DA-6055-4224-8A2B-36CDE94CBD07}
         {FE8338CF-3245-4B4E-BAA1-4643A6AB668E} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
+        {5AF185E2-6CDD-47E6-8B93-4624F0A8CA66} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
         {15E7492F-ACCE-4267-A52A-2ABF44690F64} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
         {D312542F-0A4A-446B-B363-82EB0083F8F9} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
         {B6719E71-5BBE-4F24-B728-EE92AC5C8E07} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
