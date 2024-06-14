@@ -35,6 +35,7 @@ using System.Globalization;
                 TrimOptions = TrimOptions.Trim,
                 Delimiter = ",",
                 MissingFieldFound = null,
+                HeaderValidated = null
             };
 
             try
@@ -80,8 +81,7 @@ using System.Globalization;
                 }
                 else
                 {
-                    _logger.LogError("Created {CohortCount} Objects.", cohort.Count);
-                    _logger.LogError("Failed to create {CohortCount} Objects.", cohort.Count);
+                    _logger.LogError("Failed to create {BadRecordCount} Objects.", badRecords.Count);
                 }
             }
             catch (Exception ex)

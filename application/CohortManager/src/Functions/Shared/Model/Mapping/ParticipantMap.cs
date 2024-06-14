@@ -22,7 +22,7 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.OtherGivenNames).Name("Other Given Name(s)");
         Map(m => m.Surname).Name("Family Name");
         Map(m => m.PreviousSurname).Name("Previous Family Name");
-        Map(m => m.DateOfBirth).TypeConverterOption.Format(DateFormats.Iso8601).Name("Date of Birth");
+        Map(m => m.DateOfBirth).Name("Date of Birth");
         Map(m => m.Gender).Name("Gender");
         Map(m => m.AddressLine1).Name("Address line 1");
         Map(m => m.AddressLine2).Name("Address line 2");
@@ -34,7 +34,7 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.UsualAddressEffectiveFromDate).TypeConverterOption.Format(DateFormats.Iso8601).Name("Usual Address Business Effective From Date");
         Map(m => m.ReasonForRemoval).Name("Reason for Removal");
         Map(m => m.ReasonForRemovalEffectiveFromDate).TypeConverterOption.Format(DateFormats.Iso8601).Name("Reason for Removal Business Effective From Date");
-        Map(m => m.DateOfDeath).Optional().TypeConverterOption.Format(DateFormats.Iso8601).Name("Date of Death");
+        Map(m => m.DateOfDeath).Name("Date of Death");
         Map(m => m.DeathStatus).Name("Death Status");
         Map(m => m.TelephoneNumber).Name("Telephone Number (Home)");
         Map(m => m.TelephoneNumberEffectiveFromDate).TypeConverterOption.Format(DateFormats.Iso8601).Name("Telephone Number (Home) Business Effective From Date");

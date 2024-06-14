@@ -108,7 +108,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
             {"@dateOfBirth", participantData.DateOfBirth},
-            { "@dateOfDeath", !participantData.DateOfDeath.HasValue ? DBNull.Value : participantData.DateOfDeath},
+            { "@dateOfDeath", participantData.DateOfDeath},
             { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
@@ -302,11 +302,11 @@ public class UpdateParticipantData : IUpdateParticipantData
                 participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
                 participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
                 participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
-                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : Convert.ToDateTime(reader["PARTICIPANT_BIRTH_DATE"]);
+                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
                 participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Gender.NotKnown : (Gender)(int)reader["PARTICIPANT_GENDER"];
                 participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
                 participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : Convert.ToDateTime(reader["REMOVAL_DATE"]);
-                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(reader["PARTICIPANT_DEATH_DATE"]);
+                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
                 participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
                 participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
                 participant.AddressLine3 = reader["CITY"] == DBNull.Value ? null : reader["CITY"].ToString();

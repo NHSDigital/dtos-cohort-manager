@@ -88,7 +88,7 @@ public class CreateParticipantTests
         participantMock.Object.FirstName = "";
         participantMock.Object.OtherGivenNames = "";
         participantMock.Object.Surname = "";
-        participantMock.Object.DateOfBirth = DateTime.Now;
+        participantMock.Object.DateOfBirth = "";
         participantMock.Object.Gender = Gender.NotKnown;
         participantMock.Object.AddressLine1 = "";
         participantMock.Object.AddressLine2 = "";
@@ -98,7 +98,7 @@ public class CreateParticipantTests
         participantMock.Object.Postcode = "";
         participantMock.Object.ReasonForRemoval = "";
         participantMock.Object.ReasonForRemovalEffectiveFromDate = DateTime.Now;
-        participantMock.Object.DateOfDeath = DateTime.Now;
+        participantMock.Object.DateOfDeath = "";
         participantMock.Object.TelephoneNumber = "";
         participantMock.Object.MobileNumber = "";
         participantMock.Object.EmailAddress = "";

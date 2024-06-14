@@ -20,7 +20,7 @@ public class Participant
     public string? OtherGivenNames { get; set; }
     public string? Surname { get; set; }
     public string? PreviousSurname { get; set; }
-    public DateTime? DateOfBirth { get; set; }
+    public string? DateOfBirth { get; set; }
     public Gender Gender { get; set; }
     public string? AddressLine1 { get; set; }
     public string? AddressLine2 { get; set; }
@@ -32,12 +32,12 @@ public class Participant
     public DateTime? UsualAddressEffectiveFromDate { get; set; }
     public string? ReasonForRemoval { get; set; }
     public DateTime? ReasonForRemovalEffectiveFromDate { get; set; }
-    public DateTime? DateOfDeath { get; set; }
+    public string? DateOfDeath { get; set; }
     public Status? DeathStatus { get; set;}
     public string? TelephoneNumber { get; set; }
     public DateTime? TelephoneNumberEffectiveFromDate { get; set; }
     public string? MobileNumber { get; set; }
-    public string? MobileNumberEffectiveFromDate { get; set; }
+    public DateTime? MobileNumberEffectiveFromDate { get; set; }
     public string? EmailAddress { get; set; }
     public DateTime? EmailAddressEffectiveFromDate { get; set; }
     public string? PreferredLanguage { get; set; }

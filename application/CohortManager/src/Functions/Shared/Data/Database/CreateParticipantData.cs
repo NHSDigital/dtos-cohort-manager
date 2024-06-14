@@ -76,7 +76,7 @@ public class CreateParticipantData : ICreateParticipantData
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
             {"@dateOfBirth", participantData.DateOfBirth},
-            { "@dateOfDeath", !participantData.DateOfDeath.HasValue ? DBNull.Value : participantData.DateOfBirth},
+            { "@dateOfDeath", participantData.DateOfDeath},
             { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
