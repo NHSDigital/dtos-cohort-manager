@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ExceptionDataService": {
+    "DemographicDataManagementFunction": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7024",
+      "commandLineArgs": "--port 7243",
       "launchBrowser": false
     }
   }

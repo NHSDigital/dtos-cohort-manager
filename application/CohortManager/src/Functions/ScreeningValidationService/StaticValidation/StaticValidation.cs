@@ -4,7 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Data.Database;
+using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -14,12 +14,12 @@ using RulesEngine.Models;
 public class StaticValidation
 {
     private readonly ILogger< StaticValidation> _logger;
-    private readonly IValidationData _createValidationData;
+    private readonly ICallFunction _callFunction;
 
-    public StaticValidation(ILogger< StaticValidation> logger, IValidationData validationData)
+    public StaticValidation(ILogger< StaticValidation> logger, ICallFunction callFunction)
     {
         _logger = logger;
-        _createValidationData = validationData;
+        _callFunction = callFunction;
     }
 
     [Function("StaticValidation")]
@@ -68,7 +68,7 @@ public class StaticValidation
 
                 var ruleDetails = result.Rule.RuleName.Split('.');
 
-                var dto = new ValidationDataDto
+                var exception = new ValidationException
                 {
                     RuleId = ruleDetails[0],
                     RuleName = ruleDetails[1],
@@ -77,7 +77,8 @@ public class StaticValidation
                     DateCreated = DateTime.UtcNow
                 };
 
-                _createValidationData.Create(dto);
+                var exceptionJson = JsonSerializer.Serialize(exception);
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
             }
         }
 

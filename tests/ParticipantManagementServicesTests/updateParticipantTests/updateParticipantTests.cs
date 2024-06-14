@@ -15,25 +15,46 @@ using Model;
 [TestClass]
 public class UpdateParticipantTests
 {
-    Mock<ILogger<UpdateParticipantFunction>> _logger = new();
-    Mock<ICallFunction> _callFunction = new();
-    ServiceCollection _serviceCollection = new();
-    Mock<FunctionContext> _context = new();
+    Mock<ILogger<UpdateParticipantFunction>> _logger;
+    Mock<ICallFunction> _callFunction;
+    ServiceCollection serviceCollection;
+    Mock<FunctionContext> _context;
     Mock<HttpRequestData> _request;
-    Mock<ICreateResponse> _createResponse = new();
-    Mock<HttpWebResponse> _validationWebResponse = new();
-    Mock<HttpWebResponse> _updateParticipantWebResponse = new();
-    Participant _participant = new();
+    Mock<ICreateResponse> _createResponse;
 
+    Mock<HttpWebResponse> _webResponse;
+
+    Mock<ICheckDemographic> _checkDemographic = new();
+
+    Mock<ICreateParticipant> createParticipant = new();
+
+    Mock<HttpWebResponse> _validationWebResponse = new();
+
+    Mock<HttpWebResponse> _updateParticipantWebResponse = new();
+
+    Participant _participant;
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
+        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
+        _logger = new Mock<ILogger<UpdateParticipantFunction>>();
+        _createResponse = new Mock<ICreateResponse>();
+        _callFunction = new Mock<ICallFunction>();
+        _context = new Mock<FunctionContext>();
         _request = new Mock<HttpRequestData>(_context.Object);
+        _webResponse = new Mock<HttpWebResponse>();
 
-        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        serviceCollection = new ServiceCollection();
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
+
+        _participant = new Participant()
+        {
+            NHSId = "1",
+        };
     }
 
     [TestMethod]
@@ -42,12 +63,11 @@ public class UpdateParticipantTests
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         setupRequest(json);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 
-        _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
+                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -55,50 +75,52 @@ public class UpdateParticipantTests
         // Assert
         _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _request.Object, ""), Times.Once());
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Never());
-    }
 
-    [TestMethod]
-    public async Task Run_Should_Update_Participant_When_Validation_Succeeds()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        setupRequest(json);
-
-        _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
-
-        // Act
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), json), Times.Once());
+        _logger.Verify(log =>
+            log.Log(
+            LogLevel.Information,
+            0,
+            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("The participant has not been updated due to a bad request.")),
+            null,
+            (Func<object, Exception, string>)It.IsAny<object>()
+            ));
     }
 
     [TestMethod]
     public async Task Run_Should_Return_Ok_When_Participant_Update_Succeeds()
     {
-        // Arrange
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         var json = JsonSerializer.Serialize(_participant);
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
+            .Returns(Task.FromResult<string>(""));
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
+
         setupRequest(json);
 
-        _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
-
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
 
         // Assert
-        _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.OK, _request.Object, ""), Times.Once());
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Participant updated.")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
     }
 
     [TestMethod]
@@ -112,11 +134,24 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
             .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
 
-        _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+                        .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+        .Returns(Task.FromResult<Demographic>(new Demographic()));
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
+
+
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -136,16 +171,38 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
             .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
 
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), json))
-            .Throws(new Exception());
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+        _updateParticipantWebResponse.Setup(x => x.StatusCode).Throws(new Exception("an error occurred"));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+                        .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+                        .Returns(Task.FromResult<Demographic>(new Demographic()));
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
+        .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+        {
+            var response = req.CreateResponse(statusCode);
+            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            return response;
+        });
+
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
 
         // Assert
         _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.InternalServerError, _request.Object, ""), Times.Once());
+
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Update participant failed")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
     }
 
     private void setupRequest(string json)

@@ -1,4 +1,4 @@
-﻿namespace Model.Enums
+namespace Model.Enums
 {
     public enum Status
     {

@@ -45,7 +45,7 @@ public class UpdateEligibilityTests
         SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -75,7 +75,7 @@ public class UpdateEligibilityTests
         SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");

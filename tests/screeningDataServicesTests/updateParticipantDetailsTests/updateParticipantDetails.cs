@@ -237,6 +237,7 @@ public class UpdateParticipantDetailsTests
 
     private void SetUpReader()
     {
+        moqDataReader.Setup(m => m["PARTICIPANT_ID"]).Returns("123456");
         moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
         moqDataReader.Setup(m => m["SUPERSEDED_BY_NHS_NUMBER"]).Returns(DBNull.Value);
         moqDataReader.Setup(m => m["PRIMARY_CARE_PROVIDER"]).Returns("Some Provider");

@@ -8,6 +8,9 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<ICheckDemographic, CheckDemographic>();
+        services.AddSingleton<ICreateParticipant, CreateParticipant>();
+
     })
     .Build();
 

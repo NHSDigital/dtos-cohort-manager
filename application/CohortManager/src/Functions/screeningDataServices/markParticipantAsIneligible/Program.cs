@@ -21,6 +21,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddSingleton<ICallFunction, CallFunction>();
     })
     .Build();
 

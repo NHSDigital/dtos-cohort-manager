@@ -158,12 +158,22 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7072/api/LookupValidation
 
-  exception-data-service:
-    container_name: exception-data-service
+  create-validation-exceptions:
+    container_name: create-validation-exceptions
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/ExceptionDataService/Dockerfile
+      dockerfile: screeningDataServices/CreateValidationExceptions/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7073
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  get-validation-exceptions:
+    container_name: get-validation-exceptions
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -177,7 +187,7 @@ services:
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7071
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CreateValidationExceptionURL=http://localhost:7073/api/CreateValidationException
 
   lookup-validation:
     container_name: lookup-validation
@@ -187,7 +197,7 @@ services:
       dockerfile: ScreeningValidationService/LookupValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7072
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CreateValidationExceptionURL=http://localhost:7073/api/CreateValidationException
 
 networks:
   cohort-manager-network:

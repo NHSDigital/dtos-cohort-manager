@@ -3,7 +3,7 @@ namespace NHS.CohortManager.Tests.ScreeningValidationService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Data.Database;
+using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +16,7 @@ using NHS.CohortManager.ScreeningValidationService;
 public class LookupValidationTests
 {
     private readonly Mock<ILogger<LookupValidation>> _logger = new();
-    private readonly Mock<IValidationData> _validationDataService = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ServiceCollection _serviceCollection = new();
@@ -25,6 +25,8 @@ public class LookupValidationTests
 
     public LookupValidationTests()
     {
+        Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
+
         _request = new Mock<HttpRequestData>(_context.Object);
 
         var serviceProvider = _serviceCollection.BuildServiceProvider();
@@ -45,7 +47,7 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
 
-        _function = new LookupValidation(_logger.Object, _validationDataService.Object);
+        _function = new LookupValidation(_logger.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -65,7 +67,7 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     [TestMethod]
@@ -79,14 +81,14 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     [TestMethod]
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Not_Exist(string nhsNumber)
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
         _requestBody.ExistingParticipant.NHSId = nhsNumber;
@@ -98,13 +100,13 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustAlreadyExist"))), Times.Once());
     }
 
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Update_Participant_That_Does_Exist(string nhsNumber)
+    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Passes(string nhsNumber)
     {
         // Arrange
         _requestBody.ExistingParticipant.NHSId = nhsNumber;
@@ -112,17 +114,16 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustAlreadyExist"))), Times.Never());
     }
 
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Already_Exists(string nhsNumber)
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ParticipantMustNotAlreadyExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
         _requestBody.Workflow = "AddParticipant";
@@ -135,14 +136,14 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Once());
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustNotAlreadyExist"))), Times.Once());
     }
 
     [TestMethod]
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Not_Return_Rule_Violation_When_Attempting_To_Add_Participant_That_Does_Not_Already_Exist(string nhsNumber)
+    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustNotAlreadyExist_Rule_Passes(string nhsNumber)
     {
         // Arrange
         _requestBody.Workflow = "AddParticipant";
@@ -151,11 +152,10 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataService.Verify(x => x.Create(It.IsAny<ValidationDataDto>()), Times.Never());
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustNotAlreadyExist"))), Times.Never());
     }
 
     private void SetUpRequestBody(string json)
