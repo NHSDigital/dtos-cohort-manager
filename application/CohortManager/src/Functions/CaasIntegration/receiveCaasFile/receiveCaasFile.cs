@@ -26,7 +26,7 @@ using System.Globalization;
         public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
         {
             var badRecords = new Dictionary<int, string>();
-            var cohort = new List<Participant>();
+            var cohort = new Cohort();
             var rowNumber = 0;
 
             CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -52,7 +52,7 @@ using System.Globalization;
                     {
                         if (participant != null)
                         {
-                            cohort.Add(participant);
+                            cohort.Participants.Add(participant);
                         }
                     }
                     catch (Exception ex)
@@ -73,11 +73,11 @@ using System.Globalization;
 
             try
             {
-                if (cohort.Count > 0)
+                if (cohort.Participants.Count > 0)
                 {
                     var json = JsonSerializer.Serialize(cohort);
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Count);
+                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                 }
                 else
                 {
