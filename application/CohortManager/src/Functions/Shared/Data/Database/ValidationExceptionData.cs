@@ -66,7 +66,7 @@ public class ValidationExceptionData : IValidationExceptionData
     public bool CreateFileValidationException(FileValidationRequestBody exception)
     {
         var SQL = " INSERT INTO [dbo].[VALIDATION_FILE_EXCEPTION] ([FILE_NAME], [EXCEPTION]) " +
-                  " VALUES (@fileName, @exception); ";
+                "VALUES (@fileName, @exception); ";
 
         var parameters = new Dictionary<string, object>()
         {
