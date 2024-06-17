@@ -116,7 +116,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
-            { "@removalDate", !participantData.ReasonForRemovalEffectiveFromDate.HasValue ? DBNull.Value : participantData.ReasonForRemovalEffectiveFromDate},
+            { "@removalDate", participantData.ReasonForRemovalEffectiveFromDate},
             { "@RecordStartDate", dateToday},
             { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
@@ -307,7 +307,7 @@ public class UpdateParticipantData : IUpdateParticipantData
                 participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
                 participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Gender.NotKnown : (Gender)(int)reader["PARTICIPANT_GENDER"];
                 participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
-                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : Convert.ToDateTime(reader["REMOVAL_DATE"]);
+                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
                 participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
                 participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
                 participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
@@ -372,7 +372,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         {
             {"@contactMethod", DBNull.Value},
             {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", participantData.IsInterpreterRequired ? "0" : "1"},
+            {"@isInterpreterRequired", participantData.IsInterpreterRequired},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
             {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},

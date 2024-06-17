@@ -99,13 +99,13 @@ public class CreateParticipantTests
         participantMock.Object.AddressLine5 = "";
         participantMock.Object.Postcode = "";
         participantMock.Object.ReasonForRemoval = "";
-        participantMock.Object.ReasonForRemovalEffectiveFromDate = DateTime.Now;
+        participantMock.Object.ReasonForRemovalEffectiveFromDate = "";
         participantMock.Object.DateOfDeath = "";
         participantMock.Object.TelephoneNumber = "";
         participantMock.Object.MobileNumber = "";
         participantMock.Object.EmailAddress = "";
         participantMock.Object.PreferredLanguage = "";
-        participantMock.Object.IsInterpreterRequired = false;
+        participantMock.Object.IsInterpreterRequired = "0";
         participantMock.Object.RecordType = "";
 
         return participantMock;

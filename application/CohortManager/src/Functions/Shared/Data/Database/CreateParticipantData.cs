@@ -295,7 +295,7 @@ public class CreateParticipantData : ICreateParticipantData
         {
             {"@contactMethod", DBNull.Value},
             {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", participantData.IsInterpreterRequired ? "0" : "1"},
+            {"@isInterpreterRequired", participantData.IsInterpreterRequired},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
             {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},

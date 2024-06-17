@@ -269,7 +269,7 @@ public class UpdateParticipantDetailsTests
             FirstName = "John",
             OtherGivenNames = "Middle",
             Surname = "Doe",
-            DateOfBirth = new DateTime(1990-01-01),
+            DateOfBirth = "1990-01-01",
             Gender = Gender.Male,
             AddressLine1 = "123 Main Street",
             AddressLine2 = "Apt 101",
@@ -278,13 +278,13 @@ public class UpdateParticipantDetailsTests
             AddressLine5 = "State",
             Postcode = "12345",
             ReasonForRemoval = "Moved",
-            ReasonForRemovalEffectiveFromDate = new DateTime(2023-01-01),
-            DateOfDeath = new DateTime(2024-04-23),
+            ReasonForRemovalEffectiveFromDate = "2023-01-01",
+            DateOfDeath = "2024-04-23",
             TelephoneNumber = "123-456-7890",
             MobileNumber = "987-654-3210",
             EmailAddress = "john.doe@example.com",
             PreferredLanguage = "English",
-            IsInterpreterRequired = false,
+            IsInterpreterRequired = "0",
             RecordType = Actions.Amended
         };
     }
