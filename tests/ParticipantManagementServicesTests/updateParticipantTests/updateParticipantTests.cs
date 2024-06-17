@@ -1,4 +1,4 @@
-namespace updateParticipant;
+namespace NHS.CohortManager.Tests.ParticipantManagementSericeTests;
 
 using System.Net;
 using System.Text;
@@ -10,46 +10,30 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using Model;
+using NHS.CohortManager.Tests.TestUtils;
+using updateParticipant;
 
 [TestClass]
 public class UpdateParticipantTests
 {
-    Mock<ILogger<UpdateParticipantFunction>> _logger;
-    Mock<ICallFunction> _callFunction;
-    ServiceCollection serviceCollection;
-    Mock<FunctionContext> _context;
-    Mock<HttpRequestData> _request;
-    Mock<ICreateResponse> _createResponse;
+    private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<ICreateResponse> _createResponse = new();
+    private readonly Mock<HttpWebResponse> _webResponse = new();
+    private readonly Mock<ICheckDemographic> _checkDemographic = new();
+    private readonly Mock<ICreateParticipant> _createParticipant = new();
+    private readonly Mock<HttpWebResponse> _validationWebResponse = new();
+    private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
+    private readonly SetupRequest _setupRequest = new();
+    private readonly Participant _participant;
+    private Mock<HttpRequestData> _request;
 
-    Mock<HttpWebResponse> _webResponse;
 
-    Mock<ICheckDemographic> _checkDemographic = new();
-
-    Mock<ICreateParticipant> _createParticipant = new();
-
-    Mock<HttpWebResponse> _validationWebResponse = new();
-
-    Mock<HttpWebResponse> _updateParticipantWebResponse = new();
-
-    Participant _participant;
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
-
-        _logger = new Mock<ILogger<UpdateParticipantFunction>>();
-        _createResponse = new Mock<ICreateResponse>();
-        _callFunction = new Mock<ICallFunction>();
-        _context = new Mock<FunctionContext>();
-        _request = new Mock<HttpRequestData>(_context.Object);
-        _webResponse = new Mock<HttpWebResponse>();
-
-        serviceCollection = new ServiceCollection();
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
         _participant = new Participant()
         {
@@ -62,7 +46,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
@@ -107,7 +91,7 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
@@ -130,7 +114,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
@@ -167,7 +151,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
@@ -207,21 +191,5 @@ public class UpdateParticipantTests
                 null,
                 (Func<object, Exception, string>)It.IsAny<object>()
             ));
-    }
-
-    private void setupRequest(string json)
-    {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
-
-        _request.Setup(r => r.Body).Returns(bodyStream);
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
     }
 }

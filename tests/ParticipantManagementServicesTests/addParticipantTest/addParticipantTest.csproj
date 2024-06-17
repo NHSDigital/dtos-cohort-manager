@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
