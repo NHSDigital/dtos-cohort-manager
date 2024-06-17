@@ -4,5 +4,5 @@ namespace Common;
 
 public interface ICreateParticipant
 {
-    public Participant CreateResponseParticipantModel(Participant participant, Demographic demographic);
+    public Participant CreateResponseParticipantModel(BasicParticipantData participant, Demographic demographic);
 }

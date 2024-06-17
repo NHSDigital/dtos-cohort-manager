@@ -24,7 +24,7 @@ public class processCaasFileTests
     private readonly Mock<FunctionContext> context = new();
     private readonly Mock<HttpRequestData> request;
     private readonly Mock<ICreateResponse> createResponse = new();
-
+    private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantData = new();
     private readonly Mock<ICheckDemographic> checkDemographic = new();
 
     public processCaasFileTests()
@@ -55,7 +55,7 @@ public class processCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
 
         setupRequest(json);
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
 
         //Act
         var result = await sut.Run(request.Object);
@@ -79,7 +79,7 @@ public class processCaasFileTests
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
 
         setupRequest(json);
 
@@ -111,7 +111,7 @@ public class processCaasFileTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(exception);
 
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
 
         // Act
         await sut.Run(request.Object);
@@ -140,7 +140,7 @@ public class processCaasFileTests
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
 
         setupRequest(json);
 
@@ -172,7 +172,7 @@ public class processCaasFileTests
         callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()))
             .ThrowsAsync(exception);
 
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
 
         // Act
         await sut.Run(request.Object);
