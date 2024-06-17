@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.ScreeningValidationService;
+namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
 
 using System.Net;
 using System.Text.Json;

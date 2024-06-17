@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.ParticipantManagementService;
+namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using Moq;
 using Microsoft.Extensions.Logging;
@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Text;
 using NHS.CohortManager.CaasIntegration.UpdateEligibility;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class UpdateEligibilityTests
@@ -18,14 +19,13 @@ public class UpdateEligibilityTests
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
-    private readonly Mock<FunctionContext> _functionContext = new();
-    private readonly Mock<HttpRequestData> _request;
+    private readonly SetupRequest _setupRequest = new();
     private readonly Participant _participant;
+    private Mock<HttpRequestData> _request;
 
     public UpdateEligibilityTests()
     {
         Environment.SetEnvironmentVariable("markParticipantAsEligible", "markParticipantAsEligible");
-        _request = new Mock<HttpRequestData>(_functionContext.Object);
 
         _participant = new Participant()
         {
@@ -42,7 +42,7 @@ public class UpdateEligibilityTests
         var json = JsonSerializer.Serialize(_participant);
         var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -72,7 +72,7 @@ public class UpdateEligibilityTests
         var json = JsonSerializer.Serialize(_participant);
         var sut = new UpdateEligibility(_mockLogger.Object, _createResponse.Object, _callFunction.Object);
 
-        SetupRequest(json);
+        _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -94,23 +94,6 @@ public class UpdateEligibilityTests
         _createResponse.VerifyNoOtherCalls();
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-
-    }
-
-    private void SetupRequest(string json)
-    {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
-
-        _request.Setup(r => r.Body).Returns(bodyStream);
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_functionContext.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
-        });
 
     }
 }

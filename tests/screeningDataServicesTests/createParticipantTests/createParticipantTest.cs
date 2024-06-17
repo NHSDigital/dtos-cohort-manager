@@ -1,4 +1,4 @@
-namespace screeningDataServices;
+namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 
 using System.Net;
 using System.Text;
@@ -13,33 +13,21 @@ using Common;
 using Data.Database;
 using Model;
 using Model.Enums;
+using screeningDataServices;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class CreateParticipantTests
 {
 
-    private Mock<ILogger<CreateParticipant>> mockLogger;
-    private Mock<ICreateResponse> mockCreateResponse;
-    private Mock<ICreateParticipantData> mockCreateParticipantData;
-    private Mock<Participant> mockParticipantDetails;
-
+    private readonly Mock<ILogger<screeningDataServices.CreateParticipant>> mockLogger = new();
+    private readonly Mock<ICreateResponse> mockCreateResponse = new();
+    private readonly Mock<ICreateParticipantData> mockCreateParticipantData = new();
+    private readonly Mock<Participant> mockParticipantDetails = new();
     private readonly Mock<ICheckDemographic> CheckDemographic = new();
 
-    Mock<FunctionContext> mockContext;
+    Mock<FunctionContext> mockContext = new();
     Mock<HttpRequestData> mockRequest;
-
-    [TestInitialize]
-    public void Setup()
-    {
-        // Arrange
-        var encoding = Encoding.UTF8;
-
-        mockLogger = new Mock<ILogger<CreateParticipant>>();
-        mockCreateResponse = new Mock<ICreateResponse>();
-        mockCreateParticipantData = new Mock<ICreateParticipantData>();
-        mockParticipantDetails = GenerateMockModelParticipantDetails();
-        mockContext = new Mock<FunctionContext>();
-    }
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()
@@ -51,7 +39,7 @@ public class CreateParticipantTests
             }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
 
-        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
+        var createParticipant = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(true);
 
         // Act
@@ -67,7 +55,7 @@ public class CreateParticipantTests
     {
         // Arrange
         mockRequest = new Mock<HttpRequestData>(mockContext.Object);
-        var createParticipant = new CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
+        var createParticipant = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(false);
 
         // Act
