@@ -18,12 +18,11 @@ public class AddNewParticipantTestClass
 {
     private readonly Mock<ILogger<AddParticipantFunction>> _loggerMock = new();
     private readonly Mock<ICallFunction> _callFunctionMock = new();
-    // private readonly ServiceCollection _serviceCollection = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
-    private readonly Participant participant;
+    private readonly Participant _participant;
     private readonly SetupRequest _setupRequest = new();
     private Mock<HttpRequestData> _request;
 
@@ -33,7 +32,7 @@ public class AddNewParticipantTestClass
         Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
 
-        participant = new Participant()
+        _participant = new Participant()
         {
             FirstName = "Joe",
             Surname = "Bloggs",
@@ -46,7 +45,7 @@ public class AddNewParticipantTestClass
     public async Task Run_Should_log_Participant_Created()
     {
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -74,7 +73,7 @@ public class AddNewParticipantTestClass
     {
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -102,7 +101,7 @@ public class AddNewParticipantTestClass
     {
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()));
 
@@ -129,7 +128,7 @@ public class AddNewParticipantTestClass
     {
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()));
 

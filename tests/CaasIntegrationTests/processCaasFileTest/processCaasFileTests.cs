@@ -21,7 +21,6 @@ public class processCaasFileTests
 {
     private readonly Mock<ILogger<ProcessCaasFileFunction>> loggerMock = new();
     private readonly Mock<ICallFunction> _callFunctionMock = new();
-    private readonly ServiceCollection serviceCollection = new();
     private Mock<HttpRequestData> _request;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
@@ -33,10 +32,6 @@ public class processCaasFileTests
         Environment.SetEnvironmentVariable("PMSAddParticipant", "PMSAddParticipant");
         Environment.SetEnvironmentVariable("PMSRemoveParticipant", "PMSRemoveParticipant");
         Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
-
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-
-        // context.SetupProperty(c => c.InstanceServices, serviceProvider);
     }
 
     [TestMethod]
