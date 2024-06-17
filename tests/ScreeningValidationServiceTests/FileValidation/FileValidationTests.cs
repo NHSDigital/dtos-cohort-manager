@@ -8,23 +8,33 @@ using Moq;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using NHS.CohortManager.ScreeningValidationService;
+using Model;
+using Common;
 
 [TestClass]
 public class FileValidationTests
 {
     private readonly Mock<ILogger<FileValidation>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<HttpWebResponse> webResponse = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly FileValidationRequestBody _requestBody;
     private readonly FileValidation _function;
+
+
 
     public FileValidationTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
-        _requestBody = new FileValidationRequestBody("There was an exception.", "test-file.csv");
+        _requestBody = new FileValidationRequestBody()
+        {
+            ExceptionMessage = "There was an exception.",
+            FileName = "test-file.csv"
+        };
 
-        _function = new FileValidation(_logger.Object);
+        _function = new FileValidation(_logger.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -65,6 +75,10 @@ public class FileValidationTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+
+        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
