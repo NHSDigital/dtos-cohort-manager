@@ -37,21 +37,22 @@ namespace addParticipant
 
             // convert body to json and then deserialize to object
             string postdata = "";
+            Participant participant = new Participant();
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 postdata = reader.ReadToEnd();
             }
-            var participant = JsonSerializer.Deserialize<Participant>(postdata);
+            var basicParticipant = JsonSerializer.Deserialize<BasicParticipantData>(postdata);
 
             try
             {
-                var demographicData = await _getDemographicData.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
-                participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
+                participant = _createParticipant.CreateResponseParticipantModel(basicParticipant, demographicData);
 
                 var json = JsonSerializer.Serialize(participant);
 
