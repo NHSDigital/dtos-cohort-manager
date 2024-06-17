@@ -93,6 +93,11 @@ public class ReceiveCaasFileTests
         It.IsAny<Exception>(),
         It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
+
+        mockICallFunction.Verify(
+        x => x.SendPost(It.IsAny<string>(),
+        It.IsAny<string>()),
+        Times.Never);
     }
 
     [TestMethod]
