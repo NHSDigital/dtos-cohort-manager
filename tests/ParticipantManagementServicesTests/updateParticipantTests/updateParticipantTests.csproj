@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
+    <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
