@@ -29,14 +29,14 @@ namespace updateParticipantDetails
             try
             {
                 string requestBody = "";
-                var participantUpdateAction = new ParticipantUpdateAction();
+                var participantCsvRecord = new ParticipantCsvRecord();
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
                     requestBody = await reader.ReadToEndAsync();
-                    participantUpdateAction = JsonSerializer.Deserialize<ParticipantUpdateAction>(requestBody);
+                    participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
                 }
 
-                var isAdded = await _updateParticipantData.UpdateParticipantDetails(participantUpdateAction);
+                var isAdded = await _updateParticipantData.UpdateParticipantDetails(participantCsvRecord);
                 if (isAdded)
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

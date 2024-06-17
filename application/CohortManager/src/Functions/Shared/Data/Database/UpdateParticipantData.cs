@@ -34,9 +34,9 @@ public class UpdateParticipantData : IUpdateParticipantData
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public async Task<bool> UpdateParticipantDetails(ParticipantUpdateAction participantUpdateAction)
+    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
     {
-        var participantData = participantUpdateAction.Participant;
+        var participantData = participantCsvRecord.Participant;
 
         var cohortId = 1;
 
@@ -46,7 +46,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
         var oldParticipant = GetParticipant(participantData.NHSId);
-        if (!await ValidateData(oldParticipant, participantData, participantUpdateAction.FileName))
+        if (!await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName))
         {
             return false;
         }

@@ -40,9 +40,9 @@ public class UpdateParticipantFunction
         {
             postdata = reader.ReadToEnd();
         }
-        var participantUpdateAction = JsonSerializer.Deserialize<ParticipantUpdateAction>(postdata);
+        var participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(postdata);
 
-        if (!await ValidateData(participantUpdateAction))
+        if (!await ValidateData(participantCsvRecord))
         {
             _logger.LogInformation("The participant has not been updated due to a bad request.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -50,17 +50,17 @@ public class UpdateParticipantFunction
 
         try
         {
-            var demographicData = await _checkDemographic.GetDemographicAsync(participantUpdateAction.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            var participant = participantCsvRecord.Participant;
+
+            var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            var participant = participantUpdateAction.Participant;
-            participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
-            participantUpdateAction.Participant = participant;
-            var json = JsonSerializer.Serialize(participantUpdateAction);
+            participantCsvRecord.Participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
+            var json = JsonSerializer.Serialize(participantCsvRecord);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
             if (createResponse.StatusCode == HttpStatusCode.OK)
@@ -80,9 +80,9 @@ public class UpdateParticipantFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 
-    private async Task<bool> ValidateData(ParticipantUpdateAction participant)
+    private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(participantCsvRecord);
 
         try
         {

@@ -50,9 +50,15 @@ namespace processCaasFile
                 {
                     _logger.LogError("demographic function failed");
                 }
+
+                var participantCsvRecord = new ParticipantCsvRecord
+                {
+                    Participant = p,
+                    FileName = input.FileName
+                };
+
                 switch (recordTypeTrimmed)
                 {
-
                     case Actions.New:
                         add++;
                         try
@@ -70,12 +76,7 @@ namespace processCaasFile
                         upd++;
                         try
                         {
-                            var updateAction = new ParticipantUpdateAction
-                            {
-                                Participant = p,
-                                FileName = input.FileName
-                            };
-                            var json = JsonSerializer.Serialize(updateAction);
+                            var json = JsonSerializer.Serialize(participantCsvRecord);
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                             _logger.LogInformation("Called update participant");
 
