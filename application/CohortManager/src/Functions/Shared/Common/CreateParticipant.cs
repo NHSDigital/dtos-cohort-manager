@@ -5,7 +5,7 @@ namespace Common;
 
 public class CreateParticipant : ICreateParticipant
 {
-    public Participant CreateResponseParticipantModel(Participant participant, Demographic demographic)
+    public Participant CreateResponseParticipantModel(BasicParticipantData participant, Demographic demographic)
     {
         return new Participant
         {

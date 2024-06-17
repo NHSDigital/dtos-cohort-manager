@@ -40,27 +40,25 @@ public class UpdateParticipantFunction
         {
             postdata = reader.ReadToEnd();
         }
-        var participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(postdata);
-
-        if (!await ValidateData(participantCsvRecord))
-        {
-            _logger.LogInformation("The participant has not been updated due to a bad request.");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
+        var basicParticipantData = JsonSerializer.Deserialize<BasicParticipantData>(postdata);
 
         try
         {
-            var participant = participantCsvRecord.Participant;
-
-            var demographicData = await _checkDemographic.GetDemographicAsync(participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantData.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantData, demographicData);
+            var json = JsonSerializer.Serialize(participant);
+
+            if (!await ValidateData(participant))
+            {
+                _logger.LogInformation("The participant has not been updated due to a bad request.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            participantCsvRecord.Participant = _createParticipant.CreateResponseParticipantModel(participant, demographicData);
-            var json = JsonSerializer.Serialize(participantCsvRecord);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
             if (createResponse.StatusCode == HttpStatusCode.OK)
@@ -76,7 +74,6 @@ public class UpdateParticipantFunction
         }
 
         _logger.LogInformation("The participant has not been updated due to a bad request.");
-
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 
