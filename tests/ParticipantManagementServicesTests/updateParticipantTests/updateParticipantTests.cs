@@ -69,10 +69,12 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        // Act
+        _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+                        .Returns(Task.FromResult<Demographic>(new Demographic()));
+        //Act
         var result = await sut.Run(_request.Object);
 
-        // Assert
+        //Assert
         _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _request.Object, ""), Times.Once());
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Never());
 
@@ -171,7 +173,6 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
             .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
 
-
         _updateParticipantWebResponse.Setup(x => x.StatusCode).Throws(new Exception("an error occurred"));
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
@@ -186,6 +187,9 @@ public class UpdateParticipantTests
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
             return response;
         });
+
+        createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>()))
+        .Returns(_participant);
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
 

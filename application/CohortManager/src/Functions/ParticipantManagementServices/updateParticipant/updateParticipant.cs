@@ -48,7 +48,7 @@ public class UpdateParticipantFunction
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantData, demographicData);
             var json = JsonSerializer.Serialize(participant);
