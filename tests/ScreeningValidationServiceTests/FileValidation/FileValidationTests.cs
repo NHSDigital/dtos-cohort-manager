@@ -17,7 +17,7 @@ public class FileValidationTests
     private readonly Mock<ILogger<FileValidation>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<HttpWebResponse> webResponse = new();
+    private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly FileValidationRequestBody _requestBody;
     private readonly FileValidation _function;
@@ -76,9 +76,9 @@ public class FileValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         // Act
         var result = await _function.RunAsync(_request.Object);

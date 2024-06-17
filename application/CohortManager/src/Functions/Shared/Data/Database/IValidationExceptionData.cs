@@ -6,5 +6,5 @@ public interface IValidationExceptionData
 {
     public bool Create(ValidationException exception);
     public List<ValidationException> GetAll();
-    public bool CreateFileValidationException(FileValidationRequestBody exception);
+    public bool CreateFileValidationException(ValidationException exception);
 }

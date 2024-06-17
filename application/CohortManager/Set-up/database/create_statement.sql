@@ -178,12 +178,3 @@ CREATE TABLE DEMOGRAPHIC_DATA (
   home_phone_textphone BIT,
   emergency_contact_phone_number VARCHAR(255)
 );
-
-/*==============================================================*/
-/* Table: VALIDATION_FILE_EXCEPTION Table                       */
-/*==============================================================*/
-
-create table dbo.VALIDATION_FILE_EXCEPTION (
-    FILE_NAME NVARCHAR(50) not null,
-    EXCEPTION NVARCHAR(50) not null,
-);

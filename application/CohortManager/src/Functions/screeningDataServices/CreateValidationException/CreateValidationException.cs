@@ -26,7 +26,7 @@ public class CreateValidationException
     [Function("CreateValidationException")]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        FileValidationRequestBody exception;
+        ValidationException exception;
 
         try
         {
@@ -36,7 +36,7 @@ public class CreateValidationException
                 requestBodyJson = reader.ReadToEnd();
             }
 
-            exception = JsonSerializer.Deserialize<FileValidationRequestBody>(requestBodyJson);
+            exception = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
         }
         catch
         {
