@@ -60,7 +60,7 @@ namespace NHS.Screening.ReceiveCaasFile
                         AddressLine2 = values[19],
                         AddressLine3 = values[20],
                         AddressLine4 = values[21],
-                        AddressLine5 =  values[22],
+                        AddressLine5 = values[22],
                         Postcode = values[23],
                         PafKey = values[24],
                         UsualAddressEffectiveFromDate = values[25],
@@ -87,6 +87,13 @@ namespace NHS.Screening.ReceiveCaasFile
                 {
                     failures++;
                     _logger.LogInformation($"Unable to create object on line {cohort.Participants.Count}.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+
+                    var json = JsonSerializer.Serialize<FileValidationRequestBody>(new FileValidationRequestBody()
+                    {
+                        ExceptionMessage = ex.Message,
+                        FileName = name
+                    });
+                    _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
                 }
             }
 
@@ -97,7 +104,7 @@ namespace NHS.Screening.ReceiveCaasFile
             }
             catch (Exception ex)
             {
-            _logger.LogInformation("Unable to call function.\nMessage:{Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogInformation("Unable to call function.\nMessage:{Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             }
 
             _logger.LogInformation("Created {ParticipantCount} Objects.", cohort.Participants.Count);

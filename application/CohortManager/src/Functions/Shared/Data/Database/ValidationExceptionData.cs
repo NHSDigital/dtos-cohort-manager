@@ -60,12 +60,38 @@ public class ValidationExceptionData : IValidationExceptionData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
+        return ExecuteCommand(command);
+    }
+
+    public bool CreateFileValidationException(FileValidationRequestBody exception)
+    {
+        var SQL = " INSERT INTO [dbo].[VALIDATION_FILE_EXCEPTION] ([FILE_NAME], [EXCEPTION]) " +
+                  " VALUES (@fileName, @exception); ";
+
+        var parameters = new Dictionary<string, object>()
+        {
+            {"@fileName", exception.FileName},
+            {"@exception", exception.ExceptionMessage},
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return ExecuteCommand(command);
+    }
+
+    private bool ExecuteCommand(IDbCommand command)
+    {
         _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
-        var result = Execute(command);
+        var inserted = Execute(command);
         _dbConnection.Close();
 
-        return result;
+        if (inserted)
+        {
+            return true;
+        }
+        return false;
     }
 
     private bool Execute(IDbCommand command)
