@@ -28,8 +28,6 @@ public class UpdateParticipantTests
     private readonly Participant _participant;
     private Mock<HttpRequestData> _request;
 
-    Mock<ICheckDemographic> _checkDemographic = new();
-
 
     public UpdateParticipantTests()
     {
@@ -48,7 +46,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        setupRequest(json);
+        _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);

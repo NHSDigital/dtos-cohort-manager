@@ -78,7 +78,7 @@ public class processCaasFileTests
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
 
         _request = setupRequest.Setup(json);
 
@@ -110,7 +110,7 @@ public class processCaasFileTests
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(exception);
 
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -139,7 +139,7 @@ public class processCaasFileTests
                 }
         };
         var json = JsonSerializer.Serialize(cohort);
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
 
         _request = setupRequest.Setup(json);
 
@@ -171,7 +171,7 @@ public class processCaasFileTests
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()))
             .ThrowsAsync(exception);
 
-        var sut = new ProcessCaasFileFunction(loggerMock.Object, callFunctionMock.Object, createResponse.Object, checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
 
         // Act
         await sut.Run(_request.Object);
