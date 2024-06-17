@@ -26,7 +26,7 @@ public class UpdateParticipantTests
 
     Mock<ICheckDemographic> _checkDemographic = new();
 
-    Mock<ICreateParticipant> createParticipant = new();
+    Mock<ICreateParticipant> _createParticipant = new();
 
     Mock<HttpWebResponse> _validationWebResponse = new();
 
@@ -63,7 +63,7 @@ public class UpdateParticipantTests
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         setupRequest(json);
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
@@ -109,7 +109,7 @@ public class UpdateParticipantTests
 
         setupRequest(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -153,7 +153,7 @@ public class UpdateParticipantTests
         });
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -188,10 +188,10 @@ public class UpdateParticipantTests
             return response;
         });
 
-        createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>()))
+        _createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>()))
         .Returns(_participant);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
