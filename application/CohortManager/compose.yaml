@@ -96,7 +96,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/UpdateEligibility/Dockerfile
+      dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7064
       - DSmarkParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
@@ -163,7 +163,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/CreateValidationExceptions/Dockerfile
+      dockerfile: screeningDataServices/CreateValidationException/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7073
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
