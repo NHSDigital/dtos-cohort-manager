@@ -116,7 +116,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
-            { "@removalDate", participantData.ReasonForRemovalEffectiveFromDate},
+            { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@RecordStartDate", dateToday},
             { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
