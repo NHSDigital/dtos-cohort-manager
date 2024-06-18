@@ -53,6 +53,7 @@ public class ReceiveCaasFile
                 {
                     badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                     _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+                    await InsertValidationErrorIntoDatabase(cohort, ex);
                 }
             }
         }
