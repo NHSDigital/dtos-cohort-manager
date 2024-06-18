@@ -8,14 +8,14 @@ public class Participant
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string? NHSId { get; set; }
+    public string NHSId { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
-    public string? PrimaryCareProviderEffectiveFrom { get; set; }
+    public string? PrimaryCareProviderEffectiveFromDate { get; set; }
     public string? CurrentPosting { get; set; }
-    public string? CurrentPostingEffectiveFrom { get; set; }
+    public string? CurrentPostingEffectiveFromDate { get; set; }
     public string? PreviousPosting { get; set; }
-    public string? PreviousPostingEffectiveFrom { get; set; }
+    public string? PreviousPostingEffectiveFromDate { get; set; }
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }

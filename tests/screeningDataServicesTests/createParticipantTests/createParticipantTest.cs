@@ -91,7 +91,7 @@ public class CreateParticipantTests
         participantMock.Object.MobileNumber = "";
         participantMock.Object.EmailAddress = "";
         participantMock.Object.PreferredLanguage = "";
-        participantMock.Object.IsInterpreterRequired = "";
+        participantMock.Object.IsInterpreterRequired = "0";
         participantMock.Object.RecordType = "";
 
         return participantMock;
