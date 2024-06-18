@@ -88,7 +88,7 @@ public class FileValidationTests
             log.Log(
             LogLevel.Information,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("There was an exception.")),
+            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("File validation exception")),
             null,
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
