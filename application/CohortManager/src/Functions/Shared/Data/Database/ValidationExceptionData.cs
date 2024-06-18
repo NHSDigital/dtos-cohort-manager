@@ -63,12 +63,6 @@ public class ValidationExceptionData : IValidationExceptionData
         return ExecuteCommand(command);
     }
 
-    public bool CreateFileValidationException(ValidationException exception)
-    {
-        // we will change this in the future but right now we don't know what the format of the database will look like
-        return true;
-    }
-
     private bool ExecuteCommand(IDbCommand command)
     {
         _dbConnection.ConnectionString = _connectionString;

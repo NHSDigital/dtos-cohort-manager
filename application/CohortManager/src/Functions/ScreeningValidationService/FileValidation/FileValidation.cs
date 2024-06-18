@@ -23,7 +23,7 @@ public class FileValidation
     [Function("FileValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        FileValidationRequestBody requestBody;
+        ValidationException requestBody;
 
         try
         {
@@ -33,14 +33,15 @@ public class FileValidation
                 requestBodyJson = await reader.ReadToEndAsync();
             }
 
-            requestBody = JsonSerializer.Deserialize<FileValidationRequestBody>(requestBodyJson);
+
+            requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
             var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), requestBodyJson);
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
-            _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestBody.ExceptionMessage, requestBody.FileName);
+            _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestBody.RuleName, requestBody.NhsNumber);
             return req.CreateResponse(HttpStatusCode.OK);
         }
         catch

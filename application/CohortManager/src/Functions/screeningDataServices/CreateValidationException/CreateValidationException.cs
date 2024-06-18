@@ -43,7 +43,7 @@ public class CreateValidationException
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        if (_validationData.CreateFileValidationException(exception))
+        if (_validationData.Create(exception))
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }

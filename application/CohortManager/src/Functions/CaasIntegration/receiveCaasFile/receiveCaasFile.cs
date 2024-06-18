@@ -88,11 +88,17 @@ namespace NHS.Screening.ReceiveCaasFile
                     failures++;
                     _logger.LogInformation($"Unable to create object on line {cohort.Participants.Count}.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
 
-                    var json = JsonSerializer.Serialize<FileValidationRequestBody>(new FileValidationRequestBody()
+                    var latestRecord = cohort.Participants.LastOrDefault();
+                    var json = JsonSerializer.Serialize<ValidationException>(new ValidationException()
                     {
-                        ExceptionMessage = ex.Message,
-                        FileName = name
+
+                        RuleId = "1",
+                        RuleName = ex.Message,
+                        Workflow = "NoWorkFlow",
+                        NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
+                        DateCreated = DateTime.Now,
                     });
+
                     _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
                 }
             }
