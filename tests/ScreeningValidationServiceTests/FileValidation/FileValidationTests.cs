@@ -19,7 +19,7 @@ public class FileValidationTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<HttpRequestData> _request;
-    private readonly FileValidationRequestBody _requestBody;
+    private readonly ValidationException _requestBody;
     private readonly FileValidation _function;
 
 
@@ -28,10 +28,13 @@ public class FileValidationTests
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
-        _requestBody = new FileValidationRequestBody()
+        _requestBody = new ValidationException()
         {
-            ExceptionMessage = "There was an exception.",
-            FileName = "test-file.csv"
+            RuleId = "1",
+            RuleName = "",
+            Workflow = "NoWorkFlow",
+            NhsNumber = "1",
+            DateCreated = DateTime.Now,
         };
 
         _function = new FileValidation(_logger.Object, _callFunction.Object);
