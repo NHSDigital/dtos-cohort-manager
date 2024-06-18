@@ -1,4 +1,4 @@
-namespace NHS.CohortManger.Tests.ScreeningDataServices;
+namespace NHS.CohortManger.Tests.ScreeningDataServicesTests;
 
 using System.Data;
 using System.Net;
@@ -73,10 +73,10 @@ public class UpdateParticipantDetailsTests
         callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participant);
 
         // Assert
         Assert.IsTrue(result);
@@ -99,10 +99,10 @@ public class UpdateParticipantDetailsTests
         callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participant);
 
         // Assert
         Assert.IsFalse(result);
@@ -120,10 +120,10 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
 
         // Assert
         Assert.IsTrue(result);
@@ -141,10 +141,10 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
 
         // Assert
         Assert.IsFalse(result);
@@ -164,10 +164,10 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId);
 
         // Assert
         Assert.AreEqual(nhsId, result.NHSId);
@@ -187,10 +187,10 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId);
 
         // Assert
         Assert.AreEqual("123456", result.NHSId);
@@ -211,10 +211,10 @@ public class UpdateParticipantDetailsTests
         callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
 
-        var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participant);
 
         // Assert
         Assert.IsFalse(result);
@@ -255,7 +255,7 @@ public class UpdateParticipantDetailsTests
             FirstName = "John",
             OtherGivenNames = "Middle",
             Surname = "Doe",
-            DateOfBirth = "04/04/1959",
+            DateOfBirth = "1990-01-01",
             Gender = Gender.Male,
             AddressLine1 = "123 Main Street",
             AddressLine2 = "Apt 101",
@@ -264,13 +264,13 @@ public class UpdateParticipantDetailsTests
             AddressLine5 = "State",
             Postcode = "12345",
             ReasonForRemoval = "Moved",
-            ReasonForRemovalEffectiveFromDate = "04/04/1959",
-            DateOfDeath = "04/04/1959",
-            TelephoneNumber = "1234567890",
-            MobileNumber = "9876543210",
+            ReasonForRemovalEffectiveFromDate = "2023-01-01",
+            DateOfDeath = "2024-04-23",
+            TelephoneNumber = "123-456-7890",
+            MobileNumber = "987-654-3210",
             EmailAddress = "john.doe@example.com",
             PreferredLanguage = "English",
-            IsInterpreterRequired = "No",
+            IsInterpreterRequired = "0",
             RecordType = Actions.Amended
         };
     }
