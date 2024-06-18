@@ -10,7 +10,7 @@ public class CreateParticipantData : ICreateParticipantData
 {
     private IDbConnection _dbConnection;
     private IDatabaseHelper _databaseHelper;
-    private string connectionString;
+    private readonly string connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
 
     public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
@@ -18,7 +18,7 @@ public class CreateParticipantData : ICreateParticipantData
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
     }
 
     public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
