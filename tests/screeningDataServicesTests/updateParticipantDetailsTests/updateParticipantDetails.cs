@@ -12,38 +12,27 @@ using Moq;
 [TestClass]
 public class UpdateParticipantDetailsTests
 {
-    private readonly Mock<IDbConnection> mockDBConnection;
+    private readonly Mock<IDbConnection> mockDBConnection = new();
     private readonly Participant participant;
-    private readonly Mock<IDbCommand> commandMock;
-    private readonly Mock<IDataReader> moqDataReader;
-    private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock;
-    private readonly Mock<IDatabaseHelper> _databaseHelperMock;
-    private readonly Mock<IDbDataParameter> mockParameter;
-    private readonly Mock<IDbTransaction> mockTransaction;
-    private readonly Mock<ICallFunction> callFunction;
-    private readonly Mock<HttpWebResponse> webResponse;
+    private readonly Mock<IDbCommand> commandMock = new();
+    private readonly Mock<IDataReader> moqDataReader = new();
+    private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
+    private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
+    private readonly Mock<IDbDataParameter> mockParameter = new();
+    private readonly Mock<IDbTransaction> mockTransaction = new();
+    private readonly Mock<ICallFunction> callFunction = new();
+    private readonly Mock<HttpWebResponse> webResponse = new();
 
     public UpdateParticipantDetailsTests()
     {
         Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
         Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
 
-        mockTransaction = new Mock<IDbTransaction>();
-        mockParameter = new Mock<IDbDataParameter>();
-        mockDBConnection = new Mock<IDbConnection>();
-        callFunction = new Mock<ICallFunction>();
-        webResponse = new Mock<HttpWebResponse>();
-
         mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
         mockDBConnection.Setup(x => x.BeginTransaction()).Returns(mockTransaction.Object);
 
-        commandMock = new Mock<IDbCommand>();
         commandMock.Setup(c => c.Dispose());
-
-        moqDataReader = new Mock<IDataReader>();
-
         commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
-
         commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
         commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
         commandMock.SetupProperty<string>(c => c.CommandText);
@@ -58,9 +47,6 @@ public class UpdateParticipantDetailsTests
         commandMock.Setup(m => m.ExecuteReader())
         .Returns(moqDataReader.Object);
         mockDBConnection.Setup(conn => conn.Open());
-
-        _loggerMock = new Mock<ILogger<UpdateParticipantData>>();
-        _databaseHelperMock = new Mock<IDatabaseHelper>();
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
