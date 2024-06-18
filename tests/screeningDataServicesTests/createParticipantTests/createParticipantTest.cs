@@ -39,11 +39,11 @@ public class CreateParticipantTests
             }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
 
-        var createParticipant = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
+        var sut = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(true);
 
         // Act
-        var response = await createParticipant.Run(mockRequest);
+        var response = await sut.Run(mockRequest);
 
         // Assert
         mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -55,11 +55,11 @@ public class CreateParticipantTests
     {
         // Arrange
         mockRequest = new Mock<HttpRequestData>(mockContext.Object);
-        var createParticipant = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
+        var sut = new screeningDataServices.CreateParticipant(mockLogger.Object, mockCreateResponse.Object, mockCreateParticipantData.Object);
         mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(false);
 
         // Act
-        var response = await createParticipant.Run(mockRequest.Object);
+        var response = await sut.Run(mockRequest.Object);
 
         // Assert
         mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
