@@ -1,7 +1,6 @@
 namespace Data.Database;
 
 using System.Data;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using Model;
 using Common;
@@ -372,7 +371,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         {
             {"@contactMethod", DBNull.Value},
             {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", participantData.IsInterpreterRequired.IsNullOrEmpty() ? "0" : "1"},
+            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
             {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
