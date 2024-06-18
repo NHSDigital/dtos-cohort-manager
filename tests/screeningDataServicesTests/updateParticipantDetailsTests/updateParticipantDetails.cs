@@ -51,7 +51,11 @@ public class UpdateParticipantDetailsTests
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
-        participantCsvRecord = GetParticipantCsvRecord();
+        participantCsvRecord = new ParticipantCsvRecord
+        {
+            FileName = "test.csv",
+            Participant = GetParticipant()
+        };
     }
 
     [TestMethod]
@@ -244,38 +248,34 @@ public class UpdateParticipantDetailsTests
         moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
     }
 
-    private ParticipantCsvRecord GetParticipantCsvRecord()
+    private Participant GetParticipant()
     {
-        return new ParticipantCsvRecord()
+        return new Participant()
         {
-            FileName = "test.csv",
-            Participant = new Participant()
-            {
-                NHSId = "123456",
-                SupersededByNhsNumber = "789012",
-                PrimaryCareProvider = "ABC Clinic",
-                NamePrefix = "Mr.",
-                FirstName = "John",
-                OtherGivenNames = "Middle",
-                Surname = "Doe",
-                DateOfBirth = "04/04/1959",
-                Gender = Gender.Male,
-                AddressLine1 = "123 Main Street",
-                AddressLine2 = "Apt 101",
-                AddressLine3 = "Suburb",
-                AddressLine4 = "City",
-                AddressLine5 = "State",
-                Postcode = "12345",
-                ReasonForRemoval = "Moved",
-                ReasonForRemovalEffectiveFromDate = "04/04/1959",
-                DateOfDeath = "04/04/1959",
-                TelephoneNumber = "1234567890",
-                MobileNumber = "9876543210",
-                EmailAddress = "john.doe@example.com",
-                PreferredLanguage = "English",
-                IsInterpreterRequired = "No",
-                RecordType = Actions.Amended
-            }
+            NHSId = "123456",
+            SupersededByNhsNumber = "789012",
+            PrimaryCareProvider = "ABC Clinic",
+            NamePrefix = "Mr.",
+            FirstName = "John",
+            OtherGivenNames = "Middle",
+            Surname = "Doe",
+            DateOfBirth = "04/04/1959",
+            Gender = Gender.Male,
+            AddressLine1 = "123 Main Street",
+            AddressLine2 = "Apt 101",
+            AddressLine3 = "Suburb",
+            AddressLine4 = "City",
+            AddressLine5 = "State",
+            Postcode = "12345",
+            ReasonForRemoval = "Moved",
+            ReasonForRemovalEffectiveFromDate = "04/04/1959",
+            DateOfDeath = "04/04/1959",
+            TelephoneNumber = "1234567890",
+            MobileNumber = "9876543210",
+            EmailAddress = "john.doe@example.com",
+            PreferredLanguage = "English",
+            IsInterpreterRequired = "No",
+            RecordType = Actions.Amended
         };
     }
 }
