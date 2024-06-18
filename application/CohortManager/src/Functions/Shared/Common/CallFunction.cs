@@ -1,10 +1,7 @@
 namespace Common;
 
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text;
-
 
 public class CallFunction : ICallFunction
 {
@@ -15,7 +12,6 @@ public class CallFunction : ICallFunction
 
     public async Task<string> SendGet(string url)
     {
-
         return await GetAsync(url);
     }
 
@@ -38,7 +34,6 @@ public class CallFunction : ICallFunction
         }
 
         return null;
-
     }
 
     private async Task<HttpWebResponse> GetHttpWebRequest(string url, string dataToSend, string Method)

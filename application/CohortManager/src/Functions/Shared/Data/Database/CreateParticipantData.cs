@@ -3,14 +3,13 @@ namespace Data.Database;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-
 using Model;
 
 public class CreateParticipantData : ICreateParticipantData
 {
-    private IDbConnection _dbConnection;
-    private IDatabaseHelper _databaseHelper;
-    private readonly string connectionString;
+    private readonly IDbConnection _dbConnection;
+    private readonly IDatabaseHelper _databaseHelper;
+    private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
 
     public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
@@ -18,15 +17,14 @@ public class CreateParticipantData : ICreateParticipantData
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
     }
 
     public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
-        string cohort_id = "1";
-        string active = "Y";
-        DateTime date_today = DateTime.Today;
-        DateTime max_end_date = DateTime.MaxValue;
+        string cohortId = "1";
+        DateTime dateToday = DateTime.Today;
+        DateTime maxEndDate = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
         var participantData = participantCsvRecord.Participant;
 
@@ -72,12 +70,12 @@ public class CreateParticipantData : ICreateParticipantData
 
         var commonParameters = new Dictionary<string, object>
         {
-            {"@cohort_id", cohort_id},
+            {"@cohort_id", cohortId},
             {"@gender", participantData.Gender},
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
-            {"@dateOfBirth", _databaseHelper.parseDates(participantData.DateOfBirth)},
-            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participantData.DateOfDeath)},
+            {"@dateOfBirth", _databaseHelper.ParseDates(participantData.DateOfBirth)},
+            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
             { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
@@ -85,19 +83,18 @@ public class CreateParticipantData : ICreateParticipantData
             { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
-            { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.parseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-            { "@RecordStartDate", date_today},
-            { "@RecordEndDate", max_end_date},
+            { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@RecordStartDate", dateToday},
+            { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
-            { "@LoadDate", date_today },
-
+            { "@LoadDate", dateToday },
         };
 
         sqlToExecuteInOrder.Add(new SQLReturnModel()
         {
-            commandType = CommandType.Scalar,
+            CommandType = CommandType.Scalar,
             SQL = insertParticipant,
-            parameters = null
+            Parameters = null
         });
 
         sqlToExecuteInOrder.Add(AddNewAddress(participantData));
@@ -111,9 +108,9 @@ public class CreateParticipantData : ICreateParticipantData
         var command = CreateCommand(commonParams);
         foreach (var SqlCommand in sqlCommands)
         {
-            if (SqlCommand.parameters != null)
+            if (SqlCommand.Parameters != null)
             {
-                AddParameters(SqlCommand.parameters, command);
+                AddParameters(SqlCommand.Parameters, command);
             }
         }
 
@@ -126,7 +123,7 @@ public class CreateParticipantData : ICreateParticipantData
             foreach (var sqlCommand in sqlCommands)
             {
 
-                if (sqlCommand.commandType == CommandType.Scalar)
+                if (sqlCommand.CommandType == CommandType.Scalar)
                 {
                     //when the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
@@ -135,7 +132,7 @@ public class CreateParticipantData : ICreateParticipantData
                         {"@NewParticipantId", newParticipantPk }
                     }, command);
                 }
-                if (sqlCommand.commandType == CommandType.Command)
+                if (sqlCommand.CommandType == CommandType.Command)
                 {
                     command.CommandText = sqlCommand.SQL;
                     if (!Execute(command))
@@ -185,7 +182,6 @@ public class CreateParticipantData : ICreateParticipantData
 
     private int ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
     {
-
         command.Transaction = transaction;
         var newParticipantPk = -1;
 
@@ -218,7 +214,7 @@ public class CreateParticipantData : ICreateParticipantData
 
     private IDbTransaction BeginTransaction()
     {
-        _dbConnection.ConnectionString = connectionString;
+        _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
         return _dbConnection.BeginTransaction();
     }
@@ -281,9 +277,9 @@ public class CreateParticipantData : ICreateParticipantData
 
         return new SQLReturnModel()
         {
-            commandType = CommandType.Command,
+            CommandType = CommandType.Command,
             SQL = updateAddress,
-            parameters = parameters
+            Parameters = parameters
         };
     }
     private SQLReturnModel InsertContactPreference(Participant participantData)
@@ -304,9 +300,9 @@ public class CreateParticipantData : ICreateParticipantData
 
         return new SQLReturnModel()
         {
-            commandType = CommandType.Command,
+            CommandType = CommandType.Command,
             SQL = insertContactPreference,
-            parameters = parameters
+            Parameters = parameters
         };
     }
 }

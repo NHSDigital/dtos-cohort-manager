@@ -14,9 +14,7 @@ public class UpdateParticipantFunction
     private readonly ILogger<UpdateParticipantFunction> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
-
     private readonly ICheckDemographic _checkDemographic;
-
     private readonly ICreateParticipant _createParticipant;
 
     public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
@@ -34,13 +32,12 @@ public class UpdateParticipantFunction
         _logger.LogInformation("Update participant called.");
         HttpWebResponse createResponse;
 
-        // convert body to json and then deserialize to object
-        string postdata = "";
+        string postData = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            postdata = reader.ReadToEnd();
+            postData = reader.ReadToEnd();
         }
-        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postdata);
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
         try
         {

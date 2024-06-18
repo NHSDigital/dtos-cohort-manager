@@ -13,11 +13,8 @@ namespace addParticipant
     {
         private readonly ILogger<AddParticipantFunction> _logger;
         private readonly ICallFunction _callFunction;
-
         private readonly ICreateResponse _createResponse;
-
         private readonly ICheckDemographic _getDemographicData;
-
         private readonly ICreateParticipant _createParticipant;
 
         public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
@@ -35,14 +32,13 @@ namespace addParticipant
             _logger.LogInformation("C# addParticipant called.");
             HttpWebResponse createResponse, eligibleResponse;
 
-            // convert body to json and then deserialize to object
-            string postdata = "";
+            string postData = "";
             Participant participant = new Participant();
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postdata = reader.ReadToEnd();
+                postData = reader.ReadToEnd();
             }
-            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postdata);
+            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
             try
             {

@@ -1,7 +1,6 @@
 namespace Common;
 
 using System.Net;
-using System.Text;
 
 public interface ICallFunction
 {

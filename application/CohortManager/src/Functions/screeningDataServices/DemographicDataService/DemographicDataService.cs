@@ -1,3 +1,5 @@
+namespace ScreeningDataServices;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -8,13 +10,11 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace ScreeningDataServices;
-
 public class DemographicDataService
 {
     private readonly ILogger<DemographicDataService> _logger;
     private readonly ICreateResponse _createResponse;
-    private ICreateDemographicData _createDemographicData;
+    private readonly ICreateDemographicData _createDemographicData;
 
     public DemographicDataService(ILogger<DemographicDataService> logger, ICreateResponse createResponse, ICreateDemographicData createDemographicData)
     {
@@ -26,8 +26,6 @@ public class DemographicDataService
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // parse through the HTTP request
-        string requestBody = "";
         Participant participantData = new Participant();
 
         try
@@ -36,7 +34,7 @@ public class DemographicDataService
             {
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
-                    requestBody = await reader.ReadToEndAsync();
+                    string requestBody = await reader.ReadToEndAsync();
                     participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
 
@@ -70,4 +68,3 @@ public class DemographicDataService
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
-

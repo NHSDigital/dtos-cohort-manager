@@ -49,7 +49,7 @@ public class UpdateParticipantDetailsTests
         mockDBConnection.Setup(conn => conn.Open());
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-        _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
+        _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
         participantCsvRecord = new ParticipantCsvRecord
         {

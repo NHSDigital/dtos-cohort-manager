@@ -10,6 +10,7 @@ using System.Text.Json;
 public class FileValidation
 {
     private readonly ILogger<FileValidation> _logger;
+
     public FileValidation(ILogger<FileValidation> logger)
     {
         _logger = logger;
