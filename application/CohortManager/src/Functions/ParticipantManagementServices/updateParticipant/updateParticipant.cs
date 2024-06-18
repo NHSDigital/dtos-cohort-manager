@@ -51,9 +51,14 @@ public class UpdateParticipantFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
-            var json = JsonSerializer.Serialize(participant);
+            var participantCsvRecord = new ParticipantCsvRecord
+            {
+                Participant = participant,
+                FileName = basicParticipantCsvRecord.FileName
+            };
+            var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            if (!await ValidateData(participant, basicParticipantCsvRecord.FileName))
+            if (!await ValidateData(participantCsvRecord))
             {
                 _logger.LogInformation("The participant has not been updated due to a bad request.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -77,14 +82,8 @@ public class UpdateParticipantFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 
-    private async Task<bool> ValidateData(Participant participant, string fileName)
+    private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
-        var participantCsvRecord = new ParticipantCsvRecord
-        {
-            Participant = participant,
-            FileName = fileName
-        };
-
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
         try

@@ -18,16 +18,17 @@ public class CreateParticipantData : ICreateParticipantData
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
+        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
-    public bool CreateParticipantEntryAsync(Participant participantData, string cString)
+    public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
         string cohort_id = "1";
         string active = "Y";
         DateTime date_today = DateTime.Today;
         DateTime max_end_date = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
-        connectionString = cString;
+        var participantData = participantCsvRecord.Participant;
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
             " COHORT_ID, " +

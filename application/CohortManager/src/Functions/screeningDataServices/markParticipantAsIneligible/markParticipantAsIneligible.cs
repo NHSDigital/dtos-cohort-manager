@@ -13,7 +13,6 @@ namespace markParticipantAsIneligible
     public class MarkParticipantAsIneligible
     {
         private readonly ILogger<MarkParticipantAsIneligible> _logger;
-
         private readonly IUpdateParticipantData _updateParticipantData;
         private readonly ICreateResponse _createResponse;
 
@@ -35,7 +34,8 @@ namespace markParticipantAsIneligible
                 postdata = reader.ReadToEnd();
             }
 
-            var participant = JsonSerializer.Deserialize<Participant>(postdata);
+            var participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(postdata);
+            var participant = participantCsvRecord.Participant;
 
             try
             {
