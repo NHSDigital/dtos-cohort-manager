@@ -1,31 +1,25 @@
 namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
 using Moq;
 using Common;
 using Data.Database;
 using Model;
 using Model.Enums;
 using screeningDataServices;
-using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class CreateParticipantTests
 {
-
     private readonly Mock<ILogger<screeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
-
-    Mock<FunctionContext> mockContext = new();
-    Mock<HttpRequestData> mockRequest;
+    private readonly Mock<FunctionContext> mockContext = new();
+    private Mock<HttpRequestData> mockRequest;
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()

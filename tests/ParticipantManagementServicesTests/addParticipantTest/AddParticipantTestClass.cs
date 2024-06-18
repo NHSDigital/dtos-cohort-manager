@@ -1,13 +1,10 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using Common;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Moq;
-using System.Text;
 using System.Text.Json;
 using Model;
 using addParticipant;
@@ -75,7 +72,6 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Marked_As_Eligible()
     {
-
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -103,7 +99,6 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Log_Error()
     {
-
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -130,7 +125,6 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Marked_As_Eligible_Log_Error()
     {
-
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 

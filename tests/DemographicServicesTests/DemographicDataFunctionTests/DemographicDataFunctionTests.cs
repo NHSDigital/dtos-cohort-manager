@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.DemographicServicesTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker;
@@ -10,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using Microsoft.Extensions.Primitives;
 using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
 

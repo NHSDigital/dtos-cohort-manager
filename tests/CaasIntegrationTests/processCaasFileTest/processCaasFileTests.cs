@@ -3,15 +3,11 @@ namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using processCaasFile;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Model;
 using NHS.CohortManager.Tests.TestUtils;
@@ -181,5 +177,4 @@ public class processCaasFileTests
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
     }
-
 }

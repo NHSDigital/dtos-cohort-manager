@@ -9,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using screeningDataServices;
-using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests

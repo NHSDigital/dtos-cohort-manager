@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker.Http;

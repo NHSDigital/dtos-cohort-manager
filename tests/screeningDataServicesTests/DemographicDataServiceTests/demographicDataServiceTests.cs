@@ -1,4 +1,5 @@
 namespace DemographicDataServiceTests;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -43,7 +44,6 @@ public class DemographicDataServiceTests
     [TestMethod]
     public async Task Run_return_DemographicDataSaved_OK()
     {
-
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
@@ -69,7 +69,6 @@ public class DemographicDataServiceTests
     [TestMethod]
     public async Task Run_return_POST_DemographicNotSaved_InternalServerError()
     {
-
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
@@ -96,7 +95,6 @@ public class DemographicDataServiceTests
     [TestMethod]
     public async Task Run_return_DemographicNotSavedThrows_InternalServerError()
     {
-
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 

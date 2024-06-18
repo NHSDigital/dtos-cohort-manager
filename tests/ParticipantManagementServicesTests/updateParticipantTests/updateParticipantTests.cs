@@ -28,7 +28,6 @@ public class UpdateParticipantTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
 
-
     public UpdateParticipantTests()
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
@@ -79,7 +78,6 @@ public class UpdateParticipantTests
     [TestMethod]
     public async Task Run_Should_Return_Ok_When_Participant_Update_Succeeds()
     {
-
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -139,7 +137,6 @@ public class UpdateParticipantTests
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
             return response;
         });
-
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
