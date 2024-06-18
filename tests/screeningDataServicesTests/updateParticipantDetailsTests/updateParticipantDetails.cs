@@ -13,7 +13,7 @@ using Moq;
 public class UpdateParticipantDetailsTests
 {
     private readonly Mock<IDbConnection> mockDBConnection = new();
-    private readonly Participant participant;
+    private readonly ParticipantCsvRecord participantCsvRecord;
     private readonly Mock<IDbCommand> commandMock = new();
     private readonly Mock<IDataReader> moqDataReader = new();
     private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
@@ -51,7 +51,7 @@ public class UpdateParticipantDetailsTests
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
-        participant = GetParticipant();
+        participantCsvRecord = GetParticipantCsvRecord();
     }
 
     [TestMethod]
@@ -76,7 +76,7 @@ public class UpdateParticipantDetailsTests
         var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await updateParticipantData.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsTrue(result);
@@ -102,7 +102,7 @@ public class UpdateParticipantDetailsTests
         var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await updateParticipantData.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
@@ -123,7 +123,7 @@ public class UpdateParticipantDetailsTests
         var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = updateParticipantData.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsTrue(result);
@@ -144,7 +144,7 @@ public class UpdateParticipantDetailsTests
         var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+        var result = updateParticipantData.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsFalse(result);
@@ -214,7 +214,7 @@ public class UpdateParticipantDetailsTests
         var updateParticipantData = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await updateParticipantData.UpdateParticipantDetails(participant);
+        var result = await updateParticipantData.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
@@ -244,34 +244,38 @@ public class UpdateParticipantDetailsTests
         moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
     }
 
-    private Participant GetParticipant()
+    private ParticipantCsvRecord GetParticipantCsvRecord()
     {
-        return new Participant()
+        return new ParticipantCsvRecord()
         {
-            NHSId = "123456",
-            SupersededByNhsNumber = "789012",
-            PrimaryCareProvider = "ABC Clinic",
-            NamePrefix = "Mr.",
-            FirstName = "John",
-            OtherGivenNames = "Middle",
-            Surname = "Doe",
-            DateOfBirth = "04/04/1959",
-            Gender = Gender.Male,
-            AddressLine1 = "123 Main Street",
-            AddressLine2 = "Apt 101",
-            AddressLine3 = "Suburb",
-            AddressLine4 = "City",
-            AddressLine5 = "State",
-            Postcode = "12345",
-            ReasonForRemoval = "Moved",
-            ReasonForRemovalEffectiveFromDate = "04/04/1959",
-            DateOfDeath = "04/04/1959",
-            TelephoneNumber = "1234567890",
-            MobileNumber = "9876543210",
-            EmailAddress = "john.doe@example.com",
-            PreferredLanguage = "English",
-            IsInterpreterRequired = "No",
-            RecordType = Actions.Amended
+            FileName = "test.csv",
+            Participant = new Participant()
+            {
+                NHSId = "123456",
+                SupersededByNhsNumber = "789012",
+                PrimaryCareProvider = "ABC Clinic",
+                NamePrefix = "Mr.",
+                FirstName = "John",
+                OtherGivenNames = "Middle",
+                Surname = "Doe",
+                DateOfBirth = "04/04/1959",
+                Gender = Gender.Male,
+                AddressLine1 = "123 Main Street",
+                AddressLine2 = "Apt 101",
+                AddressLine3 = "Suburb",
+                AddressLine4 = "City",
+                AddressLine5 = "State",
+                Postcode = "12345",
+                ReasonForRemoval = "Moved",
+                ReasonForRemovalEffectiveFromDate = "04/04/1959",
+                DateOfDeath = "04/04/1959",
+                TelephoneNumber = "1234567890",
+                MobileNumber = "9876543210",
+                EmailAddress = "john.doe@example.com",
+                PreferredLanguage = "English",
+                IsInterpreterRequired = "No",
+                RecordType = Actions.Amended
+            }
         };
     }
 }

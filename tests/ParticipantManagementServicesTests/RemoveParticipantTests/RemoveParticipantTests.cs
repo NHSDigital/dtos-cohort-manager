@@ -21,7 +21,7 @@ public class RemoveParticipantTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
     private readonly SetupRequest _setupRequest = new();
-    private readonly Participant _participant;
+    private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
 
     public RemoveParticipantTests()
@@ -29,12 +29,16 @@ public class RemoveParticipantTests
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
 
-        _participant = new Participant()
+        _participantCsvRecord = new ParticipantCsvRecord
         {
-            FirstName = "Joe",
-            Surname = "Bloggs",
-            NHSId = "1",
-            RecordType = Actions.New
+            FileName = "test.csv",
+            Participant = new Participant()
+            {
+                FirstName = "Joe",
+                Surname = "Bloggs",
+                NHSId = "1",
+                RecordType = Actions.New
+            }
         };
     }
 
@@ -42,7 +46,7 @@ public class RemoveParticipantTests
     public async Task Run_return_ParticipantRemovedSuccessfully_OK()
     {
         //Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
@@ -73,7 +77,7 @@ public class RemoveParticipantTests
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
         //Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
@@ -100,7 +104,7 @@ public class RemoveParticipantTests
     [TestMethod]
     public async Task Run_AnErrorIsThrown_BadRequest()
     {
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);

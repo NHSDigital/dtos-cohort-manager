@@ -20,7 +20,7 @@ public class StaticValidationTests
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ServiceCollection _serviceCollection = new();
-    private readonly Participant _participant = new();
+    private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
 
     public StaticValidationTests()
@@ -43,6 +43,12 @@ public class StaticValidationTests
             response.SetupProperty(r => r.Body, new MemoryStream());
             return response.Object;
         });
+
+        _participantCsvRecord = new ParticipantCsvRecord()
+        {
+            FileName = "test",
+            Participant = new Participant()
+        };
     }
 
     [TestMethod]
@@ -76,8 +82,8 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_NhsNumberMustBeTenDigits_Passes(string nhsNumber)
     {
         // Arrange
-        _participant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(_participant);
+        _participantCsvRecord.Participant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
@@ -98,8 +104,8 @@ public class StaticValidationTests
     public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NhsNumberMustBeTenDigits_Fails(string nhsNumber)
     {
         // Arrange
-        _participant.NHSId = nhsNumber;
-        var json = JsonSerializer.Serialize(_participant);
+        _participantCsvRecord.Participant.NHSId = nhsNumber;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act

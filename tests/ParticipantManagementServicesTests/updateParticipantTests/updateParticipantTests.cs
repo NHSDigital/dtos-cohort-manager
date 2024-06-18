@@ -25,7 +25,7 @@ public class UpdateParticipantTests
     private readonly Mock<HttpWebResponse> _validationWebResponse = new();
     private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
     private readonly SetupRequest _setupRequest = new();
-    private readonly Participant _participant;
+    private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
 
 
@@ -35,9 +35,13 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
-        _participant = new Participant()
+        _participantCsvRecord = new ParticipantCsvRecord
         {
-            NHSId = "1",
+            FileName = "test.csv",
+            Participant = new Participant()
+            {
+                NHSId = "1",
+            }
         };
     }
 
@@ -45,7 +49,7 @@ public class UpdateParticipantTests
     public async Task Run_Should_Return_BadRequest_And_Not_Update_Participant_When_Validation_Fails()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
@@ -77,7 +81,7 @@ public class UpdateParticipantTests
     {
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -113,7 +117,7 @@ public class UpdateParticipantTests
     public async Task Run_Should_Return_BadRequest_When_Participant_Update_Fails()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
 
         _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -150,7 +154,7 @@ public class UpdateParticipantTests
     public async Task Run_Should_Return_InternalServerError_When_Participant_Update_Throws_Exception()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
 
         _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -173,7 +177,7 @@ public class UpdateParticipantTests
         });
 
         _createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>()))
-        .Returns(_participant);
+        .Returns(_participantCsvRecord.Participant);
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
