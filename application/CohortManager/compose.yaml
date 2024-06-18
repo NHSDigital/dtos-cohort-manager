@@ -96,7 +96,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/updateEligibility/Dockerfile
+      dockerfile: ParticipantManagementServices/UpdateEligibility/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7064
       - DSmarkParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
