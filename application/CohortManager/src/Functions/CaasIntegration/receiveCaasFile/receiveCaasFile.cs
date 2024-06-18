@@ -23,7 +23,10 @@ public class ReceiveCaasFile
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
     {
         var badRecords = new Dictionary<int, string>();
-        var cohort = new Cohort();
+        var cohort = new Cohort()
+        {
+            FileName = name
+        };
         var rowNumber = 0;
         CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {

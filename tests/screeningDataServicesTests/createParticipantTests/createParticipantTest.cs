@@ -38,7 +38,7 @@ public class CreateParticipantTests
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
 
         var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(true);
+        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(true);
 
         // Act
         var response = await sut.Run(mockRequest);
@@ -54,7 +54,7 @@ public class CreateParticipantTests
         // Arrange
         mockRequest = new Mock<HttpRequestData>(mockContext.Object);
         var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(false);
+        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(false);
 
         // Act
         var response = await sut.Run(mockRequest.Object);

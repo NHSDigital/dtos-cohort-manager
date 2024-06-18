@@ -52,14 +52,20 @@ namespace processCaasFile
                 {
                     _logger.LogError("demographic function failed");
                 }
+
+                var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+                {
+                    Participant = _createBasicParticipantData.BasicParticipantData(p),
+                    FileName = input.FileName
+                };
+
                 switch (recordTypeTrimmed)
                 {
-
                     case Actions.New:
                         add++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
+                            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                             _logger.LogInformation("Called add participant");
                         }
@@ -72,7 +78,7 @@ namespace processCaasFile
                         upd++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
+                            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                             _logger.LogInformation("Called update participant");
 
@@ -86,7 +92,7 @@ namespace processCaasFile
                         del++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
+                            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                             var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                             _logger.LogInformation("Called remove participant");
                         }

@@ -13,7 +13,7 @@ using Moq;
 public class UpdateParticipantDetailsTests
 {
     private readonly Mock<IDbConnection> mockDBConnection = new();
-    private readonly Participant participant;
+    private readonly ParticipantCsvRecord participantCsvRecord;
     private readonly Mock<IDbCommand> commandMock = new();
     private readonly Mock<IDataReader> moqDataReader = new();
     private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
@@ -51,7 +51,11 @@ public class UpdateParticipantDetailsTests
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.parseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
-        participant = GetParticipant();
+        participantCsvRecord = new ParticipantCsvRecord
+        {
+            FileName = "test.csv",
+            Participant = GetParticipant()
+        };
     }
 
     [TestMethod]
@@ -76,7 +80,7 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsTrue(result);
@@ -102,7 +106,7 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
@@ -123,7 +127,7 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsTrue(result);
@@ -144,7 +148,7 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsFalse(result);
@@ -214,7 +218,7 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participant);
+        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
