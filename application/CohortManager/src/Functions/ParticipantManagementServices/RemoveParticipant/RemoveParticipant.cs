@@ -43,17 +43,22 @@ namespace RemoveParticipant
                     postdata = reader.ReadToEnd();
                 }
 
-                var basicParticipantData = JsonSerializer.Deserialize<BasicParticipantData>(postdata);
+                var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postdata);
 
-                var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantData.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
 
-                var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantData, demographicData);
-                var json = JsonSerializer.Serialize(participant);
+                var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+                var participantCsvRecord = new ParticipantCsvRecord
+                {
+                    Participant = participant,
+                    FileName = basicParticipantCsvRecord.FileName,
+                };
+                var json = JsonSerializer.Serialize(participantCsvRecord);
 
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 

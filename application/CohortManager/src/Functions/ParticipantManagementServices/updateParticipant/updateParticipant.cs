@@ -40,20 +40,25 @@ public class UpdateParticipantFunction
         {
             postdata = reader.ReadToEnd();
         }
-        var basicParticipantData = JsonSerializer.Deserialize<BasicParticipantData>(postdata);
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postdata);
 
         try
         {
-            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantData.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantData, demographicData);
-            var json = JsonSerializer.Serialize(participant);
+            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+            var participantCsvRecord = new ParticipantCsvRecord
+            {
+                Participant = participant,
+                FileName = basicParticipantCsvRecord.FileName
+            };
+            var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            if (!await ValidateData(participant))
+            if (!await ValidateData(participantCsvRecord))
             {
                 _logger.LogInformation("The participant has not been updated due to a bad request.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -77,9 +82,9 @@ public class UpdateParticipantFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 
-    private async Task<bool> ValidateData(Participant participant)
+    private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(participantCsvRecord);
 
         try
         {
