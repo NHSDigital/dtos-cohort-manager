@@ -8,6 +8,7 @@ using Common;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
+using System.Net;
 
 public class ReceiveCaasFile
 {
@@ -55,16 +56,19 @@ public class ReceiveCaasFile
                 {
                     badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                     _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+                    await InsertValidationErrorIntoDatabase(cohort, ex);
                 }
             }
         }
         catch (HeaderValidationException ex)
         {
             _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
         catch (Exception ex)
         {
             _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
         try
         {
@@ -83,6 +87,28 @@ public class ReceiveCaasFile
         catch (Exception ex)
         {
             _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
+    }
+
+    private async Task<bool> InsertValidationErrorIntoDatabase(Cohort cohort, Exception ex)
+    {
+        var latestRecord = cohort.Participants.LastOrDefault();
+        var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
+        {
+
+            RuleId = "1",
+            RuleName = ex.Message,
+            Workflow = "NoWorkFlow",
+            NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
+            DateCreated = DateTime.Now,
+        });
+
+        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
+        if (result.StatusCode == HttpStatusCode.OK)
+        {
+            return true;
+        }
+        return false;
     }
 }
