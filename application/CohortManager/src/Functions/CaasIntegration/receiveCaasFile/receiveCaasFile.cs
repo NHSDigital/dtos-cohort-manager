@@ -111,6 +111,6 @@ public class ReceiveCaasFile
         {
             _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
         }
-        _logger.LogError("there was a problem saving and or moving the failed file")
+        _logger.LogError("there was a problem saving and or moving the failed file");
     }
 }
