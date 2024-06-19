@@ -13,11 +13,9 @@ namespace RemoveParticipant
     {
         private readonly ILogger<RemoveParticipantFunction> _logger;
         private readonly ICreateResponse _createResponse;
-        private ICallFunction _callFunction;
-
+        private readonly ICallFunction _callFunction;
         private readonly ICheckDemographic _checkDemographic;
-
-        private ICreateParticipant _createParticipant;
+        private readonly ICreateParticipant _createParticipant;
 
         public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
         {
@@ -36,14 +34,13 @@ namespace RemoveParticipant
                 _logger.LogInformation("C# addParticipant called.");
                 HttpWebResponse createResponse;
 
-                // convert body to json and then deserialize to object
-                string postdata = "";
+                string postData = "";
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
-                    postdata = reader.ReadToEnd();
+                    postData = reader.ReadToEnd();
                 }
 
-                var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postdata);
+                var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
                 var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
@@ -70,7 +67,7 @@ namespace RemoveParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

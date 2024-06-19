@@ -1,6 +1,6 @@
-using Model;
-
 namespace Data.Database;
+
+using Model;
 
 public interface IValidationExceptionData
 {

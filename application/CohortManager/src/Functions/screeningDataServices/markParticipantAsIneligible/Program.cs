@@ -3,7 +3,6 @@ using System.Data.Common;
 using Common;
 using Data.Database;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

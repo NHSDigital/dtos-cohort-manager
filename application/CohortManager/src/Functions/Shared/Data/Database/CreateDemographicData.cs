@@ -7,9 +7,9 @@ using Microsoft.Data.SqlClient;
 
 public class CreateDemographicData : ICreateDemographicData
 {
-    private IDbConnection _dbConnection;
-    private IDatabaseHelper _databaseHelper;
-    private readonly string connectionString;
+    private readonly IDbConnection _dbConnection;
+    private readonly IDatabaseHelper _databaseHelper;
+    private readonly string _connectionString;
     private readonly ILogger<CreateDemographicData> _logger;
 
     public CreateDemographicData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateDemographicData> logger)
@@ -17,7 +17,7 @@ public class CreateDemographicData : ICreateDemographicData
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
     }
 
     public bool InsertDemographicData(Participant participant)
@@ -26,7 +26,7 @@ public class CreateDemographicData : ICreateDemographicData
         {
             new SQLReturnModel()
             {
-                commandType = CommandType.Command,
+                CommandType = CommandType.Command,
                 SQL = "INSERT INTO [dbo].[DEMOGRAPHIC_DATA] " +
                 "(" +
                     " [resource_id] " +
@@ -92,7 +92,7 @@ public class CreateDemographicData : ICreateDemographicData
                     " @home_phone_textphone, " +
                     " @emergency_contact_phone_number" +
                 ")",
-                parameters = new Dictionary<string, object>
+                Parameters = new Dictionary<string, object>
                 {
                     {"@resource_id", participant.RecordIdentifier},
                     {"@nhs_number", participant.NHSId},
@@ -100,8 +100,8 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@given_name", _databaseHelper.ConvertNullToDbNull(participant.FirstName)},
                     {"@family_name", _databaseHelper.ConvertNullToDbNull(participant.Surname)},
                     {"@gender", participant.Gender.ToString()},
-                    {"@birth_date", string.IsNullOrEmpty(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfBirth)},
-                    {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participant.DateOfDeath)},
+                    {"@birth_date", string.IsNullOrEmpty(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(participant.DateOfBirth)},
+                    {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participant.DateOfDeath)},
                     {"@general_practitioner_code", _databaseHelper.ConvertNullToDbNull(participant.PrimaryCareProvider)},
                     {"@managing_organization_code", DBNull.Value},
                     {"@communication_language", _databaseHelper.ConvertNullToDbNull(participant.PreferredLanguage)},
@@ -193,7 +193,7 @@ public class CreateDemographicData : ICreateDemographicData
         var result = default(T);
         using (_dbConnection)
         {
-            _dbConnection.ConnectionString = connectionString;
+            _dbConnection.ConnectionString = _connectionString;
             _dbConnection.Open();
             using (command)
             {
@@ -209,7 +209,7 @@ public class CreateDemographicData : ICreateDemographicData
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
-        var command = CreateCommand(sqlToExecute[0].parameters);
+        var command = CreateCommand(sqlToExecute[0].Parameters);
         var transaction = BeginTransaction();
         try
         {
@@ -272,7 +272,7 @@ public class CreateDemographicData : ICreateDemographicData
 
     private IDbTransaction BeginTransaction()
     {
-        _dbConnection.ConnectionString = connectionString;
+        _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
         return _dbConnection.BeginTransaction();
     }

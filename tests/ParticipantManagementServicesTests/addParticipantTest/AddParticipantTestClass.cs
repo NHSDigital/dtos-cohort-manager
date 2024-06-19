@@ -1,13 +1,10 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using Common;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Moq;
-using System.Text;
 using System.Text.Json;
 using Model;
 using addParticipant;
@@ -48,6 +45,7 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_log_Participant_Created()
     {
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -60,8 +58,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -75,7 +75,7 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Marked_As_Eligible()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -88,8 +88,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -103,7 +105,7 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Log_Error()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -115,8 +117,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -130,7 +134,7 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Marked_As_Eligible_Log_Error()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 
@@ -142,8 +146,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,

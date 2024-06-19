@@ -1,7 +1,6 @@
 namespace Data.Database;
 
 using System.Data;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
 using Model;
 using Common;
@@ -13,7 +12,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 {
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
-    private readonly string connectionString;
+    private readonly string _connectionString;
     private readonly ILogger<UpdateParticipantData> _logger;
     private readonly ICallFunction _callFunction;
 
@@ -23,7 +22,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         _databaseHelper = databaseHelper;
         _logger = logger;
         _callFunction = callFunction;
-        connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
@@ -109,8 +108,8 @@ public class UpdateParticipantData : IUpdateParticipantData
             {"@gender", participantData.Gender},
             {"@NHSNumber", participantData.NHSId },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
-            {"@dateOfBirth", _databaseHelper.CheckIfDateNull(participantData.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.parseDates(participantData.DateOfBirth)},
-            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.parseDates(participantData.DateOfDeath)},
+            {"@dateOfBirth", _databaseHelper.CheckIfDateNull(participantData.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.ParseDates(participantData.DateOfBirth)},
+            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
             { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
             { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
             { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
@@ -123,15 +122,14 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
             { "@LoadDate", dateToday },
-
         };
 
         // Common params already contains all the parameters we need for this
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
-            commandType = CommandType.Scalar,
+            CommandType = CommandType.Scalar,
             SQL = insertParticipant,
-            parameters = null
+            Parameters = null
         });
 
         SQLToExecuteInOrder.Add(AddNewAddress(participantData));
@@ -145,8 +143,8 @@ public class UpdateParticipantData : IUpdateParticipantData
         var command = CreateCommand(commonParams);
 
         sqlCommands
-            .Where(sqlCommand => sqlCommand.parameters != null)
-            .Select(sqlCommand => sqlCommand.parameters)
+            .Where(sqlCommand => sqlCommand.Parameters != null)
+            .Select(sqlCommand => sqlCommand.Parameters)
             .ToList()
             .ForEach(parameters => AddParameters(parameters, command));
 
@@ -159,7 +157,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             foreach (var sqlCommand in sqlCommands)
             {
 
-                if (sqlCommand.commandType == CommandType.Scalar)
+                if (sqlCommand.CommandType == CommandType.Scalar)
                 {
                     // When the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
@@ -168,7 +166,7 @@ public class UpdateParticipantData : IUpdateParticipantData
                         {"@NewParticipantId", newParticipantPk }
                     }, command);
                 }
-                if (sqlCommand.commandType == CommandType.Command)
+                if (sqlCommand.CommandType == CommandType.Command)
                 {
                     command.CommandText = sqlCommand.SQL;
                     if (!Execute(command))
@@ -184,7 +182,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             _dbConnection.Close();
 
             return true;
-
         }
         catch (Exception ex)
         {
@@ -218,13 +215,13 @@ public class UpdateParticipantData : IUpdateParticipantData
         {
             new SQLReturnModel()
             {
-                commandType = CommandType.Command,
+                CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[ADDRESS] " +
                     " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
                     " ACTIVE_FLAG = @IsActiveOldRecords " +
                     " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
                 // We don't need to add params to all items as we don't want to duplicate them
-                parameters = new Dictionary<string, object>
+                Parameters = new Dictionary<string, object>
                 {
                     {"@recordEndDateOldRecords", recordEndDate},
                     {"@ParticipantIdOld", ParticipantId},
@@ -233,21 +230,21 @@ public class UpdateParticipantData : IUpdateParticipantData
             },
             new SQLReturnModel()
             {
-                commandType = CommandType.Command,
+                CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[PARTICIPANT] " +
                 " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
                 " ACTIVE_FLAG = @IsActiveOldRecords " +
                 " WHERE PARTICIPANT_ID = @ParticipantIdOld ",
-                parameters = null,
+                Parameters = null,
             },
             new SQLReturnModel()
             {
-                commandType = CommandType.Command,
+                CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[CONTACT_PREFERENCE] " +
                 " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
                 " ACTIVE_FLAG = @IsActiveOldRecords " +
                 " WHERE PARTICIPANT_ID = @ParticipantIdOld ",
-                parameters = null
+                Parameters = null
             }
         };
         return listToReturn;
@@ -359,9 +356,9 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         return new SQLReturnModel()
         {
-            commandType = CommandType.Command,
+            CommandType = CommandType.Command,
             SQL = updateAddress,
-            parameters = parameters
+            Parameters = parameters
         };
     }
 
@@ -374,7 +371,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         {
             {"@contactMethod", DBNull.Value},
             {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", participantData.IsInterpreterRequired.IsNullOrEmpty() ? "0" : "1"},
+            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
             {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
             {"@mobileNumber", DBNull.Value},
             {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
@@ -382,9 +379,9 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         return new SQLReturnModel()
         {
-            commandType = CommandType.Command,
+            CommandType = CommandType.Command,
             SQL = insertContactPreference,
-            parameters = parameters
+            Parameters = parameters
         };
     }
 
@@ -393,7 +390,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         var result = default(T);
         using (_dbConnection)
         {
-            _dbConnection.ConnectionString = connectionString;
+            _dbConnection.ConnectionString = _connectionString;
             _dbConnection.Open();
             using (command)
             {
@@ -451,7 +448,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             }
 
             return newParticipantPk;
-
         }
         catch (Exception ex)
         {
@@ -490,7 +486,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
-        var command = CreateCommand(sqlToExecute[0].parameters);
+        var command = CreateCommand(sqlToExecute[0].Parameters);
         var transaction = BeginTransaction();
         try
         {
@@ -520,7 +516,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private IDbTransaction BeginTransaction()
     {
-        _dbConnection.ConnectionString = connectionString;
+        _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
         return _dbConnection.BeginTransaction();
     }

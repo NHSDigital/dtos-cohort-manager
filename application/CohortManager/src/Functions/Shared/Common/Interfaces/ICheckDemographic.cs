@@ -1,6 +1,6 @@
-using Model;
-
 namespace Common;
+
+using Model;
 
 public interface ICheckDemographic
 {

@@ -14,12 +14,13 @@ public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger,
-                            ICallFunction callFunction)
+
+    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction)
     {
         _logger = logger;
         _callFunction = callFunction;
     }
+
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
     {
@@ -86,7 +87,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Unable to call function.\nMessage: {ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(cohort, ex);
         }
     }

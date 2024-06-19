@@ -1,6 +1,5 @@
 namespace Model;
 
-
 public class Demographic
 {
     public string ResourceId { get; set; }

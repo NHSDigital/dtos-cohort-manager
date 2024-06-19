@@ -12,8 +12,8 @@ using Model;
 public class FileValidation
 {
     private readonly ILogger<FileValidation> _logger;
-
     private readonly ICallFunction _callFunction;
+
     public FileValidation(ILogger<FileValidation> logger, ICallFunction callFunction)
     {
         _logger = logger;
