@@ -7,4 +7,5 @@ public class ValidationException
     public string? Workflow { get; set; }
     public string? NhsNumber { get; set; }
     public DateTime? DateCreated { get; set; }
+    public string? FileName { get; set; }
 }
