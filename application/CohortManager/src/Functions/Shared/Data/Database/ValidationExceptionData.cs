@@ -31,11 +31,17 @@ public class ValidationExceptionData : IValidationExceptionData
             {
                 rules.Add(new ValidationException
                 {
-                    RuleId = reader["RULE_ID"] == DBNull.Value ? null : reader["RULE_ID"].ToString(),
-                    RuleName = reader["RULE_NAME"] == DBNull.Value ? null : reader["RULE_NAME"].ToString(),
-                    Workflow = reader["WORKFLOW"] == DBNull.Value ? null : reader["WORKFLOW"].ToString(),
-                    NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString(),
-                    DateCreated = reader["DATE_CREATED"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_CREATED"].ToString())
+                    Filename = reader.GetString(reader.GetOrdinal("FILENAME")) ?? null,
+                    NhsNumber = reader.GetString(reader.GetOrdinal("NHS_NUMBER")) ?? null,
+                    DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")) ?? null,
+                    DateResolved = reader.GetDateTime(reader.GetOrdinal("DATE_RESOLVED")) ?? null,
+                    RuleId = reader.GetInt32(reader.GetOrdinal("RULE_ID")) ?? null,
+                    RuleDescription = reader.GetString(reader.GetOrdinal("RULE_DESCRIPTION")) ?? null,
+                    RuleContent = reader.GetString(reader.GetOrdinal("RULE_CONTENT")) ?? null,
+                    Category = reader.GetInt16(reader.GetOrdinal("CATEGORY")) ?? null,
+                    ScreeningService = reader.GetInt32(reader.GetOrdinal("SCREENING_SERVICE")) ?? null,
+                    Cohort = reader.GetInt16(reader.GetOrdinal("COHORT")) ?? null,
+                    Fatal = reader.GetInt16(reader.GetOrdinal("FATAL")) ?? null
                 });
             }
 
@@ -45,16 +51,24 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
-        var SQL = "INSERT INTO [dbo].[VALIDATION_EXCEPTION] ([RULE_ID], [RULE_NAME], [WORKFLOW], [NHS_NUMBER], [DATE_CREATED]) " +
-                    "VALUES (@ruleId, @ruleName, @workflow, @nhsNumber, @dateCreated);";
+        var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] ([FILENAME], [NHS_NUMBER], [DATE_CREATED], [DATE_RESOLVED],
+                    [RULE_ID], [RULE_DESCRIPTION], [RULE_CONTENT], [CATEGORY], [SCREENING_SERVICE], [COHORT], [FATAL])" +
+                  @"VALUES (@filename, @nhsNumber, @dateCreated, @dateResolved, @ruleId, @ruleDescription, @ruleContent,
+                            @category, @screeningService, @cohort, @fatal);";
 
         var parameters = new Dictionary<string, object>()
         {
-            {"@ruleId", exception.RuleId},
-            {"@ruleName", exception.RuleName},
-            {"@workflow", exception.Workflow},
+            {"@filename", exception.Filename},
             {"@nhsNumber", exception.NhsNumber},
-            {"@dateCreated", exception.DateCreated}
+            {"@dateCreated", exception.DateCreated},
+            {"@dateResolved", exception.DateResolved},
+            {"@ruleId", exception.RuleId},
+            {"@ruleDescription", exception.RuleDescription},
+            {"@ruleContent", exception.RuleContent},
+            {"@category", exception.Category},
+            {"@screeningService", exception.ScreeningService},
+            {"@cohort", exception.Cohort},
+            {"@fatal", exception.Fatal}
         };
 
         var command = CreateCommand(parameters);

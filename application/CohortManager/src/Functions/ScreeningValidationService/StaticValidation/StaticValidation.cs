@@ -26,7 +26,6 @@ public class StaticValidation
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         var workflow = "Common";
-        ParticipantCsvRecord participantCsvRecord;
 
         try
         {
@@ -36,7 +35,6 @@ public class StaticValidation
                 requestBodyJson = reader.ReadToEnd();
             }
 
-            participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
         }
         catch
         {
@@ -53,7 +51,6 @@ public class StaticValidation
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", participantCsvRecord.Participant),
         };
 
         var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
@@ -70,10 +67,10 @@ public class StaticValidation
 
                 var exception = new ValidationException
                 {
+                    Filename = 
                     RuleId = ruleDetails[0],
                     RuleName = ruleDetails[1],
                     Workflow = workflow,
-                    NhsNumber = participantCsvRecord.Participant.NHSId ?? null,
                     DateCreated = DateTime.UtcNow
                 };
 
