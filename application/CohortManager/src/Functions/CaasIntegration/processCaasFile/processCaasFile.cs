@@ -69,7 +69,7 @@ public class ProcessCaasFileFunction
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                        _logger.LogError($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                     }
                     break;
                 case Actions.Amended:
@@ -82,7 +82,7 @@ public class ProcessCaasFileFunction
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                        _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                     }
                     break;
                 case Actions.Removed:
@@ -95,45 +95,16 @@ public class ProcessCaasFileFunction
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                        _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                     }
                     break;
                 default:
                     err++;
-                    //_logger.LogInformation($"error row:{row} action :{p.action}");
                     break;
             }
         }
 
         _logger.LogInformation($"There are {add} Additions. There are {upd} Updates. There are {del} Deletions. There are {err} Errors.");
-
-        //send to eventgrid
-        /*
-        EventGridPublisherClient client = new EventGridPublisherClient(
-        new Uri(),
-        new AzureKeyCredential());
-
-        // Add EventGridEvents to a list to publish to the topic
-        EventGridEvent egEvent =
-            new EventGridEvent(
-                "ExampleEventSubject",
-                "Example.EventType",
-                "1.0",
-                "Hello world!");
-
-        try
-        {
-            // Send the event
-            client.SendEvent(egEvent);
-            _logger.LogInformation("test event sent.");
-        }
-        catch(Exception ex)
-        {
-            _logger.LogInformation($"Unable to send event.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
-        }
-        */
-
-        // set response headers and return
 
         if (err > 0)
         {
