@@ -33,7 +33,7 @@ public class processCaasFileTests
     [TestMethod]
     public async Task Run_Should_Log_RecordsReceived_And_Call_AddParticipant()
     {
-        //Arrange
+        // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>
@@ -47,10 +47,10 @@ public class processCaasFileTests
         _request = setupRequest.Setup(json);
         var sut = new ProcessCaasFileFunction(loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         _callFunctionMock.Verify(
             x => x.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()),
             Times.Exactly(2));
@@ -59,7 +59,7 @@ public class processCaasFileTests
     [TestMethod]
     public async Task Run_Should_Log_RecordsReceived_And_Call_UpdateParticipant()
     {
-        //Arrange
+        // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>
@@ -73,10 +73,10 @@ public class processCaasFileTests
 
         _request = setupRequest.Setup(json);
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         _callFunctionMock.Verify(
             x => x.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()),
             Times.Exactly(2));
@@ -85,7 +85,7 @@ public class processCaasFileTests
     [TestMethod]
     public async Task Run_Should_Log_RecordsReceived_And_UpdateParticipant_throwsException()
     {
-        //Arrange
+        // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>
@@ -120,7 +120,7 @@ public class processCaasFileTests
     [TestMethod]
     public async Task Run_Should_Log_RecordsReceived_And_Call_DelParticipant()
     {
-        //Arrange
+        // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>
@@ -134,10 +134,10 @@ public class processCaasFileTests
 
         _request = setupRequest.Setup(json);
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         _callFunctionMock.Verify(
             x => x.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
             Times.Exactly(2));
@@ -146,7 +146,7 @@ public class processCaasFileTests
     [TestMethod]
     public async Task Run_Should_Log_RecordsReceived_And_DelParticipant_throwsException()
     {
-        //Arrange
+        // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>

@@ -86,7 +86,7 @@ public class ReceiveCaasFileTests
         // Act
         await receiveCaasFileInstance.Run(memoryStream, blobName);
 
-        //Assert
+        // Assert
         mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
         It.IsAny<EventId>(),
         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to create 0 Objects")),

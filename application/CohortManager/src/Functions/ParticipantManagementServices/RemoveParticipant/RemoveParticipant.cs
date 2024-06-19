@@ -67,7 +67,7 @@ namespace RemoveParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

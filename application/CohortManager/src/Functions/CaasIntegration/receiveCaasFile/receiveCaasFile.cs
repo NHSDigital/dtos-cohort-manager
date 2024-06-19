@@ -87,7 +87,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Unable to call function.\nMessage: {ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(cohort, ex);
         }
     }

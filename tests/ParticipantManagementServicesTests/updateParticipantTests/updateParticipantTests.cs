@@ -58,10 +58,11 @@ public class UpdateParticipantTests
 
         _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
-        //Act
+
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         _createResponse.Verify(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _request.Object, ""), Times.Once());
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Never());
 
@@ -78,6 +79,7 @@ public class UpdateParticipantTests
     [TestMethod]
     public async Task Run_Should_Return_Ok_When_Participant_Update_Succeeds()
     {
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         var json = JsonSerializer.Serialize(_participantCsvRecord);
 

@@ -124,7 +124,7 @@ public class CreateParticipantData : ICreateParticipantData
 
                 if (sqlCommand.CommandType == CommandType.Scalar)
                 {
-                    //when the new participant ID has been created as a scalar we can get back the new participant ID
+                    // when the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
                     AddParameters(new Dictionary<string, object>()
                     {

@@ -44,10 +44,11 @@ public class DemographicDataServiceTests
     [TestMethod]
     public async Task Run_return_DemographicDataSaved_OK()
     {
+        // Arrange
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
-        setupRequest(json);
+        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -59,20 +60,21 @@ public class DemographicDataServiceTests
         request.Setup(x => x.Method).Returns("POST");
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(true);
 
-        //Act
+        // Act
         var result = await sut.Run(request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_return_POST_DemographicNotSaved_InternalServerError()
     {
+        // Arrange
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
-        setupRequest(json);
+        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -84,21 +86,22 @@ public class DemographicDataServiceTests
 
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(false);
 
-        //Act
+        // Act
         request.Setup(x => x.Method).Returns("POST");
         var result = await sut.Run(request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_return_DemographicNotSavedThrows_InternalServerError()
     {
+        // Arrange
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
-        setupRequest(json);
+        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -110,11 +113,11 @@ public class DemographicDataServiceTests
 
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Throws(new Exception("there has been an error"));
 
-        //Act
+        // Act
         request.Setup(x => x.Method).Returns("POST");
         var result = await sut.Run(request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
@@ -125,7 +128,7 @@ public class DemographicDataServiceTests
         var json = JsonSerializer.Serialize(participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
-        setupRequest(json);
+        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -156,7 +159,7 @@ public class DemographicDataServiceTests
         // Arrange
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
         var json = JsonSerializer.Serialize(participant);
-        setupRequest(json);
+        SetupRequest(json);
 
 
         request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
@@ -185,7 +188,7 @@ public class DemographicDataServiceTests
         // Arrange
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
         var json = JsonSerializer.Serialize(participant);
-        setupRequest(json);
+        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -206,7 +209,7 @@ public class DemographicDataServiceTests
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
-    private void setupRequest(string json)
+    private void SetupRequest(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);

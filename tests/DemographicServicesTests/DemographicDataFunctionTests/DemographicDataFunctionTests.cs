@@ -70,24 +70,24 @@ public class DemographicDataFunctionTests
     [TestMethod]
     public async Task Run_return_DemographicDataSavedPostRequest_OK()
     {
-
+        // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         _request = _setupRequest.Setup(json);
 
-        //Act
+        // Act
         _request.Setup(r => r.Method).Returns("POST");
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_return_DemographicDataSavedPostRequest_InternalServerEver()
     {
-
+        // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
@@ -96,24 +96,24 @@ public class DemographicDataFunctionTests
         _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        //Act
+        // Act
         _request.Setup(r => r.Method).Returns("POST");
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_return_DemographicDataGetRequest_OK()
     {
-
+        // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         _request = _setupRequest.Setup(json);
 
-        //Act
+        // Act
         _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
 
         _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
@@ -123,14 +123,14 @@ public class DemographicDataFunctionTests
         _request.Setup(r => r.Method).Returns("GET");
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_return_DemographicDataNotSaved_InternalServerError()
     {
-
+        // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
@@ -149,17 +149,17 @@ public class DemographicDataFunctionTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DemographicDataFunctionURI")), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_Return_DemographicFunctionThrows_InternalServerError()
     {
-
+        // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
@@ -178,12 +178,11 @@ public class DemographicDataFunctionTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DemographicDataFunctionURI")), It.IsAny<string>()))
                             .ThrowsAsync(new Exception("there was an error"));
 
-        //Act
+        // Act
         _request.Setup(r => r.Method).Returns("POST");
         var result = await sut.Run(_request.Object);
 
-        //Assert
-
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _logger.Verify(log =>
         log.Log(

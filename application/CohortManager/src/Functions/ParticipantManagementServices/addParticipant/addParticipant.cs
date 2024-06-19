@@ -67,7 +67,7 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
 
             // call data service mark as eligible
@@ -84,7 +84,7 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
