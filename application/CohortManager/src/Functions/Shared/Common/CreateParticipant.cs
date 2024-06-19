@@ -1,7 +1,7 @@
+namespace Common;
+
 using Model;
 using Model.Enums;
-
-namespace Common;
 
 public class CreateParticipant : ICreateParticipant
 {

@@ -26,14 +26,13 @@ namespace markParticipantAsEligible
         [Function("markParticipantAsEligible")]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            // convert body to json and then deserialize to object
-            string postdata = "";
+            string postData = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postdata = await reader.ReadToEndAsync();
+                postData = await reader.ReadToEndAsync();
             }
 
-            var participant = JsonSerializer.Deserialize<Participant>(postdata);
+            var participant = JsonSerializer.Deserialize<Participant>(postData);
 
             try
             {
@@ -50,15 +49,14 @@ namespace markParticipantAsEligible
                 }
 
                 _logger.LogError($"an error occurred while updating data for {participant.NHSId}");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"an error occurred: {ex}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
-
         }
     }
 }

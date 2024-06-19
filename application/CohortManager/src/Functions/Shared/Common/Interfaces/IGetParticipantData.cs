@@ -1,7 +1,7 @@
-using Microsoft.Azure.Functions.Worker.Http;
-using Model;
-
 namespace Common;
+
+using Model;
+using Microsoft.Azure.Functions.Worker.Http;
 
 public interface IGetParticipantData
 {

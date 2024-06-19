@@ -9,12 +9,10 @@ public class GetParticipantData : IGetParticipantData
 {
     public async Task<Participant> GetParticipantDetails(HttpRequestData req)
     {
-        // parse through the HTTP request
-        string requestBody = "";
         var participantData = new Participant();
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            requestBody = await reader.ReadToEndAsync();
+            string requestBody = await reader.ReadToEndAsync();
             participantData = JsonSerializer.Deserialize<Participant>(requestBody);
         }
 

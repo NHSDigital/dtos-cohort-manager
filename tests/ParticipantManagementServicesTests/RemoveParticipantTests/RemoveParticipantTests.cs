@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -45,7 +44,7 @@ public class RemoveParticipantTests
     [TestMethod]
     public async Task Run_return_ParticipantRemovedSuccessfully_OK()
     {
-        //Arrange
+        // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
@@ -66,17 +65,17 @@ public class RemoveParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
-        //Arrange
+        // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
@@ -94,16 +93,17 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_AnErrorIsThrown_BadRequest()
     {
+        // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
@@ -123,8 +123,10 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 }

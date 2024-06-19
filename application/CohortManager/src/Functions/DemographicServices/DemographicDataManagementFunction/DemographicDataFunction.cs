@@ -25,7 +25,6 @@ public class DemographicDataFunction
     [Function("DemographicDataFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var requestBody = "";
         var participantData = new Participant();
         try
         {
@@ -33,7 +32,7 @@ public class DemographicDataFunction
             {
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
-                    requestBody = await reader.ReadToEndAsync();
+                    var requestBody = await reader.ReadToEndAsync();
                     participantData = JsonSerializer.Deserialize<Participant>(requestBody);
                 }
 
@@ -68,4 +67,3 @@ public class DemographicDataFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
-

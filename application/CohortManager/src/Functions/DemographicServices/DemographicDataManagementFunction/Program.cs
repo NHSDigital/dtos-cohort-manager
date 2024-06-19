@@ -10,4 +10,5 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
     .Build();
+
 host.Run();

@@ -1,6 +1,5 @@
 namespace Model;
 
-using System.Diagnostics.Contracts;
 using Model.Enums;
 
 public class Participant
