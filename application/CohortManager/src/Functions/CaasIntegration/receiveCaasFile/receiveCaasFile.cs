@@ -66,6 +66,12 @@ public class ReceiveCaasFile
             _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(cohort, ex);
         }
+        catch (CsvHelperException ex)
+        {
+            _logger.LogError("Failure occurred when reading the CSV file.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
+        }
+
         catch (Exception ex)
         {
             _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
@@ -97,12 +103,12 @@ public class ReceiveCaasFile
         var latestRecord = cohort.Participants.LastOrDefault();
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-
             RuleId = "1",
             RuleName = ex.Message,
             Workflow = "NoWorkFlow",
             NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
             DateCreated = DateTime.Now,
+            FileName = cohort.FileName
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
