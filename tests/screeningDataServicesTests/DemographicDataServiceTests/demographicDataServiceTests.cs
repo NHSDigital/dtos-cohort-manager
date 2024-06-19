@@ -18,21 +18,21 @@ public class DemographicDataServiceTests
 {
     private readonly Mock<ILogger<DemographicDataService>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
-    private readonly Mock<FunctionContext> context = new();
-    private readonly Mock<HttpRequestData> request;
-    private readonly ServiceCollection serviceCollection = new();
-    private readonly Participant participant;
+    private readonly Mock<FunctionContext> _context = new();
+    private readonly Mock<HttpRequestData> _request;
+    private readonly ServiceCollection _serviceCollection = new();
+    private readonly Participant _participant;
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
 
     public DemographicDataServiceTests()
     {
-        request = new Mock<HttpRequestData>(context.Object);
-        var serviceProvider = serviceCollection.BuildServiceProvider();
-        context.SetupProperty(c => c.InstanceServices, serviceProvider);
+        _request = new Mock<HttpRequestData>(_context.Object);
+        var serviceProvider = _serviceCollection.BuildServiceProvider();
+        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
         Environment.SetEnvironmentVariable("DemographicDataFunctionURI", "DemographicDataFunctionURI");
 
-        participant = new Participant()
+        _participant = new Participant()
         {
             FirstName = "Joe",
             Surname = "Bloggs",
@@ -45,7 +45,7 @@ public class DemographicDataServiceTests
     public async Task Run_return_DemographicDataSaved_OK()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
         SetupRequest(json);
@@ -57,11 +57,11 @@ public class DemographicDataServiceTests
                 response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
                 return response;
             });
-        request.Setup(x => x.Method).Returns("POST");
+        _request.Setup(x => x.Method).Returns("POST");
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(true);
 
         // Act
-        var result = await sut.Run(request.Object);
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -71,7 +71,7 @@ public class DemographicDataServiceTests
     public async Task Run_return_POST_DemographicNotSaved_InternalServerError()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
         SetupRequest(json);
@@ -87,8 +87,8 @@ public class DemographicDataServiceTests
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(false);
 
         // Act
-        request.Setup(x => x.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        _request.Setup(x => x.Method).Returns("POST");
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -98,7 +98,7 @@ public class DemographicDataServiceTests
     public async Task Run_return_DemographicNotSavedThrows_InternalServerError()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
         SetupRequest(json);
@@ -114,8 +114,8 @@ public class DemographicDataServiceTests
         _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Throws(new Exception("there has been an error"));
 
         // Act
-        request.Setup(x => x.Method).Returns("POST");
-        var result = await sut.Run(request.Object);
+        _request.Setup(x => x.Method).Returns("POST");
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -125,7 +125,7 @@ public class DemographicDataServiceTests
     public async Task Get_return_DemographicData_OK()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
         SetupRequest(json);
@@ -138,7 +138,7 @@ public class DemographicDataServiceTests
                 response.WriteString(ResponseBody);
                 return response;
             });
-        request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
         {
@@ -146,8 +146,8 @@ public class DemographicDataServiceTests
         });
 
         // Act
-        request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        _request.Setup(x => x.Method).Returns("GET");
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -158,11 +158,11 @@ public class DemographicDataServiceTests
     {
         // Arrange
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
 
-        request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
@@ -175,8 +175,8 @@ public class DemographicDataServiceTests
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns((Demographic)null);
 
         // Act
-        request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        _request.Setup(x => x.Method).Returns("GET");
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
@@ -187,7 +187,7 @@ public class DemographicDataServiceTests
     {
         // Arrange
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
@@ -202,8 +202,8 @@ public class DemographicDataServiceTests
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Throws(new Exception("there has been an error"));
 
         // Act
-        request.Setup(x => x.Method).Returns("GET");
-        var result = await sut.Run(request.Object);
+        _request.Setup(x => x.Method).Returns("GET");
+        var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
@@ -214,10 +214,10 @@ public class DemographicDataServiceTests
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);
 
-        request.Setup(r => r.Body).Returns(bodyStream);
-        request.Setup(r => r.CreateResponse()).Returns(() =>
+        _request.Setup(r => r.Body).Returns(bodyStream);
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
-            var response = new Mock<HttpResponseData>(context.Object);
+            var response = new Mock<HttpResponseData>(_context.Object);
             response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
             response.SetupProperty(r => r.StatusCode);
             response.SetupProperty(r => r.Body, new MemoryStream());

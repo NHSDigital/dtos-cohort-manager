@@ -18,8 +18,8 @@ public class CreateParticipantTests
     private readonly Mock<ILogger<screeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
-    private readonly Mock<FunctionContext> mockContext = new();
-    private Mock<HttpRequestData> mockRequest;
+    private readonly Mock<FunctionContext> _mockContext = new();
+    private Mock<HttpRequestData> _mockRequest;
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()
@@ -46,12 +46,12 @@ public class CreateParticipantTests
     public async Task Run_InvalidRequest_Returns404()
     {
         // Arrange
-        mockRequest = new Mock<HttpRequestData>(mockContext.Object);
+        _mockRequest = new Mock<HttpRequestData>(_mockContext.Object);
         var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
         _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(false);
 
         // Act
-        var response = await sut.Run(mockRequest.Object);
+        var response = await sut.Run(_mockRequest.Object);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);

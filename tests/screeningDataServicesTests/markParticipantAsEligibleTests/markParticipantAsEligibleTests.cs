@@ -13,9 +13,9 @@ using screeningDataServices;
 [TestClass]
 public class MarkParticipantAsEligibleTests
 {
-    private readonly Mock<ILogger<MarkParticipantAsEligible>> mockLogger = new();
-    private readonly Mock<ICreateResponse> mockCreateResponse = new();
-    private readonly Mock<IUpdateParticipantData> mockUpdateParticipantData = new();
+    private readonly Mock<ILogger<MarkParticipantAsEligible>> _mockLogger = new();
+    private readonly Mock<ICreateResponse> _mockCreateResponse = new();
+    private readonly Mock<IUpdateParticipantData> _mockUpdateParticipantData = new();
 
     [TestMethod]
     public async Task Run_MarkParticipantAsEligible_ValidRequest_ReturnsSuccess()
@@ -25,15 +25,15 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": ""Y""
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(mockLogger.Object, mockCreateResponse.Object, mockUpdateParticipantData.Object);
-        mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
 
         // Assert
-        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
-        mockCreateResponse.VerifyNoOtherCalls();
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _mockCreateResponse.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -44,14 +44,14 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": ""Y""
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(mockLogger.Object, mockCreateResponse.Object, mockUpdateParticipantData.Object);
-        mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
 
         // Assert
-        mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
-        mockCreateResponse.VerifyNoOtherCalls();
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _mockCreateResponse.VerifyNoOtherCalls();
     }
 }

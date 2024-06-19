@@ -12,46 +12,46 @@ using Moq;
 [TestClass]
 public class UpdateParticipantDetailsTests
 {
-    private readonly Mock<IDbConnection> mockDBConnection = new();
-    private readonly ParticipantCsvRecord participantCsvRecord;
-    private readonly Mock<IDbCommand> commandMock = new();
-    private readonly Mock<IDataReader> moqDataReader = new();
+    private readonly Mock<IDbConnection> _mockDBConnection = new();
+    private readonly ParticipantCsvRecord _participantCsvRecord;
+    private readonly Mock<IDbCommand> _commandMock = new();
+    private readonly Mock<IDataReader> _moqDataReader = new();
     private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
-    private readonly Mock<IDbDataParameter> mockParameter = new();
-    private readonly Mock<IDbTransaction> mockTransaction = new();
-    private readonly Mock<ICallFunction> callFunction = new();
-    private readonly Mock<HttpWebResponse> webResponse = new();
+    private readonly Mock<IDbDataParameter> _mockParameter = new();
+    private readonly Mock<IDbTransaction> _mockTransaction = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<HttpWebResponse> _webResponse = new();
 
     public UpdateParticipantDetailsTests()
     {
         Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
         Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
 
-        mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
-        mockDBConnection.Setup(x => x.BeginTransaction()).Returns(mockTransaction.Object);
+        _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
+        _mockDBConnection.Setup(x => x.BeginTransaction()).Returns(_mockTransaction.Object);
 
-        commandMock.Setup(c => c.Dispose());
-        commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
-        commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
-        commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
-        commandMock.SetupProperty<string>(c => c.CommandText);
+        _commandMock.Setup(c => c.Dispose());
+        _commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
+        _commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
+        _commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
+        _commandMock.SetupProperty<string>(c => c.CommandText);
 
-        mockParameter.Setup(m => m.ParameterName).Returns("@fakeparam");
-        mockParameter.Setup(m => m.Value).Returns("fakeValue");
+        _mockParameter.Setup(m => m.ParameterName).Returns("@fakeparam");
+        _mockParameter.Setup(m => m.Value).Returns("fakeValue");
 
-        commandMock.Setup(x => x.CreateParameter()).Returns(mockParameter.Object);
+        _commandMock.Setup(x => x.CreateParameter()).Returns(_mockParameter.Object);
 
-        mockDBConnection.Setup(m => m.CreateCommand()).Returns(commandMock.Object);
-        commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
-        commandMock.Setup(m => m.ExecuteReader())
-        .Returns(moqDataReader.Object);
-        mockDBConnection.Setup(conn => conn.Open());
+        _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
+        _commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
+        _commandMock.Setup(m => m.ExecuteReader())
+        .Returns(_moqDataReader.Object);
+        _mockDBConnection.Setup(conn => conn.Open());
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
-        participantCsvRecord = new ParticipantCsvRecord
+        _participantCsvRecord = new ParticipantCsvRecord
         {
             FileName = "test.csv",
             Participant = GetParticipant()
@@ -62,25 +62,25 @@ public class UpdateParticipantDetailsTests
     public async Task UpdateParticipantDetails_Success()
     {
         // Arrange
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false)
         .Returns(true)
         .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
 
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         SetUpReader();
 
-        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
+        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsTrue(result);
@@ -90,23 +90,23 @@ public class UpdateParticipantDetailsTests
     public async Task UpdateParticipantDetails_FailsToGetOldId_False()
     {
         // Arrange
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         SetUpReader();
 
-        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
+        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
@@ -116,18 +116,18 @@ public class UpdateParticipantDetailsTests
     public void UpdateParticipantAsEligible_UpdatesRecords_True()
     {
         // Arrange
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsTrue(result);
@@ -137,18 +137,18 @@ public class UpdateParticipantDetailsTests
     public void UpdateParticipantAsEligible_DoesNetGetOldId_False()
     {
         // Arrange
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(participantCsvRecord.Participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
 
         // Assert
         Assert.IsFalse(result);
@@ -160,15 +160,15 @@ public class UpdateParticipantDetailsTests
         // Arrange
         var nhsId = "123456";
         var expectedParticipantId = 123456;
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(expectedParticipantId);
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(expectedParticipantId);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -183,15 +183,15 @@ public class UpdateParticipantDetailsTests
         // Arrange
         var nhsId = "123456";
 
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
             .Returns(false);
-        moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(0);
-        commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(0);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -204,48 +204,48 @@ public class UpdateParticipantDetailsTests
     public async Task UpdateParticipantDetails_Fails_When_Validation_Fails()
     {
         // Arrange
-        moqDataReader.SetupSequence(reader => reader.Read())
+        _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
 
         SetUpReader();
 
-        webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
 
-        callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(webResponse.Object));
+        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
+        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, callFunction.Object);
+        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(participantCsvRecord);
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
-        commandMock.Verify(command => command.ExecuteNonQuery(), Times.Never());
+        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Never());
     }
 
     private void SetUpReader()
     {
-        moqDataReader.Setup(m => m["PARTICIPANT_ID"]).Returns("123456");
-        moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
-        moqDataReader.Setup(m => m["SUPERSEDED_BY_NHS_NUMBER"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PRIMARY_CARE_PROVIDER"]).Returns("Some Provider");
-        moqDataReader.Setup(m => m["GP_CONNECT"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_PREFIX"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_FIRST_NAME"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_LAST_NAME"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_BIRTH_DATE"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_GENDER"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_CD"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["REMOVAL_DATE"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["PARTICIPANT_DEATH_DATE"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["ADDRESS_LINE_1"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["ADDRESS_LINE_2"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["CITY"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["COUNTY"]).Returns(DBNull.Value);
-        moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_ID"]).Returns("123456");
+        _moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
+        _moqDataReader.Setup(m => m["SUPERSEDED_BY_NHS_NUMBER"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PRIMARY_CARE_PROVIDER"]).Returns("Some Provider");
+        _moqDataReader.Setup(m => m["GP_CONNECT"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_PREFIX"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_FIRST_NAME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_LAST_NAME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_BIRTH_DATE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_GENDER"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_CD"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REMOVAL_DATE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["PARTICIPANT_DEATH_DATE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["ADDRESS_LINE_1"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["ADDRESS_LINE_2"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["CITY"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["COUNTY"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
     }
 
     private Participant GetParticipant()
