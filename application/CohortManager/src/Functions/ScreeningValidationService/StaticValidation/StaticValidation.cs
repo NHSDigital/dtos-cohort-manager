@@ -15,6 +15,7 @@ public class StaticValidation
 {
     private readonly ILogger< StaticValidation> _logger;
     private readonly ICallFunction _callFunction;
+    private ParticipantCsvRecord _participantCsvRecord;
 
     public StaticValidation(ILogger< StaticValidation> logger, ICallFunction callFunction)
     {
@@ -25,8 +26,10 @@ public class StaticValidation
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var workflow = "Common";
+        // Set which ruleset to use, needs to be parameterised
+        var screeningService = 1;
 
+        // Deserialisation
         try
         {
             string requestBodyJson;
@@ -35,12 +38,14 @@ public class StaticValidation
                 requestBodyJson = reader.ReadToEnd();
             }
 
+            _participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
         }
         catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
+        // Get rules
         string json = File.ReadAllText("staticRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
@@ -48,15 +53,18 @@ public class StaticValidation
             CustomTypes = [typeof(Regex)]
         };
 
+        // Validation
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
+            new RuleParameter("participant", _participantCsvRecord.Participant),
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
         var validationErrors = new List<string>();
 
+        // Validation errors
         foreach (var result in resultList)
         {
             if (!result.IsSuccess)
@@ -64,14 +72,17 @@ public class StaticValidation
                 validationErrors.Add(result.Rule.RuleName);
 
                 var ruleDetails = result.Rule.RuleName.Split('.');
+                System.Console.WriteLine(result.Rule);
 
                 var exception = new ValidationException
                 {
-                    Filename = 
-                    RuleId = ruleDetails[0],
-                    RuleName = ruleDetails[1],
-                    Workflow = workflow,
-                    DateCreated = DateTime.UtcNow
+                    Filename = _participantCsvRecord.FileName,
+                    NhsNumber = _participantCsvRecord.Participant.NHSId ?? null,
+                    DateCreated = DateTime.UtcNow,
+                    DateResolved = null,
+                    //RuleId = ruleDetails[0],
+                    //RuleName = ruleDetails[1],
+                    ScreeningService = screeningService,
                 };
 
                 var exceptionJson = JsonSerializer.Serialize(exception);
