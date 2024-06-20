@@ -57,19 +57,25 @@ public class ReceiveCaasFile
                 {
                     badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                     _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-                    await InsertValidationErrorIntoDatabase(cohort, name, ex);
+                    await InsertValidationErrorIntoDatabase(cohort, ex);
                 }
             }
         }
         catch (HeaderValidationException ex)
         {
             _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, name, ex);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
+        catch (CsvHelperException ex)
+        {
+            _logger.LogError("Failure occurred when reading the CSV file.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
+        }
+
         catch (Exception ex)
         {
             _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, name, ex);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
         try
         {
@@ -88,22 +94,21 @@ public class ReceiveCaasFile
         catch (Exception ex)
         {
             _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, name, ex);
+            await InsertValidationErrorIntoDatabase(cohort, ex);
         }
     }
 
-    private async Task InsertValidationErrorIntoDatabase(Cohort cohort, string fileName, Exception ex)
+    private async Task InsertValidationErrorIntoDatabase(Cohort cohort, Exception ex)
     {
         var latestRecord = cohort.Participants.LastOrDefault();
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-
             RuleId = "1",
             RuleName = ex.Message,
             Workflow = "NoWorkFlow",
             NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
             DateCreated = DateTime.Now,
-            FileName = fileName
+            FileName = cohort.FileName
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
