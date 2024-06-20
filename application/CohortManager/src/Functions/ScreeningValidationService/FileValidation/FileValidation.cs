@@ -36,6 +36,16 @@ public class FileValidation
             }
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
+            var requestObject = new ValidationException()
+            {
+                RuleId = requestBody.RuleId,
+                RuleName = "some-rule-name",
+                Workflow = "NoWorkFlow",
+                NhsNumber = requestBody.NhsNumber == null ? "" : requestBody.NhsNumber,
+                DateCreated = DateTime.Now,
+                FileName = requestBody.FileName
+            };
+
             var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), requestBodyJson);
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
