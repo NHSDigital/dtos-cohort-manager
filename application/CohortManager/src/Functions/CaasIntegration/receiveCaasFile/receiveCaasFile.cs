@@ -92,7 +92,7 @@ public class ReceiveCaasFile
         }
     }
 
-    private async Task InsertValidationErrorIntoDatabase(Cohort cohort, string FileName, Exception ex)
+    private async Task InsertValidationErrorIntoDatabase(Cohort cohort, string fileName, Exception ex)
     {
         var latestRecord = cohort.Participants.LastOrDefault();
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
@@ -103,7 +103,7 @@ public class ReceiveCaasFile
             Workflow = "NoWorkFlow",
             NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
             DateCreated = DateTime.Now,
-            FileName = FileName
+            FileName = fileName
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);

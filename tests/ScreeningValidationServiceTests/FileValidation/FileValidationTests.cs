@@ -18,7 +18,6 @@ public class FileValidationTests
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
-
     private readonly Mock<IBlobStorageHelper> _blobStorageHelper = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ValidationException _requestBody;

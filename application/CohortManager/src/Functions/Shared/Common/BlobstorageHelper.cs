@@ -1,33 +1,38 @@
 namespace Common;
+
+using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.Extensions.Logging;
 
 public class BlobStorageHelper : IBlobStorageHelper
 {
-    public async Task<bool> CopyFileAsync(string ConnectionString, string FileName, string ContainerName)
+    private readonly ILogger<BlobStorageHelper> _logger;
+    public BlobStorageHelper(ILogger<BlobStorageHelper> logger)
     {
-        var sourceBlobServiceClient = new BlobServiceClient(ConnectionString);
-        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(ContainerName);
-        var sourceBlobClient = sourceContainerClient.GetBlobClient(FileName);
+        _logger = logger;
+    }
+    public async Task<bool> CopyFileAsync(string connectionString, string fileName, string containerName)
+    {
+        var sourceBlobServiceClient = new BlobServiceClient(connectionString);
+        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
+        var sourceBlobClient = sourceContainerClient.GetBlobClient(fileName);
 
-        var destinationBlobServiceClient = new BlobServiceClient(ConnectionString);
-        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("inboundPoison"));
-        var destinationBlobClient = destinationContainerClient.GetBlobClient(FileName);
-
+        var destinationBlobServiceClient = new BlobServiceClient(connectionString);
+        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("fileExceptions"));
+        var destinationBlobClient = destinationContainerClient.GetBlobClient(fileName);
 
         await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
-        await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+        var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
 
-        var properties = await destinationBlobClient.GetPropertiesAsync();
-        while (properties.Value.CopyStatus == CopyStatus.Pending)
+        try
         {
-            await Task.Delay(1000);
-            properties = await destinationBlobClient.GetPropertiesAsync();
+            await copyOperation.WaitForCompletionAsync();
         }
-
-        if (properties.Value.CopyStatus != CopyStatus.Success)
+        catch (RequestFailedException ex)
         {
-            throw new InvalidOperationException($"Failed to copy blob: {properties.Value.CopyStatusDescription}");
+            _logger.LogError($"there has been a problem while copying the file: {ex.Message}");
+            return false;
         }
         return true;
     }
