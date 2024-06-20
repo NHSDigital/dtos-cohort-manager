@@ -36,16 +36,26 @@ public class FileValidation
             }
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), requestBodyJson);
+            var requestObject = new ValidationException()
+            {
+                RuleId = string.IsNullOrEmpty(requestBody.RuleId) ? "" : requestBody.RuleId,
+                RuleName = "some-rule-name",
+                Workflow = "NoWorkFlow",
+                NhsNumber = string.IsNullOrEmpty(requestBody.NhsNumber) ? "" : requestBody.NhsNumber,
+                DateCreated = DateTime.Now,
+                FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
+            };
+
+            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
-            var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+            var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
 
             if (copied)
             {
-                _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestBody.RuleName, requestBody.NhsNumber);
+                _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestObject.RuleName, requestObject.NhsNumber);
                 return req.CreateResponse(HttpStatusCode.OK);
             }
 
