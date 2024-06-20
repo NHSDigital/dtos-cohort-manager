@@ -3,6 +3,7 @@ namespace Common;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Logging;
 
 public class BlobStorageHelper : IBlobStorageHelper
@@ -18,15 +19,20 @@ public class BlobStorageHelper : IBlobStorageHelper
         var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
         var sourceBlobClient = sourceContainerClient.GetBlobClient(fileName);
 
+        BlobLeaseClient sourceBlobLease = new(sourceBlobClient);
+
         var destinationBlobServiceClient = new BlobServiceClient(connectionString);
         var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("fileExceptions"));
         var destinationBlobClient = destinationContainerClient.GetBlobClient(fileName);
 
         await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
-        var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+
 
         try
         {
+            await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
+
+            var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
             await copyOperation.WaitForCompletionAsync();
         }
         catch (RequestFailedException ex)
@@ -34,6 +40,11 @@ public class BlobStorageHelper : IBlobStorageHelper
             _logger.LogError($"there has been a problem while copying the file: {ex.Message}");
             return false;
         }
+        finally
+        {
+            await sourceBlobLease.ReleaseAsync();
+        }
+
         return true;
     }
 }
