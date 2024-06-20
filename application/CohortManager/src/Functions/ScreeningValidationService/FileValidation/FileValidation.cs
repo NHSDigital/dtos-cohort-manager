@@ -13,11 +13,13 @@ public class FileValidation
 {
     private readonly ILogger<FileValidation> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly IBlobStorageHelper _blobStorageHelper;
 
-    public FileValidation(ILogger<FileValidation> logger, ICallFunction callFunction)
+    public FileValidation(ILogger<FileValidation> logger, ICallFunction callFunction, IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
+        _blobStorageHelper = blobStorageHelper;
     }
 
     [Function("FileValidation")]
@@ -32,8 +34,6 @@ public class FileValidation
             {
                 requestBodyJson = await reader.ReadToEndAsync();
             }
-
-
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
             var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), requestBodyJson);
@@ -41,11 +41,20 @@ public class FileValidation
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
-            _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestBody.RuleName, requestBody.NhsNumber);
-            return req.CreateResponse(HttpStatusCode.OK);
+            var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+
+            if (copied)
+            {
+                _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestBody.RuleName, requestBody.NhsNumber);
+                return req.CreateResponse(HttpStatusCode.OK);
+            }
+
+            _logger.LogError("there has been an error while copying the bad file or saving the exception");
+            return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
     }

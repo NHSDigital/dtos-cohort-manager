@@ -93,12 +93,12 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Unable to call function.\nMessage: {ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(cohort, ex);
         }
     }
 
-    private async Task<bool> InsertValidationErrorIntoDatabase(Cohort cohort, Exception ex)
+    private async Task InsertValidationErrorIntoDatabase(Cohort cohort, Exception ex)
     {
         var latestRecord = cohort.Participants.LastOrDefault();
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
@@ -114,8 +114,8 @@ public class ReceiveCaasFile
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
         if (result.StatusCode == HttpStatusCode.OK)
         {
-            return true;
+            _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
         }
-        return false;
+        _logger.LogError("there was a problem saving and or moving the failed file");
     }
 }
