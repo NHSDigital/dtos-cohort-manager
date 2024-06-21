@@ -13,10 +13,11 @@ using RulesEngine.Models;
 
 public class StaticValidation
 {
-    private readonly ILogger< StaticValidation> _logger;
+    private readonly ILogger<StaticValidation> _logger;
     private readonly ICallFunction _callFunction;
+    private ParticipantCsvRecord _participantCsvRecord;
 
-    public StaticValidation(ILogger< StaticValidation> logger, ICallFunction callFunction)
+    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -25,9 +26,10 @@ public class StaticValidation
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var workflow = "Common";
-        ParticipantCsvRecord participantCsvRecord;
+        // Set which ruleset to use, needs to be parameterised
+        var screeningService = 1;
 
+        // Deserialisation
         try
         {
             string requestBodyJson;
@@ -36,30 +38,34 @@ public class StaticValidation
                 requestBodyJson = reader.ReadToEnd();
             }
 
-            participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
+            _participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
         }
         catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
+        // Get rules
         string json = File.ReadAllText("staticRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
-        var reSettings = new ReSettings{
+        var reSettings = new ReSettings
+        {
             CustomTypes = [typeof(Regex)]
         };
 
+        // Validation
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", participantCsvRecord.Participant),
+            new RuleParameter("participant", _participantCsvRecord.Participant),
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
         var validationErrors = new List<string>();
 
+        // Validation errors
         foreach (var result in resultList)
         {
             if (!result.IsSuccess)
@@ -67,14 +73,15 @@ public class StaticValidation
                 validationErrors.Add(result.Rule.RuleName);
 
                 var ruleDetails = result.Rule.RuleName.Split('.');
+                System.Console.WriteLine(result.Rule);
 
                 var exception = new ValidationException
                 {
-                    RuleId = ruleDetails[0],
-                    RuleName = ruleDetails[1],
-                    Workflow = workflow,
-                    NhsNumber = participantCsvRecord.Participant.NHSId ?? null,
-                    DateCreated = DateTime.UtcNow
+                    FileName = _participantCsvRecord.FileName,
+                    NhsNumber = _participantCsvRecord.Participant.NHSId ?? null,
+                    DateCreated = DateTime.UtcNow,
+                    DateResolved = null,
+                    ScreeningService = screeningService,
                 };
 
                 var exceptionJson = JsonSerializer.Serialize(exception);

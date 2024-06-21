@@ -12,12 +12,12 @@ using RulesEngine.Models;
 
 public class LookupValidation
 {
-    private readonly ILogger<LookupValidation> _logger;
+
     private readonly ICallFunction _callFunction;
 
-    public LookupValidation(ILogger<LookupValidation> logger, ICallFunction callFunction)
+    public LookupValidation(ICallFunction callFunction)
     {
-        _logger = logger;
+
         _callFunction = callFunction;
     }
 
@@ -68,11 +68,17 @@ public class LookupValidation
 
                 var exception = new ValidationException
                 {
-                    RuleId = ruleDetails[0],
-                    RuleName = ruleDetails[1],
-                    Workflow = workflow,
                     NhsNumber = newParticipant.NHSId ?? null,
-                    DateCreated = DateTime.UtcNow
+                    DateCreated = DateTime.UtcNow,
+                    FileName = requestBody.FileName,
+                    RuleId = int.Parse(ruleDetails[0]),
+                    DateResolved = DateTime.MaxValue,
+                    RuleDescription = ruleDetails[1],
+                    RuleContent = ruleDetails[1],
+                    Category = 1,
+                    ScreeningService = 1,
+                    Cohort = null,
+                    Fatal = 0
                 };
 
                 var exceptionJson = JsonSerializer.Serialize(exception);
