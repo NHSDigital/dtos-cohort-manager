@@ -11,7 +11,6 @@ public class ValidationException
     public string? RuleContent { get; set; }
     public int? Category { get; set; }
     public int? ScreeningService { get; set; }
-    //public string? Workflow { get; set; }
     public string? Cohort { get; set; }
     public int? Fatal { get; set; }
 }
