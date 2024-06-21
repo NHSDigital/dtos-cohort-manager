@@ -7,6 +7,9 @@
                 "excludedTypes": "Request"
             },
             "enableLiveMetricsFilters": true
+        },
+        "logLevel": {
+            "default": "Information"
         }
     }
 }
