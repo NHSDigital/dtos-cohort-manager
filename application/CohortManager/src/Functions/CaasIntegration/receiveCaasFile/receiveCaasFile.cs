@@ -57,19 +57,25 @@ public class ReceiveCaasFile
                 {
                     badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                     _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-                    await InsertValidationErrorIntoDatabase(cohort, ex);
+                    await InsertValidationErrorIntoDatabase(name);
                 }
             }
         }
         catch (HeaderValidationException ex)
         {
             _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, ex);
+            await InsertValidationErrorIntoDatabase(name);
         }
+        catch (CsvHelperException ex)
+        {
+            _logger.LogError("Failure occurred when reading the CSV file.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(name);
+        }
+
         catch (Exception ex)
         {
             _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, ex);
+            await InsertValidationErrorIntoDatabase(name);
         }
         try
         {
@@ -87,29 +93,24 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Unable to call function.\nMessage: {ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(cohort, ex);
+            _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(name);
         }
     }
 
-    private async Task<bool> InsertValidationErrorIntoDatabase(Cohort cohort, Exception ex)
+    private async Task InsertValidationErrorIntoDatabase(string fileName)
     {
-        var latestRecord = cohort.Participants.LastOrDefault();
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-
             RuleId = "1",
-            RuleName = ex.Message,
-            Workflow = "NoWorkFlow",
-            NhsNumber = latestRecord == null ? "" : latestRecord.NHSId,
-            DateCreated = DateTime.Now,
+            FileName = fileName
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
         if (result.StatusCode == HttpStatusCode.OK)
         {
-            return true;
+            _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
         }
-        return false;
+        _logger.LogError("there was a problem saving and or moving the failed file");
     }
 }

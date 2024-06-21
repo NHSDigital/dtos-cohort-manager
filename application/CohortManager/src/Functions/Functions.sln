@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipant", "ParticipantManagementServices\addParticipant\addParticipant.csproj", "{A47CFB75-1972-4BFB-98A1-9933FD5E086F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateEligibility", "ParticipantManagementServices\UpdateEligibility\UpdateEligibility.csproj", "{BE10A415-5474-4393-A5E4-2743C905C422}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processCaasFile", "CaasIntegration\processCaasFile\processCaasFile.csproj", "{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFile", "CaasIntegration\receiveCaasFile\receiveCaasFile.csproj", "{AE6D7A1A-E034-470B-8AB5-793AFE4C9C51}"
@@ -47,8 +45,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\RemoveParticipantTests\RemoveParticipantTests.csproj", "{D6EC5F88-1726-485B-AF84-9737293E7250}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "screeningDataServicesTests", "screeningDataServicesTests", "{2BE7CEE7-58EF-4087-8D7C-B74CE7969A5C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateEligibilityTests", "..\..\..\..\tests\ParticipantManagementServicesTests\UpdateEligibilityTests\UpdateEligibilityTests.csproj", "{7CC233E4-25CE-4493-88E1-8B580685C434}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataService", "screeningDataServices\DemographicDataService\DemographicDataService.csproj", "{96AD14C8-67A1-4DC4-8593-F2D64F999223}"
 EndProject
@@ -108,10 +104,6 @@ Global
 		{A47CFB75-1972-4BFB-98A1-9933FD5E086F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A47CFB75-1972-4BFB-98A1-9933FD5E086F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A47CFB75-1972-4BFB-98A1-9933FD5E086F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE10A415-5474-4393-A5E4-2743C905C422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE10A415-5474-4393-A5E4-2743C905C422}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE10A415-5474-4393-A5E4-2743C905C422}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE10A415-5474-4393-A5E4-2743C905C422}.Release|Any CPU.Build.0 = Release|Any CPU
 		{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -164,10 +156,6 @@ Global
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7CC233E4-25CE-4493-88E1-8B580685C434}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7CC233E4-25CE-4493-88E1-8B580685C434}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7CC233E4-25CE-4493-88E1-8B580685C434}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7CC233E4-25CE-4493-88E1-8B580685C434}.Release|Any CPU.Build.0 = Release|Any CPU
 		{96AD14C8-67A1-4DC4-8593-F2D64F999223}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{96AD14C8-67A1-4DC4-8593-F2D64F999223}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96AD14C8-67A1-4DC4-8593-F2D64F999223}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -237,7 +225,6 @@ Global
 		{323B466B-D2DB-4774-993A-61B2A66715E6} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 		{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 		{A47CFB75-1972-4BFB-98A1-9933FD5E086F} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
-		{BE10A415-5474-4393-A5E4-2743C905C422} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
 		{11BE4A36-F6EC-422E-98F3-D27D4A7717B5} = {937A8411-5A71-43D8-906A-35614DEFD201}
 		{AE6D7A1A-E034-470B-8AB5-793AFE4C9C51} = {937A8411-5A71-43D8-906A-35614DEFD201}
 		{7BFA62FE-3066-45C1-B675-2266A28D0F96} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
