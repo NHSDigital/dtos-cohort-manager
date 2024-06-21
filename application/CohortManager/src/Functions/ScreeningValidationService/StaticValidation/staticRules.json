@@ -3,8 +3,28 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "1.NhsNumberMustBeTenDigits",
+        "RuleName": "9.NhsNumber",
         "Expression": "Regex.IsMatch(participant.NHSId, \"^\\\\d{10}$\")"
+      },
+      {
+        "RuleName": "57.SupersededByNhsNumber",
+        "Expression": "participant.SupersededByNhsNumber == null OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
+      },
+      {
+        "RuleName": "8.RecordType",
+        "Expression": "participant.RecordType == \"New\" OR participant.RecordType == \"Amended\" OR participant.RecordType == \"Removed\""
+      },
+      {
+        "RuleName": "58.CurrentPosting",
+        "Expression": "participant.CurrentPosting == null OR participant.CurrentPosting == \"England\" OR participant.CurrentPosting == \"Wales\" OR participant.CurrentPosting == \"IoM\""
+      },
+      {
+        "RuleName": "59.PreviousPosting",
+        "Expression": "participant.PreviousPosting == null OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
+      },
+      {
+        "RuleName": "14.ReasonForRemoval",
+        "Expression": "new string[] {null,\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
       }
     ]
   }
