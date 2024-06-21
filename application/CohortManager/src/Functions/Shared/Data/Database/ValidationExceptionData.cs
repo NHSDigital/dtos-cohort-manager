@@ -51,26 +51,26 @@ public class ValidationExceptionData : IValidationExceptionData
     public bool Create(ValidationException exception)
     {
         var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] (
-                    NHS_NUMBER, 
-                    DATE_CREATED, 
-                    DATE_RESOLVED, 
-                    RULE_ID, 
-                    RULE_DESCRIPTION, 
-                    RULE_CONTENT, 
-                    CATEGORY, 
-                    SCREENING_SERVICE, 
-                    COHORT, 
+                    NHS_NUMBER,
+                    DATE_CREATED,
+                    DATE_RESOLVED,
+                    RULE_ID,
+                    RULE_DESCRIPTION,
+                    RULE_CONTENT,
+                    CATEGORY,
+                    SCREENING_SERVICE,
+                    COHORT,
                     FATAL
                     ) VALUES (
-                    @nhsNumber, 
-                    @dateCreated, 
+                    @nhsNumber,
+                    @dateCreated,
                     @dateResolved, 
                     @ruleId,
-                    @ruleDescription, 
-                    @ruleContent, 
-                    @category, 
-                    @screeningService, 
-                    @cohort, 
+                    @ruleDescription,
+                    @ruleContent,
+                    @category,
+                    @screeningService,
+                    @cohort,
                     @fatal
                 );";
 

@@ -82,7 +82,6 @@ public class StaticValidation
                     DateCreated = DateTime.UtcNow,
                     DateResolved = null,
                     ScreeningService = screeningService,
-                    
                 };
 
                 var exceptionJson = JsonSerializer.Serialize(exception);
