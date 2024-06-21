@@ -64,7 +64,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     ) VALUES (
                     @nhsNumber,
                     @dateCreated,
-                    @dateResolved, 
+                    @dateResolved,
                     @ruleId,
                     @ruleDescription,
                     @ruleContent,
