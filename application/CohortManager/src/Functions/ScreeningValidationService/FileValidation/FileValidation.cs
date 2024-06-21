@@ -43,6 +43,7 @@ public class FileValidation
                 NhsNumber = string.IsNullOrEmpty(requestBody.NhsNumber) ? "" : requestBody.NhsNumber,
                 DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
+                DateResolved = requestBody.DateResolved ?? DateTime.Now,
                 RuleContent = requestBody.RuleContent ?? "",
                 RuleDescription = requestBody.RuleDescription ?? "",
                 Category = requestBody.Category ?? 0,

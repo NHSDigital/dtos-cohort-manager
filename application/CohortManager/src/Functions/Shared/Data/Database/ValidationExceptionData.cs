@@ -31,17 +31,16 @@ public class ValidationExceptionData : IValidationExceptionData
             {
                 rules.Add(new ValidationException
                 {
-                    Filename = reader.GetString(reader.GetOrdinal("FILENAME")) ?? null,
                     NhsNumber = reader.GetString(reader.GetOrdinal("NHS_NUMBER")) ?? null,
-                    DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")) ?? null,
-                    DateResolved = reader.GetDateTime(reader.GetOrdinal("DATE_RESOLVED")) ?? null,
-                    RuleId = reader.GetInt32(reader.GetOrdinal("RULE_ID")) ?? null,
+                    DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")),
+                    DateResolved = reader.GetDateTime(reader.GetOrdinal("DATE_RESOLVED")),
+                    RuleId = reader.GetInt32(reader.GetOrdinal("RULE_ID")),
                     RuleDescription = reader.GetString(reader.GetOrdinal("RULE_DESCRIPTION")) ?? null,
                     RuleContent = reader.GetString(reader.GetOrdinal("RULE_CONTENT")) ?? null,
-                    Category = reader.GetInt16(reader.GetOrdinal("CATEGORY")) ?? null,
-                    ScreeningService = reader.GetInt32(reader.GetOrdinal("SCREENING_SERVICE")) ?? null,
-                    Cohort = reader.GetInt16(reader.GetOrdinal("COHORT")) ?? null,
-                    Fatal = reader.GetInt16(reader.GetOrdinal("FATAL")) ?? null
+                    Category = reader.GetInt16(reader.GetOrdinal("CATEGORY")),
+                    ScreeningService = reader.GetInt32(reader.GetOrdinal("SCREENING_SERVICE")),
+                    Cohort = reader.GetString(reader.GetOrdinal("COHORT")) ?? null,
+                    Fatal = reader.GetInt16(reader.GetOrdinal("FATAL"))
                 });
             }
 
@@ -51,14 +50,32 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
-        var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] ([FILENAME], [NHS_NUMBER], [DATE_CREATED], [DATE_RESOLVED],
-                    [RULE_ID], [RULE_DESCRIPTION], [RULE_CONTENT], [CATEGORY], [SCREENING_SERVICE], [COHORT], [FATAL])" +
-                  @"VALUES (@filename, @nhsNumber, @dateCreated, @dateResolved, @ruleId, @ruleDescription, @ruleContent,
-                            @category, @screeningService, @cohort, @fatal);";
+        var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] (
+                    NHS_NUMBER, 
+                    DATE_CREATED, 
+                    DATE_RESOLVED, 
+                    RULE_ID, 
+                    RULE_DESCRIPTION, 
+                    RULE_CONTENT, 
+                    CATEGORY, 
+                    SCREENING_SERVICE, 
+                    COHORT, 
+                    FATAL
+                    ) VALUES (
+                    @nhsNumber, 
+                    @dateCreated, 
+                    @dateResolved, 
+                    @ruleId,
+                    @ruleDescription, 
+                    @ruleContent, 
+                    @category, 
+                    @screeningService, 
+                    @cohort, 
+                    @fatal
+                );";
 
         var parameters = new Dictionary<string, object>()
         {
-            {"@filename", exception.Filename},
             {"@nhsNumber", exception.NhsNumber},
             {"@dateCreated", exception.DateCreated},
             {"@dateResolved", exception.DateResolved},
