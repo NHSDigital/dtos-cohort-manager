@@ -123,6 +123,7 @@ services:
       - ASPNETCORE_URLS=http://*:7066
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   mark-participant-eligible:
     container_name: mark-participant-eligible
