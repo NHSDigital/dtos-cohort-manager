@@ -80,6 +80,8 @@ public class StaticValidation
                     FileName = _participantCsvRecord.FileName,
                     NhsNumber = _participantCsvRecord.Participant.NHSId ?? null,
                     DateCreated = DateTime.UtcNow,
+                    RuleDescription = ruleDetails[1],
+                    RuleContent = ruleDetails[1],
                     DateResolved = DateTime.MaxValue,
                     ScreeningService = screeningService,
                 };
