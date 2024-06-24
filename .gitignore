@@ -39,3 +39,4 @@ local.settings.json
 .env
 # sample data
 application/CohortManager/SampleData/
+application/CohortManager/src/Functions/AggregateDataServices/AddAggregationData/Properties/launchSettings.json
