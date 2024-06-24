@@ -1,6 +1,5 @@
 namespace Model;
 
-using System.Diagnostics.Contracts;
 using Model.Enums;
 
 public class Participant
@@ -8,7 +7,7 @@ public class Participant
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string NHSId { get; set; }
+    public string? NHSId { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }

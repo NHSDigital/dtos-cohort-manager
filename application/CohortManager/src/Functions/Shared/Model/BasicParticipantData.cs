@@ -22,4 +22,6 @@ public class BasicParticipantData
     public string? EmailAddressEffectiveFromDate { get; set; }
     public string? InvalidFlag { get; set; }
     public string? ChangeReasonCode { get; set; }
+    public string? RemovalReason { get; set; }
+    public string? RemovalEffectiveFromDate { get; set; }
 }

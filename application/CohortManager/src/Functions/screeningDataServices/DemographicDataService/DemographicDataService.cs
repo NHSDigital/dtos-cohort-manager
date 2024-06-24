@@ -26,9 +26,7 @@ public class DemographicDataService
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // parse through the HTTP request
-        string requestBody = "";
-        Participant participantData = new Participant();
+        Demographic participantDemographic = new Demographic();
 
         try
         {
@@ -36,11 +34,11 @@ public class DemographicDataService
             {
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
-                    requestBody = await reader.ReadToEndAsync();
-                    participantData = JsonSerializer.Deserialize<Participant>(requestBody);
+                    var requestBody = await reader.ReadToEndAsync();
+                    participantDemographic = JsonSerializer.Deserialize<Demographic>(requestBody);
                 }
 
-                var created = _createDemographicData.InsertDemographicData(participantData);
+                var created = _createDemographicData.InsertDemographicData(participantDemographic);
                 if (!created)
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
