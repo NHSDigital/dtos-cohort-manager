@@ -54,12 +54,11 @@ public class AddAggregationTests
     public void InsertAggregationData_Success()
     {
         var createAggregationData = new CreateAggregationData(
-               _mockDBConnection.Object,
-               _databaseHelperMock.Object,
-               _loggerMock.Object,
-               _callFunction.Object
-           );
-
+                _mockDBConnection.Object,
+                _databaseHelperMock.Object,
+                _loggerMock.Object,
+                _callFunction.Object
+            );
         // Arrange
         var aggregateParticipant = new AggregateParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
@@ -74,12 +73,11 @@ public class AddAggregationTests
     public void InsertAggregationData_FailureDueToExecution()
     {
         var createAggregationData = new CreateAggregationData(
-               _mockDBConnection.Object,
-               _databaseHelperMock.Object,
-               _loggerMock.Object,
-               _callFunction.Object
-           );
-
+                _mockDBConnection.Object,
+                _databaseHelperMock.Object,
+                _loggerMock.Object,
+                _callFunction.Object
+            );
         // Arrange
         var aggregateParticipant = new AggregateParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
