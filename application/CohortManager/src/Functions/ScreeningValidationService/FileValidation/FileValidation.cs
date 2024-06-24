@@ -39,11 +39,11 @@ public class FileValidation
             var requestObject = new ValidationException()
             {
                 RuleId = requestBody.RuleId == null ? 0 : requestBody.RuleId,
-                Cohort = "NoWorkFlow",
+                Cohort = "",
                 NhsNumber = string.IsNullOrEmpty(requestBody.NhsNumber) ? "" : requestBody.NhsNumber,
                 DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
-                DateResolved = requestBody.DateResolved ?? DateTime.Now,
+                DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
                 RuleContent = requestBody.RuleContent ?? "",
                 RuleDescription = requestBody.RuleDescription ?? "",
                 Category = requestBody.Category ?? 0,
@@ -60,7 +60,7 @@ public class FileValidation
 
             if (copied)
             {
-                _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestObject.RuleId, requestObject.NhsNumber);
+                _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);
                 return req.CreateResponse(HttpStatusCode.OK);
             }
 
