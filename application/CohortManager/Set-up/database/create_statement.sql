@@ -104,15 +104,22 @@ create table dbo.SCREENING_PROGRAMS (
 /*==============================================================*/
 /* Table: VALIDATION_EXCEPTION                                  */
 /*==============================================================*/
-create table dbo.VALIDATION_EXCEPTION (
+
+CREATE TABLE [dbo].[VALIDATION_EXCEPTION] (
     VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
-    RULE_ID INT not null,
-    RULE_NAME NVARCHAR(200) not null,
-    WORKFLOW NVARCHAR(50) not null,
-    NHS_NUMBER BIGINT not null,
-    DATE_CREATED DATETIME not null,
-    constraint PK_VALIDATION_EXCEPTION primary key (VALIDATION_EXCEPTION_ID)
+    NHS_NUMBER BIGINT NOT NULL,
+    DATE_CREATED DATETIME NOT NULL,
+    DATE_RESOLVED DATETIME NULL,
+    RULE_ID INT NOT NULL,
+    RULE_DESCRIPTION NVARCHAR(255) NOT NULL,
+    RULE_CONTENT NVARCHAR(MAX) NOT NULL,
+    CATEGORY INT NOT NULL,
+    SCREENING_SERVICE INT NOT NULL,
+    COHORT NVARCHAR(100) NOT NULL,
+    FATAL BIT NOT NULL,
+    CONSTRAINT PK_VALIDATION_EXCEPTION PRIMARY KEY (VALIDATION_EXCEPTION_ID)
 );
+
 
 
 

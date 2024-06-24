@@ -38,12 +38,17 @@ public class FileValidation
 
             var requestObject = new ValidationException()
             {
-                RuleId = string.IsNullOrEmpty(requestBody.RuleId) ? "" : requestBody.RuleId,
-                RuleName = "some-rule-name",
-                Workflow = "NoWorkFlow",
+                RuleId = requestBody.RuleId == null ? 0 : requestBody.RuleId,
+                Cohort = "",
                 NhsNumber = string.IsNullOrEmpty(requestBody.NhsNumber) ? "" : requestBody.NhsNumber,
-                DateCreated = DateTime.Now,
+                DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
+                DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
+                RuleContent = requestBody.RuleContent ?? "",
+                RuleDescription = requestBody.RuleDescription ?? "",
+                Category = requestBody.Category ?? 0,
+                ScreeningService = requestBody.ScreeningService ?? 1,
+                Fatal = requestBody.Fatal ?? 0,
             };
 
             var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
@@ -55,7 +60,7 @@ public class FileValidation
 
             if (copied)
             {
-                _logger.LogInformation("File validation exception: {ExceptionMessage} from {FileName}", requestObject.RuleName, requestObject.NhsNumber);
+                _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);
                 return req.CreateResponse(HttpStatusCode.OK);
             }
 

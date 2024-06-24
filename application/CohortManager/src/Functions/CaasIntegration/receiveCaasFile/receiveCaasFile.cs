@@ -71,12 +71,6 @@ public class ReceiveCaasFile
             _logger.LogError("Failure occurred when reading the CSV file.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
         }
-
-        catch (Exception ex)
-        {
-            _logger.LogError("Failed to read csv.\nMessage:{ExMessage}.\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name);
-        }
         try
         {
             if (cohort.Participants.Count > 0)
@@ -102,7 +96,7 @@ public class ReceiveCaasFile
     {
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-            RuleId = "1",
+            RuleId = 1,
             FileName = fileName
         });
 
