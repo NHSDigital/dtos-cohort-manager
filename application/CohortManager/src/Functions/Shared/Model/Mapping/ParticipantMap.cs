@@ -1,4 +1,4 @@
-﻿namespace Model;
+namespace Model;
 
 using CsvHelper.Configuration;
 
