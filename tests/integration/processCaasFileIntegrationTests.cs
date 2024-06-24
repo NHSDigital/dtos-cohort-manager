@@ -21,11 +21,11 @@ namespace IntegrationTests.processCaasFile
             }
 
             // Arrange
-            var client = new RestClient(apiEndpoint); 
+            var client = new RestClient(apiEndpoint);
             var request = new RestRequest("api/processCaasFile", Method.Post);
             request.AddJsonBody(new { blobName = "test.csv" }); // Adds JSON body to HTTP request to match endpoints expectations.
 
-            // Act
+            // Ac
             var response = await client.ExecuteAsync(request);
 
             // Log details for debugging if the request fails
@@ -35,7 +35,7 @@ namespace IntegrationTests.processCaasFile
                 System.Console.WriteLine($"Response content: {response.Content}");
             }
 
-            // Assert
+            // Asser
             Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         }
 
