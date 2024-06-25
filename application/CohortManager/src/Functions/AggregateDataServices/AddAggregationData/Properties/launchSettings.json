@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "UpdateEligibility": {
+    "AddAggregationData": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7081",
+      "commandLineArgs": "--port 7126",
       "launchBrowser": false
     }
   }

@@ -1,13 +1,10 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using Common;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using Moq;
-using System.Text;
 using System.Text.Json;
 using Model;
 using addParticipant;
@@ -22,7 +19,7 @@ public class AddNewParticipantTestClass
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
-    private readonly Participant _participant;
+    private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly SetupRequest _setupRequest = new();
     private Mock<HttpRequestData> _request;
 
@@ -32,20 +29,25 @@ public class AddNewParticipantTestClass
         Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
 
-        _participant = new Participant()
+        _participantCsvRecord = new ParticipantCsvRecord
         {
-            FirstName = "Joe",
-            Surname = "Bloggs",
-            NHSId = "1",
-            RecordType = Actions.New
+            FileName = "test.csv",
+            Participant = new Participant()
+            {
+                FirstName = "Joe",
+                Surname = "Bloggs",
+                NHSId = "1",
+                RecordType = Actions.New
+            }
         };
     }
 
     [TestMethod]
     public async Task Run_Should_log_Participant_Created()
     {
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -56,8 +58,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -71,9 +75,9 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Marked_As_Eligible()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -84,8 +88,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -99,9 +105,9 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Log_Participant_Log_Error()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()));
 
@@ -111,8 +117,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,
@@ -126,9 +134,9 @@ public class AddNewParticipantTestClass
     [TestMethod]
     public async Task Run_Should_Marked_As_Eligible_Log_Error()
     {
-
+        // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
 
         _callFunctionMock.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSaddParticipant")), It.IsAny<string>()));
 
@@ -138,8 +146,10 @@ public class AddNewParticipantTestClass
         _request = _setupRequest.Setup(json);
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant.Object);
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         _loggerMock.Verify(log =>
             log.Log(
             LogLevel.Information,

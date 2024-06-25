@@ -3,30 +3,24 @@ namespace screeningDataServices;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
 using Data.Database;
 using Common;
 using Model;
-using System.Runtime.CompilerServices;
 
 public class CreateParticipant
 {
     private readonly ILogger<CreateParticipant> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateParticipantData _createParticipantData;
-    private readonly string connectionString;
 
     public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData)
     {
         _logger = logger;
         _createResponse = createResponse;
         _createParticipantData = createParticipantData;
-        connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
-        _logger.LogInformation("Connection String: " + connectionString);
     }
 
     [Function("CreateParticipant")]
@@ -36,17 +30,16 @@ public class CreateParticipant
 
         try
         {
-            // parse through the HTTP request
             string requestBody = "";
-            Participant participantData = new Participant();
+            ParticipantCsvRecord participantCsvRecord;
 
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
-                participantData = JsonSerializer.Deserialize<Participant>(requestBody);
+                participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var participantCreated = _createParticipantData.CreateParticipantEntryAsync(participantData, connectionString);
+            var participantCreated = _createParticipantData.CreateParticipantEntry(participantCsvRecord);
             if (participantCreated)
             {
                 _logger.LogInformation("Successfully created the participant(s)");

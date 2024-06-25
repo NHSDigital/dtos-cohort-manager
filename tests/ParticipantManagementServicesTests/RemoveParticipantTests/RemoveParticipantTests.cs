@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -21,7 +20,7 @@ public class RemoveParticipantTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
     private readonly SetupRequest _setupRequest = new();
-    private readonly Participant _participant;
+    private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
 
     public RemoveParticipantTests()
@@ -29,20 +28,24 @@ public class RemoveParticipantTests
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
 
-        _participant = new Participant()
+        _participantCsvRecord = new ParticipantCsvRecord
         {
-            FirstName = "Joe",
-            Surname = "Bloggs",
-            NHSId = "1",
-            RecordType = Actions.New
+            FileName = "test.csv",
+            Participant = new Participant()
+            {
+                FirstName = "Joe",
+                Surname = "Bloggs",
+                NHSId = "1",
+                RecordType = Actions.New
+            }
         };
     }
 
     [TestMethod]
     public async Task Run_return_ParticipantRemovedSuccessfully_OK()
     {
-        //Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        // Arrange
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
@@ -62,18 +65,18 @@ public class RemoveParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
-        //Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        // Arrange
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
@@ -90,17 +93,18 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        //Act
+        // Act
         var result = await sut.Run(_request.Object);
 
-        //Assert
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_AnErrorIsThrown_BadRequest()
     {
-        var json = JsonSerializer.Serialize(_participant);
+        // Arrange
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
         var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
@@ -119,8 +123,10 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
         .Throws(new Exception("there has been a problem"));
 
+        // Act
         var result = await sut.Run(_request.Object);
 
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 }

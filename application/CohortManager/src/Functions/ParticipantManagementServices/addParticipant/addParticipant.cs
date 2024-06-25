@@ -13,11 +13,8 @@ namespace addParticipant
     {
         private readonly ILogger<AddParticipantFunction> _logger;
         private readonly ICallFunction _callFunction;
-
         private readonly ICreateResponse _createResponse;
-
         private readonly ICheckDemographic _getDemographicData;
-
         private readonly ICreateParticipant _createParticipant;
 
         public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
@@ -35,25 +32,30 @@ namespace addParticipant
             _logger.LogInformation("C# addParticipant called.");
             HttpWebResponse createResponse, eligibleResponse;
 
-            string postdata = "";
+            string postData = "";
             Participant participant = new Participant();
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postdata = reader.ReadToEnd();
+                postData = reader.ReadToEnd();
             }
-            var basicParticipant = JsonSerializer.Deserialize<BasicParticipantData>(postdata);
+            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
             try
             {
-                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
-                participant = _createParticipant.CreateResponseParticipantModel(basicParticipant, demographicData);
 
-                var json = JsonSerializer.Serialize(participant);
+                participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+                var participantCsvRecord = new ParticipantCsvRecord
+                {
+                    Participant = participant,
+                    FileName = basicParticipantCsvRecord.FileName,
+                };
+                var json = JsonSerializer.Serialize(participantCsvRecord);
 
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
@@ -65,7 +67,7 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
             try
             {
@@ -80,7 +82,7 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
+                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

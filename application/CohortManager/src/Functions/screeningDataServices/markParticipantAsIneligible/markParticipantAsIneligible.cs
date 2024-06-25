@@ -13,7 +13,6 @@ namespace markParticipantAsIneligible
     public class MarkParticipantAsIneligible
     {
         private readonly ILogger<MarkParticipantAsIneligible> _logger;
-
         private readonly IUpdateParticipantData _updateParticipantData;
         private readonly ICreateResponse _createResponse;
 
@@ -27,15 +26,14 @@ namespace markParticipantAsIneligible
         [Function("markParticipantAsIneligible")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-
-            // convert body to json and then deserialize to object
-            string postdata = "";
+            string postData = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postdata = reader.ReadToEnd();
+                postData = reader.ReadToEnd();
             }
 
-            var participant = JsonSerializer.Deserialize<Participant>(postdata);
+            var participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(postData);
+            var participant = participantCsvRecord.Participant;
 
             try
             {
@@ -44,7 +42,6 @@ namespace markParticipantAsIneligible
                 if (participant != null)
                 {
                     updated = _updateParticipantData.UpdateParticipantAsEligible(participant, 'N');
-
                 }
                 if (updated)
                 {
@@ -53,15 +50,14 @@ namespace markParticipantAsIneligible
                 }
 
                 _logger.LogError($"an error occurred while updating data for {participant.NHSId}");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"an error occurred: {ex}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
-
         }
     }
 }

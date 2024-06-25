@@ -1,31 +1,25 @@
 namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
 using Moq;
 using Common;
 using Data.Database;
 using Model;
 using Model.Enums;
 using screeningDataServices;
-using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class CreateParticipantTests
 {
-
     private readonly Mock<ILogger<screeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
-
-    Mock<FunctionContext> mockContext = new();
-    Mock<HttpRequestData> mockRequest;
+    private readonly Mock<FunctionContext> _mockContext = new();
+    private Mock<HttpRequestData> _mockRequest;
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()
@@ -38,7 +32,7 @@ public class CreateParticipantTests
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
 
         var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(true);
+        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(true);
 
         // Act
         var response = await sut.Run(mockRequest);
@@ -52,12 +46,12 @@ public class CreateParticipantTests
     public async Task Run_InvalidRequest_Returns404()
     {
         // Arrange
-        mockRequest = new Mock<HttpRequestData>(mockContext.Object);
+        _mockRequest = new Mock<HttpRequestData>(_mockContext.Object);
         var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntryAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(false);
+        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(false);
 
         // Act
-        var response = await sut.Run(mockRequest.Object);
+        var response = await sut.Run(_mockRequest.Object);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);

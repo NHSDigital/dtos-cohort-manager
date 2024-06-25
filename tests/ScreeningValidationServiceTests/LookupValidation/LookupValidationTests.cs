@@ -15,7 +15,6 @@ using NHS.CohortManager.ScreeningValidationService;
 [TestClass]
 public class LookupValidationTests
 {
-    private readonly Mock<ILogger<LookupValidation>> _logger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
@@ -47,7 +46,7 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
 
-        _function = new LookupValidation(_logger.Object, _callFunction.Object);
+        _function = new LookupValidation(_callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

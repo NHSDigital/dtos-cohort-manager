@@ -1,7 +1,8 @@
 namespace Data.Database;
+
 public interface IDatabaseHelper
 {
-    public DateTime parseDates(string dateString);
+    public DateTime ParseDates(string dateString);
 
     public object ConvertNullToDbNull(string value);
 

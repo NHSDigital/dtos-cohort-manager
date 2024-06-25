@@ -51,6 +51,7 @@ services:
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7060
       - targetFunction=http://localhost:7061/api/processCaasFile
+      - FileValidationURL=http://localhost:7073/api/FileValidation
     depends_on:
       - azurite
 
@@ -65,6 +66,7 @@ services:
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
+      - DemographicURI=http://localhost:7076/api/DemographicDataFunction
 
   # Participant Management Service
   add-participant:
@@ -74,12 +76,10 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/addParticipant/Dockerfile
     environment:
-      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7062
       - DSaddParticipant=http://localhost:7066/api/CreateParticipant
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
-      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
-      - AZURE_FUNCTIONS_ENVIRONMENT=Development
+      - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
 
   remove-participant:
     container_name: remove-participant
@@ -91,16 +91,6 @@ services:
       - ASPNETCORE_URLS=http://*:7063
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
 
-  update-eligibility:
-    container_name: update-eligibility
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/UpdateEligibility/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7064
-      - DSmarkParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
-
   update-participant:
     container_name: update-participant
     network_mode: host
@@ -110,7 +100,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7065
       - UpdateParticipant=http://localhost:7069/api/updateParticipantDetails
-      - StaticValidationURL=http://localhost:7071/api/StaticValidation
+      - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
 
   # Screening Data Service
   create-participant:
@@ -123,6 +114,7 @@ services:
       - ASPNETCORE_URLS=http://*:7066
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   mark-participant-eligible:
     container_name: mark-participant-eligible
@@ -156,16 +148,16 @@ services:
       - ASPNETCORE_URLS=http://*:7069
       - SqlConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LookupValidationURL=http://localhost:7072/api/LookupValidation
+      - LookupValidationURL=http://localhost:7075/api/LookupValidation
 
-  create-validation-exceptions:
-    container_name: create-validation-exceptions
+  create-validation-exception:
+    container_name: create-validation-exception
     network_mode: host
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/CreateValidationException/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7073
+      - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   get-validation-exceptions:
@@ -175,10 +167,30 @@ services:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7070
+      - ASPNETCORE_URLS=http://*:7071
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  demographic-data-service:
+    container_name: demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/DemographicDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7072
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service
+  file-validation:
+    container_name: file-validation
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ScreeningValidationService/FileValidation/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7073
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+
   static-validation:
     container_name: static-validation
     network_mode: host
@@ -186,8 +198,8 @@ services:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7071
-      - CreateValidationExceptionURL=http://localhost:7073/api/CreateValidationException
+      - ASPNETCORE_URLS=http://*:7074
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
 
   lookup-validation:
     container_name: lookup-validation
@@ -196,9 +208,27 @@ services:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/LookupValidation/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7072
-      - CreateValidationExceptionURL=http://localhost:7073/api/CreateValidationException
+      - ASPNETCORE_URLS=http://*:7075
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
 
-networks:
-  cohort-manager-network:
-    driver: bridge
+
+  # Demographic Services
+  demographic-data-management:
+    container_name: demographic-data-management
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/DemographicDataManagementFunction/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7076
+      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+
+  # Add Aggregation Service
+  add-aggregation-data:
+    container_name: add-aggregation-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: AggregateDataServices/AddAggregationData/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7077

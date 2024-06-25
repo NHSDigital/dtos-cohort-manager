@@ -11,6 +11,9 @@ public class CreateDemographicData : ICreateDemographicData
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
+    private readonly IDbConnection _dbConnection;
+    private readonly IDatabaseHelper _databaseHelper;
+    private readonly string _connectionString;
     private readonly ILogger<CreateDemographicData> _logger;
 
     public CreateDemographicData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateDemographicData> logger)
@@ -18,6 +21,7 @@ public class CreateDemographicData : ICreateDemographicData
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
     }
 
@@ -105,7 +109,7 @@ public class CreateDemographicData : ICreateDemographicData
                     " @RECORD_INSERT_DATE_TIME," +
                     " @RECORD_UPDATE_DATE_TIME" +
                 ")",
-                parameters = new Dictionary<string, object>
+                Parameters = new Dictionary<string, object>
                 {
                     {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NHSId) ? DBNull.Value : long.Parse(demographic.NHSId)},
                     {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
@@ -234,7 +238,7 @@ public class CreateDemographicData : ICreateDemographicData
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
-        var command = CreateCommand(sqlToExecute[0].parameters);
+        var command = CreateCommand(sqlToExecute[0].Parameters);
         var transaction = BeginTransaction();
         try
         {

@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Options;
 using Moq;
 using System.Text;
-
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Core.Serialization;

@@ -1,3 +1,5 @@
+namespace ScreeningDataServices;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -7,8 +9,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-
-namespace ScreeningDataServices;
 
 public class DemographicDataService
 {
@@ -68,4 +68,3 @@ public class DemographicDataService
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
-

@@ -2,7 +2,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Common;
-using System.Net;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

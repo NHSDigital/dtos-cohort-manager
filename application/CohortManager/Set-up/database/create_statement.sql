@@ -182,8 +182,30 @@ CREATE TABLE  SCREENING_LKP (
 END
 
 /*==============================================================*/
+/* Table: VALIDATION_EXCEPTION Table                                */
+/*==============================================================*/
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'VALIDATION_EXCEPTION')
+BEGIN
+CREATE TABLE [dbo].[VALIDATION_EXCEPTION] (
+    VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
+    NHS_NUMBER BIGINT NOT NULL,
+    DATE_CREATED DATETIME NOT NULL,
+    DATE_RESOLVED DATETIME NULL,
+    RULE_ID INT NOT NULL,
+    RULE_DESCRIPTION NVARCHAR(255) NOT NULL,
+    RULE_CONTENT NVARCHAR(MAX) NOT NULL,
+    CATEGORY INT NOT NULL,
+    SCREENING_SERVICE INT NOT NULL,
+    COHORT NVARCHAR(100) NOT NULL,
+    FATAL BIT NOT NULL,
+    CONSTRAINT PK_VALIDATION_EXCEPTION PRIMARY KEY (VALIDATION_EXCEPTION_ID)
+);
+END
+
+/*==============================================================*/
 /* Table: PARTICIPANT_MANAGEMENT                                */
 /*==============================================================*/
+
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'PARTICIPANT_MANAGEMENT')
 BEGIN
 CREATE TABLE  PARTICIPANT_MANAGEMENT (
@@ -200,6 +222,41 @@ CREATE TABLE  PARTICIPANT_MANAGEMENT (
 );
 END
 
+/*==============================================================*/
+/* Table: AGGREGATION_DATA Table                                */
+/*==============================================================*/
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'AGGREGATION_DATA')
+BEGIN
+create table dbo.AGGREGATION_DATA (
+    AGGREGATION_ID       INT     IDENTITY(1, 1) not null,
+    COHORT_ID            INT                    not null,
+    GENDER_CD            varchar(2)             null,
+    NHS_NUMBER           BIGINT                 not null,
+    SUPERSEDED_BY_NHS_NUMBER BIGINT             null,
+    PARTICIPANT_BIRTH_DATE DATE                 not null,
+    PARTICIPANT_DEATH_DATE DATE                 null,
+    PARTICIPANT_PREFIX   VARCHAR(20)            null,
+    PARTICIPANT_FIRST_NAME VARCHAR(100)         null,
+    PARTICIPANT_LAST_NAME VARCHAR(100)          null,
+    OTHER_NAME           VARCHAR(100)           null,
+    PARTICIPANT_MARITAL_STATUS VARCHAR(100)     null,
+    PARTICIPANT_GENDER   VARCHAR(2)             null,
+    PARTICIPANT_BIRTH_PLACE VARCHAR(100)        null,
+    PARTICIPANT_ETHNICITY VARCHAR(100)          null,
+    PARTICIPANT_RELIGION VARCHAR(100)           null,
+    PARTICIPANT_DECEASED VARCHAR(5)             null,
+    PARTICIPANT_REGISTERED_GP VARCHAR(200)      null,
+    GP_CONNECT           VARCHAR(200)           null,
+    PRIMARY_CARE_PROVIDER VARCHAR(10)           null,
+    REASON_FOR_REMOVAL_CD VARCHAR(50)           null,
+    REMOVAL_DATE         DATE                   null,
+    RECORD_START_DATE    DATE                   null,
+    RECORD_END_DATE      DATE                   null,
+    ACTIVE_FLAG          CHAR                   not null,
+    LOAD_DATE            DATE                   null,
+    constraint PK_AGGREGATION primary key (AGGREGATION_ID)
+);
+END
 
 /*==============================================================*/
 /* Drop Table: SCREENING_PROGRAMS (If it exists)                */
@@ -211,13 +268,12 @@ END
 
 /*==============================================================*/
 /* Alter Data Type: COHORT: PROGRAM_ID 							*/
-/*   changed to BIGINT to match SCREENING_PROGRAMS 				*/
+/*   changed to BIGINT to match SCREENING_LKP 				*/
 /*==============================================================*/
 BEGIN
 ALTER Table dbo.COHORT
 ALTER COLUMN PROGRAM_ID BIGINT
 END
-
 
 /*==============================================================*/
 /* Add Standard named constraints and relationships          */
@@ -269,3 +325,4 @@ ALTER TABLE dbo.PARTICIPANT_MANAGEMENT
 ADD CONSTRAINT FK_PARTICIP_SCREENING_SCREENIN FOREIGN KEY (SCREENING_ID)
 REFERENCES SCREENING_LKP (SCREENING_ID);
 END;
+

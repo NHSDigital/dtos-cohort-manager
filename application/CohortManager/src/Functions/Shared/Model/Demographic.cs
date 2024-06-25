@@ -2,7 +2,6 @@ using Model.Enums;
 
 namespace Model;
 
-
 public class Demographic
 {
     public string? ParticipantId { get; set; }
