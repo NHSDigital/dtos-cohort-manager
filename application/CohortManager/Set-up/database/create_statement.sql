@@ -104,15 +104,22 @@ create table dbo.SCREENING_PROGRAMS (
 /*==============================================================*/
 /* Table: VALIDATION_EXCEPTION                                  */
 /*==============================================================*/
-create table dbo.VALIDATION_EXCEPTION (
+
+CREATE TABLE [dbo].[VALIDATION_EXCEPTION] (
     VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
-    RULE_ID INT not null,
-    RULE_NAME NVARCHAR(200) not null,
-    WORKFLOW NVARCHAR(50) not null,
-    NHS_NUMBER BIGINT not null,
-    DATE_CREATED DATETIME not null,
-    constraint PK_VALIDATION_EXCEPTION primary key (VALIDATION_EXCEPTION_ID)
+    NHS_NUMBER BIGINT NOT NULL,
+    DATE_CREATED DATETIME NOT NULL,
+    DATE_RESOLVED DATETIME NULL,
+    RULE_ID INT NOT NULL,
+    RULE_DESCRIPTION NVARCHAR(255) NOT NULL,
+    RULE_CONTENT NVARCHAR(MAX) NOT NULL,
+    CATEGORY INT NOT NULL,
+    SCREENING_SERVICE INT NOT NULL,
+    COHORT NVARCHAR(100) NOT NULL,
+    FATAL BIT NOT NULL,
+    CONSTRAINT PK_VALIDATION_EXCEPTION PRIMARY KEY (VALIDATION_EXCEPTION_ID)
 );
+
 
 
 
@@ -177,4 +184,38 @@ CREATE TABLE DEMOGRAPHIC_DATA (
   home_email_address VARCHAR(255),
   home_phone_textphone BIT,
   emergency_contact_phone_number VARCHAR(255)
+);
+
+/*==============================================================*/
+/* Table: AGGREGATION_DATA Table                                */
+/*==============================================================*/
+
+create table dbo.AGGREGATION_DATA (
+    AGGREGATION_ID       INT     IDENTITY(1, 1) not null,
+    COHORT_ID            INT                    not null,
+    GENDER_CD            varchar(2)             null,
+    NHS_NUMBER           BIGINT                 not null,
+    SUPERSEDED_BY_NHS_NUMBER BIGINT             null,
+    PARTICIPANT_BIRTH_DATE DATE                 not null,
+    PARTICIPANT_DEATH_DATE DATE                 null,
+    PARTICIPANT_PREFIX   VARCHAR(20)            null,
+    PARTICIPANT_FIRST_NAME VARCHAR(100)         null,
+    PARTICIPANT_LAST_NAME VARCHAR(100)          null,
+    OTHER_NAME           VARCHAR(100)           null,
+    PARTICIPANT_MARITAL_STATUS VARCHAR(100)     null,
+    PARTICIPANT_GENDER   VARCHAR(2)             null,
+    PARTICIPANT_BIRTH_PLACE VARCHAR(100)        null,
+    PARTICIPANT_ETHNICITY VARCHAR(100)          null,
+    PARTICIPANT_RELIGION VARCHAR(100)           null,
+    PARTICIPANT_DECEASED VARCHAR(5)             null,
+    PARTICIPANT_REGISTERED_GP VARCHAR(200)      null,
+    GP_CONNECT           VARCHAR(200)           null,
+    PRIMARY_CARE_PROVIDER VARCHAR(10)           null,
+    REASON_FOR_REMOVAL_CD VARCHAR(50)           null,
+    REMOVAL_DATE         DATE                   null,
+    RECORD_START_DATE    DATE                   null,
+    RECORD_END_DATE      DATE                   null,
+    ACTIVE_FLAG          CHAR                   not null,
+    LOAD_DATE            DATE                   null,
+    constraint PK_AGGREGATION primary key (AGGREGATION_ID)
 );

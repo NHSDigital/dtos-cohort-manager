@@ -31,9 +31,7 @@ public class FileValidationTests
 
         _requestBody = new ValidationException()
         {
-            RuleId = "1",
-            RuleName = "",
-            Workflow = "NoWorkFlow",
+            RuleId = 1,
             NhsNumber = "1",
             DateCreated = DateTime.Now,
         };
