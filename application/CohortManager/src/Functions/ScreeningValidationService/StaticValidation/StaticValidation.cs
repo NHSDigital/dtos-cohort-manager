@@ -46,7 +46,7 @@ public class StaticValidation
 
         var reSettings = new ReSettings
         {
-            CustomTypes = [typeof(Regex)]
+            CustomTypes = [typeof(Regex), typeof(RegexOptions)]
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);

@@ -25,6 +25,10 @@
       {
         "RuleName": "14.ReasonForRemoval",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
+      },
+      {
+        "RuleName": "30.Postcode",
+        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z][A-HJ-Y]?[0-9][A-Z0-9]? ?[0-9][A-Z]{2}|GIR ?0A{2})$\", RegexOptions.IgnoreCase)"
       }
     ]
   }
