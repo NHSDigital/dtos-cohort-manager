@@ -59,7 +59,7 @@ public class DemographicDataServiceTests
                 return response;
             });
         _request.Setup(x => x.Method).Returns("POST");
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(true);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(true);
 
         // Act
         var result = await sut.Run(_request.Object);
