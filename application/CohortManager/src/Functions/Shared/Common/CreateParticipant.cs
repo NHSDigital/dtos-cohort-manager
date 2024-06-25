@@ -12,7 +12,7 @@ public class CreateParticipant : ICreateParticipant
             RecordType = participant.RecordType,
             ChangeTimeStamp = participant.ChangeTimeStamp,
             SerialChangeNumber = participant.SerialChangeNumber,
-            NhsNumber = participant.NHSId,
+            NhsNumber = participant.NhsNumber,
             SupersededByNhsNumber = participant.SupersededByNhsNumber,
             PrimaryCareProvider = demographic.PrimaryCareProvider,
             PrimaryCareProviderEffectiveFromDate = participant.PrimaryCareProviderEffectiveFrom,

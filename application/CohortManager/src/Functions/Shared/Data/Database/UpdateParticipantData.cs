@@ -250,7 +250,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         return listToReturn;
     }
 
-    public Participant GetParticipant(string NHSId)
+    public Participant GetParticipant(string NhsNumber)
     {
         var SQL = "SELECT " +
             "[PARTICIPANT].[PARTICIPANT_ID], " +
@@ -274,12 +274,12 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[ADDRESS].[POST_CODE] " +
         "FROM [dbo].[PARTICIPANT] " +
         "INNER JOIN [dbo].[ADDRESS] ON [PARTICIPANT].[PARTICIPANT_ID]=[ADDRESS].[PARTICIPANT_ID] " +
-        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NHSId AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
+        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
 
         var parameters = new Dictionary<string, object>
         {
             {"@IsActive", 'Y' },
-            {"@NHSId", NHSId }
+            {"@NhsNumber", NhsNumber }
         };
 
         var command = CreateCommand(parameters);

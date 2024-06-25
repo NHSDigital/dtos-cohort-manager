@@ -5,7 +5,7 @@ public class BasicParticipantData
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string? NHSId { get; set; }
+    public string? NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProviderEffectiveFrom { get; set; }
     public string? CurrentPostingEffectiveFrom { get; set; }

@@ -36,7 +36,7 @@ public class DemographicDataServiceTests
         {
             FirstName = "Joe",
             Surname = "Bloggs",
-            NHSId = "1",
+            NhsNumber = "1",
             RecordType = Actions.New
         };
     }
@@ -142,7 +142,7 @@ public class DemographicDataServiceTests
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
         {
-            NHSId = "1"
+            NhsNumber = "1"
         });
 
         // Act

@@ -102,7 +102,7 @@ public class CreateParticipantData : ICreateParticipantData
         return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NhsNumber);
     }
 
-    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NHSId)
+    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NhsNumber)
     {
         var command = CreateCommand(commonParams);
         foreach (var SqlCommand in sqlCommands)

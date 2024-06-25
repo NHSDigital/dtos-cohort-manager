@@ -42,7 +42,7 @@ namespace addParticipant
 
             try
             {
-                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");

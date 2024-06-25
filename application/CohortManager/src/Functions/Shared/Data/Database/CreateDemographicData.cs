@@ -150,12 +150,12 @@ public class CreateDemographicData : ICreateDemographicData
         return UpdateRecords(command);
     }
 
-    public Demographic GetDemographicData(string NHSId)
+    public Demographic GetDemographicData(string NhsNumber)
     {
-        var SQL = @"SELECT * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NHSId";
+        var SQL = @"SELECT * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber";
         var parameters = new Dictionary<string, object>()
         {
-            {"@NHSId",  NHSId },
+            {"@NhsNumber",  NhsNumber },
         };
 
         var command = CreateCommand(parameters);
