@@ -15,7 +15,7 @@ public class CreateAggregationData : ICreateAggregationData
     private readonly string _connectionString;
     private readonly ILogger<CreateAggregationData> _logger;
 
-    public CreateAggregationData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateAggregationData> logger, ICallFunction callFunction)
+    public CreateAggregationData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateAggregationData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
