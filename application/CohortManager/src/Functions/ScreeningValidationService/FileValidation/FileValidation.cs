@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.ScreeningValidationService;
+namespace NHS.CohortManager.ScreeningValidationService;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
