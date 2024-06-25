@@ -15,15 +15,12 @@ public class AddAggregationTests
 {
 
     private readonly Mock<IDbConnection> _mockDBConnection = new();
-    private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly Mock<IDbCommand> _commandMock = new();
     private readonly Mock<IDataReader> _moqDataReader = new();
     private readonly Mock<ILogger<CreateAggregationData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<HttpWebResponse> _webResponse = new();
 
     public AddAggregationTests()
     {
@@ -57,8 +54,7 @@ public class AddAggregationTests
         var createAggregationData = new CreateAggregationData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object,
-                _callFunction.Object
+                _loggerMock.Object
             );
 
         var aggregateParticipant = new AggregateParticipant();
@@ -79,8 +75,7 @@ public class AddAggregationTests
         var createAggregationData = new CreateAggregationData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object,
-                _callFunction.Object
+                _loggerMock.Object
             );
 
         var aggregateParticipant = new AggregateParticipant();
