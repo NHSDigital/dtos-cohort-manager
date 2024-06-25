@@ -1,6 +1,6 @@
-INSERT INTO [dbo].[SCREENING_PROGRAMS]
-        ([SCREENING_PROGRAM_NAME]
-        ,[PROGRAM_DESC])
+INSERT INTO [dbo].[SCREENING_LKP]
+        ([SCREENING_NAME]
+        ,[SCREENING_TYPE])
     VALUES
         ('Breast Screening'
         ,'Breast Screening Program');

@@ -39,7 +39,7 @@ public class UpdateParticipantTests
             FileName = "test.csv",
             Participant = new Participant()
             {
-                NHSId = "1",
+                NhsNumber = "1",
             }
         };
     }

@@ -4,6 +4,7 @@ using System.Data;
 using Microsoft.Extensions.Logging;
 using Model;
 using Microsoft.Data.SqlClient;
+using Model.Enums;
 
 public class CreateDemographicData : ICreateDemographicData
 {
@@ -20,124 +21,141 @@ public class CreateDemographicData : ICreateDemographicData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
     }
 
-    public bool InsertDemographicData(Participant participant)
+    public bool InsertDemographicData(Demographic demographic)
     {
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
             {
                 CommandType = CommandType.Command,
-                SQL = "INSERT INTO [dbo].[DEMOGRAPHIC_DATA] " +
+                SQL = "INSERT INTO [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
                 "(" +
-                    " [resource_id] " +
-                    ", [nhs_number] " +
-                    ", [prefix] " +
-                    ", [given_name] " +
-                    ", [family_name] " +
-                    ", [gender] " +
-                    ", [birth_date] " +
-                    ", [deceased_datetime] " +
-                    ", [general_practitioner_code] " +
-                    ", [managing_organization_code] " +
-                    ", [communication_language] " +
-                    ", [interpreter_required] " +
-                    ", [preferred_communication_format] " +
-                    ", [preferred_contact_method] " +
-                    ", [preferred_contact_time] " +
-                    ", [birth_place_city] " +
-                    ", [birth_place_district] " +
-                    ", [birth_place_country] " +
-                    ", [removal_reason_code] " +
-                    ", [removal_effective_start] " +
-                    " ,[removal_effective_end] " +
-                    " ,[home_address_line1] " +
-                    " ,[home_address_line2] " +
-                    " ,[home_address_line3] " +
-                    " ,[home_address_city] " +
-                    " ,[home_address_postcode] " +
-                    " ,[home_phone_number] " +
-                    " ,[home_email_address] " +
-                    " ,[home_phone_textphone] " +
-                    " ,[emergency_contact_phone_number] ) " +
+                    "  [NHS_NUMBER] " +
+                    ", [SUPERSEDED_BY_NHS_NUMBER] " +
+                    ", [PRIMARY_CARE_PROVIDER] " +
+                    ", [PRIMARY_CARE_PROVIDER_FROM_DT] " +
+                    ", [CURRENT_POSTING] " +
+                    ", [CURRENT_POSTING_FROM_DT] " +
+                    ", [PREVIOUS_POSTING] " +
+                    ", [PREV_POSTING_TO_DT] " +
+                    ", [NAME_PREFIX] " +
+                    ", [GIVEN_NAME] " +
+                    ", [OTHER_GIVEN_NAME] " +
+                    ", [FAMILY_NAME] " +
+                    ", [PREVIOUS_FAMILY_NAME] " +
+                    ", [DATE_OF_BIRTH] " +
+                    ", [GENDER] " +
+                    ", [ADDRESS_LINE_1] " +
+                    ", [ADDRESS_LINE_2] " +
+                    ", [ADDRESS_LINE_3] " +
+                    ", [ADDRESS_LINE_4] " +
+                    ", [ADDRESS_LINE_5] " +
+                    ", [POST_CODE] " +
+                    ", [PAF_KEY] " +
+                    ", [USUAL_ADDRESS_FROM_DT] " +
+                    ", [DATE_OF_DEATH] " +
+                    ", [DEATH_STATUS] " +
+                    ", [TELEPHONE_NUMBER_HOME] " +
+                    ", [TELEPHONE_NUMBER_HOME_FROM_DT] " +
+                    ", [TELEPHONE_NUMBER_MOB] " +
+                    ", [TELEPHONE_NUMBER_MOB_FROM_DT] " +
+                    ", [EMAIL_ADDRESS_HOME] " +
+                    ", [EMAIL_ADDRESS_HOME_FROM_DT] " +
+                    ", [PREFERRED_LANGUAGE] " +
+                    ", [INTERPRETER_REQUIRED] " +
+                    ", [INVALID_FLAG] " +
+                    ", [RECORD_INSERT_DATE_TIME] " +
+                    ", [RECORD_UPDATE_DATE_TIME] ) " +
                 "VALUES " +
                 "(" +
-                    " @resource_id, " +
-                    " @nhs_number, " +
-                    " @prefix, " +
-                    " @given_name, " +
-                    " @family_name, " +
-                    " @gender, " +
-                    " @birth_date, " +
-                    " @deceased_datetime, " +
-                    " @general_practitioner_code, " +
-                    " @managing_organization_code, " +
-                    " @communication_language, " +
-                    " @interpreter_required, " +
-                    " @preferred_communication_format," +
-                    " @preferred_contact_method, " +
-                    " @preferred_contact_time, " +
-                    " @birth_place_city, " +
-                    " @birth_place_district, " +
-                    " @birth_place_country, " +
-                    " @removal_reason_code, " +
-                    " @removal_effective_start, " +
-                    " @removal_effective_end, " +
-                    " @home_address_line1, " +
-                    " @home_address_line2, " +
-                    " @home_address_line3, " +
-                    " @home_address_city, " +
-                    " @home_address_postcode, " +
-                    " @home_phone_number, " +
-                    " @home_email_address, " +
-                    " @home_phone_textphone, " +
-                    " @emergency_contact_phone_number" +
+                    " @NHS_NUMBER, " +
+                    " @SUPERSEDED_BY_NHS_NUMBER, " +
+                    " @PRIMARY_CARE_PROVIDER, " +
+                    " @PRIMARY_CARE_PROVIDER_FROM_DT, " +
+                    " @CURRENT_POSTING, " +
+                    " @CURRENT_POSTING_FROM_DT, " +
+                    " @PREVIOUS_POSTING, " +
+                    " @PREV_POSTING_TO_DT, " +
+                    " @NAME_PREFIX, " +
+                    " @GIVEN_NAME, " +
+                    " @OTHER_GIVEN_NAME, " +
+                    " @FAMILY_NAME," +
+                    " @PREVIOUS_FAMILY_NAME, " +
+                    " @DATE_OF_BIRTH, " +
+                    " @GENDER, " +
+                    " @ADDRESS_LINE_1, " +
+                    " @ADDRESS_LINE_2, " +
+                    " @ADDRESS_LINE_3, " +
+                    " @ADDRESS_LINE_4, " +
+                    " @ADDRESS_LINE_5, " +
+                    " @POST_CODE, " +
+                    " @PAF_KEY, " +
+                    " @USUAL_ADDRESS_FROM_DT, " +
+                    " @DATE_OF_DEATH, " +
+                    " @DEATH_STATUS, " +
+                    " @TELEPHONE_NUMBER_HOME, " +
+                    " @TELEPHONE_NUMBER_HOME_FROM_DT, " +
+                    " @TELEPHONE_NUMBER_MOB, " +
+                    " @TELEPHONE_NUMBER_MOB_FROM_DT, " +
+                    " @EMAIL_ADDRESS_HOME, " +
+                    " @EMAIL_ADDRESS_HOME_FROM_DT," +
+                    " @PREFERRED_LANGUAGE," +
+                    " @INTERPRETER_REQUIRED," +
+                    " @INVALID_FLAG," +
+                    " @RECORD_INSERT_DATE_TIME," +
+                    " @RECORD_UPDATE_DATE_TIME" +
                 ")",
                 Parameters = new Dictionary<string, object>
                 {
-                    {"@resource_id", participant.RecordIdentifier},
-                    {"@nhs_number", participant.NHSId},
-                    {"@prefix", _databaseHelper.ConvertNullToDbNull(participant.NamePrefix)},
-                    {"@given_name", _databaseHelper.ConvertNullToDbNull(participant.FirstName)},
-                    {"@family_name", _databaseHelper.ConvertNullToDbNull(participant.Surname)},
-                    {"@gender", participant.Gender.ToString()},
-                    {"@birth_date", string.IsNullOrEmpty(participant.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(participant.DateOfBirth)},
-                    {"@deceased_datetime", _databaseHelper.CheckIfDateNull(participant.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participant.DateOfDeath)},
-                    {"@general_practitioner_code", _databaseHelper.ConvertNullToDbNull(participant.PrimaryCareProvider)},
-                    {"@managing_organization_code", DBNull.Value},
-                    {"@communication_language", _databaseHelper.ConvertNullToDbNull(participant.PreferredLanguage)},
-                    {"@interpreter_required", _databaseHelper.ConvertNullToDbNull(participant.IsInterpreterRequired)},
-                    {"@preferred_communication_format", DBNull.Value},
-                    {"@preferred_contact_method", DBNull.Value},
-                    {"@preferred_contact_time", DBNull.Value},
-                    {"@birth_place_city", DBNull.Value},
-                    {"@birth_place_district", DBNull.Value},
-                    {"@birth_place_country", DBNull.Value},
-                    {"@removal_reason_code", _databaseHelper.ConvertNullToDbNull(participant.ReasonForRemoval)},
-                    {"@removal_effective_start", _databaseHelper.CheckIfDateNull(participant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(participant.ReasonForRemovalEffectiveFromDate)},
-                    {"@removal_effective_end", DBNull.Value},
-                    {"@home_address_line1", _databaseHelper.ConvertNullToDbNull(participant.AddressLine1)},
-                    {"@home_address_line2", _databaseHelper.ConvertNullToDbNull(participant.AddressLine2)},
-                    {"@home_address_line3", _databaseHelper.ConvertNullToDbNull(participant.AddressLine3)},
-                    {"@home_address_city", _databaseHelper.ConvertNullToDbNull(participant.AddressLine4)},
-                    {"@home_address_postcode", _databaseHelper.ConvertNullToDbNull(participant.Postcode)},
-                    {"@home_phone_number", _databaseHelper.ConvertNullToDbNull(participant.TelephoneNumber)},
-                    {"@home_email_address", _databaseHelper.ConvertNullToDbNull(participant.EmailAddress)},
-                    {"@home_phone_textphone", DBNull.Value},
-                    {"@emergency_contact_phone_number", _databaseHelper.ConvertNullToDbNull(participant.MobileNumber)}
+                    {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NhsNumber) ? DBNull.Value : long.Parse(demographic.NhsNumber)},
+                    {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
+                    {"@PRIMARY_CARE_PROVIDER", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProvider)},
+                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", string.IsNullOrEmpty(demographic.PrimaryCareProvider) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
+                    {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
+                    {"@CURRENT_POSTING_FROM_DT", string.IsNullOrEmpty(demographic.CurrentPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
+                    {"@PREVIOUS_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.PreviousPosting)},
+                    {"@PREV_POSTING_TO_DT", string.IsNullOrEmpty(demographic.PreviousPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PreviousPostingEffectiveFromDate)},
+                    {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
+                    {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
+                    {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
+                    {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.Surname)},
+                    {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousSurname)},
+                    {"@DATE_OF_BIRTH", string.IsNullOrEmpty(demographic.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfBirth)},
+                    {"@GENDER", demographic.Gender},
+                    {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
+                    {"@ADDRESS_LINE_2", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine2)},
+                    {"@ADDRESS_LINE_3", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine3)},
+                    {"@ADDRESS_LINE_4", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine4)},
+                    {"@ADDRESS_LINE_5", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine5)},
+                    {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.PostCode)},
+                    {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
+                    {"@USUAL_ADDRESS_FROM_DT", string.IsNullOrEmpty(demographic.UsualAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
+                    {"@DATE_OF_DEATH", string.IsNullOrEmpty(demographic.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfDeath)},
+                    {"@DEATH_STATUS", demographic.DeathStatus},
+                    {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
+                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", string.IsNullOrEmpty(demographic.TelephoneNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_MOB", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumber)},
+                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", string.IsNullOrEmpty(demographic.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.MobileNumberEffectiveFromDate)},
+                    {"@EMAIL_ADDRESS_HOME", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddress)},
+                    {"@EMAIL_ADDRESS_HOME_FROM_DT", string.IsNullOrEmpty(demographic.EmailAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.EmailAddressEffectiveFromDate)},
+                    {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
+                    {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
+                    {"@INVALID_FLAG", _databaseHelper.ConvertNullToDbNull(demographic.InvalidFlag)},
+                    {"@RECORD_INSERT_DATE_TIME", string.IsNullOrEmpty(demographic.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordInsertDateTime)},
+                    {"@RECORD_UPDATE_DATE_TIME", string.IsNullOrEmpty(demographic.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordUpdateDateTime)}
                 },
-
             }
         };
 
         return UpdateRecords(command);
     }
 
-    public Demographic GetDemographicData(string NHSId)
+    public Demographic GetDemographicData(string NhsNumber)
     {
-        var SQL = @"SELECT * FROM [dbo].[DEMOGRAPHIC_DATA] WHERE nhs_number = @NHSId";
+        var SQL = @"SELECT * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber";
         var parameters = new Dictionary<string, object>()
         {
-            {"@NHSId",  NHSId },
+            {"@NhsNumber",  NhsNumber },
         };
 
         var command = CreateCommand(parameters);
@@ -153,36 +171,43 @@ public class CreateDemographicData : ICreateDemographicData
             var demographic = new Demographic();
             while (reader.Read())
             {
-                demographic.ResourceId = reader["resource_id"] == DBNull.Value ? null : reader["resource_id"].ToString();
-                demographic.NhsNumber = reader["nhs_number"] == DBNull.Value ? null : reader["nhs_number"].ToString();
-                demographic.Prefix = reader["prefix"] == DBNull.Value ? null : reader["prefix"].ToString();
-                demographic.GivenName = reader["given_name"] == DBNull.Value ? null : reader["given_name"].ToString();
-                demographic.FamilyName = reader["family_name"] == DBNull.Value ? null : reader["family_name"].ToString();
-                demographic.Gender = reader["gender"] == DBNull.Value ? null : reader["gender"].ToString();
-                demographic.BirthDate = reader["birth_date"] == DBNull.Value ? null : reader["birth_date"].ToString();
-                demographic.DeceasedDatetime = reader["deceased_datetime"] == DBNull.Value ? null : reader["deceased_datetime"].ToString();
-                demographic.GeneralPractitionerCode = reader["general_practitioner_code"] == DBNull.Value ? null : reader["general_practitioner_code"].ToString();
-                demographic.ManagingOrganizationCode = reader["managing_organization_code"] == DBNull.Value ? null : reader["managing_organization_code"].ToString();
-                demographic.CommunicationLanguage = reader["communication_language"] == DBNull.Value ? null : reader["communication_language"].ToString();
-                demographic.InterpreterRequired = reader["interpreter_required"] == DBNull.Value ? null : reader["interpreter_required"].ToString();
-                demographic.PreferredCommunicationFormat = reader["preferred_communication_format"] == DBNull.Value ? null : reader["preferred_communication_format"].ToString();
-                demographic.PreferredContactMethod = reader["preferred_contact_method"] == DBNull.Value ? null : reader["preferred_contact_method"].ToString();
-                demographic.PreferredContactTime = reader["preferred_contact_time"] == DBNull.Value ? null : reader["preferred_contact_time"].ToString();
-                demographic.BirthPlaceCity = reader["birth_place_city"] == DBNull.Value ? null : reader["birth_place_city"].ToString();
-                demographic.BirthPlaceDistrict = reader["birth_place_district"] == DBNull.Value ? null : reader["birth_place_district"].ToString();
-                demographic.BirthPlaceCountry = reader["birth_place_country"] == DBNull.Value ? null : reader["birth_place_country"].ToString();
-                demographic.RemovalReasonCode = reader["removal_reason_code"] == DBNull.Value ? null : reader["removal_reason_code"].ToString();
-                demographic.RemovalEffectiveStart = reader["removal_effective_start"] == DBNull.Value ? null : reader["removal_effective_start"].ToString();
-                demographic.RemovalEffectiveEnd = reader["removal_effective_end"] == DBNull.Value ? null : reader["removal_effective_end"].ToString();
-                demographic.HomeAddressLine1 = reader["home_address_line1"] == DBNull.Value ? null : reader["home_address_line1"].ToString();
-                demographic.HomeAddressLine2 = reader["home_address_line2"] == DBNull.Value ? null : reader["home_address_line2"].ToString();
-                demographic.HomeAddressLine3 = reader["home_address_line3"] == DBNull.Value ? null : reader["home_address_line3"].ToString();
-                demographic.HomeAddressCity = reader["home_address_city"] == DBNull.Value ? null : reader["home_address_city"].ToString();
-                demographic.HomeAddressPostcode = reader["home_address_postcode"] == DBNull.Value ? null : reader["home_address_postcode"].ToString();
-                demographic.HomePhoneNumber = reader["home_phone_number"] == DBNull.Value ? null : reader["home_phone_number"].ToString();
-                demographic.HomeEmailAddress = reader["home_email_address"] == DBNull.Value ? null : reader["home_email_address"].ToString();
-                demographic.HomePhoneTextphone = reader["home_phone_textphone"] == DBNull.Value ? null : reader["home_phone_textphone"].ToString();
-                demographic.EmergencyContactPhoneNumber = reader["emergency_contact_phone_number"] == DBNull.Value ? null : reader["emergency_contact_phone_number"].ToString();
+                demographic.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? null : reader["PARTICIPANT_ID"].ToString();
+                demographic.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
+                demographic.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
+                demographic.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
+                demographic.PrimaryCareProviderEffectiveFromDate = reader["PRIMARY_CARE_PROVIDER_FROM_DT"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER_FROM_DT"].ToString();
+                demographic.CurrentPosting = reader["CURRENT_POSTING"] == DBNull.Value ? null : reader["CURRENT_POSTING"].ToString();
+                demographic.CurrentPostingEffectiveFromDate = reader["CURRENT_POSTING_FROM_DT"] == DBNull.Value ? null : reader["CURRENT_POSTING_FROM_DT"].ToString();
+                demographic.PreviousPosting = reader["PREVIOUS_POSTING"] == DBNull.Value ? null : reader["PREVIOUS_POSTING"].ToString();
+                demographic.PreviousPostingEffectiveFromDate = reader["PREV_POSTING_TO_DT"] == DBNull.Value ? null : reader["PREV_POSTING_TO_DT"].ToString();
+                demographic.NamePrefix = reader["NAME_PREFIX"] == DBNull.Value ? null : reader["NAME_PREFIX"].ToString();
+                demographic.FirstName = reader["GIVEN_NAME"] == DBNull.Value ? null : reader["GIVEN_NAME]"].ToString();
+                demographic.OtherGivenNames = reader["OTHER_GIVEN_NAME"] == DBNull.Value ? null : reader["OTHER_GIVEN_NAME"].ToString();
+                demographic.Surname = reader["FAMILY_NAME"] == DBNull.Value ? null : reader["FAMILY_NAME"].ToString();
+                demographic.PreviousSurname = reader["PREVIOUS_FAMILY_NAME"] == DBNull.Value ? null : reader["PREVIOUS_FAMILY_NAME"].ToString();
+                demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : reader["DATE_OF_BIRTH"].ToString();
+                demographic.Gender = reader["GENDER"] == DBNull.Value ? null : (Gender)reader["GENDER"];
+                demographic.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
+                demographic.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
+                demographic.AddressLine3 = reader["ADDRESS_LINE_3"] == DBNull.Value ? null : reader["ADDRESS_LINE_3"].ToString();
+                demographic.AddressLine4 = reader["ADDRESS_LINE_4"] == DBNull.Value ? null : reader["ADDRESS_LINE_4"].ToString();
+                demographic.AddressLine5 = reader["ADDRESS_LINE_5"] == DBNull.Value ? null : reader["ADDRESS_LINE_5"].ToString();
+                demographic.PostCode = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
+                demographic.PafKey = reader["PAF_KEY"] == DBNull.Value ? null : reader["PAF_KEY"].ToString();
+                demographic.UsualAddressEffectiveFromDate = reader["USUAL_ADDRESS_FROM_DT"] == DBNull.Value ? null : reader["USUAL_ADDRESS_FROM_DT"].ToString();
+                demographic.DateOfDeath = reader["DATE_OF_DEATH"] == DBNull.Value ? null : reader["DATE_OF_DEATH"].ToString();
+                demographic.DeathStatus = reader["DEATH_STATUS"] == DBNull.Value ? null : (Status)reader["DEATH_STATUS"];
+                demographic.TelephoneNumber = reader["TELEPHONE_NUMBER_HOME"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME"].ToString();
+                demographic.TelephoneNumberEffectiveFromDate = reader["telephone_number_home_from_date"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME_FROM_DT"].ToString();
+                demographic.MobileNumber = reader["TELEPHONE_NUMBER_MOB"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_MOB"].ToString();
+                demographic.MobileNumberEffectiveFromDate = reader["TELEPHONE_NUMBER_MOB_FROM_DT"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_MOB_FROM_DT"].ToString();
+                demographic.EmailAddress = reader["EMAIL_ADDRESS_HOME"] == DBNull.Value ? null : reader["EMAIL_ADDRESS_HOME"].ToString();
+                demographic.EmailAddressEffectiveFromDate = reader["EMAIL_ADDRESS_HOME_FROM_DT"] == DBNull.Value ? null : reader["EMAIL_ADDRESS_HOME_FROM_DT"].ToString();
+                demographic.PreferredLanguage = reader["PREFERRED_LANGUAGE"] == DBNull.Value ? null : reader["PREFERRED_LANGUAGE"].ToString();
+                demographic.IsInterpreterRequired = reader["INTERPRETER_REQUIRED"] == DBNull.Value ? null : reader["INTERPRETER_REQUIRED"].ToString();
+                demographic.InvalidFlag = reader["INVALID_FLAG"] == DBNull.Value ? null : reader["INVALID_FLAG"].ToString();
+                demographic.RecordInsertDateTime = reader["RECORD_INSERT_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATE_TIME"].ToString();
+                demographic.RecordUpdateDateTime = reader["RECORD_UPDATE_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATE_TIME"].ToString();
             }
             return demographic;
         });

@@ -37,7 +37,7 @@ public class DemographicDataFunctionTests
         {
             FirstName = "Joe",
             Surname = "Bloggs",
-            NHSId = "1",
+            NhsNumber = "1",
             RecordType = Actions.New
         };
 

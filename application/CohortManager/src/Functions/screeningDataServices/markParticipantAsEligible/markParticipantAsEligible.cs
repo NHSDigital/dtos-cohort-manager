@@ -44,11 +44,11 @@ namespace markParticipantAsEligible
                 }
                 if (updated)
                 {
-                    _logger.LogInformation($"record updated for participant {participant.NHSId}");
+                    _logger.LogInformation($"record updated for participant {participant.NhsNumber}");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
                 }
 
-                _logger.LogError($"an error occurred while updating data for {participant.NHSId}");
+                _logger.LogError($"an error occurred while updating data for {participant.NhsNumber}");
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }

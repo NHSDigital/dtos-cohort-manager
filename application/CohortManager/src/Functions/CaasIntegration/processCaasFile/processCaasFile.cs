@@ -36,8 +36,7 @@ public class ProcessCaasFileFunction
         }
         Cohort input = JsonSerializer.Deserialize<Cohort>(postData);
 
-        _logger.LogInformation("Records received: {Count}", input.Participants.Count);
-
+        _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
         int add = 0, upd = 0, del = 0, err = 0, row = 0;
 
         foreach (var participant in input.Participants)
@@ -54,6 +53,7 @@ public class ProcessCaasFileFunction
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
                 FileName = input.FileName
             };
+            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
             switch (participant.RecordType?.Trim())
             {
@@ -61,7 +61,6 @@ public class ProcessCaasFileFunction
                     add++;
                     try
                     {
-                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                         _logger.LogInformation("Called add participant");
                     }
@@ -74,7 +73,6 @@ public class ProcessCaasFileFunction
                     upd++;
                     try
                     {
-                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                         _logger.LogInformation("Called update participant");
                     }
@@ -87,7 +85,6 @@ public class ProcessCaasFileFunction
                     del++;
                     try
                     {
-                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                         _logger.LogInformation("Called remove participant");
                     }
@@ -100,7 +97,6 @@ public class ProcessCaasFileFunction
                     err++;
                     try
                     {
-                        var json = JsonSerializer.Serialize(participant);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
                         _logger.LogInformation("Called static validation");
                     }

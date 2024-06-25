@@ -35,7 +35,7 @@ public class CreateParticipantTests
         _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(true);
 
         // Act
-        var response = await sut.Run(mockRequest);
+        await sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -51,7 +51,7 @@ public class CreateParticipantTests
         _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).Returns(false);
 
         // Act
-        var response = await sut.Run(_mockRequest.Object);
+        await sut.Run(_mockRequest.Object);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -63,7 +63,7 @@ public class CreateParticipantTests
         var participantMock = new Mock<Participant>();
         participantMock.SetupAllProperties();
 
-        participantMock.Object.NHSId = "1234567890";
+        participantMock.Object.NhsNumber = "1234567890";
         participantMock.Object.SupersededByNhsNumber = "0987654321";
         participantMock.Object.PrimaryCareProvider = "";
         participantMock.Object.NamePrefix = "";

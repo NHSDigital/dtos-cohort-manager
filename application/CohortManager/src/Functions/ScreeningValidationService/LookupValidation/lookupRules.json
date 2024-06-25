@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "1.ParticipantMustNotAlreadyExist",
-        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
+        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
   },
@@ -13,7 +13,7 @@
     "Rules": [
       {
         "RuleName": "2.ParticipantMustAlreadyExist",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NHSId)"
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
   }

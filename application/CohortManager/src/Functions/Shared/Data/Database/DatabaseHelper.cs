@@ -48,7 +48,7 @@ public class DatabaseHelper : IDatabaseHelper
 
     public object ConvertNullToDbNull(string value)
     {
-        return string.IsNullOrEmpty(value) ? (object)DBNull.Value : value;
+        return string.IsNullOrEmpty(value) ? DBNull.Value : value;
     }
 
     public string ParseDateToString(string dateToParse)
