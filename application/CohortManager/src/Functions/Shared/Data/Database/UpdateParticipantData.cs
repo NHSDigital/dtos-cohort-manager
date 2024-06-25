@@ -27,7 +27,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
     {
-        var oldParticipant = GetParticipant(participant.NHSId);
+        var oldParticipant = GetParticipant(participant.NhsNumber);
 
         var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.ParticipantId), isActive);
         return UpdateRecords(allRecordsToUpdate);
@@ -44,7 +44,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
-        var oldParticipant = GetParticipant(participantData.NHSId);
+        var oldParticipant = GetParticipant(participantData.NhsNumber);
         if (!await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName))
         {
             return false;
@@ -106,7 +106,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         {
             {"@cohortId", cohortId},
             {"@gender", participantData.Gender},
-            {"@NHSNumber", participantData.NHSId },
+            {"@NHSNumber", participantData.NhsNumber },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
             {"@dateOfBirth", _databaseHelper.CheckIfDateNull(participantData.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.ParseDates(participantData.DateOfBirth)},
             { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
@@ -296,7 +296,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             while (reader.Read())
             {
                 participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
-                participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
+                participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
                 participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
                 participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();

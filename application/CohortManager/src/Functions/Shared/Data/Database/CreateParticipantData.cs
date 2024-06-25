@@ -71,7 +71,7 @@ public class CreateParticipantData : ICreateParticipantData
         {
             {"@cohort_id", cohortId},
             {"@gender", participantData.Gender},
-            {"@NHSNumber", participantData.NHSId },
+            {"@NHSNumber", participantData.NhsNumber },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
             {"@dateOfBirth", _databaseHelper.ParseDates(participantData.DateOfBirth)},
             { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
@@ -99,7 +99,7 @@ public class CreateParticipantData : ICreateParticipantData
         sqlToExecuteInOrder.Add(AddNewAddress(participantData));
         sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
 
-        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NHSId);
+        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NhsNumber);
     }
 
     private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NHSId)

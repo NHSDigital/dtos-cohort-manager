@@ -5,7 +5,7 @@ namespace Model;
 public class Demographic
 {
     public string? ParticipantId { get; set; }
-    public string? NHSId { get; set; }
+    public string? NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
