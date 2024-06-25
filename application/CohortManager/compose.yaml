@@ -229,6 +229,6 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: AggregateDataServices/AddAggregationData
+      dockerfile: AggregateDataServices/AddAggregationData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7077
