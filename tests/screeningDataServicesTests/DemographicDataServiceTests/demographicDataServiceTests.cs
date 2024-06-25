@@ -49,7 +49,6 @@ public class DemographicDataServiceTests
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
 
         SetupRequest(json);
-        SetupRequest(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
