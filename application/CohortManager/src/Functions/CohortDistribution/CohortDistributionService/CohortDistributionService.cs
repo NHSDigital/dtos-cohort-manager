@@ -1,10 +1,10 @@
 namespace NHS.CohortManager.CohortDistributionService;
 
 
-public class CohortDistributionService 
+public class CohortDistributionService
 {
 
-  [Function("CohortDistributionService")]
+    [Function("CohortDistributionService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         // call participant data service
