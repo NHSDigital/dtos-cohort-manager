@@ -26,7 +26,7 @@ END
 /*==============================================================*/
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'COHORT')
 BEGIN
-CREATE TABLE dbo.COHORT (
+	CREATE TABLE dbo.COHORT (
         COHORT_ID            INT    IDENTITY(1, 1)    NOT NULL,
         PROGRAM_ID           BIGINT    NOT NULL,
         COHORT_NAME          VARCHAR(100)           NULL,
@@ -127,58 +127,58 @@ END
 /*==============================================================*/
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'PARTICIPANT_DEMOGRAPHIC')
 BEGIN
-CREATE TABLE  dbo.PARTICIPANT_DEMOGRAPHIC (
-   PARTICIPANT_ID       INT     IDENTITY(1, 1)      not null,
-   NHS_NUMBER           BIGINT               NULL,
-   SUPERSEDED_BY_NHS_NUMBER BIGINT           NULL,
-   PRIMARY_CARE_PROVIDER VARCHAR(10)         NULL,
-   PRIMARY_CARE_PROVIDER_FROM_DT DATE        NULL,
-   CURRENT_POSTING      VARCHAR(10)          NULL,
-   CURRENT_POSTING_FROM_DT DATE              NULL,
-   PREVIOUS_POSTING     VARCHAR(10)          NULL,
-   PREV_POSTING_TO_DT   DATE                 NULL,
-   NAME_PREFIX          VARCHAR(10)          NULL,
-   GIVEN_NAME           VARCHAR(100)         NULL,
-   OTHER_GIVEN_NAME     VARCHAR(100)         NULL,
-   FAMILY_NAME          VARCHAR(100)         NULL,
-   PREVIOUS_FAMILY_NAME VARCHAR(100)         NULL,
-   DATE_OF_BIRTH        DATE                 NULL,
-   GENDER               SMALLINT             NULL,
-   ADDRESS_LINE_1       VARCHAR(100)         NULL,
-   ADDRESS_LINE_2       VARCHAR(100)         NULL,
-   ADDRESS_LINE_3       VARCHAR(100)         NULL,
-   ADDRESS_LINE_4       VARCHAR(100)         NULL,
-   ADDRESS_LINE_5       VARCHAR(100)         NULL,
-   POST_CODE            VARCHAR(10)          NULL,
-   PAF_KEY              VARCHAR(10)          NULL,
-   USUAL_ADDRESS_FROM_DT DATE                NULL,
-   DATE_OF_DEATH        DATE                 NULL,
-   DEATH_STATUS         SMALLINT             NULL,
-   TELEPHONE_NUMBER_HOME VARCHAR(35)         NULL,
-   TELEPHONE_NUMBER_HOME_FROM_DT DATE        NULL,
-   TELEPHONE_NUMBER_MOB VARCHAR(35)          NULL,
-   TELEPHONE_NUMBER_MOB_FROM_DT DATE         NULL,
-   EMAIL_ADDRESS_HOME   VARCHAR(100)         NULL,
-   EMAIL_ADDRESS_HOME_FROM_DT DATE           NULL,
-   PREFERRED_LANGUAGE   VARCHAR(35)          NULL,
-   INTERPRETER_REQUIRED BIT              	   NULL,
-   INVALID_FLAG         BIT              	   NULL,
-   RECORD_INSERT_DATE_TIME DATE         	   NULL,
-   RECORD_UPDATE_DATE_TIME DATE           	 NULL,
-   constraint PK_PARTICIPANT_DEMOGRAPHIC primary key (PARTICIPANT_ID)
-);
+	CREATE TABLE  dbo.PARTICIPANT_DEMOGRAPHIC (
+		PARTICIPANT_ID       INT     IDENTITY(1, 1)      not null,
+		NHS_NUMBER           BIGINT               NULL,
+		SUPERSEDED_BY_NHS_NUMBER BIGINT           NULL,
+		PRIMARY_CARE_PROVIDER VARCHAR(10)         NULL,
+		PRIMARY_CARE_PROVIDER_FROM_DT DATE        NULL,
+		CURRENT_POSTING      VARCHAR(10)          NULL,
+		CURRENT_POSTING_FROM_DT DATE              NULL,
+		PREVIOUS_POSTING     VARCHAR(10)          NULL,
+		PREV_POSTING_TO_DT   DATE                 NULL,
+		NAME_PREFIX          VARCHAR(10)          NULL,
+		GIVEN_NAME           VARCHAR(100)         NULL,
+			OTHER_GIVEN_NAME     VARCHAR(100)         NULL,
+		FAMILY_NAME          VARCHAR(100)         NULL,
+		PREVIOUS_FAMILY_NAME VARCHAR(100)         NULL,
+		DATE_OF_BIRTH        DATE                 NULL,
+		GENDER               SMALLINT             NULL,
+		ADDRESS_LINE_1       VARCHAR(100)         NULL,
+		ADDRESS_LINE_2       VARCHAR(100)         NULL,
+		ADDRESS_LINE_3       VARCHAR(100)         NULL,
+		ADDRESS_LINE_4       VARCHAR(100)         NULL,
+		ADDRESS_LINE_5       VARCHAR(100)         NULL,
+		POST_CODE            VARCHAR(10)          NULL,
+		PAF_KEY              VARCHAR(10)          NULL,
+		USUAL_ADDRESS_FROM_DT DATE                NULL,
+		DATE_OF_DEATH        DATE                 NULL,
+		DEATH_STATUS         SMALLINT             NULL,
+		TELEPHONE_NUMBER_HOME VARCHAR(35)         NULL,
+		TELEPHONE_NUMBER_HOME_FROM_DT DATE        NULL,
+		TELEPHONE_NUMBER_MOB VARCHAR(35)          NULL,
+		TELEPHONE_NUMBER_MOB_FROM_DT DATE         NULL,
+		EMAIL_ADDRESS_HOME   VARCHAR(100)         NULL,
+		EMAIL_ADDRESS_HOME_FROM_DT DATE           NULL,
+		PREFERRED_LANGUAGE   VARCHAR(35)          NULL,
+		INTERPRETER_REQUIRED BIT              	   NULL,
+		INVALID_FLAG         BIT              	   NULL,
+		RECORD_INSERT_DATE_TIME DATE         	   NULL,
+		RECORD_UPDATE_DATE_TIME DATE           	 NULL,
+		constraint PK_PARTICIPANT_DEMOGRAPHIC primary key (PARTICIPANT_ID)
+	);
 END
 /*==============================================================*/
 /* Table: SCREENING_LKP                                         */
 /*==============================================================*/
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'SCREENING_LKP')
 BEGIN
-CREATE TABLE  SCREENING_LKP (
-   SCREENING_ID         BIGINT IDENTITY(1, 1)  NOT NULL,
-   SCREENING_NAME       VARCHAR(50)          NULL,
-   SCREENING_TYPE       VARCHAR(50)          NULL,
-   CONSTRAINT PK_SCREENING_LKP PRIMARY KEY (SCREENING_ID)
-);
+	CREATE TABLE  SCREENING_LKP (
+		SCREENING_ID         BIGINT IDENTITY(1, 1)  NOT NULL,
+		SCREENING_NAME       VARCHAR(50)          NULL,
+		SCREENING_TYPE       VARCHAR(50)          NULL,
+		CONSTRAINT PK_SCREENING_LKP PRIMARY KEY (SCREENING_ID)
+	);
 END
 
 /*==============================================================*/
@@ -186,20 +186,20 @@ END
 /*==============================================================*/
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'VALIDATION_EXCEPTION')
 BEGIN
-CREATE TABLE [dbo].[VALIDATION_EXCEPTION] (
-    VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
-    NHS_NUMBER BIGINT NOT NULL,
-    DATE_CREATED DATETIME NOT NULL,
-    DATE_RESOLVED DATETIME NULL,
-    RULE_ID INT NOT NULL,
-    RULE_DESCRIPTION NVARCHAR(255) NOT NULL,
-    RULE_CONTENT NVARCHAR(MAX) NOT NULL,
-    CATEGORY INT NOT NULL,
-    SCREENING_SERVICE INT NOT NULL,
-    COHORT NVARCHAR(100) NOT NULL,
-    FATAL BIT NOT NULL,
-    CONSTRAINT PK_VALIDATION_EXCEPTION PRIMARY KEY (VALIDATION_EXCEPTION_ID)
-);
+	CREATE TABLE [dbo].[VALIDATION_EXCEPTION] (
+		VALIDATION_EXCEPTION_ID INT IDENTITY(1,1) not null,
+		NHS_NUMBER BIGINT NOT NULL,
+		DATE_CREATED DATETIME NOT NULL,
+		DATE_RESOLVED DATETIME NULL,
+		RULE_ID INT NOT NULL,
+		RULE_DESCRIPTION NVARCHAR(255) NOT NULL,
+		RULE_CONTENT NVARCHAR(MAX) NOT NULL,
+		CATEGORY INT NOT NULL,
+		SCREENING_SERVICE INT NOT NULL,
+		COHORT NVARCHAR(100) NOT NULL,
+		FATAL BIT NOT NULL,
+		CONSTRAINT PK_VALIDATION_EXCEPTION PRIMARY KEY (VALIDATION_EXCEPTION_ID)
+	);
 END
 
 /*==============================================================*/
@@ -208,18 +208,18 @@ END
 
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'PARTICIPANT_MANAGEMENT')
 BEGIN
-CREATE TABLE  PARTICIPANT_MANAGEMENT (
-   PARTICIPANT_ID       BIGINT               NOT NULL,
-   SCREENING_ID         BIGINT               NULL,
-   NHS_NUMBER           BIGINT               NULL,
-   REASON_FOR_REMOVAL   VARCHAR(50)          NULL,
-   REASON_FOR_REMOVAL_DT DATE                NULL,
-   BUSINESS_RULE_VERSION VARCHAR(50)         NULL,
-   EXCEPTION_FLAG         CHAR(1)            NULL,
-   RECORD_INSERT_DATETIME DATE               NULL,
-   RECORD_UPDATE_DATETIME DATE               NULL,
-   CONSTRAINT PK_PARTICIPANT_MANAGEMENT PRIMARY KEY (PARTICIPANT_ID)
-);
+	CREATE TABLE  PARTICIPANT_MANAGEMENT (
+		PARTICIPANT_ID       BIGINT               NOT NULL,
+		SCREENING_ID         BIGINT               NULL,
+		NHS_NUMBER           BIGINT               NULL,
+		REASON_FOR_REMOVAL   VARCHAR(50)          NULL,
+		REASON_FOR_REMOVAL_DT DATE                NULL,
+		BUSINESS_RULE_VERSION VARCHAR(50)         NULL,
+		EXCEPTION_FLAG         CHAR(1)            NULL,
+		RECORD_INSERT_DATETIME DATE               NULL,
+		RECORD_UPDATE_DATETIME DATE               NULL,
+		CONSTRAINT PK_PARTICIPANT_MANAGEMENT PRIMARY KEY (PARTICIPANT_ID)
+	);
 END
 
 /*==============================================================*/
@@ -227,35 +227,35 @@ END
 /*==============================================================*/
 IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'AGGREGATION_DATA')
 BEGIN
-create table dbo.AGGREGATION_DATA (
-    AGGREGATION_ID       INT     IDENTITY(1, 1) not null,
-    COHORT_ID            INT                    not null,
-    GENDER_CD            varchar(2)             null,
-    NHS_NUMBER           BIGINT                 not null,
-    SUPERSEDED_BY_NHS_NUMBER BIGINT             null,
-    PARTICIPANT_BIRTH_DATE DATE                 not null,
-    PARTICIPANT_DEATH_DATE DATE                 null,
-    PARTICIPANT_PREFIX   VARCHAR(20)            null,
-    PARTICIPANT_FIRST_NAME VARCHAR(100)         null,
-    PARTICIPANT_LAST_NAME VARCHAR(100)          null,
-    OTHER_NAME           VARCHAR(100)           null,
-    PARTICIPANT_MARITAL_STATUS VARCHAR(100)     null,
-    PARTICIPANT_GENDER   VARCHAR(2)             null,
-    PARTICIPANT_BIRTH_PLACE VARCHAR(100)        null,
-    PARTICIPANT_ETHNICITY VARCHAR(100)          null,
-    PARTICIPANT_RELIGION VARCHAR(100)           null,
-    PARTICIPANT_DECEASED VARCHAR(5)             null,
-    PARTICIPANT_REGISTERED_GP VARCHAR(200)      null,
-    GP_CONNECT           VARCHAR(200)           null,
-    PRIMARY_CARE_PROVIDER VARCHAR(10)           null,
-    REASON_FOR_REMOVAL_CD VARCHAR(50)           null,
-    REMOVAL_DATE         DATE                   null,
-    RECORD_START_DATE    DATE                   null,
-    RECORD_END_DATE      DATE                   null,
-    ACTIVE_FLAG          CHAR                   not null,
-    LOAD_DATE            DATE                   null,
-    constraint PK_AGGREGATION primary key (AGGREGATION_ID)
-);
+	create table dbo.AGGREGATION_DATA (
+		AGGREGATION_ID       INT     IDENTITY(1, 1) not null,
+		COHORT_ID            INT                    not null,
+		GENDER_CD            varchar(2)             null,
+		NHS_NUMBER           BIGINT                 not null,
+		SUPERSEDED_BY_NHS_NUMBER BIGINT             null,
+		PARTICIPANT_BIRTH_DATE DATE                 not null,
+		PARTICIPANT_DEATH_DATE DATE                 null,
+		PARTICIPANT_PREFIX   VARCHAR(20)            null,
+		PARTICIPANT_FIRST_NAME VARCHAR(100)         null,
+		PARTICIPANT_LAST_NAME VARCHAR(100)          null,
+		OTHER_NAME           VARCHAR(100)           null,
+		PARTICIPANT_MARITAL_STATUS VARCHAR(100)     null,
+		PARTICIPANT_GENDER   VARCHAR(2)             null,
+		PARTICIPANT_BIRTH_PLACE VARCHAR(100)        null,
+		PARTICIPANT_ETHNICITY VARCHAR(100)          null,
+		PARTICIPANT_RELIGION VARCHAR(100)           null,
+		PARTICIPANT_DECEASED VARCHAR(5)             null,
+		PARTICIPANT_REGISTERED_GP VARCHAR(200)      null,
+		GP_CONNECT           VARCHAR(200)           null,
+		PRIMARY_CARE_PROVIDER VARCHAR(10)           null,
+		REASON_FOR_REMOVAL_CD VARCHAR(50)           null,
+		REMOVAL_DATE         DATE                   null,
+		RECORD_START_DATE    DATE                   null,
+		RECORD_END_DATE      DATE                   null,
+		ACTIVE_FLAG          CHAR                   not null,
+		LOAD_DATE            DATE                   null,
+		constraint PK_AGGREGATION primary key (AGGREGATION_ID)
+	);
 END
 
 /*==============================================================*/
