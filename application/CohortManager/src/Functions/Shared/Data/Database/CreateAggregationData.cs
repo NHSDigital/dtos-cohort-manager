@@ -1,3 +1,6 @@
+namespace Data.Database;
+
+
 using System.Data;
 using Common;
 using Data.Database;

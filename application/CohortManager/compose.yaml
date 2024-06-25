@@ -222,3 +222,13 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+
+  # Add Aggregation Service
+  add-aggregation-data:
+    container_name: add-aggregation-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: AggregateDataServices/AddAggregationData
+    environment:
+      - ASPNETCORE_URLS=http://*:7077

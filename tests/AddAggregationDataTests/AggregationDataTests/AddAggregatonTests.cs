@@ -1,4 +1,4 @@
-namespace AggregationDataTests;
+namespace NHS.CohortManager.Tests.AddAggregationDataTests;
 
 using System.Data;
 using System.Net;
@@ -53,18 +53,21 @@ public class AddAggregationTests
     [TestMethod]
     public void InsertAggregationData_Success()
     {
+        // Arrange
         var createAggregationData = new CreateAggregationData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
                 _loggerMock.Object,
                 _callFunction.Object
             );
-        // Arrange
+
         var aggregateParticipant = new AggregateParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
+        // Act
         var result = createAggregationData.InsertAggregationData(aggregateParticipant);
 
+        // Assert
         Assert.IsTrue(result);
         _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
     }
@@ -72,18 +75,21 @@ public class AddAggregationTests
     [TestMethod]
     public void InsertAggregationData_FailureDueToExecution()
     {
+        // Arrange
         var createAggregationData = new CreateAggregationData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
                 _loggerMock.Object,
                 _callFunction.Object
             );
-        // Arrange
+
         var aggregateParticipant = new AggregateParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
+        // Act
         var result = createAggregationData.InsertAggregationData(aggregateParticipant);
 
+        // Assert
         Assert.IsFalse(result);
         _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
         _mockTransaction.Verify(t => t.Rollback(), Times.Once);

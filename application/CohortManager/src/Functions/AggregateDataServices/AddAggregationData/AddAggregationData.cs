@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.AggregationDataServices;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -6,8 +8,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-
-namespace AddAggregationData;
 
 public class AddAggregationDataFunction
 {
@@ -24,7 +24,7 @@ public class AddAggregationDataFunction
         _createResponse = createResponse;
     }
 
-    [Function("AddAggregationDataFunction")]
+    [Function("AddAggregationData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         try

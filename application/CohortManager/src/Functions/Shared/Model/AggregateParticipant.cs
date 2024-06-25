@@ -1,6 +1,6 @@
-using Model.Enums;
-
 namespace Model;
+
+using Model.Enums;
 
 public class AggregateParticipant
 {
