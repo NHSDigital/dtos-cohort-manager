@@ -36,8 +36,7 @@ public class ProcessCaasFileFunction
         }
         Cohort input = JsonSerializer.Deserialize<Cohort>(postData);
 
-        _logger.LogInformation("Records received: {Count}", input.Participants.Count);
-
+        _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
         int add = 0, upd = 0, del = 0, err = 0, row = 0;
 
         foreach (var participant in input.Participants)

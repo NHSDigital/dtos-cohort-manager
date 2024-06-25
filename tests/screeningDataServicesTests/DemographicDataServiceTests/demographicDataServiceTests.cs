@@ -36,7 +36,7 @@ public class DemographicDataServiceTests
         {
             FirstName = "Joe",
             Surname = "Bloggs",
-            NHSId = "1",
+            NhsNumber = "1",
             RecordType = Actions.New
         };
     }
@@ -58,7 +58,7 @@ public class DemographicDataServiceTests
                 return response;
             });
         _request.Setup(x => x.Method).Returns("POST");
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(true);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(true);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -84,7 +84,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Returns(false);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(false);
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");
@@ -111,7 +111,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Participant>())).Throws(new Exception("there has been an error"));
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Throws(new Exception("there has been an error"));
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");

@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "9.NhsNumber",
-        "Expression": "Regex.IsMatch(participant.NHSId, \"^\\\\d{10}$\")"
+        "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")"
       },
       {
         "RuleName": "57.SupersededByNhsNumber",

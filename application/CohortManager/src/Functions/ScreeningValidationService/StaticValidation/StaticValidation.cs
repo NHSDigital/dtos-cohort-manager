@@ -69,7 +69,7 @@ public class StaticValidation
                 RuleDescription = ruleDetails[1],
                 RuleContent = ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
-                NhsNumber = participantCsvRecord.Participant.NHSId ?? null,
+                NhsNumber = participantCsvRecord.Participant.NhsNumber ?? null,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ScreeningService = screeningService,
