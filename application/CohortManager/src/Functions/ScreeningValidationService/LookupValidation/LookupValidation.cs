@@ -6,18 +6,15 @@ using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using Model;
 using RulesEngine.Models;
 
 public class LookupValidation
 {
-
     private readonly ICallFunction _callFunction;
 
     public LookupValidation(ICallFunction callFunction)
     {
-
         _callFunction = callFunction;
     }
 
@@ -28,13 +25,11 @@ public class LookupValidation
 
         try
         {
-            string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = reader.ReadToEnd();
+                requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
-
-            requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
         }
         catch
         {
@@ -56,41 +51,36 @@ public class LookupValidation
 
         var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
 
-        var validationErrors = new List<string>();
+        var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-        foreach (var result in resultList)
+        foreach (var error in validationErrors)
         {
-            if (!result.IsSuccess)
+            var ruleDetails = error.Rule.RuleName.Split('.');
+
+            var exception = new ValidationException
             {
-                validationErrors.Add(result.Rule.RuleName);
+                RuleId = int.Parse(ruleDetails[0]),
+                RuleDescription = ruleDetails[1],
+                RuleContent = ruleDetails[1],
+                FileName = requestBody.FileName,
+                NhsNumber = newParticipant.NhsNumber ?? null,
+                DateCreated = DateTime.UtcNow,
+                DateResolved = DateTime.MaxValue,
+                Category = 1,
+                ScreeningService = 1,
+                Cohort = null,
+                Fatal = 0
+            };
 
-                var ruleDetails = result.Rule.RuleName.Split('.');
-
-                var exception = new ValidationException
-                {
-                    NhsNumber = newParticipant.NhsNumber ?? null,
-                    DateCreated = DateTime.UtcNow,
-                    FileName = requestBody.FileName,
-                    RuleId = int.Parse(ruleDetails[0]),
-                    DateResolved = DateTime.MaxValue,
-                    RuleDescription = ruleDetails[1],
-                    RuleContent = ruleDetails[1],
-                    Category = 1,
-                    ScreeningService = 1,
-                    Cohort = null,
-                    Fatal = 0
-                };
-
-                var exceptionJson = JsonSerializer.Serialize(exception);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
-            }
+            var exceptionJson = JsonSerializer.Serialize(exception);
+            await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
         }
 
-        if (validationErrors.Count == 0)
+        if (validationErrors.Any())
         {
-            return req.CreateResponse(HttpStatusCode.OK);
+            return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }
