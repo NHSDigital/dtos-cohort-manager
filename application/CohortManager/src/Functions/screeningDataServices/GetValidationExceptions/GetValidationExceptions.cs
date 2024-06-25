@@ -25,7 +25,7 @@ public class GetValidationExceptions
     {
         foreach (var exception in _validationData.GetAll())
         {
-            _logger.LogInformation($"Exception {exception.RuleName} at {exception.DateCreated}");
+            _logger.LogInformation($"Exception {exception.RuleId} at {exception.DateCreated}");
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

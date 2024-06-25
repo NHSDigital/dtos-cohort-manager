@@ -5,7 +5,7 @@ public class BasicParticipantData
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string? NHSId { get; set; }
+    public string? NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProviderEffectiveFrom { get; set; }
     public string? CurrentPostingEffectiveFrom { get; set; }
@@ -22,4 +22,6 @@ public class BasicParticipantData
     public string? EmailAddressEffectiveFromDate { get; set; }
     public string? InvalidFlag { get; set; }
     public string? ChangeReasonCode { get; set; }
+    public string? RemovalReason { get; set; }
+    public string? RemovalEffectiveFromDate { get; set; }
 }

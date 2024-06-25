@@ -174,7 +174,7 @@ public class UpdateParticipantDetailsTests
         var result = sut.GetParticipant(nhsId);
 
         // Assert
-        Assert.AreEqual(nhsId, result.NHSId);
+        Assert.AreEqual(nhsId, result.NhsNumber);
     }
 
     [TestMethod]
@@ -197,7 +197,7 @@ public class UpdateParticipantDetailsTests
         var result = sut.GetParticipant(nhsId);
 
         // Assert
-        Assert.AreEqual("123456", result.NHSId);
+        Assert.AreEqual("123456", result.NhsNumber);
     }
 
     [TestMethod]
@@ -252,7 +252,7 @@ public class UpdateParticipantDetailsTests
     {
         return new Participant()
         {
-            NHSId = "123456",
+            NhsNumber = "123456",
             SupersededByNhsNumber = "789012",
             PrimaryCareProvider = "ABC Clinic",
             NamePrefix = "Mr.",

@@ -1,4 +1,4 @@
-﻿namespace Model;
+namespace Model;
 
 using CsvHelper.Configuration;
 
@@ -9,7 +9,7 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.RecordType).Name("Record Type");
         Map(m => m.ChangeTimeStamp).TypeConverterOption.Format("yyyyMMddHHmmss").Name("Change Time Stamp");
         Map(m => m.SerialChangeNumber).Name("Serial Change Number");
-        Map(m => m.NHSId).Name("NHS Number");
+        Map(m => m.NhsNumber).Name("NHS Number");
         Map(m => m.SupersededByNhsNumber).Name("Superseded by NHS number");
         Map(m => m.PrimaryCareProvider).Name("Primary Care Provider");
         Map(m => m.PrimaryCareProviderEffectiveFromDate).Name("Primary Care Provider Business Effective From Date");

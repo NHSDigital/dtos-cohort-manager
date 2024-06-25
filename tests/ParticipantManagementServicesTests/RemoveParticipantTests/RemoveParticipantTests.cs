@@ -35,7 +35,7 @@ public class RemoveParticipantTests
             {
                 FirstName = "Joe",
                 Surname = "Bloggs",
-                NHSId = "1",
+                NhsNumber = "1",
                 RecordType = Actions.New
             }
         };
