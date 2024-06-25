@@ -100,7 +100,12 @@ public class ProcessCaasFileFunction
                     err++;
                     try
                     {
-                        var json = JsonSerializer.Serialize(participant);
+                        var participantCsvRecord = new ParticipantCsvRecord
+                        {
+                            FileName = input.FileName,
+                            Participant = participant
+                        };
+                        var json = JsonSerializer.Serialize(participantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
                         _logger.LogInformation("Called static validation");
                     }

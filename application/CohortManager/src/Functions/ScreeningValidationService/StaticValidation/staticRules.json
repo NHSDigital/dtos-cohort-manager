@@ -8,7 +8,7 @@
       },
       {
         "RuleName": "57.SupersededByNhsNumber",
-        "Expression": "participant.SupersededByNhsNumber == null OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
+        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
       },
       {
         "RuleName": "8.RecordType",
@@ -16,15 +16,15 @@
       },
       {
         "RuleName": "58.CurrentPosting",
-        "Expression": "participant.CurrentPosting == null OR participant.CurrentPosting == \"England\" OR participant.CurrentPosting == \"Wales\" OR participant.CurrentPosting == \"IoM\""
+        "Expression": "string.IsNullOrEmpty(participant.CurrentPosting) OR participant.CurrentPosting == \"England\" OR participant.CurrentPosting == \"Wales\" OR participant.CurrentPosting == \"IoM\""
       },
       {
         "RuleName": "59.PreviousPosting",
-        "Expression": "participant.PreviousPosting == null OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
+        "Expression": "string.IsNullOrEmpty(participant.PreviousPosting) OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
       },
       {
         "RuleName": "14.ReasonForRemoval",
-        "Expression": "new string[] {null,\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
       }
     ]
   }

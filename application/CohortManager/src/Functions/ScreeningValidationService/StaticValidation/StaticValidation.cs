@@ -58,35 +58,30 @@ public class StaticValidation
 
         var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
 
-        var validationErrors = new List<string>();
+        var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-        foreach (var result in resultList)
+        foreach (var error in validationErrors)
         {
-            if (!result.IsSuccess)
+            var ruleDetails = error.Rule.RuleName.Split('.');
+
+            var exception = new ValidationException
             {
-                validationErrors.Add(result.Rule.RuleName);
+                RuleId = ruleDetails[0],
+                RuleName = ruleDetails[1],
+                Workflow = workflow,
+                NhsNumber = participantCsvRecord.Participant.NHSId ?? null,
+                DateCreated = DateTime.UtcNow
+            };
 
-                var ruleDetails = result.Rule.RuleName.Split('.');
-
-                var exception = new ValidationException
-                {
-                    RuleId = ruleDetails[0],
-                    RuleName = ruleDetails[1],
-                    Workflow = workflow,
-                    NhsNumber = participantCsvRecord.Participant.NHSId ?? null,
-                    DateCreated = DateTime.UtcNow
-                };
-
-                var exceptionJson = JsonSerializer.Serialize(exception);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
-            }
+            var exceptionJson = JsonSerializer.Serialize(exception);
+            await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
         }
 
-        if (validationErrors.Count == 0)
+        if (validationErrors.Any())
         {
-            return req.CreateResponse(HttpStatusCode.OK);
+            return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }
