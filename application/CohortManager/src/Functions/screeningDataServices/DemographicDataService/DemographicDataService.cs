@@ -14,7 +14,7 @@ public class DemographicDataService
 {
     private readonly ILogger<DemographicDataService> _logger;
     private readonly ICreateResponse _createResponse;
-    private ICreateDemographicData _createDemographicData;
+    private readonly ICreateDemographicData _createDemographicData;
 
     public DemographicDataService(ILogger<DemographicDataService> logger, ICreateResponse createResponse, ICreateDemographicData createDemographicData)
     {

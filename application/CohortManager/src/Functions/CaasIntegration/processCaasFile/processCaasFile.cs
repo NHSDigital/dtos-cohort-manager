@@ -37,30 +37,24 @@ namespace processCaasFile
             }
             Cohort input = JsonSerializer.Deserialize<Cohort>(postdata);
 
-            // debug info
-            _logger.LogInformation("Records received: \n" + input.Participants.Count);
-
-            _logger.LogInformation($"Records received {input.Participants.Count}");
+            _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
             int add = 0, upd = 0, del = 0, err = 0, row = 0;
 
-            foreach (var p in input.Participants)
+            foreach (var participant in input.Participants)
             {
                 row++;
-                var recordTypeTrimmed = p.RecordType.Trim();
-                var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(p, Environment.GetEnvironmentVariable("DemographicURI"));
-                if (demographicDataInserted == false)
-                {
-                    _logger.LogError("demographic function failed");
-                }
+                var recordTypeTrimmed = participant.RecordType.Trim();
+                var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
+                if (!demographicDataInserted) _logger.LogError("demographic function failed");
+
+                var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(participant));
                 switch (recordTypeTrimmed)
                 {
-
                     case Actions.New:
                         add++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
-                            var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                             _logger.LogInformation("Called add participant");
                         }
                         catch (Exception ex)
@@ -72,10 +66,8 @@ namespace processCaasFile
                         upd++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
-                            var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                             _logger.LogInformation("Called update participant");
-
                         }
                         catch (Exception ex)
                         {
@@ -86,8 +78,7 @@ namespace processCaasFile
                         del++;
                         try
                         {
-                            var json = JsonSerializer.Serialize(_createBasicParticipantData.BasicParticipantData(p));
-                            var addresp = await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                             _logger.LogInformation("Called remove participant");
                         }
                         catch (Exception ex)

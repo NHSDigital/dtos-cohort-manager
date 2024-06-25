@@ -35,7 +35,6 @@ namespace addParticipant
             _logger.LogInformation("C# addParticipant called.");
             HttpWebResponse createResponse, eligibleResponse;
 
-            // convert body to json and then deserialize to object
             string postdata = "";
             Participant participant = new Participant();
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -68,8 +67,6 @@ namespace addParticipant
             {
                 _logger.LogInformation($"Unable to call function.\nMessage:{ex.Message}\nStack Trace: {ex.StackTrace}");
             }
-
-            // call data service mark as eligible
             try
             {
                 var json = JsonSerializer.Serialize(participant);
