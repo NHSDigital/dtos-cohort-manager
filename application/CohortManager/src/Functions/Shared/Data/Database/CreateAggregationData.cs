@@ -77,7 +77,7 @@ public class CreateAggregationData : ICreateAggregationData
         {
             {"@cohortId", cohortId},
             {"@gender", aggregateParticipant.Gender},
-            {"@NHSNumber", aggregateParticipant.NHSId },
+            {"@NHSNumber", aggregateParticipant.NhsNumber },
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(aggregateParticipant.SupersededByNhsNumber) ? DBNull.Value : aggregateParticipant.SupersededByNhsNumber},
             {"@dateOfBirth", _databaseHelper.CheckIfDateNull(aggregateParticipant.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.ParseDates(aggregateParticipant.DateOfBirth)},
             { "@dateOfDeath", _databaseHelper.CheckIfDateNull(aggregateParticipant.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(aggregateParticipant.DateOfDeath)},

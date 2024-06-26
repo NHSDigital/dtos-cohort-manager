@@ -78,7 +78,7 @@ public class StaticValidation
                 var exception = new ValidationException
                 {
                     FileName = _participantCsvRecord.FileName,
-                    NhsNumber = _participantCsvRecord.Participant.NHSId ?? null,
+                    NhsNumber = _participantCsvRecord.Participant.NhsNumber ?? null,
                     DateCreated = DateTime.UtcNow,
                     RuleDescription = ruleDetails[1],
                     RuleContent = ruleDetails[1],

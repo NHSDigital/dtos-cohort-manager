@@ -13,9 +13,9 @@ public class CheckDemographic : ICheckDemographic
         _callFunction = callFunction;
     }
 
-    public async Task<Demographic> GetDemographicAsync(string NHSId, string DemographicFunctionURI)
+    public async Task<Demographic> GetDemographicAsync(string NhsNumber, string DemographicFunctionURI)
     {
-        var url = $"{DemographicFunctionURI}?Id={NHSId}";
+        var url = $"{DemographicFunctionURI}?Id={NhsNumber}";
 
         var response = await _callFunction.SendGet(url);
         var demographicData = JsonSerializer.Deserialize<Demographic>(response);

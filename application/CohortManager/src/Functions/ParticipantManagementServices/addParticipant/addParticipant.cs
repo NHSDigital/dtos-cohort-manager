@@ -42,7 +42,7 @@ namespace addParticipant
 
             try
             {
-                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NHSId, Environment.GetEnvironmentVariable("DemographicURIGet"));
+                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
                     _logger.LogInformation("demographic function failed");
@@ -69,8 +69,6 @@ namespace addParticipant
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
-
-            // call data service mark as eligible
             try
             {
                 var json = JsonSerializer.Serialize(participant);

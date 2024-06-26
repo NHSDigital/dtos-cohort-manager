@@ -34,13 +34,13 @@ public class LookupValidationTests
 
         var existingParticipant = new Participant
         {
-            NHSId = "1",
+            NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith"
         };
         var newParticipant = new Participant
         {
-            NHSId = "1",
+            NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith"
         };
@@ -90,7 +90,7 @@ public class LookupValidationTests
     public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
-        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -108,7 +108,7 @@ public class LookupValidationTests
     public async Task Run_Should_Not_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Passes(string nhsNumber)
     {
         // Arrange
-        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -126,7 +126,7 @@ public class LookupValidationTests
     {
         // Arrange
         _requestBody.Workflow = "AddParticipant";
-        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -146,7 +146,7 @@ public class LookupValidationTests
     {
         // Arrange
         _requestBody.Workflow = "AddParticipant";
-        _requestBody.ExistingParticipant.NHSId = nhsNumber;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 

@@ -82,7 +82,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_NhsNumberMustBeTenDigits_Passes(string nhsNumber)
     {
         // Arrange
-        _participantCsvRecord.Participant.NHSId = nhsNumber;
+        _participantCsvRecord.Participant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
@@ -104,7 +104,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NhsNumberMustBeTenDigits_Fails(string nhsNumber)
     {
         // Arrange
-        _participantCsvRecord.Participant.NHSId = nhsNumber;
+        _participantCsvRecord.Participant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
