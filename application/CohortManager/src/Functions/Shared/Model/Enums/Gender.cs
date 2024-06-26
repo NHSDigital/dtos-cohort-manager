@@ -1,6 +1,6 @@
 namespace Model.Enums;
 
-public enum Gender
+public enum Gender : short
 {
     NotKnown = 0,
     Male = 1,
