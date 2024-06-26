@@ -132,7 +132,7 @@ public class CreateAggregationData : ICreateAggregationData
         return null;
     }
 
-    public List<AggregateParticipant> GetParticipant(IDbCommand command)
+    private List<AggregateParticipant> GetParticipant(IDbCommand command)
     {
         List<AggregateParticipant> participants = new List<AggregateParticipant>();
 
