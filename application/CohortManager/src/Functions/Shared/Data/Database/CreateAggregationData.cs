@@ -180,7 +180,6 @@ public class CreateAggregationData : ICreateAggregationData
             {"@FirstId", aggregateParticipants.FirstOrDefault().AggregateId },
             {"@LastId", aggregateParticipants.LastOrDefault().AggregateId },
             {"@Extracted", '1' },
-
         };
 
         var sqlToExecute = new List<SQLReturnModel>()
