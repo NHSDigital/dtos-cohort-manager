@@ -119,7 +119,14 @@ public class CreateAggregationData : ICreateAggregationData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetParticipant(command);
+        var listOfAllAggregates = GetParticipant(command);
+
+        if (MarkAggregateParticipantsAsExtracted(listOfAllAggregates))
+        {
+            return listOfAllAggregates;
+        }
+
+        return null;
     }
 
     public List<AggregateParticipant> GetParticipant(IDbCommand command)
@@ -130,8 +137,9 @@ public class CreateAggregationData : ICreateAggregationData
             var participant = new AggregateParticipant();
             while (reader.Read())
             {
+                participant.AggregateId = reader["AGGREGATION_ID"] == DBNull.Value ? "-1" : reader["AGGREGATION_ID"].ToString();
                 participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
-                participant.NHSId = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
+                participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
                 participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
                 participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
@@ -156,23 +164,27 @@ public class CreateAggregationData : ICreateAggregationData
         });
     }
 
-    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
+    private bool MarkAggregateParticipantsAsExtracted(List<AggregateParticipant> aggregateParticipants)
     {
-        var result = default(T);
-        using (_dbConnection)
+        if (aggregateParticipants.FirstOrDefault() == null || aggregateParticipants.LastOrDefault() == null)
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
-            {
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    result = mapFunction(reader);
-                }
-                _dbConnection.Close();
-            }
-            return result;
+            return false;
         }
+
+        var SQL = " UPDATE [dbo].[AGGREGATION_DATA] " +
+                  " SET EXTRACTED = @Extracted " +
+                  " WHERE AGGREGATION_ID > @FirstId and AGGREGATION_ID < @LastId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@FirstId", aggregateParticipants.FirstOrDefault().AggregateId },
+            {"@LastId", aggregateParticipants.LastOrDefault().AggregateId },
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return true;
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
@@ -202,6 +214,25 @@ public class CreateAggregationData : ICreateAggregationData
             _dbConnection.Close();
             _logger.LogError($"An error occurred while inserting new aggregation records: {ex.Message}");
             return false;
+        }
+    }
+
+    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
+    {
+        var result = default(T);
+        using (_dbConnection)
+        {
+            _dbConnection.ConnectionString = _connectionString;
+            _dbConnection.Open();
+            using (command)
+            {
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    result = mapFunction(reader);
+                }
+                _dbConnection.Close();
+            }
+            return result;
         }
     }
 

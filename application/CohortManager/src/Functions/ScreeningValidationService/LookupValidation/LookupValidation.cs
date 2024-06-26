@@ -68,7 +68,7 @@ public class LookupValidation
 
                 var exception = new ValidationException
                 {
-                    NhsNumber = newParticipant.NhsNumber ?? null,
+                    NhsNumber = newParticipant.NhsNumber ?? "",
                     DateCreated = DateTime.UtcNow,
                     FileName = requestBody.FileName,
                     RuleId = int.Parse(ruleDetails[0]),

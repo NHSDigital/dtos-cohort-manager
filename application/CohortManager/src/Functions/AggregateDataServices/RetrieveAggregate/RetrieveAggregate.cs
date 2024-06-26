@@ -37,11 +37,12 @@ public class AddAggregationDataFunction
                 participantCsvRecord = JsonSerializer.Deserialize<AggregateParticipant>(requestBody);
             }
 
-            /* var isAdded = _createAggregationData.InsertAggregationData(participantCsvRecord);
-            if (isAdded)
+            var aggregateParticipants = _createAggregationData.GetParticipant(participantCsvRecord.NhsNumber);
+            if (aggregateParticipants != null)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }*/
+                var aggregateParticipantsJson = JsonSerializer.Serialize(aggregateParticipants);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, aggregateParticipantsJson);
+            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
