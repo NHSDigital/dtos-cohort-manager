@@ -96,10 +96,10 @@ public class AddAggregationTests
     {
         // Arrange
         var createAggregationData = new CreateAggregationData(
-                 _mockDBConnection.Object,
-                 _databaseHelperMock.Object,
-                 _loggerMock.Object
-             );
+                _mockDBConnection.Object,
+                _databaseHelperMock.Object,
+                _loggerMock.Object
+            );
 
         var participants = new List<AggregateParticipant>
         {
@@ -128,10 +128,10 @@ public class AddAggregationTests
     {
         // Arrange
         var createAggregationData = new CreateAggregationData(
-                 _mockDBConnection.Object,
-                 _databaseHelperMock.Object,
-                 _loggerMock.Object
-             );
+                _mockDBConnection.Object,
+                _databaseHelperMock.Object,
+                _loggerMock.Object
+            );
 
         // Arrange
         var nhsId = "123456";
@@ -155,10 +155,10 @@ public class AddAggregationTests
     {
         // Arrange
         var createAggregationData = new CreateAggregationData(
-                 _mockDBConnection.Object,
-                 _databaseHelperMock.Object,
-                 _loggerMock.Object
-             );
+                _mockDBConnection.Object,
+                _databaseHelperMock.Object,
+                _loggerMock.Object
+            );
 
         // Arrange
         var nhsId = "123456";
