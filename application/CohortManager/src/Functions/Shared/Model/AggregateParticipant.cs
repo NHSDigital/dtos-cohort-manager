@@ -47,5 +47,6 @@ public class AggregateParticipant
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
     public string? ParticipantId { get; set; }
+    public string? Extracted { get; set; }
 
 }

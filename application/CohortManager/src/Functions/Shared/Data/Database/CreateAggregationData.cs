@@ -51,6 +51,7 @@ public class CreateAggregationData : ICreateAggregationData
             " RECORD_START_DATE," +
             " RECORD_END_DATE," +
             " ACTIVE_FLAG, " +
+            " [EXTRACTED] " +
             " LOAD_DATE " +
             " ) VALUES( " +
             " @cohortId, " +
@@ -71,6 +72,7 @@ public class CreateAggregationData : ICreateAggregationData
             " @RecordEndDate, " +
             " @ActiveFlag, " +
             " @LoadDate " +
+            " @Extracted" +
             " ) ";
 
         var parameters = new Dictionary<string, object>
@@ -93,6 +95,7 @@ public class CreateAggregationData : ICreateAggregationData
             { "@RecordEndDate", maxEndDate},
             { "@ActiveFlag", 'Y'},
             { "@LoadDate", dateToday },
+            { "@Extracted", '0' },
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
@@ -109,7 +112,7 @@ public class CreateAggregationData : ICreateAggregationData
     {
         var SQL = "SELECT TOP (1000) * " +
                 " FROM [dbo].[AGGREGATION_DATA] " +
-                " WHERE EXTRACTED != @Extracted ";
+                " WHERE EXTRACTED = @Extracted ";
 
         var parameters = new Dictionary<string, object>
         {
@@ -132,30 +135,28 @@ public class CreateAggregationData : ICreateAggregationData
     public List<AggregateParticipant> GetParticipant(IDbCommand command)
     {
         List<AggregateParticipant> participants = new List<AggregateParticipant>();
+
         return ExecuteQuery(command, reader =>
         {
-            var participant = new AggregateParticipant();
             while (reader.Read())
             {
-                participant.AggregateId = reader["AGGREGATION_ID"] == DBNull.Value ? "-1" : reader["AGGREGATION_ID"].ToString();
-                participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
-                participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
-                participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
-                participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
-                participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
-                participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
-                participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
-                participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
-                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
-                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Model.Enums.Gender.NotKnown : (Model.Enums.Gender)(int)reader["PARTICIPANT_GENDER"];
-                participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
-                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
-                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
-                participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
-                participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
-                participant.AddressLine3 = reader["CITY"] == DBNull.Value ? null : reader["CITY"].ToString();
-                participant.AddressLine4 = reader["COUNTY"] == DBNull.Value ? null : reader["COUNTY"].ToString();
-                participant.AddressLine5 = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
+                var participant = new AggregateParticipant
+                {
+                    AggregateId = reader["AGGREGATION_ID"] == DBNull.Value ? "-1" : reader["AGGREGATION_ID"].ToString(),
+                    NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString(),
+                    SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString(),
+                    PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString(),
+                    NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString(),
+                    FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString(),
+                    OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString(),
+                    Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString(),
+                    DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString(),
+                    Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Model.Enums.Gender.NotKnown : (Model.Enums.Gender)int.Parse(reader["PARTICIPANT_GENDER"].ToString()),
+                    ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString(),
+                    ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString(),
+                    DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString(),
+                    Extracted = reader["EXTRACTED"] == DBNull.Value ? null : reader["EXTRACTED"].ToString()
+                };
 
                 participants.Add(participant);
             }
@@ -170,21 +171,28 @@ public class CreateAggregationData : ICreateAggregationData
         {
             return false;
         }
-
         var SQL = " UPDATE [dbo].[AGGREGATION_DATA] " +
                   " SET EXTRACTED = @Extracted " +
-                  " WHERE AGGREGATION_ID > @FirstId and AGGREGATION_ID < @LastId";
+                  " WHERE AGGREGATION_ID >= @FirstId and AGGREGATION_ID <= @LastId";
 
         var parameters = new Dictionary<string, object>
         {
             {"@FirstId", aggregateParticipants.FirstOrDefault().AggregateId },
             {"@LastId", aggregateParticipants.LastOrDefault().AggregateId },
+            {"@Extracted", '1' },
+
         };
 
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
+        var sqlToExecute = new List<SQLReturnModel>()
+        {
+            new SQLReturnModel
+            {
+                Parameters = parameters,
+                SQL = SQL,
+            }
+        };
 
-        return true;
+        return UpdateRecords(sqlToExecute);
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
