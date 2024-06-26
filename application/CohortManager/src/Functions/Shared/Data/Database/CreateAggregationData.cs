@@ -172,8 +172,8 @@ public class CreateAggregationData : ICreateAggregationData
             return false;
         }
         var SQL = " UPDATE [dbo].[AGGREGATION_DATA] " +
-                  " SET EXTRACTED = @Extracted " +
-                  " WHERE AGGREGATION_ID >= @FirstId and AGGREGATION_ID <= @LastId";
+                " SET EXTRACTED = @Extracted " +
+                " WHERE AGGREGATION_ID >= @FirstId and AGGREGATION_ID <= @LastId";
 
         var parameters = new Dictionary<string, object>
         {

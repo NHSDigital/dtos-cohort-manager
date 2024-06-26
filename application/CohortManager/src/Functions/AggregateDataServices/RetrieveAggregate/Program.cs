@@ -22,6 +22,4 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
     })
     .Build();
-
-
 host.Run();
