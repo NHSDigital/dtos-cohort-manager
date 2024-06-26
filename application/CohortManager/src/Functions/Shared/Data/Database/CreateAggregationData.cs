@@ -51,8 +51,9 @@ public class CreateAggregationData : ICreateAggregationData
             " RECORD_START_DATE," +
             " RECORD_END_DATE," +
             " ACTIVE_FLAG, " +
-            " [EXTRACTED] " +
-            " LOAD_DATE " +
+            " LOAD_DATE, " +
+            " EXTRACTED " +
+            "  " +
             " ) VALUES( " +
             " @cohortId, " +
             " @gender, " +
@@ -71,7 +72,7 @@ public class CreateAggregationData : ICreateAggregationData
             " @RecordStartDate, " +
             " @RecordEndDate, " +
             " @ActiveFlag, " +
-            " @LoadDate " +
+            " @LoadDate, " +
             " @Extracted" +
             " ) ";
 
