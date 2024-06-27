@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -91,6 +91,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProviderAllocationService", "ServiceProviderAllocationService", "{FD50D59D-69FE-4AFD-A798-33D8072256D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj", "{44A55F8B-E355-4258-B344-B735973F02FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceProviderAllocationServiceTests", "..\..\..\..\tests\ServiceProviderAllocationServiceTests\ServiceProviderAllocationServiceTests.csproj", "{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -238,6 +240,10 @@ Global
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
