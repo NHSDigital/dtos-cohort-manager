@@ -5,25 +5,25 @@ using System.Globalization;
 public static class Validators
 {
     // Validates that the date is not in the future and that it is in one of the expected formats
-    public static bool ValidateDateOfBirth(string dateOfBirth)
+    public static bool ValidatePastDate(string dateString)
     {
         DateTime date;
 
-        if (DateTime.TryParseExact(dateOfBirth, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        if (DateTime.TryParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
         {
             if (date <= DateTime.Today)
             {
                 return true;
             }
         }
-        else if (DateTime.TryParseExact(dateOfBirth, "yyyyMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        else if (DateTime.TryParseExact(dateString, "yyyyMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
         {
             if (date <= DateTime.Today)
             {
                 return true;
             }
         }
-        else if (DateTime.TryParseExact(dateOfBirth, "yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        else if (DateTime.TryParseExact(dateString, "yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
         {
             if (date <= DateTime.Today)
             {

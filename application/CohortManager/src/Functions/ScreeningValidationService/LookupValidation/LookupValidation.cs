@@ -63,7 +63,7 @@ public class LookupValidation
                 RuleDescription = ruleDetails[1],
                 RuleContent = ruleDetails[1],
                 FileName = requestBody.FileName,
-                NhsNumber = newParticipant.NhsNumber ?? null,
+                NhsNumber = newParticipant.NhsNumber,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 Category = 1,

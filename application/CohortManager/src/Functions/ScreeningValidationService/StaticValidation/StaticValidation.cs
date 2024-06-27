@@ -9,6 +9,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 public class StaticValidation
@@ -46,7 +47,7 @@ public class StaticValidation
 
         var reSettings = new ReSettings
         {
-            CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(Validators)]
+            CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(Validators), typeof(Status)]
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -69,7 +70,7 @@ public class StaticValidation
                 RuleDescription = ruleDetails[1],
                 RuleContent = ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
-                NhsNumber = participantCsvRecord.Participant.NhsNumber ?? null,
+                NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ScreeningService = screeningService,

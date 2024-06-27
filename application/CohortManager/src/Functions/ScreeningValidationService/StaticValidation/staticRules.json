@@ -36,7 +36,23 @@
       },
       {
         "RuleName": "17.DateOfBirth",
-        "Expression": "Validators.ValidateDateOfBirth(participant.DateOfBirth)"
+        "Expression": "Validators.ValidatePastDate(participant.DateOfBirth)"
+      },
+      {
+        "RuleName": "39.FamilyName",
+        "Expression": "!string.IsNullOrEmpty(participant.Surname)"
+      },
+      {
+        "RuleName": "40.FirstName",
+        "Expression": "!string.IsNullOrEmpty(participant.FirstName)"
+      },
+      {
+        "RuleName": "42.GPPracticeCode",
+        "Expression": "participant.RecordType != \"New\" OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)"
+      },
+      {
+        "RuleName": "66.DeathStatus",
+        "Expression": "participant.RecordType != \"Amended\" OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
       }
     ]
   }
