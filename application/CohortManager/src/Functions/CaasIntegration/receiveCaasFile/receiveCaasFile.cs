@@ -24,18 +24,18 @@ public class ReceiveCaasFile
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
     {
+        FileExtensionCheck(name);
+
         var badRecords = new Dictionary<int, string>();
-        var cohort = new Cohort()
+        Cohort cohort = new()
         {
             FileName = name
         };
         var rowNumber = 0;
         CsvConfiguration config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            IgnoreBlankLines = true,
             TrimOptions = TrimOptions.Trim,
             Delimiter = ",",
-            MissingFieldFound = null,
             HeaderValidated = null
         };
         try
@@ -61,14 +61,9 @@ public class ReceiveCaasFile
                 }
             }
         }
-        catch (HeaderValidationException ex)
+        catch (Exception ex) when (ex is HeaderValidationException || ex is CsvHelperException)
         {
-            _logger.LogError("Header validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name);
-        }
-        catch (CsvHelperException ex)
-        {
-            _logger.LogError("Failure occurred when reading the CSV file.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
         }
         try
@@ -106,5 +101,14 @@ public class ReceiveCaasFile
             _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
         }
         _logger.LogError("there was a problem saving and or moving the failed file");
+    }
+
+    private static void FileExtensionCheck(string name)
+    {
+        var fileExtension = Path.GetExtension(name).ToLower();
+        if (fileExtension != FileFormats.CSV)
+        {
+            throw new NotSupportedException("Invalid file type. Only CSV files are allowed.");
+        };
     }
 }
