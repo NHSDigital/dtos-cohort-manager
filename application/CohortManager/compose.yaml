@@ -242,4 +242,4 @@ services:
       context: ./src/Functions/
       dockerfile: AggregateDataServices/RetrieveAggregate/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7077
+      - ASPNETCORE_URLS=http://*:7078
