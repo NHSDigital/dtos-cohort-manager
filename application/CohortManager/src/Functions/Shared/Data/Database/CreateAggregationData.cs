@@ -109,7 +109,7 @@ public class CreateAggregationData : ICreateAggregationData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<AggregateParticipant> ExtractAggregateParticipants(string NHSId)
+    public List<AggregateParticipant> ExtractAggregateParticipants()
     {
         var SQL = "SELECT TOP (1000) * " +
                 " FROM [dbo].[AGGREGATION_DATA] " +
@@ -168,7 +168,7 @@ public class CreateAggregationData : ICreateAggregationData
 
     private bool MarkAggregateParticipantsAsExtracted(List<AggregateParticipant> aggregateParticipants)
     {
-        if (aggregateParticipants.FirstOrDefault() == null || aggregateParticipants.LastOrDefault() == null)
+        if (aggregateParticipants.Count == 0)
         {
             return false;
         }

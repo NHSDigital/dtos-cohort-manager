@@ -29,15 +29,7 @@ public class AddAggregationDataFunction
     {
         try
         {
-            var requestBody = "";
-            var aggregateParticipant = new AggregateParticipant();
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-                aggregateParticipant = JsonSerializer.Deserialize<AggregateParticipant>(requestBody);
-            }
-
-            var aggregateParticipants = _createAggregationData.ExtractAggregateParticipants(aggregateParticipant.NhsNumber);
+            var aggregateParticipants = _createAggregationData.ExtractAggregateParticipants();
             if (aggregateParticipants != null)
             {
                 var aggregateParticipantsJson = JsonSerializer.Serialize(aggregateParticipants);
