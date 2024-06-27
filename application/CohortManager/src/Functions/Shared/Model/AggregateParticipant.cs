@@ -4,6 +4,7 @@ using Model.Enums;
 
 public class AggregateParticipant
 {
+    public string? AggregateId { get; set; }
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
@@ -46,5 +47,6 @@ public class AggregateParticipant
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
     public string? ParticipantId { get; set; }
+    public string? Extracted { get; set; }
 
 }

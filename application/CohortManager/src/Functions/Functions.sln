@@ -88,6 +88,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "Aggre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{00B49688-B563-4025-8F68-D62709E500B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveAggregate", "AggregateDataServices\RetrieveAggregate\RetrieveAggregate.csproj", "{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -230,6 +232,10 @@ Global
 		{00B49688-B563-4025-8F68-D62709E500B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -261,6 +267,7 @@ Global
 		{79DF4237-68B8-4BA3-A9CC-298A96248CC1} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B} = {3D8960C9-48DC-4BFD-90DE-071BF2A48259}
+		{82EB5ECA-CAE8-45B8-B7AE-E6D818B0E53B} = {3D8960C9-48DC-4BFD-90DE-071BF2A48259}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
