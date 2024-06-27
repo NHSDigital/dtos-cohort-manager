@@ -243,3 +243,4 @@ services:
       dockerfile: AggregateDataServices/RetrieveAggregate/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7078
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
