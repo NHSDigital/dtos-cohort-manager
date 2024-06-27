@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\AggregateDataServices\AddAggregationData\AddAggregationData.csproj" />
+    <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\CohortDistribution\AggregateDataServices\AddAggregationData\AddAggregationData.csproj" />
   </ItemGroup>
 
 </Project>
