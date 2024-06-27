@@ -109,7 +109,7 @@ public class CreateAggregationData : ICreateAggregationData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<AggregateParticipant> GetParticipant(string NHSId)
+    public List<AggregateParticipant> ExtractAggregateParticipants(string NHSId)
     {
         var SQL = "SELECT TOP (1000) * " +
                 " FROM [dbo].[AGGREGATION_DATA] " +

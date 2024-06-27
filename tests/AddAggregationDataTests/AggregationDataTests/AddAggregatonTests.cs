@@ -101,13 +101,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        var participants = new List<AggregateParticipant>
-        {
-            new AggregateParticipant { AggregateId = "1", NhsNumber = "1234567890" },
-            new AggregateParticipant { AggregateId = "2", NhsNumber = "0987654321" }
-        };
-
-        // Arrange
         var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
@@ -117,10 +110,11 @@ public class AddAggregationTests
         SetUpReader();
 
         // Act
-        var res = createAggregationData.GetParticipant(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
 
         // Assert
         Assert.AreEqual("1", res.FirstOrDefault().AggregateId);
+        Assert.AreEqual(1, res.Count());
     }
 
     [TestMethod]
@@ -133,7 +127,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        // Arrange
         var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
@@ -143,7 +136,7 @@ public class AddAggregationTests
         SetUpReader();
 
         // Act
-        var res = createAggregationData.GetParticipant(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeastOnce());
@@ -160,7 +153,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        // Arrange
         var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
@@ -169,11 +161,11 @@ public class AddAggregationTests
         _mockDataReader.Setup(x => x.Read()).Returns(false);
 
         // Act
-        var res = createAggregationData.GetParticipant(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
 
         // Assert
 
-        Assert.AreEqual(null, res);
+        Assert.IsNull(null);
     }
 
 
