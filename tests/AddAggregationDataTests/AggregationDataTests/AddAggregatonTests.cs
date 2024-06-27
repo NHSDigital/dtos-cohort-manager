@@ -101,7 +101,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
@@ -110,7 +109,7 @@ public class AddAggregationTests
         SetUpReader();
 
         // Act
-        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants();
 
         // Assert
         Assert.AreEqual("1", res.FirstOrDefault().AggregateId);
@@ -127,7 +126,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
@@ -136,7 +134,7 @@ public class AddAggregationTests
         SetUpReader();
 
         // Act
-        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants();
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeastOnce());
@@ -153,7 +151,6 @@ public class AddAggregationTests
                 _loggerMock.Object
             );
 
-        var nhsId = "123456";
         _mockDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
@@ -161,11 +158,11 @@ public class AddAggregationTests
         _mockDataReader.Setup(x => x.Read()).Returns(false);
 
         // Act
-        var res = createAggregationData.ExtractAggregateParticipants(nhsId);
+        var res = createAggregationData.ExtractAggregateParticipants();
 
         // Assert
 
-        Assert.IsNull(null);
+        Assert.IsNull(res);
     }
 
 
