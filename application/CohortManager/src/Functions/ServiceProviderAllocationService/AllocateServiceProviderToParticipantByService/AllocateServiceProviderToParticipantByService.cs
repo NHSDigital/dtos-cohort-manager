@@ -47,7 +47,7 @@ public class AllocateServiceProviderToParticipantByService
             allocationData = JsonSerializer.Deserialize<Participant>(requestBody);
 
             // use the Rules Engine
-            string staticRulesFile = File.ReadAllText("staticRules.json");
+            string staticRulesFile = File.ReadAllText("allocationRules.json");
             var staticRules = JsonSerializer.Deserialize<Workflow[]>(staticRulesFile);
 
             var reSettings = new ReSettings
@@ -63,10 +63,7 @@ public class AllocateServiceProviderToParticipantByService
 
             var resultList = await rulesEngine.ExecuteAllRulesAsync("AllocationDataValidation", ruleParameters);
 
-            foreach (var result in resultList)
-            {
-                _logger.LogInformation("***** Log ResultList", result);
-            }
+            var validationErrors = new List<string>();
 
             // If the Allocation Data has missing required information for allocation, and call Create Validation Exception
             // if(allocationData == null || string.IsNullOrEmpty(allocationData.Postcode) || string.IsNullOrEmpty(screeningService))

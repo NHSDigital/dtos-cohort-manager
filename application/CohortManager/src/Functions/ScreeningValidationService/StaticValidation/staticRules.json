@@ -5,12 +5,6 @@
       {
         "RuleName": "1.NhsNumberMustBeTenDigits",
         "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")"
-      },
-      {
-        "RuleName": "CheckNullOrEmptyOrWhiteSpace",
-        "ErrorMessage": "String is null, empty, or whitespace",
-        "ErrorType": "Error",
-        "Expression": "string.IsNullOrEmpty(inputStr) || string.IsNullOrWhiteSpace(inputStr)"
       }
     ]
   }

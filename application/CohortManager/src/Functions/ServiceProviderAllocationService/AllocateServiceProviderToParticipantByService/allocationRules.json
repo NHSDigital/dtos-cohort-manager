@@ -1,0 +1,13 @@
+[
+  {
+    "WorkflowName": "AllocationDataValidation",
+    "Rules": [
+      {
+        "RuleName": "CheckNullOrEmptyOrWhiteSpace",
+        "ErrorMessage": "String is null, empty, or whitespace",
+        "ErrorType": "Error",
+        "Expression": "string.IsNullOrEmpty(participant.postcode) || string.IsNullOrWhiteSpace(inputStr)"
+      }
+    ]
+  }
+]
