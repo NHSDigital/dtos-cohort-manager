@@ -2,7 +2,7 @@ namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Globalization;
 
-public static class Validators
+public static class ValidationHelper
 {
     // Validates that the date is not in the future and that it is in one of the expected formats
     public static bool ValidatePastDate(string dateString)

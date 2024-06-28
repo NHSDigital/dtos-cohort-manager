@@ -36,7 +36,7 @@
       },
       {
         "RuleName": "17.DateOfBirth",
-        "Expression": "Validators.ValidatePastDate(participant.DateOfBirth)"
+        "Expression": "ValidationHelper.ValidatePastDate(participant.DateOfBirth)"
       },
       {
         "RuleName": "39.FamilyName",
@@ -56,11 +56,11 @@
       },
       {
         "RuleName": "19.ReasonForRemovalEffectiveFromDate",
-        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR Validators.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
       },
       {
         "RuleName": "18.DateOfDeath",
-        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR Validators.ValidatePastDate(participant.DateOfDeath)"
+        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)"
       },
       {
         "RuleName": "47.NewParticipantWithRemovalOrDeath",
