@@ -57,6 +57,7 @@ public class UpdateParticipantFunction
 
             if (!await ValidateData(participantCsvRecord))
             {
+                _logger.LogInformation("The participant has not been updated due to a bad request.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
