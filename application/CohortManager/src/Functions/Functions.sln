@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "Cohor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveFromAggregate", "CohortDistribution\AggregateDataServices\RemoveFromAggregate\RemoveFromAggregate.csproj", "{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -242,6 +244,10 @@ Global
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -275,6 +281,7 @@ Global
 		{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
 		{BD73440D-607E-4002-B7A1-14C0194B5230} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+		{C7DE9F3A-6C4A-45DF-94CB-24557242CEB8} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

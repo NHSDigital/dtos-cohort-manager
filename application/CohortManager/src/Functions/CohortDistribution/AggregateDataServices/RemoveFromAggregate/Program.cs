@@ -19,8 +19,7 @@ var host = new HostBuilder()
         });
         services.AddSingleton<ICreateAggregationData, CreateAggregationData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
+        services.AddSingleton<IUpdateAggregateData,UpdateAggregateData>();
     })
     .Build();
 
