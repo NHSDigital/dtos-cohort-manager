@@ -77,7 +77,7 @@ public class StaticValidationTests
         _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
-    #region NhsNumber Rule Tests
+    #region NHS Number (Rule 9)
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
@@ -125,7 +125,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region SupersededByNhsNumber Rule Tests
+    #region Superseded By NHS Number (Rule 57)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
@@ -173,7 +173,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region RecordType Rule Tests
+    #region Record Type (Rule 8)
     [TestMethod]
     [DataRow("New")]
     [DataRow("Amended")]
@@ -218,7 +218,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region CurrentPosting Rule Tests
+    #region Current Posting (Rule 58)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
@@ -263,7 +263,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region PreviousPosting Rule Tests
+    #region Previous Posting (Rule 59)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
@@ -308,7 +308,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region ReasonForRemoval Rule Tests
+    #region Reason For Removal (Rule 14)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
@@ -369,7 +369,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Postcode Rule Tests
+    #region Postcode (Rule 30)
     [TestMethod]
     [DataRow("ec1a1bb")]
     [DataRow("EC1A1BB")]
@@ -421,7 +421,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region PrimaryCareProviderAndReasonForRemoval Rule Tests
+    #region Primary Care Provider and Reason For Removal (Rule 3)
     [TestMethod]
     [DataRow("ABC", null)]
     [DataRow(null, "123")]
@@ -466,7 +466,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region DateOfBirth Rule Tests
+    #region Date Of Birth (Rule 17)
     [TestMethod]
     [DataRow("19700101")]   // ccyymmdd
     [DataRow("197001")]     // ccyymm
@@ -514,7 +514,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region FamilyName Rule Tests
+    #region Family Name (Rule 39)
     [TestMethod]
     [DataRow("Li")]
     [DataRow("McDonald")]
@@ -561,16 +561,16 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region FirstName Rule Tests
+    #region Given Name (Rule 40)
     [TestMethod]
     [DataRow("Jo")]
     [DataRow("Jean-Luc")]
     [DataRow("Sarah Jane")]
     [DataRow("Bartholomew")]
-    public async Task Run_Should_Not_Create_Exception_When_FirstName_Rule_Passes(string firstName)
+    public async Task Run_Should_Not_Create_Exception_When_GivenName_Rule_Passes(string givenName)
     {
         // Arrange
-        _participantCsvRecord.Participant.FirstName = firstName;
+        _participantCsvRecord.Participant.FirstName = givenName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
@@ -606,16 +606,16 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region GP Practice Code (Primary Care Provide) Rule Tests
+    #region GP Practice Code (Rule 42)
     [TestMethod]
     [DataRow("New", "ABC")]
     [DataRow("Amended", null)]
     [DataRow("Removed", null)]
-    public async Task Run_Should_Not_Create_Exception_When_GPPracticeCode_Rule_Passes(string recordType, string practiceCode)
+    public async Task Run_Should_Not_Create_Exception_When_GPPracticeCode_Rule_Passes(string recordType, string gpPracticeCode)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.PrimaryCareProvider = practiceCode;
+        _participantCsvRecord.Participant.PrimaryCareProvider = gpPracticeCode;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
@@ -652,7 +652,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region DeathStatus Rule Tests
+    #region Death Status (Rule 66)
     [TestMethod]
     [DataRow("Amended", Status.Formal, "DEA")]
     public async Task Run_Should_Not_Create_Exception_When_DeathStatus_Rule_Passes(string recordType, Status deathStatus, string reasonForRemoval)
@@ -699,7 +699,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region ReasonForRemovalEffectiveFromDate Rule Tests
+    #region Reason For Removal Effective From Date (Rule 19)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
@@ -743,6 +743,154 @@ public class StaticValidationTests
         _callFunction.Verify(call => call.SendPost(
             It.Is<string>(s => s == "CreateValidationExceptionURL"),
             It.Is<string>(s => s.Contains("\"RuleId\":19") && s.Contains("\"RuleDescription\":\"ReasonForRemovalEffectiveFromDate\""))),
+            Times.Once());
+    }
+    #endregion
+
+    #region Date Of Death (Rule 18)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_Should_Not_Create_Exception_When_DateOfDeath_Rule_Passes(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.DateOfDeath = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":18") && s.Contains("\"RuleDescription\":\"DateOfDeath\""))),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_DateOfDeath_Rule_Fails(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.DateOfDeath = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":18") && s.Contains("\"RuleDescription\":\"DateOfDeath\""))),
+            Times.Once());
+    }
+    #endregion
+
+    #region New Participant with Reason For Removal, Removal Date or Date Of Death (Rule 47)
+    [TestMethod]
+    [DataRow("New", null, null, null)]
+    [DataRow("New", "", "", "")]
+    [DataRow("Amended", "DEA", "20240101", "20240101")]
+    [DataRow("Removed", "DEA", "20240101", "20240101")]
+    public async Task Run_Should_Not_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Passes(
+        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = removalDate;
+        _participantCsvRecord.Participant.DateOfDeath = dateOfDeath;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":47") && s.Contains("\"RuleDescription\":\"NewParticipantWithRemovalOrDeath\""))),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("New", "DEA", null, null)]
+    [DataRow("New", null, "20240101", null)]
+    [DataRow("New", null, null, "20240101")]
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
+        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = removalDate;
+        _participantCsvRecord.Participant.DateOfDeath = dateOfDeath;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":47") && s.Contains("\"RuleDescription\":\"NewParticipantWithRemovalOrDeath\""))),
+            Times.Once());
+    }
+    #endregion
+
+    #region Invalid Flag (Rule 61)
+    [TestMethod]
+    [DataRow("True")]
+    [DataRow("true")]
+    [DataRow("False")]
+    [DataRow("false")]
+    public async Task Run_Should_Not_Create_Exception_When_InvalidFlag_Rule_Passes(string invalidFlag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.InvalidFlag = invalidFlag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":61") && s.Contains("\"RuleDescription\":\"InvalidFlag\""))),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("ABC")]
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_InvalidFlag_Rule_Fails(string invalidFlag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.InvalidFlag = invalidFlag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":61") && s.Contains("\"RuleDescription\":\"InvalidFlag\""))),
             Times.Once());
     }
     #endregion

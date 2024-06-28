@@ -57,6 +57,18 @@
       {
         "RuleName": "19.ReasonForRemovalEffectiveFromDate",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR Validators.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
+      },
+      {
+        "RuleName": "18.DateOfDeath",
+        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR Validators.ValidatePastDate(participant.DateOfDeath)"
+      },
+      {
+        "RuleName": "47.NewParticipantWithRemovalOrDeath",
+        "Expression": "participant.RecordType != \"New\" OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
+      },
+      {
+        "RuleName": "61.InvalidFlag",
+        "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
       }
     ]
   }
