@@ -346,6 +346,7 @@ BEGIN
         RECORD_END_DATE DATE null,
         ACTIVE_FLAG CHAR not null,
         LOAD_DATE DATE null,
+        EXTRACTED BIT not null
         constraint PK_AGGREGATION
             primary key (AGGREGATION_ID)
     );
@@ -453,4 +454,3 @@ BEGIN
         FOREIGN KEY (SCREENING_ID)
         REFERENCES SCREENING_LKP (SCREENING_ID);
 END;
-

@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -82,11 +82,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidationTests", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticValidationTests", "..\..\..\..\tests\ScreeningValidationServiceTests\StaticValidation\StaticValidationTests.csproj", "{CD708F54-3DB5-4D70-ABED-8843E61EC1A6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AggregateDataServices", "AggregateDataServices", "{3D8960C9-48DC-4BFD-90DE-071BF2A48259}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CohortDistribution", "CohortDistribution", "{181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "AggregateDataServices\AddAggregationData\AddAggregationData.csproj", "{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AggregateDataServices", "AggregateDataServices", "{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{00B49688-B563-4025-8F68-D62709E500B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveAggregate", "CohortDistribution\AggregateDataServices\RetrieveAggregate\RetrieveAggregate.csproj", "{BD73440D-607E-4002-B7A1-14C0194B5230}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "CohortDistribution\AggregateDataServices\AddAggregationData\AddAggregationData.csproj", "{02CB2B53-7670-47CC-93DF-6F941FB58C38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -222,14 +226,22 @@ Global
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00B49688-B563-4025-8F68-D62709E500B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD73440D-607E-4002-B7A1-14C0194B5230}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD73440D-607E-4002-B7A1-14C0194B5230}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD73440D-607E-4002-B7A1-14C0194B5230}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD73440D-607E-4002-B7A1-14C0194B5230}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -260,7 +272,9 @@ Global
 		{E0A701BD-23C7-45C1-B969-E639B001C7E9} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{79DF4237-68B8-4BA3-A9CC-298A96248CC1} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
-		{22E68CC5-66A0-4DA6-9804-1B8C519C9E2B} = {3D8960C9-48DC-4BFD-90DE-071BF2A48259}
+		{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
+		{BD73440D-607E-4002-B7A1-14C0194B5230} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+		{02CB2B53-7670-47CC-93DF-6F941FB58C38} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
