@@ -53,6 +53,10 @@
       {
         "RuleName": "66.DeathStatus",
         "Expression": "participant.RecordType != \"Amended\" OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
+      },
+      {
+        "RuleName": "19.ReasonForRemovalEffectiveFromDate",
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR Validators.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
       }
     ]
   }

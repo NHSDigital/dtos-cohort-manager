@@ -92,7 +92,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"NhsNumber""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":9") && s.Contains("\"RuleDescription\":\"NhsNumber\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -115,7 +118,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"),It.Is<string>(s => s.Contains(""""RuleDescription":"NhsNumber""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":9") && s.Contains("\"RuleDescription\":\"NhsNumber\""))),
+            Times.Once());
     }
     #endregion
 
@@ -136,7 +142,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"SupersededByNhsNumber""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":57") && s.Contains("\"RuleDescription\":\"SupersededByNhsNumber\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -157,7 +166,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"),It.Is<string>(s => s.Contains(""""RuleDescription":"SupersededByNhsNumber""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":57") && s.Contains("\"RuleDescription\":\"SupersededByNhsNumber\""))),
+            Times.Once());
     }
     #endregion
 
@@ -177,7 +189,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"RecordType""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":8") && s.Contains("\"RuleDescription\":\"RecordType\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -196,7 +211,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"RecordType""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":8") && s.Contains("\"RuleDescription\":\"RecordType\""))),
+            Times.Once());
     }
     #endregion
 
@@ -218,7 +236,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"CurrentPosting""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":58") && s.Contains("\"RuleDescription\":\"CurrentPosting\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -235,7 +256,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"CurrentPosting""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":58") && s.Contains("\"RuleDescription\":\"CurrentPosting\""))),
+            Times.Once());
     }
     #endregion
 
@@ -257,7 +281,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"PreviousPosting""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":59") && s.Contains("\"RuleDescription\":\"PreviousPosting\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -274,7 +301,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"PreviousPosting""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":59") && s.Contains("\"RuleDescription\":\"PreviousPosting\""))),
+            Times.Once());
     }
     #endregion
 
@@ -311,7 +341,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"ReasonForRemoval""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":14") && s.Contains("\"RuleDescription\":\"ReasonForRemoval\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -329,7 +362,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"ReasonForRemoval""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":14") && s.Contains("\"RuleDescription\":\"ReasonForRemoval\""))),
+            Times.Once());
     }
     #endregion
 
@@ -355,7 +391,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"Postcode""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":30") && s.Contains("\"RuleDescription\":\"Postcode\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -375,7 +414,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"Postcode""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":30") && s.Contains("\"RuleDescription\":\"Postcode\""))),
+            Times.Once());
     }
     #endregion
 
@@ -395,7 +437,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"PrimaryCareProviderAndReasonForRemoval""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":3") && s.Contains("\"RuleDescription\":\"PrimaryCareProviderAndReasonForRemoval\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -414,7 +459,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"PrimaryCareProviderAndReasonForRemoval""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":3") && s.Contains("\"RuleDescription\":\"PrimaryCareProviderAndReasonForRemoval\""))),
+            Times.Once());
     }
     #endregion
 
@@ -434,7 +482,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"DateOfBirth""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":17") && s.Contains("\"RuleDescription\":\"DateOfBirth\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -456,7 +507,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"DateOfBirth""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":17") && s.Contains("\"RuleDescription\":\"DateOfBirth\""))),
+            Times.Once());
     }
     #endregion
 
@@ -479,7 +533,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"FamilyName""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":39") && s.Contains("\"RuleDescription\":\"FamilyName\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -497,7 +554,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"FamilyName""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":39") && s.Contains("\"RuleDescription\":\"FamilyName\""))),
+            Times.Once());
     }
     #endregion
 
@@ -518,7 +578,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"FirstName""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":40") && s.Contains("\"RuleDescription\":\"FirstName\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -536,7 +599,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"FirstName""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":40") && s.Contains("\"RuleDescription\":\"FirstName\""))),
+            Times.Once());
     }
     #endregion
 
@@ -557,7 +623,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"GPPracticeCode""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":42") && s.Contains("\"RuleDescription\":\"GPPracticeCode\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -576,7 +645,10 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"GPPracticeCode""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":42") && s.Contains("\"RuleDescription\":\"GPPracticeCode\""))),
+            Times.Once());
     }
     #endregion
 
@@ -596,7 +668,10 @@ public class StaticValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"DeathStatus""""))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":66") && s.Contains("\"RuleDescription\":\"DeathStatus\""))),
+            Times.Never());
     }
 
     [TestMethod]
@@ -617,7 +692,58 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains(""""RuleDescription":"DeathStatus""""))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":66") && s.Contains("\"RuleDescription\":\"DeathStatus\""))),
+            Times.Once());
+    }
+    #endregion
+
+    #region ReasonForRemovalEffectiveFromDate Rule Tests
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_Should_Not_Create_Exception_When_ReasonForRemovalEffectiveFromDate_Rule_Passes(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":19") && s.Contains("\"RuleDescription\":\"ReasonForRemovalEffectiveFromDate\""))),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ReasonForRemovalEffectiveFromDate_Rule_Fails(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("\"RuleId\":19") && s.Contains("\"RuleDescription\":\"ReasonForRemovalEffectiveFromDate\""))),
+            Times.Once());
     }
     #endregion
 
