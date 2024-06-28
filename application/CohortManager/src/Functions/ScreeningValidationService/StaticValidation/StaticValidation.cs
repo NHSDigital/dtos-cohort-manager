@@ -26,7 +26,6 @@ public class StaticValidation
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var screeningService = 1;
         ParticipantCsvRecord participantCsvRecord;
 
         try
@@ -73,7 +72,10 @@ public class StaticValidation
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
-                ScreeningService = screeningService,
+                Category = 1,
+                ScreeningService = 1,
+                Cohort = "",
+                Fatal = 0
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);

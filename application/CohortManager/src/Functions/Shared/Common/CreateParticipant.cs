@@ -32,7 +32,7 @@ public class CreateParticipant : ICreateParticipant
             AddressLine3 = demographic.AddressLine3,
             AddressLine4 = demographic.AddressLine4,
             AddressLine5 = participant.AddressLine5,
-            Postcode = demographic.PostCode,
+            Postcode = demographic.Postcode,
             PafKey = participant.PafKey,
             UsualAddressEffectiveFromDate = participant.UsualAddressEffectiveFromDate,
             ReasonForRemoval = participant.RemovalReason,
