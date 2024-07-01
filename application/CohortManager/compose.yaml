@@ -229,6 +229,18 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: AggregateDataServices/AddAggregationData/Dockerfile
+      dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7077
+
+
+# Add Aggregation Service
+  retrieve-aggregation-data:
+    container_name: retrieve-aggregate-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7078
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
