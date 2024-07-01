@@ -92,7 +92,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProviderAllocationSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj", "{44A55F8B-E355-4258-B344-B735973F02FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceProviderAllocationServiceTests", "..\..\..\..\tests\ServiceProviderAllocationServiceTests\ServiceProviderAllocationServiceTests.csproj", "{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTests", "..\..\..\..\tests\ServiceProviderAllocationServiceTests\AllocateServiceProviderToParticipantByServiceTests\AllocateServiceProviderToParticipantByServiceTests.csproj", "{0BF8F116-8798-45A2-B228-3BF8127D1E41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -244,6 +244,10 @@ Global
 		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1B9CD89-1319-4F5E-97F1-C018F218F4C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BF8F116-8798-45A2-B228-3BF8127D1E41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF8F116-8798-45A2-B228-3BF8127D1E41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BF8F116-8798-45A2-B228-3BF8127D1E41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BF8F116-8798-45A2-B228-3BF8127D1E41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

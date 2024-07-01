@@ -20,12 +20,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
+    <None Update="ConfigFiles\allocationConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
-    <ProjectReference Include="..\..\..\..\..\..\tests\ServiceProviderAllocationServiceTests\ServiceProviderAllocationServiceTests.csproj" />
   </ItemGroup>
 </Project>

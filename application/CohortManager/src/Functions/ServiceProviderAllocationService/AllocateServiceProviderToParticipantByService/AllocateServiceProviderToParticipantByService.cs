@@ -3,13 +3,12 @@ namespace NHS.CohortManager.ServiceProviderAllocationService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Common;
+using Model;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Model;
-using RulesEngine.Models;
+using NHS.CohortManager.CohortDistributionService;
 
 public class AllocateServiceProviderToParticipantByService
 {
@@ -28,71 +27,119 @@ public class AllocateServiceProviderToParticipantByService
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequestData req)
     {
 
-        // Cohort Distribution still WIP, and nothing is calling this function yet so we use the following as temp values:
-        // Post Code: Participant data
-        // Screening Service: Hardcoded "BSS" for BS Select
-        string screeningService = "BSS";
+        // Cohort Distribution still WIP, and nothing is calling this function yet
+        // Currently using AllocationConfigRequest Object to deserialize and validate the incoming JSON data
         string requestBody = "";
-        Participant? allocationData = null;
-
         _logger.LogInformation("AllocateServiceProviderToParticipantByService is called...");
 
         try
         {
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            string logMessage;
+            string exceptionJson;
+
+            using (StreamReader reader = new StreamReader (req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            allocationData = JsonSerializer.Deserialize<Participant>(requestBody);
+            AllocationConfigRequestBody configRequest = JsonSerializer.Deserialize<AllocationConfigRequestBody>(requestBody);
 
-            // use the Rules Engine
-            string staticRulesFile = File.ReadAllText("allocationRules.json");
-            var staticRules = JsonSerializer.Deserialize<Workflow[]>(staticRulesFile);
-
-            var reSettings = new ReSettings
+            // check request parameters
+            if (string.IsNullOrEmpty(configRequest.NhsNumber) || string.IsNullOrEmpty(configRequest.Postcode) || string.IsNullOrEmpty(configRequest.ScreeningService))
             {
-                CustomTypes = [typeof(Regex)]
-            };
+                logMessage = $"One or more of the required parameters is missing. NhsNumber: {configRequest.NhsNumber} Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningService}";
+                _logger.LogError(logMessage);
 
-            var rulesEngine = new RulesEngine.RulesEngine(staticRules, reSettings);
+                await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+                return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
+            }
 
-            var ruleParameters = new[] {
-                new RuleParameter("participant", allocationData),
-            };
+            // check config file
+            string configFilePath = Path.Combine(Environment.CurrentDirectory, "ConfigFiles", "allocationConfig.json");
+            if (!File.Exists(configFilePath))
+            {
+                logMessage = $"Cannot find allocation configuration file. Path may be invalid";
+                _logger.LogError(logMessage);
 
-            var resultList = await rulesEngine.ExecuteAllRulesAsync("AllocationDataValidation", ruleParameters);
+                await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+                //return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
+                return req.CreateResponse(HttpStatusCode.OK);
+            }
 
-            var validationErrors = new List<string>();
+            string configFile = File.ReadAllText(configFilePath);
+            var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
-            // If the Allocation Data has missing required information for allocation, and call Create Validation Exception
-            // if(allocationData == null || string.IsNullOrEmpty(allocationData.Postcode) || string.IsNullOrEmpty(screeningService))
-            // {
-            //     string requestBodyJson = new ValidationException
-            //     {
-            //         FileName = null,
-            //         NhsNumber = allocationData.NhsNumber,
-            //         DateCreated = DateTime.UtcNow,
-            //         RuleDescription = ruleDetails[1],
-            //         RuleContent = ruleDetails[1],
-            //         DateResolved = DateTime.MaxValue,
-            //         ScreeningService = screeningService,
-            //     }
-            // }
+            // find the best match postcode and return the provider
+            string serviceProvider = FindBestMatchProvider (allocationConfigEntries.ConfigDataList, configRequest.Postcode, configRequest.ScreeningService);
+
+            // check screening provider
+            if (serviceProvider != null)
+            {
+                _logger.LogInformation("Successfully retrieved the Service Provider");
+                return _createResponse.CreateHttpResponse (HttpStatusCode.OK, req, serviceProvider);
+            }
+
+            logMessage = $"No matching entry found.";
+            _logger.LogError(logMessage);
+
+            await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+            return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
 
         }
+
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req);
         }
-
-        var response = req.CreateResponse(HttpStatusCode.OK);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        response.WriteString("Successfully Allocated user to BS Select");
-
-        return response;
     }
+
+
+    private async Task CallCreateValidationException (string nhsNumber, string logMessage)
+    {
+        _logger.LogError (logMessage);
+
+        _logger.LogInformation("Creating a new Validation exception entry...");
+
+        // create an entry on the validation table
+        ValidationException exception = new ValidationException
+        {
+            FileName = null,
+            NhsNumber = nhsNumber ?? null,
+            DateCreated = DateTime.UtcNow,
+            RuleDescription = "Failed to retrieve the Service Provider from Allocation Config",
+            RuleContent = logMessage,
+            DateResolved = DateTime.MaxValue,
+            ScreeningService = 1,
+        };
+
+        string exceptionJson = JsonSerializer.Serialize(exception);
+        await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
+    }
+    private string? FindBestMatchProvider (AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
+    {
+        int bestMatchScore = 0;
+        string bestMatchName = null;
+
+        foreach (var config in allocationConfigData)
+        {
+            int score = 0;
+            if (!string.IsNullOrEmpty (config.Postcode) && config.Postcode == postCode)
+            {
+                score++;
+            }
+            if (!string.IsNullOrEmpty (config.ScreeningService) && config.ScreeningService.Equals(screeningService, StringComparison.OrdinalIgnoreCase))
+            {
+                score++;
+            }
+            if(score > bestMatchScore)
+            {
+                bestMatchScore = score;
+                bestMatchName = config.ServiceProvider;
+            }
+        }
+        return bestMatchName;
+    }
+
 }
 
