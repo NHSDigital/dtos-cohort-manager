@@ -1,10 +1,9 @@
 namespace Data.Database;
 
-
 using System.Data;
 using Common;
-using Data.Database;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Model;
 
 public class CreateAggregationData : ICreateAggregationData
@@ -131,6 +130,43 @@ public class CreateAggregationData : ICreateAggregationData
         }
 
         return null;
+    }
+
+    public bool UpdateAggregateParticipantAsInactive(string NHSID)
+    {
+
+        _logger.LogInformation("Updating Aggregate Participant as Inactive");
+
+        if (NHSID.IsNullOrEmpty())
+        {
+            _logger.LogError("No NHSID was Provided");
+            return false;
+        }
+
+        var recordEndDate = DateTime.Today;
+
+        var SQL = " UPDATE [dbo].[AGGREGATION_DATA] " +
+            " SET RECORD_END_DATE = @recordEndDate, " +
+            " ACTIVE_FLAG = @ActiveFlag " +
+            " WHERE NHS_NUMBER = @NHSID  ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NHSID", NHSID},
+            {"@ActiveFlag", NHSID},
+            {"@recordEndDate",recordEndDate}
+        };
+
+        var sqlToExecute = new List<SQLReturnModel>()
+            {
+                new SQLReturnModel
+                {
+                    Parameters = parameters,
+                    SQL = SQL,
+                }
+            };
+
+        return UpdateRecords(sqlToExecute);
     }
 
     private List<AggregateParticipant> GetParticipant(IDbCommand command)
