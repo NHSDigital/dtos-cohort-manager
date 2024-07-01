@@ -211,7 +211,6 @@ services:
       - ASPNETCORE_URLS=http://*:7075
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
 
-
   # Demographic Services
   demographic-data-management:
     container_name: demographic-data-management
@@ -233,8 +232,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7077
 
-
-# Add Aggregation Service
+  # Add Aggregation Service
   retrieve-aggregation-data:
     container_name: retrieve-aggregate-data
     network_mode: host
@@ -243,4 +241,15 @@ services:
       dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7078
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  # Add Aggregation Service
+  remove-aggregation-data:
+    container_name: remove-aggregate-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistribution/AggregateDataServices/RemoveFromAggregate/RemoveFromAggregate.csproj
+    environment:
+      - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
