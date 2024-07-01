@@ -24,6 +24,7 @@ public class AddAggregationDataFunction
         _createResponse = createResponse;
     }
 
+
     [Function("AddAggregationData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
