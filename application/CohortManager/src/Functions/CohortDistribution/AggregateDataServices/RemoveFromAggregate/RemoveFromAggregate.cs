@@ -27,16 +27,17 @@ public class RemoveFromAggregate
     }
 
     [Function("RemoveFromAggregateData")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "RemoveFromAggregate/{NHSID}")] HttpRequestData req, string NHSID)
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation($"C# HTTP trigger function processed a request");
+        string nhsId = req.Query["NhsId"];
 
-        if (NHSID.IsNullOrEmpty())
+        if (nhsId.IsNullOrEmpty())
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-        var isUpdated = _createAggregationData.UpdateAggregateParticipantAsInactive(NHSID);
+        var isUpdated = _createAggregationData.UpdateAggregateParticipantAsInactive(nhsId);
 
         if (!isUpdated)
         {
