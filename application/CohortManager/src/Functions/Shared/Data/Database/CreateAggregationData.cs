@@ -153,7 +153,7 @@ public class CreateAggregationData : ICreateAggregationData
         var parameters = new Dictionary<string, object>
         {
             {"@NHSID", NHSID},
-            {"@ActiveFlag", NHSID},
+            {"@ActiveFlag", 'N'},
             {"@recordEndDate",recordEndDate}
         };
 
