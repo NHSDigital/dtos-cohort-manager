@@ -1,32 +1,42 @@
-namespace NHS.CohortManager.CohortDistributionService;
+namespace NHS.CohortManager.CohortDistribution;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Text.Json;
 using RulesEngine.Models;
 using System.Net;
+using System.Text;
 using Model;
+using Common;
 
 public class TransformDataService
 {
-    private readonly ILogger<TransformDataService> _logger;
-    public TransformDataService(ILogger<TransformDataService> logger)
+    private readonly ICreateResponse _createResponse;
+    public TransformDataService(ICreateResponse createResponse)
     {
-        _logger = logger;
+        _createResponse = createResponse;
     }
 
     [Function("TransformDataService")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var participant = new Participant()
+        TransformDataRequestBody requestBody;
+        try
         {
-            FirstName = "Joe",
-            Surname = "Bloggs",
-            NhsNumber = "1",
-            RecordType = Actions.New,
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
-        };
+            string requestBodyJson;
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBodyJson = reader.ReadToEnd();
+            }
+
+            requestBody = JsonSerializer.Deserialize<TransformDataRequestBody>(requestBodyJson);
+        }
+        catch
+        {
+            return req.CreateResponse(HttpStatusCode.BadRequest);
+        }
+
+        var participant = requestBody.Participant;
 
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -41,6 +51,7 @@ public class TransformDataService
 
         var transformations = new List<string>();
 
+        // TODO catch any errors and handle them with the ValidationException function
         foreach (var result in ruleResultList)
         {
             if (!result.IsSuccess)
@@ -52,7 +63,7 @@ public class TransformDataService
             }
         }
 
-        var newParticipant = new Participant()
+        var transformedParticipant = new Participant()
         {
             FirstName = HasTransformedData(transformations, "FirstName") ? GetTransformedData(transformations, "FirstName") : participant.FirstName,
             Surname = HasTransformedData(transformations, "Surname") ? GetTransformedData(transformations, "Surname") : participant.Surname,
@@ -62,8 +73,10 @@ public class TransformDataService
         };
 
         Console.WriteLine($"transformations: {JsonSerializer.Serialize(transformations)}");
-        Console.WriteLine($"newParticipant: {JsonSerializer.Serialize(newParticipant)}");
-        return req.CreateResponse(HttpStatusCode.OK);
+        Console.WriteLine($"transformedParticipant: {JsonSerializer.Serialize(transformedParticipant)}");
+
+        var response = JsonSerializer.Serialize(transformedParticipant);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
     }
 
     private bool HasTransformedData(List<string> data, string field)

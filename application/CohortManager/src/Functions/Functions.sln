@@ -92,9 +92,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "Cohor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CohortDistribution", "CohortDistribution", "{B712CFEC-1963-41D3-8777-3BA0CBF7578A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistribution\TransformDataService\TransformDataService.csproj", "{0F7A9416-A2AB-42C8-B784-D1ECBADB463D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -250,6 +250,10 @@ Global
 		{0F7A9416-A2AB-42C8-B784-D1ECBADB463D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F7A9416-A2AB-42C8-B784-D1ECBADB463D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F7A9416-A2AB-42C8-B784-D1ECBADB463D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
