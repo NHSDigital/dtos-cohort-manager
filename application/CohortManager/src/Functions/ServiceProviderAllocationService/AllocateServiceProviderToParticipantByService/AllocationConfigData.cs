@@ -8,6 +8,6 @@ public class AllocationConfigData
     public required string Postcode { get; set; }
     [JsonPropertyName("screeningService")]
     public required string ScreeningService { get; set; }
-    [JsonPropertyName("screeningProvider")]
+    [JsonPropertyName("serviceProvider")]
     public required string ServiceProvider { get; set; }
 }

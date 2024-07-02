@@ -62,8 +62,7 @@ public class AllocateServiceProviderToParticipantByService
                 _logger.LogError(logMessage);
 
                 await CallCreateValidationException(configRequest.NhsNumber, logMessage);
-                //return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
-                return req.CreateResponse(HttpStatusCode.OK);
+                return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
             }
 
             string configFile = File.ReadAllText(configFilePath);
@@ -90,7 +89,7 @@ public class AllocateServiceProviderToParticipantByService
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req);
+            return _createResponse.CreateHttpResponse (HttpStatusCode.InternalServerError, req);
         }
     }
 
@@ -118,27 +117,19 @@ public class AllocateServiceProviderToParticipantByService
     }
     private string? FindBestMatchProvider (AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
-        int bestMatchScore = 0;
-        string bestMatchName = null;
+        return allocationConfigData.Select(config => new {
+            config.ServiceProvider,
+            Score = GetScore(config, postCode, screeningService)
+        })
+        .OrderByDescending(x => x.Score)
+        .FirstOrDefault(x => x.Score > 0)?
+        .ServiceProvider;
+    }
 
-        foreach (var config in allocationConfigData)
-        {
-            int score = 0;
-            if (!string.IsNullOrEmpty (config.Postcode) && config.Postcode == postCode)
-            {
-                score++;
-            }
-            if (!string.IsNullOrEmpty (config.ScreeningService) && config.ScreeningService.Equals(screeningService, StringComparison.OrdinalIgnoreCase))
-            {
-                score++;
-            }
-            if(score > bestMatchScore)
-            {
-                bestMatchScore = score;
-                bestMatchName = config.ServiceProvider;
-            }
-        }
-        return bestMatchName;
+    private int GetScore (AllocationConfigData config, string postCode, string screeningService)
+    {
+        return (config.Postcode == postCode ? 1 : 0) +
+        (string.Equals(config.ScreeningService, screeningService, StringComparison.OrdinalIgnoreCase) ? 1 : 0);
     }
 
 }

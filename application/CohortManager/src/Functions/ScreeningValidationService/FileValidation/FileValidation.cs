@@ -56,16 +56,20 @@ public class FileValidation
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
-            var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
 
-            if (copied)
+            if(requestObject.FileName != null)
             {
-                _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);
-                return req.CreateResponse(HttpStatusCode.OK);
+                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+                if (copied)
+                {
+                    _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);
+                    return req.CreateResponse(HttpStatusCode.OK);
+                }
+                _logger.LogError("there has been an error while copying the bad file or saving the exception");
+                return req.CreateResponse(HttpStatusCode.InternalServerError);
             }
 
-            _logger.LogError("there has been an error while copying the bad file or saving the exception");
-            return req.CreateResponse(HttpStatusCode.InternalServerError);
+            return req.CreateResponse(HttpStatusCode.OK);
         }
         catch (Exception ex)
         {
