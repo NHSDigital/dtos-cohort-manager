@@ -22,11 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\CohortDistribution\TransformDataService\TransformDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistribution\TransformDataService\TransformDataService.csproj" />
   </ItemGroup>
-
 
 </Project>
