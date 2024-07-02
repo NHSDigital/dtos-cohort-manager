@@ -38,7 +38,7 @@ public class CreateParticipant : ICreateParticipant
             ReasonForRemoval = participant.RemovalReason,
             ReasonForRemovalEffectiveFromDate = participant.RemovalEffectiveFromDate,
             DateOfDeath = demographic.DateOfDeath,
-            DeathStatus = demographic.DateOfDeath != null ? Status.Formal : Status.Informal,
+            DeathStatus = demographic.DeathStatus,
             TelephoneNumber = demographic.TelephoneNumber,
             TelephoneNumberEffectiveFromDate = participant.TelephoneNumberEffectiveFromDate,
             MobileNumber = participant.MobileNumber,
