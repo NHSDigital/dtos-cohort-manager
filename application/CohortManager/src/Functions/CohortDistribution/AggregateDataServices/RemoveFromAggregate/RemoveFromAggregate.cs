@@ -1,17 +1,10 @@
 namespace NHS.CohortManager.AggregationDataServices;
 
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Model;
-
 
 public class RemoveFromAggregate
 {
@@ -30,14 +23,14 @@ public class RemoveFromAggregate
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation($"C# HTTP trigger function processed a request");
-        string nhsId = req.Query["NhsId"];
+        string nhsNumber = req.Query["NhsNumber"];
 
-        if (nhsId.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(nhsNumber))
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-        var isUpdated = _createAggregationData.UpdateAggregateParticipantAsInactive(nhsId);
+        var isUpdated = _createAggregationData.UpdateAggregateParticipantAsInactive(nhsNumber);
 
         if (!isUpdated)
         {

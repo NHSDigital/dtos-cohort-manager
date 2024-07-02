@@ -3,7 +3,6 @@ namespace Data.Database;
 using System.Data;
 using Common;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Model;
 
 public class CreateAggregationData : ICreateAggregationData
@@ -132,12 +131,12 @@ public class CreateAggregationData : ICreateAggregationData
         return null;
     }
 
-    public bool UpdateAggregateParticipantAsInactive(string NHSID)
+    public bool UpdateAggregateParticipantAsInactive(string NhsNumber)
     {
 
         _logger.LogInformation("Updating Aggregate Participant as Inactive");
 
-        if (NHSID.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(NhsNumber))
         {
             _logger.LogError("No NHSID was Provided");
             return false;
@@ -148,11 +147,11 @@ public class CreateAggregationData : ICreateAggregationData
         var SQL = " UPDATE [dbo].[AGGREGATION_DATA] " +
             " SET RECORD_END_DATE = @recordEndDate, " +
             " ACTIVE_FLAG = @ActiveFlag " +
-            " WHERE NHS_NUMBER = @NHSID  ";
+            " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@NHSID", NHSID},
+            {"@NhsNumber", NhsNumber},
             {"@ActiveFlag", 'N'},
             {"@recordEndDate",recordEndDate}
         };
