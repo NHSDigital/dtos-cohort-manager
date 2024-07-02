@@ -95,6 +95,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistribution\TransformDataService\TransformDataService.csproj", "{0F7A9416-A2AB-42C8-B784-D1ECBADB463D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{B86EFB5A-90CC-42CD-B0BA-9F3A7CCD9215}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveFromAggregate", "CohortDistribution\AggregateDataServices\RemoveFromAggregate\RemoveFromAggregate.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
 EndProject
 Global
