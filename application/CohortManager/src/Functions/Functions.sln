@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "Cohor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveFromAggregate", "CohortDistribution\AggregateDataServices\RemoveFromAggregate\RemoveFromAggregate.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProviderAllocationService", "ServiceProviderAllocationService", "{FD50D59D-69FE-4AFD-A798-33D8072256D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj", "{44A55F8B-E355-4258-B344-B735973F02FF}"
@@ -248,6 +250,10 @@ Global
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44A55F8B-E355-4258-B344-B735973F02FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -293,6 +299,7 @@ Global
 		{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
 		{BD73440D-607E-4002-B7A1-14C0194B5230} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{44A55F8B-E355-4258-B344-B735973F02FF} = {FD50D59D-69FE-4AFD-A798-33D8072256D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
