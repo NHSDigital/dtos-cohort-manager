@@ -38,6 +38,9 @@ public class TransformDataService
 
         var participant = requestBody.Participant;
 
+        // This function is currently not using the screeningService, but it will do in the future
+        // var screeningService = requestBody.ScreeningService;
+
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
@@ -51,7 +54,6 @@ public class TransformDataService
 
         var transformations = new List<string>();
 
-        // TODO catch any errors and handle them with the ValidationException function
         foreach (var result in ruleResultList)
         {
             if (!result.IsSuccess)
@@ -71,9 +73,6 @@ public class TransformDataService
             RecordType = HasTransformedData(transformations, "RecordType") ? GetTransformedData(transformations, "RecordType") : participant.RecordType,
             NamePrefix = HasTransformedData(transformations, "NamePrefix") ? GetTransformedData(transformations, "NamePrefix") : participant.NamePrefix
         };
-
-        Console.WriteLine($"transformations: {JsonSerializer.Serialize(transformations)}");
-        Console.WriteLine($"transformedParticipant: {JsonSerializer.Serialize(transformedParticipant)}");
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
