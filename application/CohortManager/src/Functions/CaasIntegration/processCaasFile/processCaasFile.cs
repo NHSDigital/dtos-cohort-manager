@@ -53,7 +53,6 @@ public class ProcessCaasFileFunction
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
                 FileName = input.FileName
             };
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
             switch (participant.RecordType?.Trim())
             {
@@ -61,6 +60,7 @@ public class ProcessCaasFileFunction
                     add++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                         _logger.LogInformation("Called add participant");
                     }
@@ -73,6 +73,7 @@ public class ProcessCaasFileFunction
                     upd++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                         _logger.LogInformation("Called update participant");
                     }
@@ -85,6 +86,7 @@ public class ProcessCaasFileFunction
                     del++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                         _logger.LogInformation("Called remove participant");
                     }
@@ -97,6 +99,12 @@ public class ProcessCaasFileFunction
                     err++;
                     try
                     {
+                        var participantCsvRecord = new ParticipantCsvRecord
+                        {
+                            FileName = input.FileName,
+                            Participant = participant
+                        };
+                        var json = JsonSerializer.Serialize(participantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
                         _logger.LogInformation("Called static validation");
                     }
