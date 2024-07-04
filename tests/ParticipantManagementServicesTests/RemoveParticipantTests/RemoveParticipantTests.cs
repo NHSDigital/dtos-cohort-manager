@@ -7,13 +7,13 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using RemoveParticipant;
+using NHS.CohortManager.ParticipantManagementService;
 using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class RemoveParticipantTests
 {
-    private readonly Mock<ILogger<RemoveParticipantFunction>> _logger = new();
+    private readonly Mock<ILogger<RemoveParticipant>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
@@ -46,7 +46,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -77,7 +77,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -105,7 +105,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
 
         _request = _setupRequest.Setup(json);
 
