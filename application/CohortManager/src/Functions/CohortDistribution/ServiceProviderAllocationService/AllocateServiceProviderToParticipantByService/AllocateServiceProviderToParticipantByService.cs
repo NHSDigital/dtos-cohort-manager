@@ -117,13 +117,12 @@ public class AllocateServiceProviderToParticipantByService
     }
     private string? FindBestMatchProvider (AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
-        return allocationConfigData.Select(config => new {
-            config.ServiceProvider,
-            Score = GetScore(config, postCode, screeningService)
-        })
-        .OrderByDescending(x => x.Score)
-        .FirstOrDefault(x => x.Score > 0)?
-        .ServiceProvider;
+        return allocationConfigData
+        .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
+                item.ScreeningService.Equals(screeningService, StringComparison.OrdinalIgnoreCase))
+        .OrderByDescending(item => item.Postcode.Length)
+        .Select(item => item.ServiceProvider)
+        .FirstOrDefault();
     }
 
     private int GetScore (AllocationConfigData config, string postCode, string screeningService)

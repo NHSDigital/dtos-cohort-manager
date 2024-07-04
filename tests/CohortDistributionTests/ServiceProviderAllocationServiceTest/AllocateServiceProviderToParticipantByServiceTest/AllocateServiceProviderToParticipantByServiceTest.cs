@@ -11,6 +11,7 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using NHS.CohortManager.ServiceProviderAllocationService;
 using NHS.CohortManager.CohortDistributionService;
+using System.Text;
 
 [TestClass]
 public class AllocateServiceProviderToParticipantByServiceTests
@@ -40,11 +41,11 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-            return response.Object;
+            var request = new Mock<HttpResponseData>(_context.Object);
+            request.SetupProperty(r => r.Headers, new HttpHeadersCollection());
+            request.SetupProperty(r => r.StatusCode);
+            request.SetupProperty(r => r.Body, new MemoryStream());
+            return request.Object;
         });
 
         _response.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
@@ -64,7 +65,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         _cohortDistributionData = new AllocationConfigRequestBody
         {
             NhsNumber = "1234567890",
-            Postcode = "AB",
+            Postcode = "NE63",
             ScreeningService = "BSS"
         };
 
@@ -74,6 +75,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Act
         var result = await _function.Run(_request.Object);
+        string responseBody = await ReadResponseBodyAsync(result);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -97,6 +99,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Act
         var result = await _function.Run(_request.Object);
+        string responseBody = await ReadResponseBodyAsync(result);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
@@ -147,6 +150,13 @@ public class AllocateServiceProviderToParticipantByServiceTests
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
+    }
+
+    private async Task<string> ReadResponseBodyAsync(HttpResponseData responseData)
+    {
+        responseData.Body.Position = 0;
+        using var reader = new StreamReader(responseData.Body, Encoding.UTF8);
+        return await reader.ReadToEndAsync();
     }
 
 }

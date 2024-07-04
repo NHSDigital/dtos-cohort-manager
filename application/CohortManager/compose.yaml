@@ -265,12 +265,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
 
-  # Service Provider Allocation Service
   allocate-service-provider:
     container_name: allocate-service-provider
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
+      dockerfile: CohortDistribution/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7079
+      - ASPNETCORE_URLS=http://*:7081
