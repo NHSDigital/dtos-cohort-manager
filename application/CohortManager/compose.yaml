@@ -80,6 +80,7 @@ services:
       - DSaddParticipant=http://localhost:7066/api/CreateParticipant
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
+      - StaticValidationURL=http://localhost:7074/api/StaticValidation
 
   remove-participant:
     container_name: remove-participant
