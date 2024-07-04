@@ -50,41 +50,22 @@ public class TransformDataService
             new RuleParameter("participant", participant),
         };
 
-        var ruleResultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-        var transformations = new List<string>();
-
-        foreach (var result in ruleResultList)
-        {
-            if (!result.IsSuccess)
-            {
-                var fieldName = result.Rule.RuleName.Split('.')[1];
-                var output = result.ActionResult.Output;
-
-                transformations.Add($"{fieldName}:{output}");
-            }
-        }
+        var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         var transformedParticipant = new Participant()
         {
-            FirstName = HasTransformedData(transformations, "FirstName") ? GetTransformedData(transformations, "FirstName") : participant.FirstName,
-            Surname = HasTransformedData(transformations, "Surname") ? GetTransformedData(transformations, "Surname") : participant.Surname,
-            NhsNumber = HasTransformedData(transformations, "NhsNumber") ? GetTransformedData(transformations, "NhsNumber") : participant.NhsNumber,
-            RecordType = HasTransformedData(transformations, "RecordType") ? GetTransformedData(transformations, "RecordType") : participant.RecordType,
-            NamePrefix = HasTransformedData(transformations, "NamePrefix") ? GetTransformedData(transformations, "NamePrefix") : participant.NamePrefix
+            FirstName = GetTransformedData(resultList, "FirstName") ?? participant.FirstName,
+            Surname = GetTransformedData(resultList, "Surname") ?? participant.Surname,
+            NhsNumber = GetTransformedData(resultList, "NhsNumber") ?? participant.NhsNumber,
+            NamePrefix = GetTransformedData(resultList, "NamePrefix") ?? participant.NamePrefix
         };
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
     }
 
-    private bool HasTransformedData(List<string> data, string field)
+    private string GetTransformedData(List<RuleResultTree> results, string field)
     {
-        return data.Exists(item => item.Contains(field));
-    }
-
-    private string GetTransformedData(List<string> data, string field)
-    {
-        return data.Find(item => item.Contains(field)).Split(":")[1];
+        return (string)results.Find(x => x.Rule.RuleName.Split('.')[1] == field)?.ActionResult.Output;
     }
 }
