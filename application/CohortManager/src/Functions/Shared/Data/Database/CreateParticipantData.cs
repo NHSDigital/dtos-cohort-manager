@@ -1,8 +1,12 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Net;
+using System.Text.Json;
+using Common;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 public class CreateParticipantData : ICreateParticipantData
 {
@@ -10,22 +14,31 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
+    private readonly ICallFunction _callFunction;
 
-    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
+    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger, ICallFunction callFunction)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
+        _callFunction = callFunction;
         _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
     }
 
-    public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
+        var participantData = participantCsvRecord.Participant;
+
+        var oldParticipant = GetParticipant(participantData.NhsNumber);
+        if (!await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName))
+        {
+            return false;
+        }
+
         string cohortId = "1";
         DateTime dateToday = DateTime.Today;
         DateTime maxEndDate = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
-        var participantData = participantCsvRecord.Participant;
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
             " COHORT_ID, " +
@@ -303,5 +316,120 @@ public class CreateParticipantData : ICreateParticipantData
             SQL = insertContactPreference,
             Parameters = parameters
         };
+    }
+
+    public Participant GetParticipant(string nhsNumber)
+    {
+        var SQL = "SELECT " +
+            "[PARTICIPANT].[PARTICIPANT_ID], " +
+            "[PARTICIPANT].[NHS_NUMBER], " +
+            "[PARTICIPANT].[SUPERSEDED_BY_NHS_NUMBER], " +
+            "[PARTICIPANT].[PRIMARY_CARE_PROVIDER], " +
+            "[PARTICIPANT].[GP_CONNECT], " +
+            "[PARTICIPANT].[PARTICIPANT_PREFIX], " +
+            "[PARTICIPANT].[PARTICIPANT_FIRST_NAME], " +
+            "[PARTICIPANT].[OTHER_NAME], " +
+            "[PARTICIPANT].[PARTICIPANT_LAST_NAME], " +
+            "[PARTICIPANT].[PARTICIPANT_BIRTH_DATE], " +
+            "[PARTICIPANT].[PARTICIPANT_GENDER], " +
+            "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
+            "[PARTICIPANT].[REMOVAL_DATE], " +
+            "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
+            "[ADDRESS].[ADDRESS_LINE_1], " +
+            "[ADDRESS].[ADDRESS_LINE_2], " +
+            "[ADDRESS].[CITY], " +
+            "[ADDRESS].[COUNTY], " +
+            "[ADDRESS].[POST_CODE] " +
+        "FROM [dbo].[PARTICIPANT] " +
+        "INNER JOIN [dbo].[ADDRESS] ON [PARTICIPANT].[PARTICIPANT_ID]=[ADDRESS].[PARTICIPANT_ID] " +
+        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@IsActive", 'Y' },
+            {"@NhsNumber", nhsNumber }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command);
+    }
+
+    public Participant GetParticipant(IDbCommand command)
+    {
+        return ExecuteQuery(command, reader =>
+        {
+            var participant = new Participant();
+            while (reader.Read())
+            {
+                participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
+                participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
+                participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
+                participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
+                participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
+                participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
+                participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
+                participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
+                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
+                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Gender.NotKnown : (Gender)(int)reader["PARTICIPANT_GENDER"];
+                participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
+                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
+                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
+                participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
+                participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
+                participant.AddressLine3 = reader["CITY"] == DBNull.Value ? null : reader["CITY"].ToString();
+                participant.AddressLine4 = reader["COUNTY"] == DBNull.Value ? null : reader["COUNTY"].ToString();
+                participant.AddressLine5 = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
+            }
+            return participant;
+        });
+    }
+
+    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
+    {
+        var result = default(T);
+        using (_dbConnection)
+        {
+            _dbConnection.ConnectionString = _connectionString;
+            _dbConnection.Open();
+            using (command)
+            {
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    result = mapFunction(reader);
+                }
+                _dbConnection.Close();
+            }
+            return result;
+        }
+    }
+
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    {
+        var json = JsonSerializer.Serialize(new
+        {
+            ExistingParticipant = existingParticipant,
+            NewParticipant = newParticipant,
+            Workflow = "UpdateParticipant",
+            FileName = fileName
+        });
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return false;
+        }
+
+        return false;
     }
 }

@@ -39,7 +39,7 @@ public class CreateParticipant
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var participantCreated = _createParticipantData.CreateParticipantEntry(participantCsvRecord);
+            var participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
             if (participantCreated)
             {
                 _logger.LogInformation("Successfully created the participant(s)");
