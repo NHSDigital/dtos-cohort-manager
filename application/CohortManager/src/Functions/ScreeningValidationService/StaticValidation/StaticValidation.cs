@@ -9,13 +9,13 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICallFunction _callFunction;
-    private ParticipantCsvRecord _participantCsvRecord;
 
     public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction)
     {
@@ -26,76 +26,67 @@ public class StaticValidation
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // Set which ruleset to use, needs to be parameterised
-        var screeningService = 1;
+        ParticipantCsvRecord participantCsvRecord;
 
-        // Deserialisation
         try
         {
-            string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = reader.ReadToEnd();
+                participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
-
-            _participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
         }
         catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        // Get rules
         string json = File.ReadAllText("staticRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
         var reSettings = new ReSettings
         {
-            CustomTypes = [typeof(Regex)]
+            CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status)]
         };
 
-        // Validation
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", _participantCsvRecord.Participant),
+            new RuleParameter("participant", participantCsvRecord.Participant),
         };
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        var validationErrors = new List<string>();
+        var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-        // Validation errors
-        foreach (var result in resultList)
+        foreach (var error in validationErrors)
         {
-            if (!result.IsSuccess)
+            var ruleDetails = error.Rule.RuleName.Split('.');
+
+            var exception = new ValidationException
             {
-                validationErrors.Add(result.Rule.RuleName);
+                RuleId = int.Parse(ruleDetails[0]),
+                RuleDescription = ruleDetails[1],
+                RuleContent = ruleDetails[1],
+                FileName = participantCsvRecord.FileName,
+                NhsNumber = participantCsvRecord.Participant.NhsNumber,
+                DateCreated = DateTime.UtcNow,
+                DateResolved = DateTime.MaxValue,
+                Category = 1,
+                ScreeningService = 1,
+                Cohort = "",
+                Fatal = 0
+            };
 
-                var ruleDetails = result.Rule.RuleName.Split('.');
-                System.Console.WriteLine(result.Rule);
-
-                var exception = new ValidationException
-                {
-                    FileName = _participantCsvRecord.FileName,
-                    NhsNumber = _participantCsvRecord.Participant.NhsNumber ?? null,
-                    DateCreated = DateTime.UtcNow,
-                    RuleDescription = ruleDetails[1],
-                    RuleContent = ruleDetails[1],
-                    DateResolved = DateTime.MaxValue,
-                    ScreeningService = screeningService,
-                };
-
-                var exceptionJson = JsonSerializer.Serialize(exception);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
-            }
+            var exceptionJson = JsonSerializer.Serialize(exception);
+            await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
         }
 
-        if (validationErrors.Count == 0)
+        if (validationErrors.Any())
         {
-            return req.CreateResponse(HttpStatusCode.OK);
+            return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 }

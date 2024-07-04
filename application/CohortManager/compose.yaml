@@ -80,6 +80,7 @@ services:
       - DSaddParticipant=http://localhost:7066/api/CreateParticipant
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
+      - StaticValidationURL=http://localhost:7074/api/StaticValidation
 
   remove-participant:
     container_name: remove-participant
@@ -253,6 +254,16 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  # Cohort Distribution Service
+  transform-data:
+    container_name: transform-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistribution/TransformDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7080
 
   # Service Provider Allocation Service
   allocate-service-provider:

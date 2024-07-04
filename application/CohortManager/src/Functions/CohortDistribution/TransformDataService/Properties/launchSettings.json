@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TransformDataService": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7106",
+      "launchBrowser": false
+    }
+  }
+}
