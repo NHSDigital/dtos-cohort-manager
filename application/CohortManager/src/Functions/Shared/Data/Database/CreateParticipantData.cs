@@ -6,7 +6,6 @@ using System.Text.Json;
 using Common;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 
 public class CreateParticipantData : ICreateParticipantData
 {
@@ -15,13 +14,16 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly IUpdateParticipantData _updateParticipantData;
 
-    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger, ICallFunction callFunction)
+    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
+        ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
         _callFunction = callFunction;
+        _updateParticipantData = updateParticipantData;
         _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
     }
 
@@ -29,7 +31,7 @@ public class CreateParticipantData : ICreateParticipantData
     {
         var participantData = participantCsvRecord.Participant;
 
-        var oldParticipant = GetParticipant(participantData.NhsNumber);
+        var oldParticipant = _updateParticipantData.GetParticipant(participantData.NhsNumber);
         if (!await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName))
         {
             return false;
@@ -112,10 +114,10 @@ public class CreateParticipantData : ICreateParticipantData
         sqlToExecuteInOrder.Add(AddNewAddress(participantData));
         sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
 
-        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NhsNumber);
+        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters);
     }
 
-    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NhsNumber)
+    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
         foreach (var SqlCommand in sqlCommands)
@@ -166,7 +168,7 @@ public class CreateParticipantData : ICreateParticipantData
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
+            _logger.LogError("An error occurred while updating records: {Message}", ex.Message);
             return false;
         }
     }
@@ -176,7 +178,7 @@ public class CreateParticipantData : ICreateParticipantData
         try
         {
             var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
+            _logger.LogInformation("Executing command affected {Rows} rows.", result);
 
             if (result == 0)
             {
@@ -185,25 +187,25 @@ public class CreateParticipantData : ICreateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError("An error occurred while executing SQL command: {Message}", ex.Message);
             return false;
         }
 
         return true;
     }
 
-    private int ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
+    private int ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
     {
         command.Transaction = transaction;
         var newParticipantPk = -1;
 
         try
         {
-            command.CommandText = SQL;
-            _logger.LogInformation($"{SQL}");
+            command.CommandText = sql;
+            _logger.LogInformation("Command text: {Sql}", sql);
 
             var newParticipantResult = command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag ";
+            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag";
 
             command.CommandText = SQLGet;
             using (IDataReader reader = command.ExecuteReader())
@@ -215,11 +217,10 @@ public class CreateParticipantData : ICreateParticipantData
             }
 
             return newParticipantPk;
-
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError("An error occurred: {Message}", ex.Message);
             return -1;
         }
     }
@@ -236,6 +237,7 @@ public class CreateParticipantData : ICreateParticipantData
         var dbCommand = _dbConnection.CreateCommand();
         return AddParameters(parameters, dbCommand);
     }
+
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         foreach (var param in parameters)
@@ -294,9 +296,9 @@ public class CreateParticipantData : ICreateParticipantData
             Parameters = parameters
         };
     }
+
     private SQLReturnModel InsertContactPreference(Participant participantData)
     {
-
         string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
         "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
 
@@ -318,102 +320,9 @@ public class CreateParticipantData : ICreateParticipantData
         };
     }
 
-    public Participant GetParticipant(string nhsNumber)
-    {
-        var SQL = "SELECT " +
-            "[PARTICIPANT].[PARTICIPANT_ID], " +
-            "[PARTICIPANT].[NHS_NUMBER], " +
-            "[PARTICIPANT].[SUPERSEDED_BY_NHS_NUMBER], " +
-            "[PARTICIPANT].[PRIMARY_CARE_PROVIDER], " +
-            "[PARTICIPANT].[GP_CONNECT], " +
-            "[PARTICIPANT].[PARTICIPANT_PREFIX], " +
-            "[PARTICIPANT].[PARTICIPANT_FIRST_NAME], " +
-            "[PARTICIPANT].[OTHER_NAME], " +
-            "[PARTICIPANT].[PARTICIPANT_LAST_NAME], " +
-            "[PARTICIPANT].[PARTICIPANT_BIRTH_DATE], " +
-            "[PARTICIPANT].[PARTICIPANT_GENDER], " +
-            "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
-            "[PARTICIPANT].[REMOVAL_DATE], " +
-            "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
-            "[ADDRESS].[ADDRESS_LINE_1], " +
-            "[ADDRESS].[ADDRESS_LINE_2], " +
-            "[ADDRESS].[CITY], " +
-            "[ADDRESS].[COUNTY], " +
-            "[ADDRESS].[POST_CODE] " +
-        "FROM [dbo].[PARTICIPANT] " +
-        "INNER JOIN [dbo].[ADDRESS] ON [PARTICIPANT].[PARTICIPANT_ID]=[ADDRESS].[PARTICIPANT_ID] " +
-        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@IsActive", 'Y' },
-            {"@NhsNumber", nhsNumber }
-        };
-
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        return GetParticipant(command);
-    }
-
-    public Participant GetParticipant(IDbCommand command)
-    {
-        return ExecuteQuery(command, reader =>
-        {
-            var participant = new Participant();
-            while (reader.Read())
-            {
-                participant.ParticipantId = reader["PARTICIPANT_ID"] == DBNull.Value ? "-1" : reader["PARTICIPANT_ID"].ToString();
-                participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
-                participant.SupersededByNhsNumber = reader["SUPERSEDED_BY_NHS_NUMBER"] == DBNull.Value ? null : reader["SUPERSEDED_BY_NHS_NUMBER"].ToString();
-                participant.PrimaryCareProvider = reader["PRIMARY_CARE_PROVIDER"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER"].ToString();
-                participant.NamePrefix = reader["PARTICIPANT_PREFIX"] == DBNull.Value ? null : reader["PARTICIPANT_PREFIX"].ToString();
-                participant.FirstName = reader["PARTICIPANT_FIRST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_FIRST_NAME"].ToString();
-                participant.OtherGivenNames = reader["OTHER_NAME"] == DBNull.Value ? null : reader["OTHER_NAME"].ToString();
-                participant.Surname = reader["PARTICIPANT_LAST_NAME"] == DBNull.Value ? null : reader["PARTICIPANT_LAST_NAME"].ToString();
-                participant.DateOfBirth = reader["PARTICIPANT_BIRTH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_BIRTH_DATE"].ToString();
-                participant.Gender = reader["PARTICIPANT_GENDER"] == DBNull.Value ? Gender.NotKnown : (Gender)(int)reader["PARTICIPANT_GENDER"];
-                participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL_CD"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_CD"].ToString();
-                participant.ReasonForRemovalEffectiveFromDate = reader["REMOVAL_DATE"] == DBNull.Value ? null : reader["REMOVAL_DATE"].ToString();
-                participant.DateOfDeath = reader["PARTICIPANT_DEATH_DATE"] == DBNull.Value ? null : reader["PARTICIPANT_DEATH_DATE"].ToString();
-                participant.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
-                participant.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
-                participant.AddressLine3 = reader["CITY"] == DBNull.Value ? null : reader["CITY"].ToString();
-                participant.AddressLine4 = reader["COUNTY"] == DBNull.Value ? null : reader["COUNTY"].ToString();
-                participant.AddressLine5 = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
-            }
-            return participant;
-        });
-    }
-
-    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
-    {
-        var result = default(T);
-        using (_dbConnection)
-        {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
-            {
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    result = mapFunction(reader);
-                }
-                _dbConnection.Close();
-            }
-            return result;
-        }
-    }
-
     private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            ExistingParticipant = existingParticipant,
-            NewParticipant = newParticipant,
-            Workflow = "UpdateParticipant",
-            FileName = fileName
-        });
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
         try
         {
@@ -426,7 +335,7 @@ public class CreateParticipantData : ICreateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            _logger.LogInformation("Lookup validation failed.\nMessage: {Message}\n", ex.Message);
             return false;
         }
 

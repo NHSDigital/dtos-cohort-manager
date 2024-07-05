@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ScreeningValidationService;
+namespace Common;
 
 using Model;
 
