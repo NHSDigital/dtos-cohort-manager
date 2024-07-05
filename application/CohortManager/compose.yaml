@@ -91,6 +91,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
+      - LookupValidationURL=http://localhost:7075/api/LookupValidation
 
   update-participant:
     container_name: update-participant
