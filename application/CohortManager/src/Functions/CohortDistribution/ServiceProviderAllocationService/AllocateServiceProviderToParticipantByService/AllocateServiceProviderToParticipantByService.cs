@@ -8,7 +8,6 @@ using Model;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using NHS.CohortManager.CohortDistributionService;
 
 public class AllocateServiceProviderToParticipantByService
 {
@@ -35,7 +34,6 @@ public class AllocateServiceProviderToParticipantByService
         try
         {
             string logMessage;
-            string exceptionJson;
 
             using (StreamReader reader = new StreamReader (req.Body, Encoding.UTF8))
             {
@@ -123,12 +121,6 @@ public class AllocateServiceProviderToParticipantByService
         .OrderByDescending(item => item.Postcode.Length)
         .Select(item => item.ServiceProvider)
         .FirstOrDefault();
-    }
-
-    private int GetScore (AllocationConfigData config, string postCode, string screeningService)
-    {
-        return (config.Postcode == postCode ? 1 : 0) +
-        (string.Equals(config.ScreeningService, screeningService, StringComparison.OrdinalIgnoreCase) ? 1 : 0);
     }
 
 }

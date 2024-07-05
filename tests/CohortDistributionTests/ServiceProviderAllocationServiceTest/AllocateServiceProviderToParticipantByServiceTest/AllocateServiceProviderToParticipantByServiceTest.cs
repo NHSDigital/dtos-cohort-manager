@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using NHS.CohortManager.ServiceProviderAllocationService;
-using NHS.CohortManager.CohortDistributionService;
-using System.Text;
 
 [TestClass]
 public class AllocateServiceProviderToParticipantByServiceTests
@@ -53,6 +51,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         {
             var response = req.CreateResponse(statusCode);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            response.WriteString(responseBody);
             return response;
         });
 
@@ -75,10 +74,11 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Act
         var result = await _function.Run(_request.Object);
-        string responseBody = await ReadResponseBodyAsync(result);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual("BS Select - NE63", responseBody);
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Never());
     }
 
@@ -99,7 +99,6 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Act
         var result = await _function.Run(_request.Object);
-        string responseBody = await ReadResponseBodyAsync(result);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
@@ -150,13 +149,6 @@ public class AllocateServiceProviderToParticipantByServiceTests
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
-    }
-
-    private async Task<string> ReadResponseBodyAsync(HttpResponseData responseData)
-    {
-        responseData.Body.Position = 0;
-        using var reader = new StreamReader(responseData.Body, Encoding.UTF8);
-        return await reader.ReadToEndAsync();
     }
 
 }

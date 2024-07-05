@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistributionService;
+namespace Common;
 public class AllocationConfigRequestBody
 {
     public string? NhsNumber { get; set; }

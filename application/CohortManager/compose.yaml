@@ -273,3 +273,4 @@ services:
       dockerfile: CohortDistribution/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
