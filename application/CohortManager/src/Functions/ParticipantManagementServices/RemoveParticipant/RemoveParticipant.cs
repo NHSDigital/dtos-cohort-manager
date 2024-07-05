@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Data.Database;
 
 public class RemoveParticipant
 {
@@ -16,14 +17,16 @@ public class RemoveParticipant
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
+    private readonly IUpdateParticipantData _updateParticipantData;
 
-    public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+    public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IUpdateParticipantData updateParticipantData)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
+        _updateParticipantData = updateParticipantData;
     }
 
     [Function("RemoveParticipant")]
@@ -57,6 +60,12 @@ public class RemoveParticipant
             };
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
+            var oldParticipant = _updateParticipantData.GetParticipant(participant.NhsNumber);
+            if (!await ValidateData(oldParticipant, participant))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 
             if (createResponse.StatusCode == HttpStatusCode.OK)
@@ -71,5 +80,32 @@ public class RemoveParticipant
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant)
+    {
+        var json = JsonSerializer.Serialize(new
+        {
+            ExistingParticipant = existingParticipant,
+            NewParticipant = newParticipant,
+            Workflow = "RemoveParticipant",
+        });
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return false;
+        }
+
+        return false;
     }
 }

@@ -16,5 +16,14 @@
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
+  },
+  {
+    "WorkflowName": "RemoveParticipant",
+    "Rules": [
+      {
+        "RuleName": "2.ParticipantMustAlreadyExist",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      }
+    ]
   }
 ]

@@ -1,6 +1,7 @@
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Data.Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -10,6 +11,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
+        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
     })
     .Build();
 
