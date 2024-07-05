@@ -60,7 +60,7 @@ public class RemoveParticipant
             };
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            var oldParticipant = _updateParticipantData.GetParticipant(participant.NhsNumber);
+            var oldParticipant = _updateParticipantData.GetParticipant(basicParticipantCsvRecord.Participant.NhsNumber);
             if (!await ValidateData(oldParticipant, participant))
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
