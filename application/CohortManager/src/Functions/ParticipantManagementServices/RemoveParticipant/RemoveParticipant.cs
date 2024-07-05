@@ -34,7 +34,7 @@ public class RemoveParticipant
     {
         try
         {
-            _logger.LogInformation("C# addParticipant called.");
+            _logger.LogInformation("C# RemoveParticipant called.");
             HttpWebResponse createResponse;
 
             string postData = "";
