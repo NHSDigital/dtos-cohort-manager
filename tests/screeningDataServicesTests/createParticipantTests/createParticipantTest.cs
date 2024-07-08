@@ -20,24 +20,19 @@ public class CreateParticipantTests
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
     private readonly Mock<FunctionContext> _mockContext = new();
     private Mock<HttpRequestData> _mockRequest;
-    private ParticipantCsvRecord _participantCsvRecord = new();
 
-    public CreateParticipantTests()
+    [TestMethod]
+    public async Task Run_ValidRequest_ReturnsSuccess()
     {
-        _participantCsvRecord = new ParticipantCsvRecord
+        // Arrange
+        var participantCsvRecord = new ParticipantCsvRecord
         {
             Participant = new Participant
             {
                 NhsNumber = "1234567890"
             }
         };
-    }
-
-    [TestMethod]
-    public async Task Run_ValidRequest_ReturnsSuccess()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
         var sut = new ScreeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
