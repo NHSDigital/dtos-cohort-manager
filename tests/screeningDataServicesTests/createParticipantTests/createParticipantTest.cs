@@ -9,29 +9,38 @@ using Moq;
 using Common;
 using Data.Database;
 using Model;
-using Model.Enums;
-using screeningDataServices;
+using NHS.CohortManager.Tests.TestUtils;
+using System.Text.Json;
 
 [TestClass]
 public class CreateParticipantTests
 {
-    private readonly Mock<ILogger<screeningDataServices.CreateParticipant>> _mockLogger = new();
+    private readonly Mock<ILogger<ScreeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
     private readonly Mock<FunctionContext> _mockContext = new();
     private Mock<HttpRequestData> _mockRequest;
+    private ParticipantCsvRecord _participantCsvRecord = new();
+
+    public CreateParticipantTests()
+    {
+        _participantCsvRecord = new ParticipantCsvRecord
+        {
+            Participant = new Participant
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+    }
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()
     {
         // Arrange
-        string requestBody = @"{
-            ""nhsnumber"": ""1234567890"",
-            ""supersededByNhsNumber"": ""0987654321""
-            }";
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-        var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
+        var sut = new ScreeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
         _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).ReturnsAsync(true);
 
         // Act
@@ -43,11 +52,11 @@ public class CreateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_InvalidRequest_Returns404()
+    public async Task Run_InvalidRequest_Returns500()
     {
         // Arrange
         _mockRequest = new Mock<HttpRequestData>(_mockContext.Object);
-        var sut = new screeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
+        var sut = new ScreeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object);
         _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).ReturnsAsync(false);
 
         // Act
@@ -56,38 +65,5 @@ public class CreateParticipantTests
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _mockCreateResponse.VerifyNoOtherCalls();
-    }
-
-    private Mock<Participant> GenerateMockModelParticipantDetails()
-    {
-        var participantMock = new Mock<Participant>();
-        participantMock.SetupAllProperties();
-
-        participantMock.Object.NhsNumber = "1234567890";
-        participantMock.Object.SupersededByNhsNumber = "0987654321";
-        participantMock.Object.PrimaryCareProvider = "";
-        participantMock.Object.NamePrefix = "";
-        participantMock.Object.FirstName = "";
-        participantMock.Object.OtherGivenNames = "";
-        participantMock.Object.Surname = "";
-        participantMock.Object.DateOfBirth = "";
-        participantMock.Object.Gender = Gender.NotKnown;
-        participantMock.Object.AddressLine1 = "";
-        participantMock.Object.AddressLine2 = "";
-        participantMock.Object.AddressLine3 = "";
-        participantMock.Object.AddressLine4 = "";
-        participantMock.Object.AddressLine5 = "";
-        participantMock.Object.Postcode = "";
-        participantMock.Object.ReasonForRemoval = "";
-        participantMock.Object.ReasonForRemovalEffectiveFromDate = "";
-        participantMock.Object.DateOfDeath = "";
-        participantMock.Object.TelephoneNumber = "";
-        participantMock.Object.MobileNumber = "";
-        participantMock.Object.EmailAddress = "";
-        participantMock.Object.PreferredLanguage = "";
-        participantMock.Object.IsInterpreterRequired = "0";
-        participantMock.Object.RecordType = "";
-
-        return participantMock;
     }
 }

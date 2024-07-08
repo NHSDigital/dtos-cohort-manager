@@ -31,8 +31,9 @@ public class CreateParticipantData : ICreateParticipantData
     {
         var participantData = participantCsvRecord.Participant;
 
-        var oldParticipant = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        if (!await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName))
+        // Check if a participant with the supplied NHS Number already exists
+        var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
+        if (!await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName))
         {
             return false;
         }
@@ -178,7 +179,7 @@ public class CreateParticipantData : ICreateParticipantData
         try
         {
             var result = command.ExecuteNonQuery();
-            _logger.LogInformation("Executing command affected {Rows} rows.", result);
+            _logger.LogInformation("Executing command affected {RowNumber} rows.", result);
 
             if (result == 0)
             {
