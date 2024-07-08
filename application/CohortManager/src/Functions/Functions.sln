@@ -104,6 +104,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{142C4501-749C-4ECC-8F9E-452F204D65DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "ScreeningValidationService\CreateException\CreateException.csproj", "{C0AB2A09-12FA-4E21-815C-66B560E4B19E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -278,6 +280,10 @@ Global
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0AB2A09-12FA-4E21-815C-66B560E4B19E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0AB2A09-12FA-4E21-815C-66B560E4B19E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0AB2A09-12FA-4E21-815C-66B560E4B19E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0AB2A09-12FA-4E21-815C-66B560E4B19E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -315,6 +321,7 @@ Global
 		{81BF10AD-AD08-4D47-8150-96FA09227107} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
 		{3F601DD8-88C6-4715-BD32-548CC0D575E8} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
 		{4650E40A-AD31-4474-A452-1D6A7F446DDC} = {3F601DD8-88C6-4715-BD32-548CC0D575E8}
+		{C0AB2A09-12FA-4E21-815C-66B560E4B19E} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
