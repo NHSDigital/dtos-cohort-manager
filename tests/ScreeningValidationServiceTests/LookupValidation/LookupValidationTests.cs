@@ -7,7 +7,6 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
@@ -44,7 +43,7 @@ public class LookupValidationTests
             FirstName = "John",
             Surname = "Smith"
         };
-        _requestBody = new LookupValidationRequestBody("UpdateParticipant", existingParticipant, newParticipant);
+        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
         _function = new LookupValidation(_callFunction.Object);
 
@@ -87,9 +86,10 @@ public class LookupValidationTests
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Fails(string nhsNumber)
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_AmendedParticipantMustExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -99,15 +99,19 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustAlreadyExist"))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("AmendedParticipantMustExist"))),
+            Times.Once());
     }
 
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustAlreadyExist_Rule_Passes(string nhsNumber)
+    public async Task Run_Should_Not_Create_Exception_When_AmendedParticipantMustExist_Rule_Passes(string nhsNumber)
     {
         // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -116,16 +120,19 @@ public class LookupValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustAlreadyExist"))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("AmendedParticipantMustExist"))),
+            Times.Never());
     }
 
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ParticipantMustNotAlreadyExist_Rule_Fails(string nhsNumber)
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NewParticipantMustNotAlreadyExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
-        _requestBody.Workflow = "AddParticipant";
+        _requestBody.NewParticipant.RecordType = Actions.New;
         _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -135,17 +142,20 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustNotAlreadyExist"))), Times.Once());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("NewParticipantMustNotAlreadyExist"))),
+            Times.Once());
     }
 
     [TestMethod]
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustNotAlreadyExist_Rule_Passes(string nhsNumber)
+    public async Task Run_Should_Not_Create_Exception_When_NewParticipantMustNotAlreadyExist_Rule_Passes(string nhsNumber)
     {
         // Arrange
-        _requestBody.Workflow = "AddParticipant";
+        _requestBody.NewParticipant.RecordType = Actions.New;
         _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -154,7 +164,10 @@ public class LookupValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.Is<string>(s => s.Contains("ParticipantMustNotAlreadyExist"))), Times.Never());
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("NewParticipantMustNotAlreadyExist"))),
+            Times.Never());
     }
 
     private void SetUpRequestBody(string json)
