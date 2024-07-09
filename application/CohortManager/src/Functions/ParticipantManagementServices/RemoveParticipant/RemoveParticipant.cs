@@ -60,8 +60,8 @@ public class RemoveParticipant
             };
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            var oldParticipant = _updateParticipantData.GetParticipant(basicParticipantCsvRecord.Participant.NhsNumber);
-            if (!await ValidateData(oldParticipant, participant))
+            var existingParticipantData = _updateParticipantData.GetParticipant(basicParticipantCsvRecord.Participant.NhsNumber);
+            if (!await ValidateData(existingParticipantData, participant, participantCsvRecord.FileName))
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
@@ -82,14 +82,9 @@ public class RemoveParticipant
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
     }
 
-    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant)
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            ExistingParticipant = existingParticipant,
-            NewParticipant = newParticipant,
-            Workflow = "RemoveParticipant",
-        });
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
         try
         {

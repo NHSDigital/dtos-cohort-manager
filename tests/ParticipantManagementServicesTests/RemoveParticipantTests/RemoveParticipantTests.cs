@@ -40,7 +40,7 @@ public class RemoveParticipantTests
                 FirstName = "Joe",
                 Surname = "Bloggs",
                 NhsNumber = "1",
-                RecordType = Actions.New
+                RecordType = Actions.Removed
             }
         };
 
