@@ -46,4 +46,5 @@ public class Participant
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
     public string? ParticipantId { get; set; }
+    public string? ExceptionRaised { get; set; }
 }
