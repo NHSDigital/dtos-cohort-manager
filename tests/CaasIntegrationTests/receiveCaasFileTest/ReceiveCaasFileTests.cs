@@ -140,4 +140,96 @@ public class ReceiveCaasFileTests
             await _receiveCaasFileInstance.Run(memoryStream, fileName);
         });
     }
+
+    [TestMethod]
+    public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
+    {
+        // Arrange
+        string fileName = "BSS_ccyymmddhhmmss_3.csv";
+        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
+        var memoryStream = new MemoryStream(csvDataBytes);
+        _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
+        .Returns(() => new StreamReader(memoryStream));
+
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+
+        // Act
+        await _receiveCaasFileInstance.Run(memoryStream, fileName);
+
+        // Assert
+        _mockLogger.Verify(
+            m => m.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ),
+            Times.AtLeastOnce,
+            "No logging received."
+        );
+
+        _mockICallFunction.Verify(
+            x => x.SendPost(It.IsAny<string>(),
+            It.Is<string>(json => json == _expectedJson)),
+            Times.Once);
+    }
+
+        [TestMethod]
+    public async Task Run_InvalidFileNameRecordCount_ThrowsFileFormatException()
+    {
+        // Arrange
+        string fileName = "BSS_ccyymmddhhmmss_test.csv";
+        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
+        var memoryStream = new MemoryStream(csvDataBytes);
+        _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
+        .Returns(() => new StreamReader(memoryStream));
+
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+
+        // Act
+        await Assert.ThrowsExceptionAsync<FileFormatException>(async () =>
+        {
+            await _receiveCaasFileInstance.Run(memoryStream, fileName);
+        });
+
+        // Assert
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name is invalid. File name:")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
+
+        _mockICallFunction.Verify(
+        x => x.SendPost(It.IsAny<string>(),
+        It.IsAny<string>()),
+        Times.Never);
+    }
+
+        [TestMethod]
+    public async Task Run_FileNameRecordCountIsZero_ThrowsFileFormatException()
+    {
+        // Arrange
+        string fileName = "BSS_ccyymmddhhmmss_0.csv";
+        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
+        var memoryStream = new MemoryStream(csvDataBytes);
+        _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
+        .Returns(() => new StreamReader(memoryStream));
+
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+
+        // Act
+        await Assert.ThrowsExceptionAsync<FileFormatException>(async () =>
+        {
+            await _receiveCaasFileInstance.Run(memoryStream, fileName);
+        });
+
+        // Assert
+
+        _mockICallFunction.Verify(
+        x => x.SendPost(It.IsAny<string>(),
+        It.IsAny<string>()),
+        Times.Never);
+    }
 }
