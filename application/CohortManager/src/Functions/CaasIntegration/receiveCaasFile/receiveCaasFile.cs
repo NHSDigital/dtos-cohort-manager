@@ -54,6 +54,9 @@ public class ReceiveCaasFile
             if (num != numberOfRecords){
                 throw new FileFormatException("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + num);
             }
+            if (num == 0){
+                throw new FileFormatException("File contains no records. File name:" + name);
+            }
 
             foreach (var participant in records)
             {
