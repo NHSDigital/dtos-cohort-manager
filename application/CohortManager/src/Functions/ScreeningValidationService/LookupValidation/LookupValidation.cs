@@ -38,18 +38,23 @@ public class LookupValidation
 
         var existingParticipant = requestBody.ExistingParticipant;
         var newParticipant = requestBody.NewParticipant;
-        var workflow = requestBody.Workflow;
 
         string json = File.ReadAllText("lookupRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var re = new RulesEngine.RulesEngine(rules);
+
+        var reSettings = new ReSettings
+        {
+            CustomTypes = [typeof(Actions)]
+        };
+
+        var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
             new RuleParameter("existingParticipant", existingParticipant),
             new RuleParameter("newParticipant", newParticipant),
         };
 
-        var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
         var validationErrors = resultList.Where(x => x.IsSuccess == false);
 

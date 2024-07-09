@@ -4,5 +4,5 @@ using Model;
 
 public interface ICreateParticipantData
 {
-    public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord);
+    public Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord);
 }

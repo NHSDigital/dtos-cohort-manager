@@ -1,6 +1,9 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Net;
+using System.Text.Json;
+using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -10,22 +13,35 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
+    private readonly ICallFunction _callFunction;
+    private readonly IUpdateParticipantData _updateParticipantData;
 
-    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
+    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
+        ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
+        _callFunction = callFunction;
+        _updateParticipantData = updateParticipantData;
         _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
     }
 
-    public bool CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
+        var participantData = participantCsvRecord.Participant;
+
+        // Check if a participant with the supplied NHS Number already exists
+        var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
+        if (!await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName))
+        {
+            return false;
+        }
+
         string cohortId = "1";
         DateTime dateToday = DateTime.Today;
         DateTime maxEndDate = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
-        var participantData = participantCsvRecord.Participant;
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
             " COHORT_ID, " +
@@ -99,10 +115,10 @@ public class CreateParticipantData : ICreateParticipantData
         sqlToExecuteInOrder.Add(AddNewAddress(participantData));
         sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
 
-        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NhsNumber);
+        return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters);
     }
 
-    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams, string NhsNumber)
+    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
         foreach (var SqlCommand in sqlCommands)
@@ -153,7 +169,7 @@ public class CreateParticipantData : ICreateParticipantData
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
+            _logger.LogError("An error occurred while updating records: {Message}", ex.Message);
             return false;
         }
     }
@@ -163,7 +179,7 @@ public class CreateParticipantData : ICreateParticipantData
         try
         {
             var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
+            _logger.LogInformation("Executing command affected {RowNumber} rows.", result);
 
             if (result == 0)
             {
@@ -172,25 +188,25 @@ public class CreateParticipantData : ICreateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError("An error occurred while executing SQL command: {Message}", ex.Message);
             return false;
         }
 
         return true;
     }
 
-    private int ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
+    private int ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
     {
         command.Transaction = transaction;
         var newParticipantPk = -1;
 
         try
         {
-            command.CommandText = SQL;
-            _logger.LogInformation($"{SQL}");
+            command.CommandText = sql;
+            _logger.LogInformation("Command text: {Sql}", sql);
 
             var newParticipantResult = command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag ";
+            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag";
 
             command.CommandText = SQLGet;
             using (IDataReader reader = command.ExecuteReader())
@@ -202,11 +218,10 @@ public class CreateParticipantData : ICreateParticipantData
             }
 
             return newParticipantPk;
-
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError("An error occurred: {Message}", ex.Message);
             return -1;
         }
     }
@@ -223,6 +238,7 @@ public class CreateParticipantData : ICreateParticipantData
         var dbCommand = _dbConnection.CreateCommand();
         return AddParameters(parameters, dbCommand);
     }
+
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         foreach (var param in parameters)
@@ -281,9 +297,9 @@ public class CreateParticipantData : ICreateParticipantData
             Parameters = parameters
         };
     }
+
     private SQLReturnModel InsertContactPreference(Participant participantData)
     {
-
         string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
         "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
 
@@ -303,5 +319,27 @@ public class CreateParticipantData : ICreateParticipantData
             SQL = insertContactPreference,
             Parameters = parameters
         };
+    }
+
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    {
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation("Lookup validation failed.\nMessage: {Message}\n", ex.Message);
+            return false;
+        }
+
+        return false;
     }
 }

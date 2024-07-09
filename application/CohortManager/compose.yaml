@@ -265,3 +265,13 @@ services:
       dockerfile: CohortDistribution/TransformDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7080
+
+  allocate-service-provider:
+    container_name: allocate-service-provider
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistribution/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7081
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException

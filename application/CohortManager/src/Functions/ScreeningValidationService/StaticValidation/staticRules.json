@@ -12,7 +12,7 @@
       },
       {
         "RuleName": "8.RecordType",
-        "Expression": "participant.RecordType == \"New\" OR participant.RecordType == \"Amended\" OR participant.RecordType == \"Removed\""
+        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
       },
       {
         "RuleName": "58.CurrentPosting",
@@ -48,11 +48,11 @@
       },
       {
         "RuleName": "42.GPPracticeCode",
-        "Expression": "participant.RecordType != \"New\" OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)"
+        "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)"
       },
       {
         "RuleName": "66.DeathStatus",
-        "Expression": "participant.RecordType != \"Amended\" OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
+        "Expression": "participant.RecordType != Actions.Amended OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
       },
       {
         "RuleName": "19.ReasonForRemovalEffectiveFromDate",
@@ -64,7 +64,7 @@
       },
       {
         "RuleName": "47.NewParticipantWithRemovalOrDeath",
-        "Expression": "participant.RecordType != \"New\" OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
+        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
       },
       {
         "RuleName": "61.InvalidFlag",
