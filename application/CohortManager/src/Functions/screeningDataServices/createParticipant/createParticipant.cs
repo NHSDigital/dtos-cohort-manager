@@ -1,4 +1,4 @@
-namespace screeningDataServices;
+namespace NHS.CohortManager.ScreeningDataServices;
 
 using System.Net;
 using System.Text;
@@ -30,27 +30,26 @@ public class CreateParticipant
 
         try
         {
-            string requestBody = "";
             ParticipantCsvRecord participantCsvRecord;
 
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBody = await reader.ReadToEndAsync();
+                var requestBody = await reader.ReadToEndAsync();
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var participantCreated = _createParticipantData.CreateParticipantEntry(participantCsvRecord);
+            var participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
             if (participantCreated)
             {
-                _logger.LogInformation("Successfully created the participant(s)");
+                _logger.LogInformation("Successfully created the participant");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-            _logger.LogError("Failed to create the participant(s)");
+            _logger.LogError("Failed to create the participant");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, "Failed to make the CreateParticipant request");
+            _logger.LogError("Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
