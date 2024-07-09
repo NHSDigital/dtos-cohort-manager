@@ -27,7 +27,9 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
             MobileNumberEffectiveFromDate = participant.MobileNumberEffectiveFromDate,
             EmailAddressEffectiveFromDate = participant.EmailAddressEffectiveFromDate,
             InvalidFlag = participant.InvalidFlag,
-            ChangeReasonCode = participant.ChangeReasonCode
+            ChangeReasonCode = participant.ChangeReasonCode,
+            RemovalReason = participant.ReasonForRemoval,
+            RemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate
         };
     }
 }

@@ -57,6 +57,11 @@ namespace addParticipant
                 };
                 var json = JsonSerializer.Serialize(participantCsvRecord);
 
+                if (!await ValidateData(participantCsvRecord))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                }
+
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)
@@ -86,6 +91,28 @@ namespace addParticipant
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+        }
+
+        private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
+        {
+            var json = JsonSerializer.Serialize(participantCsvRecord);
+
+            try
+            {
+                var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+                return false;
+            }
+
+            return false;
         }
     }
 }
