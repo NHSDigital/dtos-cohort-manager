@@ -50,7 +50,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             return false;
         }
 
-        // End all old records ready for new ones to be created
         var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.ParticipantId));
         if (oldRecordsToEnd.Count == 0)
         {
@@ -124,17 +123,12 @@ public class UpdateParticipantData : IUpdateParticipantData
             { "@LoadDate", dateToday },
         };
 
-        // Common params already contains all the parameters we need for this
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
             CommandType = CommandType.Scalar,
             SQL = insertParticipant,
             Parameters = null
         });
-
-        SQLToExecuteInOrder.Add(AddNewAddress(participantData));
-        SQLToExecuteInOrder.Add(InsertContactPreference(participantData));
-
         return ExecuteBulkCommand(SQLToExecuteInOrder, commonParameters);
     }
 
@@ -159,7 +153,6 @@ public class UpdateParticipantData : IUpdateParticipantData
 
                 if (sqlCommand.CommandType == CommandType.Scalar)
                 {
-                    // When the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
                     AddParameters(new Dictionary<string, object>()
                     {
@@ -194,7 +187,6 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private List<SQLReturnModel> EndOldRecords(int oldId)
     {
-        // We don't want to get a record that is less than 0 or 0 as records start 1
         if (oldId <= 0)
         {
             return new List<SQLReturnModel>();
@@ -216,36 +208,12 @@ public class UpdateParticipantData : IUpdateParticipantData
             new SQLReturnModel()
             {
                 CommandType = CommandType.Command,
-                SQL = " UPDATE [dbo].[ADDRESS] " +
-                    " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
-                    " ACTIVE_FLAG = @IsActiveOldRecords " +
-                    " WHERE PARTICIPANT_ID = @ParticipantIdOld  ",
-                // We don't need to add params to all items as we don't want to duplicate them
-                Parameters = new Dictionary<string, object>
-                {
-                    {"@recordEndDateOldRecords", recordEndDate},
-                    {"@ParticipantIdOld", ParticipantId},
-                    {"@IsActiveOldRecords", IsActive},
-                },
-            },
-            new SQLReturnModel()
-            {
-                CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[PARTICIPANT] " +
                 " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
                 " ACTIVE_FLAG = @IsActiveOldRecords " +
                 " WHERE PARTICIPANT_ID = @ParticipantIdOld ",
                 Parameters = null,
             },
-            new SQLReturnModel()
-            {
-                CommandType = CommandType.Command,
-                SQL = " UPDATE [dbo].[CONTACT_PREFERENCE] " +
-                " SET RECORD_END_DATE = @recordEndDateOldRecords, " +
-                " ACTIVE_FLAG = @IsActiveOldRecords " +
-                " WHERE PARTICIPANT_ID = @ParticipantIdOld ",
-                Parameters = null
-            }
         };
         return listToReturn;
     }
@@ -267,14 +235,8 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[PARTICIPANT].[REASON_FOR_REMOVAL_CD], " +
             "[PARTICIPANT].[REMOVAL_DATE], " +
             "[PARTICIPANT].[PARTICIPANT_DEATH_DATE], " +
-            "[ADDRESS].[ADDRESS_LINE_1], " +
-            "[ADDRESS].[ADDRESS_LINE_2], " +
-            "[ADDRESS].[CITY], " +
-            "[ADDRESS].[COUNTY], " +
-            "[ADDRESS].[POST_CODE] " +
         "FROM [dbo].[PARTICIPANT] " +
-        "INNER JOIN [dbo].[ADDRESS] ON [PARTICIPANT].[PARTICIPANT_ID]=[ADDRESS].[PARTICIPANT_ID] " +
-        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive AND [ADDRESS].[ACTIVE_FLAG] = @IsActive";
+        "WHERE [PARTICIPANT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT].[ACTIVE_FLAG] = @IsActive";
 
         var parameters = new Dictionary<string, object>
         {
@@ -316,73 +278,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             }
             return participant;
         });
-    }
-
-    private SQLReturnModel AddNewAddress(Participant participantData)
-    {
-        string updateAddress =
-        " INSERT INTO dbo.ADDRESS " +
-        " ( PARTICIPANT_ID," +
-        " ADDRESS_TYPE, " +
-        " ADDRESS_LINE_1, " +
-        " ADDRESS_LINE_2, " +
-        " CITY, " +
-        " COUNTY,  " +
-        " POST_CODE,  " +
-        " LSOA,  " +
-        " RECORD_START_DATE,  " +
-        " RECORD_END_DATE, " +
-        " ACTIVE_FLAG,  " +
-        " LOAD_DATE)  " +
-        " VALUES  " +
-        " ( @NewParticipantId, " +
-        " null, " +
-        " @addressLine1, " +
-        " @addressLine2, " +
-        " null, " +
-        " null, " +
-        " null, " +
-        " null, " +
-        " @RecordStartDate,  " +
-        " @RecordEndDate, " +
-        " @ActiveFlag, " +
-        " @LoadDate)";
-
-        var parameters = new Dictionary<string, object>()
-        {
-            { "@addressLine1", participantData.AddressLine1 },
-            { "@addressLine2", participantData.AddressLine2 },
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = updateAddress,
-            Parameters = parameters
-        };
-    }
-
-    private SQLReturnModel InsertContactPreference(Participant participantData)
-    {
-        string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
-        "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@contactMethod", DBNull.Value},
-            {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
-            {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
-            {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = insertContactPreference,
-            Parameters = parameters
-        };
     }
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
@@ -529,6 +424,8 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
+        if (parameters == null) return dbCommand;
+
         foreach (var param in parameters)
         {
             var parameter = dbCommand.CreateParameter();

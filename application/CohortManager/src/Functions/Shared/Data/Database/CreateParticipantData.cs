@@ -96,9 +96,6 @@ public class CreateParticipantData : ICreateParticipantData
             Parameters = null
         });
 
-        sqlToExecuteInOrder.Add(AddNewAddress(participantData));
-        sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
-
         return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters, participantData.NhsNumber);
     }
 
@@ -124,7 +121,6 @@ public class CreateParticipantData : ICreateParticipantData
 
                 if (sqlCommand.CommandType == CommandType.Scalar)
                 {
-                    // when the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
                     AddParameters(new Dictionary<string, object>()
                     {
@@ -236,72 +232,5 @@ public class CreateParticipantData : ICreateParticipantData
         }
 
         return dbCommand;
-    }
-
-    private SQLReturnModel AddNewAddress(Participant participantData)
-    {
-        string updateAddress =
-            " INSERT INTO dbo.ADDRESS " +
-            " ( PARTICIPANT_ID," +
-            " ADDRESS_TYPE, " +
-            " ADDRESS_LINE_1,  " +
-            " ADDRESS_LINE_2, " +
-            " CITY, " +
-            " COUNTY,  " +
-            " POST_CODE,  " +
-            " LSOA,  " +
-            " RECORD_START_DATE,  " +
-            " RECORD_END_DATE, " +
-            " ACTIVE_FLAG,  " +
-            " LOAD_DATE)  " +
-            " VALUES  " +
-            " ( @NewParticipantId, " +
-            " null, " +
-            " @addressLine1, " +
-            " @addressLine2, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " @RecordStartDate,  " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate)";
-
-        var parameters = new Dictionary<string, object>()
-        {
-            { "@addressLine1", participantData.AddressLine1 },
-            { "@addressLine2", participantData.AddressLine2 },
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = updateAddress,
-            Parameters = parameters
-        };
-    }
-    private SQLReturnModel InsertContactPreference(Participant participantData)
-    {
-
-        string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
-        "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@contactMethod", DBNull.Value},
-            {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
-            {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
-            {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = insertContactPreference,
-            Parameters = parameters
-        };
     }
 }
