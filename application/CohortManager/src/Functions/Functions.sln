@@ -106,6 +106,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "CreateException\CreateException.csproj", "{F694FC4E-A899-4466-B26F-B0E4C6E50F18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkParticipantAsIneligibleTests", "..\..\..\..\tests\screeningDataServicesTests\MarkParticipantAsIneligibleTests\MarkParticipantAsIneligibleTests.csproj", "{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -276,6 +278,10 @@ Global
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
