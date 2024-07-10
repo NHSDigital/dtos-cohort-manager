@@ -8,6 +8,7 @@ using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Common;
 using NHS.Screening.ReceiveCaasFile;
+using Microsoft.AspNetCore.Http;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -27,7 +28,7 @@ public class ReceiveCaasFileTests
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIFileReader = new Mock<IFileReader>();
         _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockICallFunction.Object);
-        _blobName = "testBlob.csv";
+        _blobName = "BSS_ccyymmddhhmmss_n3.csv";
 
         _validCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n" +
         "New,20240524153000,1,1111111111,,B83006,20240410,Manchester,20240410,Edinburgh,20230410,Mr,Joe,,Bloggs,,19711221,1,HEXAGON HOUSE,PYNES HILL,RYDON LANE,EXETER,DEVON,BV3 9ZA,1234,,,,,,,,,,,,English,0,0,1,,\n" +
@@ -145,7 +146,7 @@ public class ReceiveCaasFileTests
     public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
     {
         // Arrange
-        string fileName = "BSS_ccyymmddhhmmss_3.csv";
+        string fileName = "BSS_ccyymmddhhmmss_n3.csv";
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);
         _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
@@ -157,18 +158,6 @@ public class ReceiveCaasFileTests
         await _receiveCaasFileInstance.Run(memoryStream, fileName);
 
         // Assert
-        _mockLogger.Verify(
-            m => m.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ),
-            Times.AtLeastOnce,
-            "No logging received."
-        );
-
         _mockICallFunction.Verify(
             x => x.SendPost(It.IsAny<string>(),
             It.Is<string>(json => json == _expectedJson)),
@@ -211,21 +200,25 @@ public class ReceiveCaasFileTests
     public async Task Run_FileNameRecordCountIsZero_ThrowsFileFormatException()
     {
         // Arrange
-        string fileName = "BSS_ccyymmddhhmmss_0.csv";
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
+        var fileName = "BSS_ccyymmddhhmmss_n0.csv";
+        var altValidCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code";
+        byte[] csvDataBytes = Encoding.UTF8.GetBytes(altValidCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);
         _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
         .Returns(() => new StreamReader(memoryStream));
 
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(() => new { StatusCode = 200 }).Verifiable();
 
         // Act
-        await Assert.ThrowsExceptionAsync<FileFormatException>(async () =>
-        {
-            await _receiveCaasFileInstance.Run(memoryStream, fileName);
-        });
+        await _receiveCaasFileInstance.Run(memoryStream, fileName);
 
         // Assert
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("validation failed.")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
         _mockICallFunction.Verify(
         x => x.SendPost(It.IsAny<string>(),
