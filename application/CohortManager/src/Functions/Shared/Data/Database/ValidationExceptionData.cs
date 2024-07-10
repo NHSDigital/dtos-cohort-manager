@@ -78,7 +78,7 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             {"@nhsNumber", exception.NhsNumber},
             {"@dateCreated", exception.DateCreated},
-            {"@dateResolved", exception.DateResolved},
+            {"@dateResolved", exception.DateResolved.HasValue ? exception.DateResolved : DBNull.Value},
             {"@ruleId", exception.RuleId},
             {"@ruleDescription", exception.RuleDescription},
             {"@ruleContent", exception.RuleContent},
