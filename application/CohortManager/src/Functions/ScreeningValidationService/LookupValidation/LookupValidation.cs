@@ -73,7 +73,7 @@ public class LookupValidation
                 DateResolved = DateTime.MaxValue,
                 Category = 1,
                 ScreeningService = 1,
-                Cohort = null,
+                Cohort = "",
                 Fatal = 0
             };
 
