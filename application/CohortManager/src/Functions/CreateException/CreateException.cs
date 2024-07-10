@@ -9,51 +9,48 @@ using System.Text.Json;
 using Model;
 using System.Runtime.CompilerServices;
 using Common;
+using Data.Database;
 
 public class CreateException
 {
     private readonly ILogger<CreateException> _logger;
+    private readonly IValidationExceptionData _validationData;
+
+    private readonly ICreateResponse _createResponse;
 
     private readonly ICallFunction _callFunction;
-    public CreateException(ILogger<CreateException> logger, ICallFunction callFunction)
+    public CreateException(ILogger<CreateException> logger, ICallFunction callFunction, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
     {
         _logger = logger;
         _callFunction = callFunction;
+        _validationData = validationExceptionData;
+        _createResponse = createResponse;
     }
 
     [Function("CreateException")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
 
-        ValidationException validationException;
+        ValidationException exception;
+        var requestBody = "";
 
+        using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+        {
+            requestBody = await reader.ReadToEndAsync();
+            exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
+        }
         try
         {
-            string requestBody;
-
-            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-            }
-
-            if (String.IsNullOrEmpty(requestBody))
+            if (!string.IsNullOrEmpty(requestBody))
             {
                 _logger.LogError("CreateException received an empty payload");
-                return req.CreateResponse(HttpStatusCode.BadRequest);
+
+                if (_validationData.Create(exception))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                }
             }
-
-            validationException = JsonSerializer.Deserialize<ValidationException>(requestBody);
-
-            var jsonString = JsonSerializer.Serialize<ValidationException>(validationException);
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), jsonString);
-
-            if (createResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return req.CreateResponse(HttpStatusCode.BadRequest);
-            }
-            return req.CreateResponse(HttpStatusCode.OK);
-
-
+            return req.CreateResponse(HttpStatusCode.BadRequest);
 
         }
         catch (Exception ex)
@@ -61,6 +58,7 @@ public class CreateException
             _logger.LogError(ex, "there has been an error while creating an exception record: {Message}", ex.Message);
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
+
     }
 }
 

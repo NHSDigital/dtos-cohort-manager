@@ -17,10 +17,16 @@ public class StaticValidation
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICallFunction _callFunction;
 
-    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction)
+    private readonly ICreateResponse _createResponse;
+
+    private readonly IHandleException _handleException;
+
+    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IHandleException handleException, ICreateResponse createResponse)
     {
         _logger = logger;
         _callFunction = callFunction;
+        _handleException = handleException;
+        _createResponse = createResponse;
     }
 
     [Function("StaticValidation")]
@@ -54,39 +60,17 @@ public class StaticValidation
         var ruleParameters = new[] {
             new RuleParameter("participant", participantCsvRecord.Participant),
         };
-
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
         var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-        foreach (var error in validationErrors)
-        {
-            var ruleDetails = error.Rule.RuleName.Split('.');
-
-            var exception = new ValidationException
-            {
-                RuleId = int.Parse(ruleDetails[0]),
-                RuleDescription = ruleDetails[1],
-                RuleContent = ruleDetails[1],
-                FileName = participantCsvRecord.FileName,
-                NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                DateCreated = DateTime.UtcNow,
-                DateResolved = DateTime.MaxValue,
-                Category = 1,
-                ScreeningService = 1,
-                Cohort = "",
-                Fatal = 0
-            };
-
-            var exceptionJson = JsonSerializer.Serialize(exception);
-            await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
-        }
-
         if (validationErrors.Any())
         {
-            return req.CreateResponse(HttpStatusCode.BadRequest);
+            var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+            var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, updatedCsvRecordJson);
         }
 
-        return req.CreateResponse(HttpStatusCode.OK);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

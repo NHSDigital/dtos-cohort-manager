@@ -55,10 +55,10 @@ public class UpdateParticipantFunction
             };
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            if (!await ValidateData(participantCsvRecord))
+            var response = await ValidateData(participantCsvRecord);
+            if (response.Participant.ExceptionRaised == "Y")
             {
-                _logger.LogInformation("The participant has not been updated due to a bad request.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                participantCsvRecord = response;
             }
 
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
@@ -79,7 +79,7 @@ public class UpdateParticipantFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 
-    private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
@@ -87,17 +87,19 @@ public class UpdateParticipantFunction
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode != HttpStatusCode.BadRequest)
             {
-                return true;
+                var responseText = await _callFunction.GetResponseText(response);
+                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                return updatedCsvRecordJson;
             }
         }
         catch (Exception ex)
         {
             _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return false;
+            return participantCsvRecord;
         }
 
-        return false;
+        return participantCsvRecord;
     }
 }

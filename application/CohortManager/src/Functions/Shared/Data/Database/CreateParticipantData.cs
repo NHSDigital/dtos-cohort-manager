@@ -33,9 +33,10 @@ public class CreateParticipantData : ICreateParticipantData
 
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        if (!await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName))
+        var response = await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName);
+        if (response.ExceptionRaised == "Y")
         {
-            return false;
+            participantData = response;
         }
 
         string cohortId = "1";
@@ -321,25 +322,25 @@ public class CreateParticipantData : ICreateParticipantData
         };
     }
 
-    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(await _callFunction.GetResponseText(response));
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                return true;
+                return updatedCsvRecordJson.Participant;
             }
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("Lookup validation failed.\nMessage: {Message}\n", ex.Message);
-            return false;
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return null;
         }
 
-        return false;
+        return newParticipant;
     }
 }

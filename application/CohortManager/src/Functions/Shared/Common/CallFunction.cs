@@ -48,7 +48,7 @@ public class CallFunction : ICallFunction
         return response;
     }
 
-    protected async Task<string> GetResponseText(HttpWebResponse httpResponseData)
+    public async Task<string> GetResponseText(HttpWebResponse httpResponseData)
     {
         using (Stream stream = httpResponseData.GetResponseStream())
         {

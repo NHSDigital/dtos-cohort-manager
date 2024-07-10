@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Grpc.Net.Client.Balancer;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Model;
@@ -12,10 +13,15 @@ using RulesEngine.Models;
 public class LookupValidation
 {
     private readonly ICallFunction _callFunction;
+    private readonly IHandleException _handleException;
 
-    public LookupValidation(ICallFunction callFunction)
+    private readonly ICreateResponse _createResponse;
+
+    public LookupValidation(ICallFunction callFunction, ICreateResponse createResponse, IHandleException handleException)
     {
         _callFunction = callFunction;
+        _createResponse = createResponse;
+        _handleException = handleException;
     }
 
     [Function("LookupValidation")]
@@ -58,27 +64,18 @@ public class LookupValidation
 
         var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-        foreach (var error in validationErrors)
+        if (validationErrors.Any())
         {
-            var ruleDetails = error.Rule.RuleName.Split('.');
 
-            var exception = new ValidationException
+            var participantCsvRecord = new ParticipantCsvRecord()
             {
-                RuleId = int.Parse(ruleDetails[0]),
-                RuleDescription = ruleDetails[1],
-                RuleContent = ruleDetails[1],
-                FileName = requestBody.FileName,
-                NhsNumber = newParticipant.NhsNumber,
-                DateCreated = DateTime.UtcNow,
-                DateResolved = DateTime.MaxValue,
-                Category = 1,
-                ScreeningService = 1,
-                Cohort = "",
-                Fatal = 0
+                Participant = newParticipant,
+                FileName = requestBody.FileName
             };
 
-            var exceptionJson = JsonSerializer.Serialize(exception);
-            await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
+            var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+            var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, updatedCsvRecordJson);
         }
 
         if (validationErrors.Any())

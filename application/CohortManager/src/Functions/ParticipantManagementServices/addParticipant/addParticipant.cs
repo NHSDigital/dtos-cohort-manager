@@ -55,13 +55,14 @@ namespace addParticipant
                     Participant = participant,
                     FileName = basicParticipantCsvRecord.FileName,
                 };
-                var json = JsonSerializer.Serialize(participantCsvRecord);
 
-                if (!await ValidateData(participantCsvRecord))
+                var response = await ValidateData(participantCsvRecord);
+                if (response.Participant.ExceptionRaised == "Y")
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                    participantCsvRecord = response;
                 }
 
+                var json = JsonSerializer.Serialize(participantCsvRecord);
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)
@@ -93,7 +94,7 @@ namespace addParticipant
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 
-        private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
+        private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
@@ -101,18 +102,20 @@ namespace addParticipant
             {
                 var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
 
-                if (response.StatusCode == HttpStatusCode.OK)
+                if (response.StatusCode != HttpStatusCode.BadRequest)
                 {
-                    return true;
+                    var responseText = await _callFunction.GetResponseText(response);
+                    var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                    return updatedCsvRecordJson;
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-                return false;
+                return participantCsvRecord;
             }
 
-            return false;
+            return participantCsvRecord;
         }
     }
 }
