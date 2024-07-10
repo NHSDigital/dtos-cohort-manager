@@ -26,20 +26,28 @@ public class MarkParticipantAsIneligible
     }
 
     [Function("markParticipantAsIneligible")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        string postData = "";
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+        ParticipantCsvRecord requestBody;
+
+        try
         {
-            postData = reader.ReadToEnd();
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                var requestBodyJson = reader.ReadToEnd();
+                requestBody = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
+            }
+        }
+        catch
+        {
+            return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        var participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(postData);
-        var participantData = participantCsvRecord.Participant;
+        var participantData = requestBody.Participant;
 
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        if (!await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName))
+        if (!await ValidateData(existingParticipantData, participantData, requestBody.FileName))
         {
             _logger.LogInformation("The participant has not been removed due to a bad request.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
