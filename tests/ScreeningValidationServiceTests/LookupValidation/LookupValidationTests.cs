@@ -170,6 +170,50 @@ public class LookupValidationTests
             Times.Never());
     }
 
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow(" ")]
+    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_RemovedParticipantMustExist_Rule_Fails(string nhsNumber)
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Removed;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("RemovedParticipantMustExist"))),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("0000000000")]
+    [DataRow("9999999999")]
+    public async Task Run_Should_Not_Create_Exception_When_RemovedParticipantMustExist_Rule_Passes(string nhsNumber)
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Removed;
+        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(
+            It.Is<string>(s => s == "CreateValidationExceptionURL"),
+            It.Is<string>(s => s.Contains("RemovedParticipantMustExist"))),
+            Times.Never());
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

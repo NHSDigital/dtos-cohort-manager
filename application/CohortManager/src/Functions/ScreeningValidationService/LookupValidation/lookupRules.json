@@ -9,6 +9,10 @@
       {
         "RuleName": "2.AmendedParticipantMustExist",
         "Expression": "newParticipant.RecordType != Actions.Amended OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      },
+      {
+        "RuleName": "3.RemovedParticipantMustExist",
+        "Expression": "newParticipant.RecordType != Actions.Removed OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
   }
