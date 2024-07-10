@@ -72,6 +72,26 @@ BEGIN
 END
 
 /*==============================================================*/
+/* Table: GENDER_MASTER                                         */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'GENDER_MASTER'
+)
+BEGIN
+    CREATE TABLE dbo.GENDER_MASTER
+    (
+        GENDER_CD VARCHAR(2) NOT NULL,
+        GENDER_DESC VARCHAR(10) NULL,
+        CONSTRAINT PK_GENDER_MASTER
+            PRIMARY KEY (GENDER_CD)
+    );
+END
+
+/*==============================================================*/
 /* Table: PARTICIPANT                                           */
 /*==============================================================*/
 IF NOT EXISTS
@@ -84,7 +104,7 @@ IF NOT EXISTS
 BEGIN
     CREATE TABLE dbo.PARTICIPANT
     (
-        PARTICIPANT_ID INT IDENTITY(1, 1) NOT NULL,
+        PARTICIPANT_ID BIGINT IDENTITY(1, 1) NOT NULL,
         COHORT_ID INT NOT NULL,
         GENDER_CD VARCHAR(2) NULL,
         NHS_NUMBER BIGINT NOT NULL,
@@ -111,10 +131,13 @@ BEGIN
         ACTIVE_FLAG CHAR NOT NULL,
         LOAD_DATE DATE NULL,
         CONSTRAINT FK_PARTICIPANT_COHORT
-        FOREIGN KEY (COHORT_ID)
-        REFERENCES dbo.COHORT (COHORT_ID),
+          FOREIGN KEY (COHORT_ID)
+          REFERENCES dbo.COHORT (COHORT_ID),
         CONSTRAINT PK_PARTICIPANT
-            PRIMARY KEY (PARTICIPANT_ID)
+          PRIMARY KEY (PARTICIPANT_ID),
+        CONSTRAINT FK_PARTICIPANT_GENDER_FK_GENDER_M
+          FOREIGN KEY (GENDER_CD)
+          REFERENCES GENDER_MASTER (GENDER_CD)
     );
 END
 
@@ -204,7 +227,7 @@ IF NOT EXISTS
     SELECT *
     FROM INFORMATION_SCHEMA.TABLES
     WHERE TABLE_SCHEMA = 'dbo'
-          AND TABLE_NAME = 'PARTICIPANT_MANAGEMENT'
+    AND TABLE_NAME = 'PARTICIPANT_MANAGEMENT'
 )
 BEGIN
     CREATE TABLE PARTICIPANT_MANAGEMENT
