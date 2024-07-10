@@ -48,21 +48,7 @@ public class ReceiveCaasFile
             using var blobStreamReader = new StreamReader(stream);
             using var csv = new CsvReader(blobStreamReader, config);
             csv.Context.RegisterClassMap<ParticipantMap>();
-            
-            int num = records.Count();
-            if (num != numberOfRecords){
-                throw new FileFormatException("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + num);
-            }
-            if (num == 0){
-                throw new FileFormatException("File contains no records. File name:" + name);
-            }
-
-            stream.Position = 0;
-            using var blobStreamReader2 = new StreamReader(stream);
-            using var csv2 = new CsvReader(blobStreamReader2, config);
-            csv2.Context.RegisterClassMap<ParticipantMap>();
-
-            var records = csv2.GetRecords<Participant>();
+            var records = csv.GetRecords<Participant>();
 
             foreach (var participant in records)
             {
@@ -76,10 +62,17 @@ public class ReceiveCaasFile
                 }
                 catch (Exception ex)
                 {
-                    badRecords.Add(rowNumber, csv2.Context.Parser.RawRecord);
+                    badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                     _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
                     await InsertValidationErrorIntoDatabase(name);
                 }
+            }
+
+            if (rowNumber != numberOfRecords){
+                throw new FileFormatException("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + num);
+            }
+            if (rowNumber == 0){
+                throw new FileFormatException("File contains no records. File name:" + name);
             }
         }
         catch (Exception ex) when (ex is HeaderValidationException || ex is CsvHelperException || ex is FileFormatException)
@@ -136,8 +129,8 @@ public class ReceiveCaasFile
 
     private int? GetNumberOfRecordsFromFileName(string name)
     {
-        var str = name.Remove(name.IndexOf('.')).Substring(1);
-        var numberOfRecords = str.Split('_')[2];
+        var str = name.Remove(name.IndexOf('.'));
+        var numberOfRecords = (str.Split('_')[2]).Substring(1);
         
         if (Int32.TryParse(numberOfRecords, out int n))
         {
