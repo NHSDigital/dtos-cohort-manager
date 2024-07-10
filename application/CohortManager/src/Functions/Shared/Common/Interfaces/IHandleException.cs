@@ -6,6 +6,6 @@ using Model;
 public interface IHandleException
 {
 
-    Task<Participant> CreateSystemExceptionLog(ValidationException validationException, Participant participant);
+    Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant);
     Task<Participant> CreateValidationExceptionLog(HttpWebResponse response, Participant participant);
 }

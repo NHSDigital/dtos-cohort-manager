@@ -14,19 +14,23 @@ public class HandleException : CallFunction, IHandleException
 {
     private readonly ILogger<HandleException> _logger;
 
+    private static readonly int SYSTEMEXCEPTIONCATEGORY = 99;
+
     public HandleException(ILogger<HandleException> logger)
     {
 
         _logger = logger;
     }
 
-    public async Task<Participant> CreateSystemExceptionLog(ValidationException validationException, Participant participant)
+    public async Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant)
     {
         var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
         {
             participant.ExceptionRaised = "Y";
         }
+
+        var validationException = createValidationException(participant,exception);
 
         await SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
@@ -52,5 +56,22 @@ public class HandleException : CallFunction, IHandleException
             throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
         }
         return url;
+    }
+
+    private ValidationException createValidationException(Participant participant, Exception exception){
+        // mapping liable to change.
+            return new ValidationException{
+                NhsNumber = participant.NhsNumber,
+                DateCreated = DateTime.Now,
+                DateResolved = DateTime.MaxValue,
+                RuleId = exception.HResult,
+                RuleDescription = exception.Message,
+                RuleContent = "System Exception",
+                Category = SYSTEMEXCEPTIONCATEGORY,
+                ScreeningService = 1,
+                Cohort = "Cohort Temp",
+                Fatal = 1
+            };
+
     }
 }
