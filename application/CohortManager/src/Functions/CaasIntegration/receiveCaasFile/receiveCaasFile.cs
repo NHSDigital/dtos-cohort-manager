@@ -84,7 +84,6 @@ public class ReceiveCaasFile
             _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
             return;
-            return;
         }
         try
         {
