@@ -10,154 +10,47 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Model;
 
-public class HandleException : IHandleException
+public class HandleException : CallFunction, IHandleException
 {
-
-    private readonly ICallFunction _callFunction;
     private readonly ILogger<HandleException> _logger;
-    public HandleException(ICallFunction callFunction, ILogger<HandleException> logger)
+
+    public HandleException(ILogger<HandleException> logger)
     {
-        _callFunction = callFunction;
+
         _logger = logger;
     }
-    public async Task<Participant> CheckStaticValidationRules(ParticipantCsvRecord participantCsvRecord)
+
+    public async Task<Participant> CreateSystemExceptionLog(ValidationException validationException, Participant participant)
     {
-        var json = JsonSerializer.Serialize(participantCsvRecord);
-
-        try
-        {
-            return await CallExceptionFunction(Environment.GetEnvironmentVariable("LookupValidationURL"), json, participantCsvRecord.Participant);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return participantCsvRecord.Participant;
-        }
-    }
-
-    public async Task<Participant> CheckLookupValidationRules(Participant existingParticipant, Participant newParticipant, string fileName, string workFlow)
-    {
-        var json = JsonSerializer.Serialize(new
-        {
-            ExistingParticipant = existingParticipant,
-            NewParticipant = newParticipant,
-            Workflow = workFlow,
-            FileName = fileName
-        });
-
-        try
-        {
-            return await CallExceptionFunction(Environment.GetEnvironmentVariable("LookupValidationURL"), json, existingParticipant);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return existingParticipant;
-        }
-    }
-
-    public async Task<Participant> CheckTransformationValidationRules(ParticipantCsvRecord participantCsvRecord)
-    {
-        var json = JsonSerializer.Serialize(participantCsvRecord);
-        try
-        {
-            return await CallExceptionFunction(Environment.GetEnvironmentVariable("CheckTransFormationURL"), json, participantCsvRecord.Participant);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return participantCsvRecord.Participant;
-        }
-    }
-
-    public async Task<bool> CallExceptionFunction(Participant participant, string fileName)
-    {
-        participant.ExceptionRaised = "Y";
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), GetValidationExceptionJson(participant, fileName));
-        return response.StatusCode == HttpStatusCode.OK;
-    }
-
-    public async Task<bool> DemographicDataRetrievedSuccessfully(Demographic demographicData, Participant participant, string fileName)
-    {
-        if (demographicData == null)
+        var url = getUrlFromEnvironment();
+        if (participant.NhsNumber != null)
         {
             participant.ExceptionRaised = "Y";
-            await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), GetValidationExceptionJson(participant, fileName));
-            return false;
         }
 
-        // Get all properties of the object
-        PropertyInfo[] properties = demographicData.GetType().GetProperties();
-
-        if (properties.All(property => property.GetValue(demographicData) == null))
-        {
-            participant.ExceptionRaised = "N";
-            await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), GetValidationExceptionJson(participant, fileName));
-            return false;
-        }
-        return true;
-    }
-
-    private async Task<Participant> CallExceptionFunction(string URL, string json, Participant participant)
-    {
-        try
-        {
-            var response = await _callFunction.SendPost(URL, json);
-            var validationExceptionJson = await ReadValidationException(response);
-
-            if (!ShouldCarryOn(response))
-            {
-                participant.ExceptionRaised = "Y";
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), validationExceptionJson);
-                return participant;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return participant;
-        }
-        participant.ExceptionRaised = "N";
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), json);
+        await SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
     }
 
-    private async Task<string> ReadValidationException(HttpWebResponse httpResponseData)
+    public async Task<Participant> CreateValidationExceptionLog(HttpWebResponse response, Participant participant)
     {
-        using (Stream stream = httpResponseData.GetResponseStream())
+        var url = getUrlFromEnvironment();
+
+        var validationExceptionJson = await GetResponseText(response);
+
+        participant.ExceptionRaised = "Y";
+        await SendPost(url, validationExceptionJson);
+        return participant;
+    }
+
+    private string getUrlFromEnvironment()
+    {
+        var url = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
+        if (url == null)
         {
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                var responseText = await reader.ReadToEndAsync();
-                return responseText;
-            }
+            _logger.LogError("ExceptionFunctionURL environment variable is not set.");
+            throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
         }
+        return url;
     }
-
-    private bool ShouldCarryOn(HttpWebResponse response)
-    {
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    private string GetValidationExceptionJson(Participant participant, string fileName)
-    {
-        return JsonSerializer.Serialize<ValidationException>(new ValidationException()
-        {
-            FileName = fileName,
-            NhsNumber = participant.NhsNumber,
-            DateCreated = DateTime.Now,
-            DateResolved = DateTime.Now,
-            RuleId = null,
-            RuleDescription = "No demograpgic Data",
-            RuleContent = "there was no demograpghic data",
-            Category = 1,
-            Cohort = "1",
-            Fatal = 1
-        });
-    }
-
 }

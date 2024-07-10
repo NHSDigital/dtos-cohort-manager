@@ -1,14 +1,11 @@
 namespace Common;
 
+using System.Net;
 using Model;
 
 public interface IHandleException
 {
-    Task<Participant> CheckStaticValidationRules(ParticipantCsvRecord participantCsvRecord);
 
-    Task<Participant> CheckLookupValidationRules(Participant existingParticipant, Participant newParticipant, string fileName, string workFlow);
-
-    Task<bool> DemographicDataRetrievedSuccessfully(Demographic demographicData, Participant participant, string fileName);
-
-    Task<bool> CallExceptionFunction(Participant participant, string fileName);
+    Task<Participant> CreateSystemExceptionLog(ValidationException validationException, Participant participant);
+    Task<Participant> CreateValidationExceptionLog(HttpWebResponse response, Participant participant);
 }
