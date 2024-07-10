@@ -24,7 +24,7 @@ public class CreateParticipantData : ICreateParticipantData
         _logger = logger;
         _callFunction = callFunction;
         _updateParticipantData = updateParticipantData;
-        _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
