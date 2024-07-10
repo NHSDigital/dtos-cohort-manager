@@ -223,24 +223,24 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
 
-  # Add Aggregation Service
-  add-aggregation-data:
-    container_name: add-aggregation-data
+  # Add Cohort Distribution Service
+  add-cohort-distribution-data:
+    container_name: add-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
+      dockerfile: CohortDistributionServices/AddCohortDistributionData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7077
 
 
-# Add Aggregation Service
-  retrieve-aggregation-data:
-    container_name: retrieve-aggregate-data
+# Retrieve Cohort Distribution Service
+  retrieve-cohort-distribution-data:
+    container_name: retrieve-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
+      dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

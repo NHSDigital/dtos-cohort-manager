@@ -1,7 +1,9 @@
 namespace Data.Database;
 
+using System.Data;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using Model.Enums;
 
 public class DatabaseHelper : IDatabaseHelper
 {
@@ -54,5 +56,15 @@ public class DatabaseHelper : IDatabaseHelper
     public string ParseDateToString(string dateToParse)
     {
         return (DateTime.ParseExact(dateToParse, "dd/MM/yyyy", CultureInfo.InvariantCulture)).ToString();
+    }
+
+    public static string GetStringValue(IDataReader reader, string columnName)
+    {
+        return reader[columnName] == DBNull.Value ? null : reader[columnName].ToString();
+    }
+
+    public static Gender GetGenderValue(IDataReader reader, string columnName)
+    {
+        return reader[columnName] == DBNull.Value ? Gender.NotKnown : (Gender)(short)reader[columnName];
     }
 }

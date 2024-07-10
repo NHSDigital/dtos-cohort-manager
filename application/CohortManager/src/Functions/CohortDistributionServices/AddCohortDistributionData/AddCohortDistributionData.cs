@@ -1,43 +1,44 @@
-namespace NHS.CohortManager.AggregationDataServices;
+namespace NHS.CohortManager.CohortDistributionDataServices;
 
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-public class AddAggregationDataFunction
+public class AddCohortDistributionDataFunction
 {
-    private readonly ILogger<AddAggregationDataFunction> _logger;
+    private readonly ILogger<AddCohortDistributionDataFunction> _logger;
 
     private readonly ICreateResponse _createResponse;
 
-    private readonly ICreateAggregationData _createAggregationData;
+    private readonly ICreateCohortDistributionData _createCohortDistributionData;
 
-    public AddAggregationDataFunction(ILogger<AddAggregationDataFunction> logger, ICreateAggregationData createAggregationData, ICreateResponse createResponse)
+    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
     {
         _logger = logger;
-        _createAggregationData = createAggregationData;
+        _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
     }
 
-    [Function("AddAggregationData")]
+    [Function("AddCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         try
         {
             string requestBody = "";
-            var participantCsvRecord = new AggregateParticipant();
+            var participantCsvRecord = new CohortDistributionParticipant();
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
-                participantCsvRecord = JsonSerializer.Deserialize<AggregateParticipant>(requestBody);
+                participantCsvRecord = JsonSerializer.Deserialize<CohortDistributionParticipant>(requestBody);
             }
 
-            var isAdded = _createAggregationData.InsertAggregationData(participantCsvRecord);
+            var isAdded = _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "RetrieveAggregate": {
+    "AddCohortDistributionData": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7097",
+      "commandLineArgs": "--port 7126",
       "launchBrowser": false
     }
   }
