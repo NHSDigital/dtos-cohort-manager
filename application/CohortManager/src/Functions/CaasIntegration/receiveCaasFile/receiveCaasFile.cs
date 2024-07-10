@@ -30,6 +30,10 @@ public class ReceiveCaasFile
         if (numberOfRecords == null){
             return;
         }
+        var numberOfRecords = GetNumberOfRecordsFromFileName(name);
+        if (numberOfRecords == null){
+            return;
+        }
 
         var badRecords = new Dictionary<int, string>();
         Cohort cohort = new()
@@ -79,6 +83,7 @@ public class ReceiveCaasFile
         {
             _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
+            return;
             return;
         }
         try
