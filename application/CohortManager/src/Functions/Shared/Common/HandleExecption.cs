@@ -22,7 +22,7 @@ public class HandleException : CallFunction, IHandleException
 
     public async Task<Participant> CreateSystemExceptionLog(ValidationException validationException, Participant participant)
     {
-        var url = getUrlFromEnvironment();
+        var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
         {
             participant.ExceptionRaised = "Y";
@@ -34,7 +34,7 @@ public class HandleException : CallFunction, IHandleException
 
     public async Task<Participant> CreateValidationExceptionLog(HttpWebResponse response, Participant participant)
     {
-        var url = getUrlFromEnvironment();
+        var url = GetUrlFromEnvironment();
 
         var validationExceptionJson = await GetResponseText(response);
 
@@ -43,7 +43,7 @@ public class HandleException : CallFunction, IHandleException
         return participant;
     }
 
-    private string getUrlFromEnvironment()
+    private string GetUrlFromEnvironment()
     {
         var url = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
         if (url == null)
