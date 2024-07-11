@@ -15,9 +15,9 @@ var host = new HostBuilder()
         services.AddTransient<IDbConnection>(provider =>
         {
             var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-            var con = providerFactory.CreateConnection();
-            con.ConnectionString = databaseConnectionString;
-            return con;
+            var conn = providerFactory.CreateConnection();
+            conn.ConnectionString = databaseConnectionString;
+            return conn;
         });
         services.AddSingleton<ICreateParticipantData, CreateParticipantData>();
         services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
