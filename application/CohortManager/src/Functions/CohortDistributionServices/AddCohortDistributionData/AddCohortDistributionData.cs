@@ -1,55 +1,57 @@
-namespace NHS.CohortManager.CohortDistributionDataServices;
-
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Common;
-using Common.Interfaces;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
-using Model;
-
-public class AddCohortDistributionDataFunction
+namespace NHS.CohortManager.CohortDistributionDataServices
 {
-    private readonly ILogger<AddCohortDistributionDataFunction> _logger;
+    using System;
+    using System.IO;
+    using System.Net;
+    using System.Text;
+    using System.Text.Json;
+    using System.Threading.Tasks;
+    using Common;
+    using Common.Interfaces;
+    using Microsoft.Azure.Functions.Worker;
+    using Microsoft.Azure.Functions.Worker.Http;
+    using Microsoft.Extensions.Logging;
+    using Model;
 
-    private readonly ICreateResponse _createResponse;
-
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
-
-    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
+    public class AddCohortDistributionDataFunction
     {
-        _logger = logger;
-        _createCohortDistributionData = createCohortDistributionData;
-        _createResponse = createResponse;
-    }
+        private readonly ILogger<AddCohortDistributionDataFunction> _logger;
+        private readonly ICreateResponse _createResponse;
+        private readonly ICreateCohortDistributionData _createCohortDistributionData;
 
-    [Function("AddCohortDistributionData")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
-    {
-        try
+        public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
         {
-            string requestBody = "";
-            var participantCsvRecord = new CohortDistributionParticipant();
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBody = await reader.ReadToEndAsync();
-                participantCsvRecord = JsonSerializer.Deserialize<CohortDistributionParticipant>(requestBody);
-            }
-
-            var isAdded = _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
-            if (isAdded)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            _logger = logger;
+            _createCohortDistributionData = createCohortDistributionData;
+            _createResponse = createResponse;
         }
-        catch (Exception ex)
+
+        [Function("AddCohortDistributionData")]
+        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            _logger.LogError(ex.Message, ex);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            try
+            {
+                string requestBody = "";
+                var participantCsvRecord = new CohortDistributionParticipant();
+                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+                {
+                    requestBody = await reader.ReadToEndAsync();
+                    participantCsvRecord = JsonSerializer.Deserialize<CohortDistributionParticipant>(requestBody);
+                }
+
+                var isAdded = _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
+                if (isAdded)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                }
+
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message, ex);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
         }
     }
 }
