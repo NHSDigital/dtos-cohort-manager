@@ -353,6 +353,26 @@ BEGIN
 END
 
 /*==============================================================*/
+/* Table: ELIGIBILITY_CODE_LKP Table                                */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'ELIGIBILITY_CODE_LKP'
+)
+
+BEGIN
+CREATE TABLE ELIGIBILITY_CODE_LKP
+(
+    ELIGIBILITY_CODE     SMALLINT             NOT NULL,
+    ELIGIBILITY_CODE_DESC VARCHAR(50)          NULL,
+    CONSTRAINT PK_ELIGIBILITY_CODE_LKP PRIMARY KEY (ELIGIBILITY_CODE)
+);
+END
+
+/*==============================================================*/
 /* Drop Table: SCREENING_PROGRAMS (If it exists)                */
 /*==============================================================*/
 IF OBJECT_ID('dbo.SCREENING_PROGRAMS') IS NOT NULL
