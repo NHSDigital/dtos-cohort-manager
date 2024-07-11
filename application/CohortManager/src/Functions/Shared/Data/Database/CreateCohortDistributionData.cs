@@ -165,6 +165,41 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return [];
     }
 
+    public bool UpdateCohortParticipantAsInactive(string NhsNumber)
+    {
+
+        _logger.LogInformation("Updating Cohort Participant as Inactive");
+
+        if (string.IsNullOrEmpty(NhsNumber))
+        {
+            _logger.LogError("No NHSID was Provided");
+            return false;
+        }
+
+        var recordEndDate = DateTime.Today;
+
+        var SQL = " UPDATE [dbo].[COHORT_DISTRIBUTION_DATA] " +
+            " SET RECORD_END_DATE = @recordEndDate, " +
+            " WHERE NHS_NUMBER = @NhsNumber  ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NhsNumber", NhsNumber},
+            {"@recordEndDate",recordEndDate}
+        };
+
+        var sqlToExecute = new List<SQLReturnModel>()
+            {
+                new SQLReturnModel
+                {
+                    Parameters = parameters,
+                    SQL = SQL,
+                }
+            };
+
+        return UpdateRecords(sqlToExecute);
+    }
+
     private List<CohortDistributionParticipant> GetParticipant(IDbCommand command)
     {
         List<CohortDistributionParticipant> participants = [];
