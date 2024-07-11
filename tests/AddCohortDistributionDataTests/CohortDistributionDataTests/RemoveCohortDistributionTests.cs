@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.AddAggregationDataTests;
+﻿namespace NHS.CohortManager.Tests.AddCohortDistributionDataTests;
 
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
@@ -11,18 +11,18 @@ using Model.Enums;
 using Moq;
 
 [TestClass]
-public class RemoveAggregationTests
+public class RemoveCohortDistributionTests
 {
 
     private readonly Mock<IDbConnection> _mockDBConnection = new();
     private readonly Mock<IDbCommand> _commandMock = new();
     private readonly Mock<IDataReader> _mockDataReader = new();
-    private readonly Mock<ILogger<CreateAggregationData>> _loggerMock = new();
+    private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
 
-    public RemoveAggregationTests()
+    public RemoveCohortDistributionTests()
     {
         Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
         Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
@@ -48,10 +48,10 @@ public class RemoveAggregationTests
     }
 
     [TestMethod]
-    public void UpdateAggregateParticipantAsInactive_Success()
+    public void UpdateCohortDistributionParticipantAsInactive_Success()
     {
         //Arrange
-        var updateAggregateData = new CreateAggregationData(
+        var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
             _loggerMock.Object
@@ -60,7 +60,7 @@ public class RemoveAggregationTests
         var NHSID = "123456";
 
         //Act
-        var result = updateAggregateData.UpdateAggregateParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
 
 
         //Assert
@@ -69,10 +69,10 @@ public class RemoveAggregationTests
     }
 
     [TestMethod]
-    public void UpdateAggregateParticipantAsInactive_ParticipantNotExists_Failure()
+    public void UpdateCohortDistributionParticipantAsInactive_ParticipantNotExists_Failure()
     {
         //Arrange
-        var updateAggregateData = new CreateAggregationData(
+        var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
             _loggerMock.Object
@@ -80,7 +80,7 @@ public class RemoveAggregationTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "654321";
         //Act
-        var result = updateAggregateData.UpdateAggregateParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
 
 
         //Assert
@@ -89,10 +89,10 @@ public class RemoveAggregationTests
     }
 
     [TestMethod]
-    public void UpdateAggregateParticipantAsInactive_NoNHSIDProvided_Failure()
+    public void UpdateCohortDistributionParticipantAsInactive_NoNHSIDProvided_Failure()
     {
         //Arrange
-        var updateAggregateData = new CreateAggregationData(
+        var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
             _loggerMock.Object
@@ -100,7 +100,7 @@ public class RemoveAggregationTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "";
         //Act
-        var result = updateAggregateData.UpdateAggregateParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
 
 
         //Assert
@@ -109,4 +109,3 @@ public class RemoveAggregationTests
     }
 
 }
-

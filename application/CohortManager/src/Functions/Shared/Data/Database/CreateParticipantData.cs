@@ -84,9 +84,6 @@ public class CreateParticipantData : ICreateParticipantData
             Parameters = null
         });
 
-        sqlToExecuteInOrder.Add(AddNewAddress(participantData));
-        sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
-
         return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters);
     }
 
@@ -225,71 +222,25 @@ public class CreateParticipantData : ICreateParticipantData
 
         return dbCommand;
     }
-
-    private SQLReturnModel AddNewAddress(Participant participantData)
+    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        string updateAddress =
-            " INSERT INTO dbo.ADDRESS " +
-            " ( PARTICIPANT_ID," +
-            " ADDRESS_TYPE, " +
-            " ADDRESS_LINE_1,  " +
-            " ADDRESS_LINE_2, " +
-            " CITY, " +
-            " COUNTY,  " +
-            " POST_CODE,  " +
-            " LSOA,  " +
-            " RECORD_START_DATE,  " +
-            " RECORD_END_DATE, " +
-            " ACTIVE_FLAG,  " +
-            " LOAD_DATE)  " +
-            " VALUES  " +
-            " ( @NewParticipantId, " +
-            " null, " +
-            " @addressLine1, " +
-            " @addressLine2, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " @RecordStartDate,  " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate)";
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
-        var parameters = new Dictionary<string, object>()
+        try
         {
-            { "@addressLine1", participantData.AddressLine1 },
-            { "@addressLine2", participantData.AddressLine2 },
-        };
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
 
-        return new SQLReturnModel()
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
         {
-            CommandType = CommandType.Command,
-            SQL = updateAddress,
-            Parameters = parameters
-        };
-    }
-    private SQLReturnModel InsertContactPreference(Participant participantData)
-    {
+            _logger.LogInformation("Lookup validation failed.\nMessage: {Message}\n", ex.Message);
+            return false;
+        }
 
-        string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
-        "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@contactMethod", DBNull.Value},
-            {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
-            {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
-            {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = insertContactPreference,
-            Parameters = parameters
-        };
+        return false;
     }
 }
