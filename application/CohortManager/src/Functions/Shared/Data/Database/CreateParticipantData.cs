@@ -23,70 +23,42 @@ public class CreateParticipantData : ICreateParticipantData
     {
         string cohortId = "1";
         DateTime dateToday = DateTime.Today;
-        DateTime maxEndDate = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
         var participantData = participantCsvRecord.Participant;
 
-        string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
-            " COHORT_ID, " +
-            " GENDER_CD," +
+        string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
+            " PARTICIPANT_ID, " +
+            " SCREENING_ID," +
             " NHS_NUMBER," +
-            " SUPERSEDED_BY_NHS_NUMBER," +
-            " PARTICIPANT_BIRTH_DATE," +
-            " PARTICIPANT_DEATH_DATE," +
-            " PARTICIPANT_PREFIX," +
-            " PARTICIPANT_FIRST_NAME," +
-            " PARTICIPANT_LAST_NAME," +
-            " OTHER_NAME," +
-            " GP_CONNECT," +
-            " PRIMARY_CARE_PROVIDER," +
-            " REASON_FOR_REMOVAL_CD," +
-            " REMOVAL_DATE," +
-            " RECORD_START_DATE," +
-            " RECORD_END_DATE," +
-            " ACTIVE_FLAG, " +
-            " LOAD_DATE " +
+            " REASON_FOR_REMOVAL," +
+            " REASON_FOR_REMOVAL_DT," +
+            " BUSINESS_RULE_VERSION," +
+            " EXCEPTION_FLAG," +
+            " RECORD_INSERT_DATETIME," +
+            " RECORD_UPDATE_DATETIME," +
             " ) VALUES( " +
-            " @cohort_id, " +
-            " @gender, " +
+            " @participantId, " +
+            " @screeningId, " +
             " @NHSNumber, " +
-            " @supersededByNhsNumber, " +
-            " @dateOfBirth, " +
-            " @dateOfDeath, " +
-            " @namePrefix, " +
-            " @firstName, " +
-            " @surname, " +
-            " @otherGivenNames, " +
-            " @gpConnect, " +
-            " @primaryCareProvider, " +
             " @reasonForRemoval, " +
-            " @RemovalDate, " +
-            " @RecordStartDate, " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate " +
+            " @reasonForRemovalDate, " +
+            " @businessRuleVersion, " +
+            " @exceptionFlag, " +
+            " @recordInsertDateTime, " +
+            " @recordUpdateDateTime, " +
             " ) ";
 
         var commonParameters = new Dictionary<string, object>
         {
-            {"@cohort_id", cohortId},
-            {"@gender", participantData.Gender},
-            {"@NHSNumber", participantData.NhsNumber },
-            {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
-            {"@dateOfBirth", _databaseHelper.ParseDates(participantData.DateOfBirth)},
-            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
-            { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
-            { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
-            { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
-            { "@otherGivenNames", _databaseHelper.ConvertNullToDbNull(participantData.OtherGivenNames) },
-            { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
-            { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
-            { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
-            { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-            { "@RecordStartDate", dateToday},
-            { "@RecordEndDate", maxEndDate},
-            { "@ActiveFlag", 'Y'},
-            { "@LoadDate", dateToday },
+            { "@participantId", cohortId},
+            { "@screeningId", participantData.ScreeningId},
+            { "@NHSNumber", participantData.NhsNumber },
+            { "@reasonForRemoval", _databaseHelper.CheckIfNumberNull(participantData.ReasonForRemoval) ? DBNull.Value : participantData.ReasonForRemoval},
+            { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
+            { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
+            { "@recordInsertDateTime", dateToday },
+            { "@recordUpdateDateTime", DBNull.Value },
         };
 
         sqlToExecuteInOrder.Add(new SQLReturnModel()
@@ -186,7 +158,7 @@ public class CreateParticipantData : ICreateParticipantData
             _logger.LogInformation($"{SQL}");
 
             var newParticipantResult = command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag ";
+            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag "; //WP - Change properties from Participant to Participant Management
 
             command.CommandText = SQLGet;
             using (IDataReader reader = command.ExecuteReader())
@@ -221,6 +193,7 @@ public class CreateParticipantData : ICreateParticipantData
     }
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
+        if (parameters == null) return dbCommand;
         foreach (var param in parameters)
         {
             var parameter = dbCommand.CreateParameter();

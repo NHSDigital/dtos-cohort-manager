@@ -228,24 +228,15 @@ public class UpdateParticipantDetailsTests
     private void SetUpReader()
     {
         _moqDataReader.Setup(m => m["PARTICIPANT_ID"]).Returns("123456");
+        _moqDataReader.Setup(m => m["SCREENING_ID"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
-        _moqDataReader.Setup(m => m["SUPERSEDED_BY_NHS_NUMBER"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PRIMARY_CARE_PROVIDER"]).Returns("Some Provider");
-        _moqDataReader.Setup(m => m["GP_CONNECT"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_PREFIX"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_FIRST_NAME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL"]).Returns("Some Provider");
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["BUSINESS_RULE_VERSION"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["EXCEPTION_FLAG"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_LAST_NAME"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_BIRTH_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_GENDER"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_CD"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["REMOVAL_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_DEATH_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["ADDRESS_LINE_1"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["ADDRESS_LINE_2"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["CITY"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["COUNTY"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
     }
 
     private Participant GetParticipant()
