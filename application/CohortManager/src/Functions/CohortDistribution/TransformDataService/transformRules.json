@@ -1,0 +1,19 @@
+[
+  {
+    "WorkflowName": "TransformData",
+    "Rules": [
+      {
+        "RuleName": "1.NamePrefix.ExceedsMaximumLength",
+        "Expression": "participant.NamePrefix.Length <= 35",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.NamePrefix.Substring(0, 35)"
+            }
+          }
+        }
+      }
+    ]
+  }
+]

@@ -34,4 +34,5 @@ public class Participant : BasicParticipantData
     public string? ExceptionFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
+    public string? ExceptionRaised { get; set; }
 }

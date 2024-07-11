@@ -21,7 +21,7 @@ paths = [
   '''poetry.lock''',
   '''yarn.lock''',
   '''docs/guides/Perform_static_analysis.md''',
-  '''application/CohortManager/src/Functions/Functions.sln''',
+  '''.sln''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure EG Topic - createParticipant/parameters.json''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure EG Topic - createParticipant/template.json''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/parameters.json''',

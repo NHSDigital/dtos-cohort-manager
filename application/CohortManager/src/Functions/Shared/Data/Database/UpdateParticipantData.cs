@@ -299,13 +299,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
     private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new
-        {
-            ExistingParticipant = existingParticipant,
-            NewParticipant = newParticipant,
-            Workflow = "UpdateParticipant",
-            FileName = fileName
-        });
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
         try
         {
