@@ -24,6 +24,7 @@ public class UpdateParticipantTests
     private readonly Mock<ICreateParticipant> _createParticipant = new();
     private readonly Mock<HttpWebResponse> _validationWebResponse = new();
     private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
+    private readonly Mock<IHandleException> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
@@ -50,7 +51,7 @@ public class UpdateParticipantTests
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
@@ -97,7 +98,7 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -140,7 +141,7 @@ public class UpdateParticipantTests
             return response;
         });
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -178,7 +179,7 @@ public class UpdateParticipantTests
         _createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>()))
         .Returns(_participantCsvRecord.Participant);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);

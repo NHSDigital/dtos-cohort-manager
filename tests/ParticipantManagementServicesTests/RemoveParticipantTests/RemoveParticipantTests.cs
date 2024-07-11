@@ -19,8 +19,12 @@ public class RemoveParticipantTests
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
+
+    private readonly Mock<IHandleException> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
+
+
     private Mock<HttpRequestData> _request;
 
     public RemoveParticipantTests()
@@ -46,7 +50,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -77,7 +81,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -105,7 +109,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object);
+        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 

@@ -22,6 +22,7 @@ public class ProcessCaasFileTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantData = new();
+    private readonly Mock<IHandleException> _handleException = new();
 
     public ProcessCaasFileTests()
     {
@@ -46,7 +47,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -73,7 +74,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -101,7 +102,7 @@ public class ProcessCaasFileTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -129,7 +130,7 @@ public class ProcessCaasFileTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -158,7 +159,7 @@ public class ProcessCaasFileTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -191,7 +192,7 @@ public class ProcessCaasFileTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -224,7 +225,7 @@ public class ProcessCaasFileTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
         await sut.Run(_request.Object);

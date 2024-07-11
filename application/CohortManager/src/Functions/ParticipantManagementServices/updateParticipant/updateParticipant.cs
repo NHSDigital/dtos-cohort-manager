@@ -16,14 +16,16 @@ public class UpdateParticipantFunction
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
+    private readonly IHandleException _handleException;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
+        _handleException = handleException;
     }
 
     [Function("updateParticipant")]
@@ -72,6 +74,7 @@ public class UpdateParticipantFunction
         catch (Exception ex)
         {
             _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
@@ -83,22 +86,14 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        try
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+        if (response.StatusCode != HttpStatusCode.BadRequest)
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            var responseText = await _callFunction.GetResponseText(response);
+            var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+            return updatedCsvRecordJson;
+        }
 
-            if (response.StatusCode != HttpStatusCode.BadRequest)
-            {
-                var responseText = await _callFunction.GetResponseText(response);
-                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                return updatedCsvRecordJson;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return participantCsvRecord;
-        }
 
         return participantCsvRecord;
     }

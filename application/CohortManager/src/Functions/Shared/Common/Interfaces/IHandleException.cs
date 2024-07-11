@@ -7,5 +7,6 @@ using RulesEngine.Models;
 public interface IHandleException
 {
     Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant);
+    Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant);
     Task<ParticipantCsvRecord> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
 }

@@ -15,16 +15,18 @@ namespace markParticipantAsIneligible
         private readonly ILogger<MarkParticipantAsIneligible> _logger;
         private readonly IUpdateParticipantData _updateParticipantData;
         private readonly ICreateResponse _createResponse;
+        private readonly IHandleException _handleException;
 
-        public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData)
+        public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, IHandleException handleException)
         {
             _logger = logger;
             _updateParticipantData = updateParticipantData;
             _createResponse = createResponse;
+            _handleException = handleException;
         }
 
         [Function("markParticipantAsIneligible")]
-        public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
             string postData = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -56,6 +58,7 @@ namespace markParticipantAsIneligible
             catch (Exception ex)
             {
                 _logger.LogError($"an error occurred: {ex}");
+                await _handleException.CreateSystemExceptionLog(ex,participant);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
         }

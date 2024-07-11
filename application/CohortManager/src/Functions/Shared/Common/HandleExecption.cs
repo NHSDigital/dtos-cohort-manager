@@ -15,7 +15,7 @@ public class HandleException : IHandleException
 {
     private readonly ILogger<HandleException> _logger;
 
-    private static readonly int SYSTEMEXCEPTIONCATEGORY = 99;
+    private static readonly int SystemExceptionCategory = 99;
 
     private readonly ICallFunction _callFunction;
 
@@ -39,6 +39,20 @@ public class HandleException : IHandleException
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
     }
+    public async Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
+    {
+        var url = GetUrlFromEnvironment();
+        // if (participant.NhsNumber != null)
+        // {
+        //     participant.ExceptionRaised = "Y";
+        // }
+
+        var validationException = createValidationException(participant, exception);
+
+        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+        return participant;
+    }
+
 
     public async Task<ParticipantCsvRecord> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
@@ -99,9 +113,27 @@ public class HandleException : IHandleException
             RuleId = exception.HResult,
             RuleDescription = exception.Message,
             RuleContent = "System Exception",
-            Category = SYSTEMEXCEPTIONCATEGORY,
+            Category = SystemExceptionCategory,
             ScreeningService = 1,
-            Cohort = "Cohort Temp",
+            Cohort = "",
+            Fatal = 1
+        };
+
+    }
+    private ValidationException createValidationException(BasicParticipantData participant, Exception exception)
+    {
+        // mapping liable to change.
+        return new ValidationException
+        {
+            NhsNumber = participant.NhsNumber,
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            RuleId = exception.HResult,
+            RuleDescription = exception.Message,
+            RuleContent = "System Exception",
+            Category = SystemExceptionCategory,
+            ScreeningService = 1,
+            Cohort = "",
             Fatal = 1
         };
 

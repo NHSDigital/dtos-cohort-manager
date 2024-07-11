@@ -20,6 +20,8 @@ public class StaticValidationTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
+    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
@@ -34,7 +36,7 @@ public class StaticValidationTests
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        _function = new StaticValidation(_logger.Object, _callFunction.Object);
+        _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

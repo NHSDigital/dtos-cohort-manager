@@ -24,6 +24,7 @@ var host = new HostBuilder()
         services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
+    .addExceptionHandler()
     .Build();
 
 host.Run();

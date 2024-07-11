@@ -16,14 +16,16 @@ namespace addParticipant
         private readonly ICreateResponse _createResponse;
         private readonly ICheckDemographic _getDemographicData;
         private readonly ICreateParticipant _createParticipant;
+        private readonly IHandleException _handleException;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
             _getDemographicData = checkDemographic;
             _createParticipant = createParticipant;
+            _handleException = handleException;
         }
 
         [Function("addParticipant")]
@@ -73,8 +75,10 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
+                await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
+
             try
             {
                 var json = JsonSerializer.Serialize(participant);
@@ -89,6 +93,7 @@ namespace addParticipant
             catch (Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+                await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -96,25 +101,17 @@ namespace addParticipant
 
         private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
+
             var json = JsonSerializer.Serialize(participantCsvRecord);
-
-            try
+            _logger.LogInformation($"json: {json}");
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            if (response.StatusCode != HttpStatusCode.BadRequest)
             {
-                var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-
-                if (response.StatusCode != HttpStatusCode.BadRequest)
-                {
-                    var responseText = await _callFunction.GetResponseText(response);
-                    var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                    return updatedCsvRecordJson;
-                }
+                _logger.LogInformation($"Response: {response.GetResponseStream}");
+                var responseText = await _callFunction.GetResponseText(response);
+                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                return updatedCsvRecordJson;
             }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-                return participantCsvRecord;
-            }
-
             return participantCsvRecord;
         }
     }

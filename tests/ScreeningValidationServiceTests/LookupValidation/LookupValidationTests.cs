@@ -17,9 +17,12 @@ public class LookupValidationTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
+    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<ICreateResponse> _createResonse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly LookupValidationRequestBody _requestBody;
     private readonly LookupValidation _function;
+
 
     public LookupValidationTests()
     {
@@ -45,7 +48,7 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
-        _function = new LookupValidation(_callFunction.Object);
+        _function = new LookupValidation(_callFunction.Object, _createResonse.Object, _handleException.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
