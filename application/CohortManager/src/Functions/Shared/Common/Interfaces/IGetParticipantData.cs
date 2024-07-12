@@ -5,6 +5,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 
 public interface IGetParticipantData
 {
-    public Task<Participant> GetParticipantAsync(string NhsNumber, string ParticipantFunctionURI);
     public Task<Participant> GetParticipantDetails(HttpRequestData req);
+    public Participant GetParticipantData(string NhsNumber);
 }
