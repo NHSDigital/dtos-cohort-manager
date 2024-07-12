@@ -40,11 +40,3 @@ INSERT INTO [dbo].[GENDER_MASTER]
         ,[GENDER_DESC])
     VALUES
         ('2','Female');
-
-INSERT INTO [dbo].[ELIGIBILITY_CODE_LKP]
-        ([ELIGIBILITY_CODE]
-        ,[ELIGIBILITY_CODE_DESC])
-    VALUES
-        (1,'New'),
-        (2,'Amended'),
-        (3,'Removed');
