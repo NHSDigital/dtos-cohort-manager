@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.Tests.AddCohortDistributionDataTests;
+﻿namespace NHS.CohortManager.Tests.RemoveCohortDistributionDataTests;
 
 using System.Data;
 using Data.Database;

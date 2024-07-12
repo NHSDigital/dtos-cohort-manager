@@ -222,7 +222,7 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
 
-  # Add Cohort Distribution Service
+  # Cohort Distribution Services
   add-cohort-distribution-data:
     container_name: add-cohort-distribution-data
     network_mode: host
@@ -233,7 +233,6 @@ services:
       - ASPNETCORE_URLS=http://*:7077
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Retrieve Cohort Distribution Service
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
     network_mode: host
@@ -244,7 +243,6 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Remove Cohort Distribution Service
   remove-cohort-distribution-data:
     container_name: remove-cohort-distribution-data
     network_mode: host
@@ -255,7 +253,6 @@ services:
       - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Cohort Distribution Service
   transform-data:
     container_name: transform-data
     network_mode: host
