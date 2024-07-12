@@ -66,11 +66,11 @@ public class CreateParticipantData : ICreateParticipantData
 
         var commonParameters = new Dictionary<string, object>
         {
-            { "@participantId", cohortId},
-            { "@screeningId", participantData.ScreeningId},
-            { "@NHSNumber", participantData.NhsNumber },
-            { "@reasonForRemoval", _databaseHelper.CheckIfNumberNull(participantData.ReasonForRemoval) ? DBNull.Value : participantData.ReasonForRemoval},
-            { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@participantId", _databaseHelper.CheckIfNumberNull(participantData.ParticipantId) },
+            { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId)},
+            { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)},
+            { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
+            { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
             { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
             { "@recordInsertDateTime", dateToday },

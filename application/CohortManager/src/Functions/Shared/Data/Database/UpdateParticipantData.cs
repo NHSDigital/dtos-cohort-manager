@@ -171,7 +171,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             {
                 CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
+                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
                 " WHERE PARTICIPANT_ID = @ParticipantId ",
                 Parameters = null,
             },
