@@ -68,7 +68,7 @@ public class StaticValidation
         {
             var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
             var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, updatedCsvRecordJson);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, updatedCsvRecordJson);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

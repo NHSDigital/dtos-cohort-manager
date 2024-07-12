@@ -17,12 +17,9 @@ public class CreateException
     private readonly IValidationExceptionData _validationData;
 
     private readonly ICreateResponse _createResponse;
-
-    private readonly ICallFunction _callFunction;
-    public CreateException(ILogger<CreateException> logger, ICallFunction callFunction, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
+    public CreateException(ILogger<CreateException> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
     {
         _logger = logger;
-        _callFunction = callFunction;
         _validationData = validationExceptionData;
         _createResponse = createResponse;
     }

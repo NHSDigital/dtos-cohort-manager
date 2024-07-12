@@ -24,7 +24,7 @@ public class CreateParticipantData : ICreateParticipantData
         _logger = logger;
         _callFunction = callFunction;
         _updateParticipantData = updateParticipantData;
-        _connectionString = Environment.GetEnvironmentVariable("SqlConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
@@ -329,10 +329,14 @@ public class CreateParticipantData : ICreateParticipantData
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(await _callFunction.GetResponseText(response));
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                return updatedCsvRecordJson.Participant;
+
+                var updatedCsvRecordJson = await _callFunction.GetResponseText(response);
+                if (!string.IsNullOrEmpty(updatedCsvRecordJson))
+                {
+                    return JsonSerializer.Deserialize<ParticipantCsvRecord>(updatedCsvRecordJson).Participant;
+                }
             }
         }
         catch (Exception ex)

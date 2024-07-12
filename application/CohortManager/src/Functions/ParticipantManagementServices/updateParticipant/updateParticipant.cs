@@ -55,13 +55,13 @@ public class UpdateParticipantFunction
                 Participant = participant,
                 FileName = basicParticipantCsvRecord.FileName
             };
-            var json = JsonSerializer.Serialize(participantCsvRecord);
 
             var response = await ValidateData(participantCsvRecord);
             if (response.Participant.ExceptionRaised == "Y")
             {
                 participantCsvRecord = response;
             }
+            var json = JsonSerializer.Serialize(participantCsvRecord);
 
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
 
@@ -86,14 +86,22 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        if (response.StatusCode != HttpStatusCode.BadRequest)
+        try
         {
-            var responseText = await _callFunction.GetResponseText(response);
-            var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-            return updatedCsvRecordJson;
-        }
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
 
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var responseText = await _callFunction.GetResponseText(response);
+                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                return updatedCsvRecordJson;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            return participantCsvRecord;
+        }
 
         return participantCsvRecord;
     }
