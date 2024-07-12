@@ -65,7 +65,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME," +
+            " RECORD_UPDATE_DATETIME" +
             " ) VALUES( " +
             " @participantId, " +
             " @screeningId, " +
@@ -75,7 +75,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             " @businessRuleVersion, " +
             " @exceptionFlag, " +
             " @recordInsertDateTime, " +
-            " @recordUpdateDateTime, " +
+            " @recordUpdateDateTime " +
             " ) ";
 
         var commonParameters = new Dictionary<string, object>
@@ -190,7 +190,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
             "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
             "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
-            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
         "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
         "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
 
