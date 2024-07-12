@@ -51,7 +51,7 @@ public class CreateParticipantData : ICreateParticipantData
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME," +
+            " RECORD_UPDATE_DATETIME" +
             " ) VALUES( " +
             " @participantId, " +
             " @screeningId, " +
@@ -61,7 +61,7 @@ public class CreateParticipantData : ICreateParticipantData
             " @businessRuleVersion, " +
             " @exceptionFlag, " +
             " @recordInsertDateTime, " +
-            " @recordUpdateDateTime, " +
+            " @recordUpdateDateTime " +
             " ) ";
 
         var commonParameters = new Dictionary<string, object>
