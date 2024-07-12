@@ -192,7 +192,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
             "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME], " +
         "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
-        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT_MANAGEMENT].[ACTIVE_FLAG] = @IsActive";
+        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
 
         var parameters = new Dictionary<string, object>
         {
