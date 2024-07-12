@@ -57,7 +57,7 @@ namespace addParticipant
                     Participant = participant,
                     FileName = basicParticipantCsvRecord.FileName,
                 };
-
+                participantCsvRecord.Participant.ExceptionRaised = "N";
                 var response = await ValidateData(participantCsvRecord);
                 if (response.Participant.ExceptionRaised == "Y")
                 {
@@ -75,7 +75,7 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
-                await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
 
@@ -93,7 +93,7 @@ namespace addParticipant
             catch (Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-                await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -120,7 +120,6 @@ namespace addParticipant
                 _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
                 return participantCsvRecord;
             }
-
             return participantCsvRecord;
         }
     }

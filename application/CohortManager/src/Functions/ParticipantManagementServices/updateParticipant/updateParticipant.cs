@@ -57,6 +57,7 @@ public class UpdateParticipantFunction
             };
 
             var response = await ValidateData(participantCsvRecord);
+            participantCsvRecord.Participant.ExceptionRaised = "N";
             if (response.Participant.ExceptionRaised == "Y")
             {
                 participantCsvRecord = response;
@@ -74,7 +75,7 @@ public class UpdateParticipantFunction
         catch (Exception ex)
         {
             _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-            await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
