@@ -28,5 +28,4 @@
     <ProjectReference
       Include="..\..\..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj" />
   </ItemGroup>
-
 </Project>
