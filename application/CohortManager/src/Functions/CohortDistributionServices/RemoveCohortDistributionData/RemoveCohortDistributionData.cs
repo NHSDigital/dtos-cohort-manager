@@ -1,25 +1,26 @@
-namespace NHS.CohortManager.AggregationDataServices;
+namespace NHS.CohortManager.CohortDistributionServices;
 
 using System.Net;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-public class RemoveFromAggregate
+public class RemoveCohortDistributionData
 {
     private readonly ICreateResponse _createResponse;
-    private readonly ILogger<RemoveFromAggregate> _logger;
-    private readonly ICreateAggregationData _createAggregationData;
+    private readonly ILogger<RemoveCohortDistributionData> _logger;
+    private readonly ICreateCohortDistributionData _createCohortDistributionData;
 
-    public RemoveFromAggregate(ILogger<RemoveFromAggregate> logger, ICreateResponse createResponse, ICreateAggregationData updateAggregateData)
+    public RemoveCohortDistributionData(ILogger<RemoveCohortDistributionData> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _createAggregationData = _createAggregationData;
+        _createCohortDistributionData = createCohortDistributionData;
     }
 
-    [Function("RemoveFromAggregateData")]
+    [Function("RemoveFromCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation($"C# HTTP trigger function processed a request");
@@ -30,7 +31,7 @@ public class RemoveFromAggregate
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-        var isUpdated = _createAggregationData.UpdateAggregateParticipantAsInactive(nhsNumber);
+        var isUpdated = _createCohortDistributionData.UpdateCohortParticipantAsInactive(nhsNumber);
 
         if (!isUpdated)
         {

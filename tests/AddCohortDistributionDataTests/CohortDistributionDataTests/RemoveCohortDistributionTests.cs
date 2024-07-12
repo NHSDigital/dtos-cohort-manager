@@ -1,13 +1,8 @@
 ﻿namespace NHS.CohortManager.Tests.AddCohortDistributionDataTests;
 
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
-using Model;
-using Model.Enums;
 using Moq;
 
 [TestClass]
@@ -60,7 +55,7 @@ public class RemoveCohortDistributionTests
         var NHSID = "123456";
 
         //Act
-        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
 
 
         //Assert
@@ -80,7 +75,7 @@ public class RemoveCohortDistributionTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "654321";
         //Act
-        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
 
 
         //Assert
@@ -100,7 +95,7 @@ public class RemoveCohortDistributionTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "";
         //Act
-        var result = updateCohortDistributionData.UpdateCohortDistributionParticipantAsInactive(NHSID);
+        var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
 
 
         //Assert
