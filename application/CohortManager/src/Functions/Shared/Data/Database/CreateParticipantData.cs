@@ -174,7 +174,7 @@ public class CreateParticipantData : ICreateParticipantData
             _logger.LogInformation("Command text: {Sql}", sql);
 
             var newParticipantResult = command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag "; //WP - Change properties from Participant to Participant Management
+            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag ";
 
             command.CommandText = SQLGet;
             using (IDataReader reader = command.ExecuteReader())

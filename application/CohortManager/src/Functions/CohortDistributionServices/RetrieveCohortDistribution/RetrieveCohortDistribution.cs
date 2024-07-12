@@ -8,12 +8,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-public class AddCohortDistributionDataFunction
+public class RetrieveCohortDistributionDataFunction
 {
-    private readonly ILogger<AddCohortDistributionDataFunction> _logger;
+    private readonly ILogger<RetrieveCohortDistributionDataFunction> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
-    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
+    public RetrieveCohortDistributionDataFunction(ILogger<RetrieveCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
