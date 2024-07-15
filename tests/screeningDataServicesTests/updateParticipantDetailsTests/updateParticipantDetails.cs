@@ -222,7 +222,7 @@ public class UpdateParticipantDetailsTests
 
         // Assert
         Assert.IsFalse(result);
-        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Never());
+        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Once());//We still update the participant, but only set the Exception Flag.
     }
 
     private void SetUpReader()

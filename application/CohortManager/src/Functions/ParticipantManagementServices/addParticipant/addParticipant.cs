@@ -104,23 +104,18 @@ namespace addParticipant
 
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            try
-            {
-                var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
 
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var responseText = await _callFunction.GetResponseText(response);
-                    var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                    return updatedCsvRecordJson;
-                }
-            }
-            catch (Exception ex)
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-                return participantCsvRecord;
+                var responseText = await _callFunction.GetResponseText(response);
+                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                return updatedCsvRecordJson;
             }
+
             return participantCsvRecord;
+
+
         }
     }
 }

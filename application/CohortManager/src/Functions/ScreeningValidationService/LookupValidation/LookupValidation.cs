@@ -49,9 +49,9 @@ public class LookupValidation
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
             var ruleParameters = new[] {
-            new RuleParameter("existingParticipant", existingParticipant),
-            new RuleParameter("newParticipant", newParticipant),
-        };
+                new RuleParameter("existingParticipant", existingParticipant),
+                new RuleParameter("newParticipant", newParticipant),
+            };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
@@ -68,13 +68,13 @@ public class LookupValidation
 
                 var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
                 var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, updatedCsvRecordJson);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, updatedCsvRecordJson);
             }
-            return req.CreateResponse(HttpStatusCode.OK);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK,req);
         }
         catch
         {
-            return req.CreateResponse(HttpStatusCode.BadRequest);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req);
         }
     }
 }

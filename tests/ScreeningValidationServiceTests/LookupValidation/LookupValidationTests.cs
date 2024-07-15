@@ -10,6 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Model;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
+using NHS.CohortManager.Tests.TestUtils;
+using RulesEngine.Models;
 
 [TestClass]
 public class LookupValidationTests
@@ -18,7 +20,7 @@ public class LookupValidationTests
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<IHandleException> _handleException = new();
-    private readonly Mock<ICreateResponse> _createResonse = new();
+    private readonly CreateResponse _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly LookupValidationRequestBody _requestBody;
     private readonly LookupValidation _function;
@@ -48,7 +50,10 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
-        _function = new LookupValidation(_callFunction.Object, _createResonse.Object, _handleException.Object);
+        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(),It.IsAny<ParticipantCsvRecord>()))
+            .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
+
+        _function = new LookupValidation(_createResponse, _handleException.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -102,9 +107,9 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("AmendedParticipantMustExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
@@ -123,9 +128,9 @@ public class LookupValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("AmendedParticipantMustExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
 
@@ -145,9 +150,9 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("NewParticipantMustNotAlreadyExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
@@ -167,9 +172,9 @@ public class LookupValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("NewParticipantMustNotAlreadyExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
 
