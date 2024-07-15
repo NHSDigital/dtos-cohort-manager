@@ -67,4 +67,11 @@ public class DatabaseHelper : IDatabaseHelper
     {
         return reader[columnName] == DBNull.Value ? Gender.NotKnown : (Gender)(short)reader[columnName];
     }
+
+    public int ConvertBoolStringToInt(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return 0;
+
+        return value.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0;
+    }
 }
