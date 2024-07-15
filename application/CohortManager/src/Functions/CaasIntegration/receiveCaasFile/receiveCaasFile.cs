@@ -134,7 +134,7 @@ public class ReceiveCaasFile
     {
         var str = name.Remove(name.IndexOf('.'));
         var numberOfRecords = (str.Split('_')[2]).Substring(1);
-        
+
         if (Int32.TryParse(numberOfRecords, out int n))
         {
             return n;
