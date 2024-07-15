@@ -43,7 +43,6 @@ public class CreateParticipantData : ICreateParticipantData
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
-            " PARTICIPANT_ID, " +
             " SCREENING_ID," +
             " NHS_NUMBER," +
             " REASON_FOR_REMOVAL," +
@@ -66,9 +65,8 @@ public class CreateParticipantData : ICreateParticipantData
 
         var commonParameters = new Dictionary<string, object>
         {
-            { "@participantId", _databaseHelper.CheckIfNumberNull(participantData.ParticipantId) },
-            { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId)},
-            { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)},
+            { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
+            { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
             { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
