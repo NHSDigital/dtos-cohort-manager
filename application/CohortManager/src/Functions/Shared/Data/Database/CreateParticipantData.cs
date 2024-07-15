@@ -52,7 +52,6 @@ public class CreateParticipantData : ICreateParticipantData
             " RECORD_INSERT_DATETIME," +
             " RECORD_UPDATE_DATETIME" +
             " ) VALUES( " +
-            " @participantId, " +
             " @screeningId, " +
             " @NHSNumber, " +
             " @reasonForRemoval, " +
