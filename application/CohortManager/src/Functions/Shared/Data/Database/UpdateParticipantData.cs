@@ -112,7 +112,7 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         try
         {
-            var newParticipantPk = -1;
+            long newParticipantPk = -1;
             foreach (var sqlCommand in sqlCommands)
             {
 
@@ -263,10 +263,10 @@ public class UpdateParticipantData : IUpdateParticipantData
         return true;
     }
 
-    private int ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
+    private long ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
     {
         command.Transaction = transaction;
-        var newParticipantPk = -1;
+        long newParticipantPk = -1;
 
         try
         {
@@ -281,7 +281,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             {
                 while (reader.Read())
                 {
-                    newParticipantPk = reader.GetInt32(0);
+                    newParticipantPk = reader.GetInt64(0);
                 }
             }
 
