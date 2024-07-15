@@ -57,7 +57,6 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
-            " PARTICIPANT_ID, " +
             " SCREENING_ID," +
             " NHS_NUMBER," +
             " REASON_FOR_REMOVAL," +
@@ -67,7 +66,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             " RECORD_INSERT_DATETIME," +
             " RECORD_UPDATE_DATETIME" +
             " ) VALUES( " +
-            " @participantId, " +
             " @screeningId, " +
             " @NHSNumber, " +
             " @reasonForRemoval, " +
@@ -80,11 +78,10 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         var commonParameters = new Dictionary<string, object>
         {
-            { "@participantId", cohortId},
-            { "@screeningId", participantData.ScreeningId},
-            { "@NHSNumber", participantData.NhsNumber },
+            { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
+            { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
             { "@reasonForRemoval", _databaseHelper.CheckIfNumberNull(participantData.ReasonForRemoval) ? DBNull.Value : participantData.ReasonForRemoval},
-            { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
             { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
             { "@recordInsertDateTime", _databaseHelper.ConvertNullToDbNull(participantData.RecordUpdateDateTime) },
