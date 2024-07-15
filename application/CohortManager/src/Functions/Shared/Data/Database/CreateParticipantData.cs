@@ -100,7 +100,7 @@ public class CreateParticipantData : ICreateParticipantData
 
         try
         {
-            var newParticipantPk = -1;
+            long newParticipantPk = 0;
             foreach (var sqlCommand in sqlCommands)
             {
 
@@ -160,10 +160,10 @@ public class CreateParticipantData : ICreateParticipantData
         return true;
     }
 
-    private int ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
+    private long ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
     {
         command.Transaction = transaction;
-        var newParticipantPk = -1;
+        long newParticipantPk = -1;
 
         try
         {
@@ -178,7 +178,7 @@ public class CreateParticipantData : ICreateParticipantData
             {
                 while (reader.Read())
                 {
-                    newParticipantPk = reader.GetInt32(0);
+                    newParticipantPk = reader.GetInt64(0);
                 }
             }
 
