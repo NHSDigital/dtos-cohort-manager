@@ -24,9 +24,9 @@ public class GetParticipantData : IGetParticipantData
 
         return participantData;
     }
-    public async Task<Participant> GetParticipantAsync(string NHSId, string ParticipantFunctionURI)
+    public async Task<Participant> GetParticipantAsync(string NhsNumber, string ParticipantFunctionURI)
     {
-        var url = $"{ParticipantFunctionURI}?Id={NHSId}";
+        var url = $"{ParticipantFunctionURI}?Id={NhsNumber}";
 
         var response = await _callFunction.SendGet(url);
         var participantData = JsonSerializer.Deserialize<Participant>(response);
