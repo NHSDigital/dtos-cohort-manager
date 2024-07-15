@@ -190,7 +190,7 @@ public class ReceiveCaasFileTests
         var memoryStream = new MemoryStream(csvDataBytes);
         _mockIFileReader.Setup(fileReader => fileReader.ReadStream(It.IsAny<Stream>()))
         .Returns(() => new StreamReader(memoryStream));
-        
+
         Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
 
