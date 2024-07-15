@@ -9,6 +9,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 using System.Net;
+using System.IO;
 
 public class ReceiveCaasFile
 {
@@ -25,6 +26,11 @@ public class ReceiveCaasFile
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
     {
         FileExtensionCheck(name);
+        var numberOfRecords = GetNumberOfRecordsFromFileName(name);
+        if (numberOfRecords == null)
+        {
+            return;
+        }
 
         var badRecords = new Dictionary<int, string>();
         Cohort cohort = new()
@@ -43,7 +49,9 @@ public class ReceiveCaasFile
             using var blobStreamReader = new StreamReader(stream);
             using var csv = new CsvReader(blobStreamReader, config);
             csv.Context.RegisterClassMap<ParticipantMap>();
-            foreach (var participant in csv.GetRecords<Participant>())
+            var records = csv.GetRecords<Participant>();
+
+            foreach (var participant in records)
             {
                 rowNumber++;
                 try
@@ -60,11 +68,21 @@ public class ReceiveCaasFile
                     await InsertValidationErrorIntoDatabase(name);
                 }
             }
+
+            if (rowNumber != numberOfRecords)
+            {
+                throw new FileFormatException("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
+            }
+            if (rowNumber == 0)
+            {
+                throw new FileFormatException("File contains no records. File name:" + name);
+            }
         }
-        catch (Exception ex) when (ex is HeaderValidationException || ex is CsvHelperException)
+        catch (Exception ex) when (ex is HeaderValidationException || ex is CsvHelperException || ex is FileFormatException)
         {
             _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
+            return;
         }
         try
         {
@@ -110,5 +128,22 @@ public class ReceiveCaasFile
         {
             throw new NotSupportedException("Invalid file type. Only CSV files are allowed.");
         };
+    }
+
+    private int? GetNumberOfRecordsFromFileName(string name)
+    {
+        var str = name.Remove(name.IndexOf('.'));
+        var numberOfRecords = (str.Split('_')[2]).Substring(1);
+        
+        if (Int32.TryParse(numberOfRecords, out int n))
+        {
+            return n;
+        }
+        else
+        {
+            _logger.LogError("File name is invalid. File name: " + name);
+            InsertValidationErrorIntoDatabase(name);
+            return null;
+        }
     }
 }
