@@ -159,5 +159,17 @@
         }
       }
     }
+  },
+  {
+    "RuleName": "14.EmailAddressHome.ExceedsMaximumLength",
+    "Expression": "participant.EmailAddressHome.Length <= 90",
+    "Actions": {
+      "OnFailure": {
+        "Name": "OutputExpression",
+        "Context": {
+          "Expression": "participant.EmailAddressHome.Substring(0, 90)"
+        }
+      }
+    }
   }
 ]
