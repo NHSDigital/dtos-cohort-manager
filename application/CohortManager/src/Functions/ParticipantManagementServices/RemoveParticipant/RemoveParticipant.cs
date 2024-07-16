@@ -12,23 +12,14 @@ using Model;
 public class RemoveParticipant
 {
 
-    public ILogger<RemoveParticipant> Object1 { get; }
-    public ICreateResponse Object2 { get; }
-    public ICallFunction Object3 { get; }
-    public ICheckDemographic Object4 { get; }
-    public ICreateParticipant Object5 { get; }
-    public IHandleException Object6 { get; }
-
-    public class RemoveParticipantFunction
-    {
-        private readonly ILogger<RemoveParticipantFunction> _logger;
+        private readonly ILogger<RemoveParticipant> _logger;
         private readonly ICreateResponse _createResponse;
         private readonly ICallFunction _callFunction;
         private readonly ICheckDemographic _checkDemographic;
         private readonly ICreateParticipant _createParticipant;
         private readonly IHandleException _handleException;
 
-        public RemoveParticipantFunction(ILogger<RemoveParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
+        public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
         {
             _logger = logger;
             _createResponse = createResponse;
@@ -87,4 +78,3 @@ public class RemoveParticipant
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
-}
