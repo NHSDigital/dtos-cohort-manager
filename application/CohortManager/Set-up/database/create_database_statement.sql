@@ -4,7 +4,7 @@ GO
 IF NOT EXISTS (
         SELECT name
         FROM sys.databases
-        WHERE name = N'DtOsNHSDB'
+        WHERE name = N'DToSDB'
         )
     CREATE DATABASE [DToSDB];
 GO
