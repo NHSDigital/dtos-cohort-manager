@@ -109,13 +109,13 @@ namespace addParticipant
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var responseText = await _callFunction.GetResponseText(response);
-                var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                return updatedCsvRecordJson;
+                if (!string.IsNullOrEmpty(responseText))
+                {
+                    return JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                }
             }
-
+            participantCsvRecord.Participant.ExceptionFlag = "N";
             return participantCsvRecord;
-
-
         }
     }
 }

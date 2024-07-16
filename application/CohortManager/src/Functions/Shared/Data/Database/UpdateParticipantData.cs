@@ -308,7 +308,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-
                 var updatedCsvRecordJson = await _callFunction.GetResponseText(response);
                 if (!string.IsNullOrEmpty(updatedCsvRecordJson))
                 {
