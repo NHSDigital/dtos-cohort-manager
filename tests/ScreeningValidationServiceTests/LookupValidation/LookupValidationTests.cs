@@ -50,7 +50,7 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
-        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(),It.IsAny<ParticipantCsvRecord>()))
+        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
 
         _function = new LookupValidation(_createResponse, _handleException.Object);
@@ -94,7 +94,7 @@ public class LookupValidationTests
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_AmendedParticipantMustExist_Rule_Fails(string nhsNumber)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_AmendedParticipantMustExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = Actions.Amended;
@@ -106,7 +106,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),
@@ -137,7 +137,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("0000000000")]
     [DataRow("9999999999")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NewParticipantMustNotAlreadyExist_Rule_Fails(string nhsNumber)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_NewParticipantMustNotAlreadyExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = Actions.New;
@@ -149,7 +149,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),
@@ -182,7 +182,7 @@ public class LookupValidationTests
     [DataRow("")]
     [DataRow(null)]
     [DataRow(" ")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_RemovedParticipantMustExist_Rule_Fails(string nhsNumber)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_RemovedParticipantMustExist_Rule_Fails(string nhsNumber)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = Actions.Removed;
@@ -194,7 +194,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),
