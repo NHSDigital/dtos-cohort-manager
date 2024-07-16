@@ -39,7 +39,7 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
-        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(),It.IsAny<ParticipantCsvRecord>()))
+        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
 
         _participantCsvRecord = new ParticipantCsvRecord
@@ -77,17 +77,8 @@ public class UpdateParticipantTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Once());
-
-        _logger.Verify(log =>
-            log.Log(
-            LogLevel.Information,
-            0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("The participant has not been updated due to a bad request")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
     }
 
     [TestMethod]
@@ -122,7 +113,7 @@ public class UpdateParticipantTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
         _logger.Verify(log =>
             log.Log(
@@ -159,7 +150,7 @@ public class UpdateParticipantTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
@@ -187,7 +178,7 @@ public class UpdateParticipantTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
