@@ -135,5 +135,17 @@
         }
       }
     }
+  },
+  {
+    "RuleName": "12.TelephoneNumberHome.ExceedsMaximumLength",
+    "Expression": "participant.TelephoneNumberHome.Length <= 32",
+    "Actions": {
+      "OnFailure": {
+        "Name": "OutputExpression",
+        "Context": {
+          "Expression": "participant.TelephoneNumberHome.Substring(0, 32)"
+        }
+      }
+    }
   }
 ]
