@@ -87,5 +87,29 @@
         }
       }
     }
+  },
+  {
+    "RuleName": "8.AddressLine3.ExceedsMaximumLength",
+    "Expression": "participant.AddressLine3.Length <= 35",
+    "Actions": {
+      "OnFailure": {
+        "Name": "OutputExpression",
+        "Context": {
+          "Expression": "participant.AddressLine3.Substring(0, 35)"
+        }
+      }
+    }
+  },
+  {
+    "RuleName": "9.AddressLine4.ExceedsMaximumLength",
+    "Expression": "participant.AddressLine4.Length <= 35",
+    "Actions": {
+      "OnFailure": {
+        "Name": "OutputExpression",
+        "Context": {
+          "Expression": "participant.AddressLine4.Substring(0, 35)"
+        }
+      }
+    }
   }
 ]
