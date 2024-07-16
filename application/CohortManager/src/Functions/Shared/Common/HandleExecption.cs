@@ -25,7 +25,7 @@ public class HandleException : CallFunction, IHandleException
         var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
         {
-            participant.ExceptionRaised = "Y";
+            participant.ExceptionFlag = "Y";
         }
 
         await SendPost(url, JsonSerializer.Serialize(validationException));
@@ -38,7 +38,7 @@ public class HandleException : CallFunction, IHandleException
 
         var validationExceptionJson = await GetResponseText(response);
 
-        participant.ExceptionRaised = "Y";
+        participant.ExceptionFlag = "Y";
         await SendPost(url, validationExceptionJson);
         return participant;
     }

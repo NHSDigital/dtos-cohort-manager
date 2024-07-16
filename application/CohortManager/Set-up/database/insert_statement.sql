@@ -1,9 +1,11 @@
 INSERT INTO [dbo].[SCREENING_LKP]
         ([SCREENING_NAME]
-        ,[SCREENING_TYPE])
+        ,[SCREENING_TYPE]
+        ,[SCREENING_ACRONYM])
     VALUES
         ('Breast Screening'
-        ,'Breast Screening Program');
+        ,'Breast Screening Program'
+        ,'BSS');
 
 INSERT INTO [dbo].[COHORT]
         ([PROGRAM_ID]
@@ -38,11 +40,3 @@ INSERT INTO [dbo].[GENDER_MASTER]
         ,[GENDER_DESC])
     VALUES
         ('2','Female');
-
-INSERT INTO [dbo].[ELIGIBILITY_CODE_LKP]
-        ([ELIGIBILITY_CODE]
-        ,[ELIGIBILITY_CODE_DESC])
-    VALUES
-        (1,'New'),
-        (2,'Amended'),
-        (3,'Removed');
