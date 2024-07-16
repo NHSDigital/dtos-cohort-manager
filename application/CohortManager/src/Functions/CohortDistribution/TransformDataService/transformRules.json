@@ -75,5 +75,17 @@
         }
       }
     }
+  },
+  {
+    "RuleName": "7.AddressLine2.ExceedsMaximumLength",
+    "Expression": "participant.AddressLine2.Length <= 35",
+    "Actions": {
+      "OnFailure": {
+        "Name": "OutputExpression",
+        "Context": {
+          "Expression": "participant.AddressLine2.Substring(0, 35)"
+        }
+      }
+    }
   }
 ]
