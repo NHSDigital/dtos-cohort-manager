@@ -40,7 +40,7 @@ public class StaticValidationTests
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(),It.IsAny<ParticipantCsvRecord>()))
+        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
 
         _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse);
@@ -62,7 +62,7 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task Run_Should_Return_OK_When_Request_Body_Empty()
     {
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -127,7 +127,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "9.NhsNumber")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -175,7 +175,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "57.SupersededByNhsNumber")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -220,7 +220,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "8.RecordType")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -265,7 +265,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -310,7 +310,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "59.PreviousPosting")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -360,7 +360,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("ABC")]
     [DataRow("123")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ReasonForRemoval_Rule_Fails(string reasonForRemoval)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_ReasonForRemoval_Rule_Fails(string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
@@ -371,7 +371,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "14.ReasonForRemoval")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -412,7 +412,7 @@ public class StaticValidationTests
     [DataRow("")]
     [DataRow("ABC123")]
     [DataRow("ABC 123")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_Postcode_Rule_Fails(string postcode)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_Postcode_Rule_Fails(string postcode)
     {
         // Arrange
         _participantCsvRecord.Participant.Postcode = postcode;
@@ -423,7 +423,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "30.Postcode")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -456,7 +456,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(null, null)]
     [DataRow("ABC", "123")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_PrimaryCareProviderAndReasonForRemoval_Rule_Fails(string primaryCareProvider, string reasonForRemoval)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_PrimaryCareProviderAndReasonForRemoval_Rule_Fails(string primaryCareProvider, string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
@@ -468,7 +468,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.PrimaryCareProviderAndReasonForRemoval")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -505,7 +505,7 @@ public class StaticValidationTests
     [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
     [DataRow("1970023")]    // Incorrect format
     [DataRow("197013")]     // Not a real date or incorrect format
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_DateOfBirth_Rule_Fails(string dateOfBirth)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_DateOfBirth_Rule_Fails(string dateOfBirth)
     {
         // Arrange
         _participantCsvRecord.Participant.DateOfBirth = dateOfBirth;
@@ -516,7 +516,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "17.DateOfBirth")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -552,7 +552,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
     {
         // Arrange
         _participantCsvRecord.Participant.Surname = familyName;
@@ -563,7 +563,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "39.FamilyName")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -597,7 +597,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_FirstName_Rule_Fails(string firstName)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_FirstName_Rule_Fails(string firstName)
     {
         // Arrange
         _participantCsvRecord.Participant.FirstName = firstName;
@@ -608,7 +608,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "40.FirstName")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -642,7 +642,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("New", null)]
     [DataRow("New", "")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_GPPracticeCode_Rule_Fails(string recordType, string practiceCode)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_GPPracticeCode_Rule_Fails(string recordType, string practiceCode)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -654,7 +654,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "42.GPPracticeCode")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -688,7 +688,7 @@ public class StaticValidationTests
     [DataRow("Amended", Status.Formal, null)]
     [DataRow("Amended", Status.Formal, "")]
     [DataRow("Amended", Status.Formal, "AFL")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -701,7 +701,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66.DeathStatus")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -738,7 +738,7 @@ public class StaticValidationTests
     [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
     [DataRow("1970023")]    // Incorrect format
     [DataRow("197013")]     // Not a real date or incorrect format
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_ReasonForRemovalEffectiveFromDate_Rule_Fails(string date)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_ReasonForRemovalEffectiveFromDate_Rule_Fails(string date)
     {
         // Arrange
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = date;
@@ -749,7 +749,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -786,7 +786,7 @@ public class StaticValidationTests
     [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
     [DataRow("1970023")]    // Incorrect format
     [DataRow("197013")]     // Not a real date or incorrect format
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_DateOfDeath_Rule_Fails(string date)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_DateOfDeath_Rule_Fails(string date)
     {
         // Arrange
         _participantCsvRecord.Participant.DateOfDeath = date;
@@ -797,7 +797,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "18.DateOfDeath")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -836,7 +836,7 @@ public class StaticValidationTests
     [DataRow("New", "DEA", null, null)]
     [DataRow("New", null, "20240101", null)]
     [DataRow("New", null, null, "20240101")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
         // Arrange
@@ -851,7 +851,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.NewParticipantWithRemovalOrDeath")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -886,7 +886,7 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("ABC")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_InvalidFlag_Rule_Fails(string invalidFlag)
+    public async Task Run_Should_Return_OK_And_Create_Exception_When_InvalidFlag_Rule_Fails(string invalidFlag)
     {
         // Arrange
         _participantCsvRecord.Participant.InvalidFlag = invalidFlag;
@@ -897,7 +897,7 @@ public class StaticValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "61.InvalidFlag")),
             It.IsAny<ParticipantCsvRecord>()),
