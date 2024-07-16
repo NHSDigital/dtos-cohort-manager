@@ -195,9 +195,9 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("RemovedParticipantMustExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
@@ -216,9 +216,9 @@ public class LookupValidationTests
         await _function.RunAsync(_request.Object);
 
         // Assert
-        _callFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "CreateValidationExceptionURL"),
-            It.Is<string>(s => s.Contains("RemovedParticipantMustExist"))),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.IsAny<IEnumerable<RuleResultTree>>(),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
 
