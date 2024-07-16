@@ -160,18 +160,23 @@ public class UpdateParticipantData : IUpdateParticipantData
         return UpdateOldRecords(oldId);
     }
 
-    private List<SQLReturnModel> UpdateOldRecords(int ParticipantId)
+    private static List<SQLReturnModel> UpdateOldRecords(int participantId)
     {
+        var recordUpdateTime = DateTime.Now;
         var listToReturn = new List<SQLReturnModel>()
         {
-            new SQLReturnModel()
+            new()
             {
                 CommandType = CommandType.Command,
                 SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
                 " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
-                " WHERE PARTICIPANT_ID = @ParticipantId ",
-                Parameters = null,
-            },
+                " WHERE PARTICIPANT_ID = @participantId ",
+                Parameters = new Dictionary<string, object>
+                {
+                    {"@participantId", participantId },
+                    {"@recordEndDateOldRecords", recordUpdateTime }
+                }
+            }
         };
         return listToReturn;
     }
