@@ -58,16 +58,16 @@ public class UpdateParticipantFunction
             };
 
 
-            participantCsvRecord.Participant.ExceptionRaised = "N";
+            participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
-            if (response.Participant.ExceptionRaised == "Y")
+            if (response.Participant.ExceptionFlag == "Y")
             {
                 participantCsvRecord = response;
                 await updateParticipant(participantCsvRecord, req);
                 _logger.LogInformation("The participant has not been updated due to a bad request to the Validation Service, Exception Flag has been updated");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
-            await updateParticipant(participantCsvRecord,req);
+            await updateParticipant(participantCsvRecord, req);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
@@ -104,7 +104,7 @@ public class UpdateParticipantFunction
             var updatedCsvRecordJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
             return updatedCsvRecordJson;
         }
-        participantCsvRecord.Participant.ExceptionRaised = "Y";
+        participantCsvRecord.Participant.ExceptionFlag = "Y";
         return participantCsvRecord;
     }
 }

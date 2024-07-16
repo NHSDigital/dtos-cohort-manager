@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.ParticipantManagementService;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -7,8 +9,16 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace RemoveParticipant
+public class RemoveParticipant
 {
+
+    public ILogger<RemoveParticipant> Object1 { get; }
+    public ICreateResponse Object2 { get; }
+    public ICallFunction Object3 { get; }
+    public ICheckDemographic Object4 { get; }
+    public ICreateParticipant Object5 { get; }
+    public IHandleException Object6 { get; }
+
     public class RemoveParticipantFunction
     {
         private readonly ILogger<RemoveParticipantFunction> _logger;
@@ -34,7 +44,7 @@ namespace RemoveParticipant
             BasicParticipantCsvRecord basicParticipantCsvRecord = null;
             try
             {
-                _logger.LogInformation("C# addParticipant called.");
+                _logger.LogInformation("C# RemoveParticipant called.");
                 HttpWebResponse createResponse;
 
                 string postData = "";
@@ -71,7 +81,7 @@ namespace RemoveParticipant
             catch (Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-                await _handleException.CreateSystemExceptionLog(ex,basicParticipantCsvRecord!.Participant);
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

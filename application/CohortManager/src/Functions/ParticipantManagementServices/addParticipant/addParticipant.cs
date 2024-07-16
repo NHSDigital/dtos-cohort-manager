@@ -57,9 +57,9 @@ namespace addParticipant
                     Participant = participant,
                     FileName = basicParticipantCsvRecord.FileName,
                 };
-                participantCsvRecord.Participant.ExceptionRaised = "N";
+                participantCsvRecord.Participant.ExceptionFlag = "N";
                 var response = await ValidateData(participantCsvRecord);
-                if (response.Participant.ExceptionRaised == "Y")
+                if (response.Participant.ExceptionFlag == "Y")
                 {
                     participantCsvRecord = response;
                 }

@@ -31,10 +31,10 @@ public class HandleException : IHandleException
         var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
         {
-            participant.ExceptionRaised = "Y";
+            participant.ExceptionFlag = "Y";
         }
 
-        var validationException = createValidationException(participant, exception);
+        var validationException = CreateValidationException(participant, exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
@@ -42,12 +42,7 @@ public class HandleException : IHandleException
     public async Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
     {
         var url = GetUrlFromEnvironment();
-        // if (participant.NhsNumber != null)
-        // {
-        //     participant.ExceptionRaised = "Y";
-        // }
-
-        var validationException = createValidationException(participant, exception);
+        var validationException = CreateValidationException(participant, exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
@@ -57,7 +52,7 @@ public class HandleException : IHandleException
     public async Task<ParticipantCsvRecord> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
-        participantCsvRecord.Participant.ExceptionRaised = "Y";
+        participantCsvRecord.Participant.ExceptionFlag = "Y";
 
         foreach (var error in validationErrors)
         {
@@ -102,7 +97,7 @@ public class HandleException : IHandleException
         return url;
     }
 
-    private ValidationException createValidationException(Participant participant, Exception exception)
+    private ValidationException CreateValidationException(Participant participant, Exception exception)
     {
         // mapping liable to change.
         return new ValidationException
@@ -120,7 +115,8 @@ public class HandleException : IHandleException
         };
 
     }
-    private ValidationException createValidationException(BasicParticipantData participant, Exception exception)
+
+    private ValidationException CreateValidationException(BasicParticipantData participant, Exception exception)
     {
         // mapping liable to change.
         return new ValidationException

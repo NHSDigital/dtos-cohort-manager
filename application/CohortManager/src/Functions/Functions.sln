@@ -80,29 +80,29 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidationTests", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticValidationTests", "..\..\..\..\tests\ScreeningValidationServiceTests\StaticValidation\StaticValidationTests.csproj", "{CD708F54-3DB5-4D70-ABED-8843E61EC1A6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CohortDistribution", "CohortDistribution", "{181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CohortDistributionServices", "CohortDistributionServices", "{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AggregateDataServices", "AggregateDataServices", "{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortDistribution", "CohortDistributionServices\RetrieveCohortDistribution\RetrieveCohortDistribution.csproj", "{BD73440D-607E-4002-B7A1-14C0194B5230}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveAggregate", "CohortDistribution\AggregateDataServices\RetrieveAggregate\RetrieveAggregate.csproj", "{BD73440D-607E-4002-B7A1-14C0194B5230}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionData", "CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj", "{02CB2B53-7670-47CC-93DF-6F941FB58C38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddAggregationData", "CohortDistribution\AggregateDataServices\AddAggregationData\AddAggregationData.csproj", "{02CB2B53-7670-47CC-93DF-6F941FB58C38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\AddCohortDistributionDataTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregationDataTests", "..\..\..\..\tests\AddAggregationDataTests\AggregationDataTests\AggregationDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveCohortDistributionData", "CohortDistributionServices\RemoveCohortDistributionData\RemoveCohortDistributionData.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveFromAggregate", "CohortDistribution\AggregateDataServices\RemoveFromAggregate\RemoveFromAggregate.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistribution\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{AA690015-629F-41A3-903C-7A65845691DC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProviderAllocationService", "ServiceProviderAllocationService", "{3F601DD8-88C6-4715-BD32-548CC0D575E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "CohortDistribution\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj", "{4650E40A-AD31-4474-A452-1D6A7F446DDC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj", "{4650E40A-AD31-4474-A452-1D6A7F446DDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{142C4501-749C-4ECC-8F9E-452F204D65DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "CreateException\CreateException.csproj", "{F694FC4E-A899-4466-B26F-B0E4C6E50F18}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkParticipantAsIneligibleTests", "..\..\..\..\tests\screeningDataServicesTests\MarkParticipantAsIneligibleTests\MarkParticipantAsIneligibleTests.csproj", "{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -270,6 +270,10 @@ Global
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F694FC4E-A899-4466-B26F-B0E4C6E50F18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -299,12 +303,11 @@ Global
 		{E0A701BD-23C7-45C1-B969-E639B001C7E9} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{79DF4237-68B8-4BA3-A9CC-298A96248CC1} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
 		{CD708F54-3DB5-4D70-ABED-8843E61EC1A6} = {2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}
-		{F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
 		{BD73440D-607E-4002-B7A1-14C0194B5230} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
-		{81BF10AD-AD08-4D47-8150-96FA09227107} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
-		{3F601DD8-88C6-4715-BD32-548CC0D575E8} = {181DFBFE-C1D5-49C5-A2C6-BA2A93FDBBBC}
+		{81BF10AD-AD08-4D47-8150-96FA09227107} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+		{3F601DD8-88C6-4715-BD32-548CC0D575E8} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{4650E40A-AD31-4474-A452-1D6A7F446DDC} = {3F601DD8-88C6-4715-BD32-548CC0D575E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
