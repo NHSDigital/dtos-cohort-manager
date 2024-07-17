@@ -45,13 +45,13 @@ stages:
         displayName: Terraform Apply - $(ENVIRONMENT)
         environment: $(ENVIRONMENT)
         strategy:
-         runOnce:
-           deploy:
-            steps:
-              - template: jobs/init_and_apply.yaml
-                parameters:
-                  ENVIRONMENT: $(ENVIRONMENT)
-                  SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-                  TF_DIRECTORY: $(TF_DIRECTORY)
-                  TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
-                  TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          runOnce:
+            deploy:
+              steps:
+                - template: jobs/init_and_apply.yaml
+                  parameters:
+                    ENVIRONMENT: $(ENVIRONMENT)
+                    SERVICE_CONNECTION: $(SERVICE_CONNECTION)
+                    TF_DIRECTORY: $(TF_DIRECTORY)
+                    TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
+                    TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
