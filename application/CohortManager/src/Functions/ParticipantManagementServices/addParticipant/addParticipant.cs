@@ -101,9 +101,7 @@ namespace addParticipant
 
         private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
-
             var json = JsonSerializer.Serialize(participantCsvRecord);
-
 
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             if (response.StatusCode == HttpStatusCode.OK)
@@ -111,10 +109,11 @@ namespace addParticipant
                 var responseText = await _callFunction.GetResponseText(response);
                 if (!string.IsNullOrEmpty(responseText))
                 {
-                    return JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                    var responseJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                    return responseJson;
                 }
             }
-            participantCsvRecord.Participant.ExceptionFlag = "N";
+
             return participantCsvRecord;
         }
     }
