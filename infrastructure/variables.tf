@@ -133,3 +133,8 @@ variable "app_insights" {
   })
 }
 
+variable "TARGET_SUBSCRIPTION_ID" {
+  description = "ID of a subscription to deploy infrastructure"
+  type        = string
+}
+

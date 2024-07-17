@@ -1,0 +1,32 @@
+parameters:
+  ENVIRONMENT: " "
+  TF_DIRECTORY: " "
+
+steps:
+
+  - task: TerraformInstaller@1
+    displayName: Terraform Install
+    inputs:
+      terraformVersion: $(TF_VERSION)
+
+  - task: TerraformTaskV4@4
+    continueOnError: false
+    displayName: Terraform Init
+    inputs:
+      provider: 'azurerm'
+      command: 'init'
+      workingDirectory: ${{ parameters.TF_DIRECTORY }}
+      backendAzureRmUseEnvironmentVariablesForAuthentication: false
+      backendServiceArm: $(SERVICE_CONNECTION)
+      backendAzureRmResourceGroupName: $(STATE_RG)
+      backendAzureRmStorageAccountName: $(STATE_SA)
+      backendAzureRmContainerName: $(STATE_CONT)
+      backendAzureRmKey: $(STATE_BLOB)
+
+  - task: TerraformTaskV4@4
+    continueOnError: false
+    displayName: Terraform Validate
+    inputs:
+      provider: 'azurerm'
+      command: 'validate'
+      workingDirectory: ${{ parameters.TF_DIRECTORY }}
