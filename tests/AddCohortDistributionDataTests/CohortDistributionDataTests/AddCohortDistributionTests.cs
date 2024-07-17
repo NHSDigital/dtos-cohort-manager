@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.Tests.AddCohortDistributionDataTests;
 
 using System.Data;
+using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -17,6 +18,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     public AddCohortDistributionTests()
     {
@@ -50,7 +52,8 @@ public class AddCohortDistributionTests
         var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object
+                _loggerMock.Object,
+                _callFunction.Object
             );
 
         var cohortDistributionParticipant = new CohortDistributionParticipant();
@@ -71,7 +74,8 @@ public class AddCohortDistributionTests
         var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object
+                _loggerMock.Object,
+                _callFunction.Object
             );
 
         var cohortDistributionParticipant = new CohortDistributionParticipant();
@@ -93,7 +97,8 @@ public class AddCohortDistributionTests
         var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object
+                _loggerMock.Object,
+                _callFunction.Object
             );
 
         _mockDataReader.SetupSequence(reader => reader.Read())
@@ -118,7 +123,8 @@ public class AddCohortDistributionTests
         var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object
+                _loggerMock.Object,
+                _callFunction.Object
             );
 
         _mockDataReader.SetupSequence(reader => reader.Read())
@@ -143,7 +149,8 @@ public class AddCohortDistributionTests
         var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _databaseHelperMock.Object,
-                _loggerMock.Object
+                _loggerMock.Object,
+                _callFunction.Object
             );
 
         _mockDataReader.SetupSequence(reader => reader.Read())
