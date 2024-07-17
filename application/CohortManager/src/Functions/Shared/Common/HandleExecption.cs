@@ -15,7 +15,9 @@ public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
 
-    private static readonly int SystemExceptionCategory = 99;
+
+    private static readonly int SystemExceptionCategory = 99; //Liable to change based on requirements
+    private const string UnknownNHSNumber = "Unknown NHS Number";
 
     private readonly ICallFunction _callFunction;
 
@@ -34,7 +36,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant, exception);
+        var validationException = CreateValidationException(participant.NhsNumber ?? UnknownNHSNumber, exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
@@ -42,7 +44,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant, exception);
+        var validationException = CreateValidationException(participant.NhsNumber ?? UnknownNHSNumber, exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         return participant;
@@ -97,12 +99,12 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    private ValidationException CreateValidationException(Participant participant, Exception exception)
+    private ValidationException CreateValidationException(string nhsNumber, Exception exception)
     {
         // mapping liable to change.
         return new ValidationException
         {
-            NhsNumber = participant.NhsNumber,
+            NhsNumber = nhsNumber,
             DateCreated = DateTime.Now,
             DateResolved = DateTime.MaxValue,
             RuleId = exception.HResult,
@@ -116,22 +118,6 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    private ValidationException CreateValidationException(BasicParticipantData participant, Exception exception)
-    {
-        // mapping liable to change.
-        return new ValidationException
-        {
-            NhsNumber = participant.NhsNumber,
-            DateCreated = DateTime.Now,
-            DateResolved = DateTime.MaxValue,
-            RuleId = exception.HResult,
-            RuleDescription = exception.Message,
-            RuleContent = "System Exception",
-            Category = SystemExceptionCategory,
-            ScreeningService = 1,
-            Cohort = "",
-            Fatal = 1
-        };
 
-    }
+
 }
