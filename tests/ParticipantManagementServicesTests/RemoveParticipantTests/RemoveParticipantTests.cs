@@ -19,12 +19,9 @@ public class RemoveParticipantTests
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
-
     private readonly Mock<IHandleException> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
-
-
     private Mock<HttpRequestData> _request;
     private readonly RemoveParticipant _function;
 
