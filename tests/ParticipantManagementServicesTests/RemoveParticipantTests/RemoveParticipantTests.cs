@@ -56,12 +56,12 @@ public class RemoveParticipantTests
             });
     }
 
-    /* [TestMethod]
+    [TestMethod]
     public async Task Run_return_ParticipantRemovedSuccessfully_OK()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -79,12 +79,13 @@ public class RemoveParticipantTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+
     [TestMethod]
     public async Task Run_BadRequestReturnedFromRemoveDataService_InternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -104,7 +105,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipantFunction(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -119,5 +120,5 @@ public class RemoveParticipantTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }*/
+    }
 }
