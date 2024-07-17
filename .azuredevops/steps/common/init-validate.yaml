@@ -18,10 +18,10 @@ steps:
       workingDirectory: ${{ parameters.TF_DIRECTORY }}
       backendAzureRmUseEnvironmentVariablesForAuthentication: false
       backendServiceArm: $(SERVICE_CONNECTION)
-      backendAzureRmResourceGroupName: $(STATE_RG)
-      backendAzureRmStorageAccountName: $(STATE_SA)
-      backendAzureRmContainerName: $(STATE_CONT)
-      backendAzureRmKey: $(STATE_BLOB)
+      backendAzureRmResourceGroupName: $(BACKEND_AZURE_RESOURCE_GROUP_NAME)
+      backendAzureRmStorageAccountName: $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME)
+      backendAzureRmContainerName: $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
+      backendAzureRmKey: $(BACKEND_AZURE_STORAGE_ACCOUNT_KEY)
 
   - task: TerraformTaskV4@4
     continueOnError: false
