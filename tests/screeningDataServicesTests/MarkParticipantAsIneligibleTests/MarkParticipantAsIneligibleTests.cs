@@ -25,7 +25,7 @@ public class MarkParticipantAsIneligibleTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
 
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
 
     public MarkParticipantAsIneligibleTests()
     {

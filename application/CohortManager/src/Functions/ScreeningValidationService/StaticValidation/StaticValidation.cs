@@ -19,9 +19,9 @@ public class StaticValidation
 
     private readonly ICreateResponse _createResponse;
 
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
-    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IHandleException handleException, ICreateResponse createResponse)
+    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IExceptionHandler handleException, ICreateResponse createResponse)
     {
         _logger = logger;
         _callFunction = callFunction;

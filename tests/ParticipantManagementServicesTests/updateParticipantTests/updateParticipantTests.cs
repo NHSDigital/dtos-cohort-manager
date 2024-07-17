@@ -28,7 +28,7 @@ public class UpdateParticipantTests
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<HttpWebResponse> _validationWebResponse = new();
     private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;

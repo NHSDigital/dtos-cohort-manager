@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Grpc.Net.Client.Balancer;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Model;
@@ -12,11 +11,11 @@ using RulesEngine.Models;
 
 public class LookupValidation
 {
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
     private readonly ICreateResponse _createResponse;
 
-    public LookupValidation(ICreateResponse createResponse, IHandleException handleException)
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException)
     {
         _createResponse = createResponse;
         _handleException = handleException;

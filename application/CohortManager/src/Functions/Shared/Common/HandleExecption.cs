@@ -11,15 +11,15 @@ using Microsoft.Identity.Client;
 using Model;
 using RulesEngine.Models;
 
-public class HandleException : IHandleException
+public class ExceptionHandler : IExceptionHandler
 {
-    private readonly ILogger<HandleException> _logger;
+    private readonly ILogger<ExceptionHandler> _logger;
 
     private static readonly int SystemExceptionCategory = 99;
 
     private readonly ICallFunction _callFunction;
 
-    public HandleException(ILogger<HandleException> logger, ICallFunction callFunction)
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
 
         _logger = logger;

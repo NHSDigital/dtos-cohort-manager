@@ -15,9 +15,9 @@ public class UpdateParticipantDetails
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IUpdateParticipantData _updateParticipantData;
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IHandleException handleException)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -50,7 +50,7 @@ public class UpdateParticipantDetails
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            await _handleException.CreateSystemExceptionLog(ex,participantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

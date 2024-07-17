@@ -16,11 +16,11 @@ public class MarkParticipantAsIneligible
     private readonly ILogger<MarkParticipantAsIneligible> _logger;
     private readonly IUpdateParticipantData _updateParticipantData;
     private readonly ICreateResponse _createResponse;
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
     private readonly ICallFunction _callFunction;
 
-    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, ICallFunction callFunction, IHandleException handleException)
+    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, ICallFunction callFunction, IExceptionHandler handleException)
     {
         _logger = logger;
         _updateParticipantData = updateParticipantData;

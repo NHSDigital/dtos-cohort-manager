@@ -17,9 +17,9 @@ public class UpdateParticipantFunction
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;

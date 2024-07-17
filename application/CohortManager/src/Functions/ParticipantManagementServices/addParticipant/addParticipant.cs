@@ -16,9 +16,9 @@ namespace addParticipant
         private readonly ICreateResponse _createResponse;
         private readonly ICheckDemographic _getDemographicData;
         private readonly ICreateParticipant _createParticipant;
-        private readonly IHandleException _handleException;
+        private readonly IExceptionHandler _handleException;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IHandleException handleException)
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
         {
             _logger = logger;
             _callFunction = callFunction;

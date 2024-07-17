@@ -16,9 +16,9 @@ public class ProcessCaasFileFunction
     private readonly ICreateResponse _createResponse;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
-    private readonly IHandleException _handleException;
+    private readonly IExceptionHandler _handleException;
 
-    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IHandleException handleException)
+    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -69,7 +69,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex,participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 case Actions.Amended:
@@ -83,7 +83,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex,participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 case Actions.Removed:
@@ -97,7 +97,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex,participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 default:
@@ -116,7 +116,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Static validation function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex,participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
             }

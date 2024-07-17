@@ -27,21 +27,18 @@ public class CreateException
     [Function("CreateException")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-
-        ValidationException exception;
-        var requestBody = "";
-
-        using (var reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            requestBody = await reader.ReadToEndAsync();
-            exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
-        }
         try
         {
+            ValidationException exception;
+            var requestBody = "";
+
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBody = await reader.ReadToEndAsync();
+                exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
+            }
             if (!string.IsNullOrEmpty(requestBody))
             {
-                _logger.LogError("CreateException received an empty payload");
-
                 if (_validationData.Create(exception))
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -53,7 +50,7 @@ public class CreateException
         catch (Exception ex)
         {
             _logger.LogError(ex, "there has been an error while creating an exception record: {Message}", ex.Message);
-            return req.CreateResponse(HttpStatusCode.BadRequest);
+            return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
     }

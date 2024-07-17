@@ -20,7 +20,7 @@ public class AddNewParticipantTestClass
     private readonly Mock<HttpWebResponse> _validationResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly Mock<ICreateParticipant> _createParticipant = new();
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private Mock<HttpRequestData> _request;
 

@@ -15,9 +15,9 @@ namespace markParticipantAsEligible
         private readonly ILogger<MarkParticipantAsEligible> _logger;
         private readonly ICreateResponse _createResponse;
         private readonly IUpdateParticipantData _updateParticipantData;
-        private readonly IHandleException _handleException;
+        private readonly IExceptionHandler _handleException;
 
-        public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IHandleException handleException)
+        public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IExceptionHandler handleException)
         {
             _logger = logger;
             _createResponse = createResponse;
@@ -57,7 +57,7 @@ namespace markParticipantAsEligible
             catch (Exception ex)
             {
                 _logger.LogError($"an error occurred: {ex}");
-                _handleException.CreateSystemExceptionLog(ex,participant);
+                _handleException.CreateSystemExceptionLog(ex, participant);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
         }

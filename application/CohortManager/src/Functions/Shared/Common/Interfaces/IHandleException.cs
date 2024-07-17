@@ -4,7 +4,7 @@ using System.Net;
 using Model;
 using RulesEngine.Models;
 
-public interface IHandleException
+public interface IExceptionHandler
 {
     Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant);
     Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant);

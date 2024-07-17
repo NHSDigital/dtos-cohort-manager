@@ -5,9 +5,11 @@ namespace Common;
 
 public static class ExceptionHandlerServiceExtension
 {
-    public static IHostBuilder addExceptionHandler(this IHostBuilder hostBuilder){
-        return hostBuilder.ConfigureServices(_ => {
-            _.AddSingleton<IHandleException,HandleException>();
+    public static IHostBuilder AddExceptionHandler(this IHostBuilder hostBuilder)
+    {
+        return hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddSingleton<IExceptionHandler, ExceptionHandler>();
             _.AddSingleton<ICallFunction, CallFunction>();
         });
     }

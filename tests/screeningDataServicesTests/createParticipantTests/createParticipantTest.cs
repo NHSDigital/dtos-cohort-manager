@@ -19,7 +19,7 @@ public class CreateParticipantTests
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
     private readonly Mock<FunctionContext> _mockContext = new();
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
     private Mock<HttpRequestData> _mockRequest;
 
     [TestMethod]

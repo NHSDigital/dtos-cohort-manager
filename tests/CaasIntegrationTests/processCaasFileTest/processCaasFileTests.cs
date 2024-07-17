@@ -22,7 +22,7 @@ public class ProcessCaasFileTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantData = new();
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
 
     public ProcessCaasFileTests()
     {

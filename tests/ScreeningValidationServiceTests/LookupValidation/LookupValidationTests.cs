@@ -19,7 +19,7 @@ public class LookupValidationTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
-    private readonly Mock<IHandleException> _handleException = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly CreateResponse _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly LookupValidationRequestBody _requestBody;
