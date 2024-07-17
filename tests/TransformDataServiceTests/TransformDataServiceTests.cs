@@ -23,7 +23,7 @@ public class TransformDataServiceTests
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
-        var participant = new Participant
+        var participant = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",

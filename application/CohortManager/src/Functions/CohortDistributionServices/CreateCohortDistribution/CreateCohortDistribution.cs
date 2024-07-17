@@ -7,32 +7,56 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistribution;
-using Model;
+using System.Text;
+using Common.Interfaces;
 
 public class CreateCohortDistribution
 {
-    private readonly ICallFunction _callFunction;
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<CreateCohortDistribution> _logger;
+    private readonly ICreateCohortDistributionData _createCohortDistributionData;
 
-    public CreateCohortDistribution(ICallFunction callFunction, ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger)
+    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICreateCohortDistributionData createCohortDistributionData)
     {
-        _callFunction = callFunction;
         _createResponse = createResponse;
         _logger = logger;
+        _createCohortDistributionData = createCohortDistributionData;
     }
 
     [Function("CreateCohortDistribution")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // hardcoded data
-        var screeningService = "BSS";
+        CreateCohortDistributionRequestBody requestBody;
+        try
+        {
+            string requestBodyJson;
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBodyJson = reader.ReadToEnd();
+            }
+
+            requestBody = JsonSerializer.Deserialize<CreateCohortDistributionRequestBody>(requestBodyJson);
+        }
+        catch
+        {
+            return req.CreateResponse(HttpStatusCode.BadRequest);
+        }
+
+        if (string.IsNullOrEmpty(requestBody.ScreeningService) || string.IsNullOrEmpty(requestBody.NhsNumber))
+        {
+            string logMessage = $"One or more of the required parameters is missing. NhsNumber: {requestBody.NhsNumber} ScreeningService: {requestBody.ScreeningService}";
+            _logger.LogError(logMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
+        }
+
+        var screeningService = requestBody.ScreeningService;
+        var nhsNumber = requestBody.NhsNumber;
 
         try
         {
-            var participantData = await GetParticipantData();
-            var serviceProvider = await GetServiceProvider(participantData, screeningService);
-            var transformedParticipant = await TransformParticipant(participantData, serviceProvider);
+            var participantData = _createCohortDistributionData.GetCohortParticipant(nhsNumber);
+            var serviceProvider = await _createCohortDistributionData.AllocateCohortParticipantServiceProvider(participantData, screeningService);
+            var transformedParticipant = await _createCohortDistributionData.TransformCohortParticipant(participantData, serviceProvider);
             // call add cohort distribution service
 
             Console.WriteLine(serviceProvider);
@@ -44,86 +68,5 @@ public class CreateCohortDistribution
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-    }
-
-    private async Task<string> GetResponseText(HttpWebResponse httpResponseData)
-    {
-        using (Stream stream = httpResponseData.GetResponseStream())
-        {
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                var responseText = await reader.ReadToEndAsync();
-                return responseText;
-            }
-        }
-    }
-
-    private async Task<Participant> GetParticipantData()
-    {
-        // just returns hardcoded participant at the mo
-        var participant = new Participant
-        {
-            NhsNumber = "1234567890",
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
-            Postcode = "NE63"
-        };
-
-        try
-        {
-            _logger.LogInformation("Called get participant data service");
-            return participant;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Get participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
-    }
-
-    private async Task<string> GetServiceProvider(Participant participant, string screeningService)
-    {
-        var allocationConfigRequestBody = new AllocationConfigRequestBody
-        {
-            NhsNumber = participant.NhsNumber,
-            Postcode = participant.Postcode,
-            ScreeningService = screeningService
-        };
-
-        try
-        {
-            var json = JsonSerializer.Serialize(allocationConfigRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"), json);
-            var responseText = await GetResponseText(response);
-
-            _logger.LogInformation("Called allocate screening provider service");
-            return responseText;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Allocate screening provider service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
-    }
-
-    private async Task<Participant> TransformParticipant(Participant participant, string serviceProvider)
-    {
-        var transformDataRequestBody = new TransformDataRequestBody(participant, serviceProvider);
-
-        try
-        {
-            var json = JsonSerializer.Serialize(transformDataRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("TransformDataServiceURL"), json);
-            var responseText = await GetResponseText(response);
-
-            _logger.LogInformation("Called transform data service");
-            return JsonSerializer.Deserialize<Participant>(responseText);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
     }
 }
