@@ -103,10 +103,10 @@ public class UpdateParticipantFunction
             var responseText = await _callFunction.GetResponseText(response);
             if (!string.IsNullOrEmpty(responseText))
             {
-                return JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                var responseJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
+                return responseJson;
             }
         }
-        participantCsvRecord.Participant.ExceptionFlag = "N";
         return participantCsvRecord;
     }
 }
