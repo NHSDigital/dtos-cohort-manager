@@ -25,6 +25,7 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

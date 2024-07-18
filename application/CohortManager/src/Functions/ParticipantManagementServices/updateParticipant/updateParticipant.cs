@@ -8,6 +8,7 @@ using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
+using System.Data;
 
 public class UpdateParticipantFunction
 {
@@ -16,14 +17,16 @@ public class UpdateParticipantFunction
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
+    private readonly IExceptionHandler _handleException;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
+        _handleException = handleException;
     }
 
     [Function("updateParticipant")]
@@ -53,51 +56,53 @@ public class UpdateParticipantFunction
                 Participant = participant,
                 FileName = basicParticipantCsvRecord.FileName
             };
-            var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            if (!await ValidateData(participantCsvRecord))
+
+            participantCsvRecord.Participant.ExceptionFlag = "N";
+            var response = await ValidateData(participantCsvRecord);
+            if (response.Participant.ExceptionFlag == "Y")
             {
-                _logger.LogInformation("The participant has not been updated due to a bad request.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
-
-            createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
-
-            if (createResponse.StatusCode == HttpStatusCode.OK)
-            {
-                _logger.LogInformation("Participant updated.");
+                participantCsvRecord = response;
+                await updateParticipant(participantCsvRecord, req);
+                _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
+            await updateParticipant(participantCsvRecord, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
         }
         catch (Exception ex)
         {
             _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
-        _logger.LogInformation("The participant has not been updated due to a bad request.");
-        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
     }
 
-    private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<HttpWebResponse> updateParticipant(ParticipantCsvRecord participantCsvRecord, HttpRequestData req)
+    {
+        var json = JsonSerializer.Serialize(participantCsvRecord);
+        HttpWebResponse createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
+        if (createResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _logger.LogInformation("Participant updated.");
+            return createResponse;
+        }
+        return createResponse;
+    }
+
+    private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        try
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+        if (response.StatusCode == HttpStatusCode.Created)
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                return true;
-            }
+            participantCsvRecord.Participant.ExceptionFlag = "Y";
         }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return false;
-        }
-
-        return false;
+        return participantCsvRecord;
     }
 }
+

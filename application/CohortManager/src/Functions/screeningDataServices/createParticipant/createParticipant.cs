@@ -15,22 +15,24 @@ public class CreateParticipant
     private readonly ILogger<CreateParticipant> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateParticipantData _createParticipantData;
+    private readonly IExceptionHandler _handleException;
 
-    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData)
+    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
         _createParticipantData = createParticipantData;
+        _handleException = handleException;
     }
 
     [Function("CreateParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation("CreateParticipant is called...");
-
+        ParticipantCsvRecord participantCsvRecord = null;
         try
         {
-            ParticipantCsvRecord participantCsvRecord;
+
 
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
@@ -50,6 +52,7 @@ public class CreateParticipant
         catch (Exception ex)
         {
             _logger.LogError("Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
