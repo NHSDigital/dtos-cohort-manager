@@ -143,7 +143,7 @@ public class ReceiveCaasFile
         };
     }
 
-    private async int? GetNumberOfRecordsFromFileName(string name)
+    private async Task<int?> GetNumberOfRecordsFromFileName(string name)
     {
         var str = name.Remove(name.IndexOf('.'));
         var numberOfRecords = (str.Split('_')[2]).Substring(1);

@@ -96,7 +96,7 @@ public class ReceiveCaasFileTests
         // Assert
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
         It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("FileFormatException validation failed.")),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name record count not equal to actual record count. File name count:")),
         It.IsAny<Exception>(),
         It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -135,7 +135,7 @@ public class ReceiveCaasFileTests
     }
 
     [TestMethod]
-    public async Task Run_InvalidFileExtension_ThrowsNotSupportedException()
+    public async Task Run_InvalidFileExtension_LogsValidationErrorAndReturns()
     {
         // Arrange
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
@@ -144,12 +144,28 @@ public class ReceiveCaasFileTests
                         .Throws(new NotSupportedException("Failed to read the incoming file"));
 
         var fileName = "Test.PDF";
+        Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+
+        _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("FileValidationURL")), It.IsAny<string>()))
+                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<NotSupportedException>(async () =>
-        {
-            await _receiveCaasFileInstance.Run(memoryStream, fileName);
-        });
+        await _receiveCaasFileInstance.Run(memoryStream, fileName);
+
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        It.IsAny<EventId>(),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("validation failed.")),
+        It.IsAny<Exception>(),
+        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
+
+        _mockICallFunction.Verify(
+        x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
+        It.IsAny<string>()),
+        Times.Once);
     }
 
         [TestMethod]
@@ -240,7 +256,7 @@ public class ReceiveCaasFileTests
         // Assert
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
         It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("validation failed.")),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File contains no records. File name:")),
         It.IsAny<Exception>(),
         It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
