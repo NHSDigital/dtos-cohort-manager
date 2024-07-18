@@ -192,7 +192,6 @@ public class CreateCohortDistributionTests
     {
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, responseData);
 
-        MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
             .Returns(Task.FromResult(response));
     }
@@ -201,7 +200,6 @@ public class CreateCohortDistributionTests
     {
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest, responseData);
 
-        MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
             .Returns(Task.FromResult(response));
     }
