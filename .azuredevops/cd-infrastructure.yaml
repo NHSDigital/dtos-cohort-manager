@@ -42,7 +42,7 @@ stages:
 
     jobs:
       - deployment: terraform_apply
-        displayName: Terraform Apply - $(ENVIRONMENT)
+        displayName: Terraform Apply
         environment: $(ENVIRONMENT)
         strategy:
           runOnce:
