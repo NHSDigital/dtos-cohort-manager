@@ -27,7 +27,7 @@ public class ExceptionHandler : IExceptionHandler
         _callFunction = callFunction;
     }
 
-    public async Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant)
+    public async Task CreateSystemExceptionLog(Exception exception, Participant participant)
     {
         var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
@@ -38,15 +38,13 @@ public class ExceptionHandler : IExceptionHandler
         var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
-        return participant;
     }
-    public async Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
+    public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
     {
         var url = GetUrlFromEnvironment();
         var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
-        return participant;
     }
 
 
