@@ -11,8 +11,8 @@
         "ParticipantManagementServices/addParticipant",
         "ParticipantManagementServices/updateParticipant",
         "ParticipantManagementServices/RemoveParticipant",
+        "CreateException",
         "screeningDataServices/createParticipant",
-        "screeningDataServices/CreateValidationException",
         "screeningDataServices/DemographicDataService",
         "screeningDataServices/markParticipantAsEligible",
         "screeningDataServices/markParticipantAsIneligible",
@@ -121,6 +121,24 @@
       }
     },
     {
+      "label": "CreateException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 4 && func start"
+      },
+      "windows": {
+        "command": "timeout 7 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CreateException"
+      }
+    },
+    {
       "label": "screeningDataServices/createParticipant",
       "type": "shell",
       "osx": {
@@ -136,24 +154,6 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant"
-      }
-    },
-    {
-      "label": "screeningDataServices/CreateValidationException",
-      "type": "shell",
-      "osx": {
-        "command": "sleep 4 && func start"
-      },
-      "windows": {
-        "command": "timeout 7 && func start",
-        "options": {
-          "shell": {
-            "executable": "cmd.exe"
-          }
-        }
-      },
-      "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/CreateValidationException"
       }
     },
     {
