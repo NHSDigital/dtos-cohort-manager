@@ -52,6 +52,7 @@ public class CreateCohortDistribution
         var screeningService = requestBody.ScreeningService;
         var nhsNumber = requestBody.NhsNumber;
 
+        bool error = false;
         string serviceProvider;
         CohortDistributionParticipant transformedParticipant;
 
@@ -78,6 +79,7 @@ public class CreateCohortDistribution
                     serviceProvider = body;
                 }
             }
+            else error = true;
 
         }
         catch (Exception ex)
@@ -115,10 +117,16 @@ public class CreateCohortDistribution
                     transformedParticipant = result;
                 }
             }
+            else error = true;
         }
         catch (Exception ex)
         {
             _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+
+        if (error)
+        {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 

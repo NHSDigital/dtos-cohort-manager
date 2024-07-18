@@ -130,7 +130,7 @@ public class CreateCohortDistributionTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     [TestMethod]
@@ -152,7 +152,7 @@ public class CreateCohortDistributionTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     [TestMethod]
