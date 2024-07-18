@@ -13,6 +13,8 @@
 # Please, add your custom content below!
 
 # Text Editors
+.vscode/*
+!.vscode/tasks.json
 _ReSharper.*/
 
 # Azurite
