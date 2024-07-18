@@ -6,12 +6,11 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
-using Model;
 using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
-using Common.Interfaces;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -23,22 +22,21 @@ public class CreateCohortDistributionTests
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly CreateCohortDistributionRequestBody _requestBody;
-    private readonly Mock<HttpWebResponse> _webResponse = new();
-    private readonly Mock<ICreateCohortDistributionData> _createCohortDistributionData = new();
 
     public CreateCohortDistributionTests()
     {
         Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
         Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
 
-        var screeningService = "BSS";
-        var nhsNumber = "1234567890";
-
         _request = new Mock<HttpRequestData>(_context.Object);
 
-        _requestBody = new CreateCohortDistributionRequestBody(nhsNumber, screeningService);
+        _requestBody = new CreateCohortDistributionRequestBody()
+        {
+            NhsNumber = "1234567890",
+            ScreeningService = "BSS"
+        };
 
-        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _createCohortDistributionData.Object);
+        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -83,19 +81,45 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_OK_When_Request_Body_Valid()
+    public async Task Run_Should_Return_BadRequest_When_Request_Missing_ScreeningService()
+    {
+        // Arrange
+        _requestBody.ScreeningService = null;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_Request_Missing_NhsNumber()
+    {
+        // Arrange
+        _requestBody.NhsNumber = null;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_OK_When_All_Requests_Are_Successful()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _createCohortDistributionData.Setup(x => x.GetCohortParticipant(It.IsAny<string>())).Returns(new CohortDistributionParticipant());
-        _createCohortDistributionData.Setup(x => x.AllocateCohortParticipantServiceProvider(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>())).Returns(Task.FromResult(It.IsAny<string>()));
-        _createCohortDistributionData.Setup(x => x.TransformCohortParticipant(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "BS Select - NE63");
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+            .Returns(Task.FromResult(allocateScreeningProviderResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);

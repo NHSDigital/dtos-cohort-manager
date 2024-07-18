@@ -8,19 +8,18 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
-using Common.Interfaces;
 
 public class CreateCohortDistribution
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<CreateCohortDistribution> _logger;
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
+    private readonly ICallFunction _callFunction;
 
-    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICreateCohortDistributionData createCohortDistributionData)
+    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICallFunction callFunction)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _createCohortDistributionData = createCohortDistributionData;
+        _callFunction = callFunction;
     }
 
     [Function("CreateCohortDistribution")]
@@ -52,21 +51,41 @@ public class CreateCohortDistribution
         var screeningService = requestBody.ScreeningService;
         var nhsNumber = requestBody.NhsNumber;
 
+        string serviceProvider = "";
+
+        // Allocate Screening Provider
         try
         {
-            var participantData = _createCohortDistributionData.GetCohortParticipant(nhsNumber);
-            var serviceProvider = await _createCohortDistributionData.AllocateCohortParticipantServiceProvider(participantData, screeningService);
-            var transformedParticipant = await _createCohortDistributionData.TransformCohortParticipant(participantData, serviceProvider);
-            // call add cohort distribution service
+            var allocationConfigRequestBody = new AllocationConfigRequestBody
+            {
+                NhsNumber = nhsNumber,
+                Postcode = "NE63",
+                ScreeningService = screeningService
+            };
 
-            Console.WriteLine(serviceProvider);
-            Console.WriteLine(JsonSerializer.Serialize(transformedParticipant));
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            var json = JsonSerializer.Serialize(allocationConfigRequestBody);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                _logger.LogInformation("Called allocate screening provider service");
+
+                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                {
+                    var body = await reader.ReadToEndAsync();
+                    serviceProvider = body;
+                }
+            }
+
         }
         catch (Exception ex)
         {
+            _logger.LogError("Allocate screening provider service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
+
+        Console.WriteLine(serviceProvider);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
     }
 }

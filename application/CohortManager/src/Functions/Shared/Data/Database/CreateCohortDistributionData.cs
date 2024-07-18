@@ -8,22 +8,20 @@ using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.CohortDistribution;
 
-public class CreateCohortDistributionData : CallFunction, ICreateCohortDistributionData
+public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
 
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateCohortDistributionData> _logger;
-    private readonly ICallFunction _callFunction;
 
-    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger, ICallFunction callFunction)
+    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
-        _callFunction = callFunction;
     }
     public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
     {
@@ -202,74 +200,6 @@ public class CreateCohortDistributionData : CallFunction, ICreateCohortDistribut
             };
 
         return UpdateRecords(sqlToExecute);
-    }
-
-    public CohortDistributionParticipant GetCohortParticipant(string nhsNumber)
-    {
-        var participant = new CohortDistributionParticipant
-        {
-            NhsNumber = nhsNumber,
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
-            Postcode = "NE63"
-        };
-
-        try
-        {
-            _logger.LogInformation("Called get cohort participant data service");
-            return participant;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Get cohort participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
-    }
-
-    public async Task<string> AllocateCohortParticipantServiceProvider(CohortDistributionParticipant cohortDistributionParticipant, string screeningService)
-    {
-        var allocationConfigRequestBody = new AllocationConfigRequestBody
-        {
-            NhsNumber = cohortDistributionParticipant.NhsNumber,
-            Postcode = cohortDistributionParticipant.Postcode,
-            ScreeningService = screeningService
-        };
-
-        try
-        {
-            var json = JsonSerializer.Serialize(allocationConfigRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"), json);
-            var responseText = await GetResponseText(response);
-
-            _logger.LogInformation("Called allocate screening provider service");
-            return responseText;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Allocate screening provider service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
-    }
-
-    public async Task<CohortDistributionParticipant> TransformCohortParticipant(CohortDistributionParticipant cohortDistributionParticipant, string serviceProvider)
-    {
-        var transformDataRequestBody = new TransformDataRequestBody(cohortDistributionParticipant, serviceProvider);
-
-        try
-        {
-            var json = JsonSerializer.Serialize(transformDataRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("TransformDataServiceURL"), json);
-            var responseText = await GetResponseText(response);
-
-            _logger.LogInformation("Called transform data service");
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(responseText);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            throw;
-        }
     }
 
     private List<CohortDistributionParticipant> GetParticipant(IDbCommand command)

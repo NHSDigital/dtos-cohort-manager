@@ -1,7 +1,6 @@
 ﻿namespace NHS.CohortManager.Tests.RemoveCohortDistributionDataTests;
 
 using System.Data;
-using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -17,7 +16,6 @@ public class RemoveCohortDistributionTests
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
 
     public RemoveCohortDistributionTests()
     {
@@ -51,8 +49,7 @@ public class RemoveCohortDistributionTests
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
-            _loggerMock.Object,
-                _callFunction.Object
+            _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         var NHSID = "123456";
@@ -73,8 +70,7 @@ public class RemoveCohortDistributionTests
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
-            _loggerMock.Object,
-                _callFunction.Object
+            _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "654321";
@@ -94,8 +90,7 @@ public class RemoveCohortDistributionTests
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
-            _loggerMock.Object,
-                _callFunction.Object
+            _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
         var NHSID = "";
