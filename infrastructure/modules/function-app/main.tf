@@ -1,5 +1,5 @@
 
-resource "azurerm_windows_function_app" "function" {
+resource "azurerm_linux_function_app" "function" {
   for_each = var.function_app
 
   name                = "${var.names.function-app}-${lower(each.value.name_suffix)}"

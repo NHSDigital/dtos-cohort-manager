@@ -1,0 +1,57 @@
+# Things to change for further environments:
+# - stage variable group name: dtos_ENVIRONMENT_variables
+# -
+
+trigger: none
+
+variables:
+  - group: global_variable_group
+  - name: TF_DIRECTORY
+    value: '$(System.DefaultWorkingDirectory)/infrastructure'
+
+pool:
+  vmImage: ubuntu-latest
+
+# Developlent environment
+
+stages:
+  - stage: terraform_plan
+    displayName: Terraform Plan
+    dependsOn: []
+
+    variables:
+      - group: development_variable_group
+
+    jobs:
+
+      - template: jobs/init_and_plan.yaml
+        parameters:
+          ENVIRONMENT: $(ENVIRONMENT)
+          SERVICE_CONNECTION: $(SERVICE_CONNECTION)
+          TF_DIRECTORY: $(TF_DIRECTORY)
+          TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
+          TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+
+  - stage: terraform_apply
+    displayName: Terraform Apply
+    dependsOn: [terraform_plan]
+    condition: eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true')
+
+    variables:
+      - group: development_variable_group
+
+    jobs:
+      - deployment: terraform_apply
+        displayName: Terraform Apply
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: jobs/init_and_apply.yaml
+                  parameters:
+                    ENVIRONMENT: $(ENVIRONMENT)
+                    SERVICE_CONNECTION: $(SERVICE_CONNECTION)
+                    TF_DIRECTORY: $(TF_DIRECTORY)
+                    TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
+                    TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
