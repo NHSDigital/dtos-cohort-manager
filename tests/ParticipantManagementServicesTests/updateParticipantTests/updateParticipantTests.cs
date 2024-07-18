@@ -40,7 +40,7 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
+            .Returns(Task.FromResult(true)).Verifiable();
 
         _participantCsvRecord = new ParticipantCsvRecord
         {

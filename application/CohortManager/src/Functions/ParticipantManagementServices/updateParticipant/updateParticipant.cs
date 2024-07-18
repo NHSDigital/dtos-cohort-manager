@@ -64,8 +64,8 @@ public class UpdateParticipantFunction
             {
                 participantCsvRecord = response;
                 await updateParticipant(participantCsvRecord, req);
-                _logger.LogInformation("The participant has not been updated due to a bad request to the Validation Service, Exception Flag has been updated");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             await updateParticipant(participantCsvRecord, req);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -98,15 +98,11 @@ public class UpdateParticipantFunction
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        if (response.StatusCode == HttpStatusCode.OK)
+        if (response.StatusCode == HttpStatusCode.Created)
         {
-            var responseText = await _callFunction.GetResponseText(response);
-            if (!string.IsNullOrEmpty(responseText))
-            {
-                var responseJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                return responseJson;
-            }
+            participantCsvRecord.Participant.ExceptionFlag = "Y";
         }
         return participantCsvRecord;
     }
 }
+

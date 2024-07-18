@@ -104,16 +104,10 @@ namespace addParticipant
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.Created)
             {
-                var responseText = await _callFunction.GetResponseText(response);
-                if (!string.IsNullOrEmpty(responseText))
-                {
-                    var responseJson = JsonSerializer.Deserialize<ParticipantCsvRecord>(responseText);
-                    return responseJson;
-                }
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
-
             return participantCsvRecord;
         }
     }

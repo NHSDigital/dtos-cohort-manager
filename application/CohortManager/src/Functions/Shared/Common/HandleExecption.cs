@@ -51,7 +51,7 @@ public class ExceptionHandler : IExceptionHandler
     }
 
 
-    public async Task<ParticipantCsvRecord> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
         participantCsvRecord.Participant.ExceptionFlag = "Y";
@@ -81,11 +81,11 @@ public class ExceptionHandler : IExceptionHandler
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError("there was an error while logging an exception to the database");
-                break;
+                return false;
             }
         }
 
-        return participantCsvRecord;
+        return true;
     }
 
     private string GetUrlFromEnvironment()

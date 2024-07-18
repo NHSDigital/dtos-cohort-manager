@@ -41,36 +41,36 @@ public class StaticValidation
                 var requestBodyJson = reader.ReadToEnd();
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
+
+            string json = File.ReadAllText("staticRules.json");
+            var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
+            var reSettings = new ReSettings
+            {
+                CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions)]
+            };
+
+            var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+            var ruleParameters = new[] {
+                new RuleParameter("participant", participantCsvRecord.Participant),
+            };
+            var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+            var validationErrors = resultList.Where(x => x.IsSuccess == false);
+
+            if (validationErrors.Any())
+            {
+                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                if (exceptionCreated)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                }
+            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch
         {
-            return req.CreateResponse(HttpStatusCode.BadRequest);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-        string json = File.ReadAllText("staticRules.json");
-        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-
-        var reSettings = new ReSettings
-        {
-            CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions)]
-        };
-
-        var re = new RulesEngine.RulesEngine(rules, reSettings);
-
-        var ruleParameters = new[] {
-            new RuleParameter("participant", participantCsvRecord.Participant),
-        };
-        var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-
-        var validationErrors = resultList.Where(x => x.IsSuccess == false);
-
-        if (validationErrors.Any())
-        {
-            var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-            var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, updatedCsvRecordJson);
-        }
-
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

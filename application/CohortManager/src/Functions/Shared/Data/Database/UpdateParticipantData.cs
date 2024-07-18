@@ -306,13 +306,9 @@ public class UpdateParticipantData : IUpdateParticipantData
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.Created)
             {
-                var updatedCsvRecordJson = await _callFunction.GetResponseText(response);
-                if (!string.IsNullOrEmpty(updatedCsvRecordJson))
-                {
-                    return JsonSerializer.Deserialize<ParticipantCsvRecord>(updatedCsvRecordJson).Participant;
-                }
+                newParticipant.ExceptionFlag = "Y";
             }
         }
         catch (Exception ex)

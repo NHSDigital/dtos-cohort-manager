@@ -51,7 +51,7 @@ public class LookupValidationTests
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .ReturnsAsync(It.IsAny<ParticipantCsvRecord>).Verifiable();
+            .Returns(Task.FromResult(true)).Verifiable();
 
         _function = new LookupValidation(_createResponse, _handleException.Object);
 
@@ -72,7 +72,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -86,7 +86,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
         _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
@@ -106,7 +106,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),
@@ -149,7 +149,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),
@@ -194,7 +194,7 @@ public class LookupValidationTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
             It.IsAny<ParticipantCsvRecord>()),

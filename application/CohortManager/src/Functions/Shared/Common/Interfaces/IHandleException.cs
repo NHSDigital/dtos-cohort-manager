@@ -8,5 +8,5 @@ public interface IExceptionHandler
 {
     Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant);
     Task<BasicParticipantData> CreateSystemExceptionLog(Exception exception, BasicParticipantData participant);
-    Task<ParticipantCsvRecord> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
+    Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
 }

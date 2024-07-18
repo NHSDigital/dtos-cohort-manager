@@ -58,22 +58,22 @@ public class LookupValidation
 
             if (validationErrors.Any())
             {
-
                 var participantCsvRecord = new ParticipantCsvRecord()
                 {
                     Participant = newParticipant,
                     FileName = requestBody.FileName
                 };
-
-                var updatedCsvRecord = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                var updatedCsvRecordJson = JsonSerializer.Serialize<ParticipantCsvRecord>(updatedCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, updatedCsvRecordJson);
+                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                if (exceptionCreated)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                }
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 }
