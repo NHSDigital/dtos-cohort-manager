@@ -54,7 +54,7 @@ public class CreateCohortDistribution
 
         bool error = false;
         string serviceProvider;
-        CohortDistributionParticipant transformedParticipant;
+        CohortDistributionParticipant transformedParticipant = new CohortDistributionParticipant();
 
         // Allocate Screening Provider
         try
@@ -122,6 +122,24 @@ public class CreateCohortDistribution
         catch (Exception ex)
         {
             _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+
+        // Add Cohort Distribution
+        try
+        {
+            var json = JsonSerializer.Serialize(transformedParticipant);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                _logger.LogInformation("Called add cohort distribution function");
+            }
+            else error = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Add cohort distribution function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 

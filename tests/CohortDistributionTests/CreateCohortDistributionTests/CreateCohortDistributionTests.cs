@@ -28,6 +28,7 @@ public class CreateCohortDistributionTests
     {
         Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
         Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
+        Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
 
         _request = new Mock<HttpRequestData>(_context.Object);
 
@@ -117,14 +118,9 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(allocateScreeningProviderResponse));
-
-        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, JsonSerializer.Serialize(new CohortDistributionParticipant()));
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(transformParticipantResponse));
+        FailedFunctionRequest("AllocateScreeningProviderURL");
+        SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        SuccessfulFunctionRequest("AddCohortDistributionURL");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -139,14 +135,26 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
+        FailedFunctionRequest("TransformDataServiceURL");
+        SuccessfulFunctionRequest("AddCohortDistributionURL");
 
-        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "BS Select - NE63");
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(allocateScreeningProviderResponse));
+        // Act
+        var result = await _function.RunAsync(_request.Object);
 
-        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(transformParticipantResponse));
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_AddCohortDistribution_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
+        SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        FailedFunctionRequest("AddCohortDistributionURL");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -161,14 +169,9 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "BS Select - NE63");
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(allocateScreeningProviderResponse));
-
-        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, JsonSerializer.Serialize(new CohortDistributionParticipant()));
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult(transformParticipantResponse));
+        SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
+        SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        SuccessfulFunctionRequest("AddCohortDistributionURL");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -183,5 +186,23 @@ public class CreateCohortDistributionTests
         var bodyStream = new MemoryStream(byteArray);
 
         _request.Setup(r => r.Body).Returns(bodyStream);
+    }
+
+    private void SuccessfulFunctionRequest(string url, string responseData = null)
+    {
+        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, responseData);
+
+        MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
+            .Returns(Task.FromResult(response));
+    }
+
+    private void FailedFunctionRequest(string url, string responseData = null)
+    {
+        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest, responseData);
+
+        MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
+            .Returns(Task.FromResult(response));
     }
 }
