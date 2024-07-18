@@ -313,7 +313,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
 
