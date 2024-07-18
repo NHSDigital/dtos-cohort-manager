@@ -8,6 +8,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
+using Model;
 
 public class CreateCohortDistribution
 {
@@ -51,7 +52,8 @@ public class CreateCohortDistribution
         var screeningService = requestBody.ScreeningService;
         var nhsNumber = requestBody.NhsNumber;
 
-        string serviceProvider = "";
+        string serviceProvider;
+        CohortDistributionParticipant transformedParticipant;
 
         // Allocate Screening Provider
         try
@@ -84,8 +86,42 @@ public class CreateCohortDistribution
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-        Console.WriteLine(serviceProvider);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+        // Transform Participant
+        try
+        {
+            var transformDataRequestBody = new TransformDataRequestBody()
+            {
+                Participant = new CohortDistributionParticipant
+                {
+                    NhsNumber = "1",
+                    FirstName = "John",
+                    Surname = "Smith",
+                    NamePrefix = "Mr",
+                },
+                ScreeningService = "1"
+            };
 
+            var json = JsonSerializer.Serialize(transformDataRequestBody);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("TransformDataServiceURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                _logger.LogInformation("Called transform data service");
+
+                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                {
+                    var body = await reader.ReadToEndAsync();
+                    CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
+                    transformedParticipant = result;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

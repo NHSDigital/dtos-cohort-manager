@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
+using Model;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -111,6 +112,50 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_AllocateServiceProviderToParticipant_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult(allocateScreeningProviderResponse));
+
+        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult(transformParticipantResponse));
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_TransformDataService_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "BS Select - NE63");
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult(allocateScreeningProviderResponse));
+
+        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult(transformParticipantResponse));
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_Should_Return_OK_When_All_Requests_Are_Successful()
     {
         // Arrange
@@ -120,6 +165,10 @@ public class CreateCohortDistributionTests
         var allocateScreeningProviderResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "BS Select - NE63");
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AllocateScreeningProviderURL")), It.IsAny<string>()))
             .Returns(Task.FromResult(allocateScreeningProviderResponse));
+
+        var transformParticipantResponse = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("TransformDataServiceURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult(transformParticipantResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
