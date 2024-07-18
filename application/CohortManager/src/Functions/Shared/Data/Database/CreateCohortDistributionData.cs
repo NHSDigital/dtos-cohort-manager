@@ -1,12 +1,9 @@
 namespace Data.Database;
 
 using System.Data;
-using System.Text.Json;
-using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
