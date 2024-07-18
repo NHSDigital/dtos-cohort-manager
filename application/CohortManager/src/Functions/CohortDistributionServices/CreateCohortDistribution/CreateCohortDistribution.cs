@@ -53,8 +53,30 @@ public class CreateCohortDistribution
         var nhsNumber = requestBody.NhsNumber;
 
         bool error = false;
+        CohortDistributionParticipant participantData;
         string serviceProvider;
         CohortDistributionParticipant transformedParticipant = new CohortDistributionParticipant();
+
+        // Get Participant Data
+        // this is a stub for a function that doesn't yet exist
+        // it just returns a hardcoded participant for the time being
+        try
+        {
+            _logger.LogInformation("Called get participant data service");
+            participantData = new CohortDistributionParticipant
+            {
+                NhsNumber = nhsNumber,
+                FirstName = "John",
+                Surname = "Smith",
+                NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
+                Postcode = "NE63"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Get participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
 
         // Allocate Screening Provider
         try
@@ -62,7 +84,7 @@ public class CreateCohortDistribution
             var allocationConfigRequestBody = new AllocationConfigRequestBody
             {
                 NhsNumber = nhsNumber,
-                Postcode = "NE63",
+                Postcode = participantData.Postcode,
                 ScreeningService = screeningService
             };
 
@@ -93,13 +115,7 @@ public class CreateCohortDistribution
         {
             var transformDataRequestBody = new TransformDataRequestBody()
             {
-                Participant = new CohortDistributionParticipant
-                {
-                    NhsNumber = "1",
-                    FirstName = "John",
-                    Surname = "Smith",
-                    NamePrefix = "Mr",
-                },
+                Participant = participantData,
                 ScreeningService = "1"
             };
 
