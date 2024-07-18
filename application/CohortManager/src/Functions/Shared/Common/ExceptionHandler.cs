@@ -30,7 +30,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task<Participant> CreateSystemExceptionLog(Exception exception, Participant participant)
     {
         var url = GetUrlFromEnvironment();
-        if (participant.NhsNumber == null)
+        if (participant.NhsNumber != null)
         {
             participant.ExceptionFlag = "Y";
         }
