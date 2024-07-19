@@ -10,6 +10,7 @@ using CsvHelper.Configuration;
 using System.Globalization;
 using System.Net;
 using System.IO;
+using System.Text.RegularExpressions;
 
 public class ReceiveCaasFile
 {
@@ -27,7 +28,13 @@ public class ReceiveCaasFile
     {
         try
         {
-            FileExtensionCheck(name);
+            if(!FileNameAndFileExtensionIsValid(name))
+            {
+                _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
+                await InsertValidationErrorIntoDatabase(name);
+                return;
+            }
+
             var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
             if (numberOfRecords == null)
             {
@@ -134,13 +141,16 @@ public class ReceiveCaasFile
         _logger.LogError("there was a problem saving and or moving the failed file");
     }
 
-    private static void FileExtensionCheck(string name)
+    private static bool FileNameAndFileExtensionIsValid(string name)
     {
-        var fileExtension = Path.GetExtension(name).ToLower();
-        if (fileExtension != FileFormats.CSV)
-        {
-            throw new NotSupportedException("Invalid file type. Only CSV files are allowed.");
-        };
+        /* for file format BSS_ccyymmddhhmmss_n8.csv
+        '^BSS_' Matches the literal string BSS_ at the start of the line
+        '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
+        '_n' Matches the literal _n
+        '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
+        '\.csv$' matches .csv at the end of the string */
+        var match = Regex.Match(name, @"^BSS_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
+        return match.Success;
     }
 
     private async Task<int?> GetNumberOfRecordsFromFileName(string name)
