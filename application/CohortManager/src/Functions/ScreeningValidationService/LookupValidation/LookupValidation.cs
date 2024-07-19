@@ -33,7 +33,14 @@ public class LookupValidation
                 var requestBodyJson = reader.ReadToEnd();
                 requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
+        }
+        catch
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
 
+        try
+        {
             var existingParticipant = requestBody.ExistingParticipant;
             var newParticipant = requestBody.NewParticipant;
 
