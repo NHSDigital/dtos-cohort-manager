@@ -150,15 +150,7 @@ public class ReceiveCaasFile
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
         var match = Regex.Match(name, @"^BSS_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
-
-        if (match.Success)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return match.Success;
     }
 
     private async Task<int?> GetNumberOfRecordsFromFileName(string name)
