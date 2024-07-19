@@ -1,0 +1,286 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run All Functions",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "CaasIntegration/receiveCaasFile",
+        "CaasIntegration/processCaasFile",
+        "DemographicServices/DemographicDataManagementFunction",
+        "ParticipantManagementServices/addParticipant",
+        "ParticipantManagementServices/updateParticipant",
+        "ParticipantManagementServices/RemoveParticipant",
+        "CreateException",
+        "screeningDataServices/createParticipant",
+        "screeningDataServices/DemographicDataService",
+        "screeningDataServices/markParticipantAsEligible",
+        "screeningDataServices/markParticipantAsIneligible",
+        "screeningDataServices/updateParticipantDetails",
+        "ScreeningValidationService/FileValidation",
+        "ScreeningValidationService/LookupValidation",
+        "ScreeningValidationService/StaticValidation"
+      ]
+    },
+    {
+      "label": "CaasIntegration/receiveCaasFile",
+      "type": "shell",
+      "command": "func start",
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile"
+      }
+    },
+    {
+      "label": "CaasIntegration/processCaasFile",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 1 && func start"
+      },
+      "windows": {
+        "command": "timeout 1 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/processCaasFile"
+      }
+    },
+    {
+      "label": "DemographicServices/DemographicDataManagementFunction",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 1.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 2 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDataManagementFunction"
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/addParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 2 && func start"
+      },
+      "windows": {
+        "command": "timeout 3 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/addParticipant"
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/updateParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 2.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 4 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/updateParticipant"
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/RemoveParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 3 && func start"
+      },
+      "windows": {
+        "command": "timeout 5 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/RemoveParticipant"
+      }
+    },
+    {
+      "label": "CreateException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 4 && func start"
+      },
+      "windows": {
+        "command": "timeout 7 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CreateException"
+      }
+    },
+    {
+      "label": "screeningDataServices/createParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 3.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 6 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant"
+      }
+    },
+    {
+      "label": "screeningDataServices/DemographicDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 4.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 8 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/DemographicDataService"
+      }
+    },
+    {
+      "label": "screeningDataServices/markParticipantAsEligible",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 5 && func start"
+      },
+      "windows": {
+        "command": "timeout 9 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsEligible"
+      }
+    },
+    {
+      "label": "screeningDataServices/markParticipantAsIneligible",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 5.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 10 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsIneligible"
+      }
+    },
+    {
+      "label": "screeningDataServices/updateParticipantDetails",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 6 && func start"
+      },
+      "windows": {
+        "command": "timeout 11 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/updateParticipantDetails"
+      }
+    },
+    {
+      "label": "ScreeningValidationService/FileValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 6.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 12 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/FileValidation"
+      }
+    },
+    {
+      "label": "ScreeningValidationService/LookupValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 7 && func start"
+      },
+      "windows": {
+        "command": "timeout 13 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation"
+      }
+    },
+    {
+      "label": "ScreeningValidationService/StaticValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 7.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 14 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation"
+      }
+    }
+  ]
+}
