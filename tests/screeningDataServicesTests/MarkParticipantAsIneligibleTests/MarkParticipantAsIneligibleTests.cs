@@ -25,6 +25,8 @@ public class MarkParticipantAsIneligibleTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
 
+    private readonly Mock<IExceptionHandler> _handleException = new();
+
     public MarkParticipantAsIneligibleTests()
     {
         Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
@@ -40,7 +42,7 @@ public class MarkParticipantAsIneligibleTests
             }
         };
 
-        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object);
+        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object, _handleException.Object);
 
         _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
 

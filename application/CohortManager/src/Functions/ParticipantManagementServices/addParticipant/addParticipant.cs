@@ -16,14 +16,16 @@ namespace addParticipant
         private readonly ICreateResponse _createResponse;
         private readonly ICheckDemographic _getDemographicData;
         private readonly ICreateParticipant _createParticipant;
+        private readonly IExceptionHandler _handleException;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
         {
             _logger = logger;
             _callFunction = callFunction;
             _createResponse = createResponse;
             _getDemographicData = checkDemographic;
             _createParticipant = createParticipant;
+            _handleException = handleException;
         }
 
         [Function("addParticipant")]
@@ -55,13 +57,14 @@ namespace addParticipant
                     Participant = participant,
                     FileName = basicParticipantCsvRecord.FileName,
                 };
-                var json = JsonSerializer.Serialize(participantCsvRecord);
-
-                if (!await ValidateData(participantCsvRecord))
+                participantCsvRecord.Participant.ExceptionFlag = "N";
+                var response = await ValidateData(participantCsvRecord);
+                if (response.Participant.ExceptionFlag == "Y")
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                    participantCsvRecord = response;
                 }
 
+                var json = JsonSerializer.Serialize(participantCsvRecord);
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
                 if (createResponse.StatusCode == HttpStatusCode.Created)
@@ -72,8 +75,10 @@ namespace addParticipant
             }
             catch (Exception ex)
             {
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             }
+
             try
             {
                 var json = JsonSerializer.Serialize(participant);
@@ -88,31 +93,22 @@ namespace addParticipant
             catch (Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 
-        private async Task<bool> ValidateData(ParticipantCsvRecord participantCsvRecord)
+        private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
             var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            try
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            if (response.StatusCode == HttpStatusCode.Created)
             {
-                var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    return true;
-                }
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
-            catch (Exception ex)
-            {
-                _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-                return false;
-            }
-
-            return false;
+            return participantCsvRecord;
         }
     }
 }

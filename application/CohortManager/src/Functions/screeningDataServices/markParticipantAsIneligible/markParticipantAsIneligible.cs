@@ -10,18 +10,22 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
+
 public class MarkParticipantAsIneligible
 {
     private readonly ILogger<MarkParticipantAsIneligible> _logger;
     private readonly IUpdateParticipantData _updateParticipantData;
     private readonly ICreateResponse _createResponse;
+    private readonly IExceptionHandler _handleException;
+
     private readonly ICallFunction _callFunction;
 
-    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, ICallFunction callFunction)
+    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, ICallFunction callFunction, IExceptionHandler handleException)
     {
         _logger = logger;
         _updateParticipantData = updateParticipantData;
         _createResponse = createResponse;
+        _handleException = handleException;
         _callFunction = callFunction;
     }
 
@@ -74,6 +78,7 @@ public class MarkParticipantAsIneligible
         catch (Exception ex)
         {
             _logger.LogError($"an error occurred: {ex}");
+            await _handleException.CreateSystemExceptionLog(ex, participantData);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
@@ -100,3 +105,4 @@ public class MarkParticipantAsIneligible
         return false;
     }
 }
+

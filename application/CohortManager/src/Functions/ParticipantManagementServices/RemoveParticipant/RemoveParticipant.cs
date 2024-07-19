@@ -16,19 +16,22 @@ public class RemoveParticipant
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
+    private readonly IExceptionHandler _handleException;
 
-    public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant)
+    public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
+        _handleException = handleException;
     }
 
     [Function("RemoveParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
+        BasicParticipantCsvRecord basicParticipantCsvRecord = null;
         try
         {
             _logger.LogInformation("C# RemoveParticipant called.");
@@ -40,7 +43,7 @@ public class RemoveParticipant
                 postData = reader.ReadToEnd();
             }
 
-            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
+            basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
             var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
@@ -68,6 +71,7 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

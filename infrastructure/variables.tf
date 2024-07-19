@@ -24,7 +24,7 @@ variable "tags" {
 variable "resource_groups" {
   description = "Map of resource groups"
   type = map(object({
-    name = optional(string, "rg-dtos-dev-suk-baseline")
+    name = optional(string, "rg-cohort-manager-dev-suk")
   }))
 }
 
@@ -33,7 +33,7 @@ variable "storage_accounts" {
   type = object({
     fnapp = object({
       name_suffix                   = optional(string, "fnappstor")
-      resource_group_key            = optional(string, "baseline")
+      resource_group_key            = optional(string, "cohman")
       account_tier                  = optional(string, "Standard")
       replication_type              = optional(string, "LRS")
       public_network_access_enabled = optional(bool, true)
@@ -42,9 +42,9 @@ variable "storage_accounts" {
 }
 
 variable "key_vault" {
-  description = "Configuration for the baseline key vault"
+  description = "Configuration for the key vault"
   type = object({
-    resource_group_key = optional(string, "baseline")
+    resource_group_key = optional(string, "cohman")
     disk_encryption    = optional(bool, true)
     soft_del_ret_days  = optional(number, 7)
     purge_prot         = optional(bool, false)
@@ -58,7 +58,7 @@ variable "sqlserver" {
 
     # Server Instance
     server = object({
-      resource_group_key            = optional(string, "baseline")
+      resource_group_key            = optional(string, "cohman")
       sqlversion                    = optional(string, "12.0")
       tlsversion                    = optional(number, 1.2)
       azure_services_access_enabled = optional(bool, true)
@@ -66,7 +66,7 @@ variable "sqlserver" {
 
     # Database
     dbs = map(object({
-      db_name_suffix = optional(string, "baseline")
+      db_name_suffix = optional(string, "cohman")
       collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
       licence_type   = optional(string, "LicenseIncluded")
       max_gb         = optional(number, 5)
@@ -87,16 +87,16 @@ variable "sqlserver" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    resource_group_key = optional(string, "baseline")
+    resource_group_key = optional(string, "cohman")
     sku_name           = optional(string, "B1")
-    os_type            = optional(string, "Windows")
+    os_type            = optional(string, "Linux")
   })
 }
 
 variable "function_app" {
   description = "Configuration for the function app"
   type = object({
-    resource_group_key = optional(string, "baseline")
+    resource_group_key = optional(string, "cohman")
     worker_32bit       = optional(bool, false)
     fa_config = map(object({
       name_suffix = string
@@ -108,8 +108,8 @@ variable "event_grid" {
   description = "Configuration for the event grid"
   type = object({
     topic = object({
-      resource_group_key = optional(string, "baseline")
-      name_suffix        = optional(string, "baseline")
+      resource_group_key = optional(string, "cohman")
+      name_suffix        = optional(string, "cohman")
     })
   })
 }
@@ -117,8 +117,8 @@ variable "event_grid" {
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
-    name_suffix        = optional(string, "baseline")
-    resource_group_key = optional(string, "baseline")
+    name_suffix        = optional(string, "cohman")
+    resource_group_key = optional(string, "cohman")
     law_sku            = optional(string, "PerGB2018")
     retention_days     = optional(number, 30)
   })
@@ -127,9 +127,14 @@ variable "law" {
 variable "app_insights" {
   description = "Configuration of the App Insights"
   type = object({
-    name_suffix        = optional(string, "baseline")
-    resource_group_key = optional(string, "baseline")
+    name_suffix        = optional(string, "cohman")
+    resource_group_key = optional(string, "cohman")
     appinsights_type   = optional(string, "web")
   })
+}
+
+variable "TARGET_SUBSCRIPTION_ID" {
+  description = "ID of a subscription to deploy infrastructure"
+  type        = string
 }
 
