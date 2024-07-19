@@ -16,7 +16,7 @@ BEGIN
         SUPERSEDED_NHS_NUMBER         BIGINT NULL,
         PRIMARY_CARE_PROVIDER         VARCHAR(10) NULL,
         PRIMARY_CARE_PROVIDER_FROM_DT DATE NULL,
-        NAME_PREFIX                   VARCHAR(10) NULL,
+        NAME_PREFIX                   VARCHAR(35) NULL,
         GIVEN_NAME                    VARCHAR(100) NULL,
         OTHER_GIVEN_NAME              VARCHAR(100) NULL,
         FAMILY_NAME                   VARCHAR(100) NULL,
