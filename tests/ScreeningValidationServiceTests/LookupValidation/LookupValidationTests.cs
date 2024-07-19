@@ -196,6 +196,7 @@ public class LookupValidationTests
         string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
     {
         // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.Surname = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
@@ -218,14 +219,16 @@ public class LookupValidationTests
 
 
     [TestMethod]
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]   // New Family Name Only
-    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]     // New Gender Only
-    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]   // New Date of Birth Only
-    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]   // No Change
-    public async Task Run_Should_Not_Create_Exception_When_Demographics_Rule_Passes(
+    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]  // New Family Name Only
+    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
+    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
+    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
+    [DataRow(Actions.New, "", new Gender(), "", "Smith", Gender.Female, "19700101")]                    // New Record Type
+    public async Task Run_Should_Not_Create_Exception_When_Demographics_Rule_Passes(string recordType,
         string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
     {
         // Arrange
+        _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.ExistingParticipant.Surname = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
@@ -241,82 +244,6 @@ public class LookupValidationTests
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.Demographics")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, null, null, null, null)]
-    [DataRow("221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", "", "", "", "", "")]
-    [DataRow("221B Baker Street", null, null, null, null, "", "", "", "", "")]
-    [DataRow(null, "Flat 1", null, null, null, "", "", "", "", "")]
-    [DataRow(null, null, "Marylebone", null, null, "", "", "", "", "")]
-    [DataRow(null, null, null, "Westminster", null, "", "", "", "", "")]
-    [DataRow(null, null, null, null, "London", "", "", "", "", "")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_Address_Rule_Fails(
-        string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5,
-        string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
-        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
-        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
-        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
-        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
-        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
-        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
-        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
-        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
-        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.MustNotOverwriteAddressWithEmpty")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.Amended, null, null, null, null, null, "221B Baker Street", "Flat 2", "Marylebone", "Westminster", "London")]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", "221B Baker Street", "Flat 2", "Marylebone", "Westminster", "London")]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", "221B Baker Street", null, null, null, null)]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, "Flat 2", null, null, null)]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, null, "Marylebone", null, null)]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, null, null, "Westminster", null)]
-    [DataRow(Actions.Amended, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, null, null, null, "London")]
-    [DataRow(Actions.New, "221B Baker Street", "Flat 1", "Marylebone", "Westminster", "London", null, null, null, null, null)]
-    public async Task Run_Should_Not_Create_Exception_When_Address_Rule_Passes(string recordType,
-        string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5,
-        string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
-        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
-        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
-        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
-        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
-        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
-        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
-        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
-        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
-        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _function.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.MustNotOverwriteAddressWithEmpty")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }

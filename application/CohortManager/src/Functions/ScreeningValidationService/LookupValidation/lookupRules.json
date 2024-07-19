@@ -12,11 +12,7 @@
       },
       {
         "RuleName": "11.Demographics",
-        "Expression": "(newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
-      },
-      {
-        "RuleName": "71.MustNotOverwriteAddressWithEmpty",
-        "Expression": "newParticipant.recordType == Actions.New OR (!string.IsNullOrEmpty(newParticipant.AddressLine1) OR !string.IsNullOrEmpty(newParticipant.AddressLine2) OR !string.IsNullOrEmpty(newParticipant.AddressLine3) OR !string.IsNullOrEmpty(newParticipant.AddressLine4) OR !string.IsNullOrEmpty(newParticipant.AddressLine5)) OR (string.IsNullOrEmpty(existingParticipant.AddressLine1) AND string.IsNullOrEmpty(existingParticipant.AddressLine2) AND string.IsNullOrEmpty(existingParticipant.AddressLine3) AND string.IsNullOrEmpty(existingParticipant.AddressLine4) AND string.IsNullOrEmpty(existingParticipant.AddressLine5))"
+        "Expression": "newParticipant.RecordType != Actions.Amended OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
       }
     ]
   }
