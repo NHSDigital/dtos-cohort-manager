@@ -7,7 +7,9 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICallFunction, CallFunction>();
+        services.AddSingleton<ICreateResponse, CreateResponse>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

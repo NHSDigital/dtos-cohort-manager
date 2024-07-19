@@ -51,13 +51,13 @@ public class FileValidation
                 Fatal = requestBody.Fatal ?? 0,
             };
 
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
+            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            if(requestObject.FileName != null)
+            if (requestObject.FileName != null)
             {
                 var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
                 if (copied)
