@@ -19,7 +19,7 @@ jobs:
           dir_names: "true"
 
       - name: get docker compose service name(s)
-        run: bash ./scripts/get-docker-names.sh
+        run: bash ./scripts/deployment/get-docker-names.sh
 
 
     
