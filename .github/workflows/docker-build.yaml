@@ -23,7 +23,7 @@ jobs:
       - name: get docker compose function name(s)
         id: get-function-names
         run: |
-          echo "${{CHANGED_FOLDERS}}"
+          echo ${{steps.changed-files.outputs.all_changed_files}}
           bash ./scripts/deployment/get-docker-names.sh
 
       - name: print function names
