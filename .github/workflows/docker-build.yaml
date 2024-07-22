@@ -16,6 +16,10 @@ jobs:
         id: changed-files
         with:
           dir_names: "true"
+          files_yaml: |
+            application/CohortManager:
+              - compose.yaml
+              - src/Functions/**
 
       - run: |
           for dir in ${{ steps.changed-files.outputs.all_changed_files }}; do
