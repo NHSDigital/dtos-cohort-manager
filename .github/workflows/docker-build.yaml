@@ -7,16 +7,33 @@ on:
 jobs:
   get-changed-files:
     runs-on: ubuntu-latest
-    name: Get a list of changed functions
-    uses: tj-actions/changed-files@v44 
-    with:
-      dir_names: "true"
-    run: |
-      for dir in ${{ steps.changed_files.outputs.all_changed_directories }}; do
-        echo "$dir"
-      done
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
 
+      - uses: tj-actions/changed-files@v44 
+        id: changed-files
+        with:
+          path: application/CohortManager/src/Functions
+          dir_names: "true"
 
+      - name: get docker compose function name(s)
+        id: get-function-names
+        env:
+          CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
+        run: |
+          bash ./scripts/deployment/get-docker-names.sh
+
+      - name: print function names
+        run: echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
+
+      - name: build docker images
+        working-directory: ./application/CohortManager
+        run: |
+          if [ -z "$steps.get-function-names.outputs.FUNC_NAMES" ]; then
+            echo "No functions changed"
+          else
+            docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}}
+          fi
     
-    # - name: Build the Docker image
-    #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
