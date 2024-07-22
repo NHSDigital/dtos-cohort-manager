@@ -62,11 +62,19 @@ public class RemoveParticipant
 
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 
-            if (createResponse.StatusCode == HttpStatusCode.OK)
+            if (createResponse.StatusCode != HttpStatusCode.OK)
             {
-                _logger.LogInformation("participant deleted");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
+
+            if(!await RemoveParticipantFromCohort(participant.NhsNumber))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+
+            _logger.LogInformation("participant deleted");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
         }
         catch (Exception ex)
         {
@@ -74,6 +82,20 @@ public class RemoveParticipant
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
-        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+
+    private async Task<bool> RemoveParticipantFromCohort(string nhsNumber){
+        var parameters = new Dictionary<string, string>
+        {
+            { "NhsNumber", nhsNumber }
+        };
+        var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveFromCohortDistributionURL"), parameters);
+        if(result is null){
+            _logger.LogWarning($"Participant was not removed from Cohort Distribution");
+            return false;
+        }
+        _logger.LogInformation("Participant was removed from Cohort Distribution");
+        return true;
+
     }
 }

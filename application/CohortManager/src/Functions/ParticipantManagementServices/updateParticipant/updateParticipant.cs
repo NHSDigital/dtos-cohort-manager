@@ -9,6 +9,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using System.Data;
+using NHS.CohortManager.CohortDistribution;
 
 public class UpdateParticipantFunction
 {
@@ -68,6 +69,13 @@ public class UpdateParticipantFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             await updateParticipant(participantCsvRecord, req);
+
+            if(! await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId)){
+                _logger.LogInformation("participant failed to send to Cohort Distribution Service");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+            }
+
+            _logger.LogInformation("participant sent to Cohort Distribution Service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
@@ -102,7 +110,25 @@ public class UpdateParticipantFunction
         {
             participantCsvRecord.Participant.ExceptionFlag = "Y";
         }
+
         return participantCsvRecord;
     }
+    private async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService){
+        CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody{
+                NhsNumber = nhsNumber,
+                ScreeningService = screeningService
+            };
+            string json = JsonSerializer.Serialize(requestBody);
+
+            var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CohortDistributionServiceURL"), json);
+
+            if(result.StatusCode == HttpStatusCode.OK){
+                _logger.LogInformation($"Participant sent to Cohort Distribution Service");
+                return true;
+            }
+            _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
+            return false;
+
+        }
 }
 

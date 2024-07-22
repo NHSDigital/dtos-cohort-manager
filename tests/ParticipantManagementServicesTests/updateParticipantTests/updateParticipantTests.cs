@@ -37,6 +37,7 @@ public class UpdateParticipantTests
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
+        Environment.SetEnvironmentVariable("CohortDistributionServiceURL","CohortDistributionServiceURL");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
@@ -70,6 +71,10 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                 .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
 
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
+                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
+
         _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
@@ -94,6 +99,10 @@ public class UpdateParticipantTests
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
 
         _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
             .Returns(Task.FromResult<string>(""));
@@ -132,10 +141,13 @@ public class UpdateParticipantTests
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
 
-        _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))

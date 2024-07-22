@@ -90,12 +90,12 @@ namespace addParticipant
                 _logger.LogInformation("participant created, marked as eligible");
 
 
-                if(await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId)){
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-                }
-                else{
+                if(!await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId)){
+                    _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
                 }
+                 _logger.LogInformation("participant sent to Cohort Distribution Service");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
 
 
