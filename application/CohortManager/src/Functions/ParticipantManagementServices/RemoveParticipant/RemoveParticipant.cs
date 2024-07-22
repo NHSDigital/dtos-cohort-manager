@@ -91,11 +91,11 @@ public class RemoveParticipant
         };
         var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveFromCohortDistributionURL"), parameters);
         if(result is null){
-            _logger.LogWarning($"Participant was not removed from Cohort Distribution");
+            _logger.LogInformation($"Participant was not removed from Cohort Distribution");
             return false;
         }
-        _logger.LogInformation("Participant was removed from Cohort Distribution");
-        return true;
+        _logger.LogWarning("Participant was removed from Cohort Distribution");
+        return false;
 
     }
 }
