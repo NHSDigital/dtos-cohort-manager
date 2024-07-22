@@ -18,11 +18,8 @@ jobs:
           path: application/CohortManager/src/Functions
           dir_names: "true"
 
-      - run: |
-          declare -A docker_functions_map=(["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data")
-          for dir in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "${docker_functions_map[$dir]}"
-          done
+      - name: get docker compose service name(s)
+      - run: bash ./scripts/get-docker-names.sh
 
 
     
