@@ -8,9 +8,13 @@ declare -A docker_functions_map=(
 
 changed_functions=""
 
-for folder in $CHANGED_FOLDERS; do
-changed_functions+=" ${docker_functions_map[$folder]}"
-done
+if [ -z $CHANGED_FOLDERS ]; then
+    changed_functions=""
+else
+    for folder in $CHANGED_FOLDERS; do
+    changed_functions+=" ${docker_functions_map[$folder]}"
+    done
+fi
 
 echo "printing"
 echo "changed folders: $CHANGED_FOLDERS"
