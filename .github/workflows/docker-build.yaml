@@ -13,12 +13,16 @@ jobs:
           fetch-depth: 0 
 
       - uses: tj-actions/changed-files@v44 
+        id: changed-files
         with:
-          dir_names: "true"
-          
-      - run: |
-          for dir in ${{ steps.changed_files.outputs.all_changed_directories }}; do
-            echo "$dir"
+          # dir_names: "true"
+
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
           done
 
 
