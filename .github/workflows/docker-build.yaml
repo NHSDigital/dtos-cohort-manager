@@ -15,8 +15,8 @@ jobs:
       - uses: tj-actions/changed-files@v44 
         id: changed-files
         with:
+          path: application/CohortManager/src/Functions
           dir_names: "true"
-          files: application/CohortManager/src/Functions/**
 
       - run: |
           for dir in ${{ steps.changed-files.outputs.all_changed_files }}; do
