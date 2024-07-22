@@ -28,7 +28,12 @@ jobs:
       - name: print function names
         run: echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
 
-
+      - name: build docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: ./application/CohortManager/src/Functions
+          file: ./CohortDistributionServices/AddCohortDistributionData
+          push: false
     
     # - name: Build the Docker image
     #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
