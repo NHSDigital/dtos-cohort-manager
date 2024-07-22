@@ -36,4 +36,6 @@ jobs:
           else
             docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}}
           fi
+      
+      # something
     
