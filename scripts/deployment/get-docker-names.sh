@@ -9,7 +9,7 @@ declare -A docker_functions_map=(
 changed_functions=""
 
 if [ -z $CHANGED_FOLDERS ]; then
-    changed_functions=""
+    changed_functions="null"
 else
     for folder in $CHANGED_FOLDERS; do
     changed_functions+=" ${docker_functions_map[$folder]}"
