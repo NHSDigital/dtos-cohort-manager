@@ -36,7 +36,7 @@ jobs:
       #     push: false
       - name: build docker images
         working-directory: ./application/CohortManager
-        run: docker compose build add-participant
+        run: docker compose build$steps.get-function-names.outputs.FUNC_NAMES
     
     # - name: Build the Docker image
     #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
