@@ -8,7 +8,7 @@ declare -A docker_functions_map=(
 changed_functions=""
 
 for folder in $CHANGED_FOLDERS; do
-changed_functions+="${ docker_functions_map[$folder]}"
+changed_functions+=" ${docker_functions_map[$folder]}"
 done
 
 echo "printing"
