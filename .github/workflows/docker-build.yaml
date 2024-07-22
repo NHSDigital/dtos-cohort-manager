@@ -14,7 +14,7 @@ jobs:
 
       - uses: tj-actions/changed-files@v44 
         id: changed-files
-        with:
+        # with:
           # dir_names: "true"
 
       - name: List all changed files
