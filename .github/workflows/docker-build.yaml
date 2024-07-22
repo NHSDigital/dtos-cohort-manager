@@ -18,7 +18,7 @@ jobs:
           dir_names: "true"
 
       - run: |
-          for dir in ${{ steps.changed-files.outputs.any_changed }}; do
+          for dir in ${{ steps.changed-files.outputs.all_changed_files }}; do
             echo "$dir"
           done
 
