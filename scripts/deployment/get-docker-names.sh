@@ -9,4 +9,5 @@ declare -A docker_functions_map=(["CohortDistributionServices/AddCohortDistribut
 
 echo "printing"
 echo "$CHANGED_FOLDERS"
+echo "${docker_functions_map[$CHANGED_FOLDERS]}"
 echo "FUNC_NAMES=${docker_functions_map[$CHANGED_FOLDERS]}" >> "$GITHUB_OUTPUT" 
