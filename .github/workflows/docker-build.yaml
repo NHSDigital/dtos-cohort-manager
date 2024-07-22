@@ -12,9 +12,9 @@ jobs:
         with:
           dir_names: "true"
       - run: |
-        for dir in ${{ steps.changed_files.outputs.all_changed_directories }}; do
-          echo "$dir"
-        done
+          for dir in ${{ steps.changed_files.outputs.all_changed_directories }}; do
+            echo "$dir"
+          done
 
 
     
