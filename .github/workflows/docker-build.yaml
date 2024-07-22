@@ -17,6 +17,8 @@ jobs:
         with:
           path: application/CohortManager/src/Functions
           dir_names: "true"
+        env:
+          CHANGED_FOLDERS: ${{ steps.changed-files.outputs.all_changed_files }}
 
       - name: get docker compose service name(s)
         run: bash ./scripts/deployment/get-docker-names.sh
