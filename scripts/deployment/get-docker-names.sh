@@ -7,11 +7,11 @@ declare -A docker_functions_map=(
 
 changed_functions=""
 
-for dir in $CHANGED_FOLDERS; do
-changed_functions+="${ docker_functions_map[$dir]}"
+for folder in $CHANGED_FOLDERS; do
+changed_functions+="${ docker_functions_map[$folder]}"
 done
 
 echo "printing"
 echo "changed folders: $CHANGED_FOLDERS"
-# echo "${docker_functions_map[$CHANGED_FOLDERS]}"
+echo "changed functions: $changed_functions"
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT" 

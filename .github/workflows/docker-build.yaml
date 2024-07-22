@@ -28,15 +28,12 @@ jobs:
       - name: print function names
         run: echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
 
-      # - name: build docker images
-      #   uses: docker/build-push-action@v3
-      #   with:
-      #     context: ./application/CohortManager/src/Functions
-      #     file: ./application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData/Dockerfile
-      #     push: false
       - name: build docker images
         working-directory: ./application/CohortManager
-        run: docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}}
+        run: |
+          if [-z "$steps.get-function-names.outputs.FUNC_NAMES"]; then
+            echo "No functions changed"
+          else
+            docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}}
+          fi
     
-    # - name: Build the Docker image
-    #   run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
