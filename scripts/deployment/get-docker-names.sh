@@ -3,6 +3,7 @@
 declare -A docker_functions_map=(
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService"]="allocate-service-provider"
+    ["/ParticipantManagementServices/addParticipant"]="add-participant"
 )
 
 changed_functions=""
