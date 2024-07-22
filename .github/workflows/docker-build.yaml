@@ -27,13 +27,35 @@ jobs:
 
       - name: print function names
         run: echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
+      
+      # - name: Az CLI login
+      #   uses: azure/login@v1
+      #   with:
+      #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+      #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+      #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Tags
+        run: |
+          echo "COMMIT_HASH_TAG=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
+          echo "ENVIRONMENT_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{steps.get-function-names.outputs.FUNC_NAMES}}/$PR_NUM_TAG" >> $GITHUB_ENV
 
       - name: build docker images
         working-directory: ./application/CohortManager
+        continue-on-error: true
         run: |
-          if [ -z "$steps.get-function-names.outputs.FUNC_NAMES" ]; then
+          if [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
           else
-            docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}}
+            docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}} \
+            -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$COMMIT_HASH_TAG  \
+            -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$ENVIRONMENT_TAG
+            echo !!
+
+            docker push --all-tags
           fi
+
+        #-t${{steps.get-function-names.outputs.FUNC_NAMES}}:$PR_NUM_TAG \
+        # echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
+      
     
