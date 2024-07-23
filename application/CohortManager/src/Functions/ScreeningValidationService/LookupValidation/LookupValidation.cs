@@ -66,13 +66,12 @@ public class LookupValidation
             {
                 RuleId = int.Parse(ruleDetails[0]),
                 RuleDescription = ruleDetails[1],
-                RuleContent = ruleDetails[1],
                 FileName = requestBody.FileName,
                 NhsNumber = newParticipant.NhsNumber,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 Category = 1,
-                ScreeningService = 1,
+                ScreeningName = "Screening Service",
                 Cohort = "",
                 Fatal = 0
             };
