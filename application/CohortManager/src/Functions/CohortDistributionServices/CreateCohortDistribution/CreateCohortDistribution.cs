@@ -52,7 +52,6 @@ public class CreateCohortDistribution
         var screeningService = requestBody.ScreeningService;
         var nhsNumber = requestBody.NhsNumber;
 
-        bool error = false;
         CohortDistributionParticipant participantData;
         string serviceProvider;
         CohortDistributionParticipant transformedParticipant = new CohortDistributionParticipant();
@@ -101,7 +100,7 @@ public class CreateCohortDistribution
                     serviceProvider = body;
                 }
             }
-            else error = true;
+            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
         }
         catch (Exception ex)
@@ -133,7 +132,7 @@ public class CreateCohortDistribution
                     transformedParticipant = result;
                 }
             }
-            else error = true;
+            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
@@ -151,16 +150,11 @@ public class CreateCohortDistribution
             {
                 _logger.LogInformation("Called add cohort distribution function");
             }
-            else error = true;
+            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
             _logger.LogError("Add cohort distribution function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-
-        if (error)
-        {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
