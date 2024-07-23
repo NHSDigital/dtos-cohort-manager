@@ -90,7 +90,8 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@ruleDescription", exception.RuleDescription},
             {"@errorRecord", exception.ErrorRecord},
             {"@category", exception.Category},
-            {"@screeningService", exception.ScreeningName},
+            {"@screeningName", exception.ScreeningName},
+            {"@exceptionDate", exception.ExceptionDate},
             {"@cohort", exception.Cohort},
             {"@fatal", exception.Fatal}
         };
