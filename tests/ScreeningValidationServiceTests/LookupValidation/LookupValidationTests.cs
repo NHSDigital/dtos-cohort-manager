@@ -125,6 +125,10 @@ public class LookupValidationTests
     [DataRow(Actions.New, "")]
     [DataRow(Actions.New, null)]
     [DataRow(Actions.New, " ")]
+    [DataRow(Actions.Amended, "0000000000")]
+    [DataRow(Actions.Amended, "9999999999")]
+    [DataRow(Actions.Removed, "0000000000")]
+    [DataRow(Actions.Removed, "9999999999")]
     public async Task Run_Should_Not_Create_Exception_When_ParticipantMustExist_Rule_Passes(string recordType, string nhsNumber)
     {
         // Arrange
@@ -166,13 +170,17 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("")]
-    [DataRow(null)]
-    [DataRow(" ")]
-    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustNotExist_Rule_Passes(string nhsNumber)
+    [DataRow(Actions.New, "")]
+    [DataRow(Actions.New, null)]
+    [DataRow(Actions.New, " ")]
+    [DataRow(Actions.Amended, "0000000000")]
+    [DataRow(Actions.Amended, "9999999999")]
+    [DataRow(Actions.Removed, "0000000000")]
+    [DataRow(Actions.Removed, "9999999999")]
+    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustNotExist_Rule_Passes(string recordType, string nhsNumber)
     {
         // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
