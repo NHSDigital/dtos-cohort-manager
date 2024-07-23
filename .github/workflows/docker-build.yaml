@@ -53,5 +53,4 @@ jobs:
             docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}} -t $COMMIT_HASH_TAG -t PR_NUM_TAG -t $ENVIRONMENT_TAG
           fi
       
-      # something
     
