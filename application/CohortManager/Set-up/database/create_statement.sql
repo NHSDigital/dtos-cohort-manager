@@ -50,29 +50,6 @@ BEGIN
 END
 
 /*==============================================================*/
-/* Table: COHORT                                                */
-/*==============================================================*/
-IF NOT EXISTS
-(
-    SELECT *
-    FROM INFORMATION_SCHEMA.TABLES
-    WHERE TABLE_SCHEMA = 'dbo'
-          AND TABLE_NAME = 'COHORT'
-)
-BEGIN
-    CREATE TABLE dbo.COHORT
-    (
-        COHORT_ID INT IDENTITY(1, 1) NOT NULL,
-        PROGRAM_ID BIGINT NOT NULL,
-        COHORT_NAME VARCHAR(100) NULL,
-        COHORT_CREATE_DATE DATE NULL,
-        LOAD_DATE DATE NULL,
-        CONSTRAINT PK_COHORT
-            PRIMARY KEY (COHORT_ID)
-    );
-END
-
-/*==============================================================*/
 /* Table: GENDER_MASTER                                         */
 /*==============================================================*/
 IF NOT EXISTS
