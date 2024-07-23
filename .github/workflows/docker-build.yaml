@@ -34,15 +34,12 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Azure Container Registry login
-        run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
         run: |
           echo "COMMIT_HASH_TAG=git rev-parse --short $GITHUB_SHA" >> $GITHUB_ENV
           echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
-          echo "ENVIRONMENT_TAG=${{ secrets.ACR_NAME }}.azurecr.io/Development/$PR_NUM_TAG" >> $GITHUB_ENV
+          echo "ENVIRONMENT_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{steps.get-function-names.outputs.FUNC_NAMES}}/$PR_NUM_TAG" >> $GITHUB_ENV
 
       - name: build docker images
         working-directory: ./application/CohortManager
