@@ -24,8 +24,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
     {
 
-        var cohortId = 1;
-
         var dateToday = DateTime.Today;
         var maxEndDate = DateTime.MaxValue;
 
