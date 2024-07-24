@@ -60,7 +60,7 @@ public class TransformDataService
             NamePrefix = GetTransformedData(resultList, "NamePrefix") ?? participant.NamePrefix
         };
 
-       transformedParticipant = await TransformNamePrefix(participant);
+        transformedParticipant = await TransformNamePrefix(participant);
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -89,8 +89,8 @@ public class TransformDataService
 
         // Assign new name prefix
         participant.NamePrefix = (string) rulesList.Where(result => result.IsSuccess)
-                                                   .Select(result => result.ActionResult.Output)
-                                                   .FirstOrDefault();
+                                                    .Select(result => result.ActionResult.Output)
+                                                    .FirstOrDefault();
 
         return participant;
     }
