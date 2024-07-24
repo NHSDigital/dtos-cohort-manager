@@ -39,12 +39,30 @@ variable "tags" {
   default     = {}
 }
 
+variable "site_config" {
+  type        = map(string)
+  description = "Function app site configuration"
+}
 variable "ai_connstring" {
   type        = string
   description = "The App Insights connection string."
 }
 
-variable "worker_32bit" {
+variable "gl_worker_32bit" {
   type        = bool
   description = "Should the Windows Function App use a 32-bit worker process. Defaults to true"
+}
+
+variable "gl_dotnet_version" {
+  type        = string
+  description = "The version of .NET to use"
+}
+
+variable "gl_dotnet_isolated" {
+  type        = bool
+  description = "Should the DotNet process use an isolated runtime. Defaults to true"
+}
+
+variable "app_settings" {
+  description = "App settings for App Service"
 }

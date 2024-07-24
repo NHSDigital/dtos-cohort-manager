@@ -96,8 +96,12 @@ variable "app_service_plan" {
 variable "function_app" {
   description = "Configuration for the function app"
   type = object({
-    resource_group_key = optional(string, "cohman")
-    worker_32bit       = optional(bool, false)
+    resource_group_key = optional(string, "baseline")
+    gl_worker_32bit    = optional(bool, false)
+    gl_dotnet_isolated = optional(bool, true)
+    gl_dotnet_version  = optional(string, "v8.0")
+    gl_app_settings    = map(string)
+
     fa_config = map(object({
       name_suffix = string
     }))
