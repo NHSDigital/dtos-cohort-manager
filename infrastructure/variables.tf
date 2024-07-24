@@ -99,7 +99,7 @@ variable "function_app" {
     resource_group_key = optional(string, "baseline")
     gl_worker_32bit    = optional(bool, false)
     gl_dotnet_isolated = optional(bool, true)
-    gl_dotnet_version  = optional(string, "v8.0")
+    gl_dotnet_version  = optional(string, "8.0")
     gl_app_settings    = map(string)
 
     fa_config = map(object({
