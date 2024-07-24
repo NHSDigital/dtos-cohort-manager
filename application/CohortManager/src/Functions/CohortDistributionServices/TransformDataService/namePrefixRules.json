@@ -1,0 +1,147 @@
+[
+  {
+    "WorkflowName": "NamePrefix",
+    "Rules": [
+      {
+        "RuleName": "37.NamePrefix.AirMarshal",
+        "Expression": "participant.NamePrefix == AIR MARSHAL"
+      },
+      {
+        "RuleName": "38.NamePrefix.Admiral",
+        "Expression": "participant.NamePrefix == ADMIRAL"
+      },
+      {
+        "RuleName": "39.NamePrefix.Brigadier",
+        "Expression": "participant.NamePrefix == BRIGADIER"
+      },
+      {
+        "RuleName": "40.NamePrefix.Brother",
+        "Expression": "participant.NamePrefix == BROTHER"
+      },
+      {
+        "RuleName": "41.NamePrefix.Br",
+        "Expression": "participant.NamePrefix == BR"
+      },
+      {
+        "RuleName": "42.NamePrefix.Captain",
+        "Expression": "participant.NamePrefix == CAPT"
+      },
+      {
+        "RuleName": "43.NamePrefix.Capt",
+        "Expression": "participant.NamePrefix == CPT"
+      },
+      {
+        "RuleName": "44.NamePrefix.Commander",
+        "Expression": "participant.NamePrefix == COMMANDER"
+      },
+      {
+        "RuleName": "45.NamePrefix.Cdr",
+        "Expression": "participant.NamePrefix == CDR"
+      },
+      {
+        "RuleName": "46.NamePrefix.Colonel",
+        "Expression": "participant.NamePrefix == COLONEL"
+      },
+      {
+        "RuleName": "48.NamePrefix.Doctor",
+        "Expression": "participant.NamePrefix == DOCTOR"
+      },
+      {
+        "RuleName": "49.NamePrefix.Father",
+        "Expression": "participant.NamePrefix == FATHER"
+      },
+      {
+        "RuleName": "50.NamePrefix.Fath",
+        "Expression": "participant.NamePrefix == FATH"
+      },
+      {
+        "RuleName": "51.NamePrefix.General",
+        "Expression": "participant.NamePrefix == GENERAL"
+      },
+      {
+        "RuleName": "52.NamePrefix.Honourable",
+        "Expression": "participant.NamePrefix == HONOURABLE"
+      },
+      {
+        "RuleName": "53.NamePrefix.Judge",
+        "Expression": "participant.NamePrefix == JUDGE"
+      },
+      {
+        "RuleName": "54.NamePrefix.HisRoyalHighness",
+        "Expression": "participant.NamePrefix == HRH"
+      },
+      {
+        "RuleName": "55.NamePrefix.HerRoyalHighness",
+        "Expression": "participant.NamePrefix == HRH"
+      },
+      {
+        "RuleName": "56.NamePrefix.Baroness",
+        "Expression": "participant.NamePrefix == BARONESS"
+      },
+      {
+        "RuleName": "57.NamePrefix.Baron",
+        "Expression": "participant.NamePrefix == BARON"
+      },
+      {
+        "RuleName": "58.NamePrefix.Duchess",
+        "Expression": "participant.NamePrefix == DUCHESS"
+      },
+      {
+        "RuleName": "59.NamePrefix.Duke",
+        "Expression": "participant.NamePrefix == DUKE"
+      },
+      {
+        "RuleName": "60.NamePrefix.LieutenantColonel",
+        "Expression": "participant.NamePrefix == LIEUTENANT COLONEL"
+      },
+      {
+        "RuleName": "61.NamePrefix.Major",
+        "Expression": "participant.NamePrefix == MAJOR"
+      },
+      {
+        "RuleName": "62.NamePrefix.Master",
+        "Expression": "participant.NamePrefix == MASTER"
+      },
+      {
+        "RuleName": "63.NamePrefix.Mast",
+        "Expression": "participant.NamePrefix == MAST"
+      },
+      {
+        "RuleName": "64.NamePrefix.Mister",
+        "Expression": "participant.NamePrefix == MISTER"
+      },
+      {
+        "RuleName": "65.NamePrefix.Mstr",
+        "Expression": "participant.NamePrefix == MSTR"
+      },
+      {
+        "RuleName": "67.NamePrefix.Count",
+        "Expression": "participant.NamePrefix == COUNT"
+      },
+      {
+        "RuleName": "68.NamePrefix.Countess",
+        "Expression": "participant.NamePrefix == COUNTESS"
+      },
+      {
+        "RuleName": "72.NamePrefix.Bishop",
+        "Expression": "participant.NamePrefix == BISHOP"
+      },
+      {
+        "RuleName": "76.NamePrefix.Mosignor",
+        "Expression": "participant.NamePrefix == MOSIGNOR"
+      },
+      {
+        "RuleName": "77.NamePrefix.Pastor",
+        "Expression": "participant.NamePrefix == PASTOR"
+      },
+      {
+        "RuleName": "80.NamePrefix.Sister",
+        "Expression": "participant.NamePrefix == SISTER"
+      },
+      {
+        "RuleName": "82.NamePrefix.WingCommander",
+        "Expression": "participant.NamePrefix == WING COMMANDER"
+      }
+    ]
+  }
+]
