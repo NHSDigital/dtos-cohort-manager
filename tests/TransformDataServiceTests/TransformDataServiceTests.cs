@@ -32,7 +32,7 @@ public class TransformDataServiceTests
                 Surname = "Smith",
                 NamePrefix = "Mr",
             },
-            ScreeningService = "1"
+            ServiceProvider = "1"
         };
 
         _function = new TransformDataService(_createResponse.Object);
