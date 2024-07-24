@@ -52,28 +52,38 @@ public class CreateCohortDistribution
         var screeningService = requestBody.ScreeningService;
         var nhsNumber = requestBody.NhsNumber;
 
-        CohortDistributionParticipant participantData;
+        CohortDistributionParticipant participantData = new CohortDistributionParticipant();
         string serviceProvider;
         CohortDistributionParticipant transformedParticipant = new CohortDistributionParticipant();
 
-        // Get Participant Data
-        // this is a stub for a function that doesn't yet exist
-        // it just returns a hardcoded participant for the time being
+        // Retrieve Participant
         try
         {
-            _logger.LogInformation("Called get participant data service");
-            participantData = new CohortDistributionParticipant
+            var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
             {
                 NhsNumber = nhsNumber,
-                FirstName = "John",
-                Surname = "Smith",
-                NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
-                Postcode = "NE63"
+                ScreeningService = "1"
             };
+
+            var json = JsonSerializer.Serialize(retrieveParticipantRequestBody);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("RetrieveParticipantDataURL"), json);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                _logger.LogInformation("Called retrieve participant data service");
+
+                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                {
+                    var body = await reader.ReadToEndAsync();
+                    CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
+                    participantData = result;
+                }
+            }
+            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Get participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Retrieve participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 

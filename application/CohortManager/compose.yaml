@@ -280,3 +280,12 @@ services:
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7082
+
+  retrieve-participant-data:
+    container_name: retrieve-participant-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7083
