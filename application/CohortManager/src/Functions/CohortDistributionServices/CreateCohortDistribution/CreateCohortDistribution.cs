@@ -49,125 +49,121 @@ public class CreateCohortDistribution
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
         }
 
-        var screeningService = requestBody.ScreeningService;
-        var nhsNumber = requestBody.NhsNumber;
-
-        CohortDistributionParticipant participantData = new CohortDistributionParticipant();
-        string serviceProvider;
-        CohortDistributionParticipant transformedParticipant = new CohortDistributionParticipant();
-
-        // Retrieve Participant
         try
         {
-            var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
-            {
-                NhsNumber = nhsNumber,
-                ScreeningService = "1"
-            };
-
-            var json = JsonSerializer.Serialize(retrieveParticipantRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("RetrieveParticipantDataURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                _logger.LogInformation("Called retrieve participant data service");
-
-                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                {
-                    var body = await reader.ReadToEndAsync();
-                    CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
-                    participantData = result;
-                }
-            }
-            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            var participantData = await RetrieveParticipantData(requestBody);
+            var serviceProvider = await AllocateServiceProvider(requestBody, participantData);
+            var transformedParticipant = await TransformParticipant(requestBody, serviceProvider, participantData);
+            await AddCohortDistribution(transformedParticipant);
         }
         catch (Exception ex)
         {
-            _logger.LogError("Retrieve participant data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-
-        // Allocate Screening Provider
-        try
-        {
-            var allocationConfigRequestBody = new AllocationConfigRequestBody
-            {
-                NhsNumber = nhsNumber,
-                Postcode = participantData.Postcode,
-                ScreeningService = screeningService
-            };
-
-            var json = JsonSerializer.Serialize(allocationConfigRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                _logger.LogInformation("Called allocate screening provider service");
-
-                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                {
-                    var body = await reader.ReadToEndAsync();
-                    serviceProvider = body;
-                }
-            }
-            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Allocate screening provider service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-
-        // Transform Participant
-        try
-        {
-            var transformDataRequestBody = new TransformDataRequestBody()
-            {
-                Participant = participantData,
-                ScreeningService = "1"
-            };
-
-            var json = JsonSerializer.Serialize(transformDataRequestBody);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("TransformDataServiceURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                _logger.LogInformation("Called transform data service");
-
-                using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
-                {
-                    var body = await reader.ReadToEndAsync();
-                    CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
-                    transformedParticipant = result;
-                }
-            }
-            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Transform data service function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-
-        // Add Cohort Distribution
-        try
-        {
-            var json = JsonSerializer.Serialize(transformedParticipant);
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                _logger.LogInformation("Called add cohort distribution function");
-            }
-            else return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Add cohort distribution function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+    }
+
+    private async Task<CohortDistributionParticipant> RetrieveParticipantData(CreateCohortDistributionRequestBody requestBody)
+    {
+        var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
+        {
+            NhsNumber = requestBody.NhsNumber,
+            ScreeningService = requestBody.ScreeningService
+        };
+
+        var json = JsonSerializer.Serialize(retrieveParticipantRequestBody);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("RetrieveParticipantDataURL"), json);
+        _logger.LogInformation("Called retrieve participant data service");
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+            {
+                var body = await reader.ReadToEndAsync();
+                CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
+                return result;
+            }
+        }
+        else
+        {
+            string logMessage = "Retrieve participant data service function failed.";
+            _logger.LogError(logMessage);
+            throw new Exception(logMessage);
+        }
+    }
+
+    private async Task<string> AllocateServiceProvider(CreateCohortDistributionRequestBody requestBody, CohortDistributionParticipant participantData)
+    {
+        var allocationConfigRequestBody = new AllocationConfigRequestBody
+        {
+            NhsNumber = requestBody.NhsNumber,
+            Postcode = participantData.Postcode,
+            ScreeningService = requestBody.ScreeningService
+        };
+
+        var json = JsonSerializer.Serialize(allocationConfigRequestBody);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"), json);
+        _logger.LogInformation("Called allocate screening provider service");
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+            using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+            {
+                var body = await reader.ReadToEndAsync();
+                return body;
+            }
+        }
+        else
+        {
+            string logMessage = "Allocate service provider function failed.";
+            _logger.LogError(logMessage);
+            throw new Exception(logMessage);
+        }
+    }
+
+    private async Task<CohortDistributionParticipant> TransformParticipant(CreateCohortDistributionRequestBody requestBody, string serviceProvider, CohortDistributionParticipant participantData)
+    {
+        var transformDataRequestBody = new TransformDataRequestBody()
+        {
+            Participant = participantData,
+            ServiceProvider = serviceProvider
+        };
+
+        var json = JsonSerializer.Serialize(transformDataRequestBody);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("TransformDataServiceURL"), json);
+        _logger.LogInformation("Called transform data service");
+
+        if (response.StatusCode == HttpStatusCode.OK)
+        {
+
+            using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+            {
+                var body = await reader.ReadToEndAsync();
+                CohortDistributionParticipant result = JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
+                return result;
+            }
+        }
+        else
+        {
+            string logMessage = "Transform participant function failed.";
+            _logger.LogError(logMessage);
+            throw new Exception(logMessage);
+        }
+    }
+
+    private async Task AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
+    {
+        var json = JsonSerializer.Serialize(transformedParticipant);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+        _logger.LogInformation("Called add cohort distribution function");
+
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            string logMessage = "Add cohort distribution function failed.";
+            _logger.LogError(logMessage);
+            throw new Exception(logMessage);
+        }
     }
 }
