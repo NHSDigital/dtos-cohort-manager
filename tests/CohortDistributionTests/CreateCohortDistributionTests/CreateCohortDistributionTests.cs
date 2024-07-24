@@ -26,6 +26,7 @@ public class CreateCohortDistributionTests
 
     public CreateCohortDistributionTests()
     {
+        Environment.SetEnvironmentVariable("RetrieveParticipantDataURL", "RetrieveParticipantDataURL");
         Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
         Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
         Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
@@ -113,11 +114,30 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_RetrieveParticipantData_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        FailedFunctionRequest("RetrieveParticipantDataURL");
+        SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
+        SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
+        SuccessfulFunctionRequest("AddCohortDistributionURL");
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_Should_Return_BadRequest_When_AllocateServiceProviderToParticipant_Fails()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        SuccessfulFunctionRequest("RetrieveParticipantDataURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         FailedFunctionRequest("AllocateScreeningProviderURL");
         SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         SuccessfulFunctionRequest("AddCohortDistributionURL");
@@ -135,6 +155,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        SuccessfulFunctionRequest("RetrieveParticipantDataURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
         FailedFunctionRequest("TransformDataServiceURL");
         SuccessfulFunctionRequest("AddCohortDistributionURL");
@@ -152,6 +173,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        SuccessfulFunctionRequest("RetrieveParticipantDataURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
         SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         FailedFunctionRequest("AddCohortDistributionURL");
@@ -169,6 +191,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        SuccessfulFunctionRequest("RetrieveParticipantDataURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         SuccessfulFunctionRequest("AllocateScreeningProviderURL", "BS Select - NE63");
         SuccessfulFunctionRequest("TransformDataServiceURL", JsonSerializer.Serialize(new CohortDistributionParticipant()));
         SuccessfulFunctionRequest("AddCohortDistributionURL");
