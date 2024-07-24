@@ -134,6 +134,33 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
+    {
+        // Arrange
+        _requestBody.Participant.Gender = (Model.Enums.Gender)4;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "Mr",
+            Gender = Model.Enums.Gender.NotSpecified,
+        };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

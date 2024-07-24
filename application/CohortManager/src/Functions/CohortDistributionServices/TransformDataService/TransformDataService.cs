@@ -7,6 +7,7 @@ using RulesEngine.Models;
 using System.Net;
 using System.Text;
 using Model;
+using Model.Enums;
 using Common;
 
 public class TransformDataService
@@ -54,18 +55,24 @@ public class TransformDataService
 
         var transformedParticipant = new Participant()
         {
-            FirstName = GetTransformedData(resultList, "FirstName") ?? participant.FirstName,
-            Surname = GetTransformedData(resultList, "Surname") ?? participant.Surname,
-            NhsNumber = GetTransformedData(resultList, "NhsNumber") ?? participant.NhsNumber,
-            NamePrefix = GetTransformedData(resultList, "NamePrefix") ?? participant.NamePrefix
+            FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName),
+            Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
+            NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
+            NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
+            Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
         };
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
     }
 
-    private string GetTransformedData(List<RuleResultTree> results, string field)
+    private T GetTransformedData<T>(List<RuleResultTree> results, string field, T CurrentValue)
     {
-        return (string)results.Find(x => x.Rule.RuleName.Split('.')[1] == field)?.ActionResult.Output;
+        if (results.Find(x => x.Rule.RuleName.Split('.')[1] == field)?.ActionResult.Output != null)
+        {
+            return (T)results.Find(x => x.Rule.RuleName.Split('.')[1] == field).ActionResult.Output;
+        }
+
+        return CurrentValue;
     }
 }
