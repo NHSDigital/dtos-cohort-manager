@@ -15,6 +15,7 @@ steps:
     inputs:
       provider: 'azurerm'
       command: 'init'
+      commandOptions: '-upgrade'
       workingDirectory: ${{ parameters.TF_DIRECTORY }}
       backendAzureRmUseEnvironmentVariablesForAuthentication: false
       backendServiceArm: $(SERVICE_CONNECTION)
