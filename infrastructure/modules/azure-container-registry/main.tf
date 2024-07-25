@@ -3,7 +3,7 @@
 resource "azurerm_user_assigned_identity" "uai" {
   location            = var.location
   resource_group_name = var.resource_group_name
-  name                = var.uai_name #"dtos-cohort-manager-acr-push"
+  name                = var.uai_name
 }
 
 resource "azurerm_container_registry" "acr" {
@@ -13,7 +13,6 @@ resource "azurerm_container_registry" "acr" {
   sku                 = var.sku
   admin_enabled       = var.admin_enabled
 
-  # add managed identity to acr with brac role image pull
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.uai.id]

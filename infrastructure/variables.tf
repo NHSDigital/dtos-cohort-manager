@@ -147,5 +147,6 @@ variable "acr" {
     resource_group_key = optional(string, "cohman")
     sku                = optional(string, "Premium")
     admin_enabled      = optional(bool, false)
+    uai_name           = optional(string, "dtos-cohort-manager-acr-push")
   })
 }
