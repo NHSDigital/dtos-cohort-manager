@@ -38,12 +38,12 @@ public static class MockHelpers
 
     public static Mock<ICreateResponse> CreateMockICreateResponse()
     {
-         var mockCreateResponse = new Mock<ICreateResponse>();
-         mockCreateResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(),It.IsAny<HttpRequestData>(),It.IsAny<string>()))
+        var mockCreateResponse = new Mock<ICreateResponse>();
+        mockCreateResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(),It.IsAny<HttpRequestData>(),It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData requestData, string body ) => { return CreateMockHttpResponseData(statusCode, body);});
 
 
-         return mockCreateResponse;
+        return mockCreateResponse;
 
     }
 
