@@ -1,3 +1,7 @@
+variable "TARGET_SUBSCRIPTION_ID" {
+  description = "ID of a subscription to deploy infrastructure"
+  type        = string
+}
 
 variable "application" {
   description = "Project/Application code for deployment"
@@ -96,7 +100,7 @@ variable "app_service_plan" {
 variable "function_app" {
   description = "Configuration for the function app"
   type = object({
-    resource_group_key = optional(string, "baseline")
+    resource_group_key = optional(string, "cohman")
     gl_worker_32bit    = optional(bool, false)
     gl_dotnet_isolated = optional(bool, true)
     gl_dotnet_version  = optional(string, "8.0")
@@ -107,7 +111,6 @@ variable "function_app" {
     }))
   })
 }
-
 
 variable "event_grid" {
   description = "Configuration for the event grid"
@@ -138,8 +141,11 @@ variable "app_insights" {
   })
 }
 
-variable "TARGET_SUBSCRIPTION_ID" {
-  description = "ID of a subscription to deploy infrastructure"
-  type        = string
+variable "acr" {
+  description = "Configuration of the Azure Container Registry"
+  type = object({
+    resource_group_key = optional(string, "cohman")
+    sku                = optional(string, "Premium")
+    admin_enabled      = optional(bool, false)
+  })
 }
-
