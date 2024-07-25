@@ -46,7 +46,7 @@ public class FileValidation
                 DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
                 RuleDescription = requestBody.RuleDescription ?? "",
                 Category = requestBody.Category ?? 0,
-                ScreeningName = requestBody.ScreeningName.ToString() ?? null,
+                ScreeningName = requestBody.ScreeningName ?? null,
                 Fatal = requestBody.Fatal ?? 0,
             };
 
