@@ -25,10 +25,14 @@ public class TransformDataServiceTests
 
         _requestBody = new TransformDataRequestBody()
         {
-            NhsNumber = "1",
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "MR",
+            Participant = new CohortDistributionParticipant
+            {
+                NhsNumber = "1",
+                FirstName = "John",
+                Surname = "Smith",
+                NamePrefix = "MR",
+            },
+            ServiceProvider = "1"
         };
 
         _function = new TransformDataService(_createResponse.Object);
