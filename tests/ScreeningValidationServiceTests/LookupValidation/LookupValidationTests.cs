@@ -7,6 +7,7 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
 using Moq;
@@ -23,6 +24,7 @@ public class LookupValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly LookupValidationRequestBody _requestBody;
     private readonly LookupValidation _function;
+    private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
 
 
     public LookupValidationTests()
@@ -52,7 +54,7 @@ public class LookupValidationTests
         _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true));
 
-        _function = new LookupValidation(_createResponse, _exceptionHandler.Object);
+        _function = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
