@@ -5,7 +5,7 @@ public class BasicParticipantData
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string? NhsNumber { get; set; }
+    public string? NhsNumber { get; set; } // string or int?
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProviderEffectiveFrom { get; set; }
     public string? CurrentPostingEffectiveFrom { get; set; }
@@ -24,4 +24,13 @@ public class BasicParticipantData
     public string? ChangeReasonCode { get; set; }
     public string? RemovalReason { get; set; }
     public string? RemovalEffectiveFromDate { get; set; }
+    public int ParticipantId { get; set; } //not null
+    public int? ScreeningId { get; set; }
+    public string? ReasonForRemoval { get; set; }
+    //TODO: Are we going to keep values as their types or are they going to be all string?
+    public DateTime? ReasonForRemovalDate { get; set; }
+    public string? BusinessRuleVersion { get; set; }
+    public char? ExceptionFlag { get; set; }
+    public DateTime? RecordInsertDateTime { get; set; }
+    public DateTime? RecordUpdateDateTime { get; set; }
 }
