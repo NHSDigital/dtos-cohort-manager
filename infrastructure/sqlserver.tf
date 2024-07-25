@@ -12,12 +12,12 @@ module "azuresql" {
   tags = var.tags
 
   # Default database
-  db_name_suffix = var.sqlserver.dbs.baseline.db_name_suffix
-  collation      = var.sqlserver.dbs.baseline.collation
-  licence_type   = var.sqlserver.dbs.baseline.licence_type
-  max_gb         = var.sqlserver.dbs.baseline.max_gb
-  read_scale     = var.sqlserver.dbs.baseline.read_scale
-  sku            = var.sqlserver.dbs.baseline.sku
+  db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
+  collation      = var.sqlserver.dbs.cohman.collation
+  licence_type   = var.sqlserver.dbs.cohman.licence_type
+  max_gb         = var.sqlserver.dbs.cohman.max_gb
+  read_scale     = var.sqlserver.dbs.cohman.read_scale
+  sku            = var.sqlserver.dbs.cohman.sku
 
   # FW Rules
   azurepassthrough = var.sqlserver.server.azure_services_access_enabled

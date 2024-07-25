@@ -23,13 +23,7 @@ public class CallFunction : ICallFunction
         {
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                using (Stream stream = response.GetResponseStream())
-                {
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        return await reader.ReadToEndAsync();
-                    }
-                }
+                return await GetResponseText(response);
             }
         }
 
@@ -52,5 +46,17 @@ public class CallFunction : ICallFunction
         var response = (HttpWebResponse)await request.GetResponseAsync();
 
         return response;
+    }
+
+    public async Task<string> GetResponseText(HttpWebResponse httpResponseData)
+    {
+        using (Stream stream = httpResponseData.GetResponseStream())
+        {
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                var responseText = await reader.ReadToEndAsync();
+                return responseText;
+            }
+        }
     }
 }

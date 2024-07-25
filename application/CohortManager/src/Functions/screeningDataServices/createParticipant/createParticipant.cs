@@ -1,4 +1,4 @@
-namespace screeningDataServices;
+namespace NHS.CohortManager.ScreeningDataServices;
 
 using System.Net;
 using System.Text;
@@ -15,42 +15,44 @@ public class CreateParticipant
     private readonly ILogger<CreateParticipant> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateParticipantData _createParticipantData;
+    private readonly IExceptionHandler _handleException;
 
-    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData)
+    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
         _createParticipantData = createParticipantData;
+        _handleException = handleException;
     }
 
     [Function("CreateParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation("CreateParticipant is called...");
-
+        ParticipantCsvRecord participantCsvRecord = null;
         try
         {
-            string requestBody = "";
-            ParticipantCsvRecord participantCsvRecord;
+
 
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBody = await reader.ReadToEndAsync();
+                var requestBody = await reader.ReadToEndAsync();
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var participantCreated = _createParticipantData.CreateParticipantEntry(participantCsvRecord);
+            var participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
             if (participantCreated)
             {
-                _logger.LogInformation("Successfully created the participant(s)");
+                _logger.LogInformation("Successfully created the participant");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-            _logger.LogError("Failed to create the participant(s)");
+            _logger.LogError("Failed to create the participant");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, "Failed to make the CreateParticipant request");
+            _logger.LogError("Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

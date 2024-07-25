@@ -1,0 +1,599 @@
+{
+  "allocation_config_data_list": [
+    {
+      "postcode": "AB",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "AL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "B",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BB",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "BT",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CB",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CF",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CM",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CO",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CT",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CV",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "CW",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DT",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "DY",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "E",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "EC",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "EH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "EN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "EX",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "G",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "GL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "GU",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "H",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HP",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "HU",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "I",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "IG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "IM",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "IP",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "L",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "LU",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "M",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "ME",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "MK",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "ML",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "N",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - N"
+    },
+    {
+      "postcode": "NE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NE"
+    },
+    {
+      "postcode": "NE63",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NE63"
+    },
+    {
+      "postcode": "NG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NG"
+    },
+    {
+      "postcode": "NN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NN"
+    },
+    {
+      "postcode": "NP",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NP"
+    },
+    {
+      "postcode": "NR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NR"
+    },
+    {
+      "postcode": "NW",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select - NW"
+    },
+    {
+      "postcode": "O",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "OX",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "P",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PO",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "PR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "R",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "RG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "RH",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "RM",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "S",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SG",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SK",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SL",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SM",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SO",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SP",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "ST",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SW",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "SY",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "T",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TF",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TQ",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "TW",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "W",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WA",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WC",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WD",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WF",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WN",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WR",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WS",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "WV",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "YO",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "ZE",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
+    }
+  ]
+}

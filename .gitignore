@@ -13,7 +13,8 @@
 # Please, add your custom content below!
 
 # Text Editors
-.vscode
+.vscode/*
+!.vscode/tasks.json
 _ReSharper.*/
 
 # Azurite
@@ -39,3 +40,7 @@ local.settings.json
 .env
 # sample data
 application/CohortManager/SampleData/
+
+recreate_local_settings.sh
+
+.history

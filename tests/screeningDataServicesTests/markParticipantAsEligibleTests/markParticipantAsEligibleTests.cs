@@ -8,7 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using screeningDataServices;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
@@ -16,6 +16,7 @@ public class MarkParticipantAsEligibleTests
     private readonly Mock<ILogger<MarkParticipantAsEligible>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<IUpdateParticipantData> _mockUpdateParticipantData = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
 
     [TestMethod]
     public async Task Run_MarkParticipantAsEligible_ValidRequest_ReturnsSuccess()
@@ -25,7 +26,7 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": ""Y""
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
         _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
 
         // Act
@@ -44,7 +45,7 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": ""Y""
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
         _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
 
         // Act

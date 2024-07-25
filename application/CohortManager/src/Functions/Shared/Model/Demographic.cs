@@ -25,7 +25,7 @@ public class Demographic
     public string? AddressLine3 { get; set; }
     public string? AddressLine4 { get; set; }
     public string? AddressLine5 { get; set; }
-    public string? PostCode { get; set; }
+    public string? Postcode { get; set; }
     public string? PafKey { get; set; }
     public string? UsualAddressEffectiveFromDate { get; set; }
     public string? DateOfDeath { get; set; }

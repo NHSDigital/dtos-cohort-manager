@@ -1,5 +1,6 @@
 locals {
   names = {
+    azure-container-registry    = lower("ACR${var.env}${var.location_map[var.location]}${var.application}")
     availability-set            = lower("AVS-${var.env}-${var.location_map[var.location]}-${var.application}")
     app-insights                = upper("${var.env}-${var.location_map[var.location]}")
     app-service-plan            = lower("ASP-${var.application}-${var.env}-${var.location_map[var.location]}")
@@ -55,6 +56,7 @@ locals {
 output "names" {
   description = "Return list of calculated standard names for the deployment."
   value = {
+    azure-container-registry    = local.names.azure-container-registry
     availability-set            = local.names.availability-set
     app-insights                = local.names.app-insights
     app-service-plan            = local.names.app-service-plan

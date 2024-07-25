@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the root directory as the parent of the current directory
-ROOT_DIR="$(dirname "$(pwd)")"
+ROOT_DIR="$(dirname "$(dirname "$(pwd)")")"
 
 # Define the target directory as the parent directory of the current directory
 TARGET_DIR="../"

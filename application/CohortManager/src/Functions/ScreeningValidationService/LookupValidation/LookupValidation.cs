@@ -12,13 +12,17 @@ using RulesEngine.Models;
 
 public class LookupValidation
 {
+    private readonly IExceptionHandler _handleException;
 
-    private readonly ICallFunction _callFunction;
+    private readonly ICreateResponse _createResponse;
 
-    public LookupValidation(ICallFunction callFunction)
+    private readonly ILogger<LookupValidation> _logger;
+
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger)
     {
-
-        _callFunction = callFunction;
+        _createResponse = createResponse;
+        _handleException = handleException;
+        _logger = logger;
     }
 
     [Function("LookupValidation")]
@@ -28,69 +32,63 @@ public class LookupValidation
 
         try
         {
-            string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = reader.ReadToEnd();
+                requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
-
-            requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
         }
         catch
         {
-            return req.CreateResponse(HttpStatusCode.BadRequest);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
+        Participant newParticipant = null;
 
-        var existingParticipant = requestBody.ExistingParticipant;
-        var newParticipant = requestBody.NewParticipant;
-        var workflow = requestBody.Workflow;
-
-        string json = File.ReadAllText("lookupRules.json");
-        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var re = new RulesEngine.RulesEngine(rules);
-
-        var ruleParameters = new[] {
-            new RuleParameter("existingParticipant", existingParticipant),
-            new RuleParameter("newParticipant", newParticipant),
-        };
-
-        var resultList = await re.ExecuteAllRulesAsync(workflow, ruleParameters);
-
-        var validationErrors = new List<string>();
-
-        foreach (var result in resultList)
+        try
         {
-            if (!result.IsSuccess)
+            var existingParticipant = requestBody.ExistingParticipant;
+            newParticipant = requestBody.NewParticipant;
+
+            string json = File.ReadAllText("lookupRules.json");
+            var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
+            var reSettings = new ReSettings
             {
-                validationErrors.Add(result.Rule.RuleName);
+                CustomTypes = [typeof(Actions)]
+            };
 
-                var ruleDetails = result.Rule.RuleName.Split('.');
+            var re = new RulesEngine.RulesEngine(rules, reSettings);
 
-                var exception = new ValidationException
+            var ruleParameters = new[] {
+                new RuleParameter("existingParticipant", existingParticipant),
+                new RuleParameter("newParticipant", newParticipant),
+            };
+
+            var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+            var validationErrors = resultList.Where(x => x.IsSuccess == false);
+
+            if (validationErrors.Any())
+            {
+                var participantCsvRecord = new ParticipantCsvRecord()
                 {
-                    NhsNumber = newParticipant.NhsNumber ?? "",
-                    DateCreated = DateTime.UtcNow,
-                    FileName = requestBody.FileName,
-                    RuleId = int.Parse(ruleDetails[0]),
-                    DateResolved = DateTime.MaxValue,
-                    RuleDescription = ruleDetails[1],
-                    RuleContent = ruleDetails[1],
-                    Category = 1,
-                    ScreeningService = 1,
-                    Cohort = null,
-                    Fatal = 0
+                    Participant = newParticipant,
+                    FileName = requestBody.FileName
                 };
-
-                var exceptionJson = JsonSerializer.Serialize(exception);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
+                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                if (exceptionCreated)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                }
             }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-
-        if (validationErrors.Count == 0)
+        catch(Exception ex)
         {
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
+            _handleException.CreateSystemExceptionLog(ex,newParticipant);
+            _logger.LogWarning(ex,$"Error while processing lookup Validation message: {ex.Message}");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
-        return req.CreateResponse(HttpStatusCode.BadRequest);
+        }
     }
 }

@@ -7,4 +7,5 @@ public interface IGetParticipantData
 {
     public Task<Participant> GetParticipantAsync(string NHSId, string ParticipantFunctionURI);
     public Task<Participant> GetParticipantDetails(HttpRequestData req);
+    public Participant GetParticipantData(string NhsNumber);
 }

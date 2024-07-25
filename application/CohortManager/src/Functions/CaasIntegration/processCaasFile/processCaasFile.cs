@@ -16,14 +16,16 @@ public class ProcessCaasFileFunction
     private readonly ICreateResponse _createResponse;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
+    private readonly IExceptionHandler _handleException;
 
-    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData)
+    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException)
     {
         _logger = logger;
         _callFunction = callFunction;
         _createResponse = createResponse;
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
+        _handleException = handleException;
     }
 
     [Function("processCaasFile")]
@@ -53,7 +55,6 @@ public class ProcessCaasFileFunction
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
                 FileName = input.FileName
             };
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
             switch (participant.RecordType?.Trim())
             {
@@ -61,48 +62,61 @@ public class ProcessCaasFileFunction
                     add++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                         _logger.LogInformation("Called add participant");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 case Actions.Amended:
                     upd++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
                         _logger.LogInformation("Called update participant");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 case Actions.Removed:
                     del++;
                     try
                     {
+                        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
                         _logger.LogInformation("Called remove participant");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
                 default:
                     err++;
                     try
                     {
+                        var participantCsvRecord = new ParticipantCsvRecord
+                        {
+                            FileName = input.FileName,
+                            Participant = participant
+                        };
+                        var json = JsonSerializer.Serialize(participantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
                         _logger.LogInformation("Called static validation");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError("Static validation function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _handleException.CreateSystemExceptionLog(ex, participant);
                     }
                     break;
             }
