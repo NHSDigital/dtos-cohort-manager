@@ -80,7 +80,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_TransformNamePrefixAdmiral_ReturnAdm(string namePrefix)
+    public async Task Run_TransformNamePrefixAdmiral_ReturnAdm()
     {
         // Arrange
         _requestBody.Participant.NamePrefix = "ADMIRAL";
