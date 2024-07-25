@@ -6,10 +6,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
-using System.Xml.Schema;
-using System.Runtime.CompilerServices;
 using NHS.CohortManager.CohortDistribution;
-using Grpc.Net.Client.Balancer;
 namespace addParticipant
 {
     public class AddParticipantFunction

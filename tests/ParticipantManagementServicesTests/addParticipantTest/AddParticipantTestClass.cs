@@ -9,7 +9,6 @@ using System.Text.Json;
 using Model;
 using addParticipant;
 using NHS.CohortManager.Tests.TestUtils;
-using NuGet.Frameworks;
 
 [TestClass]
 public class AddNewParticipantTestClass

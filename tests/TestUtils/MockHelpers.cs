@@ -8,7 +8,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Core.Serialization;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using Common;
 
 public static class MockHelpers
@@ -35,18 +34,6 @@ public static class MockHelpers
 
         return requestData.Object;
     }
-
-    public static Mock<ICreateResponse> CreateMockICreateResponse()
-    {
-        var mockCreateResponse = new Mock<ICreateResponse>();
-        mockCreateResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(),It.IsAny<HttpRequestData>(),It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData requestData, string body ) => { return CreateMockHttpResponseData(statusCode, body);});
-
-
-        return mockCreateResponse;
-
-    }
-
 
     public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body = null)
     {
