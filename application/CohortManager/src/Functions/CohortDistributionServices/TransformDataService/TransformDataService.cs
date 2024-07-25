@@ -60,7 +60,7 @@ public class TransformDataService
             NamePrefix = GetTransformedData(resultList, "NamePrefix") ?? participant.NamePrefix
         };
 
-        transformedParticipant = await TransformNamePrefix(participant);
+        transformedParticipant.NamePrefix = await TransformNamePrefix(transformedParticipant.NamePrefix);
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -71,27 +71,28 @@ public class TransformDataService
         return (string)results.Find(x => x.Rule.RuleName.Split('.')[1] == field)?.ActionResult.Output;
     }
 
-    public async Task<Participant> TransformNamePrefix(Participant participant) {
+    public async Task<string> TransformNamePrefix(string namePrefix) {
 
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
         var re = new RulesEngine.RulesEngine(rules);
 
-        participant.NamePrefix = participant.NamePrefix.ToUpper();
+        namePrefix = namePrefix.ToUpper();
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", participant),
+            new RuleParameter("namePrefix", namePrefix),
         };
 
         // Execute rules
-        var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);//, reSettings);
+        var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        participant.NamePrefix = (string) rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string) rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
-                                                    .FirstOrDefault();
+                                                    .FirstOrDefault()
+                                                    ?? namePrefix;
 
-        return participant;
+        return namePrefix;
     }
 }

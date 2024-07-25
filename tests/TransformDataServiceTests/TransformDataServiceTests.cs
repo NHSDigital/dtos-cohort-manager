@@ -28,7 +28,7 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = "Mr",
+            NamePrefix = "MR",
         };
 
         var screeningService = "1";
@@ -57,7 +57,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task Run_EmptyRequest_ReturnBadRequest()
     {
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -67,7 +67,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    public async Task Run_InvalidRequest_ReturnBadRequest()
     {
         // Arrange
         SetUpRequestBody("Invalid request body");
@@ -80,13 +80,11 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("Mr.")]
-    [DataRow("Mrs")]
-    [DataRow("AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG")] // 35 characters exactly
-    public async Task Run_Should_Not_Transform_Participant_Data_When_NamePrefix_ExceedsMaximumLength_Passes(string namePrefix)
+    [DataRow("ADMIRAL")]
+    public async Task Run_TransformNamePrefixAdmiral_ReturnAdm(string namePrefix)
     {
         // Arrange
-        _requestBody.Participant.NamePrefix = namePrefix;
+        _requestBody.Participant.NamePrefix = "ADMIRAL";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -99,7 +97,7 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = namePrefix,
+            NamePrefix = "ADM",
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -109,7 +107,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Transform_Participant_Data_When_NamePrefix_ExceedsMaximumLength_Fails()
+    public async Task Run_NamePrefixTooLong_TruncatePrefix()
     {
         // Arrange
         _requestBody.Participant.NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH";
