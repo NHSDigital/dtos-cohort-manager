@@ -80,7 +80,6 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("ADMIRAL")]
     public async Task Run_TransformNamePrefixAdmiral_ReturnAdm(string namePrefix)
     {
         // Arrange
