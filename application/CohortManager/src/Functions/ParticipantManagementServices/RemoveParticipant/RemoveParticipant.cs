@@ -95,7 +95,7 @@ public class RemoveParticipant
             return false;
         }
         _logger.LogWarning("Participant was removed from Cohort Distribution");
-        return false;
+        return true;
 
     }
 }

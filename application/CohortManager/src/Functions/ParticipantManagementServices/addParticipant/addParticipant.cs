@@ -57,6 +57,7 @@ namespace addParticipant
                 }
 
                 participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+                participant.ScreeningId = "BSS"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY
                 var participantCsvRecord = new ParticipantCsvRecord
                 {
                     Participant = participant,
