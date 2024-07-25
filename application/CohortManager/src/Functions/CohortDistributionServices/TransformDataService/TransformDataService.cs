@@ -68,11 +68,7 @@ public class TransformDataService
 
     private T GetTransformedData<T>(List<RuleResultTree> results, string field, T CurrentValue)
     {
-        if (results.Find(x => x.Rule.RuleName.Split('.')[1] == field)?.ActionResult.Output != null)
-        {
-            return (T)results.Find(x => x.Rule.RuleName.Split('.')[1] == field).ActionResult.Output;
-        }
-
-        return CurrentValue;
+        var result = results.Find(x => x.Rule.RuleName.Split('.')[1] == field);
+        return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 }
