@@ -7,28 +7,6 @@ INSERT INTO [dbo].[SCREENING_LKP]
         ,'Breast Screening Program'
         ,'BSS');
 
-INSERT INTO [dbo].[COHORT]
-        ([PROGRAM_ID]
-        ,[COHORT_NAME]
-        ,[COHORT_CREATE_DATE]
-        ,[LOAD_DATE])
-    VALUES
-        (1
-        ,'Cohort for Breast screening'
-        ,'2024-03-27'
-        ,'2024-03-27');
-
-INSERT INTO [dbo].[COHORT]
-        ([PROGRAM_ID]
-        ,[COHORT_NAME]
-        ,[COHORT_CREATE_DATE]
-        ,[LOAD_DATE])
-    VALUES
-        (1
-        ,'Cohort for Breast screening Research'
-        ,'2024-03-27'
-        ,'2024-03-27');
-
 INSERT INTO [dbo].[GENDER_MASTER]
         ([GENDER_CD]
         ,[GENDER_DESC])

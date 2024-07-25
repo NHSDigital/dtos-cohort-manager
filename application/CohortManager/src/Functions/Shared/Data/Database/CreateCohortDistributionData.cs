@@ -22,12 +22,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     }
     public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
     {
-
-        var cohortId = 1;
-
-        var dateToday = DateTime.Today;
-        var maxEndDate = DateTime.MaxValue;
-
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
         string insertParticipant = "INSERT INTO [dbo].[BS_COHORT_DISTRIBUTION] ( " +
             " PARTICIPANT_ID, " +
