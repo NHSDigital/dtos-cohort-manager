@@ -9,6 +9,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
+using Microsoft.Extensions.Logging;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -18,6 +19,8 @@ public class TransformDataServiceTests
     private readonly TransformDataRequestBody _requestBody;
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly Mock<ILogger<TransformDataService>> _logger = new();
 
     public TransformDataServiceTests()
     {
@@ -29,13 +32,14 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "Mr",
+            Gender = Model.Enums.Gender.Male
         };
 
         var screeningService = "1";
 
         _requestBody = new TransformDataRequestBody(participant, screeningService);
 
-        _function = new TransformDataService(_createResponse.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -100,6 +104,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = namePrefix,
+            Gender = Model.Enums.Gender.Male
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -126,6 +131,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG",
+            Gender = Model.Enums.Gender.Male
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -154,6 +160,34 @@ public class TransformDataServiceTests
             NamePrefix = "Mr",
             Gender = Model.Enums.Gender.NotSpecified,
         };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Not_Transform_Participant_Gender_When_Gender_Is_0_1_2_or_9()
+    {
+        // Arrange
+        _requestBody.Participant.Gender = Model.Enums.Gender.Male;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "Mr",
+            Gender = Model.Enums.Gender.Male,
+        };
+
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
         var responseBody = await reader.ReadToEndAsync();
