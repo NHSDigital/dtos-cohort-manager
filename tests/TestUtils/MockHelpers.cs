@@ -35,10 +35,14 @@ public static class MockHelpers
         return requestData.Object;
     }
 
-    public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body){
+    public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body = null)
+    {
         Mock<HttpWebResponse> httpWebResponse = new();
         httpWebResponse.Setup(x => x.StatusCode).Returns(statusCode);
-        httpWebResponse.Setup(x => x.GetResponseStream()).Returns(GenerateStreamFromString(body));
+        if (body != null)
+        {
+            httpWebResponse.Setup(x => x.GetResponseStream()).Returns(GenerateStreamFromString(body));
+        }
         return httpWebResponse.Object;
     }
 
@@ -51,6 +55,7 @@ public static class MockHelpers
 
         return memoryStream;
     }
+
     private static Stream GenerateStreamFromString(string s)
     {
         var stream = new MemoryStream();

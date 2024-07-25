@@ -6,6 +6,7 @@ using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 using Model;
 using RulesEngine.Models;
 
@@ -15,10 +16,13 @@ public class LookupValidation
 
     private readonly ICreateResponse _createResponse;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException)
+    private readonly ILogger<LookupValidation> _logger;
+
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger)
     {
         _createResponse = createResponse;
         _handleException = handleException;
+        _logger = logger;
     }
 
     [Function("LookupValidation")]
@@ -33,9 +37,17 @@ public class LookupValidation
                 var requestBodyJson = reader.ReadToEnd();
                 requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
+        }
+        catch
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        Participant newParticipant = null;
 
+        try
+        {
             var existingParticipant = requestBody.ExistingParticipant;
-            var newParticipant = requestBody.NewParticipant;
+            newParticipant = requestBody.NewParticipant;
 
             string json = File.ReadAllText("lookupRules.json");
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -71,9 +83,12 @@ public class LookupValidation
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-        catch
+        catch(Exception ex)
         {
+            _handleException.CreateSystemExceptionLog(ex,newParticipant);
+            _logger.LogWarning(ex,$"Error while processing lookup Validation message: {ex.Message}");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+
         }
     }
 }

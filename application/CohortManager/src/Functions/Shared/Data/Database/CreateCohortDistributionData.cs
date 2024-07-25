@@ -4,7 +4,6 @@ using System.Data;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
@@ -23,17 +22,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     }
     public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
     {
-
-        var cohortId = 1;
-
-        var dateToday = DateTime.Today;
-        var maxEndDate = DateTime.MaxValue;
-
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
         string insertParticipant = "INSERT INTO [dbo].[BS_COHORT_DISTRIBUTION] ( " +
             " PARTICIPANT_ID, " +
             " NHS_NUMBER," +
-            " SUPERSEDED_BY_NHS_NUMBER," +
+            " SUPERSEDED_NHS_NUMBER," +
             " PRIMARY_CARE_PROVIDER," +
             " PRIMARY_CARE_PROVIDER_FROM_DT," +
             " NAME_PREFIX, " +
@@ -68,7 +61,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @supersededByNhsNumber, " +
             " @primaryCareProvider, " +
             " @primaryCareProviderFromDate, " +
-            " @name_prefix, " +
+            " @namePrefix, " +
             " @givenName, " +
             " @otherGivenNames, " +
             " @familyName," +
@@ -92,7 +85,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @reasonForRemoval," +
             " @reasonForRemovalFromDate," +
             " @recordInsertDateTime," +
-            " @recordUpdateDateTime" +
+            " @recordUpdateDateTime," +
             " @extracted" +
             " ) ";
 

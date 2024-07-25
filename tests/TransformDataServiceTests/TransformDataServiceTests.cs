@@ -23,17 +23,13 @@ public class TransformDataServiceTests
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
-        var participant = new Participant
+        _requestBody = new TransformDataRequestBody()
         {
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "MR",
         };
-
-        var screeningService = "1";
-
-        _requestBody = new TransformDataRequestBody(participant, screeningService);
 
         _function = new TransformDataService(_createResponse.Object);
 
