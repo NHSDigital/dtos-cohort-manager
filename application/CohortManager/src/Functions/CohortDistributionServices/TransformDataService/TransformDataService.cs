@@ -26,7 +26,7 @@ public class TransformDataService
     [Function("TransformDataService")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        Participant participant = null;
+        CohortDistributionParticipant participant = null;
 
         TransformDataRequestBody requestBody;
         try
@@ -76,7 +76,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
+            //await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
             _logger.LogWarning(ex, "exception occured while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
