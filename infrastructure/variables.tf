@@ -150,3 +150,13 @@ variable "acr" {
     uai_name           = optional(string, "dtos-cohort-manager-acr-push")
   })
 }
+
+variable "api_management" {
+  description = "Configuration of the API Management Service"
+  type = object({
+    resource_group_key = optional(string, "cohman")
+    sku                = optional(string, "Basic_1")
+    publisher_name     = optional(string, "NHS_DToS_CohortManager")
+    publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
+  })
+}
