@@ -18,7 +18,7 @@ public class RemoveParticipantTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
-    private readonly Mock<ICreateParticipant> _createParticipant = new();
+    private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
@@ -29,6 +29,7 @@ public class RemoveParticipantTests
     {
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
+        Environment.SetEnvironmentVariable("RemoveFromCohortDistributionURL", "RemoveFromCohortDistributionURL");
 
         _participantCsvRecord = new ParticipantCsvRecord
         {
@@ -42,7 +43,7 @@ public class RemoveParticipantTests
             }
         };
 
-        _function = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        _function = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
@@ -58,13 +59,16 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(call => call.SendGet(It.Is<string>(s => s.Contains("RemoveFromCohortDistributionURL")), It.IsAny<Dictionary<string,string>>()))
+            .Returns(Task.FromResult<string>("Participant Removed"));
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
@@ -82,7 +86,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
@@ -102,7 +106,7 @@ public class RemoveParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant.Object, _handleException.Object);
+        var sut = new RemoveParticipant(_logger.Object, _createResponse.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
 
         _request = _setupRequest.Setup(json);
 
