@@ -70,7 +70,8 @@ public class UpdateParticipantFunction
             }
             await updateParticipant(participantCsvRecord, req);
 
-            if(! await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId)){
+            if(! await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+            {
                 _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
             }

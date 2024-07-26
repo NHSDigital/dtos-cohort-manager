@@ -88,7 +88,8 @@ namespace addParticipant
                 _logger.LogInformation("participant created, marked as eligible");
 
 
-                if(!await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId)){
+                if(!await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+                {
                     _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
                 }
@@ -97,7 +98,7 @@ namespace addParticipant
 
 
 
-            }//end try
+            }
             catch(Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
@@ -123,9 +124,6 @@ namespace addParticipant
             return false;
 
         }
-
-
-
         private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
             var json = JsonSerializer.Serialize(participantCsvRecord);
