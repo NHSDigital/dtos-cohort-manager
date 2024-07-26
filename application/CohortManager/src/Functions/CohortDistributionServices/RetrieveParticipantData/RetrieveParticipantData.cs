@@ -17,13 +17,15 @@ public class RetrieveParticipantData
     private readonly ILogger<RetrieveParticipantData> _logger;
     private readonly ICallFunction _callFunction;
     private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly ICreateDemographicData _createDemographicData;
 
-    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
+    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, ICallFunction callFunction, IUpdateParticipantData updateParticipantData, ICreateDemographicData createDemographicData)
     {
         _createResponse = createResponse;
         _logger = logger;
         _callFunction = callFunction;
         _updateParticipantData = updateParticipantData;
+        _createDemographicData = createDemographicData;
     }
 
     [Function("RetrieveParticipantData")]
@@ -37,7 +39,6 @@ public class RetrieveParticipantData
             {
                 requestBodyJson = reader.ReadToEnd();
             }
-
             requestBody = JsonSerializer.Deserialize<RetrieveParticipantRequestBody>(requestBodyJson);
         }
         catch
@@ -47,7 +48,8 @@ public class RetrieveParticipantData
 
         try
         {
-            var participantData = await ExtractParticipant(requestBody.NhsNumber);
+            var participantData = _updateParticipantData.GetParticipant(requestBody.NhsNumber);
+            var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
             var responseBody = JsonSerializer.Serialize<Participant>(participantData);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
@@ -58,22 +60,5 @@ public class RetrieveParticipantData
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
-
-    private async Task<Participant> ExtractParticipant(string nhsNumber)
-    {
-        var participantData = _updateParticipantData.GetParticipant(nhsNumber);
-
-        if (participantData != null)
-        {
-            return participantData;
-        }
-        else
-        {
-            throw new Exception("error");
-        }
-    }
-
-    // task to call _createDemographicData.GetDemographicData (extract demographics)
-
     // task to call _createParticipant.CreateResponseParticipantModel (combine together)
 }

@@ -25,6 +25,7 @@ public class RetrieveParticipantDataTests
     private readonly Mock<HttpRequestData> _request;
     private readonly RetrieveParticipantRequestBody _requestBody;
     private readonly Mock<IUpdateParticipantData> _updateParticipantData = new();
+    private readonly Mock<ICreateDemographicData> _createDemographicData = new();
 
     public RetrieveParticipantDataTests()
     {
@@ -36,7 +37,7 @@ public class RetrieveParticipantDataTests
             ScreeningService = "BSS"
         };
 
-        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _callFunction.Object, _updateParticipantData.Object);
+        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _callFunction.Object, _updateParticipantData.Object, _createDemographicData.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -81,6 +82,40 @@ public class RetrieveParticipantDataTests
     }
 
     [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_GetParticipant_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Throws(new Exception("there has been an error"));
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic());
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Return_BadRequest_When_GetDemographicData_Fails()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Throws(new Exception("there has been an error"));
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_Should_Return_OK_When_Request_Body_Valid()
     {
         // Arrange
@@ -88,6 +123,7 @@ public class RetrieveParticipantDataTests
         SetUpRequestBody(json);
 
         _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic());
 
         // Act
         var result = await _function.RunAsync(_request.Object);
