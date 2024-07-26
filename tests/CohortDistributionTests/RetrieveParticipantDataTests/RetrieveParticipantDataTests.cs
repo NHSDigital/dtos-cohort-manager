@@ -80,6 +80,22 @@ public class RetrieveParticipantDataTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_Should_Return_OK_When_Request_Body_Valid()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
