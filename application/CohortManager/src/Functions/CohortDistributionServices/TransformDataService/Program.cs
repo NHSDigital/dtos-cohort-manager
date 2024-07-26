@@ -8,6 +8,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

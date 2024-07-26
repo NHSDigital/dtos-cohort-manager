@@ -13,6 +13,18 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "2.Gender.Not-0-1-2-or-9",
+        "Expression": "participant.Gender == 0 || participant.Gender == 1 || participant.Gender == 2 || participant.Gender == 9",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "9"
+            }
+          }
+        }
       }
     ]
   }
