@@ -81,7 +81,7 @@ public class AddNewParticipantTestClass
         var validateResonseJson = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(RequestJson);
 
-        //_createParticipant.Setup(x => x.CreateResponseParticipantModel(It.IsAny<BasicParticipantData>(), It.IsAny<Demographic>())).Returns(participantCsvRecord.Participant);
+
         _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
