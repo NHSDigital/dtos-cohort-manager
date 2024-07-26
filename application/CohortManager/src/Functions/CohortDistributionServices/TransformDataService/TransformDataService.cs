@@ -38,8 +38,8 @@ public class TransformDataService
 
         var participant = requestBody.Participant;
 
-        // This function is currently not using the screeningService, but it will do in the future
-        // var screeningService = requestBody.ScreeningService;
+        // This function is currently not using the serviceProvider, but it will do in the future
+        // var serviceProvider = requestBody.ServiceProvider;
 
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);

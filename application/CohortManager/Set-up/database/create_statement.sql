@@ -16,7 +16,7 @@ BEGIN
         SUPERSEDED_NHS_NUMBER         BIGINT NULL,
         PRIMARY_CARE_PROVIDER         VARCHAR(10) NULL,
         PRIMARY_CARE_PROVIDER_FROM_DT DATE NULL,
-        NAME_PREFIX                   VARCHAR(10) NULL,
+        NAME_PREFIX                   VARCHAR(35) NULL,
         GIVEN_NAME                    VARCHAR(100) NULL,
         OTHER_GIVEN_NAME              VARCHAR(100) NULL,
         FAMILY_NAME                   VARCHAR(100) NULL,
@@ -46,29 +46,6 @@ BEGIN
         IS_EXTRACTED                  BIT NOT NULL
         CONSTRAINT PK_BS_COHORT_DISTRIBUTION
           PRIMARY KEY (PARTICIPANT_ID)
-    );
-END
-
-/*==============================================================*/
-/* Table: COHORT                                                */
-/*==============================================================*/
-IF NOT EXISTS
-(
-    SELECT *
-    FROM INFORMATION_SCHEMA.TABLES
-    WHERE TABLE_SCHEMA = 'dbo'
-          AND TABLE_NAME = 'COHORT'
-)
-BEGIN
-    CREATE TABLE dbo.COHORT
-    (
-        COHORT_ID INT IDENTITY(1, 1) NOT NULL,
-        PROGRAM_ID BIGINT NOT NULL,
-        COHORT_NAME VARCHAR(100) NULL,
-        COHORT_CREATE_DATE DATE NULL,
-        LOAD_DATE DATE NULL,
-        CONSTRAINT PK_COHORT
-            PRIMARY KEY (COHORT_ID)
     );
 END
 
@@ -114,7 +91,7 @@ BEGIN
         CURRENT_POSTING_FROM_DT DATE NULL,
         PREVIOUS_POSTING VARCHAR(10) NULL,
         PREV_POSTING_TO_DT DATE NULL,
-        NAME_PREFIX VARCHAR(10) NULL,
+        NAME_PREFIX VARCHAR(35) NULL,
         GIVEN_NAME VARCHAR(100) NULL,
         OTHER_GIVEN_NAME VARCHAR(100) NULL,
         FAMILY_NAME VARCHAR(100) NULL,

@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "CreateValidationException": {
+    "CreateCohortDistribution": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7208",
+      "commandLineArgs": "--port 7059",
       "launchBrowser": false
     }
   }
