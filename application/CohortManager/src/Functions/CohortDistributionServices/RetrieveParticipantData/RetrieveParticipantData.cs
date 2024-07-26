@@ -9,21 +9,23 @@ using Model;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
+using Data.Database;
 
 public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly IUpdateParticipantData _updateParticipantData;
 
-    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, ICallFunction callFunction)
+    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
     {
         _createResponse = createResponse;
         _logger = logger;
         _callFunction = callFunction;
+        _updateParticipantData = updateParticipantData;
     }
 
-    // this is a stub to return hardcoded participant data
     [Function("RetrieveParticipantData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
@@ -43,16 +45,35 @@ public class RetrieveParticipantData
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
-        var response = new CohortDistributionParticipant
+        try
         {
-            NhsNumber = requestBody.NhsNumber,
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH",
-            Postcode = "NE63"
-        };
-        var responseBody = JsonSerializer.Serialize<CohortDistributionParticipant>(response);
+            var participantData = await ExtractParticipant(requestBody.NhsNumber);
+            var responseBody = JsonSerializer.Serialize<Participant>(participantData);
 
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
     }
+
+    private async Task<Participant> ExtractParticipant(string nhsNumber)
+    {
+        var participantData = _updateParticipantData.GetParticipant(nhsNumber);
+
+        if (participantData != null)
+        {
+            return participantData;
+        }
+        else
+        {
+            throw new Exception("error");
+        }
+    }
+
+    // task to call _createDemographicData.GetDemographicData (extract demographics)
+
+    // task to call _createParticipant.CreateResponseParticipantModel (combine together)
 }
