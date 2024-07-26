@@ -70,7 +70,7 @@ variable "location_map" {
     "uaenorth"             = "NUA",
     "UK South"             = "UKS",
     "UK West"              = "WUK",
-    "uksouth"              = "SUK",
+    "uksouth"              = "UKS",
     "ukwest"               = "WUK",
     "West Central US"      = "WCUS",
     "West Europe"          = "WEU",
