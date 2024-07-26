@@ -12,10 +12,16 @@ resource "azurerm_linux_function_app" "function" {
 
   site_config {
     application_insights_connection_string = var.ai_connstring
-    use_32_bit_worker                      = var.worker_32bit
+    use_32_bit_worker                      = var.gl_worker_32bit
+
+    application_stack {
+      use_dotnet_isolated_runtime = var.gl_dotnet_isolated
+      dotnet_version              = var.gl_dotnet_version
+    }
   }
 
-  tags = var.tags
+  app_settings = var.app_settings
+  tags         = var.tags
 
   lifecycle {
     ignore_changes = [tags, app_settings, connection_string]

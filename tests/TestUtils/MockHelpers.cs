@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Core.Serialization;
 using System.Net;
+using Common;
 
 public static class MockHelpers
 {
@@ -29,16 +30,19 @@ public static class MockHelpers
         {
             headersForHttpRequestData.Add("Authorization", $"{schema} edd2545es.ez5ez5454e.ezdsdsds");
         }
-
         requestData.Setup(context => context.Headers).Returns(headersForHttpRequestData);
 
         return requestData.Object;
     }
 
-    public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body){
+    public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body = null)
+    {
         Mock<HttpWebResponse> httpWebResponse = new();
         httpWebResponse.Setup(x => x.StatusCode).Returns(statusCode);
-        httpWebResponse.Setup(x => x.GetResponseStream()).Returns(GenerateStreamFromString(body));
+        if (body != null)
+        {
+            httpWebResponse.Setup(x => x.GetResponseStream()).Returns(GenerateStreamFromString(body));
+        }
         return httpWebResponse.Object;
     }
 
@@ -51,6 +55,7 @@ public static class MockHelpers
 
         return memoryStream;
     }
+
     private static Stream GenerateStreamFromString(string s)
     {
         var stream = new MemoryStream();
