@@ -14,6 +14,7 @@ using NHS.CohortManager.Tests.TestUtils;
 public class AddNewParticipantTestClass
 {
     private readonly Mock<ILogger<AddParticipantFunction>> _loggerMock = new();
+    private readonly Mock<ILogger<CohortDistributionHandler>> _cohortDistributionLogger = new();
     private readonly Mock<ICallFunction> _callFunctionMock = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
@@ -21,6 +22,7 @@ public class AddNewParticipantTestClass
     private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly CreateParticipant _createParticipant = new();
+    private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
     private Mock<HttpRequestData> _request;
@@ -47,6 +49,8 @@ public class AddNewParticipantTestClass
 
         var json = JsonSerializer.Serialize(participantCsvRecord);
         _request = _setupRequest.Setup(json);
+
+        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object,_callFunctionMock.Object);
 
         _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_sendToCohortDistributionResponse.Object));
@@ -100,7 +104,7 @@ public class AddNewParticipantTestClass
 
 
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
 
         // Act
@@ -136,7 +140,7 @@ public class AddNewParticipantTestClass
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -175,7 +179,7 @@ public class AddNewParticipantTestClass
 
 
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -206,7 +210,7 @@ public class AddNewParticipantTestClass
             .Returns(Task.FromResult<Demographic>(new Demographic()))
             .Verifiable();
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -227,7 +231,7 @@ public class AddNewParticipantTestClass
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -255,7 +259,7 @@ public class AddNewParticipantTestClass
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -281,7 +285,7 @@ public class AddNewParticipantTestClass
             .Returns(Task.FromResult<Demographic>(new Demographic()));
         _sendToCohortDistributionResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);

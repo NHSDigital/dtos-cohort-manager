@@ -20,6 +20,7 @@ using RulesEngine.Models;
 public class UpdateParticipantTests
 {
     private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
+    private readonly Mock<ILogger<CohortDistributionHandler>> _cohortDistributionLogger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly CreateResponse _createResponse = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
@@ -29,6 +30,7 @@ public class UpdateParticipantTests
     private readonly Mock<HttpWebResponse> _validationWebResponse = new();
     private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
@@ -39,6 +41,8 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("CohortDistributionServiceURL","CohortDistributionServiceURL");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
+
+        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object,_callFunction.Object);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true)).Verifiable();
@@ -61,7 +65,7 @@ public class UpdateParticipantTests
         _request = _setupRequest.Setup(json);
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _webResponseSuccess.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -116,7 +120,7 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -156,7 +160,7 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -184,7 +188,7 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object);
+        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         var result = await sut.Run(_request.Object);

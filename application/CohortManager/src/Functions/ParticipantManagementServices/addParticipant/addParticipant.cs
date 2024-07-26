@@ -17,8 +17,9 @@ namespace addParticipant
         private readonly ICheckDemographic _getDemographicData;
         private readonly ICreateParticipant _createParticipant;
         private readonly IExceptionHandler _handleException;
+        private readonly ICohortDistributionHandler _cohortDistributionHandler;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
         {
             _logger = logger;
             _callFunction = callFunction;
@@ -26,6 +27,7 @@ namespace addParticipant
             _getDemographicData = checkDemographic;
             _createParticipant = createParticipant;
             _handleException = handleException;
+            _cohortDistributionHandler = cohortDistributionHandler;
         }
 
         [Function("addParticipant")]
@@ -76,8 +78,6 @@ namespace addParticipant
                 }
                 _logger.LogInformation("participant created");
 
-
-
                 var participantJson = JsonSerializer.Serialize(participant);
                 eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
 
@@ -88,15 +88,13 @@ namespace addParticipant
                 _logger.LogInformation("participant created, marked as eligible");
 
 
-                if(!await SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+                if(!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
                 {
                     _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
                 }
                 _logger.LogInformation("participant sent to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-
-
 
             }
             catch(Exception ex)
@@ -107,23 +105,6 @@ namespace addParticipant
             }
         }
 
-        private async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService){
-            CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody{
-                NhsNumber = nhsNumber,
-                ScreeningService = screeningService
-            };
-            string json = JsonSerializer.Serialize(requestBody);
-
-            var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CohortDistributionServiceURL"), json);
-
-            if(result.StatusCode == HttpStatusCode.OK){
-                _logger.LogInformation($"Participant sent to Cohort Distribution Service");
-                return true;
-            }
-            _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
-            return false;
-
-        }
         private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
         {
             var json = JsonSerializer.Serialize(participantCsvRecord);
