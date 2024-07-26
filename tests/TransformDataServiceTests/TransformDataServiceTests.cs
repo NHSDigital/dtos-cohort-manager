@@ -4,23 +4,23 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using NHS.CohortManager.CohortDistribution;
+using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using Microsoft.Extensions.Logging;
 
 [TestClass]
 public class TransformDataServiceTests
 {
+    private readonly Mock<ILogger<TransformDataService>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly TransformDataRequestBody _requestBody;
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private readonly Mock<ILogger<TransformDataService>> _logger = new();
 
     public TransformDataServiceTests()
     {
@@ -28,16 +28,16 @@ public class TransformDataServiceTests
 
         _requestBody = new TransformDataRequestBody()
         {
-            NhsNumber = "1",
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "Mr",
-            Gender = Model.Enums.Gender.Male
+            Participant = new CohortDistributionParticipant
+            {
+                NhsNumber = "1",
+                FirstName = "John",
+                Surname = "Smith",
+                NamePrefix = "Mr",
+                Gender = Model.Enums.Gender.Male
+            },
+            ServiceProvider = "1"
         };
-
-        var screeningService = "1";
-
-        _requestBody = new TransformDataRequestBody(participant, screeningService);
 
         _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object);
 
