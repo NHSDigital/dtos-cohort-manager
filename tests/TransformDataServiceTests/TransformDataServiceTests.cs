@@ -131,6 +131,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
+            Gender = Model.Enums.Gender.Male
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -184,7 +185,7 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = "Mr",
+            NamePrefix = "MR",
             Gender = Model.Enums.Gender.NotSpecified,
         };
         result.Body.Position = 0;
@@ -211,7 +212,7 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = "Mr",
+            NamePrefix = "MR",
             Gender = Model.Enums.Gender.Male,
         };
 
