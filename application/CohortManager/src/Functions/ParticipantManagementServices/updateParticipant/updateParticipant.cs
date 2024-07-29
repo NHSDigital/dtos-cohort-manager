@@ -9,6 +9,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using System.Data;
+using NHS.CohortManager.CohortDistribution;
 
 public class UpdateParticipantFunction
 {
@@ -18,8 +19,9 @@ public class UpdateParticipantFunction
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
+    private readonly ICohortDistributionHandler _cohortDistributionHandler;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -27,6 +29,7 @@ public class UpdateParticipantFunction
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
         _handleException = handleException;
+        _cohortDistributionHandler = cohortDistributionHandler;
     }
 
     [Function("updateParticipant")]
@@ -68,6 +71,14 @@ public class UpdateParticipantFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             await updateParticipant(participantCsvRecord, req);
+
+            if(! await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+            {
+                _logger.LogInformation("participant failed to send to Cohort Distribution Service");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+            }
+
+            _logger.LogInformation("participant sent to Cohort Distribution Service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
@@ -102,6 +113,7 @@ public class UpdateParticipantFunction
         {
             participantCsvRecord.Participant.ExceptionFlag = "Y";
         }
+
         return participantCsvRecord;
     }
 }

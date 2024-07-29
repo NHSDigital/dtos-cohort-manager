@@ -105,9 +105,9 @@ public class AllocateServiceProviderToParticipantByService
             NhsNumber = nhsNumber ?? null,
             DateCreated = DateTime.UtcNow,
             RuleDescription = "Failed to retrieve the Service Provider from Allocation Config",
-            RuleContent = logMessage,
+            ErrorRecord = logMessage,
             DateResolved = DateTime.MaxValue,
-            ScreeningService = 1,
+            ScreeningName = "Screening Service",
         };
 
         string exceptionJson = JsonSerializer.Serialize(exception);

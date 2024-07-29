@@ -2,6 +2,7 @@ namespace Common;
 
 using System.Net;
 using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 public class CallFunction : ICallFunction
 {
@@ -14,6 +15,13 @@ public class CallFunction : ICallFunction
     {
         return await GetAsync(url);
     }
+
+    public async Task<string> SendGet(string url,Dictionary<string,string> parameters)
+    {
+        url = QueryHelpers.AddQueryString(url,parameters);
+        return await GetAsync(url);
+    }
+
 
     private async Task<string> GetAsync(string uri)
     {
