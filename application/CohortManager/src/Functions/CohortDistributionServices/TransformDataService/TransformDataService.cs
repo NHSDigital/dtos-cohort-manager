@@ -83,6 +83,7 @@ public class TransformDataService
             _logger.LogWarning(ex, "exception occured while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
 
     private T GetTransformedData<T>(List<RuleResultTree> results, string field, T CurrentValue)
     {
