@@ -80,10 +80,13 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_TransformNamePrefixAdmiral_ReturnAdm()
+    [DataRow("ADMIRAL", "ADM")]
+    [DataRow("AIR MARSHAL", "A.ML")]
+    [DataRow("HIS ROYAL HGHNESS", "HRH")]
+    public async Task Run_TransformNamePrefix_ReturnTransformedPrefix(string namePrefix, string expectedTransformedPrefix)
     {
         // Arrange
-        _requestBody.Participant.NamePrefix = "ADMIRAL";
+        _requestBody.Participant.NamePrefix = namePrefix;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -96,7 +99,7 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = "ADM",
+            NamePrefix = expectedTransformedPrefix,
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -104,6 +107,32 @@ public class TransformDataServiceTests
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
+    [TestMethod]
+    public async Task Run_TransformNamePrefixwithTrailingChars_ReturnTransformedPrefix()
+    {
+        // Arrange
+        _requestBody.Participant.NamePrefix = "DRS";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "DR",
+        };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
 
     [TestMethod]
     public async Task Run_NamePrefixTooLong_TruncatePrefix()
