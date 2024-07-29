@@ -71,8 +71,11 @@ public class TransformDataService
                 Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
             };
 
-            var response = JsonSerializer.Serialize(transformedParticipant);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+
+        transformedParticipant.NamePrefix = await TransformNamePrefix(transformedParticipant.NamePrefix);
+
+        var response = JsonSerializer.Serialize(transformedParticipant);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
         catch (Exception ex)
         {
@@ -86,5 +89,30 @@ public class TransformDataService
     {
         var result = results.Find(x => x.Rule.RuleName.Split('.')[1] == field);
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
+    }
+
+    public async Task<string> TransformNamePrefix(string namePrefix) {
+
+        // Set up rules engine
+        string json = await File.ReadAllTextAsync("namePrefixRules.json");
+        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+        var re = new RulesEngine.RulesEngine(rules);
+
+        namePrefix = namePrefix.ToUpper();
+
+        var ruleParameters = new[] {
+            new RuleParameter("namePrefix", namePrefix),
+        };
+
+        // Execute rules
+        var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
+
+        // Assign new name prefix
+        namePrefix = (string) rulesList.Where(result => result.IsSuccess)
+                                                    .Select(result => result.ActionResult.Output)
+                                                    .FirstOrDefault()
+                                                    ?? namePrefix;
+
+        return namePrefix;
     }
 }
