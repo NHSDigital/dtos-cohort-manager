@@ -1,3 +1,7 @@
+variable "TARGET_SUBSCRIPTION_ID" {
+  description = "ID of a subscription to deploy infrastructure"
+  type        = string
+}
 
 variable "application" {
   description = "Project/Application code for deployment"
@@ -97,7 +101,11 @@ variable "function_app" {
   description = "Configuration for the function app"
   type = object({
     resource_group_key = optional(string, "cohman")
-    worker_32bit       = optional(bool, false)
+    gl_worker_32bit    = optional(bool, false)
+    gl_dotnet_isolated = optional(bool, true)
+    gl_dotnet_version  = optional(string, "8.0")
+    gl_app_settings    = map(string)
+
     fa_config = map(object({
       name_suffix = string
     }))
@@ -133,8 +141,22 @@ variable "app_insights" {
   })
 }
 
-variable "TARGET_SUBSCRIPTION_ID" {
-  description = "ID of a subscription to deploy infrastructure"
-  type        = string
+variable "acr" {
+  description = "Configuration of the Azure Container Registry"
+  type = object({
+    resource_group_key = optional(string, "cohman")
+    sku                = optional(string, "Premium")
+    admin_enabled      = optional(bool, false)
+    uai_name           = optional(string, "dtos-cohort-manager-acr-push")
+  })
 }
 
+variable "api_management" {
+  description = "Configuration of the API Management Service"
+  type = object({
+    resource_group_key = optional(string, "cohman")
+    sku                = optional(string, "Basic_1")
+    publisher_name     = optional(string, "NHS_DToS_CohortManager")
+    publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
+  })
+}

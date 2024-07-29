@@ -44,10 +44,9 @@ public class FileValidation
                 DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
                 DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
-                RuleContent = requestBody.RuleContent ?? "",
                 RuleDescription = requestBody.RuleDescription ?? "",
                 Category = requestBody.Category ?? 0,
-                ScreeningService = requestBody.ScreeningService ?? 1,
+                ScreeningName = requestBody.ScreeningName ?? null,
                 Fatal = requestBody.Fatal ?? 0,
             };
 

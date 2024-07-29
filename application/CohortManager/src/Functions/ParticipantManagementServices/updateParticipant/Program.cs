@@ -10,6 +10,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
+        services.AddSingleton<ICohortDistributionHandler,CohortDistributionHandler>();
     })
     .AddExceptionHandler()
     .Build();
