@@ -56,7 +56,7 @@ public class UpdateParticipantData : IUpdateParticipantData
             SQLToExecuteInOrder.Add(oldRecordsSQL);
         }
 
-        string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
+        string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] ( " +
             " SCREENING_ID," +
             " NHS_NUMBER," +
             " REASON_FOR_REMOVAL," +
