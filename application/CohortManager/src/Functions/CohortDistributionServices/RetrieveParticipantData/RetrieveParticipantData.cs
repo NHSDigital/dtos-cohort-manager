@@ -15,17 +15,17 @@ public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
-    private readonly ICallFunction _callFunction;
     private readonly IUpdateParticipantData _updateParticipantData;
     private readonly ICreateDemographicData _createDemographicData;
+    private readonly ICreateParticipant _createParticipant;
 
-    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, ICallFunction callFunction, IUpdateParticipantData updateParticipantData, ICreateDemographicData createDemographicData)
+    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IUpdateParticipantData updateParticipantData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _callFunction = callFunction;
         _updateParticipantData = updateParticipantData;
         _createDemographicData = createDemographicData;
+        _createParticipant = createParticipant;
     }
 
     [Function("RetrieveParticipantData")]
@@ -48,9 +48,13 @@ public class RetrieveParticipantData
 
         try
         {
-            var participantData = _updateParticipantData.GetParticipant(requestBody.NhsNumber);
-            var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
-            var responseBody = JsonSerializer.Serialize<Participant>(participantData);
+            Participant participantData = _updateParticipantData.GetParticipant(requestBody.NhsNumber);
+
+            Demographic demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
+
+            CohortDistributionParticipant participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
+
+            var responseBody = JsonSerializer.Serialize(participant);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
         }
@@ -60,5 +64,4 @@ public class RetrieveParticipantData
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
-    // task to call _createParticipant.CreateResponseParticipantModel (combine together)
 }

@@ -1,7 +1,6 @@
 namespace Common;
 
 using Model;
-using Model.Enums;
 
 public class CreateParticipant : ICreateParticipant
 {
@@ -49,6 +48,46 @@ public class CreateParticipant : ICreateParticipant
             IsInterpreterRequired = demographic.IsInterpreterRequired,
             InvalidFlag = participant.InvalidFlag,
             ChangeReasonCode = participant.ChangeReasonCode
+        };
+    }
+
+    public CohortDistributionParticipant CreateCohortDistributionParticipantModel(Participant participant, Demographic demographic)
+    {
+        return new CohortDistributionParticipant
+        {
+            ParticipantId = participant.ParticipantId,
+            NhsNumber = participant.NhsNumber,
+            SupersededByNhsNumber = participant.SupersededByNhsNumber,
+            PrimaryCareProvider = demographic.PrimaryCareProvider,
+            PrimaryCareProviderEffectiveFromDate = demographic.PrimaryCareProviderEffectiveFromDate,
+            NamePrefix = demographic.NamePrefix,
+            FirstName = demographic.FirstName,
+            OtherGivenNames = participant.OtherGivenNames,
+            Surname = demographic.Surname,
+            PreviousSurname = participant.PreviousSurname,
+            DateOfBirth = demographic.DateOfBirth,
+            Gender = demographic.Gender.GetValueOrDefault(),
+            AddressLine1 = demographic.AddressLine1,
+            AddressLine2 = demographic.AddressLine2,
+            AddressLine3 = demographic.AddressLine3,
+            AddressLine4 = demographic.AddressLine4,
+            AddressLine5 = participant.AddressLine5,
+            Postcode = demographic.Postcode,
+            UsualAddressEffectiveFromDate = participant.UsualAddressEffectiveFromDate,
+            DateOfDeath = demographic.DateOfDeath,
+            TelephoneNumber = demographic.TelephoneNumber,
+            TelephoneNumberEffectiveFromDate = participant.TelephoneNumberEffectiveFromDate,
+            MobileNumber = participant.MobileNumber,
+            MobileNumberEffectiveFromDate = participant.MobileNumberEffectiveFromDate,
+            EmailAddress = demographic.EmailAddress,
+            EmailAddressEffectiveFromDate = participant.EmailAddressEffectiveFromDate,
+            PreferredLanguage = demographic.PreferredLanguage,
+            IsInterpreterRequired = demographic.IsInterpreterRequired,
+            ReasonForRemoval = participant.ReasonForRemoval,
+            ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate,
+            RecordInsertDateTime = demographic.RecordInsertDateTime,
+            RecordUpdateDateTime = demographic.RecordUpdateDateTime,
+            Extracted = null
         };
     }
 }

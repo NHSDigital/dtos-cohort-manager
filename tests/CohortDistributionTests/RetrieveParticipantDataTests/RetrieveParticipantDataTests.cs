@@ -10,14 +10,13 @@ using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
-using NHS.CohortManager.Tests.TestUtils;
 using Model;
 using Data.Database;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class RetrieveParticipantDataTests
 {
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ILogger<RetrieveParticipantData>> _logger = new();
     private readonly RetrieveParticipantData _function;
@@ -26,6 +25,7 @@ public class RetrieveParticipantDataTests
     private readonly RetrieveParticipantRequestBody _requestBody;
     private readonly Mock<IUpdateParticipantData> _updateParticipantData = new();
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
+    private readonly Mock<ICreateParticipant> _createParticipant = new();
 
     public RetrieveParticipantDataTests()
     {
@@ -37,7 +37,7 @@ public class RetrieveParticipantDataTests
             ScreeningService = "BSS"
         };
 
-        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _callFunction.Object, _updateParticipantData.Object, _createDemographicData.Object);
+        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -88,13 +88,17 @@ public class RetrieveParticipantDataTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Throws(new Exception("there has been an error"));
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic());
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Throws(new Exception("there has been an error")).Verifiable();
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()).Verifiable();
+        _createParticipant.Setup(x => x.CreateCohortDistributionParticipantModel(new Participant(), new Demographic())).Returns(new CohortDistributionParticipant()).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
+        _updateParticipantData.Verify(x => x.GetParticipant(It.IsAny<string>()), Times.Once);
+        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Never);
+        _createParticipant.Verify(x => x.CreateCohortDistributionParticipantModel(new Participant(), new Demographic()), Times.Never);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
@@ -105,13 +109,17 @@ public class RetrieveParticipantDataTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Throws(new Exception("there has been an error"));
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant()).Verifiable();
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Throws(new Exception("there has been an error")).Verifiable();
+        _createParticipant.Setup(x => x.CreateCohortDistributionParticipantModel(new Participant(), new Demographic())).Returns(new CohortDistributionParticipant()).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
+        _updateParticipantData.Verify(x => x.GetParticipant(It.IsAny<string>()), Times.Once);
+        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
+        _createParticipant.Verify(x => x.CreateCohortDistributionParticipantModel(new Participant(), new Demographic()), Times.Never);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
@@ -122,14 +130,36 @@ public class RetrieveParticipantDataTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic());
+        var participant = new Participant
+        {
+            NhsNumber = "1234567890",
+        };
+
+        var demographic = new Demographic
+        {
+            FirstName = "John"
+        };
+
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = participant.NhsNumber,
+            FirstName = demographic.FirstName
+        };
+
+        _updateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(participant).Verifiable();
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(demographic).Verifiable();
+        _createParticipant.Setup(x => x.CreateCohortDistributionParticipantModel(participant, demographic)).Returns(expectedResponse).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
 
         // Assert
+        _updateParticipantData.Verify(x => x.GetParticipant(It.IsAny<string>()), Times.Once);
+        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
+        _createParticipant.Verify(x => x.CreateCohortDistributionParticipantModel(participant, demographic), Times.Once);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
     }
 
     private void SetUpRequestBody(string json)
