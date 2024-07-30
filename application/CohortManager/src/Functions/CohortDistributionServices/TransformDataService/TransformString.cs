@@ -54,17 +54,17 @@ public class TransformString {
         return participant;
     }
 
-    public async Task<string> TransformCharactersAsync(string invalidString) 
+    public async Task<string> TransformCharactersAsync(string invalidString)
     {
         StringBuilder stringBuilder = new(invalidString.Length);
 
-        foreach (char character in invalidString) 
+        foreach (char character in invalidString)
         {
             var rulesList = await _re.ExecuteAllRulesAsync("71.CharacterRules", character);
             var transformedCharacter = (char?) rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
                                             .FirstOrDefault();
-                                            
+
             stringBuilder.Append(transformedCharacter);
         }
         return stringBuilder.ToString();

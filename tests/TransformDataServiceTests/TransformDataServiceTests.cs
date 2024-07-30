@@ -233,7 +233,7 @@ public class TransformDataServiceTests
 
         // Act
         var result = await _function.RunAsync(_request.Object);
-        
+
         // Assert
         var expectedResponse = new Participant
         {
