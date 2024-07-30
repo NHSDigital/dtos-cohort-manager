@@ -1,0 +1,175 @@
+[
+  {
+    "WorkflowName": "71.CharacterRules",
+    "Rules": [
+      {
+        "RuleName": "Open curly brace",
+        "Expression": "input1 == '{'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'('"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Closed curly brace",
+        "Expression": "input1 == '}'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "')'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Open square bracket",
+        "Expression": "input1 == '['",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'('"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Closed square bracket",
+        "Expression": "input1 == ']'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "')'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Tilde",
+        "Expression": "input1 == '~'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Grave",
+        "Expression": "input1 == '`'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'\\u0027'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Hash",
+        "Expression": "input1 == '#'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "At sign",
+        "Expression": "input1 == '@'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Underscore",
+        "Expression": "input1 == '_'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'-'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Pound",
+        "Expression": "input1 == '£'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Dollar",
+        "Expression": "input1 == '$'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Caret",
+        "Expression": "input1 == '^'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Pipe",
+        "Expression": "input1 == '|'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "':'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Backslash",
+        "Expression": "input1 == '\\'",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'/'"
+            }
+          }
+        }
+      }
+    ]
+  }
+]

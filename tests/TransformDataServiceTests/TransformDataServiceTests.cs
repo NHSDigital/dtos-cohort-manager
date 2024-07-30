@@ -223,6 +223,33 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
+    {
+        // Arrange
+        _requestBody.Participant.FirstName = "{John}";
+        _requestBody.Participant.Surname = "{[Smith£$^`~#@_|\\]}";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+        
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "(John)",
+            Surname = "((Smith   '   -:/))",
+            NamePrefix = "DR",
+            Gender = Model.Enums.Gender.Male
+        };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

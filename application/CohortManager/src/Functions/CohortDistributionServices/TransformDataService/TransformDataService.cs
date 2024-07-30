@@ -10,6 +10,7 @@ using Model;
 using Model.Enums;
 using Common;
 using Microsoft.Extensions.Logging;
+using System.Formats.Asn1;
 
 public class TransformDataService
 {
@@ -72,7 +73,9 @@ public class TransformDataService
             };
 
 
-        transformedParticipant.NamePrefix = await TransformNamePrefix(transformedParticipant.NamePrefix);
+        transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
+        var transformString = new TransformString();
+        transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
 
         var response = JsonSerializer.Serialize(transformedParticipant);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -91,7 +94,7 @@ public class TransformDataService
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 
-    public async Task<string> TransformNamePrefix(string namePrefix) {
+    public async Task<string> TransformNamePrefixAsync(string namePrefix) {
 
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
@@ -115,4 +118,5 @@ public class TransformDataService
 
         return namePrefix;
     }
+
 }
