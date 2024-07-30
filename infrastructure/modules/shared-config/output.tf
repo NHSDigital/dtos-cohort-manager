@@ -1,10 +1,11 @@
 locals {
   names = {
-    azure-container-registry    = lower("ACR${var.env}${var.location_map[var.location]}${var.application}")
-    availability-set            = lower("AVS-${var.env}-${var.location_map[var.location]}-${var.application}")
+    api-management              = lower("APIM-${var.env}-${var.application}-${var.location_map[var.location]}")
     app-insights                = upper("${var.env}-${var.location_map[var.location]}")
     app-service-plan            = lower("ASP-${var.application}-${var.env}-${var.location_map[var.location]}")
     app-service                 = lower("AS-${var.env}-${var.location_map[var.location]}-${var.application}")
+    availability-set            = lower("AVS-${var.env}-${var.location_map[var.location]}-${var.application}")
+    azure-container-registry    = lower("ACR${var.location_map[var.location]}${var.application}${var.env}")
     connection                  = upper("CON-${var.env}-${var.location_map[var.location]}-${var.application}")
     custom-image                = upper("IMAGE-${var.env}-${var.location_map[var.location]}")
     dns-zone                    = "${lower(var.application)}.${lower(var.env)}.net"
@@ -56,11 +57,12 @@ locals {
 output "names" {
   description = "Return list of calculated standard names for the deployment."
   value = {
-    azure-container-registry    = local.names.azure-container-registry
-    availability-set            = local.names.availability-set
+    api-management              = local.names.api-management
     app-insights                = local.names.app-insights
     app-service-plan            = local.names.app-service-plan
     app-service                 = local.names.app-service
+    availability-set            = local.names.availability-set
+    azure-container-registry    = local.names.azure-container-registry
     connection                  = local.names.connection
     custom-image                = local.names.custom-image
     dns-zone                    = local.names.dns-zone

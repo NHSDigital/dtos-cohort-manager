@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using NHS.CohortManager.CohortDistribution;
+using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
@@ -13,11 +14,13 @@ using Common;
 [TestClass]
 public class TransformDataServiceTests
 {
+    private readonly Mock<ILogger<TransformDataService>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly TransformDataRequestBody _requestBody;
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
+    private readonly Mock<IExceptionHandler> _handleException = new();
 
     public TransformDataServiceTests()
     {
@@ -30,12 +33,14 @@ public class TransformDataServiceTests
                 NhsNumber = "1",
                 FirstName = "John",
                 Surname = "Smith",
-                NamePrefix = "Mr",
+                NamePrefix = "MR",
+                Gender = Model.Enums.Gender.Male
+
             },
             ServiceProvider = "1"
         };
 
-        _function = new TransformDataService(_createResponse.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -57,7 +62,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task Run_EmptyRequest_ReturnBadRequest()
     {
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -67,7 +72,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    public async Task Run_InvalidRequest_ReturnBadRequest()
     {
         // Arrange
         SetUpRequestBody("Invalid request body");
@@ -80,10 +85,10 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("Mr.")]
-    [DataRow("Mrs")]
-    [DataRow("AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG")] // 35 characters exactly
-    public async Task Run_Should_Not_Transform_Participant_Data_When_NamePrefix_ExceedsMaximumLength_Passes(string namePrefix)
+    [DataRow("ADMIRAL", "ADM")]
+    [DataRow("AIR MARSHAL", "A.ML")]
+    [DataRow("HIS ROYAL HGHNESS", "HRH")]
+    public async Task Run_TransformNamePrefix_ReturnTransformedPrefix(string namePrefix, string expectedTransformedPrefix)
     {
         // Arrange
         _requestBody.Participant.NamePrefix = namePrefix;
@@ -99,7 +104,34 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = namePrefix,
+            NamePrefix = expectedTransformedPrefix,
+            Gender = Model.Enums.Gender.Male
+        };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+    [TestMethod]
+    public async Task Run_TransformNamePrefixwithTrailingChars_ReturnTransformedPrefix()
+    {
+        // Arrange
+        _requestBody.Participant.NamePrefix = "DRS";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "DR",
+            Gender = Model.Enums.Gender.Male
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -108,8 +140,9 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+
     [TestMethod]
-    public async Task Run_Should_Transform_Participant_Data_When_NamePrefix_ExceedsMaximumLength_Fails()
+    public async Task Run_NamePrefixTooLong_TruncatePrefix()
     {
         // Arrange
         _requestBody.Participant.NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH";
@@ -126,7 +159,63 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG",
+            Gender = Model.Enums.Gender.Male
         };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
+    {
+        // Arrange
+        _requestBody.Participant.Gender = (Model.Enums.Gender)4;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            Gender = Model.Enums.Gender.NotSpecified,
+        };
+        result.Body.Position = 0;
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Not_Transform_Participant_Gender_When_Gender_Is_0_1_2_or_9()
+    {
+        // Arrange
+        _requestBody.Participant.Gender = Model.Enums.Gender.Male;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            Gender = Model.Enums.Gender.Male,
+        };
+
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
         var responseBody = await reader.ReadToEndAsync();

@@ -6,7 +6,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
-
+using NHS.CohortManager.CohortDistribution;
 namespace addParticipant
 {
     public class AddParticipantFunction
@@ -17,8 +17,9 @@ namespace addParticipant
         private readonly ICheckDemographic _getDemographicData;
         private readonly ICreateParticipant _createParticipant;
         private readonly IExceptionHandler _handleException;
+        private readonly ICohortDistributionHandler _cohortDistributionHandler;
 
-        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
+        public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
         {
             _logger = logger;
             _callFunction = callFunction;
@@ -26,6 +27,7 @@ namespace addParticipant
             _getDemographicData = checkDemographic;
             _createParticipant = createParticipant;
             _handleException = handleException;
+            _cohortDistributionHandler = cohortDistributionHandler;
         }
 
         [Function("addParticipant")]
@@ -36,14 +38,16 @@ namespace addParticipant
 
             string postData = "";
             Participant participant = new Participant();
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                postData = reader.ReadToEnd();
-            }
-            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
-
+            BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
             try
             {
+                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+                {
+                    postData = reader.ReadToEnd();
+                }
+                basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
+
+
                 var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
                 if (demographicData == null)
                 {
@@ -52,6 +56,7 @@ namespace addParticipant
                 }
 
                 participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+                participant.ScreeningId = "BSS"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY
                 var participantCsvRecord = new ParticipantCsvRecord
                 {
                     Participant = participant,
@@ -67,36 +72,37 @@ namespace addParticipant
                 var json = JsonSerializer.Serialize(participantCsvRecord);
                 createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
-                if (createResponse.StatusCode == HttpStatusCode.Created)
+                if (createResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    _logger.LogInformation("participant created");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
                 }
-            }
-            catch (Exception ex)
-            {
-                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
-                _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-            }
+                _logger.LogInformation("participant created");
 
-            try
-            {
-                var json = JsonSerializer.Serialize(participant);
-                eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), json);
+                var participantJson = JsonSerializer.Serialize(participant);
+                eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
 
-                if (eligibleResponse.StatusCode == HttpStatusCode.Created)
+                if (eligibleResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    _logger.LogInformation("participant created, marked as eligible");
-                    _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
                 }
+                _logger.LogInformation("participant created, marked as eligible");
+
+
+                if(!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+                {
+                    _logger.LogInformation("participant failed to send to Cohort Distribution Service");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                }
+                _logger.LogInformation("participant sent to Cohort Distribution Service");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
                 await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
             }
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 
         private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)

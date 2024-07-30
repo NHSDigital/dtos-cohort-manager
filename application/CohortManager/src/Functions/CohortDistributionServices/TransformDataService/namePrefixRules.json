@@ -1,0 +1,559 @@
+[
+  {
+    "WorkflowName": "NamePrefix",
+    "Rules": [
+      {
+        "RuleName": "37.NamePrefix.AirMarshal",
+        "Expression": "namePrefix == \"AIR MARSHAL\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"A.ML\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "38.NamePrefix.Admiral",
+        "Expression": "namePrefix == \"ADMIRAL\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"ADM\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "39.NamePrefix.Brigadier",
+        "Expression": "namePrefix == \"BRIGADIER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"BRIG\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "40.NamePrefix.Brother",
+        "Expression": "namePrefix == \"BROTHER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"BRO\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "41.NamePrefix.Br",
+        "Expression": "namePrefix == \"BR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"BRO\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "42.NamePrefix.Captain",
+        "Expression": "namePrefix == \"CAPTAIN\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"CAPT\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "43.NamePrefix.Capt",
+        "Expression": "namePrefix == \"CPT\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"CAPT\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "44.NamePrefix.Commander",
+        "Expression": "namePrefix == \"COMMANDER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"CMDR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "45.NamePrefix.Cdr",
+        "Expression": "namePrefix == \"CDR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"CMDR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "46.NamePrefix.Colonel",
+        "Expression": "namePrefix == \"COLONEL\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"COL\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "47.NamePrefix.Dr",
+        "Expression": "namePrefix.StartsWith(\"DR\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"DR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "48.NamePrefix.Doctor",
+        "Expression": "namePrefix == \"DOCTOR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"DR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "49.NamePrefix.Father",
+        "Expression": "namePrefix == \"FATHER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"FR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "50.NamePrefix.Fath",
+        "Expression": "namePrefix == \"FATH\"",
+              "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"FR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "51.NamePrefix.General",
+        "Expression": "namePrefix == \"GENERAL\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"GEN\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "52.NamePrefix.Honourable",
+        "Expression": "namePrefix == \"HONOURABLE\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"HON\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "53.NamePrefix.Judge",
+        "Expression": "namePrefix == \"JUDGE\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"HON\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "54.NamePrefix.HisRoyalHighness",
+        "Expression": "namePrefix == \"HIS ROYAL HGHNESS\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"HRH\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "55.NamePrefix.HerRoyalHighness",
+        "Expression": "namePrefix == \"HER ROYAL HGHNESS\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"HRH\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "56.NamePrefix.Baroness",
+        "Expression": "namePrefix == \"BARONESS\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"LADY\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "57.NamePrefix.Baron",
+        "Expression": "namePrefix == \"BARON\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"LORD\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "58.NamePrefix.Duchess",
+        "Expression": "namePrefix == \"DUCHESS\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"LADY\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "59.NamePrefix.Duke",
+        "Expression": "namePrefix == \"DUKE\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"LORD\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "60.NamePrefix.LieutenantColonel",
+        "Expression": "namePrefix == \"LIEUTENANT COLONEL\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"LT.C\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "61.NamePrefix.Major",
+        "Expression": "namePrefix == \"MAJOR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"MAJ\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "62.NamePrefix.Master",
+        "Expression": "namePrefix == \"MASTER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"MR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "63.NamePrefix.Mast",
+        "Expression": "namePrefix == \"MAST\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"MR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "64.NamePrefix.Mister",
+        "Expression": "namePrefix == \"MISTER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"MR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "65.NamePrefix.Mstr",
+        "Expression": "namePrefix == \"MSTR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"MR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "66.NamePrefix.Prof",
+        "Expression": "namePrefix.StartsWith(\"PROF\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"PROF\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "67.NamePrefix.Count",
+        "Expression": "namePrefix == \"COUNT\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.HN\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "68.NamePrefix.Countess",
+        "Expression": "namePrefix == \"COUNTESS\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.HN\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "69.NamePrefix.RtHon",
+        "Expression": "namePrefix.StartsWith(\"RT HON\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.HN\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "70.NamePrefix.RightRev",
+        "Expression": "namePrefix.StartsWith(\"RIGHT REV\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.RV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "71.NamePrefix.RightRev",
+        "Expression": "namePrefix.StartsWith(\"RIGHT REV\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.RV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "72.NamePrefix.Bishop",
+        "Expression": "namePrefix == \"BISHOP\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.RV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "73.NamePrefix.Rev",
+        "Expression": "namePrefix.StartsWith(\"REV\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"R.RV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "74.NamePrefix.Canon",
+        "Expression": "namePrefix.StartsWith(\"CANON\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"REV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "75.NamePrefix.Deacon",
+        "Expression": "namePrefix.StartsWith(\"DEACON\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"REV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "76.NamePrefix.Mosignor",
+        "Expression": "namePrefix == \"MOSIGNOR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"REV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "77.NamePrefix.Pastor",
+        "Expression": "namePrefix == \"PASTOR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"REV\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "78.NamePrefix.Rev",
+        "Expression": "namePrefix.StartsWith(\"SIR\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"SIR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "79.NamePrefix.Sqn",
+        "Expression": "namePrefix.StartsWith(\"SQN\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"SQLD\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "80.NamePrefix.Sister",
+        "Expression": "namePrefix == \"SISTER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"SR\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "73.NamePrefix.Viscount",
+        "Expression": "namePrefix.StartsWith(\"VISCOUNT\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"VISC\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "82.NamePrefix.WingCommander",
+        "Expression": "namePrefix == \"WING COMMANDER\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"WCOM\""
+            }
+          }
+        }
+      }
+    ]
+  }
+]

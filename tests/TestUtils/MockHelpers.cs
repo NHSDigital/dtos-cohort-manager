@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
 using Azure.Core.Serialization;
 using System.Net;
+using Common;
 
 public static class MockHelpers
 {
@@ -29,7 +30,6 @@ public static class MockHelpers
         {
             headersForHttpRequestData.Add("Authorization", $"{schema} edd2545es.ez5ez5454e.ezdsdsds");
         }
-
         requestData.Setup(context => context.Headers).Returns(headersForHttpRequestData);
 
         return requestData.Object;
