@@ -8,9 +8,9 @@ using System.Text.Json;
 using RulesEngine.Models;
 
 public class TransformString {
-    private RulesEngine.RulesEngine _re; 
+    private RulesEngine.RulesEngine _re;
 
-    public TransformString() 
+    public TransformString()
     {
         string json = File.ReadAllText("characterRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -23,26 +23,26 @@ public class TransformString {
         var stringFields = participant.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 
-        foreach (PropertyInfo field in stringFields) 
+        foreach (PropertyInfo field in stringFields)
         {
             bool anyInvalidChars;
 
             try
             {
                 anyInvalidChars = ! Regex.IsMatch((string) field.GetValue(participant), allowedCharacters);
-            } 
+            }
             catch (ArgumentNullException)
             {
                 // Skip if the field is null
-                continue;  
+                continue;
             }
 
-            if (anyInvalidChars) 
+            if (anyInvalidChars)
             {
                 var transformedField = await TransformCharactersAsync((string) field.GetValue(participant));
 
                 // Check to see if there are any unhandled invalid chars
-                if (!Regex.IsMatch(transformedField, allowedCharacters)) 
+                if (!Regex.IsMatch(transformedField, allowedCharacters))
                 {
                     // Implementation of exceptions is blocked
                     System.Console.WriteLine("Exception Raised");
@@ -50,7 +50,6 @@ public class TransformString {
 
                 field.SetValue(participant, transformedField);
             }
-  
         }
         return participant;
     }
@@ -70,5 +69,4 @@ public class TransformString {
         }
         return stringBuilder.ToString();
     }
-
 }
