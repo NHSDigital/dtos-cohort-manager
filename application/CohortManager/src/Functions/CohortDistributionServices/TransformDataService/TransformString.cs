@@ -33,7 +33,7 @@ public class TransformString {
                 // Skip if the field is null
                 continue;
             }
-            else 
+            else
             {
                 anyInvalidChars = !Regex.IsMatch(stringField, allowedCharacters);
             }
