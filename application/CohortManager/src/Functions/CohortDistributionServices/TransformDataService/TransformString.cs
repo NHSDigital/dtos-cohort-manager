@@ -29,7 +29,7 @@ public class TransformString {
             var stringField = (string) field.GetValue(participant);
 
             // Skip if the field is null or doesn't have any invalid chars
-            if (string.IsNullOrWhiteSpace(stringField) && Regex.IsMatch(stringField, allowedCharacters))
+            if (string.IsNullOrWhiteSpace(stringField) | Regex.IsMatch(stringField, allowedCharacters))
             {
                 continue;
             }
