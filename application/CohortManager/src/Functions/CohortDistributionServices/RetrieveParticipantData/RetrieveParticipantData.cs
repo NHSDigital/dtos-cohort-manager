@@ -15,15 +15,15 @@ public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
-    private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly IParticipantManagerData _participantManagerData;
     private readonly ICreateDemographicData _createDemographicData;
     private readonly ICreateParticipant _createParticipant;
 
-    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IUpdateParticipantData updateParticipantData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant)
+    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IParticipantManagerData participantManagerData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _updateParticipantData = updateParticipantData;
+        _participantManagerData = participantManagerData;
         _createDemographicData = createDemographicData;
         _createParticipant = createParticipant;
     }
@@ -48,11 +48,9 @@ public class RetrieveParticipantData
 
         try
         {
-            Participant participantData = _updateParticipantData.GetParticipant(requestBody.NhsNumber);
-
-            Demographic demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
-
-            CohortDistributionParticipant participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
+            var participantData = _participantManagerData.GetParticipantFromIDAndScreeningService(requestBody);
+            var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
+            var participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
 
             var responseBody = JsonSerializer.Serialize(participant);
 

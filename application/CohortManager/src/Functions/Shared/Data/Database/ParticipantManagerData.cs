@@ -6,16 +6,17 @@ using Model;
 using Common;
 using System.Text.Json;
 using System.Net;
+using NHS.CohortManager.CohortDistribution;
 
-public class UpdateParticipantData : IUpdateParticipantData
+public class ParticipantManagerData : IParticipantManagerData
 {
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
-    private readonly ILogger<UpdateParticipantData> _logger;
+    private readonly ILogger<ParticipantManagerData> _logger;
     private readonly ICallFunction _callFunction;
 
-    public UpdateParticipantData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<UpdateParticipantData> logger, ICallFunction callFunction)
+    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger, ICallFunction callFunction)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
@@ -24,6 +25,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
+    #region Update methods
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
     {
         var oldParticipant = GetParticipant(participant.NhsNumber);
@@ -96,6 +98,55 @@ public class UpdateParticipantData : IUpdateParticipantData
         });
         return ExecuteBulkCommand(SQLToExecuteInOrder, commonParameters);
     }
+    #endregion
+
+    #region  get methods
+    public Participant GetParticipant(string NhsNumber)
+    {
+        var SQL = "SELECT " +
+            "[PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[SCREENING_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[NHS_NUMBER], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_DT], " +
+            "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
+            "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
+        "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
+        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NhsNumber", NhsNumber }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command);
+    }
+
+    public Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody)
+    {
+        var SQL = "SELECT * " +
+        " FROM [PARTICIPANT_MANAGEMENT] " +
+        " WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT_MANAGEMENT].[SCREENING_ID] = @ScreeningId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NhsNumber", retrieveParticipantRequestBody.NhsNumber },
+            {"@ScreeningId", retrieveParticipantRequestBody.ScreeningService }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command);
+    }
+    #endregion
+
+    #region private methods
 
     private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
@@ -181,33 +232,7 @@ public class UpdateParticipantData : IUpdateParticipantData
         return listToReturn;
     }
 
-    public Participant GetParticipant(string NhsNumber)
-    {
-        var SQL = "SELECT " +
-            "[PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID], " +
-            "[PARTICIPANT_MANAGEMENT].[SCREENING_ID], " +
-            "[PARTICIPANT_MANAGEMENT].[NHS_NUMBER], " +
-            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL], " +
-            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_DT], " +
-            "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
-            "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
-            "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
-            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
-        "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
-        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@NhsNumber", NhsNumber }
-        };
-
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        return GetParticipant(command);
-    }
-
-    public Participant GetParticipant(IDbCommand command)
+    private Participant GetParticipant(IDbCommand command)
     {
         return ExecuteQuery(command, reader =>
         {
@@ -379,4 +404,6 @@ public class UpdateParticipantData : IUpdateParticipantData
 
         return dbCommand;
     }
+
+    #endregion 
 }

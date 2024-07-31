@@ -14,14 +14,14 @@ namespace markParticipantAsEligible
     {
         private readonly ILogger<MarkParticipantAsEligible> _logger;
         private readonly ICreateResponse _createResponse;
-        private readonly IUpdateParticipantData _updateParticipantData;
+        private readonly IParticipantManagerData _participantManagerData;
         private readonly IExceptionHandler _handleException;
 
-        public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IExceptionHandler handleException)
+        public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
         {
             _logger = logger;
             _createResponse = createResponse;
-            _updateParticipantData = updateParticipant;
+            _participantManagerData = participantManagerData;
             _handleException = handleException;
         }
 
@@ -41,7 +41,7 @@ namespace markParticipantAsEligible
                 var updated = false;
                 if (participant != null)
                 {
-                    updated = _updateParticipantData.UpdateParticipantAsEligible(participant, 'Y');
+                    updated = _participantManagerData.UpdateParticipantAsEligible(participant, 'Y');
 
                 }
                 if (updated)
