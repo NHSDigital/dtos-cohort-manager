@@ -19,15 +19,11 @@ public class CreateCohortDistributionTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ILogger<CreateCohortDistribution>> _logger = new();
-
     private readonly Mock<ICohortDistributionHelper> _CohortDistributionHelper = new();
-
     private readonly CreateCohortDistribution _function;
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly CreateCohortDistributionRequestBody _requestBody;
-
-
 
     public CreateCohortDistributionTests()
     {
@@ -199,14 +195,6 @@ public class CreateCohortDistributionTests
         var bodyStream = new MemoryStream(byteArray);
 
         _request.Setup(r => r.Body).Returns(bodyStream);
-    }
-
-    private void SuccessfulFunctionRequest(string url, string responseData = null)
-    {
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, responseData);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
-            .Returns(Task.FromResult(response));
     }
 
     private void FailedFunctionRequest(string url, string responseData = null)
