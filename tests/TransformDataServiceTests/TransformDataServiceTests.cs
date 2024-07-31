@@ -226,7 +226,7 @@ public class TransformDataServiceTests
     public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
-        _requestBody.Participant.FirstName = "{John}";
+        _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
         _requestBody.Participant.Surname = "{[Smith£$^`~#@_|\\]}";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -238,7 +238,7 @@ public class TransformDataServiceTests
         var expectedResponse = new Participant
         {
             NhsNumber = "1",
-            FirstName = "(John)",
+            FirstName = "John.,-()/='+:?!\"%&;<>*",
             Surname = "((Smith   '   -:/))",
             NamePrefix = "DR",
             Gender = Model.Enums.Gender.Male

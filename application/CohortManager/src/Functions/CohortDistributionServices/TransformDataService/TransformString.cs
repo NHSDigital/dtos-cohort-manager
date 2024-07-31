@@ -19,42 +19,35 @@ public class TransformString {
 
     public async Task<Participant> CheckParticipantCharactersAync(Participant participant)
     {
+        string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
+
         // Iterate through string fields of participant
         var stringFields = participant.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
-        string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 
         foreach (PropertyInfo field in stringFields)
         {
-            bool anyInvalidChars;
             var stringField = (string) field.GetValue(participant);
 
-            if (string.IsNullOrWhiteSpace(stringField))
+            // Skip if the field is null or doesn't have any invalid chars
+            if (string.IsNullOrWhiteSpace(stringField) && Regex.IsMatch(stringField, allowedCharacters))
             {
-                // Skip if the field is null
                 continue;
             }
-            else
-            {
-                anyInvalidChars = !Regex.IsMatch(stringField, allowedCharacters);
+
+            // Special characters that need to be handled separately
+            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\")) {
+                throw new ArgumentException();
             }
+            var transformedField = await TransformCharactersAsync(stringField);
 
-            if (anyInvalidChars)
+            // Check to see if there are any unhandled invalid chars
+            if (! Regex.IsMatch(transformedField, allowedCharacters))
             {
-                // Special characters that need to be handled separately
-                if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\")) {
-                    throw new ArgumentException();
-                }
-                var transformedField = await TransformCharactersAsync(stringField);
-
-                // Check to see if there are any unhandled invalid chars
-                if (!Regex.IsMatch(transformedField, allowedCharacters))
-                {
-                    // Will call the exception service in the future
-                    throw new ArgumentException();
-                }
+                // Will call the exception service in the future
+                throw new ArgumentException();
+            }
 
                 field.SetValue(participant, transformedField);
-            }
         }
         return participant;
     }
