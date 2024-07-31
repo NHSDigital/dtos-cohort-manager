@@ -26,10 +26,11 @@ public class TransformString {
         foreach (PropertyInfo field in stringFields)
         {
             bool anyInvalidChars;
+            var stringField = (string) field.GetValue(participant);
 
             try
             {
-                anyInvalidChars = ! Regex.IsMatch((string) field.GetValue(participant), allowedCharacters);
+                anyInvalidChars = ! Regex.IsMatch(stringField, allowedCharacters);
             }
             catch (ArgumentNullException)
             {
@@ -39,13 +40,16 @@ public class TransformString {
 
             if (anyInvalidChars)
             {
-                var transformedField = await TransformCharactersAsync((string) field.GetValue(participant));
+                if (stringField.Contains(@"\E\") | stringField.Contains(@"\E\")) {
+                    throw new ArgumentException();
+                }
+                var transformedField = await TransformCharactersAsync(stringField);
 
                 // Check to see if there are any unhandled invalid chars
                 if (!Regex.IsMatch(transformedField, allowedCharacters))
                 {
-                    // Implementation of exceptions is blocked
-                    System.Console.WriteLine("Exception Raised");
+                    // Will call the exception service in the future
+                    throw new ArgumentException();
                 }
 
                 field.SetValue(participant, transformedField);
