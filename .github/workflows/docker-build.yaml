@@ -38,7 +38,6 @@ jobs:
       - name: Create Tags
         run: |
           echo "COMMIT_HASH_TAG=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
-          echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
           echo "ENVIRONMENT_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{steps.get-function-names.outputs.FUNC_NAMES}}/$PR_NUM_TAG" >> $GITHUB_ENV
 
       - name: build docker images
@@ -50,11 +49,13 @@ jobs:
           else
             docker compose build${{steps.get-function-names.outputs.FUNC_NAMES}} \
             -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$COMMIT_HASH_TAG  \
-            -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$PR_NUM_TAG \
             -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$ENVIRONMENT_TAG
             echo !!
 
             docker push --all-tags
           fi
+
+        #-t${{steps.get-function-names.outputs.FUNC_NAMES}}:$PR_NUM_TAG \
+        # echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
       
     
