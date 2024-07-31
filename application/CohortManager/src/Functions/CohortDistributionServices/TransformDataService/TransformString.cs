@@ -8,13 +8,13 @@ using System.Text.Json;
 using RulesEngine.Models;
 
 public class TransformString {
-    private RulesEngine.RulesEngine _re;
+    private RulesEngine.RulesEngine _ruleEngine;
 
     public TransformString()
     {
         string json = File.ReadAllText("characterRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        _re = new RulesEngine.RulesEngine(rules);
+        _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
     public async Task<Participant> CheckParticipantCharactersAync(Participant participant)
@@ -28,19 +28,20 @@ public class TransformString {
             bool anyInvalidChars;
             var stringField = (string) field.GetValue(participant);
 
-            try
-            {
-                anyInvalidChars = ! Regex.IsMatch(stringField, allowedCharacters);
-            }
-            catch (ArgumentNullException)
+            if (string.IsNullOrWhiteSpace(stringField))
             {
                 // Skip if the field is null
                 continue;
             }
+            else 
+            {
+                anyInvalidChars = !Regex.IsMatch(stringField, allowedCharacters);
+            }
 
             if (anyInvalidChars)
             {
-                if (stringField.Contains(@"\E\") | stringField.Contains(@"\E\")) {
+                // Special characters that need to be handled separately
+                if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\")) {
                     throw new ArgumentException();
                 }
                 var transformedField = await TransformCharactersAsync(stringField);
@@ -64,7 +65,7 @@ public class TransformString {
 
         foreach (char character in invalidString)
         {
-            var rulesList = await _re.ExecuteAllRulesAsync("71.CharacterRules", character);
+            var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
             var transformedCharacter = (char?) rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
                                             .FirstOrDefault();
