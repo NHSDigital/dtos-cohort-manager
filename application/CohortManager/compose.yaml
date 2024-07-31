@@ -267,7 +267,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
+      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
