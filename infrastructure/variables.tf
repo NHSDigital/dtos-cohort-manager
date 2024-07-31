@@ -92,7 +92,7 @@ variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
     resource_group_key = optional(string, "cohman")
-    sku_name           = optional(string, "B1")
+    sku_name           = optional(string, "P2v3")
     os_type            = optional(string, "Linux")
   })
 }
@@ -102,12 +102,15 @@ variable "function_app" {
   type = object({
     resource_group_key = optional(string, "cohman")
     gl_worker_32bit    = optional(bool, false)
-    gl_dotnet_isolated = optional(bool, true)
-    gl_dotnet_version  = optional(string, "8.0")
-    gl_app_settings    = map(string)
+    # gl_dotnet_isolated = optional(bool, true)
+    # gl_dotnet_version  = optional(string, "8.0")
+    gl_docker_env_tag       = optional(string, "development")
+    gl_app_settings         = map(string)
+    gl_cont_registry_use_mi = optional(bool, true)
 
     fa_config = map(object({
-      name_suffix = string
+      name_suffix     = string
+      docker_img_name = string
     }))
   })
 }
