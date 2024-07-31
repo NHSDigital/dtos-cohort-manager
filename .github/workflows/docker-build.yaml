@@ -51,6 +51,7 @@ jobs:
             -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$COMMIT_HASH_TAG  \
             -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$PR_NUM_TAG \
             -t${{steps.get-function-names.outputs.FUNC_NAMES}}:$ENVIRONMENT_TAG
+            echo !!
 
             docker push --all-tags
           fi
