@@ -404,6 +404,5 @@ public class ParticipantManagerData : IParticipantManagerData
 
         return dbCommand;
     }
-
-    #endregion 
+    #endregion
 }

@@ -98,5 +98,4 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         }
         return "";
     }
-
 }
