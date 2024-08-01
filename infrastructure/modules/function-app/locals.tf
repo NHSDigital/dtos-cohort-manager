@@ -59,7 +59,6 @@ locals {
       #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
       DOCKER_ENABLE_CI = "false"
 
-      UNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
       #DtOsDatabaseConnectionString = Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       LookupValidationURL = "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
 
