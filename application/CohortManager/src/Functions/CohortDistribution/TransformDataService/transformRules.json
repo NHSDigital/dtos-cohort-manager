@@ -1,175 +1,173 @@
-[
-  {
-    "WorkflowName": "TransformData",
-    "Rules": [
-      {
-        "RuleName": "1.NamePrefix.ExceedsMaximumLength",
-        "Expression": "participant.NamePrefix.Length <= 35",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "participant.NamePrefix.Substring(0, 35)"
-            }
+{
+  "WorkflowName": "TransformData",
+  "Rules": [
+    {
+      "RuleName": "1.NamePrefix.ExceedsMaximumLength",
+      "Expression": "participant.NamePrefix.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.NamePrefix.Substring(0, 35)"
           }
         }
       }
-    ]
-  },
-  {
-    "RuleName": "2.GivenName.ExceedsMaximumLength",
-    "Expression": "participant.GivenName.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.GivenName.Substring(0, 35)"
+    },
+    {
+      "RuleName": "2.GivenName.ExceedsMaximumLength",
+      "Expression": "participant.GivenName.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.GivenName.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "3.OtherGivenNames.ExceedsMaximumLength",
+      "Expression": "participant.OtherGivenNames.Length <= 100",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.OtherGivenNames.Substring(0, 100)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "4.FamilyName.ExceedsMaximumLength",
+      "Expression": "participant.FamilyName.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.FamilyName.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "5.PreviousFamilyName.ExceedsMaximumLength",
+      "Expression": "participant.PreviousFamilyName.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.PreviousFamilyName.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "6.AddressLine1.ExceedsMaximumLength",
+      "Expression": "participant.AddressLine1.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.AddressLine1.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "7.AddressLine2.ExceedsMaximumLength",
+      "Expression": "participant.AddressLine2.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.AddressLine2.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "8.AddressLine3.ExceedsMaximumLength",
+      "Expression": "participant.AddressLine3.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.AddressLine3.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "9.AddressLine4.ExceedsMaximumLength",
+      "Expression": "participant.AddressLine4.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.AddressLine4.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "10.AddressLine5.ExceedsMaximumLength",
+      "Expression": "participant.AddressLine5.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.AddressLine5.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "11.Postcode.ExceedsMaximumLength",
+      "Expression": "participant.Postcode.Length <= 35",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.Postcode.Substring(0, 35)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "12.TelephoneNumberHome.ExceedsMaximumLength",
+      "Expression": "participant.TelephoneNumberHome.Length <= 32",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.TelephoneNumberHome.Substring(0, 32)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "13.TelephoneNumberMobile.ExceedsMaximumLength",
+      "Expression": "participant.TelephoneNumberMobile.Length <= 32",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.TelephoneNumberMobile.Substring(0, 32)"
+          }
+        }
+      }
+    },
+    {
+      "RuleName": "14.EmailAddressHome.ExceedsMaximumLength",
+      "Expression": "participant.EmailAddressHome.Length <= 90",
+      "Actions": {
+        "OnFailure": {
+          "Name": "OutputExpression",
+          "Context": {
+            "Expression": "participant.EmailAddressHome.Substring(0, 90)"
+          }
         }
       }
     }
-  },
-  {
-    "RuleName": "3.OtherGivenNames.ExceedsMaximumLength",
-    "Expression": "participant.OtherGivenNames.Length <= 100",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.OtherGivenNames.Substring(0, 100)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "4.FamilyName.ExceedsMaximumLength",
-    "Expression": "participant.FamilyName.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.FamilyName.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "5.PreviousFamilyName.ExceedsMaximumLength",
-    "Expression": "participant.PreviousFamilyName.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.PreviousFamilyName.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "6.AddressLine1.ExceedsMaximumLength",
-    "Expression": "participant.AddressLine1.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.AddressLine1.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "7.AddressLine2.ExceedsMaximumLength",
-    "Expression": "participant.AddressLine2.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.AddressLine2.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "8.AddressLine3.ExceedsMaximumLength",
-    "Expression": "participant.AddressLine3.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.AddressLine3.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "9.AddressLine4.ExceedsMaximumLength",
-    "Expression": "participant.AddressLine4.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.AddressLine4.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "10.AddressLine5.ExceedsMaximumLength",
-    "Expression": "participant.AddressLine5.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.AddressLine5.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "11.Postcode.ExceedsMaximumLength",
-    "Expression": "participant.Postcode.Length <= 35",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.Postcode.Substring(0, 35)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "12.TelephoneNumberHome.ExceedsMaximumLength",
-    "Expression": "participant.TelephoneNumberHome.Length <= 32",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.TelephoneNumberHome.Substring(0, 32)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "13.TelephoneNumberMobile.ExceedsMaximumLength",
-    "Expression": "participant.TelephoneNumberMobile.Length <= 32",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.TelephoneNumberMobile.Substring(0, 32)"
-        }
-      }
-    }
-  },
-  {
-    "RuleName": "14.EmailAddressHome.ExceedsMaximumLength",
-    "Expression": "participant.EmailAddressHome.Length <= 90",
-    "Actions": {
-      "OnFailure": {
-        "Name": "OutputExpression",
-        "Context": {
-          "Expression": "participant.EmailAddressHome.Substring(0, 90)"
-        }
-      }
-    }
-  }
-]
+  ]
+}
