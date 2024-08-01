@@ -27,35 +27,32 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         var requestBody = JsonSerializer.Serialize(retrieveParticipantRequestBody);
         var response = await GetResponseAsync(requestBody, Environment.GetEnvironmentVariable("RetrieveParticipantDataURL"));
-        _logger.LogInformation("Called retrieve participant data service");
 
-        if (string.IsNullOrEmpty(response))
+        if (!string.IsNullOrEmpty(response))
         {
-            throw new Exception("there has been a problem getting participant Data");
+            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
         }
-        _logger.LogInformation("");
-        return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
+
+        return null;
     }
 
-    public async Task<string> AllocateServiceProviderAsync(CreateCohortDistributionRequestBody requestBody, CohortDistributionParticipant participantData)
+    public async Task<string?> AllocateServiceProviderAsync(CreateCohortDistributionRequestBody requestBody, string postCode)
     {
         var allocationConfigRequestBody = new AllocationConfigRequestBody
         {
             NhsNumber = requestBody.NhsNumber,
-            Postcode = participantData.Postcode,
+            Postcode = postCode,
             ScreeningService = requestBody.ScreeningService
         };
 
         var json = JsonSerializer.Serialize(allocationConfigRequestBody);
 
-
         var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"));
-        _logger.LogInformation("Called allocate screening provider service");
+
         if (!string.IsNullOrEmpty(response))
         {
             return response;
         }
-        _logger.LogError("there has been a problem calling the service provider");
         return null;
 
     }
@@ -72,13 +69,10 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         _logger.LogInformation("Called transform data service");
         var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("TransformDataServiceURL"));
-        _logger.LogInformation("Called allocate screening provider service");
         if (!string.IsNullOrEmpty(response))
         {
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
+            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response); ;
         }
-
-        _logger.LogError("there has been a problem calling the transform participant");
         return null;
     }
 

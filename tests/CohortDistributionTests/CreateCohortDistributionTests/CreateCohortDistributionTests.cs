@@ -136,7 +136,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<CohortDistributionParticipant>())).Throws(new Exception("some error"));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<string>())).Throws(new Exception("some error"));
 
         // Act
         var result = await _function.RunAsync(_request.Object);

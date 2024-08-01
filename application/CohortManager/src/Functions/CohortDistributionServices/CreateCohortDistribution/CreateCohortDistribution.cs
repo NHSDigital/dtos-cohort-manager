@@ -54,13 +54,20 @@ public class CreateCohortDistribution
         try
         {
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
+            if (participantData == null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
 
-            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody, participantData);
+            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody, participantData.Postcode);
+
+            if (serviceProvider == null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
 
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
             await AddCohortDistribution(transformedParticipant);
-
-
         }
         catch (Exception ex)
         {
