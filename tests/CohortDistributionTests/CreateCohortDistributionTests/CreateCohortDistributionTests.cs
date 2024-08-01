@@ -182,6 +182,10 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
+        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+
         // Act
         var result = await _function.RunAsync(_request.Object);
 
