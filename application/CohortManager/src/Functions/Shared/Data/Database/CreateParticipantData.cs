@@ -14,10 +14,10 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
     private readonly ICallFunction _callFunction;
-    private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly IParticipantManagerData _updateParticipantData;
 
     public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
-        ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
+        ICallFunction callFunction, IParticipantManagerData updateParticipantData)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
