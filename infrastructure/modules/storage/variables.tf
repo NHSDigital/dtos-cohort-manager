@@ -15,17 +15,17 @@ variable "name" {
 }
 
 variable "account_tier" {
-  description = "."
+  description = "Defines the Tier to use for this storage account."
   default     = {}
 }
 
 variable "sa_replication_type" {
-  description = "."
+  description = "Defines the type of replication to use for this storage account."
   default     = {}
 }
 
 variable "public_access" {
-  description = "."
+  description = "Whether the public network access is enabled."
   default     = {}
 }
 
@@ -53,17 +53,17 @@ variable "fe_location" {
 }
 
 variable "fe_account_tier" {
-  description = "."
+  description = "Defines the Tier to use for this storage account."
   default     = {}
 }
 
 variable "fe_sa_replication_type" {
-  description = "."
+  description = "Defines the type of replication to use for this storage account."
   default     = {}
 }
 
 variable "fe_public_access" {
-  description = "."
+  description = "Whether the public network access is enabled."
   default     = {}
 }
 
