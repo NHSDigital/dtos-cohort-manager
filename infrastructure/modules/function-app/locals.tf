@@ -12,10 +12,9 @@ locals {
       #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
       DOCKER_ENABLE_CI = "false"
 
-      AzureWebJobsStorage = "UseDevelopmentStorage=true"
-      caasfolder_STORAGE  = "UseDevelopmentStorage=true"
-      targetFunction      = "https://${var.names.function-app}-${lower(var.function_app.ProcessCaasFile.name_suffix)}/api/processCaasFile"
-      FileValidationURL   = "https://${var.names.function-app}-${lower(var.function_app.FileValidation.name_suffix)}/api/FileValidation"
+      caasfolder_STORAGE = var.caasfolder_STORAGE
+      targetFunction     = "https://${var.names.function-app}-${lower(var.function_app.ProcessCaasFile.name_suffix)}/api/processCaasFile"
+      FileValidationURL  = "https://${var.names.function-app}-${lower(var.function_app.FileValidation.name_suffix)}/api/FileValidation"
     }
 
     ProcessCaasFile = {
@@ -60,7 +59,6 @@ locals {
       #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
       DOCKER_ENABLE_CI = "false"
 
-      UNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
       #DtOsDatabaseConnectionString = Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       LookupValidationURL = "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
 

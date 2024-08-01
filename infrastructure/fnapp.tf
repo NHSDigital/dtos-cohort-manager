@@ -25,6 +25,9 @@ module "functionapp" {
 
   image_tag = var.function_app.gl_docker_env_tag
 
+  #Specific FNApp settings:
+  caasfolder_STORAGE = module.storage.sa_fe_primary_connection_string
+
   tags = var.tags
 
 }

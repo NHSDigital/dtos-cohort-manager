@@ -42,6 +42,15 @@ variable "storage_accounts" {
       replication_type              = optional(string, "LRS")
       public_network_access_enabled = optional(bool, true)
     })
+    file_exceptions = object({
+      name_suffix                   = optional(string, "filexptns")
+      resource_group_key            = optional(string, "cohman")
+      account_tier                  = optional(string, "Standard")
+      replication_type              = optional(string, "LRS")
+      public_network_access_enabled = optional(bool, true)
+      cont_name                     = optional(string, "file-exceptions")
+      cont_access_type              = optional(string, "private")
+    })
   })
 }
 
