@@ -26,6 +26,6 @@
       Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
     <ProjectReference
-      Include="..\..\..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService\AllocateServiceProviderToParticipantByService.csproj" />
+      Include="..\..\..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
   </ItemGroup>
 </Project>
