@@ -430,6 +430,78 @@ public class StaticValidationTests
     }
     #endregion
 
+    #region NewParticipantWithNoAddress (Rule 19)
+    [TestMethod]
+    public async Task Run_Should_Not_Create_Exception_When_NewParticipantWithNoAddress_Rule_Passes()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.Participant.AddressLine1 = "SomeAddress";
+        _participantCsvRecord.Participant.AddressLine2 = "";
+        _participantCsvRecord.Participant.AddressLine3 = "";
+        _participantCsvRecord.Participant.AddressLine4 = "";
+        _participantCsvRecord.Participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Create_Exception_When_NewParticipantWithNoAddress_Rule_Fails()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.Participant.AddressLine1 = "";
+        _participantCsvRecord.Participant.AddressLine2 = "";
+        _participantCsvRecord.Participant.AddressLine3 = "";
+        _participantCsvRecord.Participant.AddressLine4 = "";
+        _participantCsvRecord.Participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    public async Task Run_Should_Not_Create_Exception_When_RecordType_Is_Not_New_And_Address_Is_Empty()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
+        _participantCsvRecord.Participant.AddressLine1 = "";
+        _participantCsvRecord.Participant.AddressLine2 = "";
+        _participantCsvRecord.Participant.AddressLine3 = "";
+        _participantCsvRecord.Participant.AddressLine4 = "";
+        _participantCsvRecord.Participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
+
     #region Primary Care Provider and Reason For Removal (Rule 3)
     [TestMethod]
     [DataRow("ABC", null)]
