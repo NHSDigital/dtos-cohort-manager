@@ -26,7 +26,7 @@ public class TransformString {
         // Skip if the field is null or doesn't have any invalid chars
         if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
         {
-           return stringField;
+            return stringField;
         }
         else
         {
