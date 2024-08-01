@@ -186,6 +186,9 @@ public class CreateCohortDistributionTests
         _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
         _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<string>())).Returns(Task.FromResult(""));
 
+        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
+
         // Act
         var result = await _function.RunAsync(_request.Object);
 

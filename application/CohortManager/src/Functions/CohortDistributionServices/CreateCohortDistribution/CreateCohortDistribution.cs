@@ -67,7 +67,19 @@ public class CreateCohortDistribution
             }
 
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            await AddCohortDistribution(transformedParticipant);
+            if (transformedParticipant == null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+
+            var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
+            if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch (Exception ex)
         {
@@ -78,10 +90,12 @@ public class CreateCohortDistribution
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 
-    private async Task AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
+    private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
         var json = JsonSerializer.Serialize(transformedParticipant);
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+
         _logger.LogInformation("Called add cohort distribution function");
+        return response;
     }
 }
