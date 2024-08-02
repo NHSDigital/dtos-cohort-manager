@@ -68,7 +68,8 @@ public class TransformDataService
                 Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
                 NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
                 NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
+                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
+                OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames)
             };
 
 
@@ -82,7 +83,7 @@ public class TransformDataService
         catch (Exception ex)
         {
             //await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
-            _logger.LogWarning(ex, "exception occured while running transform data service");
+            _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

@@ -35,7 +35,6 @@ public class TransformDataServiceTests
                 Surname = "Smith",
                 NamePrefix = "MR",
                 Gender = Model.Enums.Gender.Male
-
             },
             ServiceProvider = "1"
         };
@@ -164,6 +163,42 @@ public class TransformDataServiceTests
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
         var responseBody = await reader.ReadToEndAsync();
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_OtherGivenNamesTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualOtherGivenName = new string('A', 105);
+        string expectedOtherGivenName = new string('A', 105);
+        _requestBody.Participant.OtherGivenNames = actualOtherGivenName; // 105 characters long
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            OtherGivenNames = expectedOtherGivenName, // Expected to be truncated to 100 characters
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        // Debug output to help trace issue
+        Console.WriteLine("Actual Response: " + responseBody);
+        Console.WriteLine("Expected Response: " + JsonSerializer.Serialize(expectedResponse));
+
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
