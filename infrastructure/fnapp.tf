@@ -23,7 +23,9 @@ module "functionapp" {
   acr_mi_id        = module.acr.mi_id
   acr_mi_client_id = module.acr.mi_client_id
 
-  image_tag = var.function_app.gl_docker_env_tag
+  image_tag         = var.function_app.gl_docker_env_tag
+  docker_img_prefix = var.function_app.gl_docker_img_prefix
+  docker_CI_enable  = var.function_app.gl_docker_CI_enable
 
   #Specific FNApp settings:
   caasfolder_STORAGE = module.storage.sa_fe_primary_connection_string
