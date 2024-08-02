@@ -10,7 +10,7 @@ declare -A docker_functions_map=(
     ["screeningDataServices/markParticipantAsEligible"]="mark-participant-eligible"
     ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-ineligible"
     ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
-    ["screeningDataServices/CreateValidationException"]="create-validation-exception"
+    # ["screeningDataServices/CreateValidationException"]="create-validation-exception" # does not appear to exist.
     ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
     ["screeningDataServices/DemographicDataService"]="demographic-data-service"
     ["ScreeningValidationService/FileValidation"]="file-validation"
@@ -36,4 +36,4 @@ else
     done
 fi
 
-echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT" 
+echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
