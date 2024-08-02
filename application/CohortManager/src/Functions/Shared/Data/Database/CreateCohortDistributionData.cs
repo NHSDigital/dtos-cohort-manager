@@ -1,6 +1,7 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Text.Json;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -157,6 +158,29 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         return [];
     }
+
+public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount)
+{
+    try
+    {
+        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../CohortMockData.json");
+        string json = File.ReadAllText(filePath);
+
+        var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(json);
+
+        if (participants == null || participants.Count == 0)return [];
+
+        return participants
+            .Where(p => p.ServiceProviderId == serviceProviderId)
+            .Take(rowCount)
+            .ToList();
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Failed to read or deserialize CohortMockData.json.");
+        return [];
+    }
+}
 
     public bool UpdateCohortParticipantAsInactive(string NhsNumber)
     {
