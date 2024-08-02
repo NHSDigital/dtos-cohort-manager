@@ -10,18 +10,22 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
+
 public class MarkParticipantAsIneligible
 {
     private readonly ILogger<MarkParticipantAsIneligible> _logger;
-    private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly IParticipantManagerData _participantManagerData;
     private readonly ICreateResponse _createResponse;
+    private readonly IExceptionHandler _handleException;
+
     private readonly ICallFunction _callFunction;
 
-    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipantData, ICallFunction callFunction)
+    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, ICallFunction callFunction, IExceptionHandler handleException)
     {
         _logger = logger;
-        _updateParticipantData = updateParticipantData;
+        _participantManagerData = participantManagerData;
         _createResponse = createResponse;
+        _handleException = handleException;
         _callFunction = callFunction;
     }
 
@@ -46,7 +50,7 @@ public class MarkParticipantAsIneligible
         var participantData = requestBody.Participant;
 
         // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
+        var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber);
         if (!await ValidateData(existingParticipantData, participantData, requestBody.FileName))
         {
             _logger.LogInformation("The participant has not been removed due to a bad request.");
@@ -59,7 +63,7 @@ public class MarkParticipantAsIneligible
 
             if (participantData != null)
             {
-                updated = _updateParticipantData.UpdateParticipantAsEligible(participantData, 'N');
+                updated = _participantManagerData.UpdateParticipantAsEligible(participantData, 'N');
             }
             if (updated)
             {
@@ -74,6 +78,7 @@ public class MarkParticipantAsIneligible
         catch (Exception ex)
         {
             _logger.LogError($"an error occurred: {ex}");
+            await _handleException.CreateSystemExceptionLog(ex, participantData);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
@@ -100,3 +105,4 @@ public class MarkParticipantAsIneligible
         return false;
     }
 }
+

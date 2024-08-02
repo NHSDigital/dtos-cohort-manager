@@ -23,5 +23,9 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+  </ItemGroup>
+
 
 </Project>

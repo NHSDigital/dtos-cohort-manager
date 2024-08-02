@@ -8,8 +8,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NHS.CohortManager.Tests.TestUtils;
 using NHS.CohortManager.ServiceProviderAllocationService;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class AllocateServiceProviderToParticipantByServiceTests

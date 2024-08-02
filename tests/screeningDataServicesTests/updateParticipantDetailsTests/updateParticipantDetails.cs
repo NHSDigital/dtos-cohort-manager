@@ -16,7 +16,7 @@ public class UpdateParticipantDetailsTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly Mock<IDbCommand> _commandMock = new();
     private readonly Mock<IDataReader> _moqDataReader = new();
-    private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
+    private readonly Mock<ILogger<ParticipantManagerData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
@@ -77,7 +77,7 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
@@ -103,7 +103,7 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
@@ -124,7 +124,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -145,7 +145,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -168,7 +168,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -191,7 +191,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -215,40 +215,31 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
-        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Never());
+        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Once());//We still update the participant, but only set the Exception Flag.
     }
 
     private void SetUpReader()
     {
         _moqDataReader.Setup(m => m["PARTICIPANT_ID"]).Returns("123456");
+        _moqDataReader.Setup(m => m["SCREENING_ID"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
-        _moqDataReader.Setup(m => m["SUPERSEDED_BY_NHS_NUMBER"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PRIMARY_CARE_PROVIDER"]).Returns("Some Provider");
-        _moqDataReader.Setup(m => m["GP_CONNECT"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_PREFIX"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_FIRST_NAME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL"]).Returns("Some Provider");
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["BUSINESS_RULE_VERSION"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["EXCEPTION_FLAG"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_LAST_NAME"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_BIRTH_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_GENDER"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_CD"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["REMOVAL_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["PARTICIPANT_DEATH_DATE"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["ADDRESS_LINE_1"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["ADDRESS_LINE_2"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["CITY"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["COUNTY"]).Returns(DBNull.Value);
-        _moqDataReader.Setup(m => m["POST_CODE"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
     }
 
-    private Participant GetParticipant()
+    private static Participant GetParticipant()
     {
         return new Participant()
         {

@@ -222,46 +222,43 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
 
-  # Add Aggregation Service
-  add-aggregation-data:
-    container_name: add-aggregation-data
+  # Cohort Distribution Services
+  add-cohort-distribution-data:
+    container_name: add-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/AggregateDataServices/AddAggregationData/Dockerfile
+      dockerfile: CohortDistributionServices/AddCohortDistributionData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7077
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Retrieve Aggregation Service
-  retrieve-aggregation-data:
-    container_name: retrieve-aggregate-data
+  retrieve-cohort-distribution-data:
+    container_name: retrieve-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/AggregateDataServices/RetrieveAggregate/Dockerfile
+      dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Remove Aggregation Service
-  remove-aggregation-data:
-    container_name: remove-aggregate-data
+  remove-cohort-distribution-data:
+    container_name: remove-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/AggregateDataServices/RemoveFromAggregate/Dockerfile
+      dockerfile: CohortDistributionServices/RemoveCohortDistributionData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # Cohort Distribution Service
   transform-data:
     container_name: transform-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/TransformDataService/Dockerfile
+      dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7080
 
@@ -270,7 +267,25 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistribution/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService/Dockerfile
+      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+
+  create-cohort-distribution:
+    container_name: create-cohort-distribution
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7082
+
+  retrieve-participant-data:
+    container_name: retrieve-participant-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7083

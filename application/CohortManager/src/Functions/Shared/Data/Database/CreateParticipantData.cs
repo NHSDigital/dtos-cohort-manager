@@ -14,10 +14,10 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
     private readonly ICallFunction _callFunction;
-    private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly IParticipantManagerData _updateParticipantData;
 
     public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
-        ICallFunction callFunction, IUpdateParticipantData updateParticipantData)
+        ICallFunction callFunction, IParticipantManagerData updateParticipantData)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
@@ -33,76 +33,45 @@ public class CreateParticipantData : ICreateParticipantData
 
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        if (!await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName))
+        var response = await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName);
+        if (response.ExceptionFlag == "Y")
         {
-            return false;
+            participantData = response;
         }
 
-        string cohortId = "1";
         DateTime dateToday = DateTime.Today;
-        DateTime maxEndDate = DateTime.MaxValue;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
 
-        string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT] ( " +
-            " COHORT_ID, " +
-            " GENDER_CD," +
+        string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
+            " SCREENING_ID," +
             " NHS_NUMBER," +
-            " SUPERSEDED_BY_NHS_NUMBER," +
-            " PARTICIPANT_BIRTH_DATE," +
-            " PARTICIPANT_DEATH_DATE," +
-            " PARTICIPANT_PREFIX," +
-            " PARTICIPANT_FIRST_NAME," +
-            " PARTICIPANT_LAST_NAME," +
-            " OTHER_NAME," +
-            " GP_CONNECT," +
-            " PRIMARY_CARE_PROVIDER," +
-            " REASON_FOR_REMOVAL_CD," +
-            " REMOVAL_DATE," +
-            " RECORD_START_DATE," +
-            " RECORD_END_DATE," +
-            " ACTIVE_FLAG, " +
-            " LOAD_DATE " +
+            " REASON_FOR_REMOVAL," +
+            " REASON_FOR_REMOVAL_DT," +
+            " BUSINESS_RULE_VERSION," +
+            " EXCEPTION_FLAG," +
+            " RECORD_INSERT_DATETIME," +
+            " RECORD_UPDATE_DATETIME" +
             " ) VALUES( " +
-            " @cohort_id, " +
-            " @gender, " +
+            " @screeningId, " +
             " @NHSNumber, " +
-            " @supersededByNhsNumber, " +
-            " @dateOfBirth, " +
-            " @dateOfDeath, " +
-            " @namePrefix, " +
-            " @firstName, " +
-            " @surname, " +
-            " @otherGivenNames, " +
-            " @gpConnect, " +
-            " @primaryCareProvider, " +
             " @reasonForRemoval, " +
-            " @RemovalDate, " +
-            " @RecordStartDate, " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate " +
+            " @reasonForRemovalDate, " +
+            " @businessRuleVersion, " +
+            " @exceptionFlag, " +
+            " @recordInsertDateTime, " +
+            " @recordUpdateDateTime " +
             " ) ";
 
         var commonParameters = new Dictionary<string, object>
         {
-            {"@cohort_id", cohortId},
-            {"@gender", participantData.Gender},
-            {"@NHSNumber", participantData.NhsNumber },
-            {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(participantData.SupersededByNhsNumber) ? DBNull.Value : participantData.SupersededByNhsNumber},
-            {"@dateOfBirth", _databaseHelper.ParseDates(participantData.DateOfBirth)},
-            { "@dateOfDeath", _databaseHelper.CheckIfDateNull(participantData.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(participantData.DateOfDeath)},
-            { "@namePrefix",  _databaseHelper.ConvertNullToDbNull(participantData.NamePrefix) },
-            { "@firstName", _databaseHelper.ConvertNullToDbNull(participantData.FirstName) },
-            { "@surname", _databaseHelper.ConvertNullToDbNull(participantData.Surname) },
-            { "@otherGivenNames", _databaseHelper.ConvertNullToDbNull(participantData.OtherGivenNames) },
-            { "@gpConnect", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
-            { "@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(participantData.PrimaryCareProvider) },
-            { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval) },
-            { "@removalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-            { "@RecordStartDate", dateToday},
-            { "@RecordEndDate", maxEndDate},
-            { "@ActiveFlag", 'Y'},
-            { "@LoadDate", dateToday },
+            { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
+            { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
+            { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
+            { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
+            { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
+            { "@recordInsertDateTime", dateToday },
+            { "@recordUpdateDateTime", DBNull.Value },
         };
 
         sqlToExecuteInOrder.Add(new SQLReturnModel()
@@ -111,9 +80,6 @@ public class CreateParticipantData : ICreateParticipantData
             SQL = insertParticipant,
             Parameters = null
         });
-
-        sqlToExecuteInOrder.Add(AddNewAddress(participantData));
-        sqlToExecuteInOrder.Add(InsertContactPreference(participantData));
 
         return ExecuteBulkCommand(sqlToExecuteInOrder, commonParameters);
     }
@@ -134,13 +100,12 @@ public class CreateParticipantData : ICreateParticipantData
 
         try
         {
-            var newParticipantPk = -1;
+            long newParticipantPk = 0;
             foreach (var sqlCommand in sqlCommands)
             {
 
                 if (sqlCommand.CommandType == CommandType.Scalar)
                 {
-                    // when the new participant ID has been created as a scalar we can get back the new participant ID
                     newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
                     AddParameters(new Dictionary<string, object>()
                     {
@@ -195,10 +160,10 @@ public class CreateParticipantData : ICreateParticipantData
         return true;
     }
 
-    private int ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
+    private long ExecuteCommandAndGetId(string sql, IDbCommand command, IDbTransaction transaction)
     {
         command.Transaction = transaction;
-        var newParticipantPk = -1;
+        long newParticipantPk = -1;
 
         try
         {
@@ -206,14 +171,14 @@ public class CreateParticipantData : ICreateParticipantData
             _logger.LogInformation("Command text: {Sql}", sql);
 
             var newParticipantResult = command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT] WHERE NHS_NUMBER = @NHSNumber AND ACTIVE_FLAG = @ActiveFlag";
+            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber";
 
             command.CommandText = SQLGet;
             using (IDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    newParticipantPk = reader.GetInt32(0);
+                    newParticipantPk = reader.GetInt64(0);
                 }
             }
 
@@ -241,6 +206,7 @@ public class CreateParticipantData : ICreateParticipantData
 
     private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
+        if (parameters == null) return dbCommand;
         foreach (var param in parameters)
         {
             var parameter = dbCommand.CreateParameter();
@@ -253,93 +219,24 @@ public class CreateParticipantData : ICreateParticipantData
 
         return dbCommand;
     }
-
-    private SQLReturnModel AddNewAddress(Participant participantData)
-    {
-        string updateAddress =
-            " INSERT INTO dbo.ADDRESS " +
-            " ( PARTICIPANT_ID," +
-            " ADDRESS_TYPE, " +
-            " ADDRESS_LINE_1,  " +
-            " ADDRESS_LINE_2, " +
-            " CITY, " +
-            " COUNTY,  " +
-            " POST_CODE,  " +
-            " LSOA,  " +
-            " RECORD_START_DATE,  " +
-            " RECORD_END_DATE, " +
-            " ACTIVE_FLAG,  " +
-            " LOAD_DATE)  " +
-            " VALUES  " +
-            " ( @NewParticipantId, " +
-            " null, " +
-            " @addressLine1, " +
-            " @addressLine2, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " null, " +
-            " @RecordStartDate,  " +
-            " @RecordEndDate, " +
-            " @ActiveFlag, " +
-            " @LoadDate)";
-
-        var parameters = new Dictionary<string, object>()
-        {
-            { "@addressLine1", participantData.AddressLine1 },
-            { "@addressLine2", participantData.AddressLine2 },
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = updateAddress,
-            Parameters = parameters
-        };
-    }
-
-    private SQLReturnModel InsertContactPreference(Participant participantData)
-    {
-        string insertContactPreference = "INSERT INTO CONTACT_PREFERENCE (PARTICIPANT_ID, CONTACT_METHOD, PREFERRED_LANGUAGE, IS_INTERPRETER_REQUIRED, TELEPHONE_NUMBER, MOBILE_NUMBER, EMAIL_ADDRESS, RECORD_START_DATE, RECORD_END_DATE, ACTIVE_FLAG, LOAD_DATE)" +
-        "VALUES (@NewParticipantId, @contactMethod, @preferredLanguage, @isInterpreterRequired, @telephoneNumber, @mobileNumber, @emailAddress, @RecordStartDate, @RecordEndDate, @ActiveFlag, @LoadDate)";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@contactMethod", DBNull.Value},
-            {"@preferredLanguage", participantData.PreferredLanguage},
-            {"@isInterpreterRequired", string.IsNullOrEmpty(participantData.IsInterpreterRequired) ? "0" : "1"},
-            {"@telephoneNumber",  _databaseHelper.CheckIfNumberNull(participantData.TelephoneNumber) ? DBNull.Value : participantData.TelephoneNumber},
-            {"@mobileNumber", DBNull.Value},
-            {"@emailAddress", _databaseHelper.ConvertNullToDbNull(participantData.EmailAddress)},
-        };
-
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = insertContactPreference,
-            Parameters = parameters
-        };
-    }
-
-    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
 
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (response.StatusCode == HttpStatusCode.Created)
             {
-                return true;
+                newParticipant.ExceptionFlag = "Y";
             }
         }
         catch (Exception ex)
         {
-            _logger.LogInformation("Lookup validation failed.\nMessage: {Message}\n", ex.Message);
-            return false;
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            return null;
         }
 
-        return false;
+        return newParticipant;
     }
 }

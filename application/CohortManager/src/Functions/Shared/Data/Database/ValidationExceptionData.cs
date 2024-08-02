@@ -20,7 +20,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public List<ValidationException> GetAll()
     {
-        var SQL = "SELECT * FROM [dbo].[VALIDATION_EXCEPTION]";
+        var SQL = "SELECT * FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
@@ -31,16 +31,18 @@ public class ValidationExceptionData : IValidationExceptionData
             {
                 rules.Add(new ValidationException
                 {
+                    FileName = reader.GetString(reader.GetOrdinal("FILE_NAME")) ?? null,
                     NhsNumber = reader.GetString(reader.GetOrdinal("NHS_NUMBER")) ?? null,
                     DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")),
                     DateResolved = reader.GetDateTime(reader.GetOrdinal("DATE_RESOLVED")),
                     RuleId = reader.GetInt32(reader.GetOrdinal("RULE_ID")),
                     RuleDescription = reader.GetString(reader.GetOrdinal("RULE_DESCRIPTION")) ?? null,
-                    RuleContent = reader.GetString(reader.GetOrdinal("RULE_CONTENT")) ?? null,
-                    Category = reader.GetInt16(reader.GetOrdinal("CATEGORY")),
-                    ScreeningService = reader.GetInt32(reader.GetOrdinal("SCREENING_SERVICE")),
-                    Cohort = reader.GetString(reader.GetOrdinal("COHORT")) ?? null,
-                    Fatal = reader.GetInt16(reader.GetOrdinal("FATAL"))
+                    ErrorRecord = reader.GetString(reader.GetOrdinal("ERROR_RECORD")) ?? null,
+                    Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
+                    ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
+                    ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
+                    Cohort = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
+                    Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
 
@@ -51,39 +53,45 @@ public class ValidationExceptionData : IValidationExceptionData
     public bool Create(ValidationException exception)
     {
         var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] (
+                    FILE_NAME,
                     NHS_NUMBER,
                     DATE_CREATED,
                     DATE_RESOLVED,
                     RULE_ID,
                     RULE_DESCRIPTION,
-                    RULE_CONTENT,
+                    ERROR_RECORD,
                     CATEGORY,
-                    SCREENING_SERVICE,
-                    COHORT,
-                    FATAL
+                    SCREENING_NAME,
+                    EXCEPTION_DATE,
+                    COHORT_NAME,
+                    IS_FATAL
                     ) VALUES (
+                    @fileName,
                     @nhsNumber,
                     @dateCreated,
                     @dateResolved,
                     @ruleId,
                     @ruleDescription,
-                    @ruleContent,
+                    @errorRecord,
                     @category,
-                    @screeningService,
+                    @screeningName,
+                    @exceptionDate,
                     @cohort,
                     @fatal
                 );";
 
         var parameters = new Dictionary<string, object>()
         {
+            {"@fileName", exception.FileName},
             {"@nhsNumber", exception.NhsNumber},
             {"@dateCreated", exception.DateCreated},
             {"@dateResolved", exception.DateResolved.HasValue ? exception.DateResolved : DBNull.Value},
             {"@ruleId", exception.RuleId},
             {"@ruleDescription", exception.RuleDescription},
-            {"@ruleContent", exception.RuleContent},
+            {"@errorRecord", exception.ErrorRecord},
             {"@category", exception.Category},
-            {"@screeningService", exception.ScreeningService},
+            {"@screeningName", exception.ScreeningName},
+            {"@exceptionDate", exception.ExceptionDate},
             {"@cohort", exception.Cohort},
             {"@fatal", exception.Fatal}
         };

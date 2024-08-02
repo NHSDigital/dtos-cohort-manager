@@ -46,5 +46,9 @@ public class Participant
     public string? RecordIdentifier { get; set; }
     public string? ChangeReasonCode { get; set; }
     public string? ParticipantId { get; set; }
-    public string? ExceptionRaised { get; set; }
+    public string? ScreeningId { get; set; }
+    public string? BusinessRuleVersion { get; set; }
+    public string? ExceptionFlag { get; set; }
+    public string? RecordInsertDateTime { get; set; }
+    public string? RecordUpdateDateTime { get; set; }
 }
