@@ -35,7 +35,7 @@ public class UpdateParticipantData : IUpdateParticipantData
     public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
     {
         var participantData = participantCsvRecord.Participant;
-        var dateToday = DateTime.Today;
+        var dateToday = DateTime.Now;
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
         var oldParticipant = GetParticipant(participantData.NhsNumber);
@@ -45,36 +45,15 @@ public class UpdateParticipantData : IUpdateParticipantData
             participantData = response;
         }
 
-        var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.ParticipantId));
-        if (oldRecordsToEnd.Count == 0)
-        {
-            return false;
-        }
-
-        foreach (var oldRecordsSQL in oldRecordsToEnd)
-        {
-            SQLToExecuteInOrder.Add(oldRecordsSQL);
-        }
-
-        string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] ( " +
-            " SCREENING_ID," +
-            " NHS_NUMBER," +
-            " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
-            " BUSINESS_RULE_VERSION," +
-            " EXCEPTION_FLAG," +
-            " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME" +
-            " ) VALUES( " +
-            " @screeningId, " +
-            " @NHSNumber, " +
-            " @reasonForRemoval, " +
-            " @reasonForRemovalDate, " +
-            " @businessRuleVersion, " +
-            " @exceptionFlag, " +
-            " @recordInsertDateTime, " +
-            " @recordUpdateDateTime " +
-            " ) ";
+        string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] SET " +
+            " REASON_FOR_REMOVAL = @reasonForRemoval, " +
+            " REASON_FOR_REMOVAL_DT = @reasonForRemovalDate, " +
+            " BUSINESS_RULE_VERSION = @businessRuleVersion, " +
+            " EXCEPTION_FLAG = @exceptionFlag, " +
+            " RECORD_INSERT_DATETIME = @recordInsertDateTime," +
+            " RECORD_UPDATE_DATETIME = @recordUpdateDateTime " +
+            " WHERE SCREENING_ID = @screeningId " +
+            " AND NHS_NUMBER = @NHSNumber";
 
         var commonParameters = new Dictionary<string, object>
         {
@@ -148,16 +127,6 @@ public class UpdateParticipantData : IUpdateParticipantData
             _logger.LogError("An error occurred while updating records: {ex}", ex);
             return false;
         }
-    }
-
-    private List<SQLReturnModel> EndOldRecords(int oldId)
-    {
-        if (oldId <= 0)
-        {
-            return new List<SQLReturnModel>();
-        }
-
-        return UpdateOldRecords(oldId);
     }
 
     private static List<SQLReturnModel> UpdateOldRecords(int participantId)
