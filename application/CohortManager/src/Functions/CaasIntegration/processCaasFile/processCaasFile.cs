@@ -53,7 +53,7 @@ public class ProcessCaasFileFunction
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
-                FileName = input.FileName
+                FileName = input.FileName,
             };
 
             switch (participant.RecordType?.Trim())
@@ -69,7 +69,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex, participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
                 case Actions.Amended:
@@ -83,7 +83,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex, participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
                 case Actions.Removed:
@@ -97,18 +97,20 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex, participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
                 default:
                     err++;
                     try
                     {
+
                         var participantCsvRecord = new ParticipantCsvRecord
                         {
                             FileName = input.FileName,
                             Participant = participant
                         };
+
                         var json = JsonSerializer.Serialize(participantCsvRecord);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
                         _logger.LogInformation("Called static validation");
@@ -116,7 +118,7 @@ public class ProcessCaasFileFunction
                     catch (Exception ex)
                     {
                         _logger.LogError("Static validation function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                        _handleException.CreateSystemExceptionLog(ex, participant);
+                        _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
             }

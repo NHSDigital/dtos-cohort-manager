@@ -50,7 +50,7 @@ public class UpdateParticipantDetails
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

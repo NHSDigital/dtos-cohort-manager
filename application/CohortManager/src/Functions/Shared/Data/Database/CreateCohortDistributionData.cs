@@ -171,8 +171,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var recordEndDate = DateTime.Today;
 
-        var SQL = " UPDATE [dbo].[COHORT_DISTRIBUTION_DATA] " +
-            " SET RECORD_END_DATE = @recordEndDate, " +
+        var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
+            " SET REASON_FOR_REMOVAL_DT = @recordEndDate " +
             " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>

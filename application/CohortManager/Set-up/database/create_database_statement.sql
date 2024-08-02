@@ -4,13 +4,13 @@ GO
 IF NOT EXISTS (
         SELECT name
         FROM sys.databases
-        WHERE name = N'DToSDB'
+        WHERE name = N'DtOsNHSDB'
         )
-    CREATE DATABASE [DToSDB];
+    CREATE DATABASE [DtOsNHSDB];
 GO
 
 IF SERVERPROPERTY('ProductVersion') > '12'
-    ALTER DATABASE [DToSDB] SET QUERY_STORE = ON;
+    ALTER DATABASE [DtOsNHSDB] SET QUERY_STORE = ON;
 GO
 
 

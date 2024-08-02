@@ -26,6 +26,7 @@ public class RetrieveParticipantDataTests
     private readonly Mock<IParticipantManagerData> _updateParticipantData = new();
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
     private readonly CreateParticipant _createParticipant = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
 
     public RetrieveParticipantDataTests()
     {
@@ -37,7 +38,7 @@ public class RetrieveParticipantDataTests
             ScreeningService = "BSS"
         };
 
-        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant);
+        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

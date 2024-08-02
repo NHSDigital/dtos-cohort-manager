@@ -6,7 +6,8 @@ using NHS.CohortManager.CohortDistribution;
 
 namespace Common;
 
-public class CohortDistributionHandler : ICohortDistributionHandler{
+public class CohortDistributionHandler : ICohortDistributionHandler
+{
 
     private readonly ILogger<CohortDistributionHandler> _logger;
     private readonly ICallFunction _callFunction;
@@ -16,22 +17,27 @@ public class CohortDistributionHandler : ICohortDistributionHandler{
         _callFunction = callFunction;
     }
 
-    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService){
-        CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody{
-                NhsNumber = nhsNumber,
-                ScreeningService = screeningService
-            };
-            string json = JsonSerializer.Serialize(requestBody);
+    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService, string fileName)
+    {
+        CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody
+        {
+            NhsNumber = nhsNumber,
+            ScreeningService = screeningService,
+            FileName = fileName
+            
+        };
+        string json = JsonSerializer.Serialize(requestBody);
 
-            var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CohortDistributionServiceURL"), json);
+        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CohortDistributionServiceURL"), json);
 
-            if(result.StatusCode == HttpStatusCode.OK){
-                _logger.LogInformation($"Participant sent to Cohort Distribution Service");
-                return true;
-            }
-            _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
-            return false;
+        if (result.StatusCode == HttpStatusCode.OK)
+        {
+            _logger.LogInformation($"Participant sent to Cohort Distribution Service");
+            return true;
         }
+        _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
+        return false;
+    }
 
 
 

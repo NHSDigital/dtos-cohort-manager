@@ -52,7 +52,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
-        var SQL = @"INSERT INTO [dbo].[VALIDATION_EXCEPTION] (
+        var SQL = @"INSERT INTO [dbo].[EXCEPTION_MANAGEMENT] (
                     FILE_NAME,
                     NHS_NUMBER,
                     DATE_CREATED,
@@ -101,6 +101,8 @@ public class ValidationExceptionData : IValidationExceptionData
 
         return ExecuteCommand(command);
     }
+
+
 
     private bool ExecuteCommand(IDbCommand command)
     {

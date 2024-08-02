@@ -15,11 +15,14 @@ public class AllocateServiceProviderToParticipantByService
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
 
-    public AllocateServiceProviderToParticipantByService(ILogger<AllocateServiceProviderToParticipantByService> logger, ICreateResponse createResponse, ICallFunction callFunction)
+    private readonly IExceptionHandler _exceptionHandler;
+
+    public AllocateServiceProviderToParticipantByService(ILogger<AllocateServiceProviderToParticipantByService> logger, ICreateResponse createResponse, ICallFunction callFunction, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function("AllocateServiceProviderToParticipantByService")]
@@ -29,27 +32,28 @@ public class AllocateServiceProviderToParticipantByService
         // Cohort Distribution still WIP, and nothing is calling this function yet
         // Currently using AllocationConfigRequest Object to deserialize and validate the incoming JSON data
         string requestBody = "";
+        AllocationConfigRequestBody configRequest = new AllocationConfigRequestBody();
         _logger.LogInformation("AllocateServiceProviderToParticipantByService is called...");
 
         try
         {
             string logMessage;
 
-            using (StreamReader reader = new StreamReader (req.Body, Encoding.UTF8))
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
             }
 
-            AllocationConfigRequestBody configRequest = JsonSerializer.Deserialize<AllocationConfigRequestBody>(requestBody);
+            configRequest = JsonSerializer.Deserialize<AllocationConfigRequestBody>(requestBody);
 
             // check request parameters
-            if (string.IsNullOrEmpty(configRequest.NhsNumber) || string.IsNullOrEmpty(configRequest.Postcode) || string.IsNullOrEmpty(configRequest.ScreeningService))
+            if (string.IsNullOrEmpty(configRequest.NhsNumber) || string.IsNullOrEmpty(configRequest.Postcode) || string.IsNullOrEmpty(configRequest.ScreeningAcronym))
             {
-                logMessage = $"One or more of the required parameters is missing. NhsNumber: {configRequest.NhsNumber} Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningService}";
+                logMessage = $"One or more of the required parameters is missing. NhsNumber: {configRequest.NhsNumber} Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningAcronym}";
                 _logger.LogError(logMessage);
 
                 await CallCreateValidationException(configRequest.NhsNumber, logMessage);
-                return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
             // check config file
@@ -60,41 +64,42 @@ public class AllocateServiceProviderToParticipantByService
                 _logger.LogError(logMessage);
 
                 await CallCreateValidationException(configRequest.NhsNumber, logMessage);
-                return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
             string configFile = File.ReadAllText(configFilePath);
             var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
             // find the best match postcode and return the provider
-            string serviceProvider = FindBestMatchProvider (allocationConfigEntries.ConfigDataList, configRequest.Postcode, configRequest.ScreeningService);
+            string serviceProvider = FindBestMatchProvider(allocationConfigEntries.ConfigDataList, configRequest.Postcode, configRequest.ScreeningAcronym);
 
             // check screening provider
             if (serviceProvider != null)
             {
                 _logger.LogInformation("Successfully retrieved the Service Provider");
-                return _createResponse.CreateHttpResponse (HttpStatusCode.OK, req, serviceProvider);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, serviceProvider);
             }
 
             logMessage = $"No matching entry found.";
             _logger.LogError(logMessage);
 
             await CallCreateValidationException(configRequest.NhsNumber, logMessage);
-            return _createResponse.CreateHttpResponse (HttpStatusCode.BadRequest, req, logMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
 
         }
 
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            return _createResponse.CreateHttpResponse (HttpStatusCode.InternalServerError, req);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, configRequest.NhsNumber, "");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
 
-    private async Task CallCreateValidationException (string nhsNumber, string logMessage)
+    private async Task CallCreateValidationException(string nhsNumber, string logMessage)
     {
-        _logger.LogError (logMessage);
+        _logger.LogError(logMessage);
 
         _logger.LogInformation("Creating a new Validation exception entry...");
 
@@ -113,7 +118,7 @@ public class AllocateServiceProviderToParticipantByService
         string exceptionJson = JsonSerializer.Serialize(exception);
         await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
     }
-    private string? FindBestMatchProvider (AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
+    private string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
         return allocationConfigData
         .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&

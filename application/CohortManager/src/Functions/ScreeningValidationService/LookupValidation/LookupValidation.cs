@@ -83,10 +83,10 @@ public class LookupValidation
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _handleException.CreateSystemExceptionLog(ex,newParticipant);
-            _logger.LogWarning(ex,$"Error while processing lookup Validation message: {ex.Message}");
+            _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
+            _logger.LogWarning(ex, $"Error while processing lookup Validation message: {ex.Message}");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }
