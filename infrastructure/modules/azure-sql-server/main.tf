@@ -24,6 +24,9 @@
 #     ignore_changes = [tags]
 #   }
 # }
+data "azuread_group" "sql_admin_group" {
+  display_name = "sqlsvr_cohman_dev_uks_admin"
+}
 
 resource "azurerm_mssql_server" "sqlserver" {
   name                = var.names.sql-server
@@ -37,17 +40,17 @@ resource "azurerm_mssql_server" "sqlserver" {
   tags = var.tags
 
   azuread_administrator {
-    azuread_authentication_only = var.ad_auth_only # set to: true
-    login_username              = azurerm_user_assigned_identity.uai-sql.name
-    object_id                   = azurerm_user_assigned_identity.uai-sql.principal_id
+    azuread_authentication_only = var.ad_auth_only                                # set to: true
+    login_username              = data.azuread_group.sql_admin_group.display_name # azurerm_user_assigned_identity.uai-sql.name
+    object_id                   = data.azuread_group.sql_admin_group.object_id    # azurerm_user_assigned_identity.uai-sql.principal_id
   }
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.uai-sql.id]
-  }
+  # identity {
+  #   type         = "UserAssigned"
+  #   identity_ids = [azurerm_user_assigned_identity.uai-sql.id]
+  # }
 
-  primary_user_assigned_identity_id = azurerm_user_assigned_identity.uai-sql.id
+  # primary_user_assigned_identity_id = azurerm_user_assigned_identity.uai-sql.id
 
   lifecycle {
     ignore_changes = [tags]
