@@ -42,6 +42,15 @@ variable "storage_accounts" {
       replication_type              = optional(string, "LRS")
       public_network_access_enabled = optional(bool, true)
     })
+    file_exceptions = object({
+      name_suffix                   = optional(string, "filexptns")
+      resource_group_key            = optional(string, "cohman")
+      account_tier                  = optional(string, "Standard")
+      replication_type              = optional(string, "LRS")
+      public_network_access_enabled = optional(bool, true)
+      cont_name                     = optional(string, "file-exceptions")
+      cont_access_type              = optional(string, "private")
+    })
   })
 }
 
@@ -105,12 +114,13 @@ variable "function_app" {
     # gl_dotnet_isolated = optional(bool, true)
     # gl_dotnet_version  = optional(string, "8.0")
     gl_docker_env_tag       = optional(string, "development")
+    gl_docker_CI_enable     = optional(string, "cohort-manager")
+    gl_docker_img_prefix    = optional(string, "false")
     gl_app_settings         = map(string)
     gl_cont_registry_use_mi = optional(bool, true)
 
     fa_config = map(object({
-      name_suffix     = string
-      docker_img_name = string
+      name_suffix = string
     }))
   })
 }

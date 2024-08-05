@@ -72,3 +72,15 @@ variable "acr_mi_id" {
 variable "acr_mi_client_id" {
   description = "The Client ID of the Managed Service Identity to use for connections to the Azure Container Registry."
 }
+
+variable "caasfolder_STORAGE" {
+  description = "Primary connection string to file exeptions storage account"
+}
+
+variable "docker_CI_enable" {
+  description = "Is the Docker CI enabled (default - false)"
+}
+
+variable "docker_img_prefix" {
+  description = "A commont part of the docker image name"
+}
