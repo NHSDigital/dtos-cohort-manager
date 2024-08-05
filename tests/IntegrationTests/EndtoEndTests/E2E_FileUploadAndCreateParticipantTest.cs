@@ -86,7 +86,7 @@ namespace Tests.Integration.EndtoEndTests
 
                 {
                     command.ExecuteNonQuery();
-                     _logger.LogInformation($"Database cleanup completed.");
+                    _logger.LogInformation($"Database cleanup completed.");
                 }
             }
 

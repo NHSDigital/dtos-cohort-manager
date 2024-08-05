@@ -12,6 +12,7 @@ This directory contains the integration tests for the project. These tests verif
 ## Setup
 
 1. **Clone the Repository**:
+
     ```bash
     git clone https://github.com/NHSDigital/dtos-cohort-manager.git
     cd dtos-cohort-manager
@@ -19,6 +20,7 @@ This directory contains the integration tests for the project. These tests verif
 
 2. **Install Dependencies**:
     Ensure you have all necessary dependencies installed. E.g Azure Functions Core Tools, Azurite etc.
+
     ```bash
     dotnet restore
     dotnet clean
@@ -26,7 +28,7 @@ This directory contains the integration tests for the project. These tests verif
     ```
 
 3. **Set Up Configuration**:
-    - Rename the `appsettings.json.template` in IntegrationTests/Config to `appsettings.json`.
+    - Rename the `appsettings.json.template` in config folder to `appsettings.json`.
     - Fill in the required configuration values in `appsettings.json`.
 
 4. **Place Test Files**:

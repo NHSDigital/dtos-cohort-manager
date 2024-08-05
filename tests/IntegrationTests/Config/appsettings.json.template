@@ -21,21 +21,21 @@
     "DemographicDataFunction": {
       "Url": "YOUR_ENDPOINT_URL"
     },
-     "DemographicDataService": {
+    "DemographicDataService": {
       "Url": "YOUR_ENDPOINT_URL"
     },
-     "CreateValidationException": {
+    "CreateValidationException": {
       "Url": "YOUR_ENDPOINT_URL"
-     },
-     "markParticipantAsEligible": {
+    },
+    "markParticipantAsEligible": {
       "Url": "YOUR_ENDPOINT_URL"
-     },
-     "markParticipantAsIneligible": {
+    },
+    "markParticipantAsIneligible": {
       "Url": "YOUR_ENDPOINT_URL"
-     },
-     "CreateException": {
+    },
+    "CreateException": {
       "Url": "YOUR_ENDPOINT_URL"
-     }
+    }
 
   },
   "ConnectionString": {
