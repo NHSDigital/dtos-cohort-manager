@@ -40,8 +40,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipant", "Partic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipantTest", "..\..\..\..\tests\ParticipantManagementServicesTests\addParticipantTest\addParticipantTest.csproj", "{70B919BD-95C8-4789-B29E-07F6205CBF5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\UpdateParticipantTests\updateParticipantTests.csproj", "{F607A020-CA9C-4E65-8237-1EB663807058}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\RemoveParticipantTests\RemoveParticipantTests.csproj", "{D6EC5F88-1726-485B-AF84-9737293E7250}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "screeningDataServicesTests", "screeningDataServicesTests", "{2BE7CEE7-58EF-4087-8D7C-B74CE7969A5C}"
@@ -112,6 +110,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantDataTests", "..\..\..\..\tests\CohortDistributionTests\RetrieveParticipantDataTests\RetrieveParticipantDataTests.csproj", "{6381CF54-FA9E-4F82-8608-02F12BA72502}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\updateParticipantTests\updateParticipantTests.csproj", "{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -178,10 +178,6 @@ Global
 		{70B919BD-95C8-4789-B29E-07F6205CBF5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70B919BD-95C8-4789-B29E-07F6205CBF5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70B919BD-95C8-4789-B29E-07F6205CBF5C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F607A020-CA9C-4E65-8237-1EB663807058}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F607A020-CA9C-4E65-8237-1EB663807058}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F607A020-CA9C-4E65-8237-1EB663807058}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F607A020-CA9C-4E65-8237-1EB663807058}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6EC5F88-1726-485B-AF84-9737293E7250}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -306,6 +302,10 @@ Global
 		{6381CF54-FA9E-4F82-8608-02F12BA72502}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6381CF54-FA9E-4F82-8608-02F12BA72502}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6381CF54-FA9E-4F82-8608-02F12BA72502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
