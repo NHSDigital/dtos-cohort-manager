@@ -120,12 +120,20 @@ public class AllocateServiceProviderToParticipantByService
     }
     private string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
-        return allocationConfigData
+
+        var result = allocationConfigData
         .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
                 item.ScreeningService.Equals(screeningService, StringComparison.OrdinalIgnoreCase))
         .OrderByDescending(item => item.Postcode.Length)
         .Select(item => item.ServiceProvider)
         .FirstOrDefault();
+
+        if (result == null)
+        {
+            return "BS SELECT";
+        }
+        return result;
+
     }
 
 }

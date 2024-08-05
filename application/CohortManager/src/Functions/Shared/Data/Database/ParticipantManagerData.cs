@@ -130,12 +130,12 @@ public class ParticipantManagerData : IParticipantManagerData
 
     public Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody)
     {
-
-
-        var SQL = " SELECT *  " +
+        var SQL = " SELECT TOP (1) * " +
         " FROM [PARTICIPANT_MANAGEMENT] AS P " +
         " JOIN SCREENING_LKP AS SLPK ON P.SCREENING_ID = SLPK.SCREENING_ID " +
-        " WHERE P.[NHS_NUMBER] = @NhsNumber AND P.[SCREENING_ID] = @ScreeningId AND SLPK.SCREENING_ID = @ScreeningId ";
+        " WHERE P.[NHS_NUMBER] = @NhsNumber AND P.[SCREENING_ID] = @ScreeningId  AND SLPK.SCREENING_ID = @ScreeningId " +
+        " ORDER BY PARTICIPANT_ID DESC ";
+
 
         var parameters = new Dictionary<string, object>
         {
