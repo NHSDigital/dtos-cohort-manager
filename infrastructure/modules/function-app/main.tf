@@ -28,7 +28,7 @@ resource "azurerm_linux_function_app" "function" {
   }
 
   identity {
-    type         = "UserAssigned"
+    type         = "SystemAssigned, UserAssigned"
     identity_ids = [var.acr_mi_id]
   }
 
