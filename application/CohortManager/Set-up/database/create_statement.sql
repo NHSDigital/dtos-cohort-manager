@@ -205,3 +205,48 @@ BEGIN
         IS_FATAL SMALLINT NULL
     );
 END
+
+/*==============================================================*/
+/* Table: BS_SELECT_GP_PRACTICE_LKP Table                       */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'BS_SELECT_GP_PRACTICE_LKP'
+)
+BEGIN
+CREATE TABLE [dbo].[BS_SELECT_GP_PRACTICE_LKP]
+    (
+    GP_PRACTICE_CODE VARCHAR(8),
+      BSO VARCHAR(4),
+      COUNTRY_CATEGORY VARCHAR(15),
+      AUDIT_ID NUMERIC(38),
+      AUDIT_CREATED_TIMESTAMP DATETIME,
+      AUDIT_LAST_MODIFIED_TIMESTAMP DATETIME,
+      AUDIT_TEXT VARCHAR(50)
+    );
+END
+
+/*==============================================================*/
+/* Table: BS_SELECT_OUTCODE_MAPPING_LKP Table                       */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'BS_SELECT_OUTCODE_MAPPING_LKP'
+)
+BEGIN
+CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
+    (
+      OUTCODE VARCHAR(4),
+      BSO VARCHAR(4),
+      AUDIT_ID NUMERIC(38),
+      AUDIT_CREATED_TIMESTAMP DATETIME,
+      AUDIT_LAST_MODIFIED_TIMESTAMP DATETIME,
+      AUDIT_TEXT VARCHAR(50)
+    );
+END
