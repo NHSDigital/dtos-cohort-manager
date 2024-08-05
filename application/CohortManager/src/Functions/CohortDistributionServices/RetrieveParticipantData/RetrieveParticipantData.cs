@@ -28,6 +28,7 @@ public class RetrieveParticipantData
         _participantManagerData = participantManagerData;
         _createDemographicData = createDemographicData;
         _createParticipant = createParticipant;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function("RetrieveParticipantData")]
