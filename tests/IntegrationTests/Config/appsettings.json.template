@@ -1,0 +1,49 @@
+{
+  "Endpoints": {
+    "ProcessParticipant": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "AddParticipant": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "CreateParticipant": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "FileValidation": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "StaticValidation": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "LookupValidation": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "DemographicDataFunction": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+     "DemographicDataService": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+     "CreateValidationException": {
+      "Url": "YOUR_ENDPOINT_URL"
+     },
+     "markParticipantAsEligible": {
+      "Url": "YOUR_ENDPOINT_URL"
+     },
+     "markParticipantAsIneligible": {
+      "Url": "YOUR_ENDPOINT_URL"
+     },
+     "CreateException": {
+      "Url": "YOUR_ENDPOINT_URL"
+     }
+
+  },
+  "ConnectionString": {
+    "DtOsDatabaseConnectionString": "YOUR_DATABASE_CONNECTION_STRING"
+  },
+  "FilePaths": {
+    "Local": "path_to_your/testData.csv"
+  },
+  "AzureWebJobsStorage": "",
+  "BlobContainerName": "YOUR_BLOB_CONTAINER_NAME"
+}
