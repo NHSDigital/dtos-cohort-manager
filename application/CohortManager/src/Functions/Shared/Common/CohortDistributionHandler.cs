@@ -24,7 +24,6 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             NhsNumber = nhsNumber,
             ScreeningService = screeningService,
             FileName = fileName
-            
         };
         string json = JsonSerializer.Serialize(requestBody);
 
@@ -38,7 +37,4 @@ public class CohortDistributionHandler : ICohortDistributionHandler
         _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
         return false;
     }
-
-
-
 }
