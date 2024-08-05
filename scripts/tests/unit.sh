@@ -6,12 +6,11 @@ cd "$(git rev-parse --show-toplevel)"
 
 dir="$PWD"
 UnitDir="$dir/tests/"
-IntegrationDir="$UnitDir/IntegrationTests"
 ResDir="$UnitDir"results-unit
 Format="trx"
 
 # Find all *.csproj files excluding the IntegrationTests folder and execute dotnet test, with build for now
-find "$UnitDir" -name '*.csproj' -not -path "$IntegrationDir/*" | while read -r file; do
+find "$UnitDir" -name '*.csproj' -not -path "$UnitDir/IntegrationTests/*" | while read -r file; do
     echo -e "\nRunning unit tests for:\n$file"
     dotnet test "$file" --logger $Format --verbosity quiet
 done
