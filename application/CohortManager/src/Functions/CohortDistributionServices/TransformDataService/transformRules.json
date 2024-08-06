@@ -145,6 +145,30 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "13.TelephoneNumber.ExceedsMaximumLength",
+        "Expression": "participant.TelephoneNumber.Length <= 32",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.TelephoneNumber.Substring(0, 32)"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "14.MobileNumber.ExceedsMaximumLength",
+        "Expression": "participant.MobileNumber.Length <= 32",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.MobileNumber.Substring(0, 32)"
+            }
+          }
+        }
       }
     ]
   }

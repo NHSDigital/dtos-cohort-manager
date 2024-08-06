@@ -490,6 +490,70 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_TelephoneNumberTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualTelephoneNumber = new string('A', 33);
+        string expectedTelephoneNumber = new string('A', 32);
+        _requestBody.Participant.TelephoneNumber = actualTelephoneNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            TelephoneNumber = expectedTelephoneNumber,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+   [TestMethod]
+    public async Task Run_MobileNumberTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualMobileNumber = new string('A', 33);
+        string expectedMobileNumber = new string('A', 32);
+        _requestBody.Participant.MobileNumber = actualMobileNumber;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            MobileNumber = expectedMobileNumber,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
     {
         // Arrange
