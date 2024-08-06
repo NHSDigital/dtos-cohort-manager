@@ -22,192 +22,140 @@ locals {
 }
 
 locals {
+
+  global_app_settings = {
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.enable_appsrv_storage
+    DOCKER_ENABLE_CI                    = var.docker_CI_enable
+  }
+
+}
+
+locals {
   app_settings = {
 
     receiveCaasFile = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable # "false"
 
       caasfolder_STORAGE = var.caasfolder_STORAGE
-      targetFunction     = local.fnapp_urls.processCaasFile #"https://${var.names.function-app}-${lower(var.function_app.ProcessCaasFile.name_suffix)}/api/processCaasFile"
-      FileValidationURL  = local.fnapp_urls.fileValidation  #"https://${var.names.function-app}-${lower(var.function_app.FileValidation.name_suffix)}/api/FileValidation"
+      targetFunction     = local.fnapp_urls.processCaasFile
+      FileValidationURL  = local.fnapp_urls.fileValidation
     }
 
     ProcessCaasFile = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      PMSAddParticipant    = local.fnapp_urls.addParticipant          #"https://${var.names.function-app}-${lower(var.function_app.AddNewParticipant.name_suffix)}/api/addParticipant"
-      PMSRemoveParticipant = local.fnapp_urls.removeParticipant       # "https://${var.names.function-app}-${lower(var.function_app.RemoveParticipant.name_suffix)}/api/RemoveParticipant"
-      PMSUpdateParticipant = local.fnapp_urls.updateParticipant       # "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipant.name_suffix)}/api/updateParticipant"
-      DemographicURI       = local.fnapp_urls.demographicDataFunction # "https://${var.names.function-app}-${lower(var.function_app.DemographicDataManagement.name_suffix)}/api/DemographicDataFunction"
+      PMSAddParticipant    = local.fnapp_urls.addParticipant
+      PMSRemoveParticipant = local.fnapp_urls.removeParticipant
+      PMSUpdateParticipant = local.fnapp_urls.updateParticipant
+      DemographicURI       = local.fnapp_urls.demographicDataFunction
     }
 
     AddNewParticipant = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      DSaddParticipant            = local.fnapp_urls.createParticipant         # "https://${var.names.function-app}-${lower(var.function_app.CreateParticipant.name_suffix)}/api/CreateParticipant"
-      DSmarkParticipantAsEligible = local.fnapp_urls.markParticipantAsEligible #"https://${var.names.function-app}-${lower(var.function_app.MarkParticipantEligible.name_suffix)}/api/markParticipantAsEligible"
-      DemographicURIGet           = local.fnapp_urls.demographicDataFunction   # "https://${var.names.function-app}-${lower(var.function_app.DemographicDataManagement.name_suffix)}/api/DemographicDataFunction"
-      StaticValidationURL         = local.fnapp_urls.staticValidation          # "https://${var.names.function-app}-${lower(var.function_app.StaticValidation.name_suffix)}/api/StaticValidation"
-
+      DSaddParticipant            = local.fnapp_urls.createParticipant
+      DSmarkParticipantAsEligible = local.fnapp_urls.markParticipantAsEligible
+      DemographicURIGet           = local.fnapp_urls.demographicDataFunction
+      StaticValidationURL         = local.fnapp_urls.staticValidation
     }
 
     RemoveParticipant = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible # "https://${var.names.function-app}-${lower(var.function_app.MarkParticipantAsIneligible.name_suffix)}/api/markParticipantAsIneligible"
+      markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible
     }
 
     UpdateParticipant = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      UpdateParticipant   = local.fnapp_urls.updateParticipant       # "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipantDetails.name_suffix)}/api/updateParticipantDetails"
-      StaticValidationURL = local.fnapp_urls.staticValidation        # "https://${var.names.function-app}-${lower(var.function_app.StaticValidation.name_suffix)}/api/StaticValidation"
-      DemographicURIGet   = local.fnapp_urls.demographicDataFunction # "https://${var.names.function-app}-${lower(var.function_app.DemographicDataManagement.name_suffix)}/api/DemographicDataFunction"
-
+      UpdateParticipant   = local.fnapp_urls.updateParticipant
+      StaticValidationURL = local.fnapp_urls.staticValidation
+      DemographicURIGet   = local.fnapp_urls.demographicDataFunction
     }
 
     CreateParticipant = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-      LookupValidationURL          = local.fnapp_urls.lookupValidation # "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
-
+      LookupValidationURL          = local.fnapp_urls.lookupValidation
     }
 
     MarkParticipantEligible = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     MarkParticipantAsIneligible = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-      LookupValidationURL          = local.fnapp_urls.lookupValidation # "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
-
+      LookupValidationURL          = local.fnapp_urls.lookupValidation
     }
 
     UpdateParticipantDetails = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-      LookupValidationURL          = local.fnapp_urls.lookupValidation # "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
-
+      LookupValidationURL          = local.fnapp_urls.lookupValidation
     }
 
     CreateValidationExceptions = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     GetValidationExceptions = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     DemographicDataService = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     FileValidation = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      CreateValidationExceptionURL = local.fnapp_urls.createValidationException # "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}/api/CreateValidationException"
+      CreateValidationExceptionURL = local.fnapp_urls.createValidationException
       inboundBlobName              = "file-exceptions"
-
     }
 
     StaticValidation = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      CreateValidationExceptionURL = local.fnapp_urls.createValidationException # "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}/api/CreateValidationException"
-
+      CreateValidationExceptionURL = local.fnapp_urls.createValidationException
     }
 
     LookupValidation = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      CreateValidationExceptionURL = local.fnapp_urls.createValidationException # "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}/api/CreateValidationException"
-
+      CreateValidationExceptionURL = local.fnapp_urls.createValidationException
     }
 
     DemographicDataManagement = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      DemographicDataServiceURI = local.fnapp_urls.demographicDataService # "https://${var.names.function-app}-${lower(var.function_app.DemographicDataService.name_suffix)}/api/DemographicDataService"
-
+      DemographicDataServiceURI = local.fnapp_urls.demographicDataService
     }
 
     AddCohortDistributionData = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     RetrieveCohortDistributionData = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
-
     }
 
     RemoveCohortDistributionData = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
       DtOsDatabaseConnectionString = local.db_connection_string
     }
 
     TransformData = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
+
     }
 
     AllocateServiceProvider = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
-      CreateValidationExceptionURL = local.fnapp_urls.createValidationException # "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}/api/CreateValidationException"
-
+      CreateValidationExceptionURL = local.fnapp_urls.createValidationException
     }
 
     CreateCohortDistribution = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
     }
 
     RetrieveParticipantData = {
-      #FUNCTIONS_WORKER_RUNTIME = "dotnet-isolated"
-      DOCKER_ENABLE_CI = var.docker_CI_enable
 
     }
   }
