@@ -169,6 +169,18 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "15.EmailAddress.ExceedsMaximumLength",
+        "Expression": "participant.EmailAddress.Length <= 32",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.EmailAddress.Substring(0, 32)"
+            }
+          }
+        }
       }
     ]
   }

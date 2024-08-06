@@ -553,6 +553,38 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+   [TestMethod]
+    public async Task Run_EmailAddressTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualEmailAddress = new string('A', 33);
+        string expectedEmailAddress = new string('A', 32);
+        _requestBody.Participant.EmailAddress = actualEmailAddress;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            EmailAddress = expectedEmailAddress,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
     [TestMethod]
     public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
     {
