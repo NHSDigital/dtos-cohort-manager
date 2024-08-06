@@ -27,13 +27,25 @@
         }
       },
       {
-        "RuleName": "3.OtherGivenNames.ExceedsMaximumLength",
+        "RuleName": "3.FirstName.ExceedsMaximumLength",
+        "Expression": "participant.FirstName.Length <= 35",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.FirstName.Substring(0, 35)"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "4.OtherGivenNames.ExceedsMaximumLength",
         "Expression": "participant.OtherGivenNames.Length <= 100",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "participant.FirstName.Substring(0, 100)"
+              "Expression": "participant.OtherGivenNames.Substring(0, 100)"
             }
           }
         }

@@ -172,8 +172,8 @@ public class TransformDataServiceTests
     {
         // Arrange
         string actualOtherGivenName = new string('A', 105);
-        string expectedOtherGivenName = new string('A', 105);
-        _requestBody.Participant.OtherGivenNames = actualOtherGivenName; // 105 characters long
+        string expectedOtherGivenName = new string('A', 100);
+        _requestBody.Participant.OtherGivenNames = actualOtherGivenName;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -187,7 +187,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "MR",
-            OtherGivenNames = expectedOtherGivenName, // Expected to be truncated to 100 characters
+            OtherGivenNames = expectedOtherGivenName,
             Gender = Model.Enums.Gender.Male
         };
 
