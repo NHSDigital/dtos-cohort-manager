@@ -1,4 +1,5 @@
 using System.Net;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -91,9 +92,30 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return "";
     }
 
-    public static string GetCohortMockJsonFile(string filename)
+    public static string GetCohortMockJsonFile(string fileName)
     {
-        var jsonFilePath = Path.Combine("..\\..\\..\\..\\..\\..\\tests", "TestUtils", "MockData", $"{filename}.json");
+        var jsonFilePath = FindFile(fileName);
+
+        if (!File.Exists(jsonFilePath)) throw new FileNotFoundException($@"{jsonFilePath} does not exist.");
+
         return File.ReadAllText(jsonFilePath);
+    }
+
+    private static string FindFile(string fileName)
+    {
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+        string[] potentialDirectories = {
+        Path.Combine("TestUtils", "MockData", $"{fileName}.json"),
+        Path.Combine("..", "..", "..", "..", "..", "..", "..", "..", "tests", "TestUtils", "MockData", $"{fileName}.json")
+    };
+
+        string filePath = potentialDirectories
+            .Select(relativePath => Path.Combine(basePath, relativePath))
+            .FirstOrDefault(File.Exists);
+
+        if (filePath != null) return filePath;
+
+        throw new FileNotFoundException($"File '{fileName}' not found in any of the specified locations.");
     }
 }
