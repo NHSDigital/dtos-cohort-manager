@@ -16,7 +16,7 @@ public class UpdateParticipantDetailsTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly Mock<IDbCommand> _commandMock = new();
     private readonly Mock<IDataReader> _moqDataReader = new();
-    private readonly Mock<ILogger<UpdateParticipantData>> _loggerMock = new();
+    private readonly Mock<ILogger<ParticipantManagerData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
@@ -77,7 +77,7 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
@@ -103,7 +103,7 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
@@ -124,7 +124,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -145,7 +145,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -168,7 +168,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -191,7 +191,7 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = sut.GetParticipant(nhsId);
@@ -215,7 +215,7 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
         var result = await sut.UpdateParticipantDetails(_participantCsvRecord);

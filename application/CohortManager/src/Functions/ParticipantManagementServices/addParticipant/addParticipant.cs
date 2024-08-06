@@ -56,7 +56,7 @@ namespace addParticipant
                 }
 
                 participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
-                participant.ScreeningId = "BSS"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY
+                participant.ScreeningId = "1"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY - THIS IS A NUMBER IN THE DB
                 var participantCsvRecord = new ParticipantCsvRecord
                 {
                     Participant = participant,
@@ -74,7 +74,7 @@ namespace addParticipant
 
                 if (createResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
                 _logger.LogInformation("participant created");
 
@@ -83,25 +83,25 @@ namespace addParticipant
 
                 if (eligibleResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
                 _logger.LogInformation("participant created, marked as eligible");
 
 
-                if(!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
+                if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, basicParticipantCsvRecord.FileName))
                 {
                     _logger.LogInformation("participant failed to send to Cohort Distribution Service");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
                 }
                 _logger.LogInformation("participant sent to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
         }
 

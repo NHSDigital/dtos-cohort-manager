@@ -68,8 +68,9 @@ public class StaticValidation
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

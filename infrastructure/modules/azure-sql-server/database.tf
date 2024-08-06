@@ -12,7 +12,7 @@ resource "azurerm_mssql_database" "defaultdb" {
 
   lifecycle {
     ignore_changes = [tags]
-    # prevent the possibility of accidental data loss
+    # prevent the possibility of accidental data loss (variables may not be used here)
     prevent_destroy = false
   }
 }

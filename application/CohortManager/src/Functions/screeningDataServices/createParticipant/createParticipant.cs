@@ -52,7 +52,7 @@ public class CreateParticipant
         catch (Exception ex)
         {
             _logger.LogError("Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
-            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

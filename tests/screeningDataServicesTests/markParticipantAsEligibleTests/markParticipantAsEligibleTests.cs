@@ -15,7 +15,7 @@ public class MarkParticipantAsEligibleTests
 {
     private readonly Mock<ILogger<MarkParticipantAsEligible>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
-    private readonly Mock<IUpdateParticipantData> _mockUpdateParticipantData = new();
+    private readonly Mock<IParticipantManagerData> _mockUpdateParticipantData = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
 
     [TestMethod]

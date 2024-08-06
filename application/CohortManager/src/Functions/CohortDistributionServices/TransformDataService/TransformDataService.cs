@@ -24,7 +24,7 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,  ILogger<TransformDataService> logger)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
@@ -96,7 +96,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            //await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "");
             _logger.LogWarning(ex, "exception occured while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -150,7 +150,7 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        namePrefix = (string) rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string)rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? namePrefix;
