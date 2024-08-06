@@ -70,6 +70,7 @@ public class TransformDataService
                 NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
                 Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
                 OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames),
+                PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname)
             };
 
 

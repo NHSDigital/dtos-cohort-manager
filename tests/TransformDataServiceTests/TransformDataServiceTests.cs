@@ -233,9 +233,9 @@ public class TransformDataServiceTests
     public async Task Run_OtherGivenNamesTooLong_TruncatePrefix()
     {
         // Arrange
-        string actualOtherGivenName = new string('A', 105);
-        string expectedOtherGivenName = new string('A', 100);
-        _requestBody.Participant.OtherGivenNames = actualOtherGivenName;
+        string actualOtherGivenNames = new string('A', 105);
+        string expectedOtherGivenNames = new string('A', 100);
+        _requestBody.Participant.OtherGivenNames = actualOtherGivenNames;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -249,7 +249,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "MR",
-            OtherGivenNames = expectedOtherGivenName,
+            OtherGivenNames = expectedOtherGivenNames,
             Gender = Model.Enums.Gender.Male
         };
 
@@ -260,6 +260,38 @@ public class TransformDataServiceTests
         // Debug output to help trace issue
         Console.WriteLine("Actual Response: " + responseBody);
         Console.WriteLine("Expected Response: " + JsonSerializer.Serialize(expectedResponse));
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_PreviousSurnameTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualPreviousSurname = new string('A', 36);
+        string expectedPreviousSurname = new string('A', 35);
+        _requestBody.Participant.PreviousSurname = actualPreviousSurname;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            PreviousSurname = expectedPreviousSurname,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
 
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
