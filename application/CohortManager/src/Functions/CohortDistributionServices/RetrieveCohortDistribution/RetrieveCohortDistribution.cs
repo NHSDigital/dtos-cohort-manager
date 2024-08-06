@@ -13,11 +13,14 @@ public class RetrieveCohortDistributionDataFunction
     private readonly ILogger<RetrieveCohortDistributionDataFunction> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
-    public RetrieveCohortDistributionDataFunction(ILogger<RetrieveCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
+
+    private readonly IExceptionHandler _exceptionHandler;
+    public RetrieveCohortDistributionDataFunction(ILogger<RetrieveCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function("RetrieveCohortDistributionData")]
@@ -26,7 +29,7 @@ public class RetrieveCohortDistributionDataFunction
         try
         {
             var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants();
-            if (cohortDistributionParticipants != null)
+            if (cohortDistributionParticipants.Any())
             {
                 var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
@@ -37,6 +40,7 @@ public class RetrieveCohortDistributionDataFunction
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

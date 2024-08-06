@@ -21,6 +21,8 @@ public class AllocateServiceProviderToParticipantByServiceTests
     private Mock<HttpRequestData> _request;
     private readonly ServiceCollection _serviceCollection = new();
     private readonly Mock<ICreateResponse> _response = new();
+
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private AllocateServiceProviderToParticipantByService _function;
     private AllocationConfigRequestBody _cohortDistributionData;
     private readonly SetupRequest _setupRequest = new();
@@ -35,7 +37,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        _function = new AllocateServiceProviderToParticipantByService(_logger.Object, _response.Object, _callFunction.Object);
+        _function = new AllocateServiceProviderToParticipantByService(_logger.Object, _response.Object, _callFunction.Object, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -65,7 +67,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         {
             NhsNumber = "1234567890",
             Postcode = "NE63",
-            ScreeningService = "BSS"
+            ScreeningAcronym = "BSS"
         };
 
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
@@ -90,7 +92,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         {
             NhsNumber = "1234567890",
             Postcode = null,
-            ScreeningService = null
+            ScreeningAcronym = null
         };
 
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
@@ -113,7 +115,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         {
             NhsNumber = "1234567890",
             Postcode = null,
-            ScreeningService = "BSS"
+            ScreeningAcronym = "BSS"
         };
 
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
@@ -136,7 +138,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         {
             NhsNumber = "1234567890",
             Postcode = "NE63",
-            ScreeningService = null
+            ScreeningAcronym = null
         };
 
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);

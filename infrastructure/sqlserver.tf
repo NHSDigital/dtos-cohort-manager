@@ -9,6 +9,9 @@ module "azuresql" {
   tlsver              = var.sqlserver.server.tlsversion
   kv_id               = module.key_vault.key_vault_id
 
+  sql_uai_name = var.sqlserver.sql_uai_name
+  ad_auth_only = var.sqlserver.ad_auth_only
+
   tags = var.tags
 
   # Default database

@@ -26,6 +26,7 @@ public class RetrieveParticipantDataTests
     private readonly Mock<IParticipantManagerData> _updateParticipantData = new();
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
     private readonly CreateParticipant _createParticipant = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
 
     public RetrieveParticipantDataTests()
     {
@@ -37,7 +38,7 @@ public class RetrieveParticipantDataTests
             ScreeningService = "BSS"
         };
 
-        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant);
+        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -65,7 +66,7 @@ public class RetrieveParticipantDataTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
@@ -78,7 +79,7 @@ public class RetrieveParticipantDataTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
@@ -167,5 +168,13 @@ public class RetrieveParticipantDataTests
         var bodyStream = new MemoryStream(byteArray);
 
         _request.Setup(r => r.Body).Returns(bodyStream);
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(_context.Object);
+            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
+            response.SetupProperty(r => r.StatusCode);
+            response.SetupProperty(r => r.Body, new MemoryStream());
+            return response.Object;
+        });
     }
 }

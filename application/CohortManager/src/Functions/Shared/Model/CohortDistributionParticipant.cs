@@ -102,4 +102,5 @@ public class CohortDistributionParticipant
     [JsonPropertyName("Extracted")]
     public string? Extracted { get; set; }
     public int? ServiceProviderId { get; set; }
+    public string? ScreeningAcronym { get; set; }
 }
