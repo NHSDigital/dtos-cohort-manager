@@ -9,7 +9,8 @@ using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Common;
 using NHS.Screening.ReceiveCaasFile;
-using Microsoft.AspNetCore.Http;
+using Data.Database;
+using Model;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -23,13 +24,14 @@ public class ReceiveCaasFileTests
     private string _expectedJson;
     private readonly string _blobName;
     private readonly Mock<HttpWebResponse> _webResponse = new();
+    private readonly Mock<IScreeningServiceData> _screeningServiceData = new();
 
     public ReceiveCaasFileTests()
     {
         _mockLogger = new Mock<ILogger<ReceiveCaasFile>>();
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIFileReader = new Mock<IFileReader>();
-        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockICallFunction.Object);
+        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockICallFunction.Object, _screeningServiceData.Object);
         _blobName = "BSS_20240718150245_n3.csv";
 
         _validCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n" +
@@ -50,6 +52,7 @@ public class ReceiveCaasFileTests
         var memoryStream = new MemoryStream(csvDataBytes);
 
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
         // Act
         await _receiveCaasFileInstance.Run(memoryStream, _blobName);
@@ -81,6 +84,7 @@ public class ReceiveCaasFileTests
         var memoryStream = new MemoryStream(csvDataBytes);
         Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
@@ -116,6 +120,7 @@ public class ReceiveCaasFileTests
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
         // Act
         await _receiveCaasFileInstance.Run(memoryStream, _blobName);
@@ -166,7 +171,7 @@ public class ReceiveCaasFileTests
         Times.Never);
     }
 
-        [TestMethod]
+    [TestMethod]
     public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
     {
         // Arrange
@@ -175,6 +180,7 @@ public class ReceiveCaasFileTests
 
         Environment.SetEnvironmentVariable("targetFunction", "targetFunction");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
@@ -240,6 +246,7 @@ public class ReceiveCaasFileTests
 
         Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 

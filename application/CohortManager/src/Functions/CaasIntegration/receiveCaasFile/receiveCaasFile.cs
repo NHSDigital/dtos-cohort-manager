@@ -11,16 +11,19 @@ using System.Globalization;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
+using Data.Database;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly IScreeningServiceData _screeningServiceData;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction)
+    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction, IScreeningServiceData screeningServiceData)
     {
         _logger = logger;
         _callFunction = callFunction;
+        _screeningServiceData = screeningServiceData;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -28,7 +31,7 @@ public class ReceiveCaasFile
     {
         try
         {
-            if(!FileNameAndFileExtensionIsValid(name))
+            if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
                 await InsertValidationErrorIntoDatabase(name);
@@ -59,6 +62,7 @@ public class ReceiveCaasFile
                 using var csv = new CsvReader(blobStreamReader, config);
                 csv.Context.RegisterClassMap<ParticipantMap>();
                 var records = csv.GetRecords<Participant>();
+                var screeningId = GetScreeningId(name);
 
                 foreach (var participant in records)
                 {
@@ -67,6 +71,7 @@ public class ReceiveCaasFile
                     {
                         if (participant != null)
                         {
+                            participant.ScreeningId = screeningId;
                             cohort.Participants.Add(participant);
                         }
                     }
@@ -168,5 +173,12 @@ public class ReceiveCaasFile
             await InsertValidationErrorIntoDatabase(name);
             return null;
         }
+    }
+
+    private string GetScreeningId(string name)
+    {
+        var screeningAcronym = name.Split('_')[0];
+        var screeningService = _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
+        return screeningService.ScreeningId;
     }
 }
