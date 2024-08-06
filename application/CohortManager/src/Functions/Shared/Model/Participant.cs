@@ -5,7 +5,8 @@ using Model.Enums;
 public class Participant
 {
     public Participant() {}
-    public Participant(CohortDistributionParticipant cohortDistributionParticipant) {
+    public Participant(CohortDistributionParticipant cohortDistributionParticipant)
+    {
         ParticipantId = cohortDistributionParticipant.ParticipantId;
         NhsNumber = cohortDistributionParticipant.NhsNumber;
         SupersededByNhsNumber = cohortDistributionParticipant.SupersededByNhsNumber;
