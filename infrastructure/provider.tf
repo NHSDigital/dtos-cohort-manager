@@ -3,6 +3,10 @@ terraform {
   required_providers {
     azurerm = "= 3.112.0"
     random  = "~> 3.5.1"
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "2.53.1"
+    }
   }
 }
 
@@ -10,6 +14,10 @@ provider "azurerm" {
   features {}
   # Subscription Id to create the resources in passed in via TF variables
   subscription_id = var.TARGET_SUBSCRIPTION_ID
+}
+
+provider "azuread" {
+  # Configuration options
 }
 
 module "config" {

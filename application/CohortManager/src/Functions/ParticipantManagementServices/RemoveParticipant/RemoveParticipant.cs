@@ -67,7 +67,7 @@ public class RemoveParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            if(!await RemoveParticipantFromCohort(participant.NhsNumber))
+            if (!await RemoveParticipantFromCohort(participant.NhsNumber))
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
@@ -79,18 +79,20 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
 
-    private async Task<bool> RemoveParticipantFromCohort(string nhsNumber){
+    private async Task<bool> RemoveParticipantFromCohort(string nhsNumber)
+    {
         var parameters = new Dictionary<string, string>
         {
             { "NhsNumber", nhsNumber }
         };
         var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveFromCohortDistributionURL"), parameters);
-        if(result == null){
+        if (result == null)
+        {
             _logger.LogInformation($"Participant was not removed from Cohort Distribution");
             return false;
         }

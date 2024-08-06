@@ -10,6 +10,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICohortDistributionHelper, CohortDistributionHelper>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();
