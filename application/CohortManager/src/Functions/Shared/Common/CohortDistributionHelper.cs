@@ -70,7 +70,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("TransformDataServiceURL"));
         if (!string.IsNullOrEmpty(response))
         {
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response); ;
+            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
         }
         return null;
     }
