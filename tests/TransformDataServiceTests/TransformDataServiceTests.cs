@@ -168,6 +168,68 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_FirstNameTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualFirstName = new string('A', 36);
+        string expectedFirstName = new string('A', 35);
+        _requestBody.Participant.FirstName = actualFirstName;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = expectedFirstName,
+            Surname = "Smith",
+            NamePrefix = "MR",
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_SurnameTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualSurname = new string('A', 36);
+        string expectedSurname = new string('A', 35);
+        _requestBody.Participant.Surname = actualSurname;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = expectedSurname,
+            NamePrefix = "MR",
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_OtherGivenNamesTooLong_TruncatePrefix()
     {
         // Arrange

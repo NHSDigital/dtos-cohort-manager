@@ -49,6 +49,18 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "5.Surname.ExceedsMaximumLength",
+        "Expression": "participant.Surname.Length <= 35",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.Surname.Substring(0, 35)"
+            }
+          }
+        }
       }
     ]
   }
