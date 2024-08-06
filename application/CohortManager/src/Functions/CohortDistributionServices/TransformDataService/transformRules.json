@@ -133,6 +133,18 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "12.Postcode.ExceedsMaximumLength",
+        "Expression": "participant.Postcode.Length <= 35",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "participant.Postcode.Substring(0, 35)"
+            }
+          }
+        }
       }
     ]
   }

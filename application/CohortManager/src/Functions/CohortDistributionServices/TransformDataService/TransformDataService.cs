@@ -75,7 +75,8 @@ public class TransformDataService
                 AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2),
                 AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3),
                 AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4),
-                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5)
+                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5),
+                Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode)
             };
 
 

@@ -458,6 +458,38 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_PostcodeTooLong_TruncatePrefix()
+    {
+        // Arrange
+        string actualPostcode = new string('A', 36);
+        string expectedPostcode = new string('A', 35);
+        _requestBody.Participant.Postcode = actualPostcode;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new Participant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = "MR",
+            Postcode = expectedPostcode,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        result.Body.Position = 0; // Reset stream position to beginning
+        var reader = new StreamReader(result.Body, Encoding.UTF8);
+        var responseBody = await reader.ReadToEndAsync();
+
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
     public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
     {
         // Arrange
