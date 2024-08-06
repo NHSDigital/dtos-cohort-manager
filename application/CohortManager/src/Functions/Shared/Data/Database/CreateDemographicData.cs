@@ -152,7 +152,7 @@ public class CreateDemographicData : ICreateDemographicData
 
     public Demographic GetDemographicData(string NhsNumber)
     {
-        var SQL = @"SELECT * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber";
+        var SQL = @" SELECT TOP(1) * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
         {
             {"@NhsNumber",  NhsNumber },

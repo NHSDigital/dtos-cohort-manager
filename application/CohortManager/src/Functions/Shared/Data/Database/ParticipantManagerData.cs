@@ -78,16 +78,17 @@ public class ParticipantManagerData : IParticipantManagerData
             " @recordUpdateDateTime " +
             " ) ";
 
+
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
             { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
-            { "@reasonForRemoval", _databaseHelper.CheckIfNumberNull(participantData.ReasonForRemoval) ? DBNull.Value : participantData.ReasonForRemoval},
+            { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
             { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
-            { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
-            { "@recordInsertDateTime", _databaseHelper.ConvertNullToDbNull(participantData.RecordUpdateDateTime) },
-            { "@recordUpdateDateTime", dateToday },
+            { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
+            { "@recordInsertDateTime", dateToday },
+            { "@recordUpdateDateTime", DBNull.Value },
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
@@ -124,14 +125,17 @@ public class ParticipantManagerData : IParticipantManagerData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetParticipant(command);
+        return GetParticipantWithScreeningName(command, false);
     }
 
     public Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody)
     {
-        var SQL = "SELECT * " +
-        " FROM [PARTICIPANT_MANAGEMENT] " +
-        " WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber AND [PARTICIPANT_MANAGEMENT].[SCREENING_ID] = @ScreeningId";
+        var SQL = " SELECT TOP (1) * " +
+        " FROM [PARTICIPANT_MANAGEMENT] AS P " +
+        " JOIN SCREENING_LKP AS SLPK ON P.SCREENING_ID = SLPK.SCREENING_ID " +
+        " WHERE P.[NHS_NUMBER] = @NhsNumber AND P.[SCREENING_ID] = @ScreeningId  AND SLPK.SCREENING_ID = @ScreeningId " +
+        " ORDER BY PARTICIPANT_ID DESC ";
+
 
         var parameters = new Dictionary<string, object>
         {
@@ -142,7 +146,7 @@ public class ParticipantManagerData : IParticipantManagerData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetParticipant(command);
+        return GetParticipantWithScreeningName(command, true);
     }
     #endregion
 
@@ -232,7 +236,7 @@ public class ParticipantManagerData : IParticipantManagerData
         return listToReturn;
     }
 
-    private Participant GetParticipant(IDbCommand command)
+    private Participant GetParticipantWithScreeningName(IDbCommand command, bool withScreeningName)
     {
         return ExecuteQuery(command, reader =>
         {
@@ -248,6 +252,7 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.ExceptionFlag = reader["EXCEPTION_FLAG"] == DBNull.Value ? null : reader["EXCEPTION_FLAG"].ToString();
                 participant.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
                 participant.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
+                participant.ScreeningAcronym = withScreeningName ? (reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString()) : null;
             }
             return participant;
         });

@@ -10,6 +10,7 @@ using System.Text.Json;
 using Common;
 using System.Data;
 using NHS.CohortManager.CohortDistribution;
+using Microsoft.Identity.Client;
 
 public class UpdateParticipantFunction
 {
@@ -54,54 +55,65 @@ public class UpdateParticipantFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+            participant.ScreeningId = "1"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY - THIS IS A NUMBER IN THE DB
             var participantCsvRecord = new ParticipantCsvRecord
             {
                 Participant = participant,
                 FileName = basicParticipantCsvRecord.FileName
             };
 
-
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
+
+            var responseDataFromCohort = false;
+            var updateResponse = false;
             if (response.Participant.ExceptionFlag == "Y")
             {
                 participantCsvRecord = response;
-                await updateParticipant(participantCsvRecord, req);
+                updateResponse = await updateParticipant(participantCsvRecord, req);
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
-            await updateParticipant(participantCsvRecord, req);
+                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
-            if(! await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber,participant.ScreeningId))
-            {
-                _logger.LogInformation("participant failed to send to Cohort Distribution Service");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError,req);
+                return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
+
+            updateResponse = await updateParticipant(participantCsvRecord, req);
+            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
         }
         catch (Exception ex)
         {
             _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
 
     }
 
-    private async Task<HttpWebResponse> updateParticipant(ParticipantCsvRecord participantCsvRecord, HttpRequestData req)
+    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
+    {
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, fileName))
+        {
+            _logger.LogInformation("participant failed to send to Cohort Distribution Service");
+            return false;
+        }
+        return true;
+    }
+
+    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord, HttpRequestData req)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
-        HttpWebResponse createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
+        var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
-            return createResponse;
+            return true;
         }
-        return createResponse;
+        return false;
     }
 
     private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)

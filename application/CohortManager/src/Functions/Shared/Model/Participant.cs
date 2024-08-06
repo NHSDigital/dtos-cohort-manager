@@ -51,4 +51,5 @@ public class Participant
     public string? ExceptionFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
+    public string? ScreeningAcronym { get; set; }
 }
