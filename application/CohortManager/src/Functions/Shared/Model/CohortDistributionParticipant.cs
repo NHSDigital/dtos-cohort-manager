@@ -1,6 +1,6 @@
 namespace Model;
 
-using Model.Enums;
+using Enums;
 using System.Text.Json.Serialization;
 
 public class CohortDistributionParticipant
@@ -85,8 +85,6 @@ public class CohortDistributionParticipant
 
     [JsonPropertyName("Preferred Language")]
     public string? PreferredLanguage { get; set; }
-
-    [JsonPropertyName("Interpreter required")]
     public string? IsInterpreterRequired { get; set; }
 
     [JsonPropertyName("Reason for Removal")]
@@ -103,7 +101,5 @@ public class CohortDistributionParticipant
 
     [JsonPropertyName("Extracted")]
     public string? Extracted { get; set; }
-
-    [JsonPropertyName("Service Provider Id")]
     public int? ServiceProviderId { get; set; }
 }

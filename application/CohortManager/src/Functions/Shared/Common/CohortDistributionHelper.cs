@@ -1,5 +1,4 @@
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -91,5 +90,11 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         }
         return "";
+    }
+
+    public static string GetCohortMockJsonFile(string filename)
+    {
+        var jsonFilePath = Path.Combine("..\\..\\..\\..\\..\\..\\tests", "TestUtils", "MockData", $"{filename}.json");
+        return File.ReadAllText(jsonFilePath);
     }
 }

@@ -159,16 +159,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return [];
     }
 
-public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount)
+public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
 {
     try
     {
-        string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "../../CohortMockData.json");
-        string json = File.ReadAllText(filePath);
+        var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(testDataJson);
 
-        var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(json);
-
-        if (participants == null || participants.Count == 0)return [];
+        if (participants == null || participants.Count == 0) return [];
 
         return participants
             .Where(p => p.ServiceProviderId == serviceProviderId)
