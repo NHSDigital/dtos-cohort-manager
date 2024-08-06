@@ -84,3 +84,8 @@ variable "docker_CI_enable" {
 variable "docker_img_prefix" {
   description = "A commont part of the docker image name"
 }
+
+variable "db_name" {
+  type        = string
+  description = "Name of the deployed DB to which the connection string is linking."
+}
