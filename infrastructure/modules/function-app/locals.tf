@@ -1,20 +1,20 @@
 locals {
   fnapp_urls = {
 
-    processCaasFile             = "https://${var.names.function-app}-${lower(var.function_app.ProcessCaasFile.name_suffix)}/api/processCaasFile"
-    fileValidation              = "https://${var.names.function-app}-${lower(var.function_app.FileValidation.name_suffix)}/api/FileValidation"
-    addParticipant              = "https://${var.names.function-app}-${lower(var.function_app.AddNewParticipant.name_suffix)}/api/addParticipant"
-    removeParticipant           = "https://${var.names.function-app}-${lower(var.function_app.RemoveParticipant.name_suffix)}/api/RemoveParticipant"
-    updateParticipant           = "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipant.name_suffix)}/api/updateParticipant"
-    demographicDataFunction     = "https://${var.names.function-app}-${lower(var.function_app.DemographicDataManagement.name_suffix)}/api/DemographicDataFunction"
-    createParticipant           = "https://${var.names.function-app}-${lower(var.function_app.CreateParticipant.name_suffix)}/api/CreateParticipant"
-    markParticipantAsEligible   = "https://${var.names.function-app}-${lower(var.function_app.MarkParticipantEligible.name_suffix)}/api/markParticipantAsEligible"
-    staticValidation            = "https://${var.names.function-app}-${lower(var.function_app.StaticValidation.name_suffix)}/api/StaticValidation"
-    markParticipantAsIneligible = "https://${var.names.function-app}-${lower(var.function_app.MarkParticipantAsIneligible.name_suffix)}/api/markParticipantAsIneligible"
-    updateParticipant           = "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipantDetails.name_suffix)}/api/updateParticipantDetails"
-    lookupValidation            = "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}/api/LookupValidation"
-    createValidationException   = "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}/api/CreateValidationException"
-    demographicDataService      = "https://${var.names.function-app}-${lower(var.function_app.DemographicDataService.name_suffix)}/api/DemographicDataService"
+    processCaasFile             = "https://${var.names.function-app}-${lower(var.function_app.ProcessCaasFile.name_suffix)}.azurewebsites.net/api/processCaasFile"
+    fileValidation              = "https://${var.names.function-app}-${lower(var.function_app.FileValidation.name_suffix)}.azurewebsites.net/api/FileValidation"
+    addParticipant              = "https://${var.names.function-app}-${lower(var.function_app.AddNewParticipant.name_suffix)}.azurewebsites.net/api/addParticipant"
+    removeParticipant           = "https://${var.names.function-app}-${lower(var.function_app.RemoveParticipant.name_suffix)}.azurewebsites.net/api/RemoveParticipant"
+    updateParticipant           = "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipant.name_suffix)}.azurewebsites.net/api/updateParticipant"
+    demographicDataFunction     = "https://${var.names.function-app}-${lower(var.function_app.DemographicDataManagement.name_suffix)}.azurewebsites.net/api/DemographicDataFunction"
+    createParticipant           = "https://${var.names.function-app}-${lower(var.function_app.CreateParticipant.name_suffix)}.azurewebsites.net/api/CreateParticipant"
+    markParticipantAsEligible   = "https://${var.names.function-app}-${lower(var.function_app.MarkParticipantEligible.name_suffix)}.azurewebsites.net/api/markParticipantAsEligible"
+    staticValidation            = "https://${var.names.function-app}-${lower(var.function_app.StaticValidation.name_suffix)}.azurewebsites.net/api/StaticValidation"
+    markParticipantAsIneligible = "https://${var.names.function-app}-${lower(var.function_app.MarkParticipantAsIneligible.name_suffix)}.azurewebsites.net/api/markParticipantAsIneligible"
+    updateParticipant           = "https://${var.names.function-app}-${lower(var.function_app.UpdateParticipantDetails.name_suffix)}.azurewebsites.net/api/updateParticipantDetails"
+    lookupValidation            = "https://${var.names.function-app}-${lower(var.function_app.LookupValidation.name_suffix)}.azurewebsites.net/api/LookupValidation"
+    createValidationException   = "https://${var.names.function-app}-${lower(var.function_app.CreateValidationExceptions.name_suffix)}.azurewebsites.net/api/CreateValidationException"
+    demographicDataService      = "https://${var.names.function-app}-${lower(var.function_app.DemographicDataService.name_suffix)}.azurewebsites.net/api/DemographicDataService"
 
   }
 
