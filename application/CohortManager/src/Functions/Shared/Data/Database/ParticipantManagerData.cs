@@ -78,7 +78,7 @@ public class ParticipantManagerData : IParticipantManagerData
             " @recordUpdateDateTime " +
             " ) ";
 
-        var exception = _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag);
+
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
@@ -86,7 +86,7 @@ public class ParticipantManagerData : IParticipantManagerData
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
             { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
-            { "@exceptionFlag",  exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0 },
+            { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
         };
@@ -124,8 +124,8 @@ public class ParticipantManagerData : IParticipantManagerData
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
-        // we don't want to get the screening name with the participant here
-        return GetParticipant(command, false);
+
+        return GetParticipantWithScreeningName(command, false);
     }
 
     public Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody)
@@ -146,8 +146,7 @@ public class ParticipantManagerData : IParticipantManagerData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        // we want to get the screening name returned
-        return GetParticipant(command, true);
+        return GetParticipantWithScreeningName(command, true);
     }
     #endregion
 
@@ -237,7 +236,7 @@ public class ParticipantManagerData : IParticipantManagerData
         return listToReturn;
     }
 
-    private Participant GetParticipant(IDbCommand command, bool withScreeningName)
+    private Participant GetParticipantWithScreeningName(IDbCommand command, bool withScreeningName)
     {
         return ExecuteQuery(command, reader =>
         {
@@ -254,8 +253,6 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
                 participant.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
                 participant.ScreeningAcronym = withScreeningName ? (reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString()) : null;
-
-
             }
             return participant;
         });

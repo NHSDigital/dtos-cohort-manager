@@ -53,7 +53,7 @@ public class ProcessCaasFileFunction
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
-                FileName = input.FileName,
+                FileName = input.FileName
             };
 
             switch (participant.RecordType?.Trim())

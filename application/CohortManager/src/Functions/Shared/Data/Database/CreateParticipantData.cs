@@ -62,7 +62,6 @@ public class CreateParticipantData : ICreateParticipantData
             " @recordInsertDateTime, " +
             " @recordUpdateDateTime " +
             " ) ";
-        var exception = _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag);
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
@@ -70,7 +69,7 @@ public class CreateParticipantData : ICreateParticipantData
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
             { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
-            { "@exceptionFlag",  exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0 },
+            { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
         };

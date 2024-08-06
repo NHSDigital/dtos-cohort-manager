@@ -39,7 +39,6 @@ public class UpdateParticipantFunction
         _logger.LogInformation("Update participant called.");
         HttpWebResponse createResponse;
 
-
         string postData = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {

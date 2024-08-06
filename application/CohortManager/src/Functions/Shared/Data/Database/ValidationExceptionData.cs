@@ -102,8 +102,6 @@ public class ValidationExceptionData : IValidationExceptionData
         return ExecuteCommand(command);
     }
 
-
-
     private bool ExecuteCommand(IDbCommand command)
     {
         _dbConnection.ConnectionString = _connectionString;
