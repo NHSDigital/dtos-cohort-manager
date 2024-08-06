@@ -190,7 +190,7 @@ public class TransformDataService
                 }
             }
         }
-        return participant;   
+        return participant;
     }
 
 }
