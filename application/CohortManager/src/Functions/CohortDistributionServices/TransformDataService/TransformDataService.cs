@@ -1,3 +1,9 @@
+/// <summary>
+/// Takes a CohortDistributionParticipant, does a number of individual transformations, and retuns a transformed Model.Participant
+/// </summary>
+/// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
+/// <returns>The transformed Model.Participant</returns>
+
 namespace NHS.CohortManager.CohortDistribution;
 
 using Microsoft.Azure.Functions.Worker;
@@ -10,6 +16,8 @@ using Model;
 using Model.Enums;
 using Common;
 using Microsoft.Extensions.Logging;
+using System.Data;
+using System.Data.SqlClient;
 
 public class TransformDataService
 {
@@ -26,9 +34,9 @@ public class TransformDataService
     [Function("TransformDataService")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        CohortDistributionParticipant participant = null;
-
+        CohortDistributionParticipant participant;
         TransformDataRequestBody requestBody;
+
         try
         {
             string requestBodyJson;
@@ -38,46 +46,53 @@ public class TransformDataService
             }
 
             requestBody = JsonSerializer.Deserialize<TransformDataRequestBody>(requestBodyJson);
+            participant = requestBody.Participant;
         }
-        catch
+        catch 
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
         try
         {
-            participant = requestBody.Participant;
+            // Character transformation
+            var transformString = new TransformString();
 
-            // This function is currently not using the screeningService, but it will do in the future
-            // var screeningService = requestBody.ScreeningService;
+            participant.NamePrefix = await transformString.CheckParticipantCharactersAync(participant.NamePrefix);
+            participant.FirstName = await transformString.CheckParticipantCharactersAync(participant.FirstName);
+            participant.OtherGivenNames = await transformString.CheckParticipantCharactersAync(participant.OtherGivenNames);
+            participant.Surname = await transformString.CheckParticipantCharactersAync(participant.Surname);
+            participant.PreviousSurname = await transformString.CheckParticipantCharactersAync(participant.PreviousSurname);
+            participant.AddressLine1 = await transformString.CheckParticipantCharactersAync(participant.AddressLine1);
+            participant.AddressLine2 = await transformString.CheckParticipantCharactersAync(participant.AddressLine2);
+            participant.AddressLine3 = await transformString.CheckParticipantCharactersAync(participant.AddressLine3);
+            participant.AddressLine4 = await transformString.CheckParticipantCharactersAync(participant.AddressLine4);
+            participant.AddressLine5 = await transformString.CheckParticipantCharactersAync(participant.AddressLine5);
+            participant.Postcode = await transformString.CheckParticipantCharactersAync(participant.Postcode);
+            participant.TelephoneNumber = await transformString.CheckParticipantCharactersAync(participant.TelephoneNumber);
+            participant.MobileNumber = await transformString.CheckParticipantCharactersAync(participant.MobileNumber);
 
-            string json = await File.ReadAllTextAsync("transformRules.json");
-            var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+            // Other transformation rules
+            participant = await TransformParticipantAsync(participant);
 
-            var re = new RulesEngine.RulesEngine(rules);
-
-            var ruleParameters = new[] {
-                new RuleParameter("participant", participant),
-            };
-
-            var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-            var transformedParticipant = new Participant()
+            // Name prefix transformation
+            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+            
+            // address transformation
+            if (! string.IsNullOrEmpty(participant.Postcode) &&
+                string.IsNullOrEmpty(participant.AddressLine1) &&
+                string.IsNullOrEmpty(participant.AddressLine2) &&
+                string.IsNullOrEmpty(participant.AddressLine3) &&
+                string.IsNullOrEmpty(participant.AddressLine4) &&
+                string.IsNullOrEmpty(participant.AddressLine5))
             {
-                FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName),
-                Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
-                NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
-                NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
-            };
+                GetAddress(participant, new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
+            }
 
-
-        transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
-        var transformString = new TransformString();
-        transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
-
-        var response = JsonSerializer.Serialize(transformedParticipant);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+            // Converting from CohortDistributionParticipant to Participant and returning
+            var transformedParticipant = new Participant(participant);
+            var response = JsonSerializer.Serialize(transformedParticipant);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
         catch (Exception ex)
         {
@@ -91,6 +106,31 @@ public class TransformDataService
     {
         var result = results.Find(x => x.Rule.RuleName.Split('.')[1] == field);
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
+    }
+
+    public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant)
+    {
+        // This function is currently not using the screeningService, but it will do in the future
+        // var screeningService = requestBody.ScreeningService;
+
+        string json = await File.ReadAllTextAsync("transformRules.json");
+        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
+        var re = new RulesEngine.RulesEngine(rules);
+
+        var ruleParameters = new[] {
+            new RuleParameter("participant", participant),
+        };
+
+        var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
+
+        participant.FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName);
+        participant.Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname);
+        participant.NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber);
+        participant.NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix);
+        participant.Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender));
+
+        return participant;
     }
 
     public async Task<string> TransformNamePrefixAsync(string namePrefix) {
@@ -116,6 +156,41 @@ public class TransformDataService
                                                     ?? namePrefix;
 
         return namePrefix;
+    }
+
+    public CohortDistributionParticipant GetAddress(CohortDistributionParticipant participant, IDbConnection connection) {
+        // Set up DB connection
+        using (connection)
+        {                
+            connection.Open();       
+            
+            string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
+                        $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                        $"WHERE PARTICIPANT_ID = '{participant.ParticipantId}'";
+
+            using (SqlCommand command = new SqlCommand(sql, (SqlConnection) connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        // Throw exception if Postcodes don't match
+                        if (participant.Postcode != reader.GetString(0)) {
+                            // will be changed to call exception service
+                            throw new ArgumentException();
+                        }
+
+                        // Assign database values to address field
+                        participant.AddressLine1 = reader["ADDRESS_LINE_1"] as string ?? null;
+                        participant.AddressLine2 = reader["ADDRESS_LINE_2"] as string ?? null;
+                        participant.AddressLine3 = reader["ADDRESS_LINE_3"] as string ?? null;
+                        participant.AddressLine4 = reader["ADDRESS_LINE_4"] as string ?? null;
+                        participant.AddressLine5 = reader["ADDRESS_LINE_5"] as string ?? null;
+                    }
+                }
+            }
+        }
+        return participant;             
     }
 
 }
