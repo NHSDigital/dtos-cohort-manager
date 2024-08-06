@@ -39,7 +39,7 @@ public class Participant
         RecordInsertDateTime = cohortDistributionParticipant.RecordInsertDateTime;
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
     }
-     
+
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }

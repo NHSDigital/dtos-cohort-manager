@@ -48,7 +48,7 @@ public class TransformDataService
             requestBody = JsonSerializer.Deserialize<TransformDataRequestBody>(requestBodyJson);
             participant = requestBody.Participant;
         }
-        catch 
+        catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -77,7 +77,7 @@ public class TransformDataService
 
             // Name prefix transformation
             participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
-            
+
             // address transformation
             if (! string.IsNullOrEmpty(participant.Postcode) &&
                 string.IsNullOrEmpty(participant.AddressLine1) &&
@@ -161,9 +161,9 @@ public class TransformDataService
     public CohortDistributionParticipant GetAddress(CohortDistributionParticipant participant, IDbConnection connection) {
         // Set up DB connection
         using (connection)
-        {                
-            connection.Open();       
-            
+        {
+            connection.Open();
+
             string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
                         $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                         $"WHERE PARTICIPANT_ID = '{participant.ParticipantId}'";
@@ -190,7 +190,7 @@ public class TransformDataService
                 }
             }
         }
-        return participant;             
+        return participant;   
     }
 
 }
