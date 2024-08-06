@@ -21,7 +21,7 @@ public class MarkParticipantAsIneligibleTests
     private readonly MarkParticipantAsIneligible _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ILogger<MarkParticipantAsIneligible>> _mockLogger = new();
-    private readonly Mock<IUpdateParticipantData> _mockUpdateParticipantData = new();
+    private readonly Mock<IParticipantManagerData> _mockUpdateParticipantData = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
 

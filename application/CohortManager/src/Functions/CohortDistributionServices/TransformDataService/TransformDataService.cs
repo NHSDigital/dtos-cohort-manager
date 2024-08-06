@@ -16,7 +16,7 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,  ILogger<TransformDataService> logger)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
@@ -68,18 +68,21 @@ public class TransformDataService
                 Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
                 NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
                 NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
+                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
+                ParticipantId = participant.ParticipantId
             };
 
 
-        transformedParticipant.NamePrefix = await TransformNamePrefix(transformedParticipant.NamePrefix);
+            transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
+            var transformString = new TransformString();
+            transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
 
-        var response = JsonSerializer.Serialize(transformedParticipant);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+            var response = JsonSerializer.Serialize(transformedParticipant);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
         catch (Exception ex)
         {
-            //await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "");
             _logger.LogWarning(ex, "exception occured while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -91,7 +94,8 @@ public class TransformDataService
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 
-    public async Task<string> TransformNamePrefix(string namePrefix) {
+    public async Task<string> TransformNamePrefixAsync(string namePrefix)
+    {
 
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
@@ -108,11 +112,12 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        namePrefix = (string) rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string)rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? namePrefix;
 
         return namePrefix;
     }
+
 }

@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS installer-env
 
-COPY ./CohortDistributionServices/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService /src/dotnet-function-app
+COPY ./CohortDistributionServices/ServiceProviderAllocationService /src/dotnet-function-app
 COPY ./Shared /Shared
 RUN cd /src/dotnet-function-app && \
     mkdir -p /home/site/wwwroot && \

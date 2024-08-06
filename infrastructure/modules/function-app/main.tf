@@ -11,20 +11,33 @@ resource "azurerm_linux_function_app" "function" {
   storage_account_access_key = var.sa_prm_key
 
   site_config {
+
+    container_registry_use_managed_identity       = var.cont_registry_use_mi
+    container_registry_managed_identity_client_id = var.acr_mi_client_id
+
     application_insights_connection_string = var.ai_connstring
     use_32_bit_worker                      = var.gl_worker_32bit
 
     application_stack {
-      use_dotnet_isolated_runtime = var.gl_dotnet_isolated
-      dotnet_version              = var.gl_dotnet_version
+      docker {
+        registry_url = var.acr_registry_url
+        image_name   = "${var.docker_img_prefix}-${lower(each.value.name_suffix)}"
+        image_tag    = var.image_tag
+      }
     }
   }
 
-  app_settings = var.app_settings
+  identity {
+    type         = "SystemAssigned, UserAssigned"
+    identity_ids = [var.acr_mi_id]
+  }
+
+  app_settings = local.app_settings[each.key]
   tags         = var.tags
 
   lifecycle {
-    ignore_changes = [tags, app_settings, connection_string]
+    #ignore_changes = [tags, app_settings, connection_string]
+    ignore_changes = [tags, connection_string]
   }
 
 }

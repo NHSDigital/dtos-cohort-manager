@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.CohortDistributionDataServices
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -18,21 +19,24 @@ namespace NHS.CohortManager.CohortDistributionDataServices
         private readonly ILogger<AddCohortDistributionDataFunction> _logger;
         private readonly ICreateResponse _createResponse;
         private readonly ICreateCohortDistributionData _createCohortDistributionData;
+        private readonly IExceptionHandler _exceptionHandler;
 
-        public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse)
+        public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
         {
             _logger = logger;
             _createCohortDistributionData = createCohortDistributionData;
             _createResponse = createResponse;
+            _exceptionHandler = exceptionHandler;
         }
 
         [Function("AddCohortDistributionData")]
         public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
+            var participantCsvRecord = new CohortDistributionParticipant();
             try
             {
                 string requestBody = "";
-                var participantCsvRecord = new CohortDistributionParticipant();
+
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
                     requestBody = await reader.ReadToEndAsync();
@@ -49,6 +53,7 @@ namespace NHS.CohortManager.CohortDistributionDataServices
             }
             catch (Exception ex)
             {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantCsvRecord.NhsNumber, "");
                 _logger.LogError(ex.Message, ex);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }

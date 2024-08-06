@@ -18,7 +18,7 @@ var host = new HostBuilder()
             return conn;
         });
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
+        services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
