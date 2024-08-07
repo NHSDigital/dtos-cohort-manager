@@ -257,10 +257,6 @@ public class TransformDataServiceTests
         var reader = new StreamReader(result.Body, Encoding.UTF8);
         var responseBody = await reader.ReadToEndAsync();
 
-        // Debug output to help trace issue
-        Console.WriteLine("Actual Response: " + responseBody);
-        Console.WriteLine("Expected Response: " + JsonSerializer.Serialize(expectedResponse));
-
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
