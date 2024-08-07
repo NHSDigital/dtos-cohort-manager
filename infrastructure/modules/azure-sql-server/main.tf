@@ -25,7 +25,7 @@
 #   }
 # }
 data "azuread_group" "sql_admin_group" {
-  display_name = "sqlsvr_cohman_dev_uks_admin"
+  display_name = var.sql_adm_group_name
 }
 
 resource "azurerm_mssql_server" "sqlserver" {
