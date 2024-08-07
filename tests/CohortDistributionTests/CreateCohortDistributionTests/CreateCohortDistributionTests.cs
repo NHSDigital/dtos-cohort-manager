@@ -23,6 +23,7 @@ public class CreateCohortDistributionTests
     private readonly CreateCohortDistribution _function;
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
 
     public CreateCohortDistributionTests()
@@ -40,7 +41,7 @@ public class CreateCohortDistributionTests
             ScreeningService = "BSS"
         };
 
-        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object);
+        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -136,7 +137,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<string>())).Throws(new Exception("some error"));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Throws(new Exception("some error"));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -184,7 +185,7 @@ public class CreateCohortDistributionTests
 
         _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
         _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<CreateCohortDistributionRequestBody>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));

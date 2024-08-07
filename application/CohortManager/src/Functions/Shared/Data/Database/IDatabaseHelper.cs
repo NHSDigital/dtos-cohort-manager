@@ -8,4 +8,5 @@ public interface IDatabaseHelper
     public bool CheckIfNumberNull(string property);
     public string ParseDateToString(string dateToParse);
     public int ConvertBoolStringToInt(string value);
+    public int ParseExceptionFlag(object exception);
 }

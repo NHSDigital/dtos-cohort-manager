@@ -1,6 +1,6 @@
 
 resource "azurerm_mssql_database" "defaultdb" {
-  name         = "${var.names.sql-server-db}-${var.db_name_suffix}"
+  name         = var.db_name_suffix # using only the suffix, as this is the naming convention from DToS Devs
   server_id    = azurerm_mssql_server.sqlserver.id
   collation    = var.collation
   license_type = var.licence_type
