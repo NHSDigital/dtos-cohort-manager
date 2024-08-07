@@ -103,9 +103,12 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         string basePath = AppDomain.CurrentDomain.BaseDirectory;
 
         string[] potentialDirectories = {
+        Path.Combine("..", "..", $"{fileName}.json"),
         Path.Combine("TestUtils", "MockData", $"{fileName}.json"),
         Path.Combine("..", "..", "..", "..", "..", "..", "..", "..", "tests", "TestUtils", "MockData", $"{fileName}.json")
     };
+
+        var test = Path.Combine(basePath, "..", "..", $"{fileName}.json");
 
         string filePath = potentialDirectories
             .Select(relativePath => Path.Combine(basePath, relativePath))
