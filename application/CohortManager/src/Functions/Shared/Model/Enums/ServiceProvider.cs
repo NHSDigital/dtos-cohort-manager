@@ -1,7 +1,7 @@
 namespace Model.Enums;
 
-public enum ServiceProvider: short
+public enum ServiceProvider : short
 {
-  BsSelect = 1
+    BsSelect = 1
 }
 
