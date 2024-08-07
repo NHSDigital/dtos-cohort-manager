@@ -20,7 +20,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<IGetParticipantData, GetParticipantData>();
-        services.AddSingleton<IUpdateParticipantData, UpdateParticipantData>();
+        services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
     .AddExceptionHandler()

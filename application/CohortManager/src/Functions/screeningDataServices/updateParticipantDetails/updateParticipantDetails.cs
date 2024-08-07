@@ -14,14 +14,14 @@ public class UpdateParticipantDetails
 {
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IUpdateParticipantData _updateParticipantData;
+    private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IUpdateParticipantData updateParticipant, IExceptionHandler handleException)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _updateParticipantData = updateParticipant;
+        _participantManagerData = participantManagerData;
         _handleException = handleException;
     }
 
@@ -39,7 +39,7 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var isAdded = await _updateParticipantData.UpdateParticipantDetails(participantCsvRecord);
+            var isAdded = await _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -50,7 +50,7 @@ public class UpdateParticipantDetails
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
