@@ -95,9 +95,6 @@ public class CohortDistributionHelper : ICohortDistributionHelper
     public static string GetCohortMockJsonFile(string fileName)
     {
         var jsonFilePath = FindFile(fileName);
-
-        if (!File.Exists(jsonFilePath)) throw new FileNotFoundException($@"{jsonFilePath} does not exist.");
-
         return File.ReadAllText(jsonFilePath);
     }
 
