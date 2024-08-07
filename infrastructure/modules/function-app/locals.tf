@@ -23,8 +23,8 @@ locals {
     createCohortDistribution         = "https://${var.names.function-app}-${lower(var.function_app.CreateCohortDistribution.name_suffix)}.azurewebsites.net/api/CreateCohortDistribution"
 
   }
-
   db_connection_string = "Server=${var.names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.db_name}"
+
 }
 
 locals {
