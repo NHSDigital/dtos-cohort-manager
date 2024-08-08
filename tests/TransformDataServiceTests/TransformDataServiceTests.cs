@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -106,9 +107,8 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -132,9 +132,8 @@ public class TransformDataServiceTests
             NamePrefix = "DR",
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -144,7 +143,9 @@ public class TransformDataServiceTests
     public async Task Run_NamePrefixTooLong_TruncatePrefix()
     {
         // Arrange
-        _requestBody.Participant.NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH";
+        string actualNamePrefix = new string('A', 36);
+        string expectedNamePrefix = new string('A', 35);
+        _requestBody.Participant.NamePrefix = actualNamePrefix;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -157,12 +158,11 @@ public class TransformDataServiceTests
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG",
+            NamePrefix = expectedNamePrefix,
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -190,10 +190,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -221,10 +218,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -253,10 +247,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -285,10 +276,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -317,10 +305,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -349,10 +334,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -381,10 +363,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -413,10 +392,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -445,10 +421,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -477,10 +450,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -509,10 +479,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -541,10 +508,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -573,10 +537,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male
         };
 
-        result.Body.Position = 0; // Reset stream position to beginning
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -629,9 +590,7 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male,
         };
 
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -656,9 +615,8 @@ public class TransformDataServiceTests
             NamePrefix = "DR",
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
