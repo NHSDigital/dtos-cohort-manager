@@ -594,6 +594,11 @@
       "postcode": "ZE",
       "screeningService": "BSS",
       "serviceProvider": "BS Select"
+    },
+    {
+      "postcode": "ZZ",
+      "screeningService": "BSS",
+      "serviceProvider": "BS Select"
     }
   ]
 }
