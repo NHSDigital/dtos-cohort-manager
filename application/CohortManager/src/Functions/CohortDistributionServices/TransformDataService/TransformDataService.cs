@@ -159,7 +159,6 @@ public class TransformDataService
     }
 
     public CohortDistributionParticipant GetAddress(CohortDistributionParticipant participant, IDbConnection connection) {
-        // Set up DB connection
         using (connection)
         {
             connection.Open();
@@ -174,13 +173,11 @@ public class TransformDataService
                 {
                     while (reader.Read())
                     {
-                        // Throw exception if Postcodes don't match
-                        if (participant.Postcode != reader.GetString(0)) {
+                        if (participant.Postcode != reader["POST_CODE"] as string) {
                             // will be changed to call exception service
                             throw new ArgumentException();
                         }
 
-                        // Assign database values to address field
                         participant.AddressLine1 = reader["ADDRESS_LINE_1"] as string ?? null;
                         participant.AddressLine2 = reader["ADDRESS_LINE_2"] as string ?? null;
                         participant.AddressLine3 = reader["ADDRESS_LINE_3"] as string ?? null;
