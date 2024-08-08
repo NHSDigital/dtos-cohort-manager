@@ -517,7 +517,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-   [TestMethod]
+    [TestMethod]
     public async Task Run_MobileNumberTooLong_TruncatePrefix()
     {
         // Arrange
@@ -549,7 +549,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-   [TestMethod]
+    [TestMethod]
     public async Task Run_EmailAddressTooLong_TruncatePrefix()
     {
         // Arrange
