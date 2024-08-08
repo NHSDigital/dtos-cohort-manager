@@ -57,12 +57,13 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
     }
 
-    public async Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData)
+    public async Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData, CohortDistributionParticipant latestRecordFromCohortDistribution)
     {
         var transformDataRequestBody = new TransformDataRequestBody()
         {
             Participant = participantData,
-            ServiceProvider = serviceProvider
+            ServiceProvider = serviceProvider,
+            LatestRecordFromCohortDistribution = latestRecordFromCohortDistribution
         };
 
         var json = JsonSerializer.Serialize(transformDataRequestBody);
