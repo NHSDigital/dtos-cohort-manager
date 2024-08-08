@@ -28,10 +28,8 @@ public class ParticipantManagerData : IParticipantManagerData
     #region Update methods
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
     {
-        var oldParticipant = GetParticipant(participant.NhsNumber);
-
-        var allRecordsToUpdate = UpdateOldRecords(int.Parse(oldParticipant.ParticipantId));
-        return UpdateRecords(allRecordsToUpdate);
+        var Participant = GetParticipant(participant.NhsNumber);
+        return UpdateRecords(int.Parse(Participant.ParticipantId));
     }
 
     public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
@@ -142,16 +140,9 @@ public class ParticipantManagerData : IParticipantManagerData
         try
         {
             long newParticipantPk = -1;
-
             newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
-            AddParameters(new Dictionary<string, object>()
-            {
-                {"@NewParticipantId", newParticipantPk }
-            }, command);
-
             transaction.Commit();
             _dbConnection.Close();
-
             return true;
         }
         catch (Exception ex)
@@ -163,25 +154,21 @@ public class ParticipantManagerData : IParticipantManagerData
         }
     }
 
-    private static List<SQLReturnModel> UpdateOldRecords(int participantId)
+    private static SQLReturnModel UpdateOldRecords(int participantId)
     {
         var recordUpdateTime = DateTime.Now;
-        var listToReturn = new List<SQLReturnModel>()
+        return new SQLReturnModel()
         {
-            new()
+            CommandType = CommandType.Command,
+            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
+            " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
+            " WHERE PARTICIPANT_ID = @participantId ",
+            Parameters = new Dictionary<string, object>
             {
-                CommandType = CommandType.Command,
-                SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
-                " WHERE PARTICIPANT_ID = @participantId ",
-                Parameters = new Dictionary<string, object>
-                {
-                    {"@participantId", participantId },
-                    {"@recordEndDateOldRecords", recordUpdateTime }
-                }
+                {"@participantId", participantId },
+                {"@recordEndDateOldRecords", recordUpdateTime }
             }
         };
-        return listToReturn;
     }
 
     private Participant GetParticipantWithScreeningName(IDbCommand command, bool withScreeningName)
@@ -298,23 +285,35 @@ public class ParticipantManagerData : IParticipantManagerData
         return newParticipant;
     }
 
-    private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
+    private bool UpdateRecords(int participantId)
     {
-        var command = CreateCommand(sqlToExecute[0].Parameters);
+        var recordUpdateTime = DateTime.Now;
+        var SQLCommand = new SQLReturnModel()
+        {
+            CommandType = CommandType.Command,
+            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
+            " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
+            " WHERE PARTICIPANT_ID = @participantId ",
+            Parameters = new Dictionary<string, object>
+            {
+                {"@participantId", participantId },
+                {"@recordEndDateOldRecords", recordUpdateTime }
+            }
+        };
+
+        var command = CreateCommand(SQLCommand.Parameters);
         var transaction = BeginTransaction();
         try
         {
             command.Transaction = transaction;
-            foreach (var sqlCommand in sqlToExecute)
+            command.CommandText = SQLCommand.SQL;
+            if (!Execute(command))
             {
-                command.CommandText = sqlCommand.SQL;
-                if (!Execute(command))
-                {
-                    transaction.Rollback();
-                    _dbConnection.Close();
-                    return false;
-                }
+                transaction.Rollback();
+                _dbConnection.Close();
+                return false;
             }
+            
             transaction.Commit();
             _dbConnection.Close();
             return true;
