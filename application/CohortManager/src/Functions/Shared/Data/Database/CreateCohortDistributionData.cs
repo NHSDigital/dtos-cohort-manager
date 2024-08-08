@@ -158,6 +158,24 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return [];
     }
 
+    public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
+    {
+        var SQL = "SELECT TOP (1) * " +
+                " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                " WHERE NHS_NUMBER = @NhsNumber " +
+                " ORDER BY PARTICIPANT_ID DESC ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NhsNumber", NhsNumber },
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command).FirstOrDefault();
+    }
+
     public bool UpdateCohortParticipantAsInactive(string NhsNumber)
     {
 

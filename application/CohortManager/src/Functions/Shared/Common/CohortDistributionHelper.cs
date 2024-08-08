@@ -76,6 +76,19 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
+    public async Task<CohortDistributionParticipant> GetLastCohortDistributionRecord(CreateCohortDistributionRequestBody requestBody)
+    {
+        var json = JsonSerializer.Serialize(requestBody);
+
+        _logger.LogInformation("Called transform data service");
+        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("GetLastCohortDistributionRecordURL"));
+        if (!string.IsNullOrEmpty(response))
+        {
+            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
+        }
+        return null;
+    }
+
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
     {
         var response = await _callFunction.SendPost(functionURL, requestBodyJson);
