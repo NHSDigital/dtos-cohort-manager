@@ -87,32 +87,6 @@ public class UpdateParticipantDetailsTests
     }
 
     [TestMethod]
-    public async Task UpdateParticipantDetails_FailsToGetOldId_False()
-    {
-        // Arrange
-        _moqDataReader.SetupSequence(reader => reader.Read())
-        .Returns(true)
-        .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
-
-        SetUpReader();
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
-
-        // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
-
-        // Assert
-        Assert.IsFalse(result);
-    }
-
-    [TestMethod]
     public void UpdateParticipantAsEligible_UpdatesRecords_True()
     {
         // Arrange

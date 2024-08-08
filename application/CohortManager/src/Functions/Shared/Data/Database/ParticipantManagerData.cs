@@ -38,7 +38,6 @@ public class ParticipantManagerData : IParticipantManagerData
     {
         var participantData = participantCsvRecord.Participant;
         var dateToday = DateTime.Now;
-        var SQLToExecuteInOrder = new List<SQLReturnModel>();
 
         var oldParticipant = GetParticipant(participantData.NhsNumber);
         var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
@@ -70,13 +69,15 @@ public class ParticipantManagerData : IParticipantManagerData
             { "@recordUpdateDateTime", DBNull.Value },
         };
 
-        SQLToExecuteInOrder.Add(new SQLReturnModel()
+
+        var SQLToExecute = new SQLReturnModel()
         {
             CommandType = CommandType.Scalar,
             SQL = insertParticipant,
             Parameters = null
-        });
-        return ExecuteBulkCommand(SQLToExecuteInOrder, commonParameters);
+        };
+
+        return ExecuteCommand(SQLToExecute, commonParameters);
     }
     #endregion
 
@@ -131,44 +132,22 @@ public class ParticipantManagerData : IParticipantManagerData
 
     #region private methods
 
-    private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
+    private bool ExecuteCommand(SQLReturnModel sqlCommand, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
-
-        sqlCommands
-            .Where(sqlCommand => sqlCommand.Parameters != null)
-            .Select(sqlCommand => sqlCommand.Parameters)
-            .ToList()
-            .ForEach(parameters => AddParameters(parameters, command));
-
+        AddParameters(sqlCommand.Parameters, command);
         var transaction = BeginTransaction();
         command.Transaction = transaction;
 
         try
         {
             long newParticipantPk = -1;
-            foreach (var sqlCommand in sqlCommands)
-            {
 
-                if (sqlCommand.CommandType == CommandType.Scalar)
-                {
-                    newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
-                    AddParameters(new Dictionary<string, object>()
-                    {
-                        {"@NewParticipantId", newParticipantPk }
-                    }, command);
-                }
-                if (sqlCommand.CommandType == CommandType.Command)
-                {
-                    command.CommandText = sqlCommand.SQL;
-                    if (!Execute(command))
-                    {
-                        transaction.Rollback();
-                        _dbConnection.Close();
-                        return false;
-                    }
-                }
-            }
+            newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
+            AddParameters(new Dictionary<string, object>()
+            {
+                {"@NewParticipantId", newParticipantPk }
+            }, command);
 
             transaction.Commit();
             _dbConnection.Close();
