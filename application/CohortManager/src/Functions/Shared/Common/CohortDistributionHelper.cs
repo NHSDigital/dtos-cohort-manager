@@ -77,7 +77,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<CohortDistributionParticipant> GetLastCohortDistributionRecord(CreateCohortDistributionRequestBody requestBody)
+    public async Task<CohortDistributionParticipant> GetLastCohortDistributionRecordAsync(CreateCohortDistributionRequestBody requestBody)
     {
         var json = JsonSerializer.Serialize(requestBody);
 

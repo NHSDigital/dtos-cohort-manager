@@ -9,5 +9,5 @@ public interface ICohortDistributionHelper
     Task<string> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode);
     Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData, CohortDistributionParticipant latestRecordFromCohortDistribution);
 
-    Task<CohortDistributionParticipant> GetLastCohortDistributionRecord(CreateCohortDistributionRequestBody requestBody);
+    Task<CohortDistributionParticipant> GetLastCohortDistributionRecordAsync(CreateCohortDistributionRequestBody requestBody);
 }

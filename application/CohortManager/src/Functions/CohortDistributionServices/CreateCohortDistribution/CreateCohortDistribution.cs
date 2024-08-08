@@ -72,7 +72,7 @@ public class CreateCohortDistribution
             response = await HandleErrorResponseIfNull(serviceProvider, req);
             if (response != null) return response;
 
-            var mostRecentCohortDistributionParticipant = await _CohortDistributionHelper.GetLastCohortDistributionRecord(requestBody);
+            var mostRecentCohortDistributionParticipant = await _CohortDistributionHelper.GetLastCohortDistributionRecordAsync(requestBody);
             response = await HandleErrorResponseIfNull(mostRecentCohortDistributionParticipant, req);
             if (response != null) return response;
 
