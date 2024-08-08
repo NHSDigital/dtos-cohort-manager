@@ -49,10 +49,6 @@ variable "gl_worker_32bit" {
   description = "Should the Windows Function App use a 32-bit worker process. Defaults to true"
 }
 
-variable "app_settings" {
-  description = "App settings for App Service"
-}
-
 variable "acr_registry_url" {
   description = "The URL that can be used to log into the container registry."
 }
@@ -75,4 +71,21 @@ variable "acr_mi_client_id" {
 
 variable "caasfolder_STORAGE" {
   description = "Primary connection string to file exeptions storage account"
+}
+
+variable "docker_CI_enable" {
+  description = "Is the Docker CI enabled (default - false)"
+}
+
+variable "docker_img_prefix" {
+  description = "A commont part of the docker image name"
+}
+
+variable "db_name" {
+  type        = string
+  description = "Name of the deployed DB to which the connection string is linking."
+}
+
+variable "enable_appsrv_storage" {
+  description = "If websites app service storage should be enabled"
 }

@@ -78,7 +78,7 @@ public class MarkParticipantAsIneligible
         catch (Exception ex)
         {
             _logger.LogError($"an error occurred: {ex}");
-            await _handleException.CreateSystemExceptionLog(ex, participantData);
+            await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }

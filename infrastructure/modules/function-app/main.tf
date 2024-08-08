@@ -21,19 +21,20 @@ resource "azurerm_linux_function_app" "function" {
     application_stack {
       docker {
         registry_url = var.acr_registry_url
-        image_name   = each.value.docker_img_name
+        image_name   = "${var.docker_img_prefix}-${lower(each.value.name_suffix)}"
         image_tag    = var.image_tag
       }
     }
   }
 
   identity {
-    type         = "UserAssigned"
+    type         = "SystemAssigned, UserAssigned"
     identity_ids = [var.acr_mi_id]
   }
 
-  app_settings = local.app_settings[each.key]
-  tags         = var.tags
+  app_settings = merge(local.global_app_settings, local.app_settings[each.key])
+
+  tags = var.tags
 
   lifecycle {
     #ignore_changes = [tags, app_settings, connection_string]

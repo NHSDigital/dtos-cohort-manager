@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System.Data;
 using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Model.Enums;
 
@@ -74,4 +75,10 @@ public class DatabaseHelper : IDatabaseHelper
 
         return value.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0;
     }
+
+    public int ParseExceptionFlag(object exception)
+    {
+        return exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0;
+    }
+
 }

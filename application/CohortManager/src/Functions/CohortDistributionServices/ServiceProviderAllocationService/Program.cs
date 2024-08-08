@@ -9,6 +9,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

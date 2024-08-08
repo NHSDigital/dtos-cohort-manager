@@ -24,6 +24,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

@@ -17,18 +17,23 @@ public class CreateCohortDistribution
     private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
 
-    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICallFunction callFunction, ICohortDistributionHelper CohortDistributionHelper)
+
+    private readonly IExceptionHandler _exceptionHandler;
+
+    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICallFunction callFunction, ICohortDistributionHelper CohortDistributionHelper, IExceptionHandler exceptionHandler)
     {
         _createResponse = createResponse;
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function("CreateCohortDistribution")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        CreateCohortDistributionRequestBody requestBody;
+        CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody();
+
         try
         {
             string requestBodyJson;
@@ -39,8 +44,14 @@ public class CreateCohortDistribution
 
             requestBody = JsonSerializer.Deserialize<CreateCohortDistributionRequestBody>(requestBodyJson);
         }
-        catch
+        catch (Exception ex)
         {
+            if (requestBody.NhsNumber != null && requestBody.FileName != null)
+            {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            }
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
+
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
 
@@ -59,7 +70,7 @@ public class CreateCohortDistribution
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody, participantData.Postcode);
+            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
 
             if (serviceProvider == null)
             {
@@ -84,10 +95,9 @@ public class CreateCohortDistribution
         catch (Exception ex)
         {
             _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
-
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)

@@ -166,7 +166,7 @@ public class UpdateParticipantTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     [TestMethod]

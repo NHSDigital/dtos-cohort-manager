@@ -36,13 +36,13 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<string?> AllocateServiceProviderAsync(CreateCohortDistributionRequestBody requestBody, string postCode)
+    public async Task<string?> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode)
     {
         var allocationConfigRequestBody = new AllocationConfigRequestBody
         {
-            NhsNumber = requestBody.NhsNumber,
+            NhsNumber = nhsNumber,
             Postcode = postCode,
-            ScreeningService = requestBody.ScreeningService
+            ScreeningAcronym = screeningAcronym
         };
 
         var json = JsonSerializer.Serialize(allocationConfigRequestBody);
@@ -76,10 +76,9 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    private async Task<string> GetResponseAsync(string requestBody, string functionURL)
+    private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
     {
-        var json = JsonSerializer.Serialize(requestBody);
-        var response = await _callFunction.SendPost(functionURL, json);
+        var response = await _callFunction.SendPost(functionURL, requestBodyJson);
 
         if (response.StatusCode == HttpStatusCode.OK)
         {

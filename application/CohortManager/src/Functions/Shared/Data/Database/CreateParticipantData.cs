@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System.Data;
 using System.Net;
+using System.Reflection.Metadata;
 using System.Text.Json;
 using Common;
 using Microsoft.Extensions.Logging;
@@ -61,7 +62,6 @@ public class CreateParticipantData : ICreateParticipantData
             " @recordInsertDateTime, " +
             " @recordUpdateDateTime " +
             " ) ";
-
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
@@ -69,7 +69,7 @@ public class CreateParticipantData : ICreateParticipantData
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
             { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
-            { "@exceptionFlag",  _databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag) },
+            { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
         };
