@@ -193,8 +193,7 @@ public class ParticipantManagerData : IParticipantManagerData
     private bool ExecuteCommand(SQLReturnModel sqlCommand, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
-        var transaction = BeginTransaction();
-        command.Transaction = transaction;
+        command.Transaction = BeginTransaction();
         command.CommandText = sqlCommand.SQL;
         try
         {
