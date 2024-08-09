@@ -2,8 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Azure.Storage.Blobs;
 using System.IO;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Logging;
+using System.Data.SqlClient; //
+using Microsoft.Extensions.Logging; //
 using System.Linq;
 using Model;
 using System.Collections.Generic;
@@ -19,32 +19,9 @@ namespace Tests.Integration.EndtoEndTests
         private string _localFilePath;
         private string _blobContainerName;
         private string _connectionString;
-        private ILogger<E2E_FileUploadAndCreateParticipantTest> _logger;
         private List<string> _nhsNumbers;
 
-        public E2E_FileUploadAndCreateParticipantTest()
-        {
-        }
-
-        protected override void AdditionalSetup()
-        {
-            InitializeLogger();
-            LoadConfiguration();
-            AssertAllConfigurations();
-            ExtractExpectedDataFromCsv();
-            CleanDatabase();
-        }
-
-        private void InitializeLogger()
-        {
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddConsole();
-            });
-            _logger = loggerFactory.CreateLogger<E2E_FileUploadAndCreateParticipantTest>();
-        }
-
-        private void LoadConfiguration()
+        protected override void LoadConfiguration()
         {
             _connectionString = TestConfig.Get("ConnectionString:DtOsDatabaseConnectionString");
             _blobServiceClient = new BlobServiceClient(TestConfig.Get("AzureWebJobsStorage"));
@@ -52,12 +29,18 @@ namespace Tests.Integration.EndtoEndTests
             _blobContainerName = TestConfig.Get("BlobContainerName");
         }
 
-        private void AssertAllConfigurations()
+        protected override void AssertAllConfigurations()
         {
             Assert.IsNotNull(_connectionString, "Database connection string is not set in configuration");
             Assert.IsNotNull(_blobServiceClient, "Blob service connection string is not set in configuration");
             Assert.IsNotNull(_localFilePath, "Local file path is not set in configuration");
             Assert.IsNotNull(_blobContainerName, "Blob container name is not set in configuration");
+        }
+
+        protected override async Task AdditionalSetupAsync()
+        {
+            ExtractExpectedDataFromCsv();
+            await CleanDatabaseAsync();
         }
 
         private void ExtractExpectedDataFromCsv()
@@ -73,57 +56,37 @@ namespace Tests.Integration.EndtoEndTests
             return columns[3]; // returns NHS Number column from test data csv
         }
 
-        private void CleanDatabase()
+        private async Task CleanDatabaseAsync()
         {
-            // Logic for cleaning down tables
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                connection.Open();
-                _logger.LogInformation("Database connection opened.");
-
-                var query = "DELETE FROM dbo.PARTICIPANT_MANAGEMENT; DELETE FROM dbo.PARTICIPANT_DEMOGRAPHIC";
-                using(var command = new SqlCommand(query, connection))
-
-                {
-                    command.ExecuteNonQuery();
-                    _logger.LogInformation($"Database cleanup completed.");
-                }
-            }
-
+            var query = "DELETE FROM dbo.PARTICIPANT_MANAGEMENT; DELETE FROM dbo.PARTICIPANT_DEMOGRAPHIC";
+            await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, query);
+            Logger.LogInformation("Database cleanup completed.");
         }
 
         [TestMethod]
         public async Task EndToEnd_FileUploadAndCreateParticipantFlow()
         {
-            try
-            {
-                _logger.LogInformation("Starting end-to-end happy path test");
+            Logger.LogInformation("Starting end-to-end happy path test");
 
-                int originalParticipantCount = await GetRecordCountAsync("dbo.PARTICIPANT_MANAGEMENT");
-                int originalDemographicCount = await GetRecordCountAsync("dbo.PARTICIPANT_DEMOGRAPHIC");
+            var originalParticipantCount = await DatabaseHelper.GetRecordCountAsync(_connectionString, "dbo.PARTICIPANT_MANAGEMENT");
+            var originalDemographicCount = await DatabaseHelper.GetRecordCountAsync(_connectionString, "dbo.PARTICIPANT_DEMOGRAPHIC");
 
-                await UploadFileToBlobStorageAsync();
+            await UploadFileToBlobStorageAsync();
 
-                bool participantVerified = await VerifyRecordCountAsync("dbo.PARTICIPANT_MANAGEMENT", originalParticipantCount, expectedIncrement: _nhsNumbers.Count);
-                bool demographicVerified = await VerifyRecordCountAsync("dbo.PARTICIPANT_DEMOGRAPHIC", originalDemographicCount, expectedIncrement: _nhsNumbers.Count);
+            var participantVerified = await VerifyRecordCountAsync("dbo.PARTICIPANT_MANAGEMENT", originalParticipantCount, expectedIncrement: _nhsNumbers.Count);
+            var demographicVerified = await VerifyRecordCountAsync("dbo.PARTICIPANT_DEMOGRAPHIC", originalDemographicCount, expectedIncrement: _nhsNumbers.Count);
 
-                Assert.IsTrue(participantVerified, $"The expected number of participant records ({originalParticipantCount + _nhsNumbers.Count}) was not found in the database.");
-                Assert.IsTrue(demographicVerified, $"The expected number of demographic records ({originalDemographicCount + _nhsNumbers.Count}) was not found in the database.");
+            Assert.IsTrue(participantVerified, $"The expected number of participant records ({originalParticipantCount + _nhsNumbers.Count}) was not found in the database.");
+            Assert.IsTrue(demographicVerified, $"The expected number of demographic records ({originalDemographicCount + _nhsNumbers.Count}) was not found in the database.");
 
-                // Additional check: Verify that specific NHS numbers from the CSV are present in the tables
-                await VerifyDataIntegrityAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred during the EndToEnd_FileUploadAndCreateParticipantFlow test");
-                throw;
-            }
+            // Additional check: Verify that specific NHS numbers from the CSV are present in the tables
+            await VerifyDataIntegrityAsync();
         }
 
         private async Task UploadFileToBlobStorageAsync()
         {
             Assert.IsTrue(File.Exists(_localFilePath), $"File not found at {_localFilePath}");
-            _logger.LogInformation("Uploading file {FilePath} to blob storage", _localFilePath);
+            Logger.LogInformation("Uploading file {FilePath} to blob storage", _localFilePath);
 
             var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobContainerName);
             await blobContainerClient.CreateIfNotExistsAsync();
@@ -131,34 +94,21 @@ namespace Tests.Integration.EndtoEndTests
             var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(_localFilePath));
             await blobClient.UploadAsync(File.OpenRead(_localFilePath), true);
 
-            _logger.LogInformation("File uploaded successfully");
-        }
-
-        private async Task<int> GetRecordCountAsync(string tableName)
-        {
-            using (var connection = new SqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-                var query = $"SELECT COUNT(*) FROM {tableName}";
-                using (var command = new SqlCommand(query, connection))
-                {
-                    return (int)await command.ExecuteScalarAsync();
-                }
-            }
+            Logger.LogInformation("File uploaded successfully");
         }
 
         private async Task<bool> VerifyRecordCountAsync(string tableName, int originalCount, int expectedIncrement, int maxRetries = 10, int delay = 1000)
         {
             for (int i = 0; i < maxRetries; i++)
             {
-                int newCount = await GetRecordCountAsync(tableName);
+                var newCount = await DatabaseHelper.GetRecordCountAsync(_connectionString, tableName);
                 if (newCount == originalCount + expectedIncrement)
                 {
-                    _logger.LogInformation("Database record count verified for {TableName}: {NewCount}", tableName, newCount);
+                    Logger.LogInformation("Database record count verified for {TableName}: {NewCount}", tableName, newCount);
                     return true;
                 }
 
-                _logger.LogInformation("Database record count not yet updated for {TableName}, retrying... ({Retry}/{MaxRetries})", tableName, i + 1, maxRetries);
+                Logger.LogInformation("Database record count not yet updated for {TableName}, retrying... ({Retry}/{MaxRetries})", tableName, i + 1, maxRetries);
                 await Task.Delay(delay);
             }
             return false;
@@ -174,14 +124,14 @@ namespace Tests.Integration.EndtoEndTests
                 var nhsNumbersToCheck = new List<string> { _nhsNumbers.First(), _nhsNumbers.Last() }; // Check first and last NHS Number
                 nhsNumbersToCheck.AddRange(_nhsNumbers.Skip(1).Take(3)); // Check 3 additional NHS numbers from the list
 
-                _logger.LogInformation("Starting data integrity verification for NHS Numbers.");
+                Logger.LogInformation("Starting data integrity verification for NHS Numbers.");
 
                 foreach (var nhsNumber in nhsNumbersToCheck)
                 {
                     await VerifyNhsNumberAsync(connection, "dbo.PARTICIPANT_MANAGEMENT", nhsNumber);
                     await VerifyNhsNumberAsync(connection, "dbo.PARTICIPANT_DEMOGRAPHIC", nhsNumber);
 
-                    _logger.LogInformation("Data Integrity verification completed.");
+                    Logger.LogInformation("Data Integrity verification completed.");
                 }
             }
         }

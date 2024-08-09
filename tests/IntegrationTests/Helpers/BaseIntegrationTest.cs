@@ -1,34 +1,39 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+
 namespace Tests.Integration.Helpers
 {
     public abstract class BaseIntegrationTest
     {
+        protected ILogger<BaseIntegrationTest> Logger { get; private set; }
+
         [TestInitialize]
-        public void Initialize()
+        public async Task InitializeAsync()
         {
-            SetEnvironmentVariables();
-            AdditionalSetup();
+            InitializeLogger();
+            LoadConfiguration();
+            AssertAllConfigurations();
+            await AdditionalSetupAsync();
         }
 
-        protected void SetEnvironmentVariables()
+        private void InitializeLogger()
         {
-            Environment.SetEnvironmentVariable("AzureWebJobsStorage", TestConfig.Get("AzureWebJobsStorage"));
-            Environment.SetEnvironmentVariable("BlobContainerName", TestConfig.Get("BlobContainerName"));
-            Environment.SetEnvironmentVariable("DemographicURI", TestConfig.Get("Endpoints:DemographicDataService:Url"));
-            Environment.SetEnvironmentVariable("PMSAddParticipant", TestConfig.Get("Endpoints:AddParticipant:Url"));
-            Environment.SetEnvironmentVariable("PMSUpdateParticipant", TestConfig.Get("Endpoints:UpdateParticipant:Url"));
-            Environment.SetEnvironmentVariable("PMSRemoveParticipant", TestConfig.Get("Endpoints:RemoveParticipant:Url"));
-            Environment.SetEnvironmentVariable("StaticValidationURL", TestConfig.Get("Endpoints:StaticValidation:Url"));
-            Environment.SetEnvironmentVariable("FileValidationURL", TestConfig.Get("Endpoints:FileValidation:Url"));
-            Environment.SetEnvironmentVariable("LookupValidation", TestConfig.Get("Endpoints:LookupValidation:Url"));
-            Environment.SetEnvironmentVariable("ProcessParticipant", TestConfig.Get("Endpoints:ProcessParticipant:Url"));
-            Environment.SetEnvironmentVariable("MarkParticipantAsEligible", TestConfig.Get("Endpoints:MarkParticipantAsEligible:Url"));
-            Environment.SetEnvironmentVariable("MarkParticipantAsIneligible", TestConfig.Get("Endpoints:MarkParticipantAsIneligible:Url"));
-            Environment.SetEnvironmentVariable("CreateException", TestConfig.Get("Endpoints:CreateException:Url"));
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+            Logger = loggerFactory.CreateLogger<BaseIntegrationTest>();
         }
 
-        protected virtual void AdditionalSetup()
+        protected abstract void LoadConfiguration();
+
+        protected abstract void AssertAllConfigurations();
+
+        protected virtual Task AdditionalSetupAsync()
         {
             // Override this in derived classes to add additional setup if needed
+            return Task.CompletedTask;
         }
     }
 }
