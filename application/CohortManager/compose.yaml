@@ -154,7 +154,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CreateException/Dockerfile
+      dockerfile: ExceptionHandling/CreateException/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

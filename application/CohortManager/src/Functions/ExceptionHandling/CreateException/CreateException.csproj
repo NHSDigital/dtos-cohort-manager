@@ -28,5 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\Shared\Model\Model.csproj" />
   </ItemGroup>
 </Project>
