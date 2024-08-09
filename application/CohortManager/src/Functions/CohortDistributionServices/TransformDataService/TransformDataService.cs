@@ -79,7 +79,7 @@ public class TransformDataService
                 Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode),
                 TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
                 MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
-                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress)
+                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
                 ParticipantId = participant.ParticipantId
             };
 
