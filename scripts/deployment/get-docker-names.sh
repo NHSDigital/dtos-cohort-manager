@@ -3,7 +3,7 @@
 declare -A docker_functions_map=(
     ["CaasIntegration/ProcessCaasFile"]="process-caas-file"
     ["CaasIntegration/ReceiveCaasFile"]="receive-caas-file"
-    ["CreateException"]="create-exception"
+    ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-from-cohort-distribution-data"
