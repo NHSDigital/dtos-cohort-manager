@@ -29,7 +29,22 @@ public class ParticipantManagerData : IParticipantManagerData
     public bool UpdateParticipantAsEligible(Participant participant, char isActive)
     {
         var Participant = GetParticipant(participant.NhsNumber);
-        return UpdateRecords(int.Parse(Participant.ParticipantId));
+
+        var recordUpdateTime = DateTime.Now;
+        var SQLCommand = new SQLReturnModel()
+        {
+            CommandType = CommandType.Command,
+            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
+            " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
+            " WHERE PARTICIPANT_ID = @participantId ",
+            Parameters = new Dictionary<string, object>
+            {
+                {"@participantId", Participant.ParticipantId },
+                {"@recordEndDateOldRecords", recordUpdateTime }
+            }
+        };
+
+        return ExecuteCommand(SQLCommand, SQLCommand.Parameters);
     }
 
     public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
@@ -38,6 +53,11 @@ public class ParticipantManagerData : IParticipantManagerData
         var dateToday = DateTime.Now;
 
         var oldParticipant = GetParticipant(participantData.NhsNumber);
+        if (oldParticipant.ParticipantId == null || oldParticipant.ParticipantId == "-1")
+        {
+            //need to decide what to do here
+        }
+
         var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
         if (response.ExceptionFlag == "Y")
         {
@@ -54,7 +74,6 @@ public class ParticipantManagerData : IParticipantManagerData
             " WHERE SCREENING_ID = @screeningId " +
             " AND NHS_NUMBER = @NHSNumber";
 
-
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
@@ -66,7 +85,6 @@ public class ParticipantManagerData : IParticipantManagerData
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
         };
-
 
         var SQLToExecute = new SQLReturnModel()
         {
@@ -130,47 +148,6 @@ public class ParticipantManagerData : IParticipantManagerData
 
     #region private methods
 
-    private bool ExecuteCommand(SQLReturnModel sqlCommand, Dictionary<string, object> commonParams)
-    {
-        var command = CreateCommand(commonParams);
-        AddParameters(sqlCommand.Parameters, command);
-        var transaction = BeginTransaction();
-        command.Transaction = transaction;
-
-        try
-        {
-            long newParticipantPk = -1;
-            newParticipantPk = ExecuteCommandAndGetId(sqlCommand.SQL, command, transaction);
-            transaction.Commit();
-            _dbConnection.Close();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            transaction.Rollback();
-            _dbConnection.Close();
-            _logger.LogError("An error occurred while updating records: {ex}", ex);
-            return false;
-        }
-    }
-
-    private static SQLReturnModel UpdateOldRecords(int participantId)
-    {
-        var recordUpdateTime = DateTime.Now;
-        return new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-            " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
-            " WHERE PARTICIPANT_ID = @participantId ",
-            Parameters = new Dictionary<string, object>
-            {
-                {"@participantId", participantId },
-                {"@recordEndDateOldRecords", recordUpdateTime }
-            }
-        };
-    }
-
     private Participant GetParticipantWithScreeningName(IDbCommand command, bool withScreeningName)
     {
         return ExecuteQuery(command, reader =>
@@ -208,12 +185,17 @@ public class ParticipantManagerData : IParticipantManagerData
                 }
                 _dbConnection.Close();
             }
+
             return result;
         }
     }
 
-    private bool Execute(IDbCommand command)
+    private bool ExecuteCommand(SQLReturnModel sqlCommand, Dictionary<string, object> commonParams)
     {
+        var command = CreateCommand(commonParams);
+        var transaction = BeginTransaction();
+        command.Transaction = transaction;
+        command.CommandText = sqlCommand.SQL;
         try
         {
             var result = command.ExecuteNonQuery();
@@ -221,47 +203,22 @@ public class ParticipantManagerData : IParticipantManagerData
 
             if (result == 0)
             {
+                command.Transaction.Rollback();
+                _dbConnection.Close();
                 return false;
             }
         }
         catch (Exception EX)
         {
-            _logger.LogError("an error happened, {EX}", EX);
+            command.Transaction.Rollback();
+            _dbConnection.Close();
+            _logger.LogError("an error happened on exectuting command, {EX}", EX);
             return false;
         }
 
+        command.Transaction.Commit();
+        _dbConnection.Close();
         return true;
-    }
-
-    private long ExecuteCommandAndGetId(string SQL, IDbCommand command, IDbTransaction transaction)
-    {
-        command.Transaction = transaction;
-        long newParticipantPk = -1;
-
-        try
-        {
-            command.CommandText = SQL;
-            _logger.LogInformation($"{SQL}");
-
-            command.ExecuteNonQuery();
-            var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber";
-
-            command.CommandText = SQLGet;
-            using (IDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    newParticipantPk = reader.GetInt64(0);
-                }
-            }
-
-            return newParticipantPk;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"an error happened: {ex.Message}");
-            return -1;
-        }
     }
 
     private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
@@ -283,48 +240,6 @@ public class ParticipantManagerData : IParticipantManagerData
         }
 
         return newParticipant;
-    }
-
-    private bool UpdateRecords(int participantId)
-    {
-        var recordUpdateTime = DateTime.Now;
-        var SQLCommand = new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-            " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
-            " WHERE PARTICIPANT_ID = @participantId ",
-            Parameters = new Dictionary<string, object>
-            {
-                {"@participantId", participantId },
-                {"@recordEndDateOldRecords", recordUpdateTime }
-            }
-        };
-
-        var command = CreateCommand(SQLCommand.Parameters);
-        var transaction = BeginTransaction();
-        try
-        {
-            command.Transaction = transaction;
-            command.CommandText = SQLCommand.SQL;
-            if (!Execute(command))
-            {
-                transaction.Rollback();
-                _dbConnection.Close();
-                return false;
-            }
-            
-            transaction.Commit();
-            _dbConnection.Close();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            transaction.Rollback();
-            _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
-            return false;
-        }
     }
 
     private IDbTransaction BeginTransaction()
