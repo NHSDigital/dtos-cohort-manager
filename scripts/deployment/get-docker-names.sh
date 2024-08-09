@@ -1,27 +1,28 @@
 #!/bin/bash
 
 declare -A docker_functions_map=(
-    ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
-    ["CaasIntegration/processCaasFile"]="process-caas-file"
-    ["ParticipantManagementServices/addParticipant"]="add-participant"
-    ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
-    ["ParticipantManagementServices/updateParticipantDetails"]="update-participant"
-    ["screeningDataServices/createParticipant"]="create-participant"
-    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-eligible"
-    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-ineligible"
-    ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
-    # ["screeningDataServices/CreateValidationException"]="create-validation-exception" # does not appear to exist.
-    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
-    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
-    ["ScreeningValidationService/FileValidation"]="file-validation"
-    ["ScreeningValidationService/StaticValidation"]="static-validation"
-    ["ScreeningValidationService/LookupValidation"]="lookup-validation"
-    ["DemographicServices/DemographicDataManagementFunction"]="demographic-data-management"
+    ["CaasIntegration/ProcessCaasFile"]="process-caas-file"
+    ["CaasIntegration/ReceiveCaasFile"]="receive-caas-file"
+    ["CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
-    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
-    ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
-    ["CohortDistributionServices/TransformDataService"]="transform-data"
-    ["CohortDistributionServices/ServiceProviderAllocationService/AllocateServiceProviderToParticipantByService"]="allocate-service-provider"
+    ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
+    ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-from-cohort-distribution-data"
+    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-distribution-data" #inconsistant file name for the function (should be retrieve-cohort-distribution-data )
+    ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
+    ["CohortDistributionServices/TransformDataService"]="transform-data-service"
+    ["DemographicServices/DemographicDataManagement"]="demographic-data-management"
+    ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
+    ["ParticipantManagementServices/AddParticipant"]="add-participant"
+    ["ParticipantManagementServices/UpdateParticipant"]="update-participant"
+    ["ScreeningValidationService/FileValidation"]="file-validation"
+    ["ScreeningValidationService/LookupValidation"]="lookup-validation"
+    ["ScreeningValidationService/StaticValidation"]="static-validation"
+    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
+    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
+    ["screeningDataServices/CreateParticipant"]="create-participant"
+    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
+    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
+    ["screeningDataServices/UpdateParticipantDetails"]="update-participant-details"
 )
 
 changed_functions=""
@@ -35,5 +36,13 @@ else
     changed_functions+=" ${docker_functions_map[$folder]}"
     done
 fi
+
+# The full list of functions. Uncomment the next block when you want to redeploy all the functions.
+# changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
+# remove-from-cohort-distribution-data create-cohort-distribution retrieve-cohort-distribution-data allocate-service-provider \
+# transform-data-service demographic-data-management remove-participant add-participant \
+# update-participant file-validation lookup-validation static-validation demographic-data-service \
+# get-validation-exceptions create-participant mark-participant-as-eligible mark-participant-as-ineligible \
+# update-participant-details"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
