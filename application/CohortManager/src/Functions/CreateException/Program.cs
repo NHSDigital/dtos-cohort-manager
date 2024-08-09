@@ -1,11 +1,11 @@
-using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Data.Database;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using Data.Database;
+using Common;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -20,6 +20,7 @@ var host = new HostBuilder()
             conn.ConnectionString = databaseCOnnectionString;
             return conn;
         });
+
         services.AddSingleton<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })

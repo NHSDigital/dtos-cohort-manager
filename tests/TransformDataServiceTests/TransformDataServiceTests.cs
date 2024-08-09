@@ -10,6 +10,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
+using System.Data.SqlClient;
+using System.Data;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -223,7 +225,38 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
+    public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
+    {
+        // Arrange
+        var participant = new CohortDistributionParticipant(){
+            Postcode = "RG2 5TX"
+        };
+
+        var mockConnection = new Mock<SqlConnection>();
+        var mockCommand = new Mock<SqlCommand>();
+        var mockReader = new Mock<SqlDataReader>();
+
+        mockReader.Setup(r => r.Read()).Returns(true);
+        mockReader.Setup(r => r.GetString(0)).Returns("RG2 5TX");
+        mockReader.Setup(r => r.GetString(1)).Returns("51 something av");
+
+        mockCommand.Setup(c => c.ExecuteReader()).Returns(mockReader.Object);
+        mockConnection.Setup(c => c.Open()).Verifiable();
+
+        // Act
+        var result = _function.GetAddress(participant, mockConnection.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            Postcode = "RG2 5TX",
+            AddressLine1 = "51 something av"
+        };
+
+        Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
+    }
+
+        public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";

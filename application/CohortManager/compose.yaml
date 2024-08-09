@@ -261,6 +261,7 @@ services:
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7080
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   allocate-service-provider:
     container_name: allocate-service-provider
