@@ -88,6 +88,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveCohortDistributionData", "CohortDistributionServices\RemoveCohortDistributionData\RemoveCohortDistributionData.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetCohortDistributionParticipants", "CohortDistributionServices\GetCohortDistributionParticipants\GetCohortDistributionParticipants.csproj", "{858FB86B-B4B4-4CFB-8101-0D86C14E83C9}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{AA690015-629F-41A3-903C-7A65845691DC}"
@@ -109,8 +111,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByService", "CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj", "{21183CC3-A28E-4407-B3A9-714DC39FE759}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantDataTests", "..\..\..\..\tests\CohortDistributionTests\RetrieveParticipantDataTests\RetrieveParticipantDataTests.csproj", "{6381CF54-FA9E-4F82-8608-02F12BA72502}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetCohortDistributionParticipants", "CohortDistributionServices\GetCohortDistributionParticipants\GetCohortDistributionParticipants.csproj", "{858FB86B-B4B4-4CFB-8101-0D86C14E83C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantTests", "..\..\..\..\tests\ParticipantManagementServicesTests\updateParticipantTests\updateParticipantTests.csproj", "{A5392E49-E397-44D1-8A44-1E4D88ABAB3B}"
 EndProject

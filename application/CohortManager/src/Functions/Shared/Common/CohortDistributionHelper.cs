@@ -101,10 +101,10 @@ public class CohortDistributionHelper : ICohortDistributionHelper
     private static string FindFile(string fileName)
     {
         string basePath = AppDomain.CurrentDomain.BaseDirectory;
-
         string[] potentialDirectories = [
-        Path.Combine("..", "..", $"{fileName}.json"),
+        Path.Combine($"{basePath}", $"{fileName}.json"),
         Path.Combine("TestUtils", "MockData", $"{fileName}.json"),
+        Path.Combine("..", "..", $"{fileName}.json"),
         Path.Combine("..", "..", "..", "..", "..", "..", "..", "..", "tests", "TestUtils", "MockData", $"{fileName}.json")
         ];
 
