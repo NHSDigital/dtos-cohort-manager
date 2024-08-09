@@ -1,4 +1,12 @@
 {
+  "Endpoints": {
+    "ProcessCaasFile": {
+      "Url": "YOUR_ENDPOINT_URL"
+    },
+    "AddParticipant": {
+      "Url": "YOUR_ENDPOINT_URL"
+    }
+  },
   "ConnectionString": {
     "DtOsDatabaseConnectionString": "YOUR_DATABASE_CONNECTION_STRING"
   },

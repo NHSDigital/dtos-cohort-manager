@@ -2,8 +2,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Azure.Storage.Blobs;
 using System.IO;
 using System.Threading.Tasks;
-using System.Data.SqlClient; //
-using Microsoft.Extensions.Logging; //
+using System.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using Model;
 using System.Collections.Generic;
