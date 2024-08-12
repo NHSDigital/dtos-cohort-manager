@@ -89,3 +89,13 @@ variable "db_name" {
 variable "enable_appsrv_storage" {
   description = "If websites app service storage should be enabled"
 }
+
+######################
+# security defaults
+######################
+
+variable "https_only" {
+  type        = bool
+  description = "Can the Function App only be accessed via HTTPS?"
+  default     = true
+}
