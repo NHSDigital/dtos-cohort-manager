@@ -1,3 +1,5 @@
+namespace markParticipantAsEligible;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -8,59 +10,56 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-namespace markParticipantAsEligible
+public class MarkParticipantAsEligible
 {
-    public class MarkParticipantAsEligible
-    {
-        private readonly ILogger<MarkParticipantAsEligible> _logger;
-        private readonly ICreateResponse _createResponse;
-        private readonly IParticipantManagerData _participantManagerData;
-        private readonly IExceptionHandler _handleException;
+    private readonly ILogger<MarkParticipantAsEligible> _logger;
+    private readonly ICreateResponse _createResponse;
+    private readonly IParticipantManagerData _participantManagerData;
+    private readonly IExceptionHandler _handleException;
 
-        public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
+    public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
+    {
+        _logger = logger;
+        _createResponse = createResponse;
+        _participantManagerData = participantManagerData;
+        _handleException = handleException;
+    }
+
+    [Function("markParticipantAsEligible")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    {
+        string postData = "";
+        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            _logger = logger;
-            _createResponse = createResponse;
-            _participantManagerData = participantManagerData;
-            _handleException = handleException;
+            postData = await reader.ReadToEndAsync();
         }
 
-        [Function("markParticipantAsEligible")]
-        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+        var participant = JsonSerializer.Deserialize<Participant>(postData);
+
+        try
         {
-            string postData = "";
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            var updated = false;
+            if (participant != null)
             {
-                postData = await reader.ReadToEndAsync();
+                updated = _participantManagerData.UpdateParticipantAsEligible(participant, 'Y');
+
+            }
+            if (updated)
+            {
+                _logger.LogInformation($"record updated for participant {participant.NhsNumber}");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            var participant = JsonSerializer.Deserialize<Participant>(postData);
+            _logger.LogError($"an error occurred while updating data for {participant.NhsNumber}");
 
-            try
-            {
-                var updated = false;
-                if (participant != null)
-                {
-                    updated = _participantManagerData.UpdateParticipantAsEligible(participant, 'Y');
-
-                }
-                if (updated)
-                {
-                    _logger.LogInformation($"record updated for participant {participant.NhsNumber}");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-                }
-
-                _logger.LogError($"an error occurred while updating data for {participant.NhsNumber}");
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"an error occurred: {ex}");
-                _handleException.CreateSystemExceptionLog(ex, participant, ""
-                );
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"an error occurred: {ex}");
+            _handleException.CreateSystemExceptionLog(ex, participant, ""
+            );
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
 }
