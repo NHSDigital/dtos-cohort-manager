@@ -30,8 +30,9 @@ locals {
 locals {
 
   global_app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.enable_appsrv_storage
     DOCKER_ENABLE_CI                    = var.docker_CI_enable
+    REMOTE_DEBUGGING_ENABLED            = var.remote_debugging_enabled
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.enable_appsrv_storage
   }
 
 }

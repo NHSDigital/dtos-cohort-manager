@@ -99,3 +99,9 @@ variable "https_only" {
   description = "Can the Function App only be accessed via HTTPS?"
   default     = true
 }
+
+variable remote_debugging_enabled {
+  type        = bool
+  description = "Should Remote Debugging be enabled."
+  default     = false
+}
