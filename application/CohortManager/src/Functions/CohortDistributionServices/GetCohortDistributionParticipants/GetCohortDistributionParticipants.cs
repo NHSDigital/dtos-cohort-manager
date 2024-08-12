@@ -34,7 +34,7 @@ public class GetCohortDistributionParticipants
 
         try
         {
-            var testDataJson = CohortDistributionHelper.GetCohortMockJsonFile(MockTestFiles.CohortMockData1000Participants);
+            var testDataJson = FileReader.ReadJsonFileFromPath(MockTestFiles.CohortMockData1000Participants);
             var cohortDistributionParticipants = _cohortDistributionData.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, testDataJson);
             if (cohortDistributionParticipants != null)
             {

@@ -25,7 +25,7 @@ public class CohortDistributionDataTests
             _mockDatabaseHelper.Object,
             _mockLogger.Object);
 
-        _json = CohortDistributionHelper.GetCohortMockJsonFile(MockTestFiles.CohortMockData1000Participants);
+        _json = FileReader.ReadJsonFileFromPath(MockTestFiles.CohortMockData1000Participants);
     }
 
     [TestMethod]

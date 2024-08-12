@@ -91,29 +91,4 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         }
         return "";
     }
-
-    public static string GetCohortMockJsonFile(string fileName)
-    {
-        var jsonFilePath = FindFile(fileName);
-        return File.ReadAllText(jsonFilePath);
-    }
-
-    private static string FindFile(string fileName)
-    {
-        string basePath = AppDomain.CurrentDomain.BaseDirectory;
-        string[] potentialDirectories = [
-        Path.Combine($"{basePath}", $"{fileName}.json"),
-        Path.Combine("TestUtils", "MockData", $"{fileName}.json"),
-        Path.Combine("..", "..", $"{fileName}.json"),
-        Path.Combine("..", "..", "..", "..", "..", "..", "..", "..", "tests", "TestUtils", "MockData", $"{fileName}.json")
-        ];
-
-        string filePath = potentialDirectories
-        .Select(relativePath => Path.Combine(basePath, relativePath))
-        .FirstOrDefault(File.Exists);
-
-        if (filePath != null) return filePath;
-
-        throw new FileNotFoundException($"File '{fileName}' not found in any of the specified locations.");
-    }
 }
