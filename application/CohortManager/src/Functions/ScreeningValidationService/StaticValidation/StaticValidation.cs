@@ -21,12 +21,15 @@ public class StaticValidation
 
     private readonly IExceptionHandler _handleException;
 
-    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IExceptionHandler handleException, ICreateResponse createResponse)
+    private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
+
+    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage)
     {
         _logger = logger;
         _callFunction = callFunction;
         _handleException = handleException;
         _createResponse = createResponse;
+        _readRulesFromBlobStorage = readRulesFromBlobStorage;
     }
 
     [Function("StaticValidation")]
@@ -42,7 +45,7 @@ public class StaticValidation
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
 
-            string json = File.ReadAllText("staticRules.json");
+            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), Environment.GetEnvironmentVariable("BlobContainerName"), "staticRules.json");
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings

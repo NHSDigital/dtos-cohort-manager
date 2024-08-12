@@ -96,7 +96,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{142C4501-749C-4ECC-8F9E-452F204D65DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "CreateException\CreateException.csproj", "{F694FC4E-A899-4466-B26F-B0E4C6E50F18}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "ExceptionHandling\CreateException\CreateException.csproj", "{F694FC4E-A899-4466-B26F-B0E4C6E50F18}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkParticipantAsIneligibleTests", "..\..\..\..\tests\screeningDataServicesTests\MarkParticipantAsIneligibleTests\MarkParticipantAsIneligibleTests.csproj", "{FBAE6E8E-C678-4F9A-A642-B7B8D985907A}"
 EndProject

@@ -117,8 +117,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
 
-  mark-participant-eligible:
-    container_name: mark-participant-eligible
+  mark-participant-as-eligible:
+    container_name: mark-participant-as-eligible
     network_mode: host
     build:
       context: ./src/Functions/
@@ -127,8 +127,8 @@ services:
       - ASPNETCORE_URLS=http://*:7067
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  mark-participant-ineligible:
-    container_name: mark-participant-ineligible
+  mark-participant-as-ineligible:
+    container_name: mark-participant-as-ineligible
     network_mode: host
     build:
       context: ./src/Functions/
@@ -149,12 +149,12 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
 
-  create-validation-exception:
-    container_name: create-validation-exception
+  create-exception:
+    container_name: create-exception
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/CreateValidationException/Dockerfile
+      dockerfile: ExceptionHandling/CreateException/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -233,8 +233,8 @@ services:
       - ASPNETCORE_URLS=http://*:7077
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  retrieve-cohort-distribution-data:
-    container_name: retrieve-cohort-distribution-data
+  retrieve-distribution-data:
+    container_name: retrieve-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -243,8 +243,8 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  remove-cohort-distribution-data:
-    container_name: remove-cohort-distribution-data
+  remove-from-cohort-distribution-data:
+    container_name: remove-from-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -253,8 +253,8 @@ services:
       - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  transform-data:
-    container_name: transform-data
+  transform-data-service:
+    container_name: transform-data-service
     network_mode: host
     build:
       context: ./src/Functions/

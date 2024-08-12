@@ -104,3 +104,8 @@ variable "ad_auth_only" {
   type        = bool
   description = "Specifies whether only AD Users and administrators can be used to login, or also local database users."
 }
+
+variable "sql_adm_group_name" {
+  type        = string
+  description = "Name of the Entra ID group with permissions to manage the SQL Server"
+}
