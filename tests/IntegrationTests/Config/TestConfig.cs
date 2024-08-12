@@ -1,9 +1,29 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.IO;
+
+public class AppSettings
+{
+    public ConnectionStrings ConnectionStrings { get; set; }
+    public FilePaths FilePaths { get; set; }
+    public string BlobContainerName { get; set; }
+    public string AzureWebJobsStorage {get; set; }
+}
+
+public class ConnectionStrings
+{
+    public string DtOsDatabaseConnectionString { get; set; }
+}
+
+public class FilePaths
+{
+    public string Local { get; set; }
+}
 
 public static class TestConfig
 {
-    private static readonly IConfigurationRoot Configuration;
+    private static ServiceProvider _serviceProvider;
 
     static TestConfig()
     {
@@ -14,17 +34,17 @@ public static class TestConfig
             .SetBasePath(currentDirectory)
             .AddJsonFile(configPath, optional: false, reloadOnChange: true)
             .AddEnvironmentVariables();
-        Configuration = builder.Build();
 
+        var configuration = builder.Build();
+
+        var services = new ServiceCollection();
+        services.Configure<AppSettings>(configuration);
+
+        _serviceProvider = services.BuildServiceProvider();
     }
 
-    public static string Get(string key)
+    public static AppSettings Get()
     {
-        return Configuration[key];
-    }
-
-    public static IConfigurationSection GetSection(string key)
-    {
-        return Configuration.GetSection(key);
+        return _serviceProvider.GetService<IOptions<AppSettings>>().Value;
     }
 }
