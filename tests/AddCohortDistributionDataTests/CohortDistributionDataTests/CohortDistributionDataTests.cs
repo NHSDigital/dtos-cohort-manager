@@ -17,6 +17,7 @@ public class CohortDistributionDataTests
     private readonly Mock<ILogger<CreateCohortDistributionData>> _mockLogger = new();
     private readonly CreateCohortDistributionData _service;
     private readonly string _json;
+    private readonly int expectedNoRowsCount = 0;
 
     public CohortDistributionDataTests()
     {
@@ -39,7 +40,7 @@ public class CohortDistributionDataTests
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, _json);
 
         // Assert
-        Assert.AreEqual(10, result.Count);
+        Assert.AreEqual(rowCount, result.Count);
     }
 
     [TestMethod]
@@ -48,12 +49,13 @@ public class CohortDistributionDataTests
         // Arrange
         var serviceProviderId = (int)ServiceProvider.BsSelect;
         var rowCount = 1000;
+        var expectedRows = 900;
 
         // Act`
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, _json);
 
         // Assert
-        Assert.AreEqual(900, result.Count);
+        Assert.AreEqual(expectedRows, result.Count);
     }
 
     [TestMethod]
@@ -62,12 +64,13 @@ public class CohortDistributionDataTests
         // Arrange
         var serviceProviderId = (int)ServiceProvider.BsSelect;
         var rowCount = 2000;
+        var expectedRows = 900;
 
         // Act`
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, _json);
 
         // Assert
-        Assert.AreEqual(900, result.Count);
+        Assert.AreEqual(expectedRows, result.Count);
     }
 
     [TestMethod]
@@ -81,7 +84,7 @@ public class CohortDistributionDataTests
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, string.Empty);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.AreEqual(expectedNoRowsCount, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortDistributionParticipant>));
     }
 
@@ -96,7 +99,7 @@ public class CohortDistributionDataTests
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, null);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.AreEqual(expectedNoRowsCount, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortDistributionParticipant>));
     }
 
@@ -112,7 +115,7 @@ public class CohortDistributionDataTests
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, incorrectJson);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.AreEqual(expectedNoRowsCount, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortDistributionParticipant>));
     }
 
@@ -127,7 +130,7 @@ public class CohortDistributionDataTests
         var result = _service.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, _json);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.AreEqual(expectedNoRowsCount, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortDistributionParticipant>));
     }
 }
