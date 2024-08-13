@@ -28,7 +28,7 @@ public class FileReader : IFileReader
         };
 
         string filePath = potentialDirectories.Select(Path.GetFullPath).FirstOrDefault(File.Exists)
-        ?? throw new FileNotFoundException($"File '{fileName}.json' not found in any of the specified locations.");
+        ?? throw new FileNotFoundException($"File '{fileName}' not found in any of the specified locations.");
 
         return File.ReadAllText(filePath);
     }
