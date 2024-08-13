@@ -38,7 +38,9 @@ jobs:
           bash ./scripts/deployment/get-docker-names.sh
 
       - name: print function names
-        run: echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
+        run: |
+          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
+          echo "The branch is: " ${{ github.ref }}
 
       - name: Az CLI login
         uses: azure/login@v1
@@ -55,11 +57,17 @@ jobs:
       - name: Create Tags
         run: |
           echo "creating tags"
+          echo "The branch is: " ${{ github.ref }}
+          echo "pull request is: " ${{ github.event.pull_request.number }}
+          echo "event number is: " ${{ github.event.number }}
           echo "COMMIT_HASH_TAG=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
-          if [ -z ${{ github.event.number }} ]; then
-            echo "PR_NUM_TAG=latest" >> $GITHUB_ENV
-          else
+
+          if [ -n "${{ github.event.pull_request.number }}" ]; then
+            echo "PR_NUM_TAG=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          elif [ -n "${{ github.event.number }}" ]; then
             echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
+          else
+            echo "PR_NUM_TAG=latest" >> $GITHUB_ENV
           fi
 
           # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
