@@ -86,7 +86,18 @@ public class TransformDataService
 
             transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
             var transformString = new TransformString();
-            transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
+            transformedParticipant.FirstName = await transformString.CheckParticipantCharactersAync(transformedParticipant.FirstName);
+            transformedParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAync(transformedParticipant.OtherGivenNames);
+            transformedParticipant.Surname = await transformString.CheckParticipantCharactersAync(transformedParticipant.Surname);
+            transformedParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAync(transformedParticipant.PreviousSurname);
+            transformedParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine1);
+            transformedParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine2);
+            transformedParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine3);
+            transformedParticipant.AddressLine4 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine4);
+            transformedParticipant.AddressLine5 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine5);
+            transformedParticipant.Postcode = await transformString.CheckParticipantCharactersAync(transformedParticipant.Postcode);
+            transformedParticipant.TelephoneNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.TelephoneNumber);
+            transformedParticipant.MobileNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.MobileNumber);
 
             var response = JsonSerializer.Serialize(transformedParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
