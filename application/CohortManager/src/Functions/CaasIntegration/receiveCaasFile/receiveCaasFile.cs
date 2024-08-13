@@ -150,12 +150,12 @@ public class ReceiveCaasFile
     private static bool FileNameAndFileExtensionIsValid(string name)
     {
         /* for file format BSS_ccyymmddhhmmss_n8.csv
-        '^BSS_' Matches the literal string BSS_ at the start of the line
+        '^\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
         '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
         '_n' Matches the literal _n
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^BSS_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
+        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
         return match.Success;
     }
 
