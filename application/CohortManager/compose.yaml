@@ -92,6 +92,7 @@ services:
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
 
   remove-participant:
     container_name: remove-participant
@@ -293,16 +294,17 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  # allocate-service-provider:
-  #   container_name: allocate-service-provider
-  #   network_mode: host
-  #   build:
-  #     context: ./src/Functions/
-  #     dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
-  #   environment:
-  #     - ASPNETCORE_URLS=http://*:7081
-  #     - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+  allocate-service-provider:
+    container_name: allocate-service-provider
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7081
+      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
@@ -313,6 +315,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7082
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - AllocateScreeningProviderURL=http://localhost:7081/api/AllocateServiceProviderToParticipantByService
+      - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
+      - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
+      - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
@@ -323,3 +329,4 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

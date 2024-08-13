@@ -24,6 +24,6 @@ def setup_azurite():
         with open(f"./rules/{file}", "rb") as data:
             blob_client.upload_blob(data)
 
-    print("Rules upoaded to blob container")
+    print("Rules uploaded to blob container")
 
 setup_azurite()
