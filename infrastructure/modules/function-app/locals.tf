@@ -41,9 +41,10 @@ locals {
 
     ReceiveCaasFile = {
 
-      caasfolder_STORAGE = var.caasfolder_STORAGE
-      targetFunction     = local.fnapp_urls.processCaasFile
-      FileValidationURL  = local.fnapp_urls.fileValidation
+      caasfolder_STORAGE   = var.caasfolder_STORAGE
+      targetFunction       = local.fnapp_urls.processCaasFile
+      FileValidationURL    = local.fnapp_urls.fileValidation
+      ExceptionFunctionURL = local.fnapp_urls.createException
     }
 
     ProcessCaasFile = {
