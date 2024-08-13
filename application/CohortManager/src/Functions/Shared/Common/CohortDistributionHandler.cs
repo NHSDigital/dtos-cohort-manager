@@ -1,10 +1,9 @@
+namespace Common;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.CohortDistribution;
-
-namespace Common;
 
 public class CohortDistributionHandler : ICohortDistributionHandler
 {

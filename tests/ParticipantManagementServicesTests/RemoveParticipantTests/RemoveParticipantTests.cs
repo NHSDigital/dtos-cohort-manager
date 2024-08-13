@@ -67,7 +67,7 @@ public class RemoveParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        _callFunction.Setup(call => call.SendGet(It.Is<string>(s => s.Contains("RemoveCohortDistributionURL")), It.IsAny<Dictionary<string,string>>()))
+        _callFunction.Setup(call => call.SendGet(It.Is<string>(s => s.Contains("RemoveCohortDistributionURL")), It.IsAny<Dictionary<string, string>>()))
             .Returns(Task.FromResult<string>("Participant Removed"));
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
