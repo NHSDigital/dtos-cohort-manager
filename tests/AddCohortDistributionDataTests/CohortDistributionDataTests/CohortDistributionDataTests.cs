@@ -17,7 +17,7 @@ public class CohortDistributionDataTests
     private readonly Mock<ILogger<CreateCohortDistributionData>> _mockLogger = new();
     private readonly CreateCohortDistributionData _service;
     private readonly string _json;
-    private readonly int expectedNoRowsCount = 0;
+    private readonly static int expectedNoRowsCount = 0;
 
     public CohortDistributionDataTests()
     {
