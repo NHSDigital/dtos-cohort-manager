@@ -5,11 +5,13 @@ using Moq;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 
-public class SetupRequest {
+public class SetupRequest
+{
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<FunctionContext> _context;
 
-    public SetupRequest() {
+    public SetupRequest()
+    {
         _context = new Mock<FunctionContext>();
         _request = new Mock<HttpRequestData>(_context.Object);
     }

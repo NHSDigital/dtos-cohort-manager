@@ -16,9 +16,9 @@ public class CallFunction : ICallFunction
         return await GetAsync(url);
     }
 
-    public async Task<string> SendGet(string url,Dictionary<string,string> parameters)
+    public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
-        url = QueryHelpers.AddQueryString(url,parameters);
+        url = QueryHelpers.AddQueryString(url, parameters);
         return await GetAsync(url);
     }
 

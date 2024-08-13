@@ -18,11 +18,14 @@ public class LookupValidation
 
     private readonly ILogger<LookupValidation> _logger;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger)
+    private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
+
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger, IReadRulesFromBlobStorage readRulesFromBlobStorage)
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
+        _readRulesFromBlobStorage = readRulesFromBlobStorage;
     }
 
     [Function("LookupValidation")]
@@ -49,7 +52,7 @@ public class LookupValidation
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
-            string json = File.ReadAllText("lookupRules.json");
+            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), Environment.GetEnvironmentVariable("BlobContainerName"), "lookupRules.json");
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
@@ -83,10 +86,10 @@ public class LookupValidation
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _handleException.CreateSystemExceptionLog(ex,newParticipant);
-            _logger.LogWarning(ex,$"Error while processing lookup Validation message: {ex.Message}");
+            _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
+            _logger.LogWarning(ex, $"Error while processing lookup Validation message: {ex.Message}");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }

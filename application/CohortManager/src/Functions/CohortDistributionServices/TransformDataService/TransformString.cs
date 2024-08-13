@@ -9,7 +9,8 @@ using RulesEngine.Models;
 using Microsoft.Extensions.ObjectPool;
 using System.Collections.Specialized;
 
-public class TransformString {
+public class TransformString
+{
     private RulesEngine.RulesEngine _ruleEngine;
 
     public TransformString()
@@ -30,19 +31,30 @@ public class TransformString {
         }
         else
         {
+            var stringField = (string)field.GetValue(participant);
+
+            // Skip if the field is null or doesn't have any invalid chars
+            if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
+            {
+                continue;
+            }
+
             // Special characters that need to be handled separately
-            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\")) {
+            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
+            {
                 throw new ArgumentException();
             }
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
-            if (! Regex.IsMatch(transformedField, allowedCharacters))
+            if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
                 // Will call the exception service in the future
                 throw new ArgumentException();
             }
             return transformedField;
+
+            field.SetValue(participant, transformedField);
         }
     }
 
@@ -53,7 +65,7 @@ public class TransformString {
         foreach (char character in invalidString)
         {
             var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
-            var transformedCharacter = (char?) rulesList.Where(result => result.IsSuccess)
+            var transformedCharacter = (char?)rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
                                             .FirstOrDefault();
 

@@ -27,7 +27,7 @@ public class ExceptionHandler : IExceptionHandler
         _callFunction = callFunction;
     }
 
-    public async Task CreateSystemExceptionLog(Exception exception, Participant participant)
+    public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
@@ -35,18 +35,26 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
-    public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant)
+
+    public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName)
+    {
+        var url = GetUrlFromEnvironment();
+        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "");
+
+        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+    }
 
     public async Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
@@ -64,9 +72,12 @@ public class ExceptionHandler : IExceptionHandler
                 RuleContent = ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
+                ErrorRecord = ruleDetails[1],
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
+                ExceptionDate = DateTime.UtcNow,
                 Category = 1,
+                ScreeningName = "Breast Screening",
                 ScreeningService = 1,
                 Cohort = "",
                 Fatal = 0
@@ -96,25 +107,27 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    private ValidationException CreateValidationException(string nhsNumber, Exception exception)
+    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
     {
         // mapping liable to change.
         return new ValidationException
         {
             NhsNumber = nhsNumber,
             DateCreated = DateTime.Now,
+            FileName = fileName,
             DateResolved = DateTime.MaxValue,
             RuleId = exception.HResult,
             RuleDescription = exception.Message,
             RuleContent = "System Exception",
             Category = SystemExceptionCategory,
             ScreeningService = 1,
+            ExceptionDate = DateTime.UtcNow,
+            ErrorRecord = exception.Message,
+            ScreeningName = "BSS",
             Cohort = "",
             Fatal = 1
         };
 
     }
-
-
 
 }

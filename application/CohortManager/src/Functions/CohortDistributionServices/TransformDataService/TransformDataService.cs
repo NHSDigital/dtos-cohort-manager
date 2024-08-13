@@ -16,7 +16,7 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,  ILogger<TransformDataService> logger)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
@@ -68,35 +68,32 @@ public class TransformDataService
                 Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
                 NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
                 NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender))
+                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
+                OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames),
+                PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname),
+                AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1),
+                AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2),
+                AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3),
+                AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4),
+                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5),
+                Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode),
+                TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
+                MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
+                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
+                ParticipantId = participant.ParticipantId
             };
 
 
-        transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
+            transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
+            var transformString = new TransformString();
+            transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
 
-        var transformString = new TransformString();
-
-        transformedParticipant.NamePrefix = await transformString.CheckParticipantCharactersAync(transformedParticipant.NamePrefix);
-        transformedParticipant.FirstName = await transformString.CheckParticipantCharactersAync(transformedParticipant.FirstName);
-        transformedParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAync(transformedParticipant.OtherGivenNames);
-        transformedParticipant.Surname = await transformString.CheckParticipantCharactersAync(transformedParticipant.Surname);
-        transformedParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAync(transformedParticipant.PreviousSurname);
-        transformedParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine1);
-        transformedParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine2);
-        transformedParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine3);
-        transformedParticipant.AddressLine4 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine4);
-        transformedParticipant.AddressLine5 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine5);
-        transformedParticipant.Postcode = await transformString.CheckParticipantCharactersAync(transformedParticipant.Postcode);
-        transformedParticipant.TelephoneNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.TelephoneNumber);
-        transformedParticipant.MobileNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.MobileNumber);
-
-
-        var response = JsonSerializer.Serialize(transformedParticipant);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+            var response = JsonSerializer.Serialize(transformedParticipant);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
         catch (Exception ex)
         {
-            //await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "");
             _logger.LogWarning(ex, "exception occured while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -108,7 +105,8 @@ public class TransformDataService
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 
-    public async Task<string> TransformNamePrefixAsync(string namePrefix) {
+    public async Task<string> TransformNamePrefixAsync(string namePrefix)
+    {
 
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
@@ -125,7 +123,7 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        namePrefix = (string) rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string)rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? namePrefix;
