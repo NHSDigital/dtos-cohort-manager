@@ -77,8 +77,8 @@ public class ExceptionHandler : IExceptionHandler
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
                 Category = 1,
-                ScreeningName = "Breast Screening",
-                ScreeningService = 1,
+                ScreeningName = participantCsvRecord.Participant.ScreeningName,
+                ScreeningService = int.Parse(participantCsvRecord.Participant.ScreeningId),
                 Cohort = "",
                 Fatal = 0
             };
@@ -107,6 +107,7 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
+    // if this method needs the ScreeningService and ScreeningName it will need to accept participant param
     private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
     {
         // mapping liable to change.

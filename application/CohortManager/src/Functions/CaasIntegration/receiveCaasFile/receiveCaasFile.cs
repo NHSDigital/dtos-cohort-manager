@@ -62,7 +62,7 @@ public class ReceiveCaasFile
                 using var csv = new CsvReader(blobStreamReader, config);
                 csv.Context.RegisterClassMap<ParticipantMap>();
                 var records = csv.GetRecords<Participant>();
-                var screeningId = GetScreeningId(name);
+                var screeningService = GetScreeningService(name);
 
                 foreach (var participant in records)
                 {
@@ -71,7 +71,8 @@ public class ReceiveCaasFile
                     {
                         if (participant != null)
                         {
-                            participant.ScreeningId = screeningId;
+                            participant.ScreeningId = screeningService.ScreeningId;
+                            participant.ScreeningName = screeningService.ScreeningName;
                             cohort.Participants.Add(participant);
                         }
                     }
@@ -175,10 +176,9 @@ public class ReceiveCaasFile
         }
     }
 
-    private string GetScreeningId(string name)
+    private ScreeningService GetScreeningService(string name)
     {
         var screeningAcronym = name.Split('_')[0];
-        var screeningService = _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
-        return screeningService.ScreeningId;
+        return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 }
