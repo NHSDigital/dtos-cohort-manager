@@ -22,6 +22,7 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
     .AddExceptionHandler()
     .Build();

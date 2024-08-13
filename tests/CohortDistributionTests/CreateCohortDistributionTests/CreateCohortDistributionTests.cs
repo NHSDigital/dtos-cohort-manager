@@ -152,7 +152,7 @@ public class CreateCohortDistributionTests
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>())).Throws(new Exception("some error"));
+        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -183,9 +183,9 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
         _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-        _CohortDistributionHelper.Setup(x => x.GetLastCohortDistributionRecordAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(true));
         _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);

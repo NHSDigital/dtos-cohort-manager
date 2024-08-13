@@ -72,11 +72,12 @@ public class CreateCohortDistribution
             response = await HandleErrorResponseIfNull(serviceProvider, req);
             if (response != null) return response;
 
-            var mostRecentCohortDistributionParticipant = await _CohortDistributionHelper.GetLastCohortDistributionRecordAsync(requestBody);
-            response = await HandleErrorResponseIfNull(mostRecentCohortDistributionParticipant, req);
+            var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
+
+            response = await HandleErrorResponseIfNull(validationResult, req);
             if (response != null) return response;
 
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData, mostRecentCohortDistributionParticipant);
+            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
             response = await HandleErrorResponseIfNull(transformedParticipant, req);
             if (response != null) return response;
 

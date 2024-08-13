@@ -28,7 +28,7 @@ public class LookupValidation
     [Function("LookupValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        LookupValidationRequestBody requestBody;
+        LookupValidationRequestBody requestBody = new LookupValidationRequestBody();
 
         try
         {
@@ -38,8 +38,10 @@ public class LookupValidation
                 requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex.Message);
+            await _handleException.CreateSystemExceptionLog(ex, requestBody.ExistingParticipant, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         Participant newParticipant = null;
