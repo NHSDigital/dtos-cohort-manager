@@ -4,10 +4,19 @@ services:
   # External Dependencies
   azurite:
     container_name: azurite
-    network_mode: host
     image: mcr.microsoft.com/azure-storage/azurite
     command: azurite --silent
+    network_mode: host
 
+  azurite-setup:
+    container_name: azurite-setup
+    build: ./Set-up/azurite
+    network_mode: host
+    depends_on:
+      - azurite
+    environment:
+      - AZURITE_CONNECTION_STRING=AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
+    
   sql-edge:
     container_name: db
     network_mode: host
@@ -67,6 +76,7 @@ services:
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
       - DemographicURI=http://localhost:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   # Participant Management Service
   add-participant:
@@ -81,6 +91,7 @@ services:
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   remove-participant:
     container_name: remove-participant
@@ -116,6 +127,8 @@ services:
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   mark-participant-as-eligible:
     container_name: mark-participant-as-eligible
@@ -126,6 +139,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7067
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
@@ -134,9 +148,14 @@ services:
       context: ./src/Functions/
       dockerfile: screeningDataServices/markParticipantAsIneligible/Dockerfile
     environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7068
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
+      - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+    
+      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
 
   update-participant-details:
     container_name: update-participant-details
@@ -148,6 +167,7 @@ services:
       - ASPNETCORE_URLS=http://*:7069
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   create-exception:
     container_name: create-exception
@@ -178,6 +198,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7072
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   # Screening Validation Service
   file-validation:
@@ -189,7 +210,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7073
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
-      - inboundBlobName=file-exceptions
+      - inboundBlobName=inbound
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   static-validation:
     container_name: static-validation
@@ -200,6 +222,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7074
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - BlobContainerName=rules
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   lookup-validation:
     container_name: lookup-validation
@@ -210,6 +235,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - BlobContainerName=rules
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   # Demographic Services
   demographic-data-management:
@@ -221,6 +248,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   # Cohort Distribution Services
   add-cohort-distribution-data:
@@ -232,6 +260,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7077
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   retrieve-distribution-data:
     container_name: retrieve-distribution-data
@@ -242,6 +271,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   remove-from-cohort-distribution-data:
     container_name: remove-from-cohort-distribution-data
@@ -252,6 +282,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   transform-data-service:
     container_name: transform-data-service
@@ -261,16 +292,17 @@ services:
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7080
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  allocate-service-provider:
-    container_name: allocate-service-provider
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7081
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+  # allocate-service-provider:
+  #   container_name: allocate-service-provider
+  #   network_mode: host
+  #   build:
+  #     context: ./src/Functions/
+  #     dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
+  #   environment:
+  #     - ASPNETCORE_URLS=http://*:7081
+  #     - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
@@ -280,6 +312,7 @@ services:
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7082
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
@@ -289,3 +322,4 @@ services:
       dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7083
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException

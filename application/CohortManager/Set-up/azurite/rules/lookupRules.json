@@ -1,0 +1,19 @@
+[
+  {
+    "WorkflowName": "Common",
+    "Rules": [
+      {
+        "RuleName": "47.ParticipantMustNotExist",
+        "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      },
+      {
+        "RuleName": "22.ParticipantMustExist",
+        "Expression": "newParticipant.RecordType == Actions.New OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      },
+      {
+        "RuleName": "35.Demographics",
+        "Expression": "newParticipant.RecordType != Actions.Amended OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
+      }
+    ]
+  }
+]
