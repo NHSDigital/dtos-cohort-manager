@@ -19,7 +19,9 @@ public class ScreeningServiceData : IScreeningServiceData
 
     public ScreeningService GetScreeningServiceByAcronym(string screeningAcronym)
     {
-        var SQL = "SELECT * " +
+        var SQL = "SELECT " +
+        "[SCREENING_LKP].[SCREENING_ID], " +
+        "[SCREENING_LKP].[SCREENING_NAME], " +
         " FROM [SCREENING_LKP] " +
         " WHERE [SCREENING_LKP].[SCREENING_ACRONYM] = @ScreeningAcronym";
 
