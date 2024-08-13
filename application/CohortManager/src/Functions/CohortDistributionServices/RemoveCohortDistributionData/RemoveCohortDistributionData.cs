@@ -20,7 +20,7 @@ public class RemoveCohortDistributionData
         _createCohortDistributionData = createCohortDistributionData;
     }
 
-    [Function("RemoveFromCohortDistributionData")]
+    [Function("RemoveCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation($"C# HTTP trigger function processed a request");

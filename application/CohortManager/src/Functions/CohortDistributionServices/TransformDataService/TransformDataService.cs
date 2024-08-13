@@ -69,6 +69,17 @@ public class TransformDataService
                 NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
                 NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
                 Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
+                OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames),
+                PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname),
+                AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1),
+                AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2),
+                AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3),
+                AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4),
+                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5),
+                Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode),
+                TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
+                MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
+                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
                 ParticipantId = participant.ParticipantId
             };
 
