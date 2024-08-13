@@ -43,10 +43,10 @@ public class ScreeningServiceData : IScreeningServiceData
             var screeningService = new ScreeningService();
             while (reader.Read())
             {
-                screeningService.ScreeningId = reader["SCREENING_ID"] == DBNull.Value ? null : reader["SCREENING_ID"].ToString();
-                screeningService.ScreeningName = reader["SCREENING_NAME"] == DBNull.Value ? null : reader["SCREENING_NAME"].ToString();
-                screeningService.ScreeningType = reader["SCREENING_TYPE"] == DBNull.Value ? null : reader["SCREENING_TYPE"].ToString();
-                screeningService.ScreeningAcronym = reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString();
+                screeningService.ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID");
+                screeningService.ScreeningName = DatabaseHelper.GetStringValue(reader, "SCREENING_NAME");
+                screeningService.ScreeningType = DatabaseHelper.GetStringValue(reader, "SCREENING_TYPE");
+                screeningService.ScreeningAcronym = DatabaseHelper.GetStringValue(reader, "SCREENING_ACRONYM");
             }
             return screeningService;
         });
