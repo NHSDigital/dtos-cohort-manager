@@ -129,23 +129,6 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = cohortParticipant.RecordInsertDateTime,
             RecordUpdateDateTime = cohortParticipant.RecordUpdateDateTime,
             ScreeningAcronym = cohortParticipant.ScreeningAcronym,
-
-            // Additional fields not found in CohortDistributionParticipant
-            RecordType = null,
-            ChangeTimeStamp = null,
-            SerialChangeNumber = null,
-            CurrentPosting = null,
-            CurrentPostingEffectiveFromDate = null,
-            PreviousPosting = null,
-            PreviousPostingEffectiveFromDate = null,
-            PafKey = null,
-            InvalidFlag = null,
-            RecordIdentifier = null,
-            ChangeReasonCode = null,
-            ScreeningId = null,
-            BusinessRuleVersion = null,
-            ExceptionFlag = null,
-            DeathStatus = null
         };
     }
 }
