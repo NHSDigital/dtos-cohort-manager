@@ -107,7 +107,6 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    // if this method needs the ScreeningService and ScreeningName it will need to accept participant param
     private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
     {
         // mapping liable to change.
