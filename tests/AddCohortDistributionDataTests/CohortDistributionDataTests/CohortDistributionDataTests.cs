@@ -18,6 +18,7 @@ public class CohortDistributionDataTests
     private readonly CreateCohortDistributionData _service;
     private readonly string _json;
     private const int expectedNoRowsCount = 0;
+    public const string cohortMockFile = "CohortMockData.json";
 
     public CohortDistributionDataTests()
     {
@@ -26,7 +27,7 @@ public class CohortDistributionDataTests
             _mockDatabaseHelper.Object,
             _mockLogger.Object);
 
-        _json = FileReader.ReadJsonFileFromPath(MockTestFiles.CohortMockData1000Participants);
+        _json = FileReader.ReadJsonFileFromPath(cohortMockFile);
     }
 
     [TestMethod]

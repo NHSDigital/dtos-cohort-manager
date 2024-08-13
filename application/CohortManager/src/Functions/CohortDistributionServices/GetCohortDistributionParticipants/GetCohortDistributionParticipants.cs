@@ -16,6 +16,8 @@ public class GetCohortDistributionParticipants
     private readonly ILogger<GetCohortDistributionParticipants> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _cohortDistributionData;
+    public const string cohortMockFile = "CohortMockData.json";
+
     public GetCohortDistributionParticipants(ILogger<GetCohortDistributionParticipants> logger, ICreateResponse createResponse, ICreateCohortDistributionData cohortDistributionData)
     {
         _logger = logger;
@@ -34,7 +36,7 @@ public class GetCohortDistributionParticipants
 
         try
         {
-            var testDataJson = FileReader.ReadJsonFileFromPath(MockTestFiles.CohortMockData1000Participants);
+            var testDataJson = FileReader.ReadJsonFileFromPath(cohortMockFile);
             var cohortDistributionParticipants = _cohortDistributionData.GetCohortDistributionParticipantsMock(serviceProviderId, rowCount, testDataJson);
             if (cohortDistributionParticipants != null)
             {
