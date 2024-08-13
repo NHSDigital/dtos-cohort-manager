@@ -100,7 +100,7 @@ variable "https_only" {
   default     = true
 }
 
-variable remote_debugging_enabled {
+variable "remote_debugging_enabled" {
   type        = bool
   description = "Should Remote Debugging be enabled."
   default     = false
