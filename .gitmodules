@@ -1,0 +1,3 @@
+[submodule "application/CohortManager/src/dotnet-mesh-client"]
+	path = application/CohortManager/src/dotnet-mesh-client
+	url = https://github.com/NHSDigital/dotnet-mesh-client
