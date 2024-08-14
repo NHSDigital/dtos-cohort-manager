@@ -1,13 +1,9 @@
 namespace NHS.CohortManager.CohortDistribution;
 
-using System.Reflection;
 using System.Text.RegularExpressions;
-using Model;
 using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
-using Microsoft.Extensions.ObjectPool;
-using System.Collections.Specialized;
 
 public class TransformString
 {
@@ -31,17 +27,12 @@ public class TransformString
         }
         else
         {
-            // Skip if the field is null or doesn't have any invalid chars
-            if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
-            {
-                return stringField;
-            }
-
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
                 throw new ArgumentException();
             }
+            
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
