@@ -17,8 +17,7 @@ Example:
     python send-sample-file.py 100""")
     sys.exit()
 elif len(sys.argv) > 2:
-    print("This script accepts only one argument, run the command with no arguments to view the help page")
-    sys.exit() 
+    sys.exit("This script accepts only one argument, run the command with no arguments to view the help page") 
 elif sys.argv[1] == "1":
     sample_file = "BSS_20240628191800_n1.csv"
 elif sys.argv == "10":
