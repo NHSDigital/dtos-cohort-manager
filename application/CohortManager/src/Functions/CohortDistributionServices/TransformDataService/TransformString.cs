@@ -7,7 +7,8 @@ using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
 
-public class TransformString {
+public class TransformString
+{
     private RulesEngine.RulesEngine _ruleEngine;
 
     public TransformString()
@@ -28,14 +29,16 @@ public class TransformString {
         }
         else
         {
+
             // Special characters that need to be handled separately
-            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\")) {
+            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
+            {
                 throw new ArgumentException();
             }
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
-            if (! Regex.IsMatch(transformedField, allowedCharacters))
+            if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
                 // Will call the exception service in the future
                 throw new ArgumentException();
@@ -51,7 +54,7 @@ public class TransformString {
         foreach (char character in invalidString)
         {
             var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
-            var transformedCharacter = (char?) rulesList.Where(result => result.IsSuccess)
+            var transformedCharacter = (char?)rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
                                             .FirstOrDefault();
 

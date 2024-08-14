@@ -166,7 +166,7 @@ public class ReceiveCaasFileTests
         Times.Never);
     }
 
-        [TestMethod]
+    [TestMethod]
     public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
     {
         // Arrange

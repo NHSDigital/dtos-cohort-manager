@@ -28,7 +28,7 @@ public class ReceiveCaasFile
     {
         try
         {
-            if(!FileNameAndFileExtensionIsValid(name))
+            if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
                 await InsertValidationErrorIntoDatabase(name);
