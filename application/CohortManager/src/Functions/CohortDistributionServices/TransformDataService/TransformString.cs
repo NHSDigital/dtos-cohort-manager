@@ -32,7 +32,7 @@ public class TransformString
             {
                 throw new ArgumentException();
             }
-            
+
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
