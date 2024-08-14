@@ -7,6 +7,8 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     command: azurite --silent
     network_mode: host
+    profiles:
+      - Dependencies
 
   azurite-setup:
     container_name: azurite-setup
@@ -16,7 +18,9 @@ services:
       - azurite
     environment:
       - AZURITE_CONNECTION_STRING=AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;
-    
+    profiles:
+      - Dependencies
+
   sql-edge:
     container_name: db
     network_mode: host
@@ -36,6 +40,8 @@ services:
       timeout: 15s
       retries: 5
       start_period: 30s
+      profiles:
+      - Dependencies
 
   db-setup:
     container_name: db-setup
@@ -47,6 +53,8 @@ services:
     environment:
       - PASSWORD=${PASSWORD}
       - DB_NAME=${DB_NAME}
+    profiles:
+      - Dependencies
 
   # CaaS Integration Service
   receive-caas-file:
