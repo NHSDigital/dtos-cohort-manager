@@ -22,7 +22,7 @@ public class ParticipantManagerData : IParticipantManagerData
         _databaseHelper = databaseHelper;
         _logger = logger;
         _callFunction = callFunction;
-        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _dbConnection.ConnectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     #region Update methods
@@ -31,20 +31,18 @@ public class ParticipantManagerData : IParticipantManagerData
         var Participant = GetParticipant(participant.NhsNumber);
 
         var recordUpdateTime = DateTime.Now;
-        var SQLCommand = new SQLReturnModel()
-        {
-            CommandType = CommandType.Command,
-            SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
+
+        var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
             " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
-            " WHERE PARTICIPANT_ID = @participantId ",
-            Parameters = new Dictionary<string, object>
-            {
-                {"@participantId", Participant.ParticipantId },
-                {"@recordEndDateOldRecords", recordUpdateTime }
-            }
+            " WHERE PARTICIPANT_ID = @participantId ";
+
+        var Parameters = new Dictionary<string, object>
+        {
+            {"@participantId", Participant.ParticipantId },
+            {"@recordEndDateOldRecords", recordUpdateTime }
         };
 
-        return ExecuteCommand(SQLCommand, SQLCommand.Parameters);
+        return ExecuteCommand(SQL, Parameters);
     }
 
     public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
@@ -55,7 +53,8 @@ public class ParticipantManagerData : IParticipantManagerData
         var oldParticipant = GetParticipant(participantData.NhsNumber);
         if (oldParticipant.ParticipantId == null || oldParticipant.ParticipantId == "-1")
         {
-            //need to decide what to do here
+            _logger.LogInformation($"Error on update. Could not find participant in participant management table");
+            return false;
         }
 
         var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
@@ -86,14 +85,7 @@ public class ParticipantManagerData : IParticipantManagerData
             { "@recordUpdateDateTime", DBNull.Value },
         };
 
-        var SQLToExecute = new SQLReturnModel()
-        {
-            CommandType = CommandType.Scalar,
-            SQL = insertParticipant,
-            Parameters = null
-        };
-
-        return ExecuteCommand(SQLToExecute, commonParameters);
+        return ExecuteCommand(insertParticipant, commonParameters);
     }
     #endregion
 
@@ -175,7 +167,6 @@ public class ParticipantManagerData : IParticipantManagerData
         var result = default(T);
         using (_dbConnection)
         {
-            _dbConnection.ConnectionString = _connectionString;
             _dbConnection.Open();
             using (command)
             {
@@ -190,11 +181,12 @@ public class ParticipantManagerData : IParticipantManagerData
         }
     }
 
-    private bool ExecuteCommand(SQLReturnModel sqlCommand, Dictionary<string, object> commonParams)
+    private bool ExecuteCommand(string sqlCommandText, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
         command.Transaction = BeginTransaction();
-        command.CommandText = sqlCommand.SQL;
+        command.CommandText = sqlCommandText;
+        
         try
         {
             var result = command.ExecuteNonQuery();
@@ -206,6 +198,10 @@ public class ParticipantManagerData : IParticipantManagerData
                 _dbConnection.Close();
                 return false;
             }
+
+            command.Transaction.Commit();
+            _dbConnection.Close();
+            return true;
         }
         catch (Exception EX)
         {
@@ -214,10 +210,6 @@ public class ParticipantManagerData : IParticipantManagerData
             _logger.LogError("an error happened on exectuting command, {EX}", EX);
             return false;
         }
-
-        command.Transaction.Commit();
-        _dbConnection.Close();
-        return true;
     }
 
     private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
@@ -243,7 +235,6 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private IDbTransaction BeginTransaction()
     {
-        _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
         return _dbConnection.BeginTransaction();
     }
@@ -264,7 +255,6 @@ public class ParticipantManagerData : IParticipantManagerData
 
             parameter.ParameterName = param.Key;
             parameter.Value = param.Value;
-
             dbCommand.Parameters.Add(parameter);
         }
 

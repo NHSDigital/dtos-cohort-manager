@@ -30,16 +30,16 @@ public class UpdateParticipantDetailsTests
 
         _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
         _mockDBConnection.Setup(x => x.BeginTransaction()).Returns(_mockTransaction.Object);
-
+        _mockTransaction.Setup(x => x.Commit());
         _commandMock.Setup(c => c.Dispose());
         _commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
         _commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
         _commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
         _commandMock.SetupProperty<string>(c => c.CommandText);
-
+        _commandMock.SetupProperty<IDbTransaction>(c => c.Transaction);
         _mockParameter.Setup(m => m.ParameterName).Returns("@fakeparam");
         _mockParameter.Setup(m => m.Value).Returns("fakeValue");
-
+        
         _commandMock.Setup(x => x.CreateParameter()).Returns(_mockParameter.Object);
 
         _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
@@ -64,10 +64,7 @@ public class UpdateParticipantDetailsTests
         // Arrange
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
-        .Returns(false)
-        .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
 
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         SetUpReader();
@@ -93,7 +90,7 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        //_moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         SetUpReader();
@@ -114,7 +111,7 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
+        //_moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         SetUpReader();
