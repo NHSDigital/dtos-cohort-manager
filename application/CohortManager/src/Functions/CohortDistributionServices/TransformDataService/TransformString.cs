@@ -1,8 +1,6 @@
 namespace NHS.CohortManager.CohortDistribution;
 
-using System.Reflection;
 using System.Text.RegularExpressions;
-using Model;
 using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
@@ -18,28 +16,23 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<Participant> CheckParticipantCharactersAync(Participant participant)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 
-        // Iterate through string fields of participant
-        var stringFields = participant.GetType().GetProperties().Where(p => p.PropertyType == typeof(string));
-
-        foreach (PropertyInfo field in stringFields)
+        // Skip if the field is null or doesn't have any invalid chars
+        if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
         {
-            var stringField = (string)field.GetValue(participant);
-
-            // Skip if the field is null or doesn't have any invalid chars
-            if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
-            {
-                continue;
-            }
-
+            return stringField;
+        }
+        else
+        {
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
                 throw new ArgumentException();
             }
+
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
@@ -48,10 +41,8 @@ public class TransformString
                 // Will call the exception service in the future
                 throw new ArgumentException();
             }
-
-            field.SetValue(participant, transformedField);
+            return transformedField;
         }
-        return participant;
     }
 
     public async Task<string> TransformCharactersAsync(string invalidString)
