@@ -21,9 +21,9 @@ public class ScreeningServiceData : IScreeningServiceData
     {
         var SQL = "SELECT " +
         "[SCREENING_LKP].[SCREENING_ID], " +
-        "[SCREENING_LKP].[SCREENING_NAME], " +
-        " FROM [SCREENING_LKP] " +
-        " WHERE [SCREENING_LKP].[SCREENING_ACRONYM] = @ScreeningAcronym";
+        "[SCREENING_LKP].[SCREENING_NAME] " +
+        "FROM [SCREENING_LKP] " +
+        "WHERE [SCREENING_LKP].[SCREENING_ACRONYM] = @ScreeningAcronym";
 
         var parameters = new Dictionary<string, object>
         {
@@ -45,8 +45,6 @@ public class ScreeningServiceData : IScreeningServiceData
             {
                 screeningService.ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID");
                 screeningService.ScreeningName = DatabaseHelper.GetStringValue(reader, "SCREENING_NAME");
-                screeningService.ScreeningType = DatabaseHelper.GetStringValue(reader, "SCREENING_TYPE");
-                screeningService.ScreeningAcronym = DatabaseHelper.GetStringValue(reader, "SCREENING_ACRONYM");
             }
             return screeningService;
         });
