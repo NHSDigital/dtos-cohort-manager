@@ -1,6 +1,3 @@
-# """Simple script to send the sample file to azurite so you don't have to have storage explorer open
-#     Requires the azure-storage-blob package"""
-
 import sys
 import os
 from azure.storage.blob import BlobServiceClient, BlobClient
