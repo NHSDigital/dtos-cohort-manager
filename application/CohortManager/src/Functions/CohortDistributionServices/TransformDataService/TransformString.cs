@@ -20,7 +20,7 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<string> CheckParticipantCharactersAync(string stringField)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 

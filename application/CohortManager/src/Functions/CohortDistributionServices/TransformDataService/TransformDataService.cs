@@ -86,18 +86,18 @@ public class TransformDataService
 
             transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
             var transformString = new TransformString();
-            transformedParticipant.FirstName = await transformString.CheckParticipantCharactersAync(transformedParticipant.FirstName);
-            transformedParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAync(transformedParticipant.OtherGivenNames);
-            transformedParticipant.Surname = await transformString.CheckParticipantCharactersAync(transformedParticipant.Surname);
-            transformedParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAync(transformedParticipant.PreviousSurname);
-            transformedParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine1);
-            transformedParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine2);
-            transformedParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine3);
-            transformedParticipant.AddressLine4 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine4);
-            transformedParticipant.AddressLine5 = await transformString.CheckParticipantCharactersAync(transformedParticipant.AddressLine5);
-            transformedParticipant.Postcode = await transformString.CheckParticipantCharactersAync(transformedParticipant.Postcode);
-            transformedParticipant.TelephoneNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.TelephoneNumber);
-            transformedParticipant.MobileNumber = await transformString.CheckParticipantCharactersAync(transformedParticipant.MobileNumber);
+            transformedParticipant.FirstName = await transformString.CheckParticipantCharactersAsync(transformedParticipant.FirstName);
+            transformedParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAsync(transformedParticipant.OtherGivenNames);
+            transformedParticipant.Surname = await transformString.CheckParticipantCharactersAsync(transformedParticipant.Surname);
+            transformedParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAsync(transformedParticipant.PreviousSurname);
+            transformedParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine1);
+            transformedParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine2);
+            transformedParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine3);
+            transformedParticipant.AddressLine4 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine4);
+            transformedParticipant.AddressLine5 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine5);
+            transformedParticipant.Postcode = await transformString.CheckParticipantCharactersAsync(transformedParticipant.Postcode);
+            transformedParticipant.TelephoneNumber = await transformString.CheckParticipantCharactersAsync(transformedParticipant.TelephoneNumber);
+            transformedParticipant.MobileNumber = await transformString.CheckParticipantCharactersAsync(transformedParticipant.MobileNumber);
 
             var response = JsonSerializer.Serialize(transformedParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
