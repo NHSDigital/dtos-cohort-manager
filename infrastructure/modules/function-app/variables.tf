@@ -49,10 +49,6 @@ variable "gl_worker_32bit" {
   description = "Should the Windows Function App use a 32-bit worker process. Defaults to true"
 }
 
-variable "app_settings" {
-  description = "App settings for App Service"
-}
-
 variable "acr_registry_url" {
   description = "The URL that can be used to log into the container registry."
 }
@@ -83,4 +79,29 @@ variable "docker_CI_enable" {
 
 variable "docker_img_prefix" {
   description = "A commont part of the docker image name"
+}
+
+variable "db_name" {
+  type        = string
+  description = "Name of the deployed DB to which the connection string is linking."
+}
+
+variable "enable_appsrv_storage" {
+  description = "If websites app service storage should be enabled"
+}
+
+######################
+# security defaults
+######################
+
+variable "https_only" {
+  type        = bool
+  description = "Can the Function App only be accessed via HTTPS?"
+  default     = true
+}
+
+variable "remote_debugging_enabled" {
+  type        = bool
+  description = "Should Remote Debugging be enabled."
+  default     = false
 }
