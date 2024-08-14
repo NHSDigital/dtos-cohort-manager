@@ -19,9 +19,6 @@ INSERT INTO [dbo].[GENDER_MASTER]
     VALUES
         ('2','Female');
 
-INSERT INTO [dbo].[BS_SELECT_GP_PRACTICE_LKP]
-    VALUES
-
 BULK INSERT [dbo].[BS_SELECT_GP_PRACTICE_LKP]
 FROM 'Set-up\database\BS_SELECT_GP_PRACTICE_LKP_insertdata.csv'
 WITH ( FORMAT = 'CSV');

@@ -39,10 +39,10 @@ public class UpdateParticipantTests
     {
         Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
-        Environment.SetEnvironmentVariable("CohortDistributionServiceURL","CohortDistributionServiceURL");
+        Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
 
-        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object,_callFunction.Object);
+        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunction.Object);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true)).Verifiable();
