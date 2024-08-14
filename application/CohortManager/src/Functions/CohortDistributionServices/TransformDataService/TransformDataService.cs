@@ -15,6 +15,7 @@ using System.Text;
 using Model;
 using Model.Enums;
 using Common;
+using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.SqlClient;
@@ -71,30 +72,9 @@ public class TransformDataService
 
             var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-            var transformedParticipant = new Participant()
-            {
-                FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName),
-                Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
-                NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
-                NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
-                OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames),
-                PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname),
-                AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1),
-                AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2),
-                AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3),
-                AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4),
-                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5),
-                Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode),
-                TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
-                MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
-                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
-                ParticipantId = participant.ParticipantId
-            };
 
+            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
-            transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
-            
             // Character transformation
             var transformString = new TransformString();
 
@@ -126,7 +106,8 @@ public class TransformDataService
                 string.IsNullOrEmpty(participant.AddressLine4) &&
                 string.IsNullOrEmpty(participant.AddressLine5))
             {
-                GetAddress(participant, new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
+                GetMissingAddress getMissingAddress = new(participant, new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
+                participant = getMissingAddress.GetAddress();
             }
 
             // Converting from CohortDistributionParticipant to Participant and returning
@@ -169,6 +150,17 @@ public class TransformDataService
         participant.NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber);
         participant.NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix);
         participant.Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender));
+        participant.OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames);
+        participant.PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname);
+        participant.AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1);
+        participant.AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2);
+        participant.AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3);
+        participant.AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4);
+        participant.AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5);
+        participant.Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode);
+        participant.TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber);
+        participant.MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber);
+        participant.EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress);
 
         return participant;
     }
@@ -190,44 +182,11 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        namePrefix = (string)rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string?) rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? namePrefix;
 
         return namePrefix;
     }
-
-    public CohortDistributionParticipant GetAddress(CohortDistributionParticipant participant, IDbConnection connection) {
-        using (connection)
-        {
-            connection.Open();
-
-            string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
-                        $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
-                        $"WHERE PARTICIPANT_ID = '{participant.ParticipantId}'";
-
-            using (SqlCommand command = new SqlCommand(sql, (SqlConnection) connection))
-            {
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        if (participant.Postcode != reader["POST_CODE"] as string) {
-                            // will be changed to call exception service
-                            throw new ArgumentException();
-                        }
-
-                        participant.AddressLine1 = reader["ADDRESS_LINE_1"] as string ?? null;
-                        participant.AddressLine2 = reader["ADDRESS_LINE_2"] as string ?? null;
-                        participant.AddressLine3 = reader["ADDRESS_LINE_3"] as string ?? null;
-                        participant.AddressLine4 = reader["ADDRESS_LINE_4"] as string ?? null;
-                        participant.AddressLine5 = reader["ADDRESS_LINE_5"] as string ?? null;
-                    }
-                }
-            }
-        }
-        return participant;
-    }
-
 }
