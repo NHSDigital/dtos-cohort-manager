@@ -10,7 +10,7 @@ using NHS.MESH.Client.Contracts.Clients;
 using NHS.MESH.Client.Contracts.Services;
 using NHS.MESH.Client.Models;
 
-public class RetriveMeshFile
+public class RetrieveMeshFile
 {
     private readonly ILogger _logger;
 
@@ -19,7 +19,7 @@ public class RetriveMeshFile
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly string _mailboxId;
 
-    public RetriveMeshFile(ILogger<RetriveMeshFile> logger, IMeshInboxService meshInboxService, IExceptionHandler exceptionHandler)
+    public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshInboxService meshInboxService, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _meshInboxService = meshInboxService;
