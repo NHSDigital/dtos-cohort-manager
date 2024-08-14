@@ -10,7 +10,7 @@ def setup_azurite():
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
     print("Connected to Azurite")
 
-    try: 
+    try:
         blob_service_client.create_container("inbound")
         blob_service_client.create_container("rules")
         print("Blob containers created")

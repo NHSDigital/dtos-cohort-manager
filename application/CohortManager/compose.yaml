@@ -163,7 +163,6 @@ services:
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-    
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
 
   update-participant-details:
