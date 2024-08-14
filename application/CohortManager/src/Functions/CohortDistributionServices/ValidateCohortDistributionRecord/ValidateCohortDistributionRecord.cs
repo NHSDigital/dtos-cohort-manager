@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+namespace NHS.CohortManager.CohortDistribution.ValidateCohortDistributionRecord;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -8,9 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
-
-namespace NHS.CohortManager.CohortDistribution.ValidateCohortDistributionRecord;
+using Model.Enums;
 
 public class ValidateCohortDistributionRecord
 {
@@ -76,10 +74,16 @@ public class ValidateCohortDistributionRecord
 
     private async Task<bool> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
     {
+        if (existingParticipant == null)
+        {
+            existingParticipant = new CohortDistributionParticipant();
+        }
+
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(
             _createParticipant.ConvertCohortDistributionRecordToParticipant(existingParticipant),
             _createParticipant.ConvertCohortDistributionRecordToParticipant(newParticipant),
-            fileName
+            fileName,
+            RulesType.CohortDistribution
         ));
 
 
