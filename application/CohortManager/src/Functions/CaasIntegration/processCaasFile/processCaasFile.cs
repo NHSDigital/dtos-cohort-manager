@@ -8,6 +8,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Options;
 
 public class ProcessCaasFileFunction
 {
@@ -17,8 +18,9 @@ public class ProcessCaasFileFunction
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
+    private readonly IOptions<ProcessCaasFileConfig> _config;
 
-    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException)
+    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IOptions<ProcessCaasFileConfig> config)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -26,6 +28,7 @@ public class ProcessCaasFileFunction
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _handleException = handleException;
+        _config = config;
     }
 
     [Function("processCaasFile")]
@@ -44,7 +47,7 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             row++;
-            var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
+            var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, _config.Value.DemographicURI);
             if (demographicDataInserted == false)
             {
                 _logger.LogError("Demographic function failed");
@@ -63,7 +66,7 @@ public class ProcessCaasFileFunction
                     try
                     {
                         var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                        await _callFunction.SendPost(_config.Value.PMSAddParticipant, json);
                         _logger.LogInformation("Called add participant");
                     }
                     catch (Exception ex)
