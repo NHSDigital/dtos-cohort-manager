@@ -7,8 +7,14 @@ resource "azurerm_linux_function_app" "function" {
   location            = var.location
   service_plan_id     = var.asp_id
 
-  storage_account_name       = var.sa_name
-  storage_account_access_key = var.sa_prm_key
+  app_settings = merge(local.global_app_settings, local.app_settings[each.key])
+
+  https_only = var.https_only
+
+  identity {
+    type         = "SystemAssigned, UserAssigned"
+    identity_ids = [var.acr_mi_id]
+  }
 
   site_config {
 
@@ -27,12 +33,8 @@ resource "azurerm_linux_function_app" "function" {
     }
   }
 
-  identity {
-    type         = "SystemAssigned, UserAssigned"
-    identity_ids = [var.acr_mi_id]
-  }
-
-  app_settings = merge(local.global_app_settings, local.app_settings[each.key])
+  storage_account_name       = var.sa_name
+  storage_account_access_key = var.sa_prm_key
 
   tags = var.tags
 
@@ -40,5 +42,4 @@ resource "azurerm_linux_function_app" "function" {
     #ignore_changes = [tags, app_settings, connection_string]
     ignore_changes = [tags, connection_string]
   }
-
 }
