@@ -1,4 +1,4 @@
-namespace NHS.Screening.RetriveMeshFile;
+namespace NHS.Screening.RetrieveMeshFile;
 
 using System;
 using System.Reflection.Metadata;
@@ -58,11 +58,16 @@ public class RetrieveMeshFile
         foreach(var message in checkForMessages.Response.Messages)
         {
             var messageHead = await _meshInboxService.GetHeadMessageByIdAsync(_mailboxId,message);
-            if(!messageHead.IsSuccessful){
+            if(!messageHead.IsSuccessful)
+            {
                 _logger.LogCritical("Error while getting Message Head from MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",checkForMessages.Error?.ErrorCode,checkForMessages.Error?.ErrorDescription);
+                continue;
             }
             bool wasMessageDownloaded = await TransferMessageToBlobStorage(messageHead.Response.MessageMetaData);
-            var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
+            if(wasMessageDownloaded)
+            {
+                var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
+            }
         }
 
 
@@ -95,9 +100,9 @@ public class RetrieveMeshFile
             return false;
         }
 
-        await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,"inbound" ,blobFile);
+        var uploadedToBlob = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,"inbound" ,blobFile);
 
-        return true;
+        return uploadedToBlob;
     }
 
     private async Task<BlobFile?> DownloadChunkedFile(string messageId)

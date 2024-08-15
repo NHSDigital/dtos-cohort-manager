@@ -118,6 +118,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHS.Mesh.Client", "..\dotne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveMeshFile", "CaasIntegration\RetrieveMeshFile\RetrieveMeshFile.csproj", "{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\..\..\..\tests\CaasIntegrationTests\retrieveMeshFileTest\retrieveMeshFileTest.csproj", "{31A651CD-25D0-4131-B773-0A34495164D5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -320,6 +322,10 @@ Global
 		{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31A651CD-25D0-4131-B773-0A34495164D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31A651CD-25D0-4131-B773-0A34495164D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31A651CD-25D0-4131-B773-0A34495164D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31A651CD-25D0-4131-B773-0A34495164D5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
