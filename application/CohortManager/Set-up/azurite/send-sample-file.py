@@ -8,7 +8,7 @@ if len(sys.argv) < 2:
 Usage:
     python send-sample-file.py file
 Arguments:
-    file  The file to be sent
+    file  The file to be sent to azurite
 Options:
     1  The BSS_20240628191800_n1.csv sample file
     10  The BSS_20240601121212_n10.csv sample file
@@ -20,10 +20,12 @@ elif len(sys.argv) > 2:
     sys.exit("This script accepts only one argument, run the command with no arguments to view the help page")
 elif sys.argv[1] == "1":
     sample_file = "BSS_20240628191800_n1.csv"
-elif sys.argv == "10":
+elif sys.argv[1] == "10":
     sample_file = "BSS_20240601121212_n10.csv"
-elif sys.argv == "100":
+elif sys.argv[1] == "100":
     sample_file = "BSS_20240628191800_n100.csv"
+else:
+    sys.exit("Argument not recognised, acceptable arguments are '1', '10', and '100'")
 
 
 connect_str = "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1;"

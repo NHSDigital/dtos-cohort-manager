@@ -26,4 +26,6 @@ paths = [
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure EG Topic - createParticipant/template.json''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/parameters.json''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/template.json''',
+  '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
+  '''application/CohortManager/src/Functions/Shared/Model/Model.csproj'''
 ]
