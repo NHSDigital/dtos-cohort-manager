@@ -4,7 +4,7 @@ using System.Data;
 using Model;
 using System.Data.SqlClient;
 
-public class GetMissingAddress() 
+public class GetMissingAddress
 {
     private CohortDistributionParticipant _participant;
     private IDbConnection _connection;
@@ -16,17 +16,17 @@ public class GetMissingAddress()
 
     public CohortDistributionParticipant GetAddress()
     {
+        // TODO: SQL Params
+        // TODO: Implement exception handler
+        string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
+                    $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                    $"WHERE PARTICIPANT_ID = @ParticipantId";
         using (_connection)
         {
             _connection.Open();
-
-            // TODO: SQL Params
-            string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
-                        $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
-                        $"WHERE PARTICIPANT_ID = '{_participant.ParticipantId}'";
-
             using (SqlCommand command = new SqlCommand(sql, (SqlConnection) _connection))
             {
+                command.Parameters.AddWithValue("@ParticipantId", _participant.ParticipantId);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -34,7 +34,7 @@ public class GetMissingAddress()
                         if (_participant.Postcode != reader["POST_CODE"] as string)
                         {
                             // will be changed to call exception service
-                            throw new ArgumentException();
+                            throw new ArgumentException("Participant has an empty address and postcode does not match existing data");
                         }
 
                         _participant.AddressLine1 = reader["ADDRESS_LINE_1"] as string ?? null;

@@ -53,28 +53,11 @@ public class TransformDataService
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
+        // This function is currently not using the screeningService, but it will do in the future
+        // var screeningService = requestBody.ScreeningService;
 
         try
         {
-            participant = requestBody.Participant;
-
-            // This function is currently not using the screeningService, but it will do in the future
-            // var screeningService = requestBody.ScreeningService;
-
-            string json = await File.ReadAllTextAsync("transformRules.json");
-            var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-
-            var re = new RulesEngine.RulesEngine(rules);
-
-            var ruleParameters = new[] {
-                new RuleParameter("participant", participant),
-            };
-
-            var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-
-            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
-
             // Character transformation
             var transformString = new TransformString();
 
@@ -131,9 +114,6 @@ public class TransformDataService
 
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant)
     {
-        // This function is currently not using the screeningService, but it will do in the future
-        // var screeningService = requestBody.ScreeningService;
-
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
