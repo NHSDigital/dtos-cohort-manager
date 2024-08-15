@@ -12,6 +12,7 @@ using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
+using Data.Database;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -25,6 +26,7 @@ public class CreateCohortDistributionTests
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
+    private readonly Mock<IParticipantManagerData> _participantManagerData = new();
 
     public CreateCohortDistributionTests()
     {
@@ -41,7 +43,7 @@ public class CreateCohortDistributionTests
             ScreeningService = "BSS"
         };
 
-        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object);
+        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object, _participantManagerData.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
