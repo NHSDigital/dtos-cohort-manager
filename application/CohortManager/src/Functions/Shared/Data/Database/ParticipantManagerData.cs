@@ -12,7 +12,6 @@ public class ParticipantManagerData : IParticipantManagerData
 {
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
-    private readonly string _connectionString;
     private readonly ILogger<ParticipantManagerData> _logger;
     private readonly ICallFunction _callFunction;
 
@@ -51,11 +50,6 @@ public class ParticipantManagerData : IParticipantManagerData
         var dateToday = DateTime.Now;
 
         var oldParticipant = GetParticipant(participantData.NhsNumber);
-        if (oldParticipant.ParticipantId == null || oldParticipant.ParticipantId == "-1")
-        {
-            _logger.LogInformation($"Error on update. Could not find participant in participant management table");
-            return false;
-        }
 
         var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
         if (response.ExceptionFlag == "Y")
@@ -123,7 +117,6 @@ public class ParticipantManagerData : IParticipantManagerData
         " JOIN SCREENING_LKP AS SLPK ON P.SCREENING_ID = SLPK.SCREENING_ID " +
         " WHERE P.[NHS_NUMBER] = @NhsNumber AND P.[SCREENING_ID] = @ScreeningId  AND SLPK.SCREENING_ID = @ScreeningId " +
         " ORDER BY PARTICIPANT_ID DESC ";
-
 
         var parameters = new Dictionary<string, object>
         {
@@ -219,6 +212,7 @@ public class ParticipantManagerData : IParticipantManagerData
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            //What about bad requests etc
             if (response.StatusCode == HttpStatusCode.Created)
             {
                 newParticipant.ExceptionFlag = "Y";
