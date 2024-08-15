@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class BlobStorageHelper : IBlobStorageHelper
 {
@@ -47,4 +48,25 @@ public class BlobStorageHelper : IBlobStorageHelper
 
         return true;
     }
+
+    public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile)
+    {
+        var sourceBlobServiceClient = new BlobServiceClient(connectionString);
+        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
+        var sourceBlobClient = sourceContainerClient.GetBlobClient(blobFile.FileName);
+
+        try
+        {
+            var result = await sourceBlobClient.UploadAsync(blobFile.Data);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,$"there has been a problem while uploading the file: {ex.Message}");
+            return false;
+        }
+
+        return true;
+    }
+
+
 }
