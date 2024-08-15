@@ -71,6 +71,10 @@
         "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
       },
       {
+        "RuleName": "49.InterpreterCheck",
+        "Expression": "participant.IsInterpreterRequired != 0 OR participant.IsInterpreterRequired != 1"
+      },
+      {
         "RuleName": "61.InvalidFlag",
         "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
       }
