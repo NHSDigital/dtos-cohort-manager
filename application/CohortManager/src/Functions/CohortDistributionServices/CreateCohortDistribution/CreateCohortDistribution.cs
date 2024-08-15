@@ -117,6 +117,6 @@ public class CreateCohortDistribution
     private bool ParticipantHasException(string nhsNumber)
     {
         var participant = _participantManagerData.GetParticipant(nhsNumber);
-        return participant.ExceptionFlag == Boolean.IsTrue;
+        return participant.ExceptionFlag == Exists.Yes;
     }
 }
