@@ -1,8 +1,6 @@
 namespace NHS.CohortManager.CohortDistribution;
 
-using System.Reflection;
 using System.Text.RegularExpressions;
-using Model;
 using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
@@ -18,7 +16,7 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<string> CheckParticipantCharactersAync(string stringField)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 
@@ -29,7 +27,6 @@ public class TransformString
         }
         else
         {
-
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
