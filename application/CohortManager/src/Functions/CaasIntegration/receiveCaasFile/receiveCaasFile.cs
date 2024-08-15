@@ -113,7 +113,7 @@ public class ReceiveCaasFile
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
                 await InsertValidationErrorIntoDatabase(name);
             }
         }
@@ -134,11 +134,12 @@ public class ReceiveCaasFile
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
-        if (result.StatusCode == HttpStatusCode.OK)
+        if (result.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
+            _logger.LogError("there was a problem saving and or moving the failed file");
         }
-        _logger.LogError("there was a problem saving and or moving the failed file");
+        _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
+
     }
 
     private static bool FileNameAndFileExtensionIsValid(string name)

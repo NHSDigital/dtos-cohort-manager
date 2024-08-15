@@ -62,7 +62,7 @@ public class TransformDataService
 
             var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-            var transformedParticipant = new Participant()
+            var transformedParticipant = new CohortDistributionParticipant()
             {
                 FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName),
                 Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
@@ -80,13 +80,13 @@ public class TransformDataService
                 TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
                 MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
                 EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
-                ParticipantId = participant.ParticipantId
+                ParticipantId = participant.ParticipantId,
             };
 
 
             transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
             var transformString = new TransformString();
-            transformedParticipant = await transformString.CheckParticipantCharactersAync(transformedParticipant);
+            transformedParticipant = await transformString.CheckParticipantCharactersAsync(transformedParticipant);
 
             var response = JsonSerializer.Serialize(transformedParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -102,7 +102,12 @@ public class TransformDataService
     private T GetTransformedData<T>(List<RuleResultTree> results, string field, T CurrentValue)
     {
         var result = results.Find(x => x.Rule.RuleName.Split('.')[1] == field);
-        return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
+        if (result == null)
+        {
+            return CurrentValue;
+        }
+
+        return result.ActionResult.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 
     public async Task<string> TransformNamePrefixAsync(string namePrefix)

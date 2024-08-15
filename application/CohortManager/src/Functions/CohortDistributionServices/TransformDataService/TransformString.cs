@@ -18,7 +18,7 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<Participant> CheckParticipantCharactersAync(Participant participant)
+    public async Task<CohortDistributionParticipant> CheckParticipantCharactersAsync(CohortDistributionParticipant participant)
     {
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 

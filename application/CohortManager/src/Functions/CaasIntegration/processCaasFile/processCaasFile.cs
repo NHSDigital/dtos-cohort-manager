@@ -8,6 +8,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using CsvHelper;
 
 public class ProcessCaasFileFunction
 {
@@ -44,12 +45,6 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             row++;
-            var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
-            if (demographicDataInserted == false)
-            {
-                _logger.LogError("Demographic function failed");
-            }
-
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
@@ -63,8 +58,14 @@ public class ProcessCaasFileFunction
                     try
                     {
                         var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
-                        _logger.LogInformation("Called add participant");
+                        var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+                        if (demographicDataAdded)
+                        {
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            _logger.LogInformation("Called add participant");
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -104,16 +105,32 @@ public class ProcessCaasFileFunction
                     err++;
                     try
                     {
+                        var recordTypeParsed = Actions.TryParse(participant.RecordType, out var RecordType);
 
-                        var participantCsvRecord = new ParticipantCsvRecord
+                        if (!recordTypeParsed)
                         {
-                            FileName = input.FileName,
-                            Participant = participant
-                        };
+                            _logger.LogError($"cannot parse record type with action: {participant.RecordType}");
 
-                        var json = JsonSerializer.Serialize(participantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-                        _logger.LogInformation("Called static validation");
+                            await _handleException.CreateRecordValidationExceptionLog(new Model.ValidationException()
+                            {
+                                RuleId = 1,
+                                Cohort = "N/A",
+                                NhsNumber = string.IsNullOrEmpty(participant.NhsNumber) ? "" : participant.NhsNumber,
+                                DateCreated = DateTime.Now,
+                                FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
+                                DateResolved = DateTime.MaxValue,
+                                RuleDescription = $"a record has failed to process with the NHS Number: {participant.NhsNumber} because the of an incorrect record type",
+                                Category = 0,
+                                ScreeningName = "N/A",
+                                Fatal = 1,
+                                ErrorRecord = "N/A",
+                                ExceptionDate = DateTime.Now,
+                                RuleContent = "N/A",
+                                ScreeningService = 0
+
+                            });
+                            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -132,5 +149,16 @@ public class ProcessCaasFileFunction
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+    }
+
+    private async Task<bool> PostDemographicDataAsync(Participant participant)
+    {
+        var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
+        if (demographicDataInserted == false)
+        {
+            _logger.LogError("Demographic function failed");
+            return false;
+        }
+        return true;
     }
 }

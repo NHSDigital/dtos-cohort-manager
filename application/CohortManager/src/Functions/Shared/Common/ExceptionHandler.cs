@@ -96,6 +96,36 @@ public class ExceptionHandler : IExceptionHandler
         return true;
     }
 
+    public async Task<bool> CreateRecordValidationExceptionLog(ValidationException validation)
+    {
+        var requestObject = new ValidationException()
+        {
+            RuleId = validation.RuleId == null ? 0 : validation.RuleId,
+            Cohort = "",
+            NhsNumber = string.IsNullOrEmpty(validation.NhsNumber) ? "" : validation.NhsNumber,
+            DateCreated = validation.DateCreated ?? DateTime.Now,
+            FileName = string.IsNullOrEmpty(validation.FileName) ? "" : validation.FileName,
+            DateResolved = validation.DateResolved ?? DateTime.MaxValue,
+            RuleDescription = validation.RuleDescription ?? "the file failed file validation. for single record",
+            Category = validation.Category ?? 0,
+            ScreeningName = validation.ScreeningName ?? "",
+            Fatal = validation.Fatal ?? 1,
+            ErrorRecord = validation.ErrorRecord ?? "",
+            ExceptionDate = validation.ExceptionDate ?? DateTime.Now,
+            RuleContent = validation.RuleContent ?? "",
+            ScreeningService = validation.ScreeningService ?? 0
+        };
+
+        var url = GetUrlFromEnvironment();
+        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(requestObject));
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("there was an error while logging an exception to the database");
+            return false;
+        }
+        return true;
+    }
+
     private string GetUrlFromEnvironment()
     {
         var url = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
