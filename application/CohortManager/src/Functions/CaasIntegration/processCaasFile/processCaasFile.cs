@@ -159,6 +159,7 @@ public class ProcessCaasFileFunction
             _logger.LogError("Demographic function failed");
             return false;
         }
+
         return true;
     }
 }
