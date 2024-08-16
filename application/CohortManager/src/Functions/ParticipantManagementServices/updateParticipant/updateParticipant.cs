@@ -55,7 +55,6 @@ public class UpdateParticipantFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
-            participant.ScreeningId = "1"; // TEMP HARD CODING WILL NEED TO BE TAKEN FROM FILENAME WHEN READY - THIS IS A NUMBER IN THE DB
             var participantCsvRecord = new ParticipantCsvRecord
             {
                 Participant = participant,
