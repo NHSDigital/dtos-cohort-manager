@@ -42,10 +42,11 @@ locals {
 
     ReceiveCaasFile = {
 
-      caasfolder_STORAGE   = var.caasfolder_STORAGE
-      targetFunction       = local.fnapp_urls.processCaasFile
-      ExceptionFunctionURL = local.fnapp_urls.createException
-      FileValidationURL =  = local.fnapp_urls.fileValidation
+      caasfolder_STORAGE           = var.caasfolder_STORAGE
+      targetFunction               = local.fnapp_urls.processCaasFile
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      FileValidationURL            = local.fnapp_urls.fileValidation
+      DtOsDatabaseConnectionString = local.db_connection_string
     }
 
     ProcessCaasFile = {
