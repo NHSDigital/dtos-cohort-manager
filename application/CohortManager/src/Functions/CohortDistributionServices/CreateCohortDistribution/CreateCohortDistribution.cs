@@ -86,7 +86,7 @@ public class CreateCohortDistribution
 
             if (ParticipantHasException(requestBody.NhsNumber))
             {
-                _logger.LogError("The participant has an exception. Unable to add to cohort distribution.");
+                _logger.LogError($"Unable to add to cohort distribution. There is an exception for participant {participantData.ParticipantId}.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
