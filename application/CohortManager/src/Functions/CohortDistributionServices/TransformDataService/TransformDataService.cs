@@ -1,3 +1,9 @@
+/// <summary>
+/// Takes a CohortDistributionParticipant, does a number of individual transformations, and retuns a transformed Model.Participant
+/// </summary>
+/// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
+/// <returns>The transformed Model.Participant</returns>
+
 namespace NHS.CohortManager.CohortDistribution;
 
 using Microsoft.Azure.Functions.Worker;
@@ -9,7 +15,10 @@ using System.Text;
 using Model;
 using Model.Enums;
 using Common;
+using Data.Database;
 using Microsoft.Extensions.Logging;
+using System.Data;
+using System.Data.SqlClient;
 
 public class TransformDataService
 {
@@ -26,9 +35,9 @@ public class TransformDataService
     [Function("TransformDataService")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        CohortDistributionParticipant participant = null;
-
+        CohortDistributionParticipant participant;
         TransformDataRequestBody requestBody;
+
         try
         {
             string requestBodyJson;
@@ -38,67 +47,53 @@ public class TransformDataService
             }
 
             requestBody = JsonSerializer.Deserialize<TransformDataRequestBody>(requestBodyJson);
+            participant = requestBody.Participant;
         }
         catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
+        // This function is currently not using the screeningService, but it will do in the future
+        // var screeningService = requestBody.ScreeningService;
 
         try
         {
-            participant = requestBody.Participant;
-
-            // This function is currently not using the screeningService, but it will do in the future
-            // var screeningService = requestBody.ScreeningService;
-
-            string json = await File.ReadAllTextAsync("transformRules.json");
-            var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-
-            var re = new RulesEngine.RulesEngine(rules);
-
-            var ruleParameters = new[] {
-                new RuleParameter("participant", participant),
-            };
-
-            var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-            var transformedParticipant = new Participant()
-            {
-                FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName),
-                Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname),
-                NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber),
-                NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix),
-                Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender)),
-                OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames),
-                PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname),
-                AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1),
-                AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2),
-                AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3),
-                AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4),
-                AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5),
-                Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode),
-                TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber),
-                MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber),
-                EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress),
-                ParticipantId = participant.ParticipantId
-            };
-
-
-            transformedParticipant.NamePrefix = await TransformNamePrefixAsync(transformedParticipant.NamePrefix);
+            // Character transformation
             var transformString = new TransformString();
-            transformedParticipant.FirstName = await transformString.CheckParticipantCharactersAsync(transformedParticipant.FirstName);
-            transformedParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAsync(transformedParticipant.OtherGivenNames);
-            transformedParticipant.Surname = await transformString.CheckParticipantCharactersAsync(transformedParticipant.Surname);
-            transformedParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAsync(transformedParticipant.PreviousSurname);
-            transformedParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine1);
-            transformedParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine2);
-            transformedParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine3);
-            transformedParticipant.AddressLine4 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine4);
-            transformedParticipant.AddressLine5 = await transformString.CheckParticipantCharactersAsync(transformedParticipant.AddressLine5);
-            transformedParticipant.Postcode = await transformString.CheckParticipantCharactersAsync(transformedParticipant.Postcode);
-            transformedParticipant.TelephoneNumber = await transformString.CheckParticipantCharactersAsync(transformedParticipant.TelephoneNumber);
-            transformedParticipant.MobileNumber = await transformString.CheckParticipantCharactersAsync(transformedParticipant.MobileNumber);
+            participant.NamePrefix = await transformString.CheckParticipantCharactersAsync(participant.NamePrefix);
+            participant.FirstName = await transformString.CheckParticipantCharactersAsync(participant.FirstName);
+            participant.OtherGivenNames = await transformString.CheckParticipantCharactersAsync(participant.OtherGivenNames);
+            participant.Surname = await transformString.CheckParticipantCharactersAsync(participant.Surname);
+            participant.PreviousSurname = await transformString.CheckParticipantCharactersAsync(participant.PreviousSurname);
+            participant.AddressLine1 = await transformString.CheckParticipantCharactersAsync(participant.AddressLine1);
+            participant.AddressLine2 = await transformString.CheckParticipantCharactersAsync(participant.AddressLine2);
+            participant.AddressLine3 = await transformString.CheckParticipantCharactersAsync(participant.AddressLine3);
+            participant.AddressLine4 = await transformString.CheckParticipantCharactersAsync(participant.AddressLine4);
+            participant.AddressLine5 = await transformString.CheckParticipantCharactersAsync(participant.AddressLine5);
+            participant.Postcode = await transformString.CheckParticipantCharactersAsync(participant.Postcode);
+            participant.TelephoneNumber = await transformString.CheckParticipantCharactersAsync(participant.TelephoneNumber);
+            participant.MobileNumber = await transformString.CheckParticipantCharactersAsync(participant.MobileNumber);
 
+            // Other transformation rules
+            participant = await TransformParticipantAsync(participant);
+
+            // Name prefix transformation
+            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+
+            // address transformation
+            if (! string.IsNullOrEmpty(participant.Postcode) &&
+                string.IsNullOrEmpty(participant.AddressLine1) &&
+                string.IsNullOrEmpty(participant.AddressLine2) &&
+                string.IsNullOrEmpty(participant.AddressLine3) &&
+                string.IsNullOrEmpty(participant.AddressLine4) &&
+                string.IsNullOrEmpty(participant.AddressLine5))
+            {
+                GetMissingAddress getMissingAddress = new(participant, new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
+                participant = getMissingAddress.GetAddress();
+            }
+
+            // Converting from CohortDistributionParticipant to Participant and returning
+            var transformedParticipant = new Participant(participant);
             var response = JsonSerializer.Serialize(transformedParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
@@ -116,8 +111,40 @@ public class TransformDataService
         return result?.ActionResult?.Output == null ? CurrentValue : (T)result.ActionResult.Output;
     }
 
-    public async Task<string> TransformNamePrefixAsync(string namePrefix)
+    public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant)
     {
+        string json = await File.ReadAllTextAsync("transformRules.json");
+        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
+        var re = new RulesEngine.RulesEngine(rules);
+
+        var ruleParameters = new[] {
+            new RuleParameter("participant", participant),
+        };
+
+        var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
+
+        participant.FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName);
+        participant.Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname);
+        participant.NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber);
+        participant.NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix);
+        participant.Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender));
+        participant.OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames);
+        participant.PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname);
+        participant.AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1);
+        participant.AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2);
+        participant.AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3);
+        participant.AddressLine4 = GetTransformedData<string>(resultList, "AddressLine4", participant.AddressLine4);
+        participant.AddressLine5 = GetTransformedData<string>(resultList, "AddressLine5", participant.AddressLine5);
+        participant.Postcode = GetTransformedData<string>(resultList, "Postcode", participant.Postcode);
+        participant.TelephoneNumber = GetTransformedData<string>(resultList, "TelephoneNumber", participant.TelephoneNumber);
+        participant.MobileNumber = GetTransformedData<string>(resultList, "MobileNumber", participant.MobileNumber);
+        participant.EmailAddress = GetTransformedData<string>(resultList, "EmailAddress", participant.EmailAddress);
+
+        return participant;
+    }
+
+    public async Task<string> TransformNamePrefixAsync(string namePrefix) {
 
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
@@ -134,12 +161,11 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
         // Assign new name prefix
-        namePrefix = (string)rulesList.Where(result => result.IsSuccess)
+        namePrefix = (string?) rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? namePrefix;
 
         return namePrefix;
     }
-
 }
