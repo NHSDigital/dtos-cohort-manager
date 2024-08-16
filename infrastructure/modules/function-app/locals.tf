@@ -189,6 +189,7 @@ locals {
     }
 
     RetrieveParticipantData = {
+
       DtOsDatabaseConnectionString = local.db_connection_string
     }
   }
