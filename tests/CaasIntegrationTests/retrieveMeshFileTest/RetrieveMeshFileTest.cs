@@ -25,9 +25,12 @@ public class RetrieveMeshFileTest
 {
 
     private readonly Mock<ILogger<RetrieveMeshFile>> _mockLogger = new();
+    private readonly Mock<ILogger<MeshToBlobTransferHandler>> _mockMeshTransferLogger = new();
     private readonly Mock<IMeshInboxService> _mockMeshInboxService = new();
     private readonly Mock<IExceptionHandler> _mockExceptionHandler = new();
     private readonly Mock<IBlobStorageHelper> _mockBlobStorageHelper = new();
+
+    private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly RetrieveMeshFile _retrieveMeshFile;
 
     private const string mailboxId = "TestMailBox";
@@ -36,7 +39,8 @@ public class RetrieveMeshFileTest
     {
         Environment.SetEnvironmentVariable("BSSMailBox", mailboxId);
         Environment.SetEnvironmentVariable("BlobStorage_ConnectionString", "BlobStorage_ConnectionString");
-        _retrieveMeshFile = new RetrieveMeshFile(_mockLogger.Object,_mockMeshInboxService.Object,_mockExceptionHandler.Object,_mockBlobStorageHelper.Object);
+        _meshToBlobTransferHandler = new MeshToBlobTransferHandler(_mockMeshTransferLogger.Object,_mockBlobStorageHelper.Object,_mockMeshInboxService.Object);
+        _retrieveMeshFile = new RetrieveMeshFile(_mockLogger.Object,_meshToBlobTransferHandler);
 
     }
     [TestMethod]

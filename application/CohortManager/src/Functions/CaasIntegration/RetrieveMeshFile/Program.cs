@@ -11,6 +11,7 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddMeshClient(_ => _.MeshApiBaseUrl = Environment.GetEnvironmentVariable("MeshApiBaseUrl"));
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
+        services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
     })
     .AddExceptionHandler()
     .Build();
