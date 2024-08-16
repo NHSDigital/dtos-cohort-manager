@@ -134,7 +134,7 @@ public class ProcessCaasFileFunction
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Static validation function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _logger.LogError("handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
                         _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;

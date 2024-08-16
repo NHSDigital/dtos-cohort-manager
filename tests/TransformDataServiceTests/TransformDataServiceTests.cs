@@ -99,7 +99,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -124,16 +124,16 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male
+            Gender = Model.Enums.Gender.Male,
         };
 
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -153,7 +153,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -181,7 +181,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = expectedFirstName,
@@ -209,7 +209,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -237,7 +237,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -266,7 +266,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -295,7 +295,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -324,7 +324,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -353,7 +353,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -382,7 +382,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -411,7 +411,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -440,7 +440,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -469,7 +469,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -498,7 +498,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -527,7 +527,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -554,7 +554,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -581,7 +581,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -607,7 +607,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John.,-()/='+:?!\"%&;<>*",
