@@ -16,6 +16,9 @@ dotnet_style_readonly_field = true
 csharp_using_directive_placement = inside_namespace
 dotnet_diagnostic.IDE0065.severity = error
 
+[*.csproj]
+indent_size = 2
+
 [*.md]
 indent_size = unset
 

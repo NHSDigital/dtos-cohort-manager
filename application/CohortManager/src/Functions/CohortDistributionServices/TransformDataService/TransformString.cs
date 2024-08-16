@@ -38,7 +38,6 @@ public class TransformString
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
-                // Will call the exception service in the future
                 throw new ArgumentException("Participant contains illegal characters");
             }
             return transformedField;

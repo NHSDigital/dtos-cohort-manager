@@ -16,8 +16,6 @@ public class GetMissingAddress
 
     public CohortDistributionParticipant GetAddress()
     {
-        // TODO: SQL Params
-        // TODO: Implement exception handler
         string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
                     $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                     $"WHERE PARTICIPANT_ID = @ParticipantId";
@@ -33,7 +31,6 @@ public class GetMissingAddress
                     {
                         if (_participant.Postcode != reader["POST_CODE"] as string)
                         {
-                            // will be changed to call exception service
                             throw new ArgumentException("Participant has an empty address and postcode does not match existing data");
                         }
 
@@ -48,5 +45,5 @@ public class GetMissingAddress
         }
         return _participant;
     }
-    
+
 }
