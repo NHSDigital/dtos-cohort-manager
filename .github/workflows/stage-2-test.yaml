@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: "Run unit test suite"
         run: |
           make test-unit
