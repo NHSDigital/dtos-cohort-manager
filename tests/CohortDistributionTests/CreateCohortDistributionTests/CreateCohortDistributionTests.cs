@@ -65,7 +65,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task RunAsync_EmptyRequestBody_ReturnsBadRequest()
     {
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -75,7 +75,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    public async Task RunAsync_InvalidRequestBody_ReturnsBadRequest()
     {
         // Arrange
         SetUpRequestBody("Invalid request body");
@@ -88,7 +88,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Missing_ScreeningService()
+    public async Task RunAsync_MissingScreeningService_ReturnsBadRequest()
     {
         // Arrange
         _requestBody.ScreeningService = null;
@@ -103,7 +103,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Missing_NhsNumber()
+    public async Task RunAsync_MissingNhsNumber_ReturnsBadRequest()
     {
         // Arrange
         _requestBody.NhsNumber = null;
@@ -118,7 +118,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_RetrieveParticipantData_Fails()
+    public async Task RunAsync_RetrieveParticipantDataRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -134,7 +134,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_AllocateServiceProviderToParticipant_Fails()
+    public async Task RunAsync_AllocateServiceProviderToParticipantRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -149,7 +149,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_TransformDataService_Fails()
+    public async Task RunAsync_TransformDataServiceRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -164,7 +164,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_AddCohortDistribution_Fails()
+    public async Task RunAsync_AddCohortDistributionRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -181,7 +181,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_OK_When_All_Requests_Are_Successful()
+    public async Task RunAsync_AllSuccessfulRequests_ReturnsOK()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -204,7 +204,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Participant_Has_An_Exception()
+    public async Task RunAsync_ParticipantExceptionExpected_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
