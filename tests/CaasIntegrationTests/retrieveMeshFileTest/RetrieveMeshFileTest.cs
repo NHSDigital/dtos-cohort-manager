@@ -281,14 +281,14 @@ public class RetrieveMeshFileTest
     public async Task Run_failed_to_get_messages()
     {
         //arrange
-         MeshResponse<CheckInboxResponse> inboxResponse = new MeshResponse<CheckInboxResponse>{
+        MeshResponse<CheckInboxResponse> inboxResponse = new MeshResponse<CheckInboxResponse>{
             IsSuccessful = false,
             Error = new APIErrorResponse
             {
                 ErrorCode = "Error",
                 ErrorDescription = "Failed to CheckInboxMessage"
             }
-         };
+        };
 
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId,It.IsAny<string>())).ReturnsAsync(It.IsAny<MeshResponse<HeadMessageResponse>>);

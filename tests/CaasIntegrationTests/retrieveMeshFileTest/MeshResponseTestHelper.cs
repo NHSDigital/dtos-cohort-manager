@@ -9,10 +9,10 @@ public static class MeshResponseTestHelper
     {
         return new MeshResponse<CheckInboxResponse>
         {
-          IsSuccessful = true,
-          Response = new CheckInboxResponse{
-              Messages = messageIds
-          }
+            IsSuccessful = true,
+            Response = new CheckInboxResponse{
+                Messages = messageIds
+            }
         };
     }
 
