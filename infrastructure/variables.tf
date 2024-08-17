@@ -3,6 +3,11 @@ variable "TARGET_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "AUDIT_SUBSCRIPTION_ID" {
+  description = "ID of the Audit subscription to deploy infrastructure"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string

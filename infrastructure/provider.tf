@@ -16,6 +16,15 @@ provider "azurerm" {
   subscription_id = var.TARGET_SUBSCRIPTION_ID
 }
 
+provider "azurerm" {
+  alias           = "audit"
+  subscription_id = var.AUDIT_SUBSCRIPTION_ID
+  # Configuration options
+
+  features {}
+}
+
+
 provider "azuread" {
   # Configuration options
 }
