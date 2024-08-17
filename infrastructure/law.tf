@@ -1,6 +1,11 @@
 module "log_analytics_workspace" {
   source = ".//modules/log-analytics-workspace"
 
+  providers = {
+    azurerm       = azurerm
+    azurerm.audit = azurerm.audit
+  }
+
   names = module.config.names
 
   name_suffix         = var.law.name_suffix
