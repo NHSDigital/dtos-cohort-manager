@@ -15,6 +15,8 @@ module "log_analytics_workspace" {
   law_sku        = var.law.law_sku
   retention_days = var.law.retention_days
 
+  audit_resource_group_name = module.baseline.resource_group_names[var.law.audit_resource_group_key]
+
   tags = var.tags
 
 }

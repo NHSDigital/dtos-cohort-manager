@@ -16,6 +16,8 @@ module "app_insights" {
   law_id       = module.log_analytics_workspace.id
   audit_law_id = module.log_analytics_workspace.audit_id
 
+  audit_resource_group_name = module.baseline.resource_group_names[var.app_insights.audit_resource_group_key]
+
   tags = var.tags
 
 }
