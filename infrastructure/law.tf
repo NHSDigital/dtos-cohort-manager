@@ -2,7 +2,7 @@ module "log_analytics_workspace" {
   source = ".//modules/log-analytics-workspace"
 
   providers = {
-    azurerm       = azurerm
+    azurerm       = azurerm.default
     azurerm.audit = azurerm.audit
   }
 
