@@ -15,7 +15,7 @@ terraform {
 }
 
 provider "azurerm" {
-  alias           = "default"
+  #alias           = "default"
   subscription_id = var.TARGET_SUBSCRIPTION_ID
   # Subscription Id to create the resources in passed in via TF variables
 

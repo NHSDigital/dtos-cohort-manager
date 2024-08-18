@@ -2,8 +2,8 @@ module "log_analytics_workspace" {
   source = ".//modules/log-analytics-workspace"
 
   providers = {
-    azurerm.default = azurerm.default
-    azurerm.audit   = azurerm.audit
+    azurerm       = azurerm
+    azurerm.audit = azurerm.audit
   }
 
   names = module.config.names
