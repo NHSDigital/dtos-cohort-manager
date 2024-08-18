@@ -2,8 +2,8 @@ module "app_insights" {
   source = ".//modules/app-insights"
 
   providers = {
-    azurerm       = azurerm.default
-    azurerm.audit = azurerm.audit
+    azurerm.default = azurerm.default
+    azurerm.audit   = azurerm.audit
   }
 
   names = module.config.names
