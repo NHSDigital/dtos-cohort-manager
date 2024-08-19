@@ -102,7 +102,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -127,7 +127,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -170,7 +170,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NamePrefix = new string('A', 35),
             FirstName = new string('A', 35),
@@ -206,7 +206,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -233,7 +233,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -250,7 +250,8 @@ public class TransformDataServiceTests
     public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
-        var participant = new CohortDistributionParticipant(){
+        var participant = new CohortDistributionParticipant()
+        {
             Postcode = "RG2 5TX"
         };
 
@@ -279,7 +280,7 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-        public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
@@ -291,7 +292,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John.,-()/='+:?!\"%&;<>*",
