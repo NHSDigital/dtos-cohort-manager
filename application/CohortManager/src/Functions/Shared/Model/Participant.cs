@@ -4,7 +4,7 @@ using Model.Enums;
 
 public class Participant
 {
-    public Participant() { }
+    public Participant() {}
     public Participant(CohortDistributionParticipant cohortDistributionParticipant)
     {
         ParticipantId = cohortDistributionParticipant.ParticipantId;
