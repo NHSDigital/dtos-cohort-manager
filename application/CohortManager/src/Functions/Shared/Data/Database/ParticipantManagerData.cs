@@ -69,6 +69,7 @@ public class ParticipantManagerData : IParticipantManagerData
 
             string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] SET " +
                 " REASON_FOR_REMOVAL = @reasonForRemoval, " +
+                " RECORD_TYPE = @recordType, " +
                 " REASON_FOR_REMOVAL_DT = @reasonForRemovalDate, " +
                 " BUSINESS_RULE_VERSION = @businessRuleVersion, " +
                 " EXCEPTION_FLAG = @exceptionFlag, " +
@@ -80,6 +81,7 @@ public class ParticipantManagerData : IParticipantManagerData
             var commonParameters = new Dictionary<string, object>
             {
                 { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
+                { "@recordType", _databaseHelper.CheckIfNumberNull(participantData.RecordType)  ? DBNull.Value : participantData.RecordType},
                 { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
                 { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
                 { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
