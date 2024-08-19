@@ -195,7 +195,7 @@ public class ParticipantManagerData : IParticipantManagerData
         var command = CreateCommand(commonParams);
         command.Transaction = BeginTransaction();
         command.CommandText = sqlCommandText;
-        
+
         try
         {
             var result = command.ExecuteNonQuery();

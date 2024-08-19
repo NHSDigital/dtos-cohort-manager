@@ -39,7 +39,7 @@ public class UpdateParticipantDetailsTests
         _commandMock.SetupProperty<IDbTransaction>(c => c.Transaction);
         _mockParameter.Setup(m => m.ParameterName).Returns("@fakeparam");
         _mockParameter.Setup(m => m.Value).Returns("fakeValue");
-        
+
         _commandMock.Setup(x => x.CreateParameter()).Returns(_mockParameter.Object);
 
         _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
