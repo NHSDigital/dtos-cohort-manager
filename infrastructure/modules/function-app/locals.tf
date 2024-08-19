@@ -90,7 +90,7 @@ locals {
 
       DtOsDatabaseConnectionString = local.db_connection_string
       LookupValidationURL          = local.fnapp_urls.lookupValidation
-      ExceptionFExceptionFunctionURLunctionURL         = local.fnapp_urls.createException
+      ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
     MarkParticipantAsEligible = {

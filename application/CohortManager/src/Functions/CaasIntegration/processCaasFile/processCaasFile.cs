@@ -8,7 +8,6 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using CsvHelper;
 
 public class ProcessCaasFileFunction
 {
@@ -120,7 +119,7 @@ public class ProcessCaasFileFunction
                                 FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
                                 DateResolved = DateTime.MaxValue,
                                 RuleDescription = $"a record has failed to process with the NHS Number: {participant.NhsNumber} because the of an incorrect record type",
-                                Category = 0,
+                                Category = 1,
                                 ScreeningName = "N/A",
                                 Fatal = 1,
                                 ErrorRecord = "N/A",
@@ -134,7 +133,7 @@ public class ProcessCaasFileFunction
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
                         _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
@@ -154,7 +153,7 @@ public class ProcessCaasFileFunction
     private async Task<bool> PostDemographicDataAsync(Participant participant)
     {
         var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
-        if (demographicDataInserted == false)
+        if (!demographicDataInserted)
         {
             _logger.LogError("Demographic function failed");
             return false;
