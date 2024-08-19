@@ -34,9 +34,10 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 *Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
 
 ## Running the Application Locally (Windows)
-Dowload docker engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
 
-First, copy the .env.example file, rename it to just ".env", enter a password that meets the security requirements, and enter the azurite connection string 
+Download docker engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
+
+First, copy the .env.example file, rename it to just ".env", enter a password that meets the security requirements, and enter the azurite connection string
 
 To run the system locally, in the CohortManager directory, run `docker compose up`, this will run all of the functions.
 
@@ -56,10 +57,13 @@ docker logs <container-name>   # View the logs of the container
 *Note anything in local.settings.json will not apply to the containerised functions
 
 Alternatively, you can run an individual function locally with `func start`
+
 ## Running the Application Locally (Mac)
+
 The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker
 ### Dependencies
-Download colima using [these instructions](https://smallsharpsoftwaretools.com/tutorials/use-colima-to-run-docker-containers-on-macos/)
+
+Download Colima using [these instructions](https://smallsharpsoftwaretools.com/tutorials/use-colima-to-run-docker-containers-on-macos/)
 
 Add the environment variables using the instructions in the windows setup
 
@@ -67,10 +71,13 @@ You can then run and setup the dependencies using docker:
     `docker compose up azurite-setup db-setup`
 
 ### Functions
+
 *Someone using a Mac please update this with instructions
 
 ## Appendix A: Storage
+
 ### The send-sample-file.py script
+
 There is a script in `application/CohortManager/Set-up/azurite` that alllows you to send sample files to azurite.
 
 Before your run the script you must download the sample files from confluence (you can see which files you need to download by running the command without arguments) run the following command: `pip install azure-storage-blob python-dotenv`
@@ -78,6 +85,7 @@ Before your run the script you must download the sample files from confluence (y
 Run the file without arguments (`pyhton send-sample-file.py`) to see the help page
 
 ### Set-up Azure Storage Explorer
+
 Alternatively, you can use the storage explorer to send files to azurite
 
 Open the Azure Storage Explorer and in the Explorer, you will see **Azurite (Key)**. Expand that and you will see 1) Blob Container 2) Queues and 3) Tables. Right click on the **Blob Container** and click on **Create Blob Container**.
