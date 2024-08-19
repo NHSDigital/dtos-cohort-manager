@@ -71,7 +71,7 @@
         "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
         },
         {
-        "RuleName": "49.InterpreterCheck",
+        "RuleName": "49.IsInterpreterRequired",
         "Expression": "participant.IsInterpreterRequired != 0 OR participant.IsInterpreterRequired != 1"
         },
         {
