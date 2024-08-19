@@ -1,4 +1,4 @@
-/*I am going to fix these tests but for now we need to get these changes in
+
 namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
 using System.Net;
 using System.Text;
@@ -26,6 +26,8 @@ public class LookupValidationTests
     private readonly LookupValidation _function;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
 
+    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+
 
     public LookupValidationTests()
     {
@@ -51,10 +53,13 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
 
+        var json = File.ReadAllText("lookupRules.json");
+        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
+
         _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true));
 
-        _function = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object);
+        _function = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object, _readRulesFromBlobStorage.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -266,4 +271,3 @@ public class LookupValidationTests
         _request.Setup(r => r.Body).Returns(bodyStream);
     }
 }
-*/
