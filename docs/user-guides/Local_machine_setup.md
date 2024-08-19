@@ -61,6 +61,7 @@ Alternatively, you can run an individual function locally with `func start`
 ## Running the Application Locally (Mac)
 
 The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker
+
 ### Dependencies
 
 Download Colima using [these instructions](https://smallsharpsoftwaretools.com/tutorials/use-colima-to-run-docker-containers-on-macos/)
