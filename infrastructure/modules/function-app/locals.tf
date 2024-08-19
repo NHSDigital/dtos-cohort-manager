@@ -30,8 +30,9 @@ locals {
 locals {
 
   global_app_settings = {
-    WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.enable_appsrv_storage
     DOCKER_ENABLE_CI                    = var.docker_CI_enable
+    REMOTE_DEBUGGING_ENABLED            = var.remote_debugging_enabled
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.enable_appsrv_storage
   }
 
 }
@@ -41,9 +42,10 @@ locals {
 
     ReceiveCaasFile = {
 
-      caasfolder_STORAGE = var.caasfolder_STORAGE
-      targetFunction     = local.fnapp_urls.processCaasFile
-      FileValidationURL  = local.fnapp_urls.fileValidation
+      caasfolder_STORAGE   = var.caasfolder_STORAGE
+      targetFunction       = local.fnapp_urls.processCaasFile
+      FileValidationURL    = local.fnapp_urls.fileValidation
+      ExceptionFunctionURL = local.fnapp_urls.createException
     }
 
     ProcessCaasFile = {

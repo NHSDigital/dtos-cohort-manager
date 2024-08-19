@@ -47,7 +47,9 @@ public class CreateParticipant : ICreateParticipant
             PreferredLanguage = demographic.PreferredLanguage,
             IsInterpreterRequired = demographic.IsInterpreterRequired,
             InvalidFlag = participant.InvalidFlag,
-            ChangeReasonCode = participant.ChangeReasonCode
+            ChangeReasonCode = participant.ChangeReasonCode,
+            ScreeningId = participant.ScreeningId,
+            ScreeningName = participant.ScreeningName
         };
     }
 
@@ -88,6 +90,8 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = demographic.RecordInsertDateTime,
             RecordUpdateDateTime = demographic.RecordUpdateDateTime,
             ScreeningAcronym = participant.ScreeningAcronym,
+            ScreeningId = participant.ScreeningId,
+            ScreeningName = participant.ScreeningName,
             Extracted = null
         };
     }
@@ -129,6 +133,8 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = cohortParticipant.RecordInsertDateTime,
             RecordUpdateDateTime = cohortParticipant.RecordUpdateDateTime,
             ScreeningAcronym = cohortParticipant.ScreeningAcronym,
+            ScreeningName = cohortParticipant.ScreeningName,
+            ScreeningId = cohortParticipant.ScreeningId,
         };
     }
 }

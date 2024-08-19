@@ -221,7 +221,7 @@ public class CreateParticipantData : ICreateParticipantData
     }
     private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
 
         try
         {

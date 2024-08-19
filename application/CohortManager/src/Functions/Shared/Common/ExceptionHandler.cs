@@ -77,8 +77,9 @@ public class ExceptionHandler : IExceptionHandler
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
                 Category = 1,
-                ScreeningName = "Breast Screening",
-                ScreeningService = 1,
+                // for some reason the screening name is null here - it should not be 
+                ScreeningName = participantCsvRecord.Participant.ScreeningName,
+                ScreeningService = int.Parse(participantCsvRecord.Participant.ScreeningId),
                 Cohort = "",
                 Fatal = 0
             };
