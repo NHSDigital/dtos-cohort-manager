@@ -87,10 +87,10 @@ public class ValidateCohortDistributionRecordTests
             "there was an error while deserializing records"
             );
 
-            _exceptionHandler.Verify(
-            x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
-            It.IsAny<string>(), It.IsAny<string>()),
-            Times.Once);
+        _exceptionHandler.Verify(
+        x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
+        It.IsAny<string>(), It.IsAny<string>()),
+        Times.Once);
 
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
@@ -114,7 +114,7 @@ public class ValidateCohortDistributionRecordTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-           ),
+            ),
                 Times.Once,
                 "there was an error while deserializing records"
             );
@@ -221,10 +221,10 @@ public class ValidateCohortDistributionRecordTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-          ),
-          Times.Once,
-          $"there was an error validating the cohort distribution records {exception.Message}"
-      );
+            ),
+            Times.Once,
+            $"there was an error validating the cohort distribution records {exception.Message}"
+        );
         _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), _requestBody.NhsNumber, _requestBody.FileName), Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
