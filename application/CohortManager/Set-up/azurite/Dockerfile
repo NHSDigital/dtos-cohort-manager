@@ -1,6 +1,7 @@
 FROM python:3.12
 
-COPY . .
+COPY ./Setup/Azurite .
+COPY ./rules ./rules
 
 RUN pip install azure-storage-blob
 

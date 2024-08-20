@@ -10,7 +10,9 @@ services:
 
   azurite-setup:
     container_name: azurite-setup
-    build: ./storage/
+    build:
+      context: ./
+      dockerfile: ./Set-up/azurite
     network_mode: host
     depends_on:
       - azurite

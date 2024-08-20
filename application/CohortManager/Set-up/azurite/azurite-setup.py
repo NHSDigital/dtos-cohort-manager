@@ -19,9 +19,9 @@ def setup_azurite():
 
     rules_client = blob_service_client.get_container_client("rules")
 
-    for file in os.listdir("./rules"):
+    for file in os.listdir("../../rules"):
         blob_client = rules_client.get_blob_client(file)
-        with open(f"./rules/{file}", "rb") as data:
+        with open(f"../../rules/{file}", "rb") as data:
             blob_client.upload_blob(data)
 
     print("Rules uploaded to blob container")
