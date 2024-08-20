@@ -141,12 +141,12 @@ public class ProcessCaasFileTests
         // Assert
         _logger.Verify(log =>
            log.Log(
-           LogLevel.Error,
-           0,
-           It.Is<It.IsAnyType>((state, type) => state.ToString().Contains($"cannot parse record type with action: Unknown")),
-           null,
-           (Func<object, Exception, string>)It.IsAny<object>()
-           ), Times.Once);
+                LogLevel.Error,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains($"cannot parse record type with action: Unknown")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+                ), Times.Once);
 
         _callFunction.VerifyNoOtherCalls();
     }
