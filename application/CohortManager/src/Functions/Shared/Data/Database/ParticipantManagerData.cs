@@ -12,6 +12,7 @@ public class ParticipantManagerData : IParticipantManagerData
 {
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
+    private readonly string _connectionString;
     private readonly ILogger<ParticipantManagerData> _logger;
     private readonly ICallFunction _callFunction;
 
@@ -21,7 +22,7 @@ public class ParticipantManagerData : IParticipantManagerData
         _databaseHelper = databaseHelper;
         _logger = logger;
         _callFunction = callFunction;
-        _dbConnection.ConnectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     #region Update methods
@@ -178,6 +179,7 @@ public class ParticipantManagerData : IParticipantManagerData
         var result = default(T);
         using (_dbConnection)
         {
+            _dbConnection.ConnectionString = _connectionString;
             _dbConnection.Open();
             using (command)
             {
@@ -246,6 +248,7 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private IDbTransaction BeginTransaction()
     {
+        _dbConnection.ConnectionString = _connectionString;
         _dbConnection.Open();
         return _dbConnection.BeginTransaction();
     }
