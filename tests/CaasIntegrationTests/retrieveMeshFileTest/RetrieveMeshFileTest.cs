@@ -44,7 +44,7 @@ public class RetrieveMeshFileTest
 
     }
     [TestMethod]
-    public async Task Run_Download_Single_File_from_Mesh_Success()
+    public async Task Run_DownloadSingleFileFromMesh_Success()
     {
         //arrange
 
@@ -78,7 +78,7 @@ public class RetrieveMeshFileTest
 
 
     [TestMethod]
-    public async Task Run_Download_Single_Chunked_File_from_Mesh_Success()
+    public async Task Run_DownloadSingleChunkedFileFromMesh_Success()
     {
         //arrange
 
@@ -112,7 +112,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_Download_Two_Single_Files_from_Mesh_Success()
+    public async Task Run_DownloadTwoSingleFilesFromMesh_Success()
     {
         //arrange
         List<string> messages = new List<string>{
@@ -150,7 +150,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_No_Files_Available_In_Mesh_No_Attempts_to_download()
+    public async Task Run_NoFilesAvailableInMesh_NoAttemptsToDownload()
     {
         //arrange
         List<string> messages = new List<string>();
@@ -170,7 +170,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_Single_File_available_cannot_upload_to_blob_doesnt_mark_as_acknowledged()
+    public async Task Run_SingleFileAvailableCannotUploadToBlob_DoesntMarkAsAcknowledged()
     {
         //arrange
         var messageId = "MessageId";
@@ -199,9 +199,9 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_Single_file_fails_to_get_message_head_does_not_attempt_to_download()
+    public async Task Run_SingleFileFailsToGetMessageHead_DoesNotAttemptToDownload()
     {
-                //arrange
+        //arrange
         var messageId = "MessageId";
         var fileName = "testFile.csv";
         var content = new byte[] {0x20,0x20,0x20,0x20,0x20,0x20,0x20};
@@ -236,7 +236,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_Download_Single_File_Fail_to_get_message()
+    public async Task Run_DownloadSingleFile_FailToGetMessage()
     {
         //arrange
 
@@ -278,7 +278,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_failed_to_get_messages()
+    public async Task Run_DownloadMessages_FailedToGetMessages()
     {
         //arrange
         MeshResponse<CheckInboxResponse> inboxResponse = new MeshResponse<CheckInboxResponse>{
@@ -309,7 +309,7 @@ public class RetrieveMeshFileTest
     }
 
     [TestMethod]
-    public async Task Run_Download_Single_Chunk_File_Fail_to_get_message()
+    public async Task Run_DownloadSingleChunkFile_FailToGetMessage()
     {
         //arrange
 

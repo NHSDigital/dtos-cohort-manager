@@ -31,28 +31,42 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         _mailboxId = mailboxId;
         _destinationContainer = destinationContainer;
 
-        var checkForMessages = await _meshInboxService.GetMessagesAsync(mailboxId);
-        if(!checkForMessages.IsSuccessful)
+        int messageCount;
+        do
         {
-            _logger.LogCritical("Error while connecting getting Messages from MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",checkForMessages.Error?.ErrorCode,checkForMessages.Error?.ErrorDescription);
-            // Log Exception
-            return false;
+
+            var checkForMessages = await _meshInboxService.GetMessagesAsync(mailboxId);
+            if(!checkForMessages.IsSuccessful)
+            {
+                _logger.LogCritical("Error while connecting getting Messages from MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",checkForMessages.Error?.ErrorCode,checkForMessages.Error?.ErrorDescription);
+                // Log Exception
+                return false;
+            }
+
+
+            messageCount = checkForMessages.Response.Messages.Count();
+
+            _logger.LogDebug("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
+
+            await MoveAllMessagesToBlobStorage(checkForMessages.Response.Messages,predicate);
+
         }
+        while(messageCount == 500);
 
-        var messageCount = checkForMessages.Response.Messages.Count();
+        return true;
 
-        _logger.LogDebug("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
+    }
 
+    private async Task<bool> MoveAllMessagesToBlobStorage(IEnumerable<string> messages,Func<MessageMetaData,bool> predicate)
+    {
 
-
-
-        foreach(var message in checkForMessages.Response.Messages)
+        foreach(var message in messages)
         {
-            var messageHead = await _meshInboxService.GetHeadMessageByIdAsync(mailboxId,message);
+            var messageHead = await _meshInboxService.GetHeadMessageByIdAsync(_mailboxId,message);
 
             if(!messageHead.IsSuccessful)
             {
-                _logger.LogCritical("Error while getting Message Head from MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",checkForMessages.Error?.ErrorCode,checkForMessages.Error?.ErrorDescription);
+                _logger.LogCritical("Error while getting Message Head from MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",messageHead.Error?.ErrorCode,messageHead.Error?.ErrorDescription);
                 continue;
             }
             if(!predicate(messageHead.Response.MessageMetaData)){
@@ -61,7 +75,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             bool wasMessageDownloaded = await TransferMessageToBlobStorage(messageHead.Response.MessageMetaData);
             if(wasMessageDownloaded)
             {
-                var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(mailboxId,messageHead.Response.MessageMetaData.MessageId);
+                var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
             }
         }
         return true;
