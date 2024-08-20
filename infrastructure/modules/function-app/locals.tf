@@ -71,10 +71,10 @@ locals {
 
     RemoveParticipant = {
 
-      markParticipantAsIneligible     = local.fnapp_urls.markParticipantAsIneligible
-      RemoveCohortDistributionURL     = local.fnapp_urls.removeCohortDistributionData
-      DemographicURIGet               = local.fnapp_urls.demographicDataFunction
-      ExceptionFunctionURL            = local.fnapp_urls.createCohortDistribution
+      markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible
+      RemoveCohortDistributionURL = local.fnapp_urls.removeCohortDistributionData
+      DemographicURIGet           = local.fnapp_urls.demographicDataFunction
+      ExceptionFunctionURL        = local.fnapp_urls.createCohortDistribution
     }
 
     UpdateParticipant = {
@@ -82,7 +82,7 @@ locals {
       UpdateParticipant            = local.fnapp_urls.updateParticipantDetails
       CohortDistributionServiceURL = local.fnapp_urls.createCohortDistribution
       DemographicURIGet            = local.fnapp_urls.demographicDataFunction
-      StaticValidationURL          = local.fnapp_urls.staticValidation 
+      StaticValidationURL          = local.fnapp_urls.staticValidation
       ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
@@ -131,8 +131,8 @@ locals {
     FileValidation = {
 
       CreateValidationExceptionURL = local.fnapp_urls.createException
-      inboundBlobName      = "inbound"
-      fileExceptions"      = "inbound-poison"
+      inboundBlobName              = "inbound"
+      fileExceptions               = "inbound-poison"
     }
 
     StaticValidation = {
@@ -153,7 +153,7 @@ locals {
     }
 
     AddCohortDistributionData = {
-      
+
       DtOsDatabaseConnectionString = local.db_connection_string
       ExceptionFunctionURL         = local.fnapp_urls.createException
     }
