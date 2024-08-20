@@ -39,7 +39,7 @@ else:
     sample_file = sys.argv[1]
 
 try:
-    load_dotenv(dotenv_path="../../.env")
+    load_dotenv(dotenv_path="../.env")
     CONNECTION_STRING = os.getenv('AZURITE_CONNECTION_STRING')
     blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
     print("Connected to Azurite")
