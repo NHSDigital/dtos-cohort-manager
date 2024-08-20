@@ -43,6 +43,29 @@ public class ProcessCaasFileFunction
 
         foreach (var participant in input.Participants)
         {
+
+            // Convert string properties to DateTime? for validation
+            DateTime? primaryCareDate = TryParseDate(participant.PrimaryCareProviderEffectiveFromDate);
+            DateTime? addressDate = TryParseDate(participant.UsualAddressEffectiveFromDate);
+            DateTime? reasonForRemovalDate = TryParseDate(participant.ReasonForRemovalEffectiveFromDate);
+            DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
+            DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
+            DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+
+            // Validate the date fields
+            if (!IsValidDate(primaryCareDate) ||
+                !IsValidDate(addressDate) ||
+                !IsValidDate(reasonForRemovalDate) ||
+                !IsValidDate(homeTelephoneDate) ||
+                !IsValidDate(mobileTelephoneDate) ||
+                !IsValidDate(emailAddressDate))
+            {
+                _logger.LogError($"Invalid effective date found in participant data at row {row}. Skipping this participant.");
+                err++;
+                continue; // Skip this participant
+            }
+
+
             row++;
             var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
             if (demographicDataInserted == false)
@@ -132,5 +155,23 @@ public class ProcessCaasFileFunction
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+    }
+
+    private DateTime? TryParseDate(string? dateString)
+    {
+        if (DateTime.TryParse(dateString, out var date))
+        {
+            return date;
+        }
+        return null; // Return null if parsing fails
+    }
+
+    public bool IsValidDate(DateTime? date)
+    {
+        if (date.HasValue && date.Value > DateTime.UtcNow)
+        {
+            return false; // Date is in the future
+        }
+        return true; // Date is valid or null
     }
 }
