@@ -65,21 +65,11 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_EmptyRequestBody_ReturnsBadRequest()
+    [DataRow("")]
+    [DataRow("Invalid request body")]
+    public async Task RunAsync_BadRequestBody_ReturnsBadRequest(string requestBody)
     {
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task RunAsync_InvalidRequestBody_ReturnsBadRequest()
-    {
-        // Arrange
-        SetUpRequestBody("Invalid request body");
-
+        SetUpRequestBody(requestBody);
         // Act
         var result = await _function.RunAsync(_request.Object);
 
