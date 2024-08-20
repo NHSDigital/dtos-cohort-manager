@@ -19,13 +19,6 @@
         "screeningDataServices/updateParticipantDetails",
         "ScreeningValidationService/FileValidation",
         "ScreeningValidationService/LookupValidation",
-        "ScreeningValidationService/StaticValidation",
-        "CohortDistributionServices/CreateCohortDistribution",
-        "CohortDistributionServices/RetrieveParticipantData",
-        "CohortDistributionServices/ServiceProviderAllocationService",
-        "CohortDistributionServices/TransformDataService",
-        "CohortDistributionServices/AddCohortDistributionData",
-        "CohortDistributionServices/RemoveCohortDistributionData",
         "ScreeningValidationService/StaticValidation"
       ]
     },
