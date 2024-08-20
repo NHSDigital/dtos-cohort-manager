@@ -69,7 +69,7 @@ public class ValidateCohortDistributionRecordTests
     [TestMethod]
     public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
     {
-        //Arrange 
+        //Arrange
         _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         //Act
         var result = await _function.RunAsync(_request.Object);
