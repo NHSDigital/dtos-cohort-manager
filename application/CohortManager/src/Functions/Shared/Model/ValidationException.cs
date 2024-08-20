@@ -15,5 +15,5 @@ public class ValidationException
     public string? Cohort { get; set; }
     public int? Fatal { get; set; }
     public string? RuleContent { get; set; }
-    public int ScreeningService { get; set; }
+    public int? ScreeningService { get; set; }
 }
