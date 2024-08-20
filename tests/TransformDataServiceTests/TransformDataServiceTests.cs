@@ -14,6 +14,7 @@ using Common;
 using System.Data.SqlClient;
 using System.Data;
 using Data.Database;
+using Model.Enums;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -133,7 +134,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male,
+            Gender = Gender.Male,
         };
 
         var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -250,7 +251,8 @@ public class TransformDataServiceTests
     public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
-        var participant = new CohortDistributionParticipant(){
+        var participant = new CohortDistributionParticipant()
+        {
             Postcode = "RG2 5TX"
         };
 
@@ -279,7 +281,7 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-        public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";

@@ -105,9 +105,9 @@ public class ProcessCaasFileFunction
                     try
                     {
 
-                        _logger.LogError($"cannot parse record type with action: {participant.RecordType}");
+                        _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
-                        await _handleException.CreateRecordValidationExceptionLog(new Model.ValidationException()
+                        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
                         {
                             RuleId = 1,
                             Cohort = "N/A",

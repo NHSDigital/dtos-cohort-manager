@@ -142,7 +142,7 @@ public class ReceiveCaasFile
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
         if (result.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogError($"An error occurred while saving or moving the failed file {fileName}.");
+            _logger.LogError("An error occurred while saving or moving the failed file {fileName}.", fileName);
         }
         _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
 
