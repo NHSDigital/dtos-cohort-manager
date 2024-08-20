@@ -78,25 +78,13 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_MissingScreeningService_ReturnsBadRequest()
+    [DataRow(null, "BSS")]
+    [DataRow("1234567890", null)]
+    public async Task RunAsync_MissingFieldsOnRequestBody_ReturnsBadRequest(string nhsNumber, string screeningService)
     {
         // Arrange
-        _requestBody.ScreeningService = null;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task RunAsync_MissingNhsNumber_ReturnsBadRequest()
-    {
-        // Arrange
-        _requestBody.NhsNumber = null;
+        _requestBody.NhsNumber = nhsNumber;
+        _requestBody.ScreeningService = screeningService;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
