@@ -118,7 +118,7 @@ public class ProcessCaasFileFunction
                                 DateCreated = DateTime.Now,
                                 FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
                                 DateResolved = DateTime.MaxValue,
-                                RuleDescription = $"a record has failed to process with the NHS Number: {participant.NhsNumber} because the of an incorrect record type",
+                                RuleDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type",
                                 Category = 1,
                                 ScreeningName = "N/A",
                                 Fatal = 1,
