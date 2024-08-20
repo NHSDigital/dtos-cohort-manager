@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-     .ConfigureServices(services =>
+    .ConfigureServices(services =>
     {
         DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
         services.AddTransient<IDbConnection>(provider =>

@@ -1,9 +1,9 @@
 {
-  "profiles": {
-    "GetLatestCohortDistributionRecord": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7201",
-      "launchBrowser": false
+    "profiles": {
+      "GetLatestCohortDistributionRecord": {
+        "commandName": "Project",
+        "commandLineArgs": "--port 7201",
+        "launchBrowser": false
+      }
     }
-  }
 }

@@ -92,9 +92,6 @@ public class ValidateCohortDistributionRecord
         {
             return true;
         }
-
-
         return false;
     }
 }
-

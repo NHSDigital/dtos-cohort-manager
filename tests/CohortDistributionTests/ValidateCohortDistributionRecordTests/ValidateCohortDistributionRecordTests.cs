@@ -76,18 +76,18 @@ public class ValidateCohortDistributionRecordTests
 
         // Assert
         _logger.Verify(
-           m => m.Log(
-               LogLevel.Error,
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsAnyType>(),
-               It.IsAny<Exception>(),
-               It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-           ),
-           Times.Once,
-           "there was an error while deserializing records"
-       );
+                m => m.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ),
+            Times.Once,
+            "there was an error while deserializing records"
+            );
 
-        _exceptionHandler.Verify(
+            _exceptionHandler.Verify(
             x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
             It.IsAny<string>(), It.IsAny<string>()),
             Times.Once);
@@ -108,16 +108,16 @@ public class ValidateCohortDistributionRecordTests
         // Assert
 
         _logger.Verify(
-           m => m.Log(
-               LogLevel.Error,
-               It.IsAny<EventId>(),
-               It.IsAny<It.IsAnyType>(),
-               It.IsAny<Exception>(),
-               It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                m => m.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
            ),
-           Times.Once,
-           "there was an error while deserializing records"
-       );
+                Times.Once,
+                "there was an error while deserializing records"
+            );
 
         _exceptionHandler.Verify(
             x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
@@ -180,10 +180,10 @@ public class ValidateCohortDistributionRecordTests
             .Returns(existingParticipant);
 
         _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
-           .Throws(new Exception("some new exception"));
+        .Throws(new Exception("some new exception"));
 
         _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Verifiable();
+        .Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -202,25 +202,25 @@ public class ValidateCohortDistributionRecordTests
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
         var existingParticipant = new CohortDistributionParticipant();
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(It.IsAny<string>()))
-            .Returns(existingParticipant);
+        .Returns(existingParticipant);
 
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(_requestBody.NhsNumber))
         .Throws(exception);
 
         _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Verifiable();
+        .Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
         _logger.Verify(
-          m => m.Log(
-              LogLevel.Error,
-              It.IsAny<EventId>(),
-              It.IsAny<It.IsAnyType>(),
-              It.IsAny<Exception>(),
-              It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                m => m.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
           ),
           Times.Once,
           $"there was an error validating the cohort distribution records {exception.Message}"
