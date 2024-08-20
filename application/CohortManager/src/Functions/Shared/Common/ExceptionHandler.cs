@@ -106,7 +106,7 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = validation.DateCreated ?? DateTime.Now,
             FileName = string.IsNullOrEmpty(validation.FileName) ? "" : validation.FileName,
             DateResolved = validation.DateResolved ?? DateTime.MaxValue,
-            RuleDescription = validation.RuleDescription ?? "The file failed validation failed for a single record",
+            RuleDescription = validation.RuleDescription ?? "The file failed validation failed for an unexpected exception",
             Category = validation.Category ?? 0,
             ScreeningName = validation.ScreeningName ?? "",
             Fatal = validation.Fatal ?? 1,
