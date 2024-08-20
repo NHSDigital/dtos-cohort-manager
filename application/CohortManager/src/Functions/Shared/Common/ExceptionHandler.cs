@@ -106,7 +106,7 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = validation.DateCreated ?? DateTime.Now,
             FileName = string.IsNullOrEmpty(validation.FileName) ? "" : validation.FileName,
             DateResolved = validation.DateResolved ?? DateTime.MaxValue,
-            RuleDescription = validation.RuleDescription ?? "The file failed validation for a single record",
+            RuleDescription = validation.RuleDescription ?? "The file failed validation failed for a single record",
             Category = validation.Category ?? 0,
             ScreeningName = validation.ScreeningName ?? "",
             Fatal = validation.Fatal ?? 1,
@@ -120,7 +120,7 @@ public class ExceptionHandler : IExceptionHandler
         var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(requestObject));
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogError("there was an error while logging an exception to the database");
+            _logger.LogError("There was an error while logging an exception to the database.");
             return false;
         }
         return true;

@@ -44,7 +44,7 @@ public class FileValidation
                 DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
                 DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
-                RuleDescription = requestBody.RuleDescription ?? "the file failed file validation. Check the file Exceptions blob store ",
+                RuleDescription = requestBody.RuleDescription ?? "The file failed file validation. Check the file Exceptions blob store.",
                 Category = requestBody.Category ?? 0,
                 ScreeningName = requestBody.ScreeningName ?? "",
                 Fatal = requestBody.Fatal ?? 0,
