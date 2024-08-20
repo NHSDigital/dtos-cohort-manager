@@ -18,11 +18,7 @@ services:
     cap_add:
       - SYS_PTRACE
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"
-        ]
+      test: [ "CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'" ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -281,6 +277,7 @@ services:
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7082
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
