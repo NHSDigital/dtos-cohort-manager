@@ -1,6 +1,6 @@
 namespace Model;
 
-public static class Actions
+public class Actions
 {
     public const string New = "New";
     public const string Amended = "Amended";

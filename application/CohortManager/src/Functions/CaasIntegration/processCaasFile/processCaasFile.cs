@@ -66,12 +66,6 @@ public class ProcessCaasFileFunction
             }
 
             row++;
-            var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
-            if (demographicDataInserted == false)
-            {
-                _logger.LogError("Demographic function failed");
-            }
-
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
@@ -85,8 +79,14 @@ public class ProcessCaasFileFunction
                     try
                     {
                         var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
-                        _logger.LogInformation("Called add participant");
+                        var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+                        if (demographicDataAdded)
+                        {
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            _logger.LogInformation("Called add participant");
+                        }
+
                     }
                     catch (Exception ex)
                     {
@@ -127,19 +127,32 @@ public class ProcessCaasFileFunction
                     try
                     {
 
-                        var participantCsvRecord = new ParticipantCsvRecord
-                        {
-                            FileName = input.FileName,
-                            Participant = participant
-                        };
+                        _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
-                        var json = JsonSerializer.Serialize(participantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-                        _logger.LogInformation("Called static validation");
+                        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
+                        {
+                            RuleId = 1,
+                            Cohort = "N/A",
+                            NhsNumber = string.IsNullOrEmpty(participant.NhsNumber) ? "" : participant.NhsNumber,
+                            DateCreated = DateTime.Now,
+                            FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
+                            DateResolved = DateTime.MaxValue,
+                            RuleDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type",
+                            Category = 1,
+                            ScreeningName = "N/A",
+                            Fatal = 1,
+                            ErrorRecord = "N/A",
+                            ExceptionDate = DateTime.Now,
+                            RuleContent = "N/A",
+                            ScreeningService = 0
+
+                        });
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Static validation function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+                        _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
                         _handleException.CreateSystemExceptionLog(ex, participant, input.FileName);
                     }
                     break;
@@ -156,21 +169,14 @@ public class ProcessCaasFileFunction
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 
-    private DateTime? TryParseDate(string? dateString)
+    private async Task<bool> PostDemographicDataAsync(Participant participant)
     {
-        if (DateTime.TryParse(dateString, out var date))
+        var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
+        if (!demographicDataInserted)
         {
-            return date;
+            _logger.LogError("Demographic function failed");
+            return false;
         }
-        return null; // Return null if parsing fails
-    }
-
-    public bool IsValidDate(DateTime? date)
-    {
-        if (date.HasValue && date.Value > DateTime.UtcNow)
-        {
-            return false; // Date is in the future
-        }
-        return true; // Date is valid or null
+        return true;
     }
 }

@@ -47,6 +47,8 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
@@ -111,18 +113,19 @@ public class ProcessCaasFileTests
         _callFunction.Verify(
             x => x.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
             Times.Exactly(2));
+
         _callFunction.VerifyNoOtherCalls();
     }
 
     [TestMethod]
-    public async Task Run_Should_Call_StaticValidation_For_Each_Unknown_Participant_RecordType()
+    public async Task Run_ShouldCreateNewExceptionForEachUnknownParticipantRecordType_ErrorIsThrownAndLogged()
     {
         // Arrange
         var cohort = new Cohort
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = null },
+
                 new() { RecordType = "Unknown" }
             }
         };
@@ -136,9 +139,15 @@ public class ProcessCaasFileTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        _callFunction.Verify(
-            x => x.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()),
-            Times.Exactly(2));
+        _logger.Verify(log =>
+                log.Log(
+                LogLevel.Error,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains($"Cannot parse record type with action: Unknown")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+                ), Times.Once);
+
         _callFunction.VerifyNoOtherCalls();
     }
 
@@ -155,6 +164,8 @@ public class ProcessCaasFileTests
         };
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
+
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
