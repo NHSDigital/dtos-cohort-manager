@@ -60,10 +60,11 @@ public class ProcessCaasFileFunction
                 !IsValidDate(mobileTelephoneDate) ||
                 !IsValidDate(emailAddressDate))
             {
-                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
+                _logger.LogError($"Invalid effective date found in participant data at row {row}. Skipping this participant.");
                 err++;
                 continue; // Skip this participant
             }
+
 
             row++;
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -167,6 +168,24 @@ public class ProcessCaasFileFunction
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+    }
+
+    private DateTime? TryParseDate(string? dateString)
+    {
+        if (DateTime.TryParse(dateString, out var date))
+        {
+            return date;
+        }
+        return null; // Return null if parsing fails
+    }
+
+    public bool IsValidDate(DateTime? date)
+    {
+        if (date.HasValue && date.Value > DateTime.UtcNow)
+        {
+            return false; // Date is in the future
+        }
+        return true; // Date is valid or null
     }
 
     private async Task<bool> PostDemographicDataAsync(Participant participant)
