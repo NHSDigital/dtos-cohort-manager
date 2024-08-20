@@ -118,7 +118,7 @@ public class ProcessCaasFileTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Create_new_exception_For_Each_Unknown_Participant_RecordType()
+    public async Task Run_ShouldCreateNewExceptionForEachUnknownParticipantRecordType_ErrorIsThrownAndLogged()
     {
         // Arrange
         var cohort = new Cohort
