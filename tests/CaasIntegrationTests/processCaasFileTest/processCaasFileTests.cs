@@ -240,4 +240,66 @@ public class ProcessCaasFileTests
             (Func<object, Exception, string>)It.IsAny<object>()
             ), Times.Once);
     }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnFalse_WhenDateIsInTheFuture()
+    {
+        // Arrange: Setup dependencies using Mock.Of and create future date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var futureDate = DateTime.UtcNow.AddDays(1);
+
+        // Act: Call IsValidDate with a future date
+        bool result = validator.IsValidDate(futureDate);
+
+        // Assert: The method should return false for dates in the future
+        Assert.IsFalse(result, "The 'IsValidDate' method should return false for dates in the future.");
+    }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnTrue_WhenDateIsNotInTheFuture()
+    {
+        // Arrange: Setup dependencies using Mock.Of and create future date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var pastDate = DateTime.UtcNow.AddDays(-1);
+        var currentDate = DateTime.UtcNow;
+
+        // Act & Assert: The method should return true for past and current dates
+        Assert.IsTrue(validator.IsValidDate(pastDate), "The 'IsValidDate' method should return true for dates in the past.");
+        Assert.IsTrue(validator.IsValidDate(currentDate), "The 'IsValidDate' method should return true for the current date.");
+    }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnTrue_WhenDateIsNull()
+    {
+        // Arrange: Set up dependencies and create a null date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        DateTime? nullDate = null;
+
+        // Act: Call IsValidDate with a null date
+        bool result = validator.IsValidDate(nullDate);
+
+        // Assert: The method should return true for null dates
+        Assert.IsTrue(result, "The 'IsValidDate' method should return true for null dates.");
+    }
 }
