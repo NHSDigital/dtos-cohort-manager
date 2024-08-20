@@ -12,6 +12,12 @@
 
 # Please, add your custom content below!
 
+# keys
+
+*.pfx
+*.pem
+*.key
+
 # Text Editors
 .vscode/*
 !.vscode/tasks.json
