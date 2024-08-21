@@ -80,8 +80,8 @@ public class ValidateCohortDistributionRecord
         }
 
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(
-            _createParticipant.ConvertCohortDistributionRecordToParticipant(existingParticipant),
-            _createParticipant.ConvertCohortDistributionRecordToParticipant(newParticipant),
+            new Participant(existingParticipant),
+            new Participant(newParticipant),
             fileName,
             RulesType.CohortDistribution
         ));

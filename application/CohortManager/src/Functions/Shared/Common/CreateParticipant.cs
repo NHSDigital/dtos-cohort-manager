@@ -95,46 +95,4 @@ public class CreateParticipant : ICreateParticipant
             Extracted = null
         };
     }
-
-    public Participant ConvertCohortDistributionRecordToParticipant(CohortDistributionParticipant cohortParticipant)
-    {
-        return new Participant
-        {
-            ParticipantId = cohortParticipant.ParticipantId,
-            NhsNumber = cohortParticipant.NhsNumber,
-            SupersededByNhsNumber = cohortParticipant.SupersededByNhsNumber,
-            PrimaryCareProvider = cohortParticipant.PrimaryCareProvider,
-            PrimaryCareProviderEffectiveFromDate = cohortParticipant.PrimaryCareProviderEffectiveFromDate,
-            NamePrefix = cohortParticipant.NamePrefix,
-            FirstName = cohortParticipant.FirstName,
-            OtherGivenNames = cohortParticipant.OtherGivenNames,
-            Surname = cohortParticipant.Surname,
-            PreviousSurname = cohortParticipant.PreviousSurname,
-            DateOfBirth = cohortParticipant.DateOfBirth,
-            Gender = cohortParticipant.Gender.GetValueOrDefault(),
-            AddressLine1 = cohortParticipant.AddressLine1,
-            AddressLine2 = cohortParticipant.AddressLine2,
-            AddressLine3 = cohortParticipant.AddressLine3,
-            AddressLine4 = cohortParticipant.AddressLine4,
-            AddressLine5 = cohortParticipant.AddressLine5,
-            Postcode = cohortParticipant.Postcode,
-            UsualAddressEffectiveFromDate = cohortParticipant.UsualAddressEffectiveFromDate,
-            DateOfDeath = cohortParticipant.DateOfDeath,
-            TelephoneNumber = cohortParticipant.TelephoneNumber,
-            TelephoneNumberEffectiveFromDate = cohortParticipant.TelephoneNumberEffectiveFromDate,
-            MobileNumber = cohortParticipant.MobileNumber,
-            MobileNumberEffectiveFromDate = cohortParticipant.MobileNumberEffectiveFromDate,
-            EmailAddress = cohortParticipant.EmailAddress,
-            EmailAddressEffectiveFromDate = cohortParticipant.EmailAddressEffectiveFromDate,
-            PreferredLanguage = cohortParticipant.PreferredLanguage,
-            IsInterpreterRequired = cohortParticipant.IsInterpreterRequired,
-            ReasonForRemoval = cohortParticipant.ReasonForRemoval,
-            ReasonForRemovalEffectiveFromDate = cohortParticipant.ReasonForRemovalEffectiveFromDate,
-            RecordInsertDateTime = cohortParticipant.RecordInsertDateTime,
-            RecordUpdateDateTime = cohortParticipant.RecordUpdateDateTime,
-            ScreeningAcronym = cohortParticipant.ScreeningAcronym,
-            ScreeningName = cohortParticipant.ScreeningName,
-            ScreeningId = cohortParticipant.ScreeningId,
-        };
-    }
 }

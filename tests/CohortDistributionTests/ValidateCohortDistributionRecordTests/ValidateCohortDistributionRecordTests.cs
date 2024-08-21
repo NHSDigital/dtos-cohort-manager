@@ -67,7 +67,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task Run_BodyEmpty_BadRequest()
     {
         //Arrange
         _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>())).Verifiable();
@@ -97,7 +97,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    public async Task Run_RequestBodyInvalid_BadRequest()
     {
         // Arrange
         SetUpRequestBody("Invalid request body");
@@ -128,7 +128,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_Created_When_Lookup_Validation_Creates_Validation_Error()
+    public async Task Run_LookupValidationCreatesValidationError_Created()
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
@@ -150,7 +150,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_OK_When_Lookup_Validation_Does_Not_Create_Validation_error()
+    public async Task Run_LookupValidationDoesNotCreateValidationError_OK()
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
@@ -171,7 +171,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_InternalServerError_When_Exception_Occurs_During_Validation()
+    public async Task Run_ExceptionOccursDuringValidation_InternalServerError()
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
@@ -194,7 +194,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_InternalServerError_When_Exception_Occurs_During_Getting_Participant()
+    public async Task Run_ExceptionOccursDuringGettingParticipant_InternalServerError()
     {
         // Arrange
         var exception = new Exception("some new exception");

@@ -29,11 +29,7 @@ services:
     cap_add:
       - SYS_PTRACE
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"
-        ]
+      test: [ "CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'" ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -335,4 +331,15 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  validate-cohortDistribution-record:
+    container_name: validate-cohortDistribution-record
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7084
+      - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
