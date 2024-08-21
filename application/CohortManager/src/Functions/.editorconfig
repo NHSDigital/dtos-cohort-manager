@@ -30,3 +30,6 @@ indent_size = 4
 
 [{Makefile,*.mk,go.mod,go.sum,*.go,.gitmodules}]
 indent_style = tab
+
+[*.json]
+indent_size = 2
