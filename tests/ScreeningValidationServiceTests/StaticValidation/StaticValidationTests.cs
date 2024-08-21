@@ -1,5 +1,3 @@
-/* we will be fixing these tests I just don't have time to fix them right now
-
 namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
 
 using System.IO.Compression;
@@ -46,6 +44,9 @@ public class StaticValidationTests
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true)).Verifiable();
+
+        var json = File.ReadAllText("../../../../../../application/CohortManager/rules/staticRules.json");
+        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
         _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object);
 
@@ -989,4 +990,3 @@ public class StaticValidationTests
     }
 
 }
-*/
