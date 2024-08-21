@@ -21,7 +21,6 @@ public class ValidateCohortDistributionRecordTests
     private readonly Mock<ICreateCohortDistributionData> _createCohortDistributionData = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<ICreateParticipant> _createParticipant = new();
 
     private readonly ValidateCohortDistributionRecord _function;
 
@@ -45,7 +44,7 @@ public class ValidateCohortDistributionRecordTests
             CohortDistributionParticipant = new CohortDistributionParticipant()
         };
 
-        _function = new ValidateCohortDistributionRecord(_logger.Object, _createResponse.Object, _createCohortDistributionData.Object, _exceptionHandler.Object, _callFunction.Object, _createParticipant.Object);
+        _function = new ValidateCohortDistributionRecord(_logger.Object, _createResponse.Object, _createCohortDistributionData.Object, _exceptionHandler.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
                 {

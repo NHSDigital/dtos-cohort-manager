@@ -8,5 +8,5 @@ public interface ICohortDistributionHelper
     Task<CohortDistributionParticipant> RetrieveParticipantDataAsync(CreateCohortDistributionRequestBody cohortDistributionRequestBody);
     Task<string> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode);
     Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData);
-    public Task<bool> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant);
+    Task<bool> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant);
 }

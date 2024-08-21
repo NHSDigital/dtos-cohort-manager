@@ -18,16 +18,13 @@ public class ValidateCohortDistributionRecord
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ICallFunction _callFunction;
 
-    private readonly ICreateParticipant _createParticipant;
 
-
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction, ICreateParticipant createParticipant)
+    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction)
     {
         _createResponse = createResponse;
         _createCohortDistributionData = createCohortDistributionData;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
-        _createParticipant = createParticipant;
         _logger = logger;
     }
 
