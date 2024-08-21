@@ -212,7 +212,7 @@ services:
       dockerfile: ScreeningValidationService/FileValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7073
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - inboundBlobName=inbound
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
