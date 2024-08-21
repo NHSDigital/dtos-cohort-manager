@@ -29,11 +29,7 @@ services:
     cap_add:
       - SYS_PTRACE
     healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'"
-        ]
+      test: [ "CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'" ]
       interval: 15s
       timeout: 15s
       retries: 5
@@ -216,7 +212,7 @@ services:
       dockerfile: ScreeningValidationService/FileValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7073
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - inboundBlobName=inbound
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
