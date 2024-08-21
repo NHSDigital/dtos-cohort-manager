@@ -333,8 +333,8 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  validate-cohortDistribution-record:
-    container_name: validate-cohortDistribution-record
+  validate-cohort-distribution-record:
+    container_name: validate-cohort-distribution-record
     network_mode: host
     build:
       context: ./src/Functions/
