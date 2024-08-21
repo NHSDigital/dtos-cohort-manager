@@ -13,4 +13,5 @@
         "dynamicConcurrencyEnabled": true,
         "snapshotPersistenceEnabled": true
     }
+  }
 }
