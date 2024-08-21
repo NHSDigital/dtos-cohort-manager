@@ -38,8 +38,11 @@ local.settings.json
 
 # Docker
 .env
+
 # sample data
 application/CohortManager/SampleData/
+*.csv
+
 
 recreate_local_settings.sh
 
