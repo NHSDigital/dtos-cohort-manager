@@ -3,6 +3,11 @@ variable "TARGET_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "AUDIT_SUBSCRIPTION_ID" {
+  description = "ID of the Audit subscription to deploy infrastructure"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
@@ -165,19 +170,21 @@ variable "event_grid" {
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
-    name_suffix        = optional(string, "cohman")
-    resource_group_key = optional(string, "cohman")
-    law_sku            = optional(string, "PerGB2018")
-    retention_days     = optional(number, 30)
+    name_suffix              = optional(string, "cohman")
+    resource_group_key       = optional(string, "cohman")
+    law_sku                  = optional(string, "PerGB2018")
+    retention_days           = optional(number, 30)
+    audit_resource_group_key = optional(string, "audit_dev")
   })
 }
 
 variable "app_insights" {
   description = "Configuration of the App Insights"
   type = object({
-    name_suffix        = optional(string, "cohman")
-    resource_group_key = optional(string, "cohman")
-    appinsights_type   = optional(string, "web")
+    name_suffix              = optional(string, "cohman")
+    resource_group_key       = optional(string, "cohman")
+    appinsights_type         = optional(string, "web")
+    audit_resource_group_key = optional(string, "audit_dev")
   })
 }
 
