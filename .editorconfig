@@ -28,4 +28,4 @@ indent_size = 1
 indent_style = tab
 
 [*.json]
-indent_size = 2
+indent_size = unset
