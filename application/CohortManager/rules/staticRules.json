@@ -72,7 +72,7 @@
         },
         {
         "RuleName": "49.IsInterpreterRequired",
-        "Expression": "participant.IsInterpreterRequired != 0 OR participant.IsInterpreterRequired != 1"
+        "Expression": "participant.IsInterpreterRequired == \"0\" OR participant.IsInterpreterRequired == \"1\""
         },
         {
         "RuleName": "61.InvalidFlag",
