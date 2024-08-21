@@ -321,6 +321,7 @@ services:
       - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
+      - ValidateCohortDistributionRecordURL = http://localhost:7084/api/ValidateCohortDistributionRecord
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
