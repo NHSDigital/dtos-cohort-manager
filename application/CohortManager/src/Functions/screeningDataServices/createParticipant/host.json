@@ -8,9 +8,5 @@
       },
       "enableLiveMetricsFilters": true
     }
-  },
-  "concurrency": {
-    "dynamicConcurrencyEnabled": true,
-    "snapshotPersistenceEnabled": true
   }
 }
