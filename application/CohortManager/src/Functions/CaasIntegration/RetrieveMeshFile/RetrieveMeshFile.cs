@@ -22,7 +22,7 @@ public class RetrieveMeshFile
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
 
         _mailboxId = Environment.GetEnvironmentVariable("BSSMailBox");
-        _blobConnectionString =  Environment.GetEnvironmentVariable("BlobStorage_ConnectionString");
+        _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
     }
 
     [Function("RetrieveMeshFile")]
@@ -30,11 +30,11 @@ public class RetrieveMeshFile
     {
         _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-        Func<MessageMetaData,bool> messageFilter = i => true; // No current filter defined there might be business rules here
+        static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
         try
         {
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter,_mailboxId,_blobConnectionString,"inbound");
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, _mailboxId,_blobConnectionString,"inbound");
 
             if(!result)
             {

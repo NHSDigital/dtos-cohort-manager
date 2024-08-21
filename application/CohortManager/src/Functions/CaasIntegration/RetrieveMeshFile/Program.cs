@@ -12,11 +12,11 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services
             .AddMeshClient(_ => _.MeshApiBaseUrl = Environment.GetEnvironmentVariable("MeshApiBaseUrl"))
-            .AddMailbox(Environment.GetEnvironmentVariable("BSSMailbox")!,new NHS.MESH.Client.Configuration.MailboxConfiguration
+            .AddMailbox(Environment.GetEnvironmentVariable("BSSMailBox")!,new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
                 Password = Environment.GetEnvironmentVariable("MeshPassword"),
                 SharedKey = Environment.GetEnvironmentVariable("MeshSharedKey"),
-                Cert = new X509Certificate2("mycert.pfx",Environment.GetEnvironmentVariable("MeshKeyPassphrase")) //THIS WILL NEED CHANGING TO PULL FROM A KEYSTORE OR BLOB
+                //Cert = new X509Certificate2(Environment.GetEnvironmentVariable("MeshKeyName"),Environment.GetEnvironmentVariable("MeshKeyPassphrase")) //THIS WILL NEED CHANGING TO PULL FROM A KEYSTORE OR BLOB
             })
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();

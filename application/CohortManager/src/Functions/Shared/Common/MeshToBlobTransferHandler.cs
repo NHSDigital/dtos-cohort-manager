@@ -46,7 +46,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
             messageCount = checkForMessages.Response.Messages.Count();
 
-            _logger.LogDebug("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
+            _logger.LogInformation("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
 
             await MoveAllMessagesToBlobStorage(checkForMessages.Response.Messages,predicate);
 
