@@ -174,7 +174,7 @@ variable "law" {
     resource_group_key       = optional(string, "cohman")
     law_sku                  = optional(string, "PerGB2018")
     retention_days           = optional(number, 30)
-    audit_resource_group_key = optional(string, "audit_dev")
+    audit_resource_group_key = optional(string, "audit")
   })
 }
 
@@ -184,7 +184,7 @@ variable "app_insights" {
     name_suffix              = optional(string, "cohman")
     resource_group_key       = optional(string, "cohman")
     appinsights_type         = optional(string, "web")
-    audit_resource_group_key = optional(string, "audit_dev")
+    audit_resource_group_key = optional(string, "audit")
   })
 }
 
