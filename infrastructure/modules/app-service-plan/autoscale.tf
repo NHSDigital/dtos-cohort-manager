@@ -6,7 +6,7 @@ resource "azurerm_monitor_autoscale_setting" "asp_autoscale" {
   target_resource_id  = azurerm_service_plan.appserviceplan.id
 
   profile {
-    name =  "${var.names.app-service}-MemoryPercentage"
+    name = "${var.names.app-service}-MemoryPercentage"
 
     capacity {
       minimum = "1"
