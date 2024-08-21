@@ -29,7 +29,9 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
             InvalidFlag = participant.InvalidFlag,
             ChangeReasonCode = participant.ChangeReasonCode,
             RemovalReason = participant.ReasonForRemoval,
-            RemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate
+            RemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate,
+            ScreeningId = participant.ScreeningId,
+            ScreeningName = participant.ScreeningName
         };
     }
 }

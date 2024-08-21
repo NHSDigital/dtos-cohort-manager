@@ -90,7 +90,7 @@ public class RemoveParticipant
         {
             { "NhsNumber", nhsNumber }
         };
-        var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveFromCohortDistributionURL"), parameters);
+        var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveCohortDistributionURL"), parameters);
         if (result == null)
         {
             _logger.LogInformation($"Participant was not removed from Cohort Distribution");

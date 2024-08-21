@@ -62,7 +62,8 @@ jobs:
             echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
           fi
 
-          echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
+          # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: build docker images
         working-directory: ./application/CohortManager
@@ -83,13 +84,13 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: ./application/CohortManager
         run: |
+          set -x
 
           if [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
           else
 
             for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
-              set -x
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
               docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$COMMIT_HASH_TAG"
@@ -102,5 +103,3 @@ jobs:
               docker push "$repo_name:$ENVIRONMENT_TAG"
             done
           fi
-
-

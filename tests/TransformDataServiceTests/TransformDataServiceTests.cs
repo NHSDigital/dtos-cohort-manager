@@ -4,12 +4,17 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
+using System.Data.SqlClient;
+using System.Data;
+using Data.Database;
+using Model.Enums;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -35,7 +40,6 @@ public class TransformDataServiceTests
                 Surname = "Smith",
                 NamePrefix = "MR",
                 Gender = Model.Enums.Gender.Male
-
             },
             ServiceProvider = "1"
         };
@@ -99,7 +103,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -107,9 +111,8 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -125,27 +128,42 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male,
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
 
     [TestMethod]
-    public async Task Run_NamePrefixTooLong_TruncatePrefix()
+    public async Task Run_StringFieldsTooLong_TruncateFields()
     {
         // Arrange
-        _requestBody.Participant.NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGGHHHHH";
+        _requestBody.Participant = new CohortDistributionParticipant
+        {
+            NamePrefix = new string('A', 36),
+            FirstName = new string('A', 36),
+            Surname = new string('A', 36),
+            OtherGivenNames = new string('A', 105),
+            PreviousSurname = new string('A', 36),
+            AddressLine1 = new string('A', 36),
+            AddressLine2 = new string('A', 36),
+            AddressLine3 = new string('A', 36),
+            AddressLine4 = new string('A', 36),
+            AddressLine5 = new string('A', 36),
+            Postcode = new string('A', 36),
+            TelephoneNumber = new string('A', 33),
+            MobileNumber = new string('A', 33),
+            EmailAddress = new string('A', 33)
+        };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -153,17 +171,26 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
-            NhsNumber = "1",
-            FirstName = "John",
-            Surname = "Smith",
-            NamePrefix = "AAAAABBBBBCCCCCDDDDDEEEEEFFFFFGGGGG",
-            Gender = Model.Enums.Gender.Male
+            NamePrefix = new string('A', 35),
+            FirstName = new string('A', 35),
+            Surname = new string('A', 35),
+            OtherGivenNames = new string('A', 100),
+            PreviousSurname = new string('A', 35),
+            AddressLine1 = new string('A', 35),
+            AddressLine2 = new string('A', 35),
+            AddressLine3 = new string('A', 35),
+            AddressLine4 = new string('A', 35),
+            AddressLine5 = new string('A', 35),
+            Postcode = new string('A', 35),
+            TelephoneNumber = new string('A', 32),
+            MobileNumber = new string('A', 32),
+            EmailAddress = new string('A', 32),
+            Gender = Model.Enums.Gender.NotSpecified
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -180,7 +207,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -207,7 +234,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -216,14 +243,45 @@ public class TransformDataServiceTests
             Gender = Model.Enums.Gender.Male,
         };
 
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
+    public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
+    {
+        // Arrange
+        var participant = new CohortDistributionParticipant()
+        {
+            Postcode = "RG2 5TX"
+        };
+
+        var mockConnection = new Mock<SqlConnection>();
+        var mockCommand = new Mock<SqlCommand>();
+        var mockReader = new Mock<SqlDataReader>();
+
+        mockReader.Setup(r => r.Read()).Returns(true);
+        mockReader.Setup(r => r.GetString(0)).Returns("RG2 5TX");
+        mockReader.Setup(r => r.GetString(1)).Returns("51 something av");
+
+        mockCommand.Setup(c => c.ExecuteReader()).Returns(mockReader.Object);
+        mockConnection.Setup(c => c.Open()).Verifiable();
+
+        // Act
+        var sut = new GetMissingAddress(participant, mockConnection.Object);
+        var result = sut.GetAddress();
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            Postcode = "RG2 5TX",
+            AddressLine1 = "51 something av"
+        };
+
+        Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
+    }
+
+    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
@@ -235,7 +293,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John.,-()/='+:?!\"%&;<>*",
@@ -243,9 +301,8 @@ public class TransformDataServiceTests
             NamePrefix = "DR",
             Gender = Model.Enums.Gender.Male
         };
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
