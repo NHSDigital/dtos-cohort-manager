@@ -12,8 +12,9 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
     <PackageReference Include="RulesEngine" Version="5.0.3" />
-    </ItemGroup>
-    <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="host.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -36,5 +37,6 @@
     </ItemGroup>
     <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
-    </ItemGroup>
+    <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+  </ItemGroup>
 </Project>

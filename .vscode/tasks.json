@@ -11,7 +11,7 @@
         "ParticipantManagementServices/addParticipant",
         "ParticipantManagementServices/updateParticipant",
         "ParticipantManagementServices/RemoveParticipant",
-        "CreateException",
+        "ExceptionHandling/CreateException",
         "screeningDataServices/createParticipant",
         "screeningDataServices/DemographicDataService",
         "screeningDataServices/markParticipantAsEligible",
@@ -19,7 +19,13 @@
         "screeningDataServices/updateParticipantDetails",
         "ScreeningValidationService/FileValidation",
         "ScreeningValidationService/LookupValidation",
-        "ScreeningValidationService/StaticValidation"
+        "ScreeningValidationService/StaticValidation",
+        "CohortDistributionServices/CreateCohortDistribution",
+        "CohortDistributionServices/RetrieveParticipantData",
+        "CohortDistributionServices/ServiceProviderAllocationService",
+        "CohortDistributionServices/TransformDataService",
+        "CohortDistributionServices/AddCohortDistributionData",
+        "CohortDistributionServices/RemoveCohortDistributionData"
       ]
     },
     {
@@ -121,7 +127,7 @@
       }
     },
     {
-      "label": "CreateException",
+      "label": "ExceptionHandling/CreateException",
       "type": "shell",
       "osx": {
         "command": "sleep 4 && func start"
@@ -135,7 +141,7 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CreateException"
+        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/CreateException"
       }
     },
     {
@@ -280,6 +286,114 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/CreateCohortDistribution",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 8 && func start"
+      },
+      "windows": {
+        "command": "timeout 15 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/CreateCohortDistribution"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveParticipantData",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 8.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 16 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveParticipantData"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/ServiceProviderAllocationService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 9 && func start"
+      },
+      "windows": {
+        "command": "timeout 17 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ServiceProviderAllocationService"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/TransformDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 9.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 18 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/TransformDataService"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/AddCohortDistributionData",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 10 && func start"
+      },
+      "windows": {
+        "command": "timeout 19 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RemoveCohortDistributionData",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 10.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 20 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RemoveCohortDistributionData"
       }
     }
   ]

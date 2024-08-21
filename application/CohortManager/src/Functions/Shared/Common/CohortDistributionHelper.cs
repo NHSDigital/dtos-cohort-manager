@@ -1,6 +1,5 @@
 namespace Common;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -70,7 +69,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("TransformDataServiceURL"));
         if (!string.IsNullOrEmpty(response))
         {
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response); ;
+            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
         }
         return null;
     }
