@@ -14,6 +14,7 @@ using Common;
 using System.Data.SqlClient;
 using System.Data;
 using Data.Database;
+using Model.Enums;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -133,10 +134,10 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male,
         };
 
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
