@@ -54,7 +54,7 @@ public class FileValidation
                 ScreeningService = requestBody.ScreeningService ?? 0
             };
 
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
+            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
