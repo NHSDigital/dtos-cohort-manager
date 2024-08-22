@@ -60,11 +60,10 @@ public class ProcessCaasFileFunction
                 !IsValidDate(mobileTelephoneDate) ||
                 !IsValidDate(emailAddressDate))
             {
-                _logger.LogError($"Invalid effective date found in participant data at row {row}. Skipping this participant.");
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
                 err++;
                 continue; // Skip this participant
             }
-
 
             row++;
             var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
