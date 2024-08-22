@@ -52,7 +52,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " PREFERRED_LANGUAGE," +
             " INTERPRETER_REQUIRED," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
             " IS_EXTRACTED " +
