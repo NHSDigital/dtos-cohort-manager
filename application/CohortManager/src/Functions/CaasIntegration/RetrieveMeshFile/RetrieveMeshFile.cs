@@ -24,7 +24,10 @@ public class RetrieveMeshFile
         _mailboxId = Environment.GetEnvironmentVariable("BSSMailBox");
         _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
     }
-
+    /// <summary>
+    /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
+    /// If there is a file in there will move the file to the Cohort Manager Blob Storage where it will be picked up by the ReceiveCaasFile Function.
+    /// </summary>
     [Function("RetrieveMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
