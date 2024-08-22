@@ -11,16 +11,19 @@ using System.Globalization;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
+using Data.Database;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly IScreeningServiceData _screeningServiceData;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction)
+    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction, IScreeningServiceData screeningServiceData)
     {
         _logger = logger;
         _callFunction = callFunction;
+        _screeningServiceData = screeningServiceData;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -59,6 +62,7 @@ public class ReceiveCaasFile
                 using var csv = new CsvReader(blobStreamReader, config);
                 csv.Context.RegisterClassMap<ParticipantMap>();
                 var records = csv.GetRecords<Participant>();
+                var screeningService = GetScreeningService(name);
 
                 foreach (var participant in records)
                 {
@@ -67,6 +71,8 @@ public class ReceiveCaasFile
                     {
                         if (participant != null)
                         {
+                            participant.ScreeningId = screeningService.ScreeningId;
+                            participant.ScreeningName = screeningService.ScreeningName;
                             cohort.Participants.Add(participant);
                         }
                     }
@@ -113,7 +119,7 @@ public class ReceiveCaasFile
             }
             catch (Exception ex)
             {
-                _logger.LogError("Unable to call function.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
                 await InsertValidationErrorIntoDatabase(name);
             }
         }
@@ -134,22 +140,23 @@ public class ReceiveCaasFile
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
-        if (result.StatusCode == HttpStatusCode.OK)
+        if (result.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogInformation("file failed checks and has been moved to the poison blob storage");
+            _logger.LogError("An error occurred while saving or moving the failed file {fileName}.", fileName);
         }
-        _logger.LogError("there was a problem saving and or moving the failed file");
+        _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
+
     }
 
     private static bool FileNameAndFileExtensionIsValid(string name)
     {
         /* for file format BSS_ccyymmddhhmmss_n8.csv
-        '^BSS_' Matches the literal string BSS_ at the start of the line
+        '^\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
         '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
         '_n' Matches the literal _n
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^BSS_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
+        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
         return match.Success;
     }
 
@@ -168,5 +175,11 @@ public class ReceiveCaasFile
             await InsertValidationErrorIntoDatabase(name);
             return null;
         }
+    }
+
+    private ScreeningService GetScreeningService(string name)
+    {
+        var screeningAcronym = name.Split('_')[0];
+        return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 }

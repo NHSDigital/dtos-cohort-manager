@@ -1,7 +1,8 @@
 [
     {
-        "WorkflowName": "Common",
-        "Rules": [
+    "WorkflowName": "Common",
+    "Rules":
+        [
             {
                 "RuleName": "47.ParticipantMustNotExist",
                 "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"

@@ -96,7 +96,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@nhsNumber", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.NhsNumber) ? DBNull.Value : cohortDistributionParticipant.NhsNumber},
             {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.SupersededByNhsNumber) ? DBNull.Value : cohortDistributionParticipant.SupersededByNhsNumber},
             {"@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PrimaryCareProvider)},
-            {"@primaryCareProviderFromDate", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PrimaryCareProvider) },
+            {"@primaryCareProviderFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.PrimaryCareProviderEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.PrimaryCareProviderEffectiveFromDate) },
             {"@namePrefix",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.NamePrefix) },
             {"@givenName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.FirstName) },
             {"@otherGivenNames", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.OtherGivenNames) },
@@ -159,25 +159,75 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return [];
     }
 
-public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
-{
-    try
+    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
     {
-        var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(testDataJson);
+        try
+        {
+            var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(testDataJson);
 
-        if (participants == null || participants.Count == 0) return [];
+            if (participants == null || participants.Count == 0) return [];
 
-        return participants
-            .Where(p => p.ServiceProviderId == serviceProviderId)
-            .Take(rowCount)
-            .ToList();
+            return participants
+                .Where(p => p.ServiceProviderId == serviceProviderId)
+                .Take(rowCount)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to read or deserialize CohortMockData.json.");
+            return [];
+        }
     }
-    catch (Exception ex)
+
+    public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
     {
-        _logger.LogError(ex, "Failed to read or deserialize CohortMockData.json.");
-        return [];
+        var SQL = "SELECT TOP (1) [PARTICIPANT_ID], " +
+                " [NHS_NUMBER], " +
+                " [SUPERSEDED_NHS_NUMBER], " +
+                " [PRIMARY_CARE_PROVIDER], " +
+                " [PRIMARY_CARE_PROVIDER_FROM_DT], " +
+                " [NAME_PREFIX], " +
+                " [GIVEN_NAME], " +
+                " [OTHER_GIVEN_NAME], " +
+                " [FAMILY_NAME], " +
+                " [PREVIOUS_FAMILY_NAME], " +
+                " [DATE_OF_BIRTH], " +
+                " [GENDER], " +
+                " [ADDRESS_LINE_1], " +
+                " [ADDRESS_LINE_2], " +
+                " [ADDRESS_LINE_3], " +
+                " [ADDRESS_LINE_4], " +
+                " [ADDRESS_LINE_5], " +
+                " [POST_CODE], " +
+                " [USUAL_ADDRESS_FROM_DT], " +
+                " [DATE_OF_DEATH], " +
+                " [TELEPHONE_NUMBER_HOME], " +
+                " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
+                " [TELEPHONE_NUMBER_MOB], " +
+                " [TELEPHONE_NUMBER_MOB_FROM_DT], " +
+                " [EMAIL_ADDRESS_HOME], " +
+                " [EMAIL_ADDRESS_HOME_FROM_DT], " +
+                " [PREFERRED_LANGUAGE], " +
+                " [INTERPRETER_REQUIRED], " +
+                " [REASON_FOR_REMOVAL], " +
+                " [REASON_FOR_REMOVAL_DT], " +
+                " [RECORD_INSERT_DATETIME], " +
+                " [RECORD_UPDATE_DATETIME], " +
+                " [IS_EXTRACTED] " +
+                " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                " WHERE NHS_NUMBER = @NhsNumber " +
+                " ORDER BY PARTICIPANT_ID DESC ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NhsNumber", NhsNumber },
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command).FirstOrDefault();
     }
-}
 
     public bool UpdateCohortParticipantAsInactive(string NhsNumber)
     {

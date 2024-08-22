@@ -7,7 +7,7 @@ using RulesEngine.Models;
 
 public class TransformString
 {
-    private RulesEngine.RulesEngine _ruleEngine;
+    private readonly RulesEngine.RulesEngine _ruleEngine;
 
     public TransformString()
     {
@@ -30,7 +30,7 @@ public class TransformString
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
-                throw new ArgumentException();
+                throw new ArgumentException("Participant contains illegal characters");
             }
 
             var transformedField = await TransformCharactersAsync(stringField);
@@ -38,8 +38,7 @@ public class TransformString
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
-                // Will call the exception service in the future
-                throw new ArgumentException();
+                throw new ArgumentException("Participant contains illegal characters");
             }
             return transformedField;
         }
