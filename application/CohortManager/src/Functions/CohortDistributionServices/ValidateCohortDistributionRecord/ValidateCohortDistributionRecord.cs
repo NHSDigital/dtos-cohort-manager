@@ -27,7 +27,13 @@ public class ValidateCohortDistributionRecord
         _callFunction = callFunction;
         _logger = logger;
     }
-
+    /// <summary>
+    /// Deserializes a ValidateCohortDistributionRecordBody object. 
+    /// compares existing and new participant data, returns an appropriate HTTP response 
+    /// based on validation success or failure.
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns></returns>
     [Function("ValidateCohortDistributionRecord")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
