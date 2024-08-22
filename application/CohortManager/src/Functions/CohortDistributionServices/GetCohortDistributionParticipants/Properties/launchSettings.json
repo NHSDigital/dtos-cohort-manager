@@ -1,9 +1,9 @@
 {
-    "profiles": {
+  "profiles": {
     "GetCohortDistributionParticipants": {
-            "commandName": "Project",
-            "commandLineArgs": "--port 7118",
-            "launchBrowser": false,
-        }
+      "commandName": "Project",
+      "commandLineArgs": "--port 7118",
+      "launchBrowser": false
     }
+  }
 }
