@@ -40,6 +40,16 @@ locals {
 locals {
   app_settings = {
 
+    RetrieveMeshFile = {
+
+      caasfolder_STORAGE           = var.caasfolder_STORAGE
+      MeshApiBaseUrl               = "https://localhost:8700/messageexchange"
+      BSSMailBox                   = "X26ABC1"
+      MeshPassword                 = ""
+      MeshSharedKey                = ""
+      MeshKeyPassPhrase            = ""
+    }
+
     ReceiveCaasFile = {
 
       caasfolder_STORAGE           = var.caasfolder_STORAGE
