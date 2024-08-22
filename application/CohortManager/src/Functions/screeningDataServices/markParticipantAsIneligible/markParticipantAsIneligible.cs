@@ -85,7 +85,7 @@ public class MarkParticipantAsIneligible
 
     private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
 
         try
         {

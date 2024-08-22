@@ -4,7 +4,7 @@ using Model.Enums;
 
 public class Participant
 {
-    public Participant() {}
+    public Participant() { }
     public Participant(CohortDistributionParticipant cohortDistributionParticipant)
     {
         ParticipantId = cohortDistributionParticipant.ParticipantId;
@@ -18,7 +18,7 @@ public class Participant
         Surname = cohortDistributionParticipant.Surname;
         PreviousSurname = cohortDistributionParticipant.PreviousSurname;
         DateOfBirth = cohortDistributionParticipant.DateOfBirth;
-        Gender = cohortDistributionParticipant.Gender;
+        Gender = cohortDistributionParticipant.Gender.GetValueOrDefault();
         AddressLine1 = cohortDistributionParticipant.AddressLine1;
         AddressLine2 = cohortDistributionParticipant.AddressLine2;
         AddressLine3 = cohortDistributionParticipant.AddressLine3;
@@ -39,6 +39,9 @@ public class Participant
         ReasonForRemovalEffectiveFromDate = cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate;
         RecordInsertDateTime = cohortDistributionParticipant.RecordInsertDateTime;
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
+        ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
+        ScreeningName = cohortDistributionParticipant.ScreeningName;
+        ScreeningId = cohortDistributionParticipant.ScreeningId;
     }
 
     public string? RecordType { get; set; }
