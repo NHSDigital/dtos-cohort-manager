@@ -5,6 +5,7 @@ using Common.Interfaces;
 using Data.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
@@ -12,15 +13,15 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddSingleton<IDbConnection>(provider =>
+        services.AddTransient<IDbConnection>(provider =>
         {
             var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
             var conn = providerFactory.CreateConnection();
             return conn;
         });
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICreateCohortDistributionData, CreateCohortDistributionData>();
+        services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
+        services.TryAddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
