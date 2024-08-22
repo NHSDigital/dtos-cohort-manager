@@ -51,7 +51,7 @@ public class LookupValidationTests
             FirstName = "John",
             Surname = "Smith"
         };
-        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
+        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv", RulesType.CohortDistribution);
 
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/lookupRules.json");
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
