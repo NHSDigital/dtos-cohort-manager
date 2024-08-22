@@ -14,6 +14,7 @@ using Common;
 using System.Data.SqlClient;
 using System.Data;
 using Data.Database;
+using Model.Enums;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -102,7 +103,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -127,16 +128,16 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male,
         };
 
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -170,7 +171,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NamePrefix = new string('A', 35),
             FirstName = new string('A', 35),
@@ -206,7 +207,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -233,7 +234,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John",
@@ -250,7 +251,8 @@ public class TransformDataServiceTests
     public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
-        var participant = new CohortDistributionParticipant(){
+        var participant = new CohortDistributionParticipant()
+        {
             Postcode = "RG2 5TX"
         };
 
@@ -279,7 +281,7 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-        public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
@@ -291,7 +293,7 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new Participant
+        var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
             FirstName = "John.,-()/='+:?!\"%&;<>*",

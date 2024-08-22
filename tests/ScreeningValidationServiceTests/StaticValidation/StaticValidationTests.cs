@@ -1,5 +1,3 @@
-/* we will be fixing these tests I just don't have time to fix them right now
-
 namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
 
 using System.IO.Compression;
@@ -46,6 +44,9 @@ public class StaticValidationTests
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(true)).Verifiable();
+
+        var json = File.ReadAllText("../../../../../../application/CohortManager/rules/staticRules.json");
+        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
         _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object);
 
@@ -980,6 +981,49 @@ public class StaticValidationTests
     }
     #endregion
 
+    #region IsInterpreterRequired (Rule 49)
+    [TestMethod]
+    [DataRow("1")]
+    [DataRow("0")]
+    public async Task Run_Should_Not_Create_Exception_When_IsInterpreterRequired_Rule_Passes(string isInterpreterRequired)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("ABC")]
+    public async Task Run_Should_Return_Created_And_Create_Exception_When_IsInterpreterRequired_Rule_Fails(string isInterpreterRequired)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
@@ -989,4 +1033,3 @@ public class StaticValidationTests
     }
 
 }
-*/

@@ -60,7 +60,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         var transformDataRequestBody = new TransformDataRequestBody()
         {
             Participant = participantData,
-            ServiceProvider = serviceProvider
+            ServiceProvider = serviceProvider,
         };
 
         var json = JsonSerializer.Serialize(transformDataRequestBody);
@@ -72,6 +72,25 @@ public class CohortDistributionHelper : ICohortDistributionHelper
             return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
         }
         return null;
+    }
+
+    public async Task<bool> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant)
+    {
+        var lookupValidationRequestBody = new ValidateCohortDistributionRecordBody()
+        {
+            NhsNumber = nhsNumber,
+            FileName = FileName,
+            CohortDistributionParticipant = cohortDistributionParticipant,
+        };
+        var json = JsonSerializer.Serialize(lookupValidationRequestBody);
+
+        _logger.LogInformation("Called cohort validation service");
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"), json);
+        if (response.StatusCode == HttpStatusCode.Created)
+        {
+            return true;
+        }
+        return false;
     }
 
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
