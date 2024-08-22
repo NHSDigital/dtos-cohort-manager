@@ -51,9 +51,10 @@ public class ValidateCohortDistributionRecord
 
         try
         {
-            var lastParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
-            var validationRes = await ValidateDataAsync(lastParticipant, requestBody.CohortDistributionParticipant, requestBody.FileName);
+            var existingParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
+            var newParticipant = requestBody.CohortDistributionParticipant;
 
+            var validationRes = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
             if (validationRes)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
