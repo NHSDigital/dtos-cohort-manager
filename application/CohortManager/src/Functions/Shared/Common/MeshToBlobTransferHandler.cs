@@ -60,6 +60,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             if(messagesMoved == 0 && messageCount == 500)
             {
                 _logger.LogCritical("Mailbox is full of messages that do not meet the predicate for transfer to Blob Storage");
+                return false;
             }
         }
         while(messageCount == 500);
