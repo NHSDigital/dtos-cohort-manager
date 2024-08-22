@@ -46,9 +46,11 @@ public class StaticValidation
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
 
+            var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
+
             var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
                                                                         Environment.GetEnvironmentVariable("BlobContainerName"),
-                                                                        $"{participantCsvRecord.Participant.ScreeningName} staticRules.json");
+                                                                        ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
