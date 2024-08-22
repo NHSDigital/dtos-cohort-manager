@@ -1,56 +1,56 @@
 
 resource "azurerm_monitor_autoscale_setting" "asp_autoscale" {
-  name                = "${var.names.app-service}-autoscale"
+  name                = "${var.names.app-service-plan}-autoscale"
   resource_group_name = var.resource_group_name
   location            = var.location
   target_resource_id  = azurerm_service_plan.appserviceplan.id
 
   profile {
-    name = "${var.names.app-service}-MemoryPercentage"
+    name = "${var.names.app-service-plan}-${var.metric}"
 
     capacity {
-      minimum = "1"
-      maximum = "5"
-      default = "1"
+      minimum = var.capacity_min
+      maximum = var.capacity_max
+      default = var.capacity_def
     }
 
     rule {
       metric_trigger {
-        metric_name        = "MemoryPercentage"
+        metric_name        = var.metric
         metric_resource_id = azurerm_service_plan.appserviceplan.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT10M"
-        time_aggregation   = "Average"
-        operator           = "GreaterThan"
-        threshold          = 70
+        time_grain         = var.time_grain
+        statistic          = var.statistic
+        time_window        = var.time_window
+        time_aggregation   = var.time_aggregation
+        operator           = var.inc_operator
+        threshold          = var.inc_threshold
       }
 
       scale_action {
-        direction = "Increase"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT5M"
+        direction = var.inc_scale_direction
+        type      = var.inc_scale_type
+        value     = var.inc_scale_value
+        cooldown  = var.inc_scale_cooldown
       }
     }
 
     rule {
       metric_trigger {
-        metric_name        = "MemoryPercentage"
+        metric_name        = var.metric
         metric_resource_id = azurerm_service_plan.appserviceplan.id
-        time_grain         = "PT1M"
-        statistic          = "Average"
-        time_window        = "PT10M"
-        time_aggregation   = "Average"
-        operator           = "LessThan"
-        threshold          = 25
+        time_grain         = var.time_grain
+        statistic          = var.statistic
+        time_window        = var.time_window
+        time_aggregation   = var.time_aggregation
+        operator           = var.dec_operator
+        threshold          = var.dec_threshold
       }
 
       scale_action {
-        direction = "Decrease"
-        type      = "ChangeCount"
-        value     = "1"
-        cooldown  = "PT5M"
+        direction = var.dec_scale_direction
+        type      = var.dec_scale_type
+        value     = var.dec_scale_value
+        cooldown  = var.dec_scale_cooldown
       }
     }
   }
