@@ -38,7 +38,7 @@ public class RetrieveMeshFileTest
     public RetrieveMeshFileTest()
     {
         Environment.SetEnvironmentVariable("BSSMailBox", mailboxId);
-        Environment.SetEnvironmentVariable("BlobStorage_ConnectionString", "BlobStorage_ConnectionString");
+        Environment.SetEnvironmentVariable("caasfolder_STORAGE", "BlobStorage_ConnectionString");
         _meshToBlobTransferHandler = new MeshToBlobTransferHandler(_mockMeshTransferLogger.Object,_mockBlobStorageHelper.Object,_mockMeshInboxService.Object);
         _retrieveMeshFile = new RetrieveMeshFile(_mockLogger.Object,_meshToBlobTransferHandler);
 

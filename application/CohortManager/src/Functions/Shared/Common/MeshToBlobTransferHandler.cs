@@ -48,8 +48,19 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
             _logger.LogInformation("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
 
-            await MoveAllMessagesToBlobStorage(checkForMessages.Response.Messages,predicate);
+            if(messageCount == 0)
+            {
+                break;
+            }
 
+            var messagesMoved = await MoveAllMessagesToBlobStorage(checkForMessages.Response.Messages,predicate);
+
+            _logger.LogInformation("{messagesMoved} out of {messageCount} Messages were moved mailbox: {mailboxId} to Blob Storage",messagesMoved,messageCount,mailboxId);
+
+            if(messagesMoved == 0 && messageCount == 500)
+            {
+                _logger.LogCritical("Mailbox is full of messages that do not meet the predicate for transfer to Blob Storage");
+            }
         }
         while(messageCount == 500);
 
@@ -57,9 +68,9 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
     }
 
-    private async Task<bool> MoveAllMessagesToBlobStorage(IEnumerable<string> messages,Func<MessageMetaData,bool> predicate)
+    private async Task<int> MoveAllMessagesToBlobStorage(IEnumerable<string> messages,Func<MessageMetaData,bool> predicate)
     {
-
+        var messagesMovedToBlobStorage = 0;
         foreach(var message in messages)
         {
             var messageHead = await _meshInboxService.GetHeadMessageByIdAsync(_mailboxId,message);
@@ -70,15 +81,23 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
                 continue;
             }
             if(!predicate(messageHead.Response.MessageMetaData)){
+                _logger.LogInformation("Message: {MessageId} was did not meet the predicate for transferring to BlobStoreage",messageHead.Response.MessageMetaData.MessageId);
                 continue;
             }
             bool wasMessageDownloaded = await TransferMessageToBlobStorage(messageHead.Response.MessageMetaData);
-            if(wasMessageDownloaded)
+            if(!wasMessageDownloaded)
             {
-                var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
+                _logger.LogCritical("Message: {MessageId} was not able to be transferred to BlobStorage",messageHead.Response.MessageMetaData.MessageId);
+                continue;
             }
+            var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
+            if(!acknowledgeResponse.IsSuccessful)
+            {
+                _logger.LogCritical("Message: {MessageId} was not able to be transferred to be acknowledged, Message will be removed from blob storage",messageHead.Response.MessageMetaData.MessageId);
+            }
+            messagesMovedToBlobStorage++;
         }
-        return true;
+        return messagesMovedToBlobStorage;
 
     }
 
@@ -113,7 +132,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         var result = await _meshInboxService.GetChunkedMessageByIdAsync(_mailboxId,messageId);
         if(!result.IsSuccessful)
         {
-            _logger.LogError("Failed to download chunked message from MESH MessageId: {}");
+            _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
             return null;
         }
         var meshFile = await FileHelpers.ReassembleChunkedFile(result.Response.FileAttachments);
@@ -126,7 +145,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         var result = await _meshInboxService.GetMessageByIdAsync(_mailboxId,messageId);
         if(!result.IsSuccessful)
         {
-            _logger.LogError("Failed to download chunked message from MESH MessageId: {}");
+            _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
             return null;
         }
 
