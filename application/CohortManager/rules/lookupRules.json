@@ -1,14 +1,15 @@
 [
     {
-        "WorkflowName": "Common",
-        "Rules": [
+    "WorkflowName": "Common",
+    "Rules":
+        [
             {
                 "RuleName": "47.ParticipantMustNotExist",
-                "Expression": "!(newParticipant.RecordType == Actions.New AND !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber))"
+                "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {
                 "RuleName": "22.ParticipantMustExist",
-                "Expression": "!(newParticipant.RecordType != Actions.New AND string.IsNullOrWhiteSpace(existingParticipant.NhsNumber))"
+                "Expression": "newParticipant.RecordType == Actions.New OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {
                 "RuleName": "35.Demographics",

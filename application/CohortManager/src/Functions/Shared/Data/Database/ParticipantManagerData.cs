@@ -169,6 +169,7 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
                 participant.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
                 participant.ScreeningAcronym = withScreeningName ? (reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString()) : null;
+                participant.ScreeningName = withScreeningName ? (reader["SCREENING_NAME"] == DBNull.Value ? null : reader["SCREENING_NAME"].ToString()) : null;
             }
             return participant;
         });
@@ -227,7 +228,7 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName));
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
 
         try
         {

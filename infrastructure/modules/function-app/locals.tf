@@ -42,10 +42,11 @@ locals {
 
     ReceiveCaasFile = {
 
-      caasfolder_STORAGE   = var.caasfolder_STORAGE
-      targetFunction       = local.fnapp_urls.processCaasFile
-      FileValidationURL    = local.fnapp_urls.fileValidation
-      ExceptionFunctionURL = local.fnapp_urls.createException
+      caasfolder_STORAGE           = var.caasfolder_STORAGE
+      targetFunction               = local.fnapp_urls.processCaasFile
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      FileValidationURL            = local.fnapp_urls.fileValidation
+      DtOsDatabaseConnectionString = local.db_connection_string
     }
 
     ProcessCaasFile = {
@@ -54,31 +55,34 @@ locals {
       PMSRemoveParticipant = local.fnapp_urls.removeParticipant
       PMSUpdateParticipant = local.fnapp_urls.updateParticipant
       DemographicURI       = local.fnapp_urls.demographicDataFunction
+      ExceptionFunctionURL = local.fnapp_urls.createException
+      StaticValidationURL  = local.fnapp_urls.staticValidation
     }
 
     AddParticipant = {
 
-      DSaddParticipant            = local.fnapp_urls.createParticipant
-      DSmarkParticipantAsEligible = local.fnapp_urls.markParticipantAsEligible
-      DemographicURIGet           = local.fnapp_urls.demographicDataFunction
-      StaticValidationURL         = local.fnapp_urls.staticValidation
-      ExceptionFunctionURL        = local.fnapp_urls.createException
+      DSaddParticipant             = local.fnapp_urls.createParticipant
+      DSmarkParticipantAsEligible  = local.fnapp_urls.markParticipantAsEligible
+      DemographicURIGet            = local.fnapp_urls.demographicDataFunction
+      StaticValidationURL          = local.fnapp_urls.staticValidation
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      CohortDistributionServiceURL = local.fnapp_urls.createParticipant
     }
 
     RemoveParticipant = {
 
-      markParticipantAsIneligible     = local.fnapp_urls.markParticipantAsIneligible
-      DemographicURI                  = local.fnapp_urls.demographicDataFunction
-      removeFromCohortDistributionURL = local.fnapp_urls.removeCohortDistributionData
-      ExceptionFunctionURL            = local.fnapp_urls.createException
+      markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible
+      RemoveCohortDistributionURL = local.fnapp_urls.removeCohortDistributionData
+      DemographicURIGet           = local.fnapp_urls.demographicDataFunction
+      ExceptionFunctionURL        = local.fnapp_urls.createCohortDistribution
     }
 
     UpdateParticipant = {
 
       UpdateParticipant            = local.fnapp_urls.updateParticipantDetails
-      StaticValidationURL          = local.fnapp_urls.staticValidation
+      CohortDistributionServiceURL = local.fnapp_urls.createCohortDistribution
       DemographicURIGet            = local.fnapp_urls.demographicDataFunction
-      cohortDistributionServiceURL = local.fnapp_urls.createCohortDistribution
+      StaticValidationURL          = local.fnapp_urls.staticValidation
       ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
@@ -126,18 +130,21 @@ locals {
 
     FileValidation = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
-      inboundBlobName      = "file-exceptions"
+      CreateValidationExceptionURL = local.fnapp_urls.createException
+      inboundBlobName              = "inbound"
+      fileExceptions               = "inbound-poison"
     }
 
     StaticValidation = {
 
       ExceptionFunctionURL = local.fnapp_urls.createException
+      BlobContainerName    = "config"
     }
 
     LookupValidation = {
 
       ExceptionFunctionURL = local.fnapp_urls.createException
+      BlobContainerName    = "config"
     }
 
     DemographicDataManagement = {
@@ -148,6 +155,7 @@ locals {
     AddCohortDistributionData = {
 
       DtOsDatabaseConnectionString = local.db_connection_string
+      ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
     RetrieveCohortDistributionData = {
@@ -158,6 +166,7 @@ locals {
     RemoveCohortDistributionData = {
 
       DtOsDatabaseConnectionString = local.db_connection_string
+      ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
     TransformDataService = {
@@ -166,19 +175,21 @@ locals {
 
     AllocateServiceProvider = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      CreateValidationExceptionURL = local.fnapp_urls.lookupValidation
     }
 
     CreateCohortDistribution = {
 
-      retrieveParticipantDataURL = local.fnapp_urls.retrieveParticipantData
-      allocateServiceProviderURL = local.fnapp_urls.allocateServiceProvider
-      transformDataServiceURL    = local.fnapp_urls.transformDataService
-      addCohortDistributionURL   = local.fnapp_urls.addCohortDistributionData
+      RetrieveParticipantDataURL          = local.fnapp_urls.retrieveParticipantData
+      AllocateScreeningProviderURL        = local.fnapp_urls.allocateServiceProvider
+      TransformDataServiceURL             = local.fnapp_urls.transformDataService
+      AddCohortDistributionURL            = local.fnapp_urls.addCohortDistributionData
+      ValidateCohortDistributionRecordURL = ""
     }
 
     RetrieveParticipantData = {
-
+      DtOsDatabaseConnectionString = local.db_connection_string
     }
   }
 }

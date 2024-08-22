@@ -44,13 +44,17 @@ public class FileValidation
                 DateCreated = requestBody.DateCreated ?? DateTime.Now,
                 FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
                 DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
-                RuleDescription = requestBody.RuleDescription ?? "",
+                RuleDescription = requestBody.RuleDescription ?? "The file failed file validation. Check the file Exceptions blob store.",
                 Category = requestBody.Category ?? 0,
-                ScreeningName = requestBody.ScreeningName ?? null,
+                ScreeningName = requestBody.ScreeningName ?? "",
                 Fatal = requestBody.Fatal ?? 0,
+                ErrorRecord = requestBody.ErrorRecord ?? "",
+                ExceptionDate = requestBody.ExceptionDate ?? DateTime.Now,
+                RuleContent = requestBody.RuleContent ?? "",
+                ScreeningService = requestBody.ScreeningService ?? 0
             };
 
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateExceptionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
+            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
