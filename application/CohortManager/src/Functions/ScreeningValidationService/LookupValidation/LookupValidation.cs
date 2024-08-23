@@ -82,10 +82,8 @@ public class LookupValidation
                     FileName = requestBody.FileName
                 };
                 var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                if (exceptionCreated)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
-                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
+
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }

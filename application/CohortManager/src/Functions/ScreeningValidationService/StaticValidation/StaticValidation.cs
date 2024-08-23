@@ -63,11 +63,9 @@ public class StaticValidation
 
             if (validationErrors.Any())
             {
-                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                if (exceptionCreated)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
-                }
+                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
+
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }

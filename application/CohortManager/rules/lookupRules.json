@@ -4,11 +4,11 @@
     "Rules":
         [
             {
-                "RuleName": "47.ParticipantMustNotExist",
+                "RuleName": "47.Fatal.ParticipantMustNotExist",
                 "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {
-                "RuleName": "22.ParticipantMustExist",
+                "RuleName": "22.NotFatal.ParticipantMustExist",
                 "Expression": "newParticipant.RecordType == Actions.New OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {

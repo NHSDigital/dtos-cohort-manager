@@ -51,9 +51,11 @@ public class MarkParticipantAsIneligible
 
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber);
-        if (!await ValidateData(existingParticipantData, participantData, requestBody.FileName))
+        var response = await ValidateData(existingParticipantData, participantData, requestBody.FileName);
+        if (response.IsFatal)
         {
-            _logger.LogInformation("The participant has not been removed due to a bad request.");
+            _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
@@ -83,26 +85,23 @@ public class MarkParticipantAsIneligible
         }
     }
 
-    private async Task<bool> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    private async Task<ValidationExceptionLog> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
 
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                return true;
-            }
+            return responseBody;
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {ex.StackTrace}");
-            return false;
+            _logger.LogError($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            return null;
         }
-
-        return false;
     }
 }
 

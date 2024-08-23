@@ -64,10 +64,17 @@ public class AddParticipantFunction
             };
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
-            if (response.Participant.ExceptionFlag == "Y")
+            if (response.IsFatal == true)
             {
-                participantCsvRecord = response;
+                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
+
+            if (response.CreatedException)
+            {
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
+            }
+
 
             var json = JsonSerializer.Serialize(participantCsvRecord);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
@@ -105,15 +112,22 @@ public class AddParticipantFunction
         }
     }
 
-    private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        if (response.StatusCode == HttpStatusCode.Created)
+        try
         {
-            participantCsvRecord.Participant.ExceptionFlag = "Y";
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+            return responseBody;
         }
-        return participantCsvRecord;
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            return null;
+        }
     }
 }

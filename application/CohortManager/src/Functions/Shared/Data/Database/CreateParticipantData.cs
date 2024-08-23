@@ -35,9 +35,15 @@ public class CreateParticipantData : ICreateParticipantData
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
         var response = await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName);
-        if (response.ExceptionFlag == "Y")
+        if (response.IsFatal)
         {
-            participantData = response;
+            _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+            return false;
+        }
+
+        if (response.CreatedException)
+        {
+            participantData.ExceptionFlag = "Y";
         }
 
         DateTime dateToday = DateTime.Today;
@@ -219,24 +225,22 @@ public class CreateParticipantData : ICreateParticipantData
 
         return dbCommand;
     }
-    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    private async Task<ValidationExceptionLog> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
     {
         var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
 
         try
         {
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                newParticipant.ExceptionFlag = "Y";
-            }
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+            return responseBody;
         }
         catch (Exception ex)
         {
             _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
-
-        return newParticipant;
     }
 }

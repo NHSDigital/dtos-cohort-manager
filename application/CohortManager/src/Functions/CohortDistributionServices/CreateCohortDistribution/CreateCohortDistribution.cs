@@ -73,21 +73,23 @@ public class CreateCohortDistribution
             if (response != null) return response;
 
             var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
-
-            response = await HandleErrorResponseIfNull(validationResult, req);
-            if (response != null) return response;
-
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            response = await HandleErrorResponseIfNull(transformedParticipant, req);
-            if (response != null) return response;
-
-            var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
-            if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+            if (!validationResult)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+                response = await HandleErrorResponseIfNull(validationResult, req);
+                if (response != null) return response;
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
+                response = await HandleErrorResponseIfNull(transformedParticipant, req);
+                if (response != null) return response;
+
+                var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
+                if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                }
+            }
+            _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {

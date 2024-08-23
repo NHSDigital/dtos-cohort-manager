@@ -45,7 +45,11 @@ public class UpdateParticipantTests
         _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunction.Object);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(true)).Verifiable();
+            .Returns(Task.FromResult(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })).Verifiable();
 
         _participantCsvRecord = new ParticipantCsvRecord
         {

@@ -57,7 +57,11 @@ public class LookupValidationTests
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
         _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(true));
+            .Returns(Task.FromResult(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            }));
 
         _function = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object, _readRulesFromBlobStorage.Object);
 

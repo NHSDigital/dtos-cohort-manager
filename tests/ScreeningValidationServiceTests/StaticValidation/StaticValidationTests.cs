@@ -43,7 +43,11 @@ public class StaticValidationTests
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(true)).Verifiable();
+            .Returns(Task.FromResult(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })).Verifiable();
 
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/staticRules.json");
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
