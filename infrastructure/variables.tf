@@ -107,6 +107,31 @@ variable "app_service_plan" {
     resource_group_key = optional(string, "cohman")
     sku_name           = optional(string, "P2v3")
     os_type            = optional(string, "Linux")
+
+    autoscale = object({
+      memory_percentage = object({
+        metric              = optional(string, "MemoryPercentage")
+        capacity_min        = optional(string, "1")
+        capacity_max        = optional(string, "5")
+        capacity_def        = optional(string, "1")
+        time_grain          = optional(string, "PT1M")
+        statistic           = optional(string, "Average")
+        time_window         = optional(string, "PT10M")
+        time_aggregation    = optional(string, "Average")
+        inc_operator        = optional(string, "GreaterThan")
+        inc_threshold       = optional(number, 70)
+        inc_scale_direction = optional(string, "Increase")
+        inc_scale_type      = optional(string, "ChangeCount")
+        inc_scale_value     = optional(number, 1)
+        inc_scale_cooldown  = optional(string, "PT5M")
+        dec_operator        = optional(string, "LessThan")
+        dec_threshold       = optional(number, 25)
+        dec_scale_direction = optional(string, "Decrease")
+        dec_scale_type      = optional(string, "ChangeCount")
+        dec_scale_value     = optional(number, 1)
+        dec_scale_cooldown  = optional(string, "PT5M")
+      })
+    })
   })
 }
 
