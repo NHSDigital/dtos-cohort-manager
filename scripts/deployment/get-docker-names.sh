@@ -13,6 +13,7 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
     ["CohortDistributionServices/ValidateCohortDistributionRecord"]="validate-cohort-distribution-record"
     ["DemographicServices/DemographicDataManagement"]="demographic-data-management"
+    ["DevOpsTestingService"]="devops-testing-service"
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/AddParticipant"]="add-participant"
     ["ParticipantManagementServices/UpdateParticipant"]="update-participant"

@@ -197,5 +197,7 @@ locals {
       LookupValidationURL          = local.fnapp_urls.lookupValidation
       DtOsDatabaseConnectionString = local.db_connection_string
     }
+
+    DevOpsTestingService = {}
   }
 }
