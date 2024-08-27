@@ -1024,7 +1024,7 @@ public class StaticValidationTests
             Times.Once());
     }
     #endregion
-     #region Validate Reason For Removal (Rule 62)
+    #region Validate Reason For Removal (Rule 62)
     [TestMethod]
     [DataRow("123456","LDN")]
     [DataRow(null,"ABC")]
