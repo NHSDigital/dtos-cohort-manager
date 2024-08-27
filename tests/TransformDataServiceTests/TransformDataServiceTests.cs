@@ -39,7 +39,7 @@ public class TransformDataServiceTests
                 FirstName = "John",
                 Surname = "Smith",
                 NamePrefix = "MR",
-                Gender = Model.Enums.Gender.Male
+                Gender = Gender.Male
             },
             ServiceProvider = "1"
         };
@@ -110,7 +110,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = expectedTransformedPrefix,
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -136,7 +136,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = null,
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -215,7 +215,7 @@ public class TransformDataServiceTests
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
             EmailAddress = new string('A', 32),
-            Gender = Model.Enums.Gender.NotSpecified
+            Gender = Gender.NotSpecified
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -227,7 +227,7 @@ public class TransformDataServiceTests
     public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
     {
         // Arrange
-        _requestBody.Participant.Gender = (Model.Enums.Gender)4;
+        _requestBody.Participant.Gender = (Gender)4;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -241,7 +241,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "MR",
-            Gender = Model.Enums.Gender.NotSpecified,
+            Gender = Gender.NotSpecified,
         };
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
@@ -254,7 +254,7 @@ public class TransformDataServiceTests
     public async Task Run_Should_Not_Transform_Participant_Gender_When_Gender_Is_0_1_2_or_9()
     {
         // Arrange
-        _requestBody.Participant.Gender = Model.Enums.Gender.Male;
+        _requestBody.Participant.Gender = Gender.Male;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -268,7 +268,7 @@ public class TransformDataServiceTests
             FirstName = "John",
             Surname = "Smith",
             NamePrefix = "MR",
-            Gender = Model.Enums.Gender.Male,
+            Gender = Gender.Male,
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -327,7 +327,7 @@ public class TransformDataServiceTests
             FirstName = "John.,-()/='+:?!\"%&;<>*",
             Surname = "((Smith   '   -:/))",
             NamePrefix = "DR",
-            Gender = Model.Enums.Gender.Male
+            Gender = Gender.Male
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
