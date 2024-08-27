@@ -92,6 +92,7 @@ public class TransformDataServiceTests
     [DataRow("ADMIRAL", "ADM")]
     [DataRow("AIR MARSHAL", "A.ML")]
     [DataRow("HIS ROYAL HGHNESS", "HRH")]
+    [DataRow("BRIG", "BRIG")]
     public async Task Run_TransformNamePrefix_ReturnTransformedPrefix(string namePrefix, string expectedTransformedPrefix)
     {
         // Arrange
@@ -116,6 +117,33 @@ public class TransformDataServiceTests
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
+
+    [TestMethod]
+    public async Task Run_InvalidNamePrefix_SetPrefixToNull()
+    {
+        // Arrange
+        _requestBody.Participant.NamePrefix = "Not a valid name prefix";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            Surname = "Smith",
+            NamePrefix = null,
+            Gender = Model.Enums.Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
     [TestMethod]
     public async Task Run_TransformNamePrefixwithTrailingChars_ReturnTransformedPrefix()
     {
@@ -173,7 +201,7 @@ public class TransformDataServiceTests
         // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
-            NamePrefix = new string('A', 35),
+            NamePrefix = null,
             FirstName = new string('A', 35),
             Surname = new string('A', 35),
             OtherGivenNames = new string('A', 100),

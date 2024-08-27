@@ -170,7 +170,7 @@ public class TransformDataService
         namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
-                                                    ?? namePrefix;
+                                                    ?? null;
 
         return namePrefix;
     }
