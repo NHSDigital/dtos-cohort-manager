@@ -11,7 +11,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddSingleton<IDbConnection>(provider =>
+        services.AddTransient<IDbConnection>(provider =>
         {
             var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
             var conn = providerFactory.CreateConnection();
@@ -20,8 +20,8 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICohortDistributionHelper, CohortDistributionHelper>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
+        services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
+        services.TryAddTransient<IParticipantManagerData, ParticipantManagerData>();
     })
     .AddExceptionHandler()
     .Build();
