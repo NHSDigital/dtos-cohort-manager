@@ -77,6 +77,10 @@
             {
                 "RuleName": "61.InvalidFlag",
                 "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
+            },
+            {
+              "RuleName": "46.ValidateReasonForRemoval",
+              "Expression": "participant.RecordType != Actions.Amended OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"LDN\""
             }
         ]
     }
