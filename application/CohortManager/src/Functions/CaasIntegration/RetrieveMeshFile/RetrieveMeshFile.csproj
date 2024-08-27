@@ -31,7 +31,6 @@
         <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\..\dotnet-mesh-client\application\DotNetMeshClient\NHS.Mesh.Client\NHS.Mesh.Client.csproj" />
         <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     </ItemGroup>
 </Project>
