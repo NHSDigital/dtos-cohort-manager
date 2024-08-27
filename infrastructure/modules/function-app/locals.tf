@@ -198,6 +198,6 @@ locals {
       DtOsDatabaseConnectionString = local.db_connection_string
     }
 
-    DevOpsTestingService = { }
+    DevOpsTestingService = {}
   }
 }
