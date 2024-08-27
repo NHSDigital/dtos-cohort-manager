@@ -16,6 +16,7 @@
 .vscode/*
 !.vscode/tasks.json
 _ReSharper.*/
+*/*/.idea/*
 
 # Azurite
 __azurite*
