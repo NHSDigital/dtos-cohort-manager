@@ -4,6 +4,7 @@ using Common;
 using Data.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
