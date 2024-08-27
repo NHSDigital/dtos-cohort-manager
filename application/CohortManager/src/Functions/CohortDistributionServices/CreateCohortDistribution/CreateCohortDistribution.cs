@@ -75,8 +75,7 @@ public class CreateCohortDistribution
             var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
             if (!validationResult)
             {
-                response = await HandleErrorResponseIfNull(validationResult, req);
-                if (response != null) return response;
+                _logger.LogError("Validation has failed while adding cohort distribution. A record for the NHS number: {NhsNumber}", requestBody.NhsNumber);
 
                 var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
                 response = await HandleErrorResponseIfNull(transformedParticipant, req);
