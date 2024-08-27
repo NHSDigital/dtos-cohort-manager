@@ -68,7 +68,7 @@ jobs:
       - name: build docker images
         working-directory: ./application/CohortManager
         run: |
-          if [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
+          if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
           else
             echo "These functions will be rebuilt: " ${{steps.get-function-names.outputs.FUNC_NAMES}}
@@ -86,7 +86,7 @@ jobs:
         run: |
           set -x
 
-          if [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
+          if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
           else
 
