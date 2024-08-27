@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -45,7 +46,11 @@ public class StaticValidation
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
 
-            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), Environment.GetEnvironmentVariable("BlobContainerName"), "staticRules.json");
+            var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
+
+            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                                                                        Environment.GetEnvironmentVariable("BlobContainerName"),
+                                                                        ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings

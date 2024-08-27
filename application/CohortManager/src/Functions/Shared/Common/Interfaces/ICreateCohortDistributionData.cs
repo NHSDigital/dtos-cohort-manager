@@ -5,8 +5,9 @@ using Model;
 
 public interface ICreateCohortDistributionData
 {
-    public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant);
-    public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants();
-    public bool UpdateCohortParticipantAsInactive(string NhsNumber);
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson);
+    bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant);
+    List<CohortDistributionParticipant> ExtractCohortDistributionParticipants();
+    bool UpdateCohortParticipantAsInactive(string NhsNumber);
+    CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
+    List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson);
 }

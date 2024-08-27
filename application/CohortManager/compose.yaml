@@ -212,7 +212,7 @@ services:
       dockerfile: ScreeningValidationService/FileValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7073
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - inboundBlobName=inbound
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
@@ -321,6 +321,7 @@ services:
       - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
+      - ValidateCohortDistributionRecordURL = http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   retrieve-participant-data:
@@ -332,4 +333,15 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  validate-cohort-distribution-record:
+    container_name: validate-cohort-distribution-record
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7084
+      - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

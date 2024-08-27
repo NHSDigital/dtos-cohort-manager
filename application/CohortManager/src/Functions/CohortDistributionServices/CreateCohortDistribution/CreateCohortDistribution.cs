@@ -33,7 +33,7 @@ public class CreateCohortDistribution
     [Function("CreateCohortDistribution")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody();
+        var requestBody = new CreateCohortDistributionRequestBody();
 
         try
         {
@@ -66,23 +66,20 @@ public class CreateCohortDistribution
         try
         {
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
-            if (participantData == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+            var response = await HandleErrorResponseIfNull(participantData, req);
+            if (response != null) return response;
 
             var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
+            response = await HandleErrorResponseIfNull(serviceProvider, req);
+            if (response != null) return response;
 
-            if (serviceProvider == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+            var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
+            response = await HandleErrorResponseIfNull(validationResult, req);
+            if (response != null) return response;
 
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            if (transformedParticipant == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+            response = await HandleErrorResponseIfNull(transformedParticipant, req);
+            if (response != null) return response;
 
             if (ParticipantHasException(requestBody.NhsNumber))
             {
@@ -104,6 +101,15 @@ public class CreateCohortDistribution
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
+    }
+
+    private async Task<HttpResponseData> HandleErrorResponseIfNull(object obj, HttpRequestData req)
+    {
+        if (obj == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        return null;
     }
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
