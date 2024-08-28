@@ -7,8 +7,39 @@ using System.Linq;
 
 public static class DatabaseValidationHelper
 {
+    private static readonly HashSet<string> AllowedTables = new HashSet<string>
+    {
+        "BS_COHORT_DISTRIBUTION",
+        "PARTICIPANT_MANAGEMENT",
+        "PARTICIPANT_DEMOGRAPHIC",
+    };
+
+    private static readonly HashSet<string> AllowedFields = new HashSet<string>
+    {
+        "NHS_NUMBER",
+        // Add other allowed fields here
+    };
+
+    private static void ValidateTableName(string tableName)
+    {
+        if (!AllowedTables.Contains(tableName.ToUpper()))
+        {
+            throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
+        }
+    }
+
+    private static void ValidateFieldName(string fieldName)
+    {
+        if (!AllowedFields.Contains(fieldName.ToUpper()))
+        {
+            throw new ArgumentException($"Field '{fieldName}' is not in the list of allowed fields.");
+        }
+    }
+
     public static async Task VerifyNhsNumbersAsync(string connectionString, string tableName, List<string> nhsNumbers, ILogger logger)
     {
+        ValidateTableName(tableName);
+
         using (var connection = new SqlConnection(connectionString))
         {
             await connection.OpenAsync();
@@ -26,6 +57,9 @@ public static class DatabaseValidationHelper
 
     public static async Task<bool> VerifyFieldUpdateAsync(string connectionString, string tableName, string nhsNumber, string fieldName, string expectedValue, ILogger logger)
     {
+        ValidateTableName(tableName);
+        ValidateFieldName(fieldName);
+
         using (var connection = new SqlConnection(connectionString))
         {
             await connection.OpenAsync();
@@ -57,6 +91,8 @@ public static class DatabaseValidationHelper
 
     public static async Task<bool> VerifyRecordCountAsync(string connectionString, string tableName, int expectedCount, ILogger logger, int maxRetries = 10, int delay = 1000)
     {
+        ValidateTableName(tableName);
+
         for (int i = 0; i < maxRetries; i++)
         {
             using (var connection = new SqlConnection(connectionString))
@@ -82,6 +118,8 @@ public static class DatabaseValidationHelper
 
     private static async Task<bool> VerifyNhsNumberAsync(SqlConnection connection, string tableName, string nhsNumber, ILogger logger)
     {
+        ValidateTableName(tableName);
+
         var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
         using (var command = new SqlCommand(query, connection))
         {
@@ -102,6 +140,8 @@ public static class DatabaseValidationHelper
 
     public static async Task<bool> VerifyFieldsMatchCsvAsync(string connectionString, string tableName, string nhsNumber, string csvFilePath, ILogger logger)
     {
+        ValidateTableName(tableName);
+
         var csvRecords = CsvHelperService.ReadCsv(csvFilePath);
         var expectedRecord = csvRecords.FirstOrDefault(record => record["NHS Number"] == nhsNumber);
 
@@ -149,6 +189,8 @@ public static class DatabaseValidationHelper
 
     public static async Task<bool> VerifyFieldsMatchParquetAsync(string connectionString, string tableName, string nhsNumber, string parquetFilePath, ILogger logger)
     {
+        ValidateTableName(tableName);
+
         var parquetRecords = ReadParquetFile(parquetFilePath);
         var expectedRecord = parquetRecords.FirstOrDefault(record => record["NHS Number"]?.ToString() == nhsNumber);
 
@@ -207,3 +249,4 @@ public static class DatabaseValidationHelper
         return records;
     }
 }
+

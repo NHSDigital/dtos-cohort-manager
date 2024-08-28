@@ -51,43 +51,40 @@ namespace Tests.Integration.Helpers
 
         protected virtual void AssertAllConfigurations()
         {
-            bool isValid = true; // Overall flag to indicate if all critical configurations are valid
+            // Check all config is set correctly with early return pattern to log the first failure encountered
 
-            // Log the status of each configuration and service
             if (AppSettings == null)
             {
                 Logger.LogError("AppSettings configuration is not set.");
-                isValid = false;
+                Assert.Fail("AppSettings configuration is not set.");
             }
-            else
+
+            if (AppSettings.ConnectionStrings?.DtOsDatabaseConnectionString == null)
             {
-                if (AppSettings.ConnectionStrings?.DtOsDatabaseConnectionString == null)
-                {
-                    Logger.LogError("Database connection string is not set in AppSettings.");
-                    isValid = false;
-                }
+                Logger.LogError("Database connection string is not set in AppSettings.");
+                Assert.Fail("Database connection string is not set in AppSettings.");
+            }
 
-                if (AppSettings.FilePaths?.Local == null)
-                {
-                    Logger.LogError("Local file path is not set in AppSettings.");
-                    isValid = false;
-                }
+            if (AppSettings.FilePaths?.Local == null)
+            {
+                Logger.LogError("Local file path is not set in AppSettings.");
+                Assert.Fail("Local file path is not set in AppSettings.");
+            }
 
-                if (AppSettings.BlobContainerName == null)
-                {
-                    Logger.LogError("Blob container name is not set in AppSettings.");
-                    isValid = false;
-                }
+            if (AppSettings.BlobContainerName == null)
+            {
+                Logger.LogError("Blob container name is not set in AppSettings.");
+                Assert.Fail("Blob container name is not set in AppSettings.");
             }
 
             if (BlobStorageHelper == null)
             {
-                Logger.LogError("BlobStorageHelper is not initialised. Ensure it is registered in the DI container.");
-                isValid = false;
+                Logger.LogError("BlobStorageHelper is not initialized. Ensure it is registered in the DI container.");
+                Assert.Fail("BlobStorageHelper is not initialized.");
             }
 
-            // Assert that all critical configurations are valid
-            Assert.IsTrue(isValid, "Some configurations or services are not set. See logs for details.");
+            // Log success if all checks pass
+            Logger.LogInformation("All critical configurations and services are set correctly.");
         }
     }
 }
