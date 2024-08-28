@@ -21,7 +21,7 @@ namespace Tests.Integration.EndtoEndTests
         {
             base.ConfigureServices(services);
             services.AddSingleton<AppSettings>();
-            services.AddSingleton<BlobStorageHelper>();  
+            services.AddSingleton<BlobStorageHelper>();
         }
 
         [TestInitialize]
