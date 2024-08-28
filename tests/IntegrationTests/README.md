@@ -4,7 +4,7 @@ This directory contains the integration tests for the project. These tests verif
 
 ## Prerequisites
 
-1. **.NET SDK**: https://dotnet.microsoft.com/en-us/download
+1. **.NET SDK**
 2. **Azure Functions Core Tools**: Ensure that the relevant Azure Functions are running before you run your integration tests.
 3. **Local Database**: Make sure a local database is set up and accessible.
 4. **Azurite**: Install and run Azurite for local Azure Storage emulation.
@@ -41,7 +41,7 @@ This directory contains the integration tests for the project. These tests verif
     Ensure all necessary Azure Functions are running. Cd into all of the required functions folders and run...
 
     ```bash
-    func start 
+    func start
     OR in Visual Studio Code press 'command+shift+p' then search for and click 'Tasks:Run Task' then click 'Run All Functions' to start all functions.
     ```
 
