@@ -20,7 +20,8 @@ public static class TestConfig
         var configuration = builder.Build();
 
         var services = new ServiceCollection();
-        services.Configure<AppSettings>(configuration);
+
+        services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
 
         _serviceProvider = services.BuildServiceProvider();
     }

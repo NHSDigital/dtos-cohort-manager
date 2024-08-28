@@ -1,14 +1,13 @@
 # Test Files
 
-This directory is used to store test files required for integration tests.
+This directory is used to store test files required for integration tests, there are sub-directories for add, update and remove test scenarios.
 
 ## Instructions
 
-1. Place your CSV test files in this directory (ensuring that all test data is dummy data).
-2. Ensure files are named correctly with the exact naming convention set out in the requirements and appropriate paths used in the tests.
-3. Do not commit actual test files to the repository.
+1. Place your test files in this directory (ensuring that all test data is dummy data).
+2. Ensure files are named correctly with the correct file extension and naming convention.
+3. Do not commit any test files to the repository: CSV and Parquet files have been intentionally excluded from version control and added to the '.gitignore' this ensures that sensitive or large test data files are not accidentally committed. 
 
 ## Example
 
-Place your valid csv file with test/dummy data into tests/Integration/TestFiles before running a happy path test. Ensure the paths in your test match the actual path of your test files.
-
+Place your valid test data file into tests/Integration/TestFiles/add before running an automated happy path test.

@@ -1,0 +1,19 @@
+# Ignore appsettings.json
+appsettings.json
+
+# Ignore all CSV files in the IntegrationTests folder and its subdirectories
+*.csv
+
+# Ignore all Parquet files in the IntegrationTests folder and its subdirectories
+*.parquet
+
+# Ignore CSV and Parquet files in the TestFiles directory and its subdirectories
+TestFiles/*.csv
+TestFiles/add/*.csv
+TestFiles/update/*.csv
+TestFiles/remove/*.csv
+
+TestFiles/*.parquet
+TestFiles/add/*.parquet
+TestFiles/update/*.parquet
+TestFiles/remove/*.parquet
