@@ -33,4 +33,14 @@ variable "law_id" {
   description = "Is the LAW workspace ID."
 }
 
+### DevOps subscripion AppInsights
 
+variable "audit_law_id" {
+  type        = string
+  description = "Is the LAW workspace ID in Audit subscription."
+}
+
+variable "audit_resource_group_name" {
+  type        = string
+  description = "The name of the resource group in which to create (audit sub). Changing this forces a new resource to be created."
+}
