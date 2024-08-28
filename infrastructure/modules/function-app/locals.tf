@@ -16,7 +16,7 @@ locals {
     createException                  = "https://${var.names.function-app}-${lower(var.function_app.CreateException.name_suffix)}.azurewebsites.net/api/CreateException"
     demographicDataService           = "https://${var.names.function-app}-${lower(var.function_app.DemographicDataService.name_suffix)}.azurewebsites.net/api/DemographicDataService"
     retrieveParticipantData          = "https://${var.names.function-app}-${lower(var.function_app.RetrieveParticipantData.name_suffix)}.azurewebsites.net/api/RetrieveParticipantData"
-    allocateServiceProvider          = "https://${var.names.function-app}-${lower(var.function_app.AllocateServiceProvider.name_suffix)}.azurewebsites.net/api/AllocateServiceProvider"
+    allocateServiceProvider          = "https://${var.names.function-app}-${lower(var.function_app.AllocateServiceProvider.name_suffix)}.azurewebsites.net/api/AllocateServiceProviderToParticipantByService"
     transformDataService             = "https://${var.names.function-app}-${lower(var.function_app.TransformDataService.name_suffix)}.azurewebsites.net/api/TransformDataService"
     addCohortDistributionData        = "https://${var.names.function-app}-${lower(var.function_app.AddCohortDistributionData.name_suffix)}.azurewebsites.net/api/AddCohortDistributionData"
     removeCohortDistributionData     = "https://${var.names.function-app}-${lower(var.function_app.RemoveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RemoveCohortDistributionData"
@@ -66,7 +66,7 @@ locals {
       DemographicURIGet            = local.fnapp_urls.demographicDataFunction
       StaticValidationURL          = local.fnapp_urls.staticValidation
       ExceptionFunctionURL         = local.fnapp_urls.createException
-      CohortDistributionServiceURL = local.fnapp_urls.createParticipant
+      CohortDistributionServiceURL = local.fnapp_urls.createCohortDistribution
     }
 
     RemoveParticipant = {
