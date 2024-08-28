@@ -55,9 +55,11 @@ public class LookupValidation
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
+            var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
+
             var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
                                                                         Environment.GetEnvironmentVariable("BlobContainerName"),
-                                                                        "lookupRules.json");
+                                                                        ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
