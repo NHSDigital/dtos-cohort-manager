@@ -30,9 +30,9 @@ declare -A docker_functions_map=(
 
 changed_functions=""
 
-if [ -z $CHANGED_FOLDERS ]; then
+if [ -z "$CHANGED_FOLDERS" ]; then
     changed_functions="null"
-elif [[ $CHANGED_FOLDERS == "*Shared*" ]]; then
+elif [[ "$CHANGED_FOLDERS" == "*Shared*" ]]; then
     changed_functions=""
 else
     for folder in $CHANGED_FOLDERS; do
