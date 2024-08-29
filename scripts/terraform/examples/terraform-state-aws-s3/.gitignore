@@ -41,7 +41,4 @@ override.tf.json
 terraform.rc
 
 # Ignore .csproj files
-tests/IntegrationTests/integration.csproj
-application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj
-application/CohortManager/src/Functions/Shared/Model/Model.csproj
-tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj
+*.csproj
