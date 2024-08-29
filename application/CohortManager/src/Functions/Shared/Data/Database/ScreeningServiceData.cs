@@ -19,11 +19,11 @@ public class ScreeningServiceData : IScreeningServiceData
 
     public ScreeningService GetScreeningServiceByAcronym(string screeningAcronym)
     {
-        var SQL = "SELECT " +
-        "[SCREENING_LKP].[SCREENING_ID], " +
-        "[SCREENING_LKP].[SCREENING_NAME] " +
-        "FROM [SCREENING_LKP] " +
-        "WHERE [SCREENING_LKP].[SCREENING_ACRONYM] = @ScreeningAcronym";
+        var SQL = " SELECT " +
+            " [SCREENING_ID], " +
+            " [SCREENING_NAME] " +
+            " FROM [DBO].[SCREENING_LKP] " +
+            " WHERE [SCREENING_ACRONYM] = @ScreeningAcronym ";
 
         var parameters = new Dictionary<string, object>
         {
