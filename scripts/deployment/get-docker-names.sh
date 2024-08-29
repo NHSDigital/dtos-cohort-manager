@@ -1,8 +1,8 @@
 #!/bin/bash
 
 declare -A docker_functions_map=(
-    ["CaasIntegration/ProcessCaasFile"]="process-caas-file"
-    ["CaasIntegration/ReceiveCaasFile"]="receive-caas-file"
+    ["CaasIntegration/processCaasFile"]="process-caas-file"
+    ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
     ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
@@ -15,8 +15,8 @@ declare -A docker_functions_map=(
     ["DemographicServices/DemographicDataManagement"]="demographic-data-management"
     ["DevOpsTestingService"]="devops-testing-service"
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
-    ["ParticipantManagementServices/AddParticipant"]="add-participant"
-    ["ParticipantManagementServices/UpdateParticipant"]="update-participant"
+    ["ParticipantManagementServices/addParticipant"]="add-participant"
+    ["ParticipantManagementServices/updateParticipant"]="update-participant"
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
