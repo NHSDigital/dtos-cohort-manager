@@ -6,6 +6,7 @@ declare -A docker_functions_map=(
     ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
+    #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-from-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-distribution-data" #inconsistant file name for the function (should be retrieve-cohort-distribution-data )
     ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
@@ -17,15 +18,16 @@ declare -A docker_functions_map=(
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/addParticipant"]="add-participant"
     ["ParticipantManagementServices/updateParticipant"]="update-participant"
+    ["screeningDataServices/createParticipant"]="create-participant"
+    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
+    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
+    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
+    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
+    ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
-    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
-    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
-    ["screeningDataServices/CreateParticipant"]="create-participant"
-    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
-    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
-    ["screeningDataServices/UpdateParticipantDetails"]="update-participant-details"
+
 )
 
 changed_functions=""
