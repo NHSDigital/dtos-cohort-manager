@@ -32,9 +32,11 @@ changed_functions=""
 
 if [ -z "$CHANGED_FOLDERS" ]; then
     changed_functions="null"
+    echo "No files changed"
 elif [[ "$CHANGED_FOLDERS" == "*Shared*" ]]; then
     changed_functions=""
 else
+    echo "files changed $CHANGED_FOLDERS "
     for folder in $CHANGED_FOLDERS; do
       echo "Add this function in: ${docker_functions_map[$folder]}"
       changed_functions+=" ${docker_functions_map[$folder]}"
