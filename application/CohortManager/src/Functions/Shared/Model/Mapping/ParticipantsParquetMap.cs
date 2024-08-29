@@ -85,7 +85,7 @@ public struct ParticipantsParquetMap
     public string? ReasonForRemoval;
 
     [MapToColumn("Reason_for_Removal_Business_Effective_From_Date")]
-    public Int64? ReasonForRemovalEffectiveFromDate ;
+    public Int64? ReasonForRemovalEffectiveFromDate;
 
     [MapToColumn("Date_of_Death")]
     public string? DateOfDeath;

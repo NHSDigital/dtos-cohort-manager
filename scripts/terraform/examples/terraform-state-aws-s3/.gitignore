@@ -3,7 +3,7 @@
 # Ignore Terraform plan
 *tfplan*
 
-# SEE: https://github.com/github/gitignore/blob/main/Terraform.gitignore
+# SEE: https://github.com/github//blob/main/Terraform.
 
 # Local .terraform directories
 **/.terraform/*
@@ -39,3 +39,9 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore .csproj files
+tests/IntegrationTests/integration.csproj
+application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj
+application/CohortManager/src/Functions/Shared/Model/Model.csproj
+tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj
