@@ -38,7 +38,8 @@ elif [[ "$CHANGED_FOLDERS" == "*Shared*" ]]; then
 else
     echo "files changed $CHANGED_FOLDERS "
     for folder in $CHANGED_FOLDERS; do
-      echo "Add this function in: ${docker_functions_map[$folder]}"
+      echo "Add this function in: ${folder} "
+      echo "Add this which maps to: ${docker_functions_map[$folder]} "
       changed_functions+=" ${docker_functions_map[$folder]}"
     done
 fi
