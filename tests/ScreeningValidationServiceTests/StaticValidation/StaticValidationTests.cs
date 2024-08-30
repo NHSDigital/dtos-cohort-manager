@@ -49,7 +49,7 @@ public class StaticValidationTests
                 CreatedException = true
             })).Verifiable();
 
-        var json = File.ReadAllText("../../../../../../application/CohortManager/rules/staticRules.json");
+        var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
         _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object);

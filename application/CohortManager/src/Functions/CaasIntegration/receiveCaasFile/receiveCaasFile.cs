@@ -31,6 +31,7 @@ public class ReceiveCaasFile
     {
         try
         {
+            _logger.LogInformation("loading file from blob {name}", name);
             if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
@@ -63,6 +64,8 @@ public class ReceiveCaasFile
                 csv.Context.RegisterClassMap<ParticipantMap>();
                 var records = csv.GetRecords<Participant>();
                 var screeningService = GetScreeningService(name);
+
+                _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
 
                 foreach (var participant in records)
                 {
@@ -180,6 +183,7 @@ public class ReceiveCaasFile
     private ScreeningService GetScreeningService(string name)
     {
         var screeningAcronym = name.Split('_')[0];
+        _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 }

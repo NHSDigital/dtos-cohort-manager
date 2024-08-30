@@ -344,3 +344,10 @@ services:
       - ASPNETCORE_URLS=http://*:7084
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  devops-testing-service:
+    container_name: devops-testing-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DevOpsTestingService/Dockerfile

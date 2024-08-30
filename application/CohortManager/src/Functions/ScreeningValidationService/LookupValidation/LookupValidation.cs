@@ -55,7 +55,12 @@ public class LookupValidation
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
-            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), Environment.GetEnvironmentVariable("BlobContainerName"), GetValidationRulesName(requestBody.RulesType));
+            var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
+            _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
+
+            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                                                                        Environment.GetEnvironmentVariable("BlobContainerName"),
+                                                                        ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
@@ -95,7 +100,7 @@ public class LookupValidation
         catch (Exception ex)
         {
             _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
-            _logger.LogWarning(ex, $"Error while processing lookup Validation message: {ex.Message}");
+            _logger.LogError(ex, $"Error while processing lookup Validation message: {ex.Message}");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }
