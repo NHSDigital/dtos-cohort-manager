@@ -146,9 +146,6 @@ public class ProcessCaasFileFunction
                             ScreeningService = 0
 
                         });
-
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
-
                     }
                     catch (Exception ex)
                     {
@@ -163,7 +160,7 @@ public class ProcessCaasFileFunction
 
         if (err > 0)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
