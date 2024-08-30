@@ -146,7 +146,8 @@ public class ProcessCaasFileFunction
                             ScreeningService = 0
 
                         });
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
 
                     }
                     catch (Exception ex)
