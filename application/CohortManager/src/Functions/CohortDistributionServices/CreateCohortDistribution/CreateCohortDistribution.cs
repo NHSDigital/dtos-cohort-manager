@@ -86,9 +86,10 @@ public class CreateCohortDistribution
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
                 }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             _logger.LogInformation("Validation error: A rule triggered a fatal error, preventing the cohort distribution record with NHS number {NhsNumber} from being added to the database", participantData.NhsNumber);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
         catch (Exception ex)
         {
