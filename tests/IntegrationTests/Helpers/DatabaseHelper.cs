@@ -10,6 +10,7 @@ public static class DatabaseHelper
     {
         "PARTICIPANT_MANAGEMENT",
         "PARTICIPANT_DEMOGRAPHIC",
+        "BS_COHORT_DISTRIBUTION",
     };
 
     public static async Task<int> ExecuteNonQueryAsync(string connectionString, string query)
