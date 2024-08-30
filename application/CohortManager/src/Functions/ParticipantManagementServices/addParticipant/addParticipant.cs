@@ -64,7 +64,7 @@ public class AddParticipantFunction
             };
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
-            if (response.IsFatal == true)
+            if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -118,7 +118,7 @@ public class AddParticipantFunction
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 

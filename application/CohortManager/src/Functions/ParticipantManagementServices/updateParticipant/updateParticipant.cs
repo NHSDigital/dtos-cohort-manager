@@ -95,8 +95,6 @@ public class UpdateParticipantFunction
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-
     }
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
@@ -125,11 +123,19 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        var responseBodyJson = await _callFunction.GetResponseText(response);
-        var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
-        return responseBody;
+            return responseBody;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            return null;
+        }
     }
 }
 

@@ -85,12 +85,13 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         var json = JsonSerializer.Serialize(lookupValidationRequestBody);
 
         _logger.LogInformation("Called cohort validation service");
-        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("TransformDataServiceURL"));
+        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"));
         if (!string.IsNullOrEmpty(response))
         {
             var responseObj = JsonSerializer.Deserialize<ValidationExceptionLog>(response);
             return responseObj.IsFatal;
         }
+        _logger.LogInformation("The response from the validation for cohort distribution returned null or empty");
         return false;
     }
 

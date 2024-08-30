@@ -75,7 +75,7 @@ public class CreateCohortDistribution
             var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
             if (!validationResult)
             {
-                _logger.LogError("Validation has failed while adding cohort distribution. A record for the NHS number: {NhsNumber}", requestBody.NhsNumber);
+                _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
 
                 var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
                 response = await HandleErrorResponseIfNull(transformedParticipant, req);
@@ -87,7 +87,7 @@ public class CreateCohortDistribution
                     return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
                 }
             }
-            _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
+            _logger.LogInformation("Validation error: A rule triggered a fatal error, preventing the cohort distribution record with NHS number {NhsNumber} from being added to the database", participantData.NhsNumber);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)

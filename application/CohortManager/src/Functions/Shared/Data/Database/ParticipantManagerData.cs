@@ -43,7 +43,7 @@ public class ParticipantManagerData : IParticipantManagerData
         var oldParticipant = GetParticipant(participantData.NhsNumber);
         var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
 
-        if (response.IsFatal == true)
+        if (response.IsFatal)
         {
             _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
             return false;

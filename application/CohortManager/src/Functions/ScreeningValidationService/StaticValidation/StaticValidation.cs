@@ -67,7 +67,12 @@ public class StaticValidation
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
 
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
         }
         catch (Exception ex)
         {
