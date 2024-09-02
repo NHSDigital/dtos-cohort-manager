@@ -2,6 +2,7 @@ namespace NHS.CohortManger.Tests.ScreeningDataServicesTests;
 
 using System.Data;
 using System.Net;
+using System.Text.Json;
 using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
@@ -77,10 +78,19 @@ public class UpdateParticipantDetailsTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+           JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+           {
+               IsFatal = false,
+               CreatedException = false
+           })));
+
+
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
+        var participant = GetParticipant();
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord, participant);
 
         // Assert
         Assert.IsTrue(result);
@@ -106,7 +116,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord, GetParticipant());
 
         // Assert
         Assert.IsFalse(result);
@@ -218,7 +228,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
+        var result = await sut.UpdateParticipantDetails(_participantCsvRecord, GetParticipant());
 
         // Assert
         Assert.IsFalse(result);
@@ -243,6 +253,7 @@ public class UpdateParticipantDetailsTests
     {
         return new Participant()
         {
+            ParticipantId = "1",
             NhsNumber = "123456",
             SupersededByNhsNumber = "789012",
             PrimaryCareProvider = "ABC Clinic",

@@ -9,6 +9,7 @@ using System.Text.Json;
 using Model;
 using addParticipant;
 using NHS.CohortManager.Tests.TestUtils;
+using Grpc.Core;
 
 [TestClass]
 public class AddNewParticipantTestClass
@@ -34,6 +35,7 @@ public class AddNewParticipantTestClass
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
         Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
+
 
         var participantCsvRecord = new ParticipantCsvRecord
         {
@@ -139,6 +141,13 @@ public class AddNewParticipantTestClass
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
+
+        _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
 
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
@@ -287,6 +296,12 @@ public class AddNewParticipantTestClass
 
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
+        _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
         // Act
         var result = await sut.Run(_request.Object);
 

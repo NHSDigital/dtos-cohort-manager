@@ -137,7 +137,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "9.NhsNumber")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "9.NhsNumber.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -185,7 +185,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "57.SupersededByNhsNumber")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "57.SupersededByNhsNumber.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -230,7 +230,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "8.RecordType")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "8.RecordType.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -275,7 +275,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -320,7 +320,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "59.PreviousPosting")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "59.PreviousPosting.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -381,7 +381,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "14.ReasonForRemoval")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "14.ReasonForRemoval.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -433,7 +433,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "30.Postcode")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "30.Postcode.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -482,7 +482,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -505,7 +505,7 @@ public class StaticValidationTests
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.NewParticipantWithNoAddress.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
@@ -550,7 +550,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.PrimaryCareProviderAndReasonForRemoval")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.PrimaryCareProviderAndReasonForRemoval.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -598,7 +598,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "17.DateOfBirth")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "17.DateOfBirth.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -645,7 +645,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "39.FamilyName")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "39.FamilyName.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -690,7 +690,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "40.FirstName")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "40.FirstName.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -736,7 +736,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "42.GPPracticeCode")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "42.GPPracticeCode.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -783,7 +783,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66.DeathStatus")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66.DeathStatus.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -831,7 +831,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -879,7 +879,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "18.DateOfDeath")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "18.DateOfDeath.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -933,7 +933,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.NewParticipantWithRemovalOrDeath")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.NewParticipantWithRemovalOrDeath.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -979,7 +979,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "61.InvalidFlag")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "61.InvalidFlag.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -1008,7 +1008,7 @@ public class StaticValidationTests
 
     [TestMethod]
     [DataRow(null)]
-    [DataRow("")]
+    [DataRow("ABC")]
     [DataRow("ABC")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_IsInterpreterRequired_Rule_Fails(string isInterpreterRequired)
     {
@@ -1023,7 +1023,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.InterpreterCheck.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }

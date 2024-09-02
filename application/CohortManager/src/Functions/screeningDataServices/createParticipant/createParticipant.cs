@@ -16,8 +16,8 @@ public class CreateParticipant
     private readonly ICreateResponse _createResponse;
     private readonly ICreateParticipantData _createParticipantData;
     private readonly IExceptionHandler _handleException;
-    private readonly ICallFunction _callFunction;
     private readonly IParticipantManagerData _participantManagerData;
+    private readonly ICallFunction _callFunction;
 
     public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, IExceptionHandler handleException, IParticipantManagerData participantManagerData, ICallFunction callFunction)
     {
@@ -62,7 +62,7 @@ public class CreateParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             _logger.LogError("Failed to create the participant");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
