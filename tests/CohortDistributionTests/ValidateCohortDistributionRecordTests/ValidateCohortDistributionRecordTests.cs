@@ -135,11 +135,13 @@ public class ValidateCohortDistributionRecordTests
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(It.IsAny<string>()))
             .Returns(existingParticipant);
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-
-
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
+            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })
+        ));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -157,10 +159,13 @@ public class ValidateCohortDistributionRecordTests
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(It.IsAny<string>()))
             .Returns(existingParticipant);
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
+          Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+          {
+              IsFatal = false,
+              CreatedException = false
+          })
+      ));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
