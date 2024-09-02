@@ -79,11 +79,11 @@ public class UpdateParticipantDetailsTests
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-           JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-           {
-               IsFatal = false,
-               CreatedException = false
-           })));
+        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+        {
+            IsFatal = false,
+            CreatedException = false
+        })));
 
 
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
