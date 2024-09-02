@@ -33,7 +33,16 @@ variable "tags" {
 variable "resource_groups" {
   description = "Map of resource groups"
   type = map(object({
-    name = optional(string, "rg-cohort-manager-dev-suk")
+    name     = optional(string, "rg-cohort-manager-dev-suk")
+    location = optional(string, "uksouth")
+  }))
+}
+
+variable "resource_groups_audit" {
+  description = "Map of resource groups in Audit subscription"
+  type = map(object({
+    name     = optional(string, "rg-audit-cohort-manager-dev-uks")
+    location = optional(string, "uksouth")
   }))
 }
 
