@@ -174,8 +174,7 @@ public class ReceiveCaasFile
 
                 if (rowNumber != numberOfRecords)
                 {
-                    _logger.LogError("File name record count not equal to actual record count. File name count: " +
-                                     name + "| Actual count: " + rowNumber);
+                    _logger.LogError("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
                     await InsertValidationErrorIntoDatabase(name);
                     return;
                 }
