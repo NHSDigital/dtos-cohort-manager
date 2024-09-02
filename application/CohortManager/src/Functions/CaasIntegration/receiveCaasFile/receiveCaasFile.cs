@@ -1,4 +1,3 @@
-
 namespace NHS.Screening.ReceiveCaasFile;
 
 using Microsoft.Azure.Functions.Worker;
