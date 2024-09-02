@@ -181,6 +181,8 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["ADDRESS_LINE_5"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["POST_CODE"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["USUAL_ADDRESS_FROM_DT"]).Returns(DBNull.Value);
+        _mockDataReader.Setup(reader => reader["CURRENT_POSTING"]).Returns(DBNull.Value);
+        _mockDataReader.Setup(reader => reader["CURRENT_POSTING_FROM_DT"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["DATE_OF_DEATH"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_HOME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_HOME_FROM_DT"]).Returns(DBNull.Value);
@@ -191,9 +193,10 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["PREFERRED_LANGUAGE"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["INTERPRETER_REQUIRED"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL"]).Returns(DBNull.Value);
-        _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL_FROM_DT"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["IS_EXTRACTED"]).Returns(() => 0);
     }
+
 }

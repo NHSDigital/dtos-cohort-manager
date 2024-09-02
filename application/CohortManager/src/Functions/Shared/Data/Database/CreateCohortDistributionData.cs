@@ -245,7 +245,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var recordEndDate = DateTime.Today;
 
         var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " SET REASON_FOR_REMOVAL_DT = @recordEndDate " +
+            " SET REASON_FOR_REMOVAL_FROM_DT = @recordEndDate " +
             " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>
@@ -279,8 +279,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     ParticipantId = DatabaseHelper.GetStringValue(reader, "PARTICIPANT_ID"),
                     NhsNumber = DatabaseHelper.GetStringValue(reader, "NHS_NUMBER"),
                     SupersededByNhsNumber = DatabaseHelper.GetStringValue(reader, "SUPERSEDED_NHS_NUMBER"),
-                    PrimaryCareProvider = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDEDR"),
-                    PrimaryCareProviderEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDEDR_FROM_DT"),
+                    PrimaryCareProvider = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDER"),
+                    PrimaryCareProviderEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDER_FROM_DT"),
                     NamePrefix = DatabaseHelper.GetStringValue(reader, "NAME_PREFIX"),
                     FirstName = DatabaseHelper.GetStringValue(reader, "GIVEN_NAME"),
                     OtherGivenNames = DatabaseHelper.GetStringValue(reader, "OTHER_GIVEN_NAME"),

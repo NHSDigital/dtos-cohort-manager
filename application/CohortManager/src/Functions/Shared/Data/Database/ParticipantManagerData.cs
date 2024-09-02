@@ -74,7 +74,6 @@ public class ParticipantManagerData : IParticipantManagerData
                 " REASON_FOR_REMOVAL_DT = @reasonForRemovalDate, " +
                 " BUSINESS_RULE_VERSION = @businessRuleVersion, " +
                 " EXCEPTION_FLAG = @exceptionFlag, " +
-                " RECORD_INSERT_DATETIME = @recordInsertDateTime," +
                 " RECORD_UPDATE_DATETIME = @recordUpdateDateTime " +
                 " WHERE SCREENING_ID = @screeningId " +
                 " AND NHS_NUMBER = @NHSNumber";
@@ -88,8 +87,7 @@ public class ParticipantManagerData : IParticipantManagerData
                 { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
                 { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
                 { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
-                { "@recordInsertDateTime", dateToday },
-                { "@recordUpdateDateTime", DBNull.Value },
+                { "@recordUpdateDateTime", dateToday },
             };
 
             return ExecuteCommand(insertParticipant, commonParameters);
