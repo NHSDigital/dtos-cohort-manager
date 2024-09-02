@@ -3,6 +3,11 @@ variable "TARGET_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "AUDIT_SUBSCRIPTION_ID" {
+  description = "ID of the Audit subscription to deploy infrastructure"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
@@ -107,6 +112,31 @@ variable "app_service_plan" {
     resource_group_key = optional(string, "cohman")
     sku_name           = optional(string, "P2v3")
     os_type            = optional(string, "Linux")
+
+    autoscale = object({
+      memory_percentage = object({
+        metric              = optional(string, "MemoryPercentage")
+        capacity_min        = optional(string, "1")
+        capacity_max        = optional(string, "5")
+        capacity_def        = optional(string, "1")
+        time_grain          = optional(string, "PT1M")
+        statistic           = optional(string, "Average")
+        time_window         = optional(string, "PT10M")
+        time_aggregation    = optional(string, "Average")
+        inc_operator        = optional(string, "GreaterThan")
+        inc_threshold       = optional(number, 70)
+        inc_scale_direction = optional(string, "Increase")
+        inc_scale_type      = optional(string, "ChangeCount")
+        inc_scale_value     = optional(number, 1)
+        inc_scale_cooldown  = optional(string, "PT5M")
+        dec_operator        = optional(string, "LessThan")
+        dec_threshold       = optional(number, 25)
+        dec_scale_direction = optional(string, "Decrease")
+        dec_scale_type      = optional(string, "ChangeCount")
+        dec_scale_value     = optional(number, 1)
+        dec_scale_cooldown  = optional(string, "PT5M")
+      })
+    })
   })
 }
 
@@ -140,19 +170,21 @@ variable "event_grid" {
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
-    name_suffix        = optional(string, "cohman")
-    resource_group_key = optional(string, "cohman")
-    law_sku            = optional(string, "PerGB2018")
-    retention_days     = optional(number, 30)
+    name_suffix              = optional(string, "cohman")
+    resource_group_key       = optional(string, "cohman")
+    law_sku                  = optional(string, "PerGB2018")
+    retention_days           = optional(number, 30)
+    audit_resource_group_key = optional(string, "audit")
   })
 }
 
 variable "app_insights" {
   description = "Configuration of the App Insights"
   type = object({
-    name_suffix        = optional(string, "cohman")
-    resource_group_key = optional(string, "cohman")
-    appinsights_type   = optional(string, "web")
+    name_suffix              = optional(string, "cohman")
+    resource_group_key       = optional(string, "cohman")
+    appinsights_type         = optional(string, "web")
+    audit_resource_group_key = optional(string, "audit")
   })
 }
 

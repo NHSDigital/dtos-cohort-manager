@@ -4,10 +4,11 @@ This directory contains the integration tests for the project. These tests verif
 
 ## Prerequisites
 
-1. **Azure Functions**: Ensure that all necessary Azure Functions are running.
-2. **Local Database**: Make sure a local database is set up and accessible.
-3. **Azurite**: Install and run Azurite for local Azure Storage emulation.
-4. **Test Data**: Place the required CSV (or in future Parquet files) in the `TestFiles` directory.
+1. **.NET SDK**
+2. **Azure Functions Core Tools**: Ensure that the relevant Azure Functions are running before you run your integration tests.
+3. **Local Database**: Make sure a local database is set up and accessible.
+4. **Azurite**: Install and run Azurite for local Azure Storage emulation.
+5. **Test Data**: Place the required CSV (or in future Parquet files) in the `TestFiles` directory.
 
 ## Setup
 
@@ -41,6 +42,7 @@ This directory contains the integration tests for the project. These tests verif
 
     ```bash
     func start
+    OR in Visual Studio Code press 'command+shift+p' then search for and click 'Tasks:Run Task' then click 'Run All Functions' to start all functions.
     ```
 
 2. **Run Integration Tests**:
