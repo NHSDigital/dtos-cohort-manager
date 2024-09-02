@@ -160,12 +160,12 @@ public class ValidateCohortDistributionRecordTests
             .Returns(existingParticipant);
 
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
-          Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
-          {
-              IsFatal = false,
-              CreatedException = false
-          })
-      ));
+            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })
+        ));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
