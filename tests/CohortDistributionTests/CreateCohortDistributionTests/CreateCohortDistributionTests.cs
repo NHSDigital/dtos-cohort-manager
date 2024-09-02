@@ -177,7 +177,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_OK_When_All_Requests_Are_Successful()
+    public async Task Run_Should_Return_Created_When_All_Requests_Are_Successful()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -195,7 +195,7 @@ public class CreateCohortDistributionTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
     }
 
     private void SetUpRequestBody(string json)
