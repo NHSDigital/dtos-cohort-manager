@@ -77,7 +77,7 @@ public class LookupValidation
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
             };
-            
+
             // Execute rules
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
