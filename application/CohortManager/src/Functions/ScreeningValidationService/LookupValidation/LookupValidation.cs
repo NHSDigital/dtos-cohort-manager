@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
+using Data.Database;
+using System.Data.SqlClient;
 
 public class LookupValidation
 {
@@ -52,6 +54,7 @@ public class LookupValidation
 
         try
         {
+            // Set up rules engine
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
@@ -73,7 +76,8 @@ public class LookupValidation
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
             };
-
+            
+            // Execute rules
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
@@ -91,6 +95,14 @@ public class LookupValidation
                     return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
                 }
             }
+
+            // GP practice check
+            DbLookupValidationBreastScreening dbLookup = new(new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
+            if (!dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider))
+            {
+                await _handleException.CreateSystemExceptionLog(new ArgumentException("Invalid Primary Care Provider"), newParticipant);
+            }
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch (Exception ex)

@@ -11,6 +11,10 @@ using Microsoft.Identity.Client;
 using Model;
 using RulesEngine.Models;
 
+/// <summary>
+/// Various methods for creating an exception and writing to the exception management table.
+/// </summary>
+
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
@@ -27,6 +31,12 @@ public class ExceptionHandler : IExceptionHandler
         _callFunction = callFunction;
     }
 
+    /// <summary>
+    /// Creates a system exception.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
@@ -40,6 +50,30 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    /// <summary>
+    /// Overloaded method to create a system exception, for use where file name is not accessible.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    public async Task CreateSystemExceptionLog(Exception exception, Participant participant)
+    {
+        var url = GetUrlFromEnvironment();
+        if (participant.NhsNumber != null)
+        {
+            participant.ExceptionFlag = "Y";
+        }
+
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "");
+
+        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+    }
+
+    /// <summary>
+    /// Overloaded method to create a system exception given BasicParticipantData.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
