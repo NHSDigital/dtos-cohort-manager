@@ -1,39 +1,48 @@
 #!/bin/bash
 
 declare -A docker_functions_map=(
-    ["CaasIntegration/ProcessCaasFile"]="process-caas-file"
-    ["CaasIntegration/ReceiveCaasFile"]="receive-caas-file"
+    ["CaasIntegration/processCaasFile"]="process-caas-file"
+    ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
     ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
+    #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-from-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-distribution-data" #inconsistant file name for the function (should be retrieve-cohort-distribution-data )
+    ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
     ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
-    ["DemographicServices/DemographicDataManagement"]="demographic-data-management"
+    ["CohortDistributionServices/ValidateCohortDistributionRecord"]="validate-cohort-distribution-record"
+    ["DemographicServices/DemographicDataManagementFunction"]="demographic-data-management"
+    ["DevOpsTestingService"]="devops-testing-service"
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
-    ["ParticipantManagementServices/AddParticipant"]="add-participant"
-    ["ParticipantManagementServices/UpdateParticipant"]="update-participant"
+    ["ParticipantManagementServices/addParticipant"]="add-participant"
+    ["ParticipantManagementServices/updateParticipant"]="update-participant"
+    ["screeningDataServices/createParticipant"]="create-participant"
+    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
+    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
+    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
+    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
+    ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
-    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
-    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
-    ["screeningDataServices/CreateParticipant"]="create-participant"
-    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
-    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
-    ["screeningDataServices/UpdateParticipantDetails"]="update-participant-details"
+
 )
 
 changed_functions=""
 
-if [ -z $CHANGED_FOLDERS ]; then
+if [ -z "$CHANGED_FOLDERS" ]; then
     changed_functions="null"
-elif [[ $CHANGED_FOLDERS == "*Shared*" ]]; then
+    echo "No files changed"
+elif [[ "$CHANGED_FOLDERS" == "*Shared*" ]]; then
     changed_functions=""
 else
+    echo "files changed $CHANGED_FOLDERS "
     for folder in $CHANGED_FOLDERS; do
-    changed_functions+=" ${docker_functions_map[$folder]}"
+      echo "Add this function in: ${folder} "
+      echo "Add this which maps to: ${docker_functions_map[$folder]} "
+      changed_functions+=" ${docker_functions_map[$folder]}"
     done
 fi
 

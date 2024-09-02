@@ -1,4 +1,4 @@
 public class ConnectionStrings
 {
-    public string DtOsDatabaseConnectionString { get; set;}
+    public string DtOsDatabaseConnectionString { get; set; }
 }
