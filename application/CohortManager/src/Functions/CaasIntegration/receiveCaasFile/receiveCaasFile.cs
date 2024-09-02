@@ -198,12 +198,14 @@ public class ReceiveCaasFile
             try
             {
                 if (chunks.Count > 0)
+                {
                     foreach (var chunk in chunks)
                     {
                         var json = JsonSerializer.Serialize(chunk);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
                         _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                     }
+                }
 
                 if (cohort.Participants.Count > 0)
                 {
