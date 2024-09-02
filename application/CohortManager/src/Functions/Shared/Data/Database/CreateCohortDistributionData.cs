@@ -200,6 +200,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [ADDRESS_LINE_5], " +
                 " [POST_CODE], " +
                 " [USUAL_ADDRESS_FROM_DT], " +
+                " [CURRENT_POSTING], " +
+                " [CURRENT_POSTING_FROM_DT], " +
                 " [DATE_OF_DEATH], " +
                 " [TELEPHONE_NUMBER_HOME], " +
                 " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
@@ -210,7 +212,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
@@ -266,7 +268,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     private List<CohortDistributionParticipant> GetParticipant(IDbCommand command)
     {
-        List<CohortDistributionParticipant> participants = [];
+        List<CohortDistributionParticipant> participants = new List<CohortDistributionParticipant>();
 
         return ExecuteQuery(command, reader =>
         {
@@ -277,8 +279,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     ParticipantId = DatabaseHelper.GetStringValue(reader, "PARTICIPANT_ID"),
                     NhsNumber = DatabaseHelper.GetStringValue(reader, "NHS_NUMBER"),
                     SupersededByNhsNumber = DatabaseHelper.GetStringValue(reader, "SUPERSEDED_NHS_NUMBER"),
-                    PrimaryCareProvider = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDER"),
-                    PrimaryCareProviderEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDER_FROM_DT"),
+                    PrimaryCareProvider = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDEDR"),
+                    PrimaryCareProviderEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "PRIMARY_CARE_PROVIDEDR_FROM_DT"),
                     NamePrefix = DatabaseHelper.GetStringValue(reader, "NAME_PREFIX"),
                     FirstName = DatabaseHelper.GetStringValue(reader, "GIVEN_NAME"),
                     OtherGivenNames = DatabaseHelper.GetStringValue(reader, "OTHER_GIVEN_NAME"),
@@ -293,6 +295,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     AddressLine5 = DatabaseHelper.GetStringValue(reader, "ADDRESS_LINE_5"),
                     Postcode = DatabaseHelper.GetStringValue(reader, "POST_CODE"),
                     UsualAddressEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "USUAL_ADDRESS_FROM_DT"),
+                    CurrentPosting = DatabaseHelper.GetStringValue(reader, "CURRENT_POSTING"),
+                    CurrentPostingEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "CURRENT_POSTING_FROM_DT"),
                     DateOfDeath = DatabaseHelper.GetStringValue(reader, "DATE_OF_DEATH"),
                     TelephoneNumber = DatabaseHelper.GetStringValue(reader, "TELEPHONE_NUMBER_HOME"),
                     TelephoneNumberEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "TELEPHONE_NUMBER_HOME_FROM_DT"),
@@ -303,7 +307,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED")
