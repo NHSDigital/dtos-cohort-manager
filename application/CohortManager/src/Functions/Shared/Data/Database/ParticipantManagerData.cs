@@ -34,25 +34,11 @@ public class ParticipantManagerData : IParticipantManagerData
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord, Participant oldParticipant)
     {
         var participantData = participantCsvRecord.Participant;
         var dateToday = DateTime.Today;
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
-
-        var oldParticipant = GetParticipant(participantData.NhsNumber);
-        var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
-
-        if (response.IsFatal)
-        {
-            _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-            return false;
-        }
-
-        if (response.CreatedException)
-        {
-            participantData.ExceptionFlag = "Y";
-        }
 
         var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.ParticipantId));
         if (oldRecordsToEnd.Count == 0)
@@ -334,25 +320,6 @@ public class ParticipantManagerData : IParticipantManagerData
         {
             _logger.LogError($"an error happened: {ex.Message}");
             return -1;
-        }
-    }
-
-    private async Task<ValidationExceptionLog> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
-    {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
-        try
-        {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
-            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
-
-            return responseBody;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
-            return null;
         }
     }
 

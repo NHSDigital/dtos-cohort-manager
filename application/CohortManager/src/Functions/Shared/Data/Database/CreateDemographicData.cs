@@ -23,6 +23,12 @@ public class CreateDemographicData : ICreateDemographicData
 
     public bool InsertDemographicData(Demographic demographic)
     {
+        var mostRecentRecord = GetDemographicData(demographic.NhsNumber);
+        // we just want to return true here as this record is already in the database
+        if (mostRecentRecord.NhsNumber != null)
+        {
+            return true;
+        }
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
