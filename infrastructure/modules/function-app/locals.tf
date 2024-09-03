@@ -187,6 +187,8 @@ locals {
       TransformDataServiceURL             = local.fnapp_urls.transformDataService
       AddCohortDistributionURL            = local.fnapp_urls.addCohortDistributionData
       ValidateCohortDistributionRecordURL = local.fnapp_urls.validateCohortDistributionRecord
+      ExceptionFunctionURL                = local.fnapp_urls.createException
+      DtOsDatabaseConnectionString        = local.db_connection_string
     }
 
     RetrieveParticipantData = {
