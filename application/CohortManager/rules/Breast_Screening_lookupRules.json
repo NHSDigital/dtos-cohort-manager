@@ -8,7 +8,7 @@
                 "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {
-                "RuleName": "22.ParticipantMustExist.NonFatal",
+                "RuleName": "22.ParticipantMustExist.Fatal",
                 "Expression": "newParticipant.RecordType == Actions.New OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
             },
             {

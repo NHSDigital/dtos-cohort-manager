@@ -1028,6 +1028,53 @@ public class StaticValidationTests
             Times.Once());
     }
     #endregion
+    #region Validate Reason For Removal (Rule 62)
+    [TestMethod]
+    [DataRow("123456","LDN")]
+    [DataRow(null,"ABC")]
+    [DataRow(null,null)]
+    public async Task Run_Should_Not_Create_Exception_When_Validate_Reason_For_Removal_Rule_Passes(string? supersededByNhsNumber, string? ReasonForRemoval)
+    {
+
+
+        // Arrange
+        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
+        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
+
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(null,"LDN")]
+    public async Task Run_Should_Return_Created_And_Create_Exception_Validate_Reason_For_Removal_Rule_Fails(string? supersededByNhsNumber, string ReasonForRemoval)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
+        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

@@ -3,7 +3,7 @@
       "WorkflowName": "Common",
       "Rules": [
         {
-          "RuleName": "9.NhsNumber.NonFatal",
+          "RuleName": "9.NhsNumber.Fatal",
           "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")"
         },
         {
@@ -77,6 +77,10 @@
         {
           "RuleName": "61.InvalidFlag.NonFatal",
           "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
+        }
+        {
+          "RuleName": "62.ValidateReasonForRemoval.NonFatal",
+          "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
         }
       ]
     }
