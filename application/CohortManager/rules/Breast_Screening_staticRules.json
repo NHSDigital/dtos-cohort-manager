@@ -77,6 +77,10 @@
             {
                 "RuleName": "61.InvalidFlag",
                 "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
+            },
+            {
+              "RuleName": "62.ValidateReasonForRemoval",
+              "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
             }
         ]
     }
