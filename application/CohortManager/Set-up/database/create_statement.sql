@@ -261,6 +261,7 @@ IF NOT EXISTS
     WHERE TABLE_SCHEMA = 'dbo'
           AND TABLE_NAME = 'GP_PRACTICES'
 )
+
 BEGIN
 CREATE TABLE GP_PRACTICES
 (
@@ -291,3 +292,40 @@ CREATE TABLE GP_PRACTICES
     last_actioned_on datetimeoffset
 )
 END
+
+/*==============================================================*/
+/* Table: EXCLUDED_SMU_LKP                                      */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'EXCLUDED_SMU_LKP'
+)
+
+BEGIN
+CREATE TABLE EXCLUDED_SMU_LKP
+(
+    GP_PRACTICE_CODE VARCHAR(8)
+);
+END
+
+/*==============================================================*/
+/* Table: CURRENT_POSTING_LKP                                   */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'CURRENT_POSTING_LKP'
+)
+
+CREATE TABLE CURRENT_POSTING_LKP
+(
+    POSTING VARCHAR(4),
+    IN_USE VARCHAR(1),
+    INCLUDED_IN_COHORT VARCHAR(1),
+    POSTING_CATEGORY VARCHAR(10)
+);
