@@ -74,7 +74,7 @@ locals {
       markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible
       RemoveCohortDistributionURL = local.fnapp_urls.removeCohortDistributionData
       DemographicURIGet           = local.fnapp_urls.demographicDataFunction
-      ExceptionFunctionURL        = local.fnapp_urls.createCohortDistribution
+      ExceptionFunctionURL        = local.fnapp_urls.createException
     }
 
     UpdateParticipant = {
