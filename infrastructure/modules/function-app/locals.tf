@@ -186,6 +186,7 @@ locals {
       AllocateScreeningProviderURL        = local.fnapp_urls.allocateServiceProvider
       TransformDataServiceURL             = local.fnapp_urls.transformDataService
       AddCohortDistributionURL            = local.fnapp_urls.addCohortDistributionData
+      ExceptionFunctionURL                = local.fnapp_urls.createException
       ValidateCohortDistributionRecordURL = local.fnapp_urls.validateCohortDistributionRecord
     }
 
