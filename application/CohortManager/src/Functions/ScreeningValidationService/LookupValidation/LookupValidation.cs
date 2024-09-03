@@ -68,7 +68,7 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions)]
+                CustomTypes = [typeof(Actions), typeof(DbLookupValidationBreastScreening)]
             };
 
             var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -98,7 +98,6 @@ public class LookupValidation
             }
 
             // GP practice check
-            DbLookupValidationBreastScreening dbLookup = new(new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
             if (!dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider))
             {
                 await _handleException.CreateSystemExceptionLog(new ArgumentException("Invalid Primary Care Provider"), newParticipant);

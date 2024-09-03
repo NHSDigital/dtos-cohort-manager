@@ -90,6 +90,10 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    public async Task CreateValidationExceptionLog(Exception exception, string ruleName, Participant participant)
+    {
+
+    }
     public async Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
@@ -98,6 +102,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
+            var errorMessage = (string) error.ActionResult.Output;
 
             var exception = new ValidationException
             {
@@ -106,7 +111,7 @@ public class ExceptionHandler : IExceptionHandler
                 RuleContent = ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                ErrorRecord = ruleDetails[1],
+                ErrorRecord = errorMessage,
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
