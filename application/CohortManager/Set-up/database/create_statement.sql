@@ -1,5 +1,5 @@
 /*==============================================================*/
-/* Table: BS_COHORT_DISTRIBUTION Table                                */
+/* Table: BS_COHORT_DISTRIBUTION                                */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -179,7 +179,7 @@ BEGIN
 END
 
 /*==============================================================*/
-/* Table: EXCEPTION_MANAGEMENT Table                                */
+/* Table: EXCEPTION_MANAGEMENT                                  */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -207,7 +207,7 @@ BEGIN
 END
 
 /*==============================================================*/
-/* Table: BS_SELECT_GP_PRACTICE_LKP Table                       */
+/* Table: BS_SELECT_GP_PRACTICE_LKP                             */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -230,7 +230,7 @@ CREATE TABLE [dbo].[BS_SELECT_GP_PRACTICE_LKP]
 END
 
 /*==============================================================*/
-/* Table: BS_SELECT_OUTCODE_MAPPING_LKP Table                       */
+/* Table: BS_SELECT_OUTCODE_MAPPING_LKP                         */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -249,4 +249,45 @@ CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
       AUDIT_LAST_MODIFIED_TIMESTAMP DATETIME,
       AUDIT_TEXT VARCHAR(50)
     );
+END
+
+/*==============================================================*/
+/* Table: GP_PRACTICES                                          */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'GP_PRACTICES'
+)
+BEGIN
+CREATE TABLE GP_PRACTICES
+(
+    gp_practice_id INT IDENTITY PRIMARY KEY,
+    gp_practice_code varchar(8) NOT NULL,
+    bso_organisation_id integer NOT NULL,
+    outcode varchar(4),
+    gp_practice_group_id integer,
+    transaction_id integer NOT NULL,
+    transaction_app_date_time datetimeoffset NOT NULL,
+    transaction_user_org_role_id integer NOT NULL,
+    transaction_db_date_time datetimeoffset NOT NULL,
+    gp_practice_name varchar(100),
+    address_line_1 varchar(35),
+    address_line_2 varchar(35),
+    address_line_3 varchar(35),
+    address_line_4 varchar(35),
+    address_line_5 varchar(35),
+    postcode varchar(8),
+    telephone_number varchar(12),
+    open_date date,
+    close_date date,
+    failsafe_date date,
+    status_code varchar(1) NOT NULL,
+    last_updated_date_time datetimeoffset NOT NULL,
+    actioned BIT NOT NULL DEFAULT 0,
+    last_actioned_by_user_org_role_id integer,
+    last_actioned_on datetimeoffset
+)
 END
