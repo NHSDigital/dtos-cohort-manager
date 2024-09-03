@@ -43,6 +43,27 @@ public class ProcessCaasFileFunction
 
         foreach (var participant in input.Participants)
         {
+            // Convert string properties to DateTime? for validation
+            DateTime? primaryCareDate = TryParseDate(participant.PrimaryCareProviderEffectiveFromDate);
+            DateTime? addressDate = TryParseDate(participant.UsualAddressEffectiveFromDate);
+            DateTime? reasonForRemovalDate = TryParseDate(participant.ReasonForRemovalEffectiveFromDate);
+            DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
+            DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
+            DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+
+            // Validate the date fields
+            if (!IsValidDate(primaryCareDate) ||
+                !IsValidDate(addressDate) ||
+                !IsValidDate(reasonForRemovalDate) ||
+                !IsValidDate(homeTelephoneDate) ||
+                !IsValidDate(mobileTelephoneDate) ||
+                !IsValidDate(emailAddressDate))
+            {
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
+                err++;
+                continue; // Skip this participant
+            }
+
             row++;
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
@@ -125,8 +146,6 @@ public class ProcessCaasFileFunction
                             ScreeningService = 0
 
                         });
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-
                     }
                     catch (Exception ex)
                     {
@@ -141,7 +160,7 @@ public class ProcessCaasFileFunction
 
         if (err > 0)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -153,6 +172,24 @@ public class ProcessCaasFileFunction
         if (!demographicDataInserted)
         {
             _logger.LogError("Demographic function failed");
+            return false;
+        }
+        return true;
+    }
+
+    private DateTime? TryParseDate(string? dateString)
+    {
+        if (DateTime.TryParse(dateString, out var date))
+        {
+            return date;
+        }
+        return null;
+    }
+
+    public bool IsValidDate(DateTime? date)
+    {
+        if (date.HasValue && date.Value > DateTime.UtcNow)
+        {
             return false;
         }
         return true;

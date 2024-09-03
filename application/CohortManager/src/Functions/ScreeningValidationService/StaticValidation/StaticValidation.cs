@@ -47,6 +47,7 @@ public class StaticValidation
             }
 
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
+            _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
             var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
                                                                         Environment.GetEnvironmentVariable("BlobContainerName"),
