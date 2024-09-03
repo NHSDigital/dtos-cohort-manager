@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using Model;
+using Model.Enums;
 using Data.Database;
 
 public class CreateCohortDistribution
@@ -124,6 +125,7 @@ public class CreateCohortDistribution
     private bool ParticipantHasException(string nhsNumber)
     {
         var participant = _participantManagerData.GetParticipant(nhsNumber);
-        return participant.ExceptionFlag == Exists.Yes;
+        var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
+        return exceptionFlag == Exists.Yes;
     }
 }

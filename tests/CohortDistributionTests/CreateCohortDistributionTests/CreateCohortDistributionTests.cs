@@ -12,6 +12,7 @@ using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
+using Model.Enums;
 using Data.Database;
 
 [TestClass]
@@ -214,7 +215,7 @@ public class CreateCohortDistributionTests
 
     private void ParticipantException(bool hasException)
     {
-        var participant = new Participant() { ExceptionFlag = hasException ? Exists.Yes : Exists.No };
+        var participant = new Participant() { ExceptionFlag = hasException ? Exists.Yes.ToString() : Exists.No.ToString() };
         _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(participant);
     }
 }
