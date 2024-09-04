@@ -3,127 +3,121 @@ using ParquetSharp.RowOriented;
 
 public struct ParticipantsParquetMap
 {
-    [MapToColumn("Record_Type")]
+    [MapToColumn("record_type")]
     public string? RecordType;
 
-    [MapToColumn("Change_Time_Stamp")]
+    [MapToColumn("change_time_stamp")]
     public Double? ChangeTimeStamp;
 
-    [MapToColumn("Serial_Change_Number")]
+    [MapToColumn("serial_change_number")]
     public Int64? SerialChangeNumber;
 
-    [MapToColumn("NHS_Number")]
+    [MapToColumn("nhs_number")]
     public Int64? NhsNumber;
 
-    [MapToColumn("Superseded_by_NHS_number")]
+    [MapToColumn("superseded_by_nhs_number")]
     public string? SupersededByNhsNumber;
 
-    [MapToColumn("Primary_Care_Provider")]
+    [MapToColumn("primary_care_provider")]
     public string? PrimaryCareProvider;
 
-    [MapToColumn("Primary_Care_Provider_Business_Effective_From_Date")]
-    public Int64? PrimaryCareProviderEffectiveFromDate;
+    [MapToColumn("primary_care_effective_from_date")]
+    public string? PrimaryCareEffectiveFromDate;
 
-    [MapToColumn("Current_Posting")]
+    [MapToColumn("current_posting")]
     public string? CurrentPosting;
 
-    [MapToColumn("Current_Posting_Business_Effective_From_Date")]
+    [MapToColumn("current_posting_effective_from_date")]
     public Int64? CurrentPostingEffectiveFromDate;
 
-    [MapToColumn("Previous_Posting")]
-    public string? PreviousPosting;
-
-    [MapToColumn("Previous_Posting_Business_Effective_To_Date")]
-    public string? PreviousPostingEffectiveFromDate;
-
-    [MapToColumn("Name_Prefix")]
+    [MapToColumn("name_prefix")]
     public string? NamePrefix;
 
-    [MapToColumn("Given_Name")]
+    [MapToColumn("given_name")]
     public string? FirstName;
 
-    [MapToColumn("Other_Given_Name")]
+    [MapToColumn("other_given_name")]
     public string? OtherGivenNames;
 
-    [MapToColumn("Family_Name")]
+    [MapToColumn("family_name")]
     public string? SurnamePrefix;
 
-    [MapToColumn("Previous_Family_Name")]
+    [MapToColumn("previous_family_name")]
     public string? PreviousSurnamePrefix;
 
-    [MapToColumn("Date_of_Birth")]
+    [MapToColumn("date_of_birth")]
     public Int64? DateOfBirth;
 
-    [MapToColumn("Gender")]
+    [MapToColumn("gender")]
     public Int64? Gender;
 
-    [MapToColumn("Address_line_1")]
+    [MapToColumn("address_line_1")]
     public string? AddressLine1;
 
-    [MapToColumn("Address_line_2")]
+    [MapToColumn("address_line_2")]
     public string? AddressLine2;
 
-    [MapToColumn("Address_line_3")]
+    [MapToColumn("address_line_3")]
     public string? AddressLine3;
 
-    [MapToColumn("Address_line_4")]
+    [MapToColumn("address_line_4")]
     public string? AddressLine4;
 
-    [MapToColumn("Address_line_5")]
+    [MapToColumn("address_line_5")]
     public string? AddressLine5;
 
-    [MapToColumn("Postcode")]
+    [MapToColumn("postcode")]
     public string? Postcode;
 
-    [MapToColumn("PAF_key")]
+    [MapToColumn("paf_key")]
     public string? PafKey;
 
-    [MapToColumn("Usual_Address_Business_Effective_From_Date")]
+    [MapToColumn("address_effective_from_date")]
     public Int64? UsualAddressEffectiveFromDate;
 
-    [MapToColumn("Reason_for_Removal")]
+    [MapToColumn("reason_for_removal")]
     public string? ReasonForRemoval;
 
-    [MapToColumn("Reason_for_Removal_Business_Effective_From_Date")]
+    [MapToColumn("reason_for_removal_effective_from_date")]
     public Int64? ReasonForRemovalEffectiveFromDate;
 
-    [MapToColumn("Date_of_Death")]
+    [MapToColumn("date_of_death")]
     public string? DateOfDeath;
 
-    [MapToColumn("Death_Status")]
+    [MapToColumn("death_status")]
     public string? DeathStatus;
 
-    [MapToColumn("Telephone_Number_Home")]
+    [MapToColumn("home_telephone_number")]
     public string? TelephoneNumber;
 
-    [MapToColumn("Telephone_Number_Home_Business_Effective_From_Date")]
+    [MapToColumn("home_telephone_effective_from_date")]
     public Int64? TelephoneNumberEffectiveFromDate;
 
-    [MapToColumn("Telephone_Number_Mobile")]
+    [MapToColumn("mobile_telephone_number")]
     public string? MobileNumber;
 
-    [MapToColumn("Telephone_Number_Mobile_Business_Effective_From_Date")]
+    [MapToColumn("mobile_telephone_effective_from_date")]
     public Int64? MobileNumberEffectiveFromDate;
 
-    [MapToColumn("Email_address_Home")]
+    [MapToColumn("email_address")]
     public string? EmailAddress;
 
-    [MapToColumn("Email_address_Home_Business_Effective_From_Date")]
+    [MapToColumn("email_address_effective_from_date")]
     public Int64? EmailAddressEffectiveFromDate;
 
-    [MapToColumn("Is_Interpreter_Required")]
+    [MapToColumn("is_interpreter_required")]
     public string? IsInterpreterRequired;
 
-    [MapToColumn("Preferred_Language")]
+    [MapToColumn("preferred_language")]
     public string? PreferredLanguage;
 
-    [MapToColumn("Invalid_Flag")]
+    [MapToColumn("invalid_flag")]
     public Boolean? InvalidFlag;
 
-    [MapToColumn("Record_Identifier")]
+    [MapToColumn("record_identifier")]
     public string? RecordIdentifier;
 
-    [MapToColumn("Change_Reason_Code")]
+    [MapToColumn("change_reason_code")]
     public string? ChangeReasonCode;
 }
 

@@ -32,7 +32,7 @@ public class ReceiveCaasFileTests
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIFileReader = new Mock<IFileReader>();
         _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockICallFunction.Object, _screeningServiceData.Object);
-        _blobName = "BSS_20240718150245_n3.csv";
+        _blobName = "BSS_20240718150245_n3.parquet";
 
         _validCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n" +
         "New,20240524153000,1,1111111111,,B83006,20240410,Manchester,20240410,Edinburgh,20230410,Mr,Joe,,Bloggs,,19711221,1,HEXAGON HOUSE,PYNES HILL,RYDON LANE,EXETER,DEVON,BV3 9ZA,1234,,,,,,,,,,,,English,0,0,1,,\n" +
@@ -155,7 +155,7 @@ public class ReceiveCaasFileTests
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
         It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: ")),
+        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: ")),
         It.IsAny<Exception>(),
         It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -201,7 +201,7 @@ public class ReceiveCaasFileTests
     public async Task Run_InvalidFileNameRecordCount_LogsFileNameInvalidAndReturns()
     {
         // Arrange
-        string fileName = "BSS_20240718150245_test.csv";
+        string fileName = "BSS_20240718150245_test.parquet";
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);
 
@@ -239,7 +239,7 @@ public class ReceiveCaasFileTests
     public async Task Run_FileNameRecordCountIsZero_LogsValidationFailedAndReturns()
     {
         // Arrange
-        var fileName = "BSS_20240718150245_n0.csv";
+        var fileName = "BSS_20240718150245_n0.parquet";
         var altValidCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n";
         byte[] csvDataBytes = Encoding.UTF8.GetBytes(altValidCsvData);
         var memoryStream = new MemoryStream(csvDataBytes);

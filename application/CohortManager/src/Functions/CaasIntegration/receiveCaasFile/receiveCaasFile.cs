@@ -63,6 +63,8 @@ public class ReceiveCaasFile
                 try
                 {
                     downloadFilePath = Path.Combine(Path.GetTempPath(), name + ".parquet");
+                    if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
+
                     var blob = container.GetBlobClient(name);
                     await blob.DownloadToAsync(downloadFilePath);
                     var screeningService = GetScreeningService(name);
@@ -84,13 +86,10 @@ public class ReceiveCaasFile
                                 participant.SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber);
                                 participant.PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider);
                                 participant.PrimaryCareProviderEffectiveFromDate =
-                                    Convert.ToString(rec.PrimaryCareProviderEffectiveFromDate);
+                                    Convert.ToString(rec.PrimaryCareEffectiveFromDate);
                                 participant.CurrentPosting = Convert.ToString(rec.CurrentPosting);
                                 participant.CurrentPostingEffectiveFromDate =
                                     Convert.ToString(rec.CurrentPostingEffectiveFromDate);
-                                participant.PreviousPosting = Convert.ToString(rec.PreviousPosting);
-                                participant.PreviousPostingEffectiveFromDate =
-                                    Convert.ToString(rec.PreviousPostingEffectiveFromDate);
                                 participant.NamePrefix = Convert.ToString(rec.NamePrefix);
                                 participant.FirstName = Convert.ToString(rec.FirstName);
                                 participant.OtherGivenNames = Convert.ToString(rec.OtherGivenNames);
