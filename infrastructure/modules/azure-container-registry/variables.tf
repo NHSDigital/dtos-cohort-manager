@@ -34,3 +34,9 @@ variable "tags" {
   description = "Resource tags to be applied throughout the deployment."
   default     = {}
 }
+
+variable "deployacr" {
+  type        = bool
+  description = "If the Azure Container Registry should be deployed."
+  default     = true
+}

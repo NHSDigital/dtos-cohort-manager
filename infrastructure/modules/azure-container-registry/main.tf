@@ -1,5 +1,8 @@
 
 resource "azurerm_container_registry" "acr" {
+
+  count = var.deployacr ? 1 : 0
+
   name                = var.names.azure-container-registry
   location            = var.location
   resource_group_name = var.resource_group_name
