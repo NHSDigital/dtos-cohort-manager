@@ -22,7 +22,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
         {
             NhsNumber = nhsNumber,
             ScreeningService = screeningService,
-            FileName = fileName, 
+            FileName = fileName,
             RecordType = recordType
         };
         string json = JsonSerializer.Serialize(requestBody);
