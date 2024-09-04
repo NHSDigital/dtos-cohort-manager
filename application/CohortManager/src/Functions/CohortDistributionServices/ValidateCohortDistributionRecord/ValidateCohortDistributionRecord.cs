@@ -60,10 +60,10 @@ public class ValidateCohortDistributionRecord
             var existingParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
             var newParticipant = requestBody.CohortDistributionParticipant;
 
-            var validationRes = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
-            if (validationRes.CreatedException)
+            var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
+            if (validationResult.CreatedException)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationRes));
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationResult));
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 

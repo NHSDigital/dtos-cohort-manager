@@ -14,14 +14,12 @@ public class ParticipantManagerData : IParticipantManagerData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<ParticipantManagerData> _logger;
-    private readonly ICallFunction _callFunction;
 
-    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger, ICallFunction callFunction)
+    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _callFunction = callFunction;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 

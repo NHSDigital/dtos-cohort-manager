@@ -127,7 +127,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist.Fatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }

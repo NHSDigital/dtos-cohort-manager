@@ -83,6 +83,7 @@ public class UpdateParticipantFunction
             }
 
             updateResponse = await updateParticipant(participantCsvRecord, req);
+            
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
@@ -99,7 +100,7 @@ public class UpdateParticipantFunction
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;

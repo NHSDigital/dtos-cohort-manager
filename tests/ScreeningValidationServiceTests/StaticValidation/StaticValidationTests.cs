@@ -137,7 +137,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "9.NhsNumber.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "9.NhsNumber.Fatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -1008,7 +1008,7 @@ public class StaticValidationTests
 
     [TestMethod]
     [DataRow(null)]
-    [DataRow("ABC")]
+    [DataRow("")]
     [DataRow("ABC")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_IsInterpreterRequired_Rule_Fails(string isInterpreterRequired)
     {
@@ -1030,9 +1030,9 @@ public class StaticValidationTests
     #endregion
     #region Validate Reason For Removal (Rule 62)
     [TestMethod]
-    [DataRow("123456","LDN")]
-    [DataRow(null,"ABC")]
-    [DataRow(null,null)]
+    [DataRow("123456", "LDN")]
+    [DataRow(null, "ABC")]
+    [DataRow(null, null)]
     public async Task Run_Should_Not_Create_Exception_When_Validate_Reason_For_Removal_Rule_Passes(string? supersededByNhsNumber, string? ReasonForRemoval)
     {
 
@@ -1055,7 +1055,7 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(null,"LDN")]
+    [DataRow(null, "LDN")]
     public async Task Run_Should_Return_Created_And_Create_Exception_Validate_Reason_For_Removal_Rule_Fails(string? supersededByNhsNumber, string ReasonForRemoval)
     {
         // Arrange
@@ -1070,7 +1070,7 @@ public class StaticValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }

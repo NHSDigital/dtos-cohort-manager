@@ -7,6 +7,7 @@ public class Participant
     public Participant() { }
     public Participant(CohortDistributionParticipant cohortDistributionParticipant)
     {
+        RecordType = cohortDistributionParticipant.RecordType;
         ParticipantId = cohortDistributionParticipant.ParticipantId;
         NhsNumber = cohortDistributionParticipant.NhsNumber;
         SupersededByNhsNumber = cohortDistributionParticipant.SupersededByNhsNumber;

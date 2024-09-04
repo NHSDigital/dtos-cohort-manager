@@ -12,6 +12,8 @@ using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
+using Model.Enums;
+using Data.Database;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -25,6 +27,7 @@ public class CreateCohortDistributionTests
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
+    private readonly Mock<IParticipantManagerData> _participantManagerData = new();
 
     public CreateCohortDistributionTests()
     {
@@ -41,7 +44,7 @@ public class CreateCohortDistributionTests
             ScreeningService = "BSS"
         };
 
-        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object);
+        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object, _participantManagerData.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -63,8 +66,11 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    [DataRow("")]
+    [DataRow("Invalid request body")]
+    public async Task RunAsync_BadRequestBody_ReturnsBadRequest(string requestBody)
     {
+        SetUpRequestBody(requestBody);
         // Act
         var result = await _function.RunAsync(_request.Object);
 
@@ -73,23 +79,13 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    [DataRow(null, "BSS")]
+    [DataRow("1234567890", null)]
+    public async Task RunAsync_MissingFieldsOnRequestBody_ReturnsBadRequest(string nhsNumber, string screeningService)
     {
         // Arrange
-        SetUpRequestBody("Invalid request body");
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Missing_ScreeningService()
-    {
-        // Arrange
-        _requestBody.ScreeningService = null;
+        _requestBody.NhsNumber = nhsNumber;
+        _requestBody.ScreeningService = screeningService;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -101,22 +97,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Missing_NhsNumber()
-    {
-        // Arrange
-        _requestBody.NhsNumber = null;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_RetrieveParticipantData_Fails()
+    public async Task RunAsync_RetrieveParticipantDataRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -132,7 +113,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_AllocateServiceProviderToParticipant_Fails()
+    public async Task RunAsync_AllocateServiceProviderToParticipantRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -147,7 +128,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_TransformDataService_Fails()
+    public async Task RunAsync_TransformDataServiceRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -162,12 +143,14 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_AddCohortDistribution_Fails()
+    public async Task RunAsync_AddCohortDistributionRequestFails_ReturnsBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        FailedFunctionRequest("AddCohortDistributionURL");
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
+            .Throws(new Exception("an error happened"));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -177,7 +160,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_Created_When_All_Requests_Are_Successful()
+    public async Task RunAsync_AllSuccessfulRequests_ReturnsOK()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -185,8 +168,11 @@ public class CreateCohortDistributionTests
 
         _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
         _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(true));
+        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
         _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+
+        ParticipantException(false);
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
@@ -195,7 +181,29 @@ public class CreateCohortDistributionTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task RunAsync_ParticipantExceptionExpected_ReturnsOK()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>())).Verifiable();
+
+        ParticipantException(true);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "AddCohortDistributionURL"), It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     private void SetUpRequestBody(string json)
@@ -206,11 +214,9 @@ public class CreateCohortDistributionTests
         _request.Setup(r => r.Body).Returns(bodyStream);
     }
 
-    private void FailedFunctionRequest(string url, string responseData = null)
+    private void ParticipantException(bool hasException)
     {
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError, responseData);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains(url)), It.IsAny<string>()))
-            .Throws(new Exception("an error happened"));
+        var participant = new Participant() { ExceptionFlag = hasException ? Exists.Yes.ToString() : Exists.No.ToString() };
+        _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(participant);
     }
 }

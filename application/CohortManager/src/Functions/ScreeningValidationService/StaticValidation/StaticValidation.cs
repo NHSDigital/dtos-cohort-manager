@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;

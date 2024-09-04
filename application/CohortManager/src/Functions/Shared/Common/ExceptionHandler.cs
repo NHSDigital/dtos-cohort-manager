@@ -61,13 +61,13 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var nhsNumber = participantCsvRecord.Participant.NhsNumber;
+
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
             {
                 foundFatalRule = true;
-                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {nhsNumber} will not be added to the database.", nhsNumber);
+                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {nhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
             }
 
             var exception = new ValidationException
@@ -76,7 +76,7 @@ public class ExceptionHandler : IExceptionHandler
                 RuleDescription = ruleDetails[1],
                 RuleContent = ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
-                NhsNumber = nhsNumber,
+                NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = ruleDetails[1],
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,

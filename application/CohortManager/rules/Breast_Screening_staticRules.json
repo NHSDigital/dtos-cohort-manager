@@ -72,12 +72,12 @@
         },
         {
           "RuleName": "49.InterpreterCheck.NonFatal",
-          "Expression": "participant.IsInterpreterRequired != 0 OR participant.IsInterpreterRequired != 1"
+          "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1"
         },
         {
           "RuleName": "61.InvalidFlag.NonFatal",
           "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
-        }
+        },
         {
           "RuleName": "62.ValidateReasonForRemoval.NonFatal",
           "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
