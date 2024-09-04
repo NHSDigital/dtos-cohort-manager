@@ -17,12 +17,12 @@
             },
             {
                 "RuleName": "36.ValidatePrimaryCareProvider",
-                "Expression": "!DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+                "Expression": "DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
                 "Actions": {
                     "OnSuccess": {
-                        "Name": "OutputExpression",
+                        "Name": "ErrorMessage",
                         "Context": {
-                            "Expression": "\"WCOM\""
+                            "Expression": "\"Invalid primary care provider GP practice code\""
                         }
                     }
                 }
