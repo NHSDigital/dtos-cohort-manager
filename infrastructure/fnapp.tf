@@ -11,7 +11,7 @@ module "functionapp" {
   sa_name    = module.storage.storage_account_name
   sa_prm_key = module.storage.storage_account_primary_access_key
 
-  ai_connstring        = module.app_insights.ai_connection_string
+  ai_connstring        = module.app_insights.ai_connection_string_audit
   gl_worker_32bit      = var.function_app.gl_worker_32bit
   acr_registry_url     = module.acr.login_server
   cont_registry_use_mi = var.function_app.gl_cont_registry_use_mi
