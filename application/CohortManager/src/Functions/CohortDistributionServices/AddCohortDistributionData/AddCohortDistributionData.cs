@@ -48,7 +48,6 @@ public class AddCohortDistributionDataFunction
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-        
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)

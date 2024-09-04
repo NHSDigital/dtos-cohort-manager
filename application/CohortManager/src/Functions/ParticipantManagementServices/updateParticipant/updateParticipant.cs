@@ -83,7 +83,7 @@ public class UpdateParticipantFunction
             }
 
             updateResponse = await updateParticipant(participantCsvRecord, req);
-            
+
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
