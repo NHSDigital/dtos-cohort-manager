@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 
 var host = new HostBuilder()
+    .AddConfiguration<receiveCaasFileConfig>(Environment.GetEnvironmentVariable("KeyVaultUrl"))
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {

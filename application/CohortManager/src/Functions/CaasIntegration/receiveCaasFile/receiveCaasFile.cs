@@ -12,18 +12,21 @@ using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
 using Data.Database;
+using Microsoft.Extensions.Options;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
     private readonly IScreeningServiceData _screeningServiceData;
+    private readonly IOptions<receiveCaasFileConfig> _config;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction, IScreeningServiceData screeningServiceData)
+    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction, IScreeningServiceData screeningServiceData, IOptions<receiveCaasFileConfig> config)
     {
         _logger = logger;
         _callFunction = callFunction;
         _screeningServiceData = screeningServiceData;
+        _config = config;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -111,7 +114,7 @@ public class ReceiveCaasFile
                 if (cohort.Participants.Count > 0)
                 {
                     var json = JsonSerializer.Serialize(cohort);
-                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                    await _callFunction.SendPost(_config.Value.ProcessCaasFileUri, json);
                     _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                 }
                 if (badRecords.Count > 0 || cohort.Participants.Count == 0)
@@ -142,7 +145,7 @@ public class ReceiveCaasFile
             FileName = fileName
         });
 
-        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
+        var result = await _callFunction.SendPost(_config.Value.FileValidationUri, json);
         if (result.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("An error occurred while saving or moving the failed file {fileName}.", fileName);
