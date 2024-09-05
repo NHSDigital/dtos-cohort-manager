@@ -1,8 +1,7 @@
 module "acr" {
   source = ".//modules/azure-container-registry"
 
-  deployacr = var.acr.deployacr
-  names     = module.config.names
+  names = module.config.names
 
   resource_group_name = module.baseline.resource_group_names[var.acr.resource_group_key]
   location            = module.baseline.resource_group_locations[var.acr.resource_group_key]
