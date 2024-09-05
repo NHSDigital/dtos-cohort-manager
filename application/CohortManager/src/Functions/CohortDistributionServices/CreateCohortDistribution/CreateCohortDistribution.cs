@@ -74,27 +74,32 @@ public class CreateCohortDistribution
             response = await HandleErrorResponseIfNull(serviceProvider, req);
             if (response != null) return response;
 
-            var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
-            response = await HandleErrorResponseIfNull(validationResult, req);
-            if (response != null) return response;
-
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            response = await HandleErrorResponseIfNull(transformedParticipant, req);
-            if (response != null) return response;
-
             if (ParticipantHasException(requestBody.NhsNumber))
             {
-                _logger.LogError($"Unable to add to cohort distribution. There is an exception for participant {participantData.ParticipantId}.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
+                // we return OK here as there has not been an error
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
-            if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+            participantData.RecordType = requestBody.RecordType;
+            var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
+            if (!validationRecordCreated)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
+                _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
+                response = await HandleErrorResponseIfNull(transformedParticipant, req);
+                if (response != null) return response;
+
+                var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
+                if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            }
+            _logger.LogInformation("Validation error: A rule triggered a fatal error, preventing the cohort distribution record with NHS number {NhsNumber} from being added to the database", participantData.NhsNumber);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
         catch (Exception ex)
         {

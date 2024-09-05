@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
-using System.Runtime.ConstrainedExecution;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -69,13 +68,16 @@ public class StaticValidation
 
             if (validationErrors.Any())
             {
-                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                if (exceptionCreated)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
-                }
+                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
+
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
         }
         catch (Exception ex)
         {
