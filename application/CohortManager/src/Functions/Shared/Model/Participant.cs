@@ -53,8 +53,6 @@ public class Participant
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
     public string? CurrentPosting { get; set; }
     public string? CurrentPostingEffectiveFromDate { get; set; }
-    public string? PreviousPosting { get; set; }
-    public string? PreviousPostingEffectiveFromDate { get; set; }
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }

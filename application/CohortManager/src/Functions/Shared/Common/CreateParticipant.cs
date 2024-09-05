@@ -17,8 +17,6 @@ public class CreateParticipant : ICreateParticipant
             PrimaryCareProviderEffectiveFromDate = participant.PrimaryCareProviderEffectiveFrom,
             CurrentPosting = demographic.CurrentPosting,
             CurrentPostingEffectiveFromDate = participant.CurrentPostingEffectiveFrom,
-            PreviousPosting = participant.PreviousPosting,
-            PreviousPostingEffectiveFromDate = participant.PreviousPostingEffectiveFrom,
             NamePrefix = demographic.NamePrefix,
             FirstName = demographic.FirstName,
             OtherGivenNames = participant.OtherGivenNames,

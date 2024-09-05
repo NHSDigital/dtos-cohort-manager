@@ -19,10 +19,6 @@
                 "Expression": "string.IsNullOrEmpty(participant.CurrentPosting) OR participant.CurrentPosting == \"England\" OR participant.CurrentPosting == \"Wales\" OR participant.CurrentPosting == \"IoM\""
             },
             {
-                "RuleName": "59.PreviousPosting",
-                "Expression": "string.IsNullOrEmpty(participant.PreviousPosting) OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
-            },
-            {
                 "RuleName": "14.ReasonForRemoval",
                 "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
             },
