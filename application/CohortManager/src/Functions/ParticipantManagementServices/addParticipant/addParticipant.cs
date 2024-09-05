@@ -8,7 +8,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 
 public class AddParticipantFunction
 {

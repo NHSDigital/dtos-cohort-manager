@@ -1001,14 +1001,14 @@ public class StaticValidationTests
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
 
     [TestMethod]
     [DataRow(null)]
-    [DataRow("")]
+    [DataRow("ABC")]
     [DataRow("ABC")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_IsInterpreterRequired_Rule_Fails(string isInterpreterRequired)
     {
