@@ -11,7 +11,7 @@ resource "azurerm_container_registry" "acr" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.uai.id]
+    identity_ids = [azurerm_user_assigned_identity.uai[count.index].id]
   }
 
   # georeplications {
