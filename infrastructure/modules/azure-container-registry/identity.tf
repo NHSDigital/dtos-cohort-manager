@@ -7,7 +7,7 @@ resource "azurerm_user_assigned_identity" "uai" {
 
 # create role assignment for acr
 resource "azurerm_role_assignment" "ra" {
-  scope                = azurerm_container_registry.acr.id
+  scope                = azurerm_container_registry.acr[0].id
   role_definition_name = "AcrPush"
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }

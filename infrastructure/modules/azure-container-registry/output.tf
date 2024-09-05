@@ -1,6 +1,6 @@
 
 output "login_server" {
-  value = azurerm_container_registry.acr.login_server
+  value = azurerm_container_registry.acr[0].login_server
 }
 
 output "mi_id" {
