@@ -31,7 +31,7 @@ stages:
 
     jobs:
 
-      - template: jobs/init_and_plan.yaml
+      - template: ../jobs/init_and_plan.yaml
         parameters:
           ENVIRONMENT: $(ENVIRONMENT)
           SERVICE_CONNECTION: $(SERVICE_CONNECTION)
@@ -54,7 +54,7 @@ stages:
           runOnce:
             deploy:
               steps:
-                - template: jobs/init_and_apply.yaml
+                - template: ../jobs/init_and_apply.yaml
                   parameters:
                     ENVIRONMENT: $(ENVIRONMENT)
                     SERVICE_CONNECTION: $(SERVICE_CONNECTION)
