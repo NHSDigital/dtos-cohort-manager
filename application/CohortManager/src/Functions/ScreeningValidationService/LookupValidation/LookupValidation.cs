@@ -77,6 +77,7 @@ public class LookupValidation
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
+            // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
             if (validationErrors.Any())

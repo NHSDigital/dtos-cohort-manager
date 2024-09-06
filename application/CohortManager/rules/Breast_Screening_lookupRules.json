@@ -26,6 +26,18 @@
                         }
                     }
                 }
+            },
+            {
+                "RuleName": "54.ValidateBsoCode",
+                "Expression": "DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+                "Actions": {
+                    "OnSuccess": {
+                        "Name": "ErrorMessage",
+                        "Context": {
+                            "Expression": "\"Invalid primary care provider GP practice code\""
+                        }
+                    }
+                }
             }
         ]
     }

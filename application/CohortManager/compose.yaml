@@ -323,6 +323,7 @@ services:
       - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
