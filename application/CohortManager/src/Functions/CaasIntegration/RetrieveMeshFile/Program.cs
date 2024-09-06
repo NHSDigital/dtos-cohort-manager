@@ -16,7 +16,7 @@ var host = new HostBuilder()
             {
                 Password = Environment.GetEnvironmentVariable("MeshPassword"),
                 SharedKey = Environment.GetEnvironmentVariable("MeshSharedKey"),
-                //Cert = new X509Certificate2(Environment.GetEnvironmentVariable("MeshKeyName"),Environment.GetEnvironmentVariable("MeshKeyPassphrase")) //THIS WILL NEED CHANGING TO PULL FROM A KEYSTORE OR BLOB
+                Cert = new X509Certificate2(Environment.GetEnvironmentVariable("MeshKeyName"),Environment.GetEnvironmentVariable("MeshKeyPassphrase")) //THIS WILL NEED CHANGING TO PULL FROM A KEYSTORE OR BLOB
             })
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
