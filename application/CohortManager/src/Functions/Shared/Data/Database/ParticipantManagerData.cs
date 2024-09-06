@@ -14,14 +14,12 @@ public class ParticipantManagerData : IParticipantManagerData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<ParticipantManagerData> _logger;
-    private readonly ICallFunction _callFunction;
 
-    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger, ICallFunction callFunction)
+    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _callFunction = callFunction;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
@@ -34,18 +32,11 @@ public class ParticipantManagerData : IParticipantManagerData
         return UpdateRecords(allRecordsToUpdate);
     }
 
-    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord, Participant oldParticipant)
     {
         var participantData = participantCsvRecord.Participant;
         var dateToday = DateTime.Today;
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
-
-        var oldParticipant = GetParticipant(participantData.NhsNumber);
-        var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
-        if (response.ExceptionFlag == "Y")
-        {
-            participantData = response;
-        }
 
         var oldRecordsToEnd = EndOldRecords(int.Parse(oldParticipant.ParticipantId));
         if (oldRecordsToEnd.Count == 0)
@@ -328,27 +319,6 @@ public class ParticipantManagerData : IParticipantManagerData
             _logger.LogError($"an error happened: {ex.Message}");
             return -1;
         }
-    }
-
-    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
-    {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
-        try
-        {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                newParticipant.ExceptionFlag = "Y";
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
-            return null;
-        }
-
-        return newParticipant;
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)

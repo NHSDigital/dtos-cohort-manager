@@ -74,7 +74,7 @@ locals {
       markParticipantAsIneligible = local.fnapp_urls.markParticipantAsIneligible
       RemoveCohortDistributionURL = local.fnapp_urls.removeCohortDistributionData
       DemographicURIGet           = local.fnapp_urls.demographicDataFunction
-      ExceptionFunctionURL        = local.fnapp_urls.createCohortDistribution
+      ExceptionFunctionURL        = local.fnapp_urls.createException
     }
 
     UpdateParticipant = {
@@ -186,7 +186,9 @@ locals {
       AllocateScreeningProviderURL        = local.fnapp_urls.allocateServiceProvider
       TransformDataServiceURL             = local.fnapp_urls.transformDataService
       AddCohortDistributionURL            = local.fnapp_urls.addCohortDistributionData
+      ExceptionFunctionURL                = local.fnapp_urls.createException
       ValidateCohortDistributionRecordURL = local.fnapp_urls.validateCohortDistributionRecord
+      DtOsDatabaseConnectionString        = local.db_connection_string
     }
 
     RetrieveParticipantData = {

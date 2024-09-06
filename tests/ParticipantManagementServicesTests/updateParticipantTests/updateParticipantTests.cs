@@ -45,7 +45,11 @@ public class UpdateParticipantTests
         _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunction.Object);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(true)).Verifiable();
+            .Returns(Task.FromResult(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })).Verifiable();
 
         _participantCsvRecord = new ParticipantCsvRecord
         {
@@ -82,6 +86,13 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+        {
+            IsFatal = false,
+            CreatedException = false
+        })));
+
         // Act
         var result = await sut.Run(_request.Object);
 
@@ -116,7 +127,12 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+        {
+            IsFatal = false,
+            CreatedException = false
+        })));
 
         _request = _setupRequest.Setup(json);
 
@@ -156,6 +172,13 @@ public class UpdateParticipantTests
         _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
+
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+        {
+            IsFatal = false,
+            CreatedException = false
+        })));
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
         .Returns(Task.FromResult<Demographic>(new Demographic()));

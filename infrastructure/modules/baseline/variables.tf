@@ -8,3 +8,6 @@ variable "tags" {
 
 variable "resource_groups" {
 }
+
+variable "resource_groups_audit" {
+}

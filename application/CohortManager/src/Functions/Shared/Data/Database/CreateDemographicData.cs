@@ -23,6 +23,11 @@ public class CreateDemographicData : ICreateDemographicData
 
     public bool InsertDemographicData(Demographic demographic)
     {
+        if (!int.TryParse(demographic.IsInterpreterRequired, out var _))
+        {
+            demographic.IsInterpreterRequired = null;
+        }
+
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
