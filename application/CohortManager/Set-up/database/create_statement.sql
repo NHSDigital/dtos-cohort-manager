@@ -43,7 +43,8 @@ BEGIN
         REASON_FOR_REMOVAL_DT         DATE NULL,
         RECORD_INSERT_DATETIME        DATE NULL,
         RECORD_UPDATE_DATETIME        DATE NULL,
-        IS_EXTRACTED                  BIT NOT NULL
+        IS_EXTRACTED                  BIT NOT NULL,
+        REQUEST_ID                    uniqueidentifier NULL,
         CONSTRAINT PK_BS_COHORT_DISTRIBUTION
           PRIMARY KEY (PARTICIPANT_ID)
     );
@@ -246,5 +247,24 @@ CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
       AUDIT_CREATED_TIMESTAMP DATETIME,
       AUDIT_LAST_MODIFIED_TIMESTAMP DATETIME,
       AUDIT_TEXT VARCHAR(50)
+    );
+END
+
+/*==============================================================*/
+/* Table: BS_SELECT_REQUEST_AUDIT Table                       */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'BS_SELECT_REQUEST_AUDIT'
+)
+BEGIN
+CREATE TABLE [dbo].[BS_SELECT_REQUEST_AUDIT]
+    (
+      REQUEST_ID UNIQUEIDENTIFIER NOT NULL,
+      STATUS_CODE VARCHAR(3) NULL,
+      CREATED_DATETIME DATETIME NULL,
     );
 END

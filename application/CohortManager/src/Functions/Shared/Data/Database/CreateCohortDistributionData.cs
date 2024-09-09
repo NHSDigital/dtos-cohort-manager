@@ -135,16 +135,20 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants()
+    public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int serviceProviderId, int rowCount)
     {
-        var SQL = "SELECT TOP (1000) * " +
-                " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
-                " WHERE IS_EXTRACTED = @Extracted ";
+         var SQL = "SELECT TOP (@RowCount) * " +
+                  " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
+                  " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.PARTICIPANT_ID = pm.PARTICIPANT_ID " +
+                  " WHERE bcd.IS_EXTRACTED = @Extracted " +
+                  " AND pm.SCREENING_ID = @ServiceProviderId";
 
         var parameters = new Dictionary<string, object>
-        {
-            {"@Extracted", '0' },
-        };
+         {
+        {"@RowCount", rowCount },
+        {"@Extracted", 0 },
+        {"@ServiceProviderId", serviceProviderId }
+    };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
@@ -156,7 +160,25 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             return listOfAllParticipants;
         }
 
-        return [];
+        return new List<CohortDistributionParticipant>();
+    }
+
+    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
+    {
+
+        var SQL = "SELECT * " +
+                  " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                  " WHERE REQUEST_ID = @RequestId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@RequestId", requestId }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipant(command);
     }
 
     public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
@@ -317,28 +339,33 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants)
     {
-        if (cohortParticipants.Count == 0)
+        if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
+
+        var requestId = Guid.NewGuid();
+        var sqlToExecute = new List<SQLReturnModel>();
+
+        foreach (var participant in cohortParticipants)
         {
-            return false;
-        }
-        var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-                " SET IS_EXTRACTED = @Extracted " +
-                " WHERE PARTICIPANT_ID >= @FirstId and PARTICIPANT_ID <= @LastId";
+            var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
+                      " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
+                      " WHERE PARTICIPANT_ID = @ParticipantId";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@FirstId", cohortParticipants.FirstOrDefault().ParticipantId },
-            {"@LastId", cohortParticipants.LastOrDefault().ParticipantId },
+            {"@Extracted", 1 },
+            {"@RequestId", requestId },
+            {"@ParticipantId", participant.ParticipantId }
         };
 
-        var sqlToExecute = new List<SQLReturnModel>()
-        {
-            new SQLReturnModel
+            sqlToExecute.Add(new SQLReturnModel
             {
                 Parameters = parameters,
                 SQL = SQL,
-            }
-        };
+            });
+
+        participant.Extracted = 1.ToString();
+        participant.RequestId = requestId;
+        }
 
         return UpdateRecords(sqlToExecute);
     }
