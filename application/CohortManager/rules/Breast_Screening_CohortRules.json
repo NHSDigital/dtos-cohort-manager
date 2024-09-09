@@ -3,16 +3,16 @@
         "WorkflowName": "Common",
         "Rules": [
             {
-                "RuleName": "47.ParticipantMustNotExist",
-                "Expression": "newParticipant.RecordType != Actions.New OR string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-            },
-            {
-                "RuleName": "22.ParticipantMustExist",
-                "Expression": "newParticipant.RecordType == Actions.New OR !string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-            },
-            {
-                "RuleName": "35.Demographics",
-                "Expression": "newParticipant.RecordType != Actions.Amended OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
+                "RuleName": "54.ValidateBsoCode",
+                "Expression": "(newParticipant.ReasonForRemoval != RDI OR newParticipant.ReasonForRemoval != RDR OR newParticipant.ReasonForRemoval != RPR) AND (!string.IsNullOrEmpty(newParticipant.Postcode) OR !DbLookupValidationBreastScreening.ValidateOutcode(newParticipant.Postcode)) OR (!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR !DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)) AND !newParticipant.ToString().StartsWith(\"ZZZ\")",
+                "Actions": {
+                    "OnFailure": {
+                        "Name": "OutputExpression",
+                        "Context": {
+                            "Expression": "\"It was not possible to determine the BSO dummy practice code for this participant\""
+                        }
+                    }
+                }
             }
         ]
     }
