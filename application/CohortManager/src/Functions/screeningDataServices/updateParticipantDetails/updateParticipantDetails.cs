@@ -52,10 +52,11 @@ public class UpdateParticipantDetails
 
             if (response.CreatedException)
             {
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
 
-            var isAdded = await _participantManagerData.UpdateParticipantDetails(participantCsvRecord, existingParticipantData);
+            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
