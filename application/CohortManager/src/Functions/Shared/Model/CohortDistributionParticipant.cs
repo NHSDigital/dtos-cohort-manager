@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 
 public class CohortDistributionParticipant
 {
+    public string RecordType { get; set; }
+
     [JsonPropertyName("ParticipantId")]
     public string? ParticipantId { get; set; }
 

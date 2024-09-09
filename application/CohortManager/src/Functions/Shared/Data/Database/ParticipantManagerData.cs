@@ -14,14 +14,12 @@ public class ParticipantManagerData : IParticipantManagerData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<ParticipantManagerData> _logger;
-    private readonly ICallFunction _callFunction;
 
-    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger, ICallFunction callFunction)
+    public ParticipantManagerData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<ParticipantManagerData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _callFunction = callFunction;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
@@ -53,20 +51,12 @@ public class ParticipantManagerData : IParticipantManagerData
         }
     }
 
-    public async Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
+    public bool UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord)
     {
         try
         {
             var participantData = participantCsvRecord.Participant;
             var dateToday = DateTime.Now;
-
-            var oldParticipant = GetParticipant(participantData.NhsNumber);
-
-            var response = await ValidateData(oldParticipant, participantData, participantCsvRecord.FileName);
-            if (response.ExceptionFlag == "Y")
-            {
-                participantData = response;
-            }
 
             string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] SET " +
                 " REASON_FOR_REMOVAL = @reasonForRemoval, " +
@@ -224,27 +214,6 @@ public class ParticipantManagerData : IParticipantManagerData
         }
     }
 
-    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
-    {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
-        try
-        {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                newParticipant.ExceptionFlag = "Y";
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
-            return null;
-        }
-
-        return newParticipant;
-    }
-
     private IDbTransaction BeginTransaction()
     {
         _dbConnection.ConnectionString = _connectionString;
@@ -273,5 +242,6 @@ public class ParticipantManagerData : IParticipantManagerData
 
         return dbCommand;
     }
+
     #endregion
 }

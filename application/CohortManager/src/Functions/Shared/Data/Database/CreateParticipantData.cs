@@ -32,14 +32,6 @@ public class CreateParticipantData : ICreateParticipantData
     {
         var participantData = participantCsvRecord.Participant;
 
-        // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        var response = await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName);
-        if (response.ExceptionFlag == "Y")
-        {
-            participantData = response;
-        }
-
         DateTime dateToday = DateTime.Today;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
 
@@ -218,25 +210,5 @@ public class CreateParticipantData : ICreateParticipantData
         }
 
         return dbCommand;
-    }
-    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
-    {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
-        try
-        {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                newParticipant.ExceptionFlag = "Y";
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
-            return null;
-        }
-
-        return newParticipant;
     }
 }
