@@ -15,8 +15,6 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
             SupersededByNhsNumber = participant.SupersededByNhsNumber,
             PrimaryCareProviderEffectiveFrom = participant.PrimaryCareProviderEffectiveFromDate,
             CurrentPostingEffectiveFrom = participant.CurrentPostingEffectiveFromDate,
-            PreviousPosting = participant.PreviousPosting,
-            PreviousPostingEffectiveFrom = participant.PreviousPostingEffectiveFromDate,
             OtherGivenNames = participant.OtherGivenNames,
             PreviousSurname = participant.PreviousSurname,
             AddressLine5 = participant.AddressLine5,

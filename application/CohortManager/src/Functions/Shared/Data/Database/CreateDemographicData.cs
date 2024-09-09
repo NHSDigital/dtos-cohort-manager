@@ -41,8 +41,6 @@ public class CreateDemographicData : ICreateDemographicData
                     ", [PRIMARY_CARE_PROVIDER_FROM_DT] " +
                     ", [CURRENT_POSTING] " +
                     ", [CURRENT_POSTING_FROM_DT] " +
-                    ", [PREVIOUS_POSTING] " +
-                    ", [PREV_POSTING_TO_DT] " +
                     ", [NAME_PREFIX] " +
                     ", [GIVEN_NAME] " +
                     ", [OTHER_GIVEN_NAME] " +
@@ -79,8 +77,6 @@ public class CreateDemographicData : ICreateDemographicData
                     " @PRIMARY_CARE_PROVIDER_FROM_DT, " +
                     " @CURRENT_POSTING, " +
                     " @CURRENT_POSTING_FROM_DT, " +
-                    " @PREVIOUS_POSTING, " +
-                    " @PREV_POSTING_TO_DT, " +
                     " @NAME_PREFIX, " +
                     " @GIVEN_NAME, " +
                     " @OTHER_GIVEN_NAME, " +
@@ -118,8 +114,6 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@PRIMARY_CARE_PROVIDER_FROM_DT", string.IsNullOrEmpty(demographic.PrimaryCareProvider) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
                     {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
                     {"@CURRENT_POSTING_FROM_DT", string.IsNullOrEmpty(demographic.CurrentPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
-                    {"@PREVIOUS_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.PreviousPosting)},
-                    {"@PREV_POSTING_TO_DT", string.IsNullOrEmpty(demographic.PreviousPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PreviousPostingEffectiveFromDate)},
                     {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
                     {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
@@ -183,8 +177,6 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.PrimaryCareProviderEffectiveFromDate = reader["PRIMARY_CARE_PROVIDER_FROM_DT"] == DBNull.Value ? null : reader["PRIMARY_CARE_PROVIDER_FROM_DT"].ToString();
                 demographic.CurrentPosting = reader["CURRENT_POSTING"] == DBNull.Value ? null : reader["CURRENT_POSTING"].ToString();
                 demographic.CurrentPostingEffectiveFromDate = reader["CURRENT_POSTING_FROM_DT"] == DBNull.Value ? null : reader["CURRENT_POSTING_FROM_DT"].ToString();
-                demographic.PreviousPosting = reader["PREVIOUS_POSTING"] == DBNull.Value ? null : reader["PREVIOUS_POSTING"].ToString();
-                demographic.PreviousPostingEffectiveFromDate = reader["PREV_POSTING_TO_DT"] == DBNull.Value ? null : reader["PREV_POSTING_TO_DT"].ToString();
                 demographic.NamePrefix = reader["NAME_PREFIX"] == DBNull.Value ? null : reader["NAME_PREFIX"].ToString();
                 demographic.FirstName = reader["GIVEN_NAME"] == DBNull.Value ? null : reader["GIVEN_NAME"].ToString();
                 demographic.OtherGivenNames = reader["OTHER_GIVEN_NAME"] == DBNull.Value ? null : reader["OTHER_GIVEN_NAME"].ToString();
