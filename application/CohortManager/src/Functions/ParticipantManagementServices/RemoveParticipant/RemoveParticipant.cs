@@ -59,16 +59,17 @@ public class RemoveParticipant
                 FileName = basicParticipantCsvRecord.FileName,
             };
             var json = JsonSerializer.Serialize(participantCsvRecord);
-
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
+                _logger.LogWarning("Unable to Mark Participant as Ineligible");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
             if (!await RemoveParticipantFromCohort(participant.NhsNumber))
             {
+                _logger.LogWarning("Unable to Remove participant from Cohort");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 

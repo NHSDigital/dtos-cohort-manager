@@ -49,9 +49,20 @@ public class MarkParticipantAsIneligible
 
         var participantData = requestBody.Participant;
 
+        if(participantData == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req);
+        }
+
         // Check if a participant with the supplied NHS Number already exists
         var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber);
-        var response = await ValidateData(existingParticipantData, participantData, requestBody.FileName);
+        if(existingParticipantData == null)
+        {
+            _logger.LogError("Participant was not found");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound,req);
+        }
+
+        var response = await ValidateData(requestBody);
         if (response.IsFatal)
         {
             _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
@@ -63,9 +74,12 @@ public class MarkParticipantAsIneligible
         {
             var updated = false;
 
+
+
             if (participantData != null)
             {
                 updated = _participantManagerData.UpdateParticipantAsEligible(participantData, 'N');
+
             }
             if (updated)
             {
@@ -85,13 +99,13 @@ public class MarkParticipantAsIneligible
         }
     }
 
-    private async Task<ValidationExceptionLog> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
+        //var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
+        var json = JsonSerializer.Serialize(participantCsvRecord);
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
@@ -99,7 +113,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogError($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
             return null;
         }
     }

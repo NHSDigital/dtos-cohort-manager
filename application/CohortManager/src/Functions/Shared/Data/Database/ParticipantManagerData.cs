@@ -119,6 +119,60 @@ public class ParticipantManagerData : IParticipantManagerData
         return GetParticipantWithScreeningName(command, false);
     }
 
+    public Participant GetParticipantByParticipantId(string ParticipantId)
+    {
+        var SQL = "SELECT " +
+            "[PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[SCREENING_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[NHS_NUMBER], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_DT], " +
+            "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
+            "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
+        "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
+        "WHERE [PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID] = @ParticipantId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@ParticipantId", ParticipantId }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipantWithScreeningName(command, false);
+    }
+
+    public Participant GetParticipantByNhsIdAndScreeningId(string NHSNumber, string ScreeningId)
+    {
+        var SQL = "SELECT " +
+            "[PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[SCREENING_ID], " +
+            "[PARTICIPANT_MANAGEMENT].[NHS_NUMBER], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_DT], " +
+            "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
+            "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
+        "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
+        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NHSNumber" +
+        "AND [SCREENING_ID] == @ScreeningId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@NHSNumber", NHSNumber },
+            {"@ScreeningId", ScreeningId}
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetParticipantWithScreeningName(command, false);
+    }
+
     public Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody)
     {
         var SQL = " SELECT TOP (1) * " +

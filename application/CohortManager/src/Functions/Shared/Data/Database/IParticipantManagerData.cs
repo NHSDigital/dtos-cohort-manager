@@ -8,5 +8,6 @@ public interface IParticipantManagerData
     bool UpdateParticipantAsEligible(Participant participant, char isActive);
     Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord, Participant oldParticipant);
     Participant GetParticipant(string NhsNumber);
+    Participant GetParticipantByParticipantId(string ParticipantId);
     Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody);
 }
