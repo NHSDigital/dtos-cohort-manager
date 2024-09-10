@@ -4,7 +4,7 @@
         "Rules": [
             {
                 "RuleName": "54.ValidateBsoCode",
-                "Expression": "(newParticipant.ReasonForRemoval != RDI OR newParticipant.ReasonForRemoval != RDR OR newParticipant.ReasonForRemoval != RPR) AND (!string.IsNullOrEmpty(newParticipant.Postcode) OR !DbLookupValidationBreastScreening.ValidateOutcode(newParticipant.Postcode)) OR (!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR !DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)) AND !newParticipant.ToString().StartsWith(\"ZZZ\")",
+                "Expression": "!((newParticipant.ReasonForRemoval == \"RDI\" || newParticipant.ReasonForRemoval == \"RDR\" || newParticipant.ReasonForRemoval == \"RPR\") && !newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(newParticipant.Postcode) || !DbLookupValidationBreastScreening.ValidateOutcode(newParticipant.Postcode)) && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)) || (!DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)))",
                 "Actions": {
                     "OnFailure": {
                         "Name": "OutputExpression",

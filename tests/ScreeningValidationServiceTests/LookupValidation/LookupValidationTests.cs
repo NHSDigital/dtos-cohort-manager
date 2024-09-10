@@ -262,6 +262,20 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+
+    [TestMethod]
+    public async Task Run_invalidBsoCode_ValidateBsoCodeRuleFails(string primaryCareProvider, string postcode)
+    {
+        // Arrange
+         _requestBody.NewParticipant.ReasonForRemoval = "RDI";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+        
+        // Assert
+    }
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
