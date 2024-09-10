@@ -1,3 +1,16 @@
+data "azurerm_container_registry" "acr_dev" {
+  provider = azurerm.development
+
+  name                = "acrukscohmandev"
+  resource_group_name = "rg-cohort-manager-dev-uks"
+}
+
+data "azurerm_user_assigned_identity" "acr_mi_dev" {
+  provider = azurerm.development
+
+  name                = "dtos-cohort-manager-acr-push"
+  resource_group_name = "rg-cohort-manager-dev-uks"
+}
 
 resource "azurerm_linux_function_app" "function" {
   for_each = var.function_app
@@ -13,20 +26,20 @@ resource "azurerm_linux_function_app" "function" {
 
   identity {
     type         = "SystemAssigned, UserAssigned"
-    identity_ids = [var.acr_mi_id]
+    identity_ids = [data.azurerm_user_assigned_identity.acr_mi_dev.id]
   }
 
   site_config {
 
     container_registry_use_managed_identity       = var.cont_registry_use_mi
-    container_registry_managed_identity_client_id = var.acr_mi_client_id
+    container_registry_managed_identity_client_id = data.azurerm_user_assigned_identity.acr_mi_dev.client_id
 
     application_insights_connection_string = var.ai_connstring
     use_32_bit_worker                      = var.gl_worker_32bit
 
     application_stack {
       docker {
-        registry_url = var.acr_registry_url
+        registry_url = data.azurerm_container_registry.acr_dev.login_server
         image_name   = "${var.docker_img_prefix}-${lower(each.value.name_suffix)}"
         image_tag    = var.image_tag
       }
