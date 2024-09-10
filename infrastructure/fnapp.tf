@@ -20,6 +20,10 @@ module "functionapp" {
   gl_worker_32bit      = var.function_app.gl_worker_32bit
   cont_registry_use_mi = var.function_app.gl_cont_registry_use_mi
 
+  acr_name    = var.function_app.acr_name
+  acr_rg_name = var.function_app.acr_rg_name
+  acr_mi_name = var.function_app.acr_mi_name
+
   image_tag             = var.function_app.gl_docker_env_tag
   docker_img_prefix     = var.function_app.gl_docker_img_prefix
   docker_CI_enable      = var.function_app.gl_docker_CI_enable

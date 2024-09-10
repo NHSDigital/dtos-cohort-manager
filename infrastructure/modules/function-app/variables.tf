@@ -78,6 +78,21 @@ variable "enable_appsrv_storage" {
   description = "If websites app service storage should be enabled"
 }
 
+variable "acr_name" {
+  description = "Name of the Azure Container Registry that's connected to the Function Apps"
+  type        = string
+}
+
+variable "acr_rg_name" {
+  description = "Name of the resource group of Azure Container Registry that's connected to the Function Apps"
+  type        = string
+}
+
+variable "acr_mi_name" {
+  description = "Name of the User Assigned Managed Identiti of Azure Container Registry that's connected to the Function Apps"
+  type        = string
+}
+
 ######################
 # security defaults
 ######################
