@@ -230,6 +230,7 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["RECORD_TYPE"]).Returns(DBNull.Value);
     }
 
     private static Participant GetParticipant()
