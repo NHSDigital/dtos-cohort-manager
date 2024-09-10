@@ -1,6 +1,11 @@
 module "functionapp" {
   source = ".//modules/function-app"
 
+  providers = {
+    azurerm             = azurerm
+    azurerm.development = azurerm.development
+  }
+
   names = module.config.names
 
   environment = var.environment

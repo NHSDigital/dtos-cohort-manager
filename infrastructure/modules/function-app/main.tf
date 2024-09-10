@@ -1,6 +1,5 @@
 data "azurerm_container_registry" "acr_dev" {
   provider = azurerm.development
-  #  count = contains(["NFT", "integration", "non-prod"], var.environment) ? 1 : 0
 
   name                = "acrukscohmandev"
   resource_group_name = "rg-cohort-manager-dev-uks"
@@ -8,7 +7,6 @@ data "azurerm_container_registry" "acr_dev" {
 
 data "azurerm_user_assigned_identity" "acr_mi_dev" {
   provider = azurerm.development
-  #  count = contains(["NFT", "integration", "non-prod"], var.environment) ? 1 : 0
 
   name                = "dtos-cohort-manager-acr-push"
   resource_group_name = "rg-cohort-manager-dev-uks"
