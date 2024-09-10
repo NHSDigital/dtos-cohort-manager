@@ -43,7 +43,5 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.PreferredLanguage).Name("Preferred Language");
         Map(m => m.IsInterpreterRequired).Name("Interpreter required");
         Map(m => m.InvalidFlag).Name("Invalid Flag");
-        Map(m => m.RecordIdentifier).Name("Record Identifier");
-        Map(m => m.ChangeReasonCode).Name("Change Reason Code");
     }
 }
