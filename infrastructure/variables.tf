@@ -114,6 +114,14 @@ variable "sqlserver" {
   })
 
 }
+# variable "regions" {
+#   type = map(object({
+#     is_primary_region            = bool
+#     caf_short_name               = string
+#     vnet_address_space           = list(string)
+#     next_hop_n3_gateway_ip       = string
+#   }))
+# }
 
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
@@ -214,5 +222,21 @@ variable "api_management" {
     sku                = optional(string, "Basic_1")
     publisher_name     = optional(string, "NHS_DToS_CohortManager")
     publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
+  })
+}
+
+variable "vnet" {
+  description = "Configuration of the VNET"
+  type = object({
+    vnet_address_space = optional(list(string))
+    resource_group_key = optional(string, "cohman")
+  })
+}
+
+variable "subnet" {
+  description = "Configuration of the VNET"
+  type = object({
+    resource_group_key                           = optional(string, "cohman")
+    is_private_endpoint_network_policies_enabled = optional(bool, true)
   })
 }
