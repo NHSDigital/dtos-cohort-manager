@@ -1,6 +1,11 @@
 module "functionapp" {
   source = ".//modules/function-app"
 
+  providers = {
+    azurerm                  = azurerm
+    azurerm.acr_subscription = azurerm.acr_subscription
+  }
+
   names = module.config.names
 
   function_app        = var.function_app.fa_config
@@ -13,11 +18,11 @@ module "functionapp" {
 
   ai_connstring        = module.app_insights.ai_connection_string_audit
   gl_worker_32bit      = var.function_app.gl_worker_32bit
-  acr_registry_url     = module.acr.login_server
   cont_registry_use_mi = var.function_app.gl_cont_registry_use_mi
 
-  acr_mi_id        = module.acr.mi_id
-  acr_mi_client_id = module.acr.mi_client_id
+  acr_name    = var.function_app.acr_name
+  acr_rg_name = var.function_app.acr_rg_name
+  acr_mi_name = var.function_app.acr_mi_name
 
   image_tag             = var.function_app.gl_docker_env_tag
   docker_img_prefix     = var.function_app.gl_docker_img_prefix

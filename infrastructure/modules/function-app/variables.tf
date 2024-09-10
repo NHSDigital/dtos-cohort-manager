@@ -49,24 +49,12 @@ variable "gl_worker_32bit" {
   description = "Should the Windows Function App use a 32-bit worker process. Defaults to true"
 }
 
-variable "acr_registry_url" {
-  description = "The URL that can be used to log into the container registry."
-}
-
 variable "image_tag" {
   description = "Tag of the docker image"
 }
 
 variable "cont_registry_use_mi" {
   description = "Should connections for Azure Container Registry use Managed Identity."
-}
-
-variable "acr_mi_id" {
-  description = "The ID of the Managed Service Identity to use for connections to the Azure Container Registry."
-}
-
-variable "acr_mi_client_id" {
-  description = "The Client ID of the Managed Service Identity to use for connections to the Azure Container Registry."
 }
 
 variable "caasfolder_STORAGE" {
@@ -88,6 +76,21 @@ variable "db_name" {
 
 variable "enable_appsrv_storage" {
   description = "If websites app service storage should be enabled"
+}
+
+variable "acr_name" {
+  description = "Name of the Azure Container Registry that's connected to the Function Apps"
+  type        = string
+}
+
+variable "acr_rg_name" {
+  description = "Name of the resource group of Azure Container Registry that's connected to the Function Apps"
+  type        = string
+}
+
+variable "acr_mi_name" {
+  description = "Name of the User Assigned Managed Identiti of Azure Container Registry that's connected to the Function Apps"
+  type        = string
 }
 
 ######################

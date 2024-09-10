@@ -8,6 +8,11 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "ACR_SUBSCRIPTION_ID" {
+  description = "ID of the subscription hosting the ACR used in current environment"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
@@ -167,7 +172,9 @@ variable "function_app" {
     gl_docker_img_prefix     = optional(string, "false")
     gl_cont_registry_use_mi  = optional(bool, true)
     gl_enable_appsrv_storage = optional(string, "false")
-
+    acr_name                 = optional(string, "acrukscohmandev")
+    acr_rg_name              = optional(string, "rg-cohort-manager-dev-uks")
+    acr_mi_name              = optional(string, "dtos-cohort-manager-acr-push")
     fa_config = map(object({
       name_suffix = string
     }))
