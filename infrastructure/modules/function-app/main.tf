@@ -1,12 +1,12 @@
 data "azurerm_container_registry" "acr" {
-  provider = azurerm.development
+  provider = azurerm.acr_subscription
 
   name                = var.acr_name
   resource_group_name = var.acr_rg_name
 }
 
 data "azurerm_user_assigned_identity" "acr_mi" {
-  provider = azurerm.development
+  provider = azurerm.acr_subscription
 
   name                = var.acr_mi_name
   resource_group_name = var.acr_rg_name

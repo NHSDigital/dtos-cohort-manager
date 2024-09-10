@@ -29,8 +29,8 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "development"
-  subscription_id = var.DEV_SUBSCRIPTION_ID
+  alias           = "acr_subscription"
+  subscription_id = var.ACR_SUBSCRIPTION_ID
   # Configuration options
 
   features {}

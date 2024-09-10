@@ -8,8 +8,8 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
-variable "DEV_SUBSCRIPTION_ID" {
-  description = "ID of the Dev subscription to hosting the default non-prod ACR"
+variable "ACR_SUBSCRIPTION_ID" {
+  description = "ID of the subscription hosting the ACR used in current environment"
   type        = string
 }
 

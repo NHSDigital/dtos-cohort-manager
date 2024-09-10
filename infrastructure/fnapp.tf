@@ -2,8 +2,8 @@ module "functionapp" {
   source = ".//modules/function-app"
 
   providers = {
-    azurerm             = azurerm
-    azurerm.development = azurerm.development
+    azurerm                  = azurerm
+    azurerm.acr_subscription = azurerm.acr_subscription
   }
 
   names = module.config.names
