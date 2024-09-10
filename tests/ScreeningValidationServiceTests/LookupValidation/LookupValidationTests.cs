@@ -53,8 +53,7 @@ public class LookupValidationTests
         };
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv", RulesType.CohortDistribution);
 
-        var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_lookupRules.json");
-        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
+        SetupReadRulesFromBlobStorage("lookupRules");
 
         _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(new ValidationExceptionLog()
@@ -267,11 +266,66 @@ public class LookupValidationTests
             Times.Never());
     }
 
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "ABC")] // CurrentPosting not matching HMP or MHI
+    [DataRow(Actions.Removed, "MHI")] // CurrentPosting not matching existing record
+    public async Task Run_CreatesExceptionWhenCurrentPostingRuleFails_ReturnCreated(string recordType, string currentPosting)
+    {
+        // Arrange
+        SetupReadRulesFromBlobStorage("CohortRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "ABC")]
+    [DataRow(Actions.Amended, "HMP")]
+    [DataRow(Actions.Removed, "MHI")]
+    public async Task Run_DoesNotCreatesExceptionWhenCurrentPostingRulePasses_Return(string recordType, string currentPosting)
+    {
+        // Arrange
+        SetupReadRulesFromBlobStorage("CohortRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.CurrentPosting = currentPosting;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
         var bodyStream = new MemoryStream(byteArray);
 
         _request.Setup(r => r.Body).Returns(bodyStream);
+    }
+
+    private void SetupReadRulesFromBlobStorage(string fileName)
+    {
+        var rules = File.ReadAllText($"../../../../../../application/CohortManager/rules/Breast_Screening_{fileName}.json");
+        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(rules));
     }
 }
