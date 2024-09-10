@@ -364,8 +364,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 SQL = SQL,
             });
 
-        participant.Extracted = 1.ToString();
-        participant.RequestId = requestId.ToString();
+            participant.Extracted = 1.ToString();
+            participant.RequestId = requestId.ToString();
         }
 
         return UpdateRecords(sqlToExecute);
