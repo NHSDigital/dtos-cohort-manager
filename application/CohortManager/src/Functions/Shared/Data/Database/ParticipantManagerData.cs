@@ -57,7 +57,8 @@ public class ParticipantManagerData : IParticipantManagerData
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME" +
+            " RECORD_UPDATE_DATETIME," +
+            " RECORD_TYPE" +
             " ) VALUES( " +
             " @screeningId, " +
             " @NHSNumber, " +
@@ -66,7 +67,8 @@ public class ParticipantManagerData : IParticipantManagerData
             " @businessRuleVersion, " +
             " @exceptionFlag, " +
             " @recordInsertDateTime, " +
-            " @recordUpdateDateTime " +
+            " @recordUpdateDateTime, " +
+            " @recordType " +
             " ) ";
 
 
@@ -80,6 +82,7 @@ public class ParticipantManagerData : IParticipantManagerData
             { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
+            { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
@@ -104,7 +107,8 @@ public class ParticipantManagerData : IParticipantManagerData
             "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
             "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
             "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
-            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME], " +
+            "[PARTICIPANT_MANAGEMENT].[RECORD_TYPE] " +
         "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
         "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
 
@@ -245,6 +249,7 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
                 participant.ScreeningAcronym = withScreeningName ? (reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString()) : null;
                 participant.ScreeningName = withScreeningName ? (reader["SCREENING_NAME"] == DBNull.Value ? null : reader["SCREENING_NAME"].ToString()) : null;
+                participant.RecordType = reader["RECORD_TYPE"] == DBNull.Value ? null : reader["RECORD_TYPE"].ToString();
             }
             return participant;
         });
