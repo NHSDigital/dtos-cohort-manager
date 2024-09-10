@@ -1,15 +1,18 @@
 namespace Common;
 
+using System.Reflection.Metadata;
 using Microsoft.Extensions.Logging;
 using Model;
 using NHS.MESH.Client.Contracts.Services;
 using NHS.MESH.Client.Helpers;
+using NHS.MESH.Client.Helpers.ContentHelpers;
 using NHS.MESH.Client.Models;
 
 public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 {
 
     private readonly IMeshInboxService _meshInboxService;
+    private readonly IMeshOperationService _meshOperationService;
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ILogger<MeshToBlobTransferHandler> _logger;
 
@@ -17,11 +20,12 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
     private string _mailboxId;
     private string _destinationContainer;
 
-    public MeshToBlobTransferHandler(ILogger<MeshToBlobTransferHandler> logger, IBlobStorageHelper blobStorageHelper, IMeshInboxService meshInboxService)
+    public MeshToBlobTransferHandler(ILogger<MeshToBlobTransferHandler> logger, IBlobStorageHelper blobStorageHelper, IMeshInboxService meshInboxService, IMeshOperationService meshOperationService)
     {
         _logger = logger;
         _meshInboxService = meshInboxService;
         _blobStorageHelper = blobStorageHelper;
+        _meshOperationService = meshOperationService;
 
     }
 
@@ -32,6 +36,15 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         _destinationContainer = destinationContainer;
 
         int messageCount;
+
+        var meshValidationResponse = await _meshOperationService.MeshHandshakeAsync(mailboxId);
+
+        if(!meshValidationResponse.IsSuccessful)
+        {
+            _logger.LogError("Error While handshaking with MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",meshValidationResponse.Error?.ErrorCode,meshValidationResponse.Error?.ErrorDescription);
+            return false;
+        }
+
         do
         {
 
@@ -149,6 +162,13 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
             return null;
         }
+
+        if(result.Response.MessageMetaData.ContentEncoding == "GZIP")
+        {
+            var decompressedFileContent = GZIPHelpers.DeCompressBuffer(result.Response.FileAttachment.Content);
+            return new BlobFile(decompressedFileContent,result.Response.FileAttachment.FileName);
+        }
+
 
         return new BlobFile(result.Response.FileAttachment.Content, result.Response.FileAttachment.FileName);
     }
