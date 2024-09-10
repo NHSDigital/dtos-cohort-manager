@@ -328,7 +328,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
-                    Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED")
+                    Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
+                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID")
                 };
 
                 participants.Add(participant);
@@ -354,7 +355,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             {"@Extracted", 1 },
             {"@RequestId", requestId },
-            {"@ParticipantId", participant.ParticipantId }
+            {"@ParticipantId", participant.ParticipantId}
         };
 
             sqlToExecute.Add(new SQLReturnModel
@@ -364,7 +365,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             });
 
         participant.Extracted = 1.ToString();
-        participant.RequestId = requestId;
+        participant.RequestId = requestId.ToString();
         }
 
         return UpdateRecords(sqlToExecute);

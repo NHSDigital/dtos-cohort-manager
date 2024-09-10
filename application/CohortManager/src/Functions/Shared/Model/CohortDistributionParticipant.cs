@@ -107,5 +107,5 @@ public class CohortDistributionParticipant
     public string? ScreeningAcronym { get; set; }
     public string? ScreeningId { get; set; }
     public string? ScreeningName { get; set; }
-    public Guid? RequestId { get; set; }
+    public string? RequestId { get; set; }
 }

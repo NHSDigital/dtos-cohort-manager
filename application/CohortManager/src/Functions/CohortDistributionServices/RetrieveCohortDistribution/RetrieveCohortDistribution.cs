@@ -30,12 +30,13 @@ public class RetrieveCohortDistributionDataFunction
         int rowCount = GetRowCount(req);
 
         if (rowCount == 0) return LogErrorResponse(req, "User has requested 0 rows, which is not possible.");
+        if (rowCount >= 1000) return LogErrorResponse(req, "User cannot request more than 1000 rows at a time.");
         if (serviceProviderId == 0) return LogErrorResponse(req, "No ServiceProviderId has been provided.");
 
         try
         {
             var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
-            if (cohortDistributionParticipants.Any())
+            if (cohortDistributionParticipants.Count != 0)
             {
                 var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
