@@ -236,7 +236,7 @@ variable "vnet" {
 variable "subnet" {
   description = "Configuration of the VNET"
   type = object({
-    resource_group_key = optional(string, "cohman")
+    resource_group_key                           = optional(string, "cohman")
     is_private_endpoint_network_policies_enabled = optional(bool, true)
   })
 }

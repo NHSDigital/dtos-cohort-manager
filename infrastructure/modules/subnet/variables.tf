@@ -26,7 +26,7 @@ variable "vnet_name" {
 }
 
 variable "vnet_address_space" {
-  type      = list(string)
+  type = list(string)
 }
 
 variable "tags" {
@@ -43,7 +43,7 @@ variable "network_security_group_id" {
 
 variable "private_endpoint_network_policies" {
   type        = bool
-  default     = false  # Default as per compliance requirements
+  default     = false # Default as per compliance requirements
   description = "Enable or disable network policies for private endpoints."
 }
 
