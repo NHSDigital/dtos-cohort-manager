@@ -1,3 +1,8 @@
+variable "environment" {
+  description = "Environment code for deployments"
+  type        = string
+  default     = "DEV"
+}
 
 variable "resource_group_name" {
   type        = string

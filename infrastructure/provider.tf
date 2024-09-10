@@ -28,6 +28,14 @@ provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  alias           = "development"
+  subscription_id = var.DEV_SUBSCRIPTION_ID
+  # Configuration options
+
+  features {}
+}
+
 provider "azuread" {
   # Configuration options
 }

@@ -3,6 +3,8 @@ module "functionapp" {
 
   names = module.config.names
 
+  environment = var.environment
+
   function_app        = var.function_app.fa_config
   resource_group_name = module.baseline.resource_group_names[var.function_app.resource_group_key]
   location            = module.baseline.resource_group_locations[var.function_app.resource_group_key]

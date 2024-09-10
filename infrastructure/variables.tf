@@ -8,6 +8,11 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "DEV_SUBSCRIPTION_ID" {
+  description = "ID of the Dev subscription to hosting the default non-prod ACR"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
