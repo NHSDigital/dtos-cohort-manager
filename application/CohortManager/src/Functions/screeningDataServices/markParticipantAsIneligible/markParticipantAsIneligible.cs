@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.ScreeningDataServices;
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -50,7 +51,7 @@ public class MarkParticipantAsIneligible
         var participantData = requestBody.Participant;
 
         // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber);
+        var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber, participantData.ScreeningId);
         var response = await ValidateData(existingParticipantData, participantData, requestBody.FileName);
         if (response.IsFatal)
         {
@@ -79,7 +80,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error occurred: {ex}");
+            _logger.LogError(ex,$"an error occurred: {ex}");
             await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -99,7 +100,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogError(ex,$"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
     }

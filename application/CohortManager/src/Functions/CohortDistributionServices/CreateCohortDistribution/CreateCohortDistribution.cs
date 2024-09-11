@@ -74,7 +74,7 @@ public class CreateCohortDistribution
             response = await HandleErrorResponseIfNull(serviceProvider, req);
             if (response != null) return response;
 
-            if (ParticipantHasException(requestBody.NhsNumber))
+            if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningId))
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
                 // we return OK here as there has not been an error
@@ -127,9 +127,9 @@ public class CreateCohortDistribution
         return response;
     }
 
-    private bool ParticipantHasException(string nhsNumber)
+    private bool ParticipantHasException(string nhsNumber, string screeningId)
     {
-        var participant = _participantManagerData.GetParticipant(nhsNumber);
+        var participant = _participantManagerData.GetParticipant(nhsNumber,screeningId);
         var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
         return exceptionFlag == Exists.Yes;
     }
