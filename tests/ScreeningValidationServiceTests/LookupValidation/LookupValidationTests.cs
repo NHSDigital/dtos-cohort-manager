@@ -268,8 +268,8 @@ public class LookupValidationTests
 
 
     [TestMethod]
-    [DataRow(Actions.Amended, "ABC")] // CurrentPosting not matching HMP or MHI
-    [DataRow(Actions.Removed, "MHI")] // CurrentPosting not matching existing record
+    [DataRow(Actions.Amended, "MHI")]
+    [DataRow(Actions.Removed, "MHI")]
     public async Task Run_CreatesExceptionWhenCurrentPostingRuleFails_ReturnCreated(string recordType, string currentPosting)
     {
         // Arrange
@@ -293,15 +293,15 @@ public class LookupValidationTests
 
     [TestMethod]
     [DataRow(Actions.New, "ABC")]
+    [DataRow(Actions.Amended, "ABC")]
     [DataRow(Actions.Amended, "HMP")]
-    [DataRow(Actions.Removed, "MHI")]
     public async Task Run_DoesNotCreatesExceptionWhenCurrentPostingRulePasses_Return(string recordType, string currentPosting)
     {
         // Arrange
         SetupReadRulesFromBlobStorage("CohortRules");
         _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
