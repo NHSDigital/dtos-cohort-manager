@@ -64,11 +64,17 @@ public class UpdateParticipantFunction
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
 
+            if (response.IsFatal)
+            {
+                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
             var responseDataFromCohort = false;
             var updateResponse = false;
-            if (response.Participant.ExceptionFlag == "Y")
+            if (response.CreatedException)
             {
-                participantCsvRecord = response;
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
                 updateResponse = await updateParticipant(participantCsvRecord, req);
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
@@ -77,6 +83,7 @@ public class UpdateParticipantFunction
             }
 
             updateResponse = await updateParticipant(participantCsvRecord, req);
+
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
@@ -89,13 +96,11 @@ public class UpdateParticipantFunction
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-
     }
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;
@@ -115,17 +120,23 @@ public class UpdateParticipantFunction
         return false;
     }
 
-    private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        if (response.StatusCode == HttpStatusCode.Created)
+        try
         {
-            participantCsvRecord.Participant.ExceptionFlag = "Y";
-        }
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
-        return participantCsvRecord;
+            return responseBody;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            return null;
+        }
     }
 }
 

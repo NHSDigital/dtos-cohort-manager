@@ -8,6 +8,11 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "ACR_SUBSCRIPTION_ID" {
+  description = "ID of the subscription hosting the ACR used in current environment"
+  type        = string
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
@@ -33,7 +38,16 @@ variable "tags" {
 variable "resource_groups" {
   description = "Map of resource groups"
   type = map(object({
-    name = optional(string, "rg-cohort-manager-dev-suk")
+    name     = optional(string, "rg-cohort-manager-dev-suk")
+    location = optional(string, "uksouth")
+  }))
+}
+
+variable "resource_groups_audit" {
+  description = "Map of resource groups in Audit subscription"
+  type = map(object({
+    name     = optional(string, "rg-audit-cohort-manager-dev-uks")
+    location = optional(string, "uksouth")
   }))
 }
 
@@ -105,6 +119,14 @@ variable "sqlserver" {
   })
 
 }
+# variable "regions" {
+#   type = map(object({
+#     is_primary_region            = bool
+#     caf_short_name               = string
+#     vnet_address_space           = list(string)
+#     next_hop_n3_gateway_ip       = string
+#   }))
+# }
 
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
@@ -150,7 +172,9 @@ variable "function_app" {
     gl_docker_img_prefix     = optional(string, "false")
     gl_cont_registry_use_mi  = optional(bool, true)
     gl_enable_appsrv_storage = optional(string, "false")
-
+    acr_name                 = optional(string, "acrukscohmandev")
+    acr_rg_name              = optional(string, "rg-cohort-manager-dev-uks")
+    acr_mi_name              = optional(string, "dtos-cohort-manager-acr-push")
     fa_config = map(object({
       name_suffix = string
     }))
@@ -205,5 +229,21 @@ variable "api_management" {
     sku                = optional(string, "Basic_1")
     publisher_name     = optional(string, "NHS_DToS_CohortManager")
     publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
+  })
+}
+
+variable "vnet" {
+  description = "Configuration of the VNET"
+  type = object({
+    vnet_address_space = optional(list(string))
+    resource_group_key = optional(string, "cohman")
+  })
+}
+
+variable "subnet" {
+  description = "Configuration of the VNET"
+  type = object({
+    resource_group_key                           = optional(string, "cohman")
+    is_private_endpoint_network_policies_enabled = optional(bool, true)
   })
 }
