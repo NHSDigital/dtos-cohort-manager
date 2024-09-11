@@ -105,18 +105,21 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public void RemoveOldException(string nhsNumber)
     {
+
         if (!RecordExists(nhsNumber))
         {
             _logger.LogInformation("There was no exception record to remove for the NHS number: {nhsNumber}", nhsNumber);
             return;
         }
 
-        var SQL = @"DELETE FROM [dbo].EXCEPTION_MANAGEMENT
+        var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
+                    SET DATE_RESOLVED = @todaysDate
                     WHERE NHS_NUMBER = @nhsNumber";
 
         var command = CreateCommand(new Dictionary<string, object>()
         {
             {"@nhsNumber", nhsNumber},
+            {"@todaysDate", DateTime.Today},
         });
 
         command.CommandText = SQL;
