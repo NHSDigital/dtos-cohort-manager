@@ -10,5 +10,4 @@ module "storage" {
 
   tags = var.tags
 
-
 }
