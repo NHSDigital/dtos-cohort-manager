@@ -195,5 +195,6 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["IS_EXTRACTED"]).Returns(() => 0);
+        _mockDataReader.Setup(reader => reader["CURRENT_POSTING"]).Returns(DBNull.Value);
     }
 }
