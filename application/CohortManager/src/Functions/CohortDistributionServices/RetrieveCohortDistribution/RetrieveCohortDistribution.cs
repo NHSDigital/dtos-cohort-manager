@@ -36,13 +36,11 @@ public class RetrieveCohortDistributionData
         try
         {
             var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
-            if (cohortDistributionParticipants.Count != 0)
-            {
-                var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
-            }
+            if (cohortDistributionParticipants.Count == 0) _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
+
         }
         catch (Exception ex)
         {
