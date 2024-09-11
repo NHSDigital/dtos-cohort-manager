@@ -57,20 +57,23 @@ public class ReceiveCaasFile
 
             try
             {
-                _logger.LogInformation("loading azure blob storage configuration");
-                var azureStorage = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-                var blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
-                _logger.LogInformation("establishing a connection to the azure blob storage");
-                var blobServiceClient = new BlobServiceClient(azureStorage);
-                var container = blobServiceClient.GetBlobContainerClient(blobContainerName);
 
                 try
                 {
-                    downloadFilePath = Path.Combine(Path.GetTempPath(), name + ".parquet");
-                    var blob = container.GetBlobClient(name);
+                    downloadFilePath = Path.Combine(Path.GetTempPath(), name);
+
                     _logger.LogInformation("Downloading the file {name} from the blob.", name);
-                    await blob.DownloadToAsync(downloadFilePath);
+                    using (var fileStream = File.Create(downloadFilePath))
+                    {
+                        blobStream.Seek(0, SeekOrigin.Begin);
+                        blobStream.CopyTo(fileStream);
+                    }
+
+
                     var screeningService = GetScreeningService(name);
+
+
+
                     _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
                     _logger.LogInformation("Start reading the downloadedfile {name}.", name);
                     using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
@@ -152,9 +155,7 @@ public class ReceiveCaasFile
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(
-                        "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}",
-                        rowNumber, ex.Message, ex.StackTrace);
+                    _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
                     await InsertValidationErrorIntoDatabase(name);
                 }
 
@@ -199,6 +200,7 @@ public class ReceiveCaasFile
                 {
                     _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
                     var json = JsonSerializer.Serialize(cohort);
+
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
                     _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                 }
