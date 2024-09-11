@@ -22,6 +22,6 @@ resource "azurerm_storage_container" "container" {
   }
 
   name                  = each.value.cont_name
-  storage_account_name  = azurerm_storage_account.accounts[each.key].name
+  storage_account_name  = azurerm_storage_account.sa[each.key].name
   container_access_type = each.value.cont_access_type
 }
