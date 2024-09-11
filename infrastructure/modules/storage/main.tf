@@ -18,11 +18,18 @@ resource "azurerm_storage_account" "sa" {
 resource "azurerm_storage_container" "container" {
   for_each = {
     for sa_key, sa_val in var.storage_accounts :
-    sa_key => {
-      for cont_key, cont_val in sa_val.containers :
-      cont_key => cont_val
-    } if length(sa_val.containers) > 0
+    sa_key => flatten([
+      for cont_key, cont_val in sa_val.containers : [
+        for inner_cont_key, inner_cont_val in cont_val : {
+          sa_key         = sa_key
+          cont_key       = cont_key
+          inner_cont_key = inner_cont_key
+          inner_cont_val = inner_cont_val
+        }
+      ]
+    ]) if length(sa_val.containers) > 0
   }
+
 
   name                  = each.value.cont_name
   storage_account_name  = azurerm_storage_account.sa[each.key].name
