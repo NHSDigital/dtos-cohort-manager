@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
+using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -15,7 +16,6 @@ using RulesEngine.Models;
 public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
-    private readonly ICallFunction _callFunction;
 
     private readonly ICreateResponse _createResponse;
 
@@ -23,13 +23,15 @@ public class StaticValidation
 
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
 
-    public StaticValidation(ILogger<StaticValidation> logger, ICallFunction callFunction, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage)
+    private readonly IValidationExceptionData _validationExceptionData;
+
+    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, IValidationExceptionData validationExceptionData)
     {
         _logger = logger;
-        _callFunction = callFunction;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
+        _validationExceptionData = validationExceptionData;
     }
 
     [Function("StaticValidation")]
@@ -66,6 +68,7 @@ public class StaticValidation
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
+            _validationExceptionData.RemoveOldException(participantCsvRecord.Participant.NhsNumber);
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -81,7 +84,7 @@ public class StaticValidation
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,ex.Message);
+            _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

@@ -52,6 +52,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
+
         var SQL = @"INSERT INTO [dbo].[EXCEPTION_MANAGEMENT] (
                     FILE_NAME,
                     NHS_NUMBER,
@@ -101,6 +102,55 @@ public class ValidationExceptionData : IValidationExceptionData
 
         return ExecuteCommand(command);
     }
+
+    public void RemoveOldException(string nhsNumber)
+    {
+        if (!RecordExists(nhsNumber))
+        {
+            _logger.LogInformation("There was no exception record to remove for the NHS number: {nhsNumber}", nhsNumber);
+            return;
+        }
+
+        var SQL = @"DELETE FROM [dbo].EXCEPTION_MANAGEMENT
+                    WHERE NHS_NUMBER = @nhsNumber";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+        });
+
+        command.CommandText = SQL;
+        var removed = ExecuteCommand(command);
+        if (removed)
+        {
+            _logger.LogInformation("Removed old exception record successfully");
+        }
+        _logger.LogInformation("An exception record was found but not Removed successfully");
+    }
+
+    private bool RecordExists(string nhsNumber)
+    {
+        var recordExists = false;
+        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+        });
+        command.CommandText = SQL;
+
+        _dbConnection.ConnectionString = _connectionString;
+        _dbConnection.Open();
+        using (var reader = command.ExecuteReader())
+        {
+            // Return true if the reader has at least one row.
+            recordExists = reader.Read();
+        }
+        _dbConnection.Close();
+
+        return recordExists;
+    }
+
 
     private bool ExecuteCommand(IDbCommand command)
     {

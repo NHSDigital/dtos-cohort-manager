@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,6 @@ using RulesEngine.Models;
 public class StaticValidationTests
 {
     private readonly Mock<ILogger<StaticValidation>> _logger = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<IExceptionHandler> _handleException = new();
@@ -29,6 +29,7 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
+    private readonly Mock<IValidationExceptionData> _validatonExceptionData = new();
 
     private Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
 
@@ -52,7 +53,7 @@ public class StaticValidationTests
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
-        _function = new StaticValidation(_logger.Object, _callFunction.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object);
+        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object, _validatonExceptionData.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -78,7 +79,6 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     [TestMethod]
@@ -92,7 +92,6 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     #region NHS Number (Rule 9)
