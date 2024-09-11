@@ -72,7 +72,7 @@
         },
         {
           "RuleName": "61.InvalidFlag.NonFatal",
-          "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
+          "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\""
         },
         {
           "RuleName": "62.ValidateReasonForRemoval.NonFatal",

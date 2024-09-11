@@ -35,7 +35,6 @@ public class AddNewParticipantTestClass
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
         Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
 
-
         var participantCsvRecord = new ParticipantCsvRecord
         {
             FileName = "test.csv",
