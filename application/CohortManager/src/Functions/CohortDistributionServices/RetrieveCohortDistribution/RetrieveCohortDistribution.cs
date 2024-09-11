@@ -46,7 +46,7 @@ public class RetrieveCohortDistributionData
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex, ex.Message);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
