@@ -103,10 +103,10 @@ public class ValidationExceptionData : IValidationExceptionData
         return ExecuteCommand(command);
     }
 
-    public void RemoveOldException(string nhsNumber)
+    public void RemoveOldException(string nhsNumber, string screeningName)
     {
 
-        if (!RecordExists(nhsNumber))
+        if (!RecordExists(nhsNumber, screeningName))
         {
             _logger.LogInformation("There was no exception record to remove for the NHS number: {nhsNumber}", nhsNumber);
             return;
@@ -131,14 +131,15 @@ public class ValidationExceptionData : IValidationExceptionData
         _logger.LogInformation("An exception record was found but not Removed successfully");
     }
 
-    private bool RecordExists(string nhsNumber)
+    private bool RecordExists(string nhsNumber, string screeningName)
     {
         var recordExists = false;
-        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber";
+        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
 
         var command = CreateCommand(new Dictionary<string, object>()
         {
             {"@nhsNumber", nhsNumber},
+            {"@screeningName", screeningName}
         });
         command.CommandText = SQL;
 

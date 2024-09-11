@@ -68,7 +68,7 @@ public class StaticValidation
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-            _validationExceptionData.RemoveOldException(participantCsvRecord.Participant.NhsNumber);
+            _validationExceptionData.RemoveOldException(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
