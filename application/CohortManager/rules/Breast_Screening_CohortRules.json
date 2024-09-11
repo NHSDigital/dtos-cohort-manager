@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal",
-        "Expression": "newParticipant.RecordType == Actions.New OR (newParticipant.RecordType != Actions.New AND new string[] {\"HMP\", \"MHI\"}.Contains(newParticipant.CurrentPosting) AND newParticipant.CurrentPosting == existingParticipant.CurrentPosting)"
+        "Expression": "newParticipant.RecordType == Actions.New OR (new string[] { \"HMP\", \"MHI\" }.Contains(newParticipant.CurrentPosting) AND newParticipant.CurrentPosting == existingParticipant.CurrentPosting)"
       }
     ]
   }
