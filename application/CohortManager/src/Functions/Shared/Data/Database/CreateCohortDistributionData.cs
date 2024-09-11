@@ -179,7 +179,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var parameters = new Dictionary<string, object>
         {
             {"@RowCount", rowCount },
-            {"@Extracted", "0" },
+            {"@Extracted", 0 },
             {"@ServiceProviderId", serviceProviderId }
         };
 
@@ -430,7 +430,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 SQL = SQL,
             });
 
-            participant.Extracted = 1.ToString();
+            participant.Extracted = "1";
             participant.RequestId = requestId.ToString();
         }
 
