@@ -7,7 +7,7 @@ public struct ParticipantsParquetMap
     public string? RecordType;
 
     [MapToColumn("change_time_stamp")]
-    public Double? ChangeTimeStamp;
+    public Int64? ChangeTimeStamp;
 
     [MapToColumn("serial_change_number")]
     public Int64? SerialChangeNumber;
@@ -16,7 +16,7 @@ public struct ParticipantsParquetMap
     public Int64? NhsNumber;
 
     [MapToColumn("superseded_by_nhs_number")]
-    public string? SupersededByNhsNumber;
+    public Int32? SupersededByNhsNumber;
 
     [MapToColumn("primary_care_provider")]
     public string? PrimaryCareProvider;
@@ -28,7 +28,7 @@ public struct ParticipantsParquetMap
     public string? CurrentPosting;
 
     [MapToColumn("current_posting_effective_from_date")]
-    public Int64? CurrentPostingEffectiveFromDate;
+    public string? CurrentPostingEffectiveFromDate;
 
     [MapToColumn("name_prefix")]
     public string? NamePrefix;
@@ -46,7 +46,7 @@ public struct ParticipantsParquetMap
     public string? PreviousSurnamePrefix;
 
     [MapToColumn("date_of_birth")]
-    public Int64? DateOfBirth;
+    public string? DateOfBirth;
 
     [MapToColumn("gender")]
     public Int64? Gender;
@@ -73,37 +73,37 @@ public struct ParticipantsParquetMap
     public string? PafKey;
 
     [MapToColumn("address_effective_from_date")]
-    public Int64? UsualAddressEffectiveFromDate;
+    public string? UsualAddressEffectiveFromDate;
 
     [MapToColumn("reason_for_removal")]
     public string? ReasonForRemoval;
 
     [MapToColumn("reason_for_removal_effective_from_date")]
-    public Int64? ReasonForRemovalEffectiveFromDate;
+    public string? ReasonForRemovalEffectiveFromDate;
 
     [MapToColumn("date_of_death")]
     public string? DateOfDeath;
 
     [MapToColumn("death_status")]
-    public string? DeathStatus;
+    public Int32? DeathStatus;
 
     [MapToColumn("home_telephone_number")]
     public string? TelephoneNumber;
 
     [MapToColumn("home_telephone_effective_from_date")]
-    public Int64? TelephoneNumberEffectiveFromDate;
+    public string? TelephoneNumberEffectiveFromDate;
 
     [MapToColumn("mobile_telephone_number")]
     public string? MobileNumber;
 
     [MapToColumn("mobile_telephone_effective_from_date")]
-    public Int64? MobileNumberEffectiveFromDate;
+    public string? MobileNumberEffectiveFromDate;
 
     [MapToColumn("email_address")]
     public string? EmailAddress;
 
     [MapToColumn("email_address_effective_from_date")]
-    public Int64? EmailAddressEffectiveFromDate;
+    public string? EmailAddressEffectiveFromDate;
 
     [MapToColumn("is_interpreter_required")]
     public string? IsInterpreterRequired;
@@ -113,12 +113,6 @@ public struct ParticipantsParquetMap
 
     [MapToColumn("invalid_flag")]
     public Boolean? InvalidFlag;
-
-    [MapToColumn("record_identifier")]
-    public string? RecordIdentifier;
-
-    [MapToColumn("change_reason_code")]
-    public string? ChangeReasonCode;
 }
 
 

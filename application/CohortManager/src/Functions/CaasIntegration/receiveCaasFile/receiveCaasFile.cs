@@ -6,12 +6,14 @@ using System.Text.Json;
 using Model;
 using Common;
 using System.Net;
+using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Data.Database;
 using Model.Enums;
 using ParquetSharp.RowOriented;
+using System.Threading.Tasks;
 
 public class ReceiveCaasFile
 {
@@ -28,21 +30,21 @@ public class ReceiveCaasFile
     }
 
     [Function(nameof(ReceiveCaasFile))]
-    public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream stream, string name)
+    public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
         try
         {
-            _logger.LogInformation("loading file from blob {name}", name);
+            _logger.LogInformation("Validating naming convention and file extension of {name}", name);
             if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError(
-                    "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " +
+                    "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: " +
                     name);
                 await InsertValidationErrorIntoDatabase(name);
                 return;
             }
-
+            _logger.LogInformation("fetch number of records from file name {name}", name);
             var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
             if (numberOfRecords == null) return;
 
@@ -55,20 +57,22 @@ public class ReceiveCaasFile
 
             try
             {
+                _logger.LogInformation("loading azure blob storage configuration");
                 var azureStorage = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
                 var blobContainerName = Environment.GetEnvironmentVariable("BlobContainerName");
+                _logger.LogInformation("establishing a connection to the azure blob storage");
                 var blobServiceClient = new BlobServiceClient(azureStorage);
                 var container = blobServiceClient.GetBlobContainerClient(blobContainerName);
 
                 try
                 {
                     downloadFilePath = Path.Combine(Path.GetTempPath(), name + ".parquet");
-                    if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
-
                     var blob = container.GetBlobClient(name);
+                    _logger.LogInformation("Downloading the file {name} from the blob.", name);
                     await blob.DownloadToAsync(downloadFilePath);
                     var screeningService = GetScreeningService(name);
                     _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
+                    _logger.LogInformation("Start reading the downloadedfile {name}.", name);
                     using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
                     {
                         for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
@@ -101,14 +105,6 @@ public class ReceiveCaasFile
                                     participant.Gender =
                                         (Gender)Enum.ToObject(typeof(Gender), Convert.ToInt16(rec.Gender));
                                 }
-                                else
-                                {
-                                    _logger.LogError(
-                                        $"Validation failed for field name 'Gender' on line {rowNumber}. File name: {name}.");
-                                    await InsertValidationErrorIntoDatabase(name);
-                                    return;
-                                }
-
                                 participant.AddressLine1 = Convert.ToString(rec.AddressLine1);
                                 participant.AddressLine2 = Convert.ToString(rec.AddressLine2);
                                 participant.AddressLine3 = Convert.ToString(rec.AddressLine3);
@@ -127,14 +123,6 @@ public class ReceiveCaasFile
                                     participant.DeathStatus = (Status)Enum.ToObject(typeof(Status),
                                         Convert.ToInt16(rec.DeathStatus));
                                 }
-                                else
-                                {
-                                    _logger.LogError(
-                                        $"Validation failed for field name 'Status' on line {rowNumber}. File name: {name}.");
-                                    await InsertValidationErrorIntoDatabase(name);
-                                    return;
-                                }
-
                                 participant.TelephoneNumber = Convert.ToString(rec.TelephoneNumber);
                                 participant.TelephoneNumberEffectiveFromDate =
                                     Convert.ToString(rec.TelephoneNumberEffectiveFromDate);
@@ -147,8 +135,6 @@ public class ReceiveCaasFile
                                 participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired);
                                 participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
                                 participant.InvalidFlag = Convert.ToString(rec.InvalidFlag);
-                                participant.RecordIdentifier = Convert.ToString(rec.RecordIdentifier);
-                                participant.ChangeReasonCode = Convert.ToString(rec.ChangeReasonCode);
 
                                 cohort.Participants.Add(participant);
 
@@ -161,6 +147,7 @@ public class ReceiveCaasFile
                         }
                     }
 
+                    _logger.LogInformation("Reading completed for the file {name}. Total number of record is {rowNumber}.", name, rowNumber);
                     if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
                 }
                 catch (Exception ex)
@@ -195,22 +182,28 @@ public class ReceiveCaasFile
 
             try
             {
+                _logger.LogInformation("Start processing {rowNumber} rows of record from {name} file.", rowNumber, name);
                 if (chunks.Count > 0)
                 {
+                    _logger.LogInformation("Start processing the files in chunks of 20000");
                     foreach (var chunk in chunks)
                     {
                         var json = JsonSerializer.Serialize(chunk);
                         await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
                         _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                     }
+                    _logger.LogInformation("Total {ChunksCount} number of chunks processed.", chunks.Count);
                 }
 
                 if (cohort.Participants.Count > 0)
                 {
+                    _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
                     var json = JsonSerializer.Serialize(cohort);
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
                     _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                 }
+
+                _logger.LogInformation("File {name} processed successfully. Total {rowNumber} Objects created.", name, rowNumber);
             }
             catch (Exception ex)
             {
