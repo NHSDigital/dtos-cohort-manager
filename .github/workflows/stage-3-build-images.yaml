@@ -64,7 +64,6 @@ jobs:
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
-
           if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
             PR_NUMBER=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
             echo "PR Number is: $PR_NUMBER"
