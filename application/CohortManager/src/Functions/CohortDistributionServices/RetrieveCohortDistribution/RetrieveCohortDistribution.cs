@@ -69,6 +69,6 @@ public class RetrieveCohortDistributionData
     private HttpResponseData LogErrorResponse(HttpRequestData req, string errorMessage)
     {
         _logger.LogError(errorMessage);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, errorMessage);
     }
 }
