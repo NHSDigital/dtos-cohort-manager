@@ -247,3 +247,22 @@ variable "subnet" {
     is_private_endpoint_network_policies_enabled = optional(bool, true)
   })
 }
+
+
+variable "network_security_group" {
+  description = "Configuration of the NSG"
+  type = object({
+    resource_group_key = optional(string, "cohman")
+    nsg_rules = list(object({
+      name                       = string
+      priority                   = number
+      direction                  = string
+      access                     = string
+      protocol                   = string
+      source_port_range          = string
+      destination_port_range     = string
+      source_address_prefix      = string
+      destination_address_prefix = string
+    }))
+  })
+}
