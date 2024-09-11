@@ -1,11 +1,12 @@
 resource "azurerm_storage_account" "sa" {
+  for_each = var.storage_accounts
 
-  name                          = var.name
+  name                          = substr("${var.names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
   resource_group_name           = var.resource_group_name
   location                      = var.location
-  account_tier                  = var.account_tier
-  account_replication_type      = var.sa_replication_type
-  public_network_access_enabled = var.public_access
+  account_tier                  = each.value.account_tier
+  account_replication_type      = each.value.replication_type
+  public_network_access_enabled = each.value.public_access
 
   tags = var.tags
 
@@ -14,24 +15,12 @@ resource "azurerm_storage_account" "sa" {
   }
 }
 
-resource "azurerm_storage_account" "fileexception" {
+resource "azurerm_storage_container" "container" {
+  for_each = { for sa_key, sa_value in var.storage_accounts : sa_key => sa_value.containers if length(sa_value.containers) > 0 }
 
-  name                          = var.fe_name
-  resource_group_name           = var.fe_resource_group_name
-  location                      = var.fe_location
-  account_tier                  = var.fe_account_tier
-  account_replication_type      = var.fe_sa_replication_type
-  public_network_access_enabled = var.fe_public_access
+  count = length(each.value)
 
-  tags = var.tags
-
-  lifecycle {
-    ignore_changes = [tags]
-  }
-}
-
-resource "azurerm_storage_container" "example" {
-  name                  = var.fe_cont_name # "vhds"
-  storage_account_name  = azurerm_storage_account.fileexception.name
-  container_access_type = var.fe_cont_access_type # "private"
+  name                  = each.value[count.index].cont_name
+  storage_account_name  = azurerm_storage_account.sa[each.key].name
+  container_access_type = each.value[count.index].cont_access_type
 }
