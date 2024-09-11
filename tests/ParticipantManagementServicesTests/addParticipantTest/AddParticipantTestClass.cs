@@ -249,7 +249,7 @@ public class AddNewParticipantTestClass
             LogLevel.Information,
             0,
             It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Unable to call function")),
-            null,
+            It.IsAny<Exception>(),
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
     }
@@ -277,7 +277,7 @@ public class AddNewParticipantTestClass
             LogLevel.Information,
             0,
             It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Unable to call function")),
-            null,
+            It.IsAny<Exception>(),
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
     }
