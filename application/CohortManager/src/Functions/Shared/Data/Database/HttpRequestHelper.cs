@@ -4,6 +4,7 @@ using System.Net;
 using Common;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+
 public class HttpRequestHelper
 {
     private readonly ILogger<HttpRequestHelper> _logger;
