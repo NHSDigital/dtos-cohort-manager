@@ -308,7 +308,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
-                    Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED")
+                    Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
+                    CurrentPosting = DatabaseHelper.GetStringValue(reader, "CURRENT_POSTING")
                 };
 
                 participants.Add(participant);
