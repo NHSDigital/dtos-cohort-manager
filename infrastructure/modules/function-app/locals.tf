@@ -138,9 +138,9 @@ locals {
 
     StaticValidation = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
+      ExceptionFunctionURL         = local.fnapp_urls.createException
       DtOsDatabaseConnectionString = local.db_connection_string
-      BlobContainerName    = "config"
+      BlobContainerName            = "config"
     }
 
     LookupValidation = {
