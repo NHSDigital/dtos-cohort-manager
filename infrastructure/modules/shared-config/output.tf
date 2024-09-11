@@ -109,13 +109,3 @@ output "names" {
     vnet-gateway                = local.names.vnet-gateway
   }
 }
-
-output "rg_names" {
-  description = "Names of Resource Groups"
-  value       = module.baseline.resource_group_names
-}
-
-output "rg_locations" {
-  description = "Locations of Resource Groups"
-  value       = module.baseline.resource_group_locations
-}

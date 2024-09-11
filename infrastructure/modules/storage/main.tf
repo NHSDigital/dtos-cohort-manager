@@ -2,8 +2,8 @@ resource "azurerm_storage_account" "sa" {
   for_each = var.storage_accounts
 
   name                          = substr("${var.names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
-  resource_group_name           = module.baseline.rg_names[each.value.resource_group_key]
-  location                      = module.baseline.rg_locations[each.value.resource_group_key]
+  resource_group_name           = var.resource_group_name
+  location                      = var.location
   account_tier                  = each.value.account_tier
   account_replication_type      = each.value.replication_type
   public_network_access_enabled = each.value.public_network_access_enabled
@@ -17,8 +17,11 @@ resource "azurerm_storage_account" "sa" {
 
 resource "azurerm_storage_container" "container" {
   for_each = {
-    for account_key, account_data in var.storage_accounts : account_key => account_data.containers
-    if length(account_data.containers) > 0 # Only iterate if containers are defined
+    for sa_key, sa_val in var.storage_accounts :
+    sa_key => {
+      for cont_key, cont_val in sa_val.sa_config.containers :
+      cont_key => cont_val
+    } if length(sa_val.sa_config.containers) > 0
   }
 
   name                  = each.value.cont_name
