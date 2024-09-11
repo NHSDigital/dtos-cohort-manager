@@ -16,11 +16,12 @@ resource "azurerm_storage_account" "sa" {
 }
 
 resource "azurerm_storage_container" "container" {
-  for_each = { for sa_key, sa_value in var.storage_accounts : sa_key => sa_value.containers if length(sa_value.containers) > 0 }
+  for_each = {
+    for account_key, account_data in var.storage_accounts : account_key => account_data.containers
+    if length(account_data.containers) > 0 # Only iterate if containers are defined
+  }
 
-  count = length(each.value)
-
-  name                  = each.value[count.index].cont_name
-  storage_account_name  = azurerm_storage_account.sa[each.key].name
-  container_access_type = each.value[count.index].cont_access_type
+  name                  = each.value.cont_name
+  storage_account_name  = azurerm_storage_account.accounts[each.key].name
+  container_access_type = each.value.cont_access_type
 }
