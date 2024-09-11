@@ -250,3 +250,21 @@ CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
       AUDIT_TEXT VARCHAR(50)
     );
 END
+
+/*==============================================================*/
+/* Table: LANGUAGE_CODE_LKP Table                       */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'LANGUAGE_CODE_LKP'
+)
+BEGIN
+CREATE TABLE [dbo].[LANGUAGE_CODE_LKP]
+    (
+      LANGUAGE_CODE VARCHAR(2),
+      LANGUAGE_DESCRIPTION VARCHAR(20)
+    );
+END
