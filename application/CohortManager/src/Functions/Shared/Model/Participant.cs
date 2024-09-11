@@ -43,6 +43,7 @@ public class Participant
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
         ScreeningName = cohortDistributionParticipant.ScreeningName;
         ScreeningId = cohortDistributionParticipant.ScreeningId;
+        CurrentPosting = cohortDistributionParticipant.CurrentPosting;
     }
 
     public string? RecordType { get; set; }
