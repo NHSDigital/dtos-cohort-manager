@@ -6,7 +6,7 @@ resource "azurerm_storage_account" "sa" {
   location                      = var.location
   account_tier                  = each.value.account_tier
   account_replication_type      = each.value.replication_type
-  public_network_access_enabled = each.value.public_access
+  public_network_access_enabled = each.value.public_network_access_enabled
 
   tags = var.tags
 
