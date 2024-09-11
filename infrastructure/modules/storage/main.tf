@@ -19,9 +19,9 @@ resource "azurerm_storage_container" "container" {
   for_each = {
     for sa_key, sa_val in var.storage_accounts :
     sa_key => {
-      for cont_key, cont_val in sa_val.sa_config.containers :
+      for cont_key, cont_val in sa_val.containers :
       cont_key => cont_val
-    } if length(sa_val.sa_config.containers) > 0
+    } if length(sa_val.containers) > 0
   }
 
   name                  = each.value.cont_name
