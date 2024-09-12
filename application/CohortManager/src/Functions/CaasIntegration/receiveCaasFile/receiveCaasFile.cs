@@ -39,7 +39,7 @@ public class ReceiveCaasFile
             if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError(
-                    "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: " +
+                    "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {name}",
                     name);
                 await InsertValidationErrorIntoDatabase(name);
                 return;
@@ -137,7 +137,7 @@ public class ReceiveCaasFile
                                     Convert.ToString(rec.EmailAddressEffectiveFromDate);
                                 participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired);
                                 participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
-                                participant.InvalidFlag = Convert.ToString(rec.InvalidFlag);
+                                participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(false) ? "1" : "0");
 
                                 cohort.Participants.Add(participant);
 
@@ -157,6 +157,7 @@ public class ReceiveCaasFile
                 {
                     _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
                     await InsertValidationErrorIntoDatabase(name);
+                    return;
                 }
 
                 if (rowNumber != numberOfRecords)
