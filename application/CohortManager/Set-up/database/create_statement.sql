@@ -262,58 +262,82 @@ IF NOT EXISTS
           AND TABLE_NAME = 'BSO_ORGANISATIONS'
 )
 BEGIN
-    CREATE TABLE bso_organisations
+    CREATE TABLE [dbo].[BSO_ORGANISATIONS]
     (
-      bso_organisation_id SERIAL PRIMARY KEY,
-      bso_organisation_code VARCHAR(4) NOT NULL,
-      bso_organisation_name VARCHAR(60) NOT NULL,
-      safety_period NUMERIC(2) NOT NULL,
-      risp_recall_interval NUMERIC(2) NOT NULL,
-      transaction_id INTEGER NOT NULL,
-      transaction_app_date_time TIMESTAMP WITH TIME NOT NULL,
-      transaction_user_org_role_id INTEGER NOT NULL,
-      transaction_db_date_time TIMESTAMP WITH TIME ZONE NOT NULL,
-      ignore_self_referrals boolean NOT NULL,
-      ignore_gp_referrals boolean NOT NULL,
-      ignore_early_recall boolean NOT NULL,
-      is_active boolean NOT NULL,
-      lower_age_range NUMERIC(2) NOT NULL,
-      upper_age_range NUMERIC(2) NOT NULL,
-      link_code VARCHAR(10) NOT NULL,
-      foa_max_offset NUMERIC(2) NOT NULL,
-      bso_recall_interval NUMERIC(2) NOT NULL,
-      address_line_1 VARCHAR(35),
-      address_line_2 VARCHAR(35),
-      address_line_3 VARCHAR(35),
-      address_line_4 VARCHAR(35),
-      address_line_5 VARCHAR(35),
-      postcode VARCHAR(8),
-      telephone_number VARCHAR(18),
-      extension VARCHAR(6),
-      fax_number VARCHAR(18),
-      email_address VARCHAR(100),
-      outgoing_transfer_number NUMERIC(6) NOT NULL,
-      invite_list_sequence_number NUMERIC(8) NOT NULL,
-      failsafe_date_of_month NUMERIC(2) NOT NULL,
-      failsafe_months NUMERIC(1) NOT NULL,
-      failsafe_min_age_years NUMERIC(2) NOT NULL,
-      failsafe_min_age_months NUMERIC(2) NOT NULL,
-      failsafe_max_age_years NUMERIC(2) NOT NULL,
-      failsafe_max_age_months NUMERIC(2) NOT NULL,
-      failsafe_last_run DATE NOT NULL,
-      is_agex boolean NOT NULL,
-      is_agex_active boolean NOT NULL,
-      auto_batch_last_run TIMESTAMP WITH TIME ZONE,
-      auto_batch_max_date_time_processed TIMESTAMP WITH TIME ZONE,
-      bso_region_id INTEGER,
-      admin_email_address VARCHAR(100),
-      iep_details text,
-      notes text,
-      rlp_date_enabled DATE
+      BSO_ORGANISATION_ID INT IDENTITY(1,1) PRIMARY KEY,
+      BSO_ORGANISATION_CODE VARCHAR(4) NOT NULL,
+      BSO_ORGANISATION_NAME VARCHAR(60) NOT NULL,
+      SAFETY_PERIOD NUMERIC(2) NOT NULL,
+      RISP_RECALL_INTERVAL NUMERIC(2) NOT NULL,
+      TRANSACTION_ID INTEGER NOT NULL,
+      TRANSACTION_APP_DATE_TIME DATE NOT NULL,
+      TRANSACTION_USER_ORG_ROLE_ID INTEGER NOT NULL,
+      TRANSACTION_DB_DATE_TIME DATE NOT NULL,
+      IGNORE_SELF_REFERRALS BOOLEAN NOT NULL,
+      IGNORE_GP_REFERRALS BOOLEAN NOT NULL,
+      IGNORE_EARLY_RECALL BOOLEAN NOT NULL,
+      IS_ACTIVE BOOLEAN NOT NULL,
+      LOWER_AGE_RANGE NUMERIC(2) NOT NULL,
+      UPPER_AGE_RANGE NUMERIC(2) NOT NULL,
+      LINK_CODE VARCHAR(10) NOT NULL,
+      FOA_MAX_OFFSET NUMERIC(2) NOT NULL,
+      BSO_RECALL_INTERVAL NUMERIC(2) NOT NULL,
+      ADDRESS_LINE_1 VARCHAR(35),
+      ADDRESS_LINE_2 VARCHAR(35),
+      ADDRESS_LINE_3 VARCHAR(35),
+      ADDRESS_LINE_4 VARCHAR(35),
+      ADDRESS_LINE_5 VARCHAR(35),
+      POSTCODE VARCHAR(8),
+      TELEPHONE_NUMBER VARCHAR(18),
+      EXTENSION VARCHAR(6),
+      FAX_NUMBER VARCHAR(18),
+      EMAIL_ADDRESS VARCHAR(100),
+      OUTGOING_TRANSFER_NUMBER NUMERIC(6) NOT NULL,
+      INVITE_LIST_SEQUENCE_NUMBER NUMERIC(8) NOT NULL,
+      FAILSAFE_DATE_OF_MONTH NUMERIC(2) NOT NULL,
+      FAILSAFE_MONTHS NUMERIC(1) NOT NULL,
+      FAILSAFE_MIN_AGE_YEARS NUMERIC(2) NOT NULL,
+      FAILSAFE_MIN_AGE_MONTHS NUMERIC(2) NOT NULL,
+      FAILSAFE_MAX_AGE_YEARS NUMERIC(2) NOT NULL,
+      FAILSAFE_MAX_AGE_MONTHS NUMERIC(2) NOT NULL,
+      FAILSAFE_LAST_RUN DATE NOT NULL,
+      IS_AGEX BOOLEAN NOT NULL,
+      IS_AGEX_ACTIVE BOOLEAN NOT NULL,
+      AUTO_BATCH_LAST_RUN DATE,
+      AUTO_BATCH_MAX_DATE_TIME_PROCESSED DATE,
+      BSO_REGION_ID INTEGER,
+      ADMIN_EMAIL_ADDRESS VARCHAR(100),
+      IEP_DETAILS TEXT,
+      NOTES TEXT,
+      RLP_DATE_ENABLED DATE
     );
 END
 
-COMMENT ON TABLE bso_organisations IS 'Contains BSO level details/parameters. One row per BSO. Changes are timestamped and trigger updates to audit_bso_organisations.';
-COMMENT ON COLUMN bso_organisations.auto_batch_last_run IS 'The date and time that the auto batch process last finished processing for the BSO. This is used to ensure only a single app server processes the data per run';
-COMMENT ON COLUMN bso_organisations.auto_batch_max_date_time_processed IS 'The date and time used to determine the inclusive upper limit of the data that was included in the last auto batch run';
-COMMENT ON COLUMN bso_organisations.is_agex IS 'Cannot be false if is_agex_active is true';
+-- Add description to the table
+EXEC sp_addextendedproperty
+    @name = N'Description',
+    @value = N'Contains BSO level details/parameters. One row per BSO. Changes are timestamped and trigger updates to audit_bso_organisations.',
+    @level0type = N'Schema', @level0name = dbo,
+    @level1type = N'Table', @level1name = BSO_ORGANISATIONS;
+
+-- Add description to columns
+EXEC sp_addextendedproperty
+    @name = N'Description',
+    @value = N'The date and time that the auto batch process last finished processing for the BSO. This is used to ensure only a single app server processes the data per run',
+    @level0type = N'Schema', @level0name = dbo,
+    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
+    @level2type = N'Column', @level2name = AUTO_BATCH_LAST_RUN;
+
+EXEC sp_addextendedproperty
+    @name = N'Description',
+    @value = N'The date and time used to determine the inclusive upper limit of the data that was included in the last auto batch run',
+    @level0type = N'Schema', @level0name = dbo,
+    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
+    @level2type = N'Column', @level2name = AUTO_BATCH_MAX_DATE_TIME_PROCESSED;
+
+EXEC sp_addextendedproperty
+    @name = N'Description',
+    @value = N'Cannot be false if is_agex_active is true',
+    @level0type = N'Schema', @level0name = dbo,
+    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
+    @level2type = N'Column', @level2name = IS_AGEX;
