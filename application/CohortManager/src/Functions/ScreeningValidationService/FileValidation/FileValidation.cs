@@ -62,7 +62,7 @@ public class FileValidation
 
             if (requestObject.FileName != null)
             {
-                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("AzureWebJobsStorage"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE "), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
                 if (copied)
                 {
                     _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);

@@ -214,6 +214,7 @@ services:
       - ASPNETCORE_URLS=http://*:7073
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - inboundBlobName=inbound
+      - caasfolder_STORAGE=UseDevelopmentStorage=true
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   static-validation:
