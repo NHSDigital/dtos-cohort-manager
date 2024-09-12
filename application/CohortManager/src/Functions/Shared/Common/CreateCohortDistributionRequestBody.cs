@@ -6,4 +6,5 @@ public class CreateCohortDistributionRequestBody
     public string? ScreeningService { get; set; }
     public string? FileName { get; set; }
     public string? RecordType { get; set; }
+    public string? CurrentPosting { get; set; }
 }

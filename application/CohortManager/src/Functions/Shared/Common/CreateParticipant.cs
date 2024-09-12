@@ -15,7 +15,7 @@ public class CreateParticipant : ICreateParticipant
             SupersededByNhsNumber = participant.SupersededByNhsNumber,
             PrimaryCareProvider = demographic.PrimaryCareProvider,
             PrimaryCareProviderEffectiveFromDate = participant.PrimaryCareProviderEffectiveFrom,
-            CurrentPosting = demographic.CurrentPosting,
+            CurrentPosting = participant.CurrentPosting,
             CurrentPostingEffectiveFromDate = participant.CurrentPostingEffectiveFrom,
             PreviousPosting = participant.PreviousPosting,
             PreviousPostingEffectiveFromDate = participant.PreviousPostingEffectiveFrom,
@@ -93,7 +93,7 @@ public class CreateParticipant : ICreateParticipant
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
             Extracted = null,
-            CurrentPosting = demographic.CurrentPosting
+            CurrentPosting = participant.CurrentPosting
         };
     }
 }

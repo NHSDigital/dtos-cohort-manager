@@ -94,7 +94,7 @@ public class AddParticipantFunction
             _logger.LogInformation("participant created, marked as eligible");
 
 
-            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName))
+            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, participant.CurrentPosting, basicParticipantCsvRecord.FileName))
             {
                 _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

@@ -82,6 +82,7 @@ public class CreateCohortDistribution
             }
 
             participantData.RecordType = requestBody.RecordType;
+            participantData.CurrentPosting = requestBody.CurrentPosting;
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
             if (!validationRecordCreated)
             {
