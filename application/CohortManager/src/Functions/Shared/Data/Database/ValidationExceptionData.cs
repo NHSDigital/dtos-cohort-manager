@@ -103,23 +103,25 @@ public class ValidationExceptionData : IValidationExceptionData
         return ExecuteCommand(command);
     }
 
-    public void RemoveOldException(string nhsNumber, string screeningName)
+    public bool RemoveOldException(string nhsNumber, string screeningName)
     {
 
         if (!RecordExists(nhsNumber, screeningName))
         {
             _logger.LogInformation("There was no exception record to remove for the NHS number: {nhsNumber}", nhsNumber);
-            return;
+            return false;
         }
 
+        // we only need to get the last unresolved exception for the nhs number and screening service
         var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
                     SET DATE_RESOLVED = @todaysDate
-                    WHERE NHS_NUMBER = @nhsNumber";
+                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate ";
 
         var command = CreateCommand(new Dictionary<string, object>()
         {
             {"@nhsNumber", nhsNumber},
             {"@todaysDate", DateTime.Today},
+            {"@MaxDate", "9999-12-31"},
         });
 
         command.CommandText = SQL;
@@ -127,8 +129,10 @@ public class ValidationExceptionData : IValidationExceptionData
         if (removed)
         {
             _logger.LogInformation("Removed old exception record successfully");
+            return true;
         }
         _logger.LogInformation("An exception record was found but not Removed successfully");
+        return false;
     }
 
     private bool RecordExists(string nhsNumber, string screeningName)

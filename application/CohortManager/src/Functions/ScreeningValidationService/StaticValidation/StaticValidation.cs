@@ -23,15 +23,15 @@ public class StaticValidation
 
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
 
-    private readonly IValidationExceptionData _validationExceptionData;
+    private readonly ICallFunction _callFunction;
 
-    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, IValidationExceptionData validationExceptionData)
+    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
-        _validationExceptionData = validationExceptionData;
+        _callFunction = callFunction;
     }
 
     [Function("StaticValidation")]
@@ -68,12 +68,11 @@ public class StaticValidation
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-            _validationExceptionData.RemoveOldException(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
+            await removeOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
-
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
@@ -87,5 +86,15 @@ public class StaticValidation
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task removeOldValidationRecord(string nhsNumber, string screeningName)
+    {
+        var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
+        {
+            NhsNumber = nhsNumber,
+            ScreeningName = screeningName
+        });
+        await _callFunction.SendPost(Environment.GetEnvironmentVariable("RemoveOldValidationRecord"), OldExceptionRecordJson);
     }
 }
