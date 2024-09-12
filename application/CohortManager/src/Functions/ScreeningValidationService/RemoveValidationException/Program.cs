@@ -19,7 +19,7 @@ var host = new HostBuilder()
         });
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IValidationExceptionData, ValidationExceptionData>();
+        services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
     })
     .AddExceptionHandler()
     .Build();

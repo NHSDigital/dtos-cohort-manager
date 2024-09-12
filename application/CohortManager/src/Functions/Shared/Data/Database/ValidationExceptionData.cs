@@ -114,13 +114,14 @@ public class ValidationExceptionData : IValidationExceptionData
         // we only need to get the last unresolved exception for the nhs number and screening service
         var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
                     SET DATE_RESOLVED = @todaysDate
-                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate ";
+                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate AND SCREENING_NAME = @screeningName";
 
         var command = CreateCommand(new Dictionary<string, object>()
         {
             {"@nhsNumber", nhsNumber},
             {"@todaysDate", DateTime.Today},
             {"@MaxDate", "9999-12-31"},
+            {"@screeningName", screeningName},
         });
 
         command.CommandText = SQL;
