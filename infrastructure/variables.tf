@@ -237,13 +237,23 @@ variable "vnet" {
 }
 
 variable "subnet" {
-  description = "Configuration of the VNET"
+  description = "Configuration of the Subnet"
   type = object({
     resource_group_key                           = optional(string, "cohman")
     is_private_endpoint_network_policies_enabled = optional(bool, true)
   })
 }
 
+
+variable "private_dns" {
+  description = "Configuration of the Private DNS"
+  type = object({
+    resource_group_key                           = optional(string, "cohman")
+    is_azure_sql_private_dns_zone_enabled = optional(bool, true)
+    is_function_app_private_dns_zone_enabled = optional(bool, true)
+    is_storage_private_dns_zone_enabled = optional(bool, true)
+  })
+}
 
 variable "network_security_group" {
   description = "Configuration of the NSG"
