@@ -52,6 +52,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
+
         var SQL = @"INSERT INTO [dbo].[EXCEPTION_MANAGEMENT] (
                     FILE_NAME,
                     NHS_NUMBER,
@@ -101,6 +102,63 @@ public class ValidationExceptionData : IValidationExceptionData
 
         return ExecuteCommand(command);
     }
+
+    public bool RemoveOldException(string nhsNumber, string screeningName)
+    {
+
+        if (!RecordExists(nhsNumber, screeningName))
+        {
+            return false;
+        }
+
+        // we only need to get the last unresolved exception for the nhs number and screening service
+        var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
+                    SET DATE_RESOLVED = @todaysDate
+                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate AND SCREENING_NAME = @screeningName";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+            {"@todaysDate", DateTime.Today},
+            {"@MaxDate", "9999-12-31"},
+            {"@screeningName", screeningName},
+        });
+
+        command.CommandText = SQL;
+        var removed = ExecuteCommand(command);
+        if (removed)
+        {
+            _logger.LogInformation("Removed old exception record successfully");
+            return true;
+        }
+        _logger.LogWarning("An exception record was found but not Removed successfully");
+        return false;
+    }
+
+    private bool RecordExists(string nhsNumber, string screeningName)
+    {
+        var recordExists = false;
+        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+            {"@screeningName", screeningName}
+        });
+        command.CommandText = SQL;
+
+        _dbConnection.ConnectionString = _connectionString;
+        _dbConnection.Open();
+        using (var reader = command.ExecuteReader())
+        {
+            // Return true if the reader has at least one row.
+            recordExists = reader.Read();
+        }
+        _dbConnection.Close();
+
+        return recordExists;
+    }
+
 
     private bool ExecuteCommand(IDbCommand command)
     {
