@@ -60,11 +60,13 @@ variable "storage_accounts" {
       account_tier                  = optional(string, "Standard")
       replication_type              = optional(string, "LRS")
       public_network_access_enabled = optional(bool, true)
-      containers = map(object({
-        cont_name        = optional(string, "config")
-        cont_access_type = optional(string, "private")
-      }))
     }))
+    cont_config = map(object({
+      sa_key           = optional(string, "file_exceptions")
+      cont_name        = optional(string, "config")
+      cont_access_type = optional(string, "private")
+    }))
+
   })
 }
 

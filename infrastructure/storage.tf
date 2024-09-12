@@ -7,6 +7,7 @@ module "storage" {
   location            = module.baseline.resource_group_locations[var.storage_accounts.resource_group_key]
 
   storage_accounts = var.storage_accounts.sa_config
+  containers       = var.storage_accounts.cont_config
 
   tags = var.tags
 

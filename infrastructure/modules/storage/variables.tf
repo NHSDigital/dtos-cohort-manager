@@ -13,6 +13,10 @@ variable "storage_accounts" {
   description = "Definition of Storage Accounts configuration"
 }
 
+variable "containers" {
+  description = "Definition of Containers configuration"
+}
+
 variable "names" {
   type        = map(string)
   description = "The basic part of the Storage Account name."
