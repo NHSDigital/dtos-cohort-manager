@@ -1,5 +1,7 @@
 {
   "recommendations": [
+    "ms-azuretools.vscode-azurefunctions",
+    "ms-dotnettools.csharp",
     "alefragnani.bookmarks",
     "davidanson.vscode-markdownlint",
     "dbaeumer.vscode-eslint",

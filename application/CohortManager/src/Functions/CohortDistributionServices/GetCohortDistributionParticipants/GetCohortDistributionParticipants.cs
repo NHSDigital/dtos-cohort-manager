@@ -72,6 +72,6 @@ public class GetCohortDistributionParticipants
     private HttpResponseData LogErrorResponse(HttpRequestData req, string errorMessage)
     {
         _logger.LogError(errorMessage);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
     }
 }
