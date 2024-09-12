@@ -283,51 +283,6 @@ public class StaticValidationTests
     // }
     // #endregion
 
-    #region Previous Posting (Rule 59)
-    [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow("England")]
-    [DataRow("Wales")]
-    [DataRow("IoM")]
-    public async Task Run_Should_Not_Create_Exception_When_PreviousPosting_Rule_Passes(string previousPosting)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.PreviousPosting = previousPosting;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        await _function.RunAsync(_request.Object);
-
-        // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "59.PreviousPosting")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("Scotland")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_PreviousPosting_Rule_Fails(string previousPosting)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.PreviousPosting = previousPosting;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "59.PreviousPosting.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-    #endregion
-
     #region Reason For Removal (Rule 14)
     [TestMethod]
     [DataRow(null)]

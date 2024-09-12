@@ -15,10 +15,6 @@
         "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
       },
       {
-        "RuleName": "59.PreviousPosting.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.PreviousPosting) OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
-      },
-      {
         "RuleName": "14.ReasonForRemoval.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
       },
@@ -72,7 +68,7 @@
       },
       {
         "RuleName": "61.InvalidFlag.NonFatal",
-        "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
+        "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\""
       },
       {
         "RuleName": "62.ValidateReasonForRemoval.NonFatal",

@@ -42,7 +42,7 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber);
+            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
             var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
@@ -52,10 +52,11 @@ public class UpdateParticipantDetails
 
             if (response.CreatedException)
             {
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
 
-            var isAdded = await _participantManagerData.UpdateParticipantDetails(participantCsvRecord, existingParticipantData);
+            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -65,7 +66,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex,ex.Message, ex);
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -84,7 +85,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogInformation(ex,$"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
     }
