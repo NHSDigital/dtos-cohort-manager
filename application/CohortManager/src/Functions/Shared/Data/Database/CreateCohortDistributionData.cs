@@ -52,7 +52,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " PREFERRED_LANGUAGE," +
             " INTERPRETER_REQUIRED," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
             " IS_EXTRACTED " +
@@ -167,7 +167,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         " [PREFERRED_LANGUAGE], " +
         " [INTERPRETER_REQUIRED], " +
         " [REASON_FOR_REMOVAL], " +
-        " [REASON_FOR_REMOVAL_DT], " +
+        " [REASON_FOR_REMOVAL_FROM_DT], " +
         " [RECORD_INSERT_DATETIME], " +
         " [RECORD_UPDATE_DATETIME], " +
         " [IS_EXTRACTED] " +
@@ -229,7 +229,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
@@ -298,10 +298,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " bcd.[PREFERRED_LANGUAGE], " +
                 " bcd.[INTERPRETER_REQUIRED], " +
                 " bcd.[REASON_FOR_REMOVAL], " +
-                " bcd.[REASON_FOR_REMOVAL_DT], " +
+                " bcd.[REASON_FOR_REMOVAL_FROM_DT], " +
                 " bcd.[RECORD_INSERT_DATETIME], " +
                 " bcd.[RECORD_UPDATE_DATETIME], " +
                 " bcd.[IS_EXTRACTED], " +
+                " bcd.[REQUEST_ID], " +
                 " pd.[CURRENT_POSTING] " +
                 " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
                 " JOIN [dbo].[PARTICIPANT_DEMOGRAPHIC] pd ON bcd.NHS_NUMBER = pd.NHS_NUMBER " +
@@ -333,7 +334,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var recordEndDate = DateTime.Today;
 
         var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " SET REASON_FOR_REMOVAL_DT = @recordEndDate " +
+            " SET REASON_FOR_REMOVAL_FROM_DT = @recordEndDate " +
             " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>
@@ -393,7 +394,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
