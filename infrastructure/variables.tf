@@ -248,10 +248,10 @@ variable "subnet" {
 variable "private_dns" {
   description = "Configuration of the Private DNS"
   type = object({
-    resource_group_key                           = optional(string, "cohman")
-    is_azure_sql_private_dns_zone_enabled = optional(bool, true)
+    resource_group_key                       = optional(string, "cohman")
+    is_azure_sql_private_dns_zone_enabled    = optional(bool, true)
     is_function_app_private_dns_zone_enabled = optional(bool, true)
-    is_storage_private_dns_zone_enabled = optional(bool, true)
+    is_storage_private_dns_zone_enabled      = optional(bool, true)
   })
 }
 
@@ -271,4 +271,14 @@ variable "network_security_group" {
       destination_address_prefix = string
     }))
   })
+}
+
+variable "regions" {
+  type = map(object({
+    is_primary_region      = bool
+    caf_short_name         = string
+    vnet_address_space     = list(string)
+    network_cidr_newbits   = number
+    next_hop_n3_gateway_ip = string
+  }))
 }
