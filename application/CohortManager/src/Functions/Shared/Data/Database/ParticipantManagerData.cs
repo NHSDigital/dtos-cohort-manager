@@ -28,7 +28,7 @@ public class ParticipantManagerData : IParticipantManagerData
     {
         try
         {
-            var Participant = GetParticipant(participant.NhsNumber);
+            var Participant = GetParticipant(participant.NhsNumber, participant.ScreeningId);
 
             var recordUpdateTime = DateTime.Now;
 
@@ -91,7 +91,7 @@ public class ParticipantManagerData : IParticipantManagerData
     #endregion
 
     #region  get methods
-    public Participant GetParticipant(string NhsNumber)
+    public Participant GetParticipant(string nhsNumber, string screeningId)
     {
         var SQL = "SELECT " +
             "[PARTICIPANT_MANAGEMENT].[PARTICIPANT_ID], " +
@@ -104,11 +104,13 @@ public class ParticipantManagerData : IParticipantManagerData
             "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
             "[PARTICIPANT_MANAGEMENT].[RECORD_UPDATE_DATETIME] " +
         "FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
-        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber";
+        "WHERE [PARTICIPANT_MANAGEMENT].[NHS_NUMBER] = @NhsNumber " +
+        "AND [PARTICIPANT_MANAGEMENT].[SCREENING_ID] = @ScreeningId";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@NhsNumber", NhsNumber }
+            {"@NhsNumber", nhsNumber },
+            {"@ScreeningId", screeningId}
         };
 
         var command = CreateCommand(parameters);

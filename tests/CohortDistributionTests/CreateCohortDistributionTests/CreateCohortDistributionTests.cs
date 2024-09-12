@@ -217,6 +217,6 @@ public class CreateCohortDistributionTests
     private void ParticipantException(bool hasException)
     {
         var participant = new Participant() { ExceptionFlag = hasException ? Exists.Yes.ToString() : Exists.No.ToString() };
-        _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(participant);
+        _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>(),It.IsAny<string>())).Returns(participant);
     }
 }

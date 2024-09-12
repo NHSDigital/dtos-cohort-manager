@@ -152,6 +152,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var nhsId = "123456";
+        var screeningId = "1";
         var expectedParticipantId = 123456;
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
@@ -164,7 +165,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId,screeningId);
 
         // Assert
         Assert.AreEqual(nhsId, result.NhsNumber);
@@ -175,6 +176,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var nhsId = "123456";
+        var screeningId = "1";
 
         _moqDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
@@ -187,7 +189,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId,screeningId);
 
         // Assert
         Assert.AreEqual("123456", result.NhsNumber);
@@ -256,7 +258,9 @@ public class UpdateParticipantDetailsTests
             EmailAddress = "john.doe@example.com",
             PreferredLanguage = "English",
             IsInterpreterRequired = "0",
-            RecordType = Actions.Amended
+            RecordType = Actions.Amended,
+            ScreeningId = "1"
+
         };
     }
 }

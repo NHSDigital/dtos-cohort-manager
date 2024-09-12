@@ -105,7 +105,7 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation(ex,$"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
