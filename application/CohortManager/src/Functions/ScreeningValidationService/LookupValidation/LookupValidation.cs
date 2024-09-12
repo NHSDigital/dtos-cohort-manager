@@ -18,13 +18,16 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
+    private readonly IDbLookupValidationBreastScreening _dbLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger, IReadRulesFromBlobStorage readRulesFromBlobStorage)
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException,ILogger<LookupValidation> logger,
+                            IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
+        _dbLookup = dbLookup;
     }
 
     [Function("LookupValidation")]
@@ -71,6 +74,7 @@ public class LookupValidation
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
+                new RuleParameter("dbLookup", _dbLookup)
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);

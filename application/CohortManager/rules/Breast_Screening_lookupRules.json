@@ -17,7 +17,7 @@
             },
             {
                 "RuleName": "36.ValidatePrimaryCareProvider",
-                "Expression": "DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+                "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
                 "Actions": {
                     "OnFailure": {
                         "Name": "OutputExpression",
