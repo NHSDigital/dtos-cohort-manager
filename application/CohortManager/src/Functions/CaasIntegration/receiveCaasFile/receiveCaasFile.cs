@@ -35,6 +35,12 @@ public class ReceiveCaasFile
         var downloadFilePath = string.Empty;
         try
         {
+            if(blobStream == null)
+            {
+                _logger.LogError("blobSteam was null");
+                return;
+            }
+
             _logger.LogInformation("Validating naming convention and file extension of {name}", name);
             if (!FileNameAndFileExtensionIsValid(name))
             {
@@ -65,14 +71,9 @@ public class ReceiveCaasFile
                     _logger.LogInformation("Downloading the file {name} from the blob.", name);
                     using (var fileStream = File.Create(downloadFilePath))
                     {
-                        blobStream.Seek(0, SeekOrigin.Begin);
                         blobStream.CopyTo(fileStream);
                     }
-
-
                     var screeningService = GetScreeningService(name);
-
-
 
                     _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
                     _logger.LogInformation("Start reading the downloadedfile {name}.", name);
