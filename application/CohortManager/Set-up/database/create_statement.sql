@@ -250,6 +250,10 @@ CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
       AUDIT_TEXT VARCHAR(50)
     );
 END
+
+/*==============================================================*/
+/* Table: BSO_ORGANISATIONS Table                       */
+/*==============================================================*/
 CREATE TABLE bso_organisations
 (
   bso_organisation_id         SERIAL PRIMARY KEY,
