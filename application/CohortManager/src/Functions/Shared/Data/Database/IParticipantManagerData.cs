@@ -6,7 +6,7 @@ using NHS.CohortManager.CohortDistribution;
 public interface IParticipantManagerData
 {
     bool UpdateParticipantAsEligible(Participant participant, char isActive);
-    Task<bool> UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord);
-    Participant GetParticipant(string NhsNumber);
+    bool UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord);
+    Participant GetParticipant(string nhsNumber, string screeningId);
     Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody);
 }

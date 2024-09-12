@@ -8,7 +8,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 
 public class AddParticipantFunction
 {
@@ -64,10 +63,17 @@ public class AddParticipantFunction
             };
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
-            if (response.Participant.ExceptionFlag == "Y")
+            if (response.IsFatal)
             {
-                participantCsvRecord = response;
+                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
+
+            if (response.CreatedException)
+            {
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
+            }
+
 
             var json = JsonSerializer.Serialize(participantCsvRecord);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
@@ -88,7 +94,7 @@ public class AddParticipantFunction
             _logger.LogInformation("participant created, marked as eligible");
 
 
-            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, basicParticipantCsvRecord.FileName))
+            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName))
             {
                 _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
@@ -99,21 +105,28 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation(ex,$"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
-    private async Task<ParticipantCsvRecord> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-        if (response.StatusCode == HttpStatusCode.Created)
+        try
         {
-            participantCsvRecord.Participant.ExceptionFlag = "Y";
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+            return responseBody;
         }
-        return participantCsvRecord;
+        catch (Exception ex)
+        {
+            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            return null;
+        }
     }
 }
