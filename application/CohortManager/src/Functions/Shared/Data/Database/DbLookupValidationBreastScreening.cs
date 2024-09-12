@@ -7,7 +7,7 @@ using System.Data.SqlClient;
 /// <summary>
 /// Various validation methods for use in the breast screening lookup/ cohort rules
 /// </summary>
-public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening 
+public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
     private SqlConnection _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
 

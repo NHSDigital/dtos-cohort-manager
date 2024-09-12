@@ -296,7 +296,6 @@ public class LookupValidationTests
             Times.Never());
     }
 
-    
     [TestMethod]
     [DataRow("RDI", "ZZZTR2 7FG", "Y02688")] // Postcode starts with "ZZZ"
     [DataRow("RDR", null, null)] // Postcode Null
