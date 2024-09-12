@@ -254,55 +254,64 @@ END
 /*==============================================================*/
 /* Table: BSO_ORGANISATIONS Table                       */
 /*==============================================================*/
-CREATE TABLE bso_organisations
+IF NOT EXISTS
 (
-  bso_organisation_id         SERIAL PRIMARY KEY,
-  bso_organisation_code         VARCHAR(4) NOT NULL,
-  bso_organisation_name         VARCHAR(60) NOT NULL,
-  safety_period             NUMERIC(2) NOT NULL,
-  risp_recall_interval          NUMERIC(2) NOT NULL,
-  transaction_id            INTEGER NOT NULL,
-  transaction_app_date_time       TIMESTAMP WITH TIME NOT NULL,
-  transaction_user_org_role_id      INTEGER NOT NULL,
-  transaction_db_date_time        TIMESTAMP WITH TIME ZONE NOT NULL,
-  ignore_self_referrals         boolean NOT NULL,
-  ignore_gp_referrals         boolean NOT NULL,
-  ignore_early_recall         boolean NOT NULL,
-  is_active               boolean NOT NULL,
-  lower_age_range           NUMERIC(2) NOT NULL,
-  upper_age_range           NUMERIC(2) NOT NULL,
-  link_code               VARCHAR(10) NOT NULL,
-  foa_max_offset            NUMERIC(2) NOT NULL,
-  bso_recall_interval         NUMERIC(2) NOT NULL,
-  address_line_1            VARCHAR(35),
-  address_line_2            VARCHAR(35),
-  address_line_3            VARCHAR(35),
-  address_line_4            VARCHAR(35),
-  address_line_5            VARCHAR(35),
-  postcode                VARCHAR(8),
-  telephone_number            VARCHAR(18),
-  extension               VARCHAR(6),
-  fax_number              VARCHAR(18),
-  email_address             VARCHAR(100),
-  outgoing_transfer_number        NUMERIC(6) NOT NULL,
-  invite_list_sequence_number     NUMERIC(8) NOT NULL,
-  failsafe_date_of_month        NUMERIC(2) NOT NULL,
-  failsafe_months           NUMERIC(1) NOT NULL,
-  failsafe_min_age_years        NUMERIC(2) NOT NULL,
-  failsafe_min_age_months       NUMERIC(2) NOT NULL,
-  failsafe_max_age_years        NUMERIC(2) NOT NULL,
-  failsafe_max_age_months       NUMERIC(2) NOT NULL,
-  failsafe_last_run           DATE NOT NULL,
-  is_agex                           boolean NOT NULL,
-  is_agex_active                      boolean NOT NULL,
-  auto_batch_last_run         TIMESTAMP WITH TIME ZONE,
-  auto_batch_max_date_time_processed  TIMESTAMP WITH TIME ZONE,
-  bso_region_id             INTEGER,
-  admin_email_address         VARCHAR(100),
-  iep_details               text,
-  notes                 text,
-  rlp_date_enabled            DATE
-);
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'BSO_ORGANISATIONS'
+)
+BEGIN
+    CREATE TABLE bso_organisations
+    (
+      bso_organisation_id SERIAL PRIMARY KEY,
+      bso_organisation_code VARCHAR(4) NOT NULL,
+      bso_organisation_name VARCHAR(60) NOT NULL,
+      safety_period NUMERIC(2) NOT NULL,
+      risp_recall_interval NUMERIC(2) NOT NULL,
+      transaction_id INTEGER NOT NULL,
+      transaction_app_date_time TIMESTAMP WITH TIME NOT NULL,
+      transaction_user_org_role_id INTEGER NOT NULL,
+      transaction_db_date_time TIMESTAMP WITH TIME ZONE NOT NULL,
+      ignore_self_referrals boolean NOT NULL,
+      ignore_gp_referrals boolean NOT NULL,
+      ignore_early_recall boolean NOT NULL,
+      is_active boolean NOT NULL,
+      lower_age_range NUMERIC(2) NOT NULL,
+      upper_age_range NUMERIC(2) NOT NULL,
+      link_code VARCHAR(10) NOT NULL,
+      foa_max_offset NUMERIC(2) NOT NULL,
+      bso_recall_interval NUMERIC(2) NOT NULL,
+      address_line_1 VARCHAR(35),
+      address_line_2 VARCHAR(35),
+      address_line_3 VARCHAR(35),
+      address_line_4 VARCHAR(35),
+      address_line_5 VARCHAR(35),
+      postcode VARCHAR(8),
+      telephone_number VARCHAR(18),
+      extension VARCHAR(6),
+      fax_number VARCHAR(18),
+      email_address VARCHAR(100),
+      outgoing_transfer_number NUMERIC(6) NOT NULL,
+      invite_list_sequence_number NUMERIC(8) NOT NULL,
+      failsafe_date_of_month NUMERIC(2) NOT NULL,
+      failsafe_months NUMERIC(1) NOT NULL,
+      failsafe_min_age_years NUMERIC(2) NOT NULL,
+      failsafe_min_age_months NUMERIC(2) NOT NULL,
+      failsafe_max_age_years NUMERIC(2) NOT NULL,
+      failsafe_max_age_months NUMERIC(2) NOT NULL,
+      failsafe_last_run DATE NOT NULL,
+      is_agex boolean NOT NULL,
+      is_agex_active boolean NOT NULL,
+      auto_batch_last_run TIMESTAMP WITH TIME ZONE,
+      auto_batch_max_date_time_processed TIMESTAMP WITH TIME ZONE,
+      bso_region_id INTEGER,
+      admin_email_address VARCHAR(100),
+      iep_details text,
+      notes text,
+      rlp_date_enabled DATE
+    );
+END
 
 COMMENT ON TABLE bso_organisations IS 'Contains BSO level details/parameters. One row per BSO. Changes are timestamped and trigger updates to audit_bso_organisations.';
 COMMENT ON COLUMN bso_organisations.auto_batch_last_run IS 'The date and time that the auto batch process last finished processing for the BSO. This is used to ensure only a single app server processes the data per run';
