@@ -46,7 +46,7 @@ public class RemoveValidationExceptionData
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
             _logger.LogInformation("The Last Exception has not been removed but no error was thrown");
-            //we want to return ok here because an error has not actually occurred 
+            //we want to return ok here because an error has not actually occurred
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch (Exception ex)
@@ -58,5 +58,3 @@ public class RemoveValidationExceptionData
         }
     }
 }
-
-

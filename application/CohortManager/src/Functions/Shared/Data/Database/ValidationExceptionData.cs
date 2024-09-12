@@ -108,7 +108,6 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (!RecordExists(nhsNumber, screeningName))
         {
-            _logger.LogInformation("There was no exception record to remove for the NHS number: {nhsNumber}", nhsNumber);
             return false;
         }
 
@@ -131,7 +130,7 @@ public class ValidationExceptionData : IValidationExceptionData
             _logger.LogInformation("Removed old exception record successfully");
             return true;
         }
-        _logger.LogInformation("An exception record was found but not Removed successfully");
+        _logger.LogWarning("An exception record was found but not Removed successfully");
         return false;
     }
 

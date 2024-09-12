@@ -23,5 +23,4 @@ var host = new HostBuilder()
     })
     .AddExceptionHandler()
     .Build();
-
 host.Run();
