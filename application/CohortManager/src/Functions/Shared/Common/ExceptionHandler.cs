@@ -95,7 +95,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var errorMessage = (string) error.ActionResult.Output;
+            var errorMessage = (string)error.ActionResult.Output;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
@@ -200,7 +200,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningService = 1,
             ExceptionDate = DateTime.UtcNow,
             ErrorRecord = exception.Message,
-            ScreeningName = "BSS",
+            ScreeningName = "Breast Screening",
             Cohort = "",
             Fatal = 1
         };

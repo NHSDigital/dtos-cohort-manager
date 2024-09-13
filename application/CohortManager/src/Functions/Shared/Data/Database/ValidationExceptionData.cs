@@ -124,6 +124,8 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@screeningName", screeningName},
         });
 
+        _logger.LogInformation(nhsNumber, DateTime.Today, screeningName);
+
         command.CommandText = SQL;
         var removed = ExecuteCommand(command);
         if (removed)

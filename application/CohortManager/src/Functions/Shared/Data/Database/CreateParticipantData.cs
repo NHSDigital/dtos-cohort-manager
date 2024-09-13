@@ -43,7 +43,7 @@ public class CreateParticipantData : ICreateParticipantData
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME" +
+            " RECORD_UPDATE_DATETIME " +
             " ) VALUES( " +
             " @screeningId, " +
             " @NHSNumber, " +
