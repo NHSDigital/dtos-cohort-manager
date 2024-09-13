@@ -241,6 +241,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Demographic Services
   demographic-data-management:
@@ -322,7 +323,6 @@ services:
       - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
-      - ValidateCohortDistributionRecordURL = http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   retrieve-participant-data:
@@ -345,6 +345,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7084
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   remove-validation-exception-data:
