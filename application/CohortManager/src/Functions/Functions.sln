@@ -104,6 +104,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateCohortDistribution", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateCohortDistributionTests", "..\..\..\..\tests\CohortDistributionTests\CreateCohortDistributionTests\CreateCohortDistributionTests.csproj", "{83BBA2EF-6D75-430C-8E5D-20362913DE4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "CohortDistributionServices\RetrieveCohortReplay\RetrieveCohortReplay.csproj", "{E2777768-19E9-42CC-B8C3-A10B282284C3}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantData", "CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj", "{CF9C9DB3-4178-4D3D-8232-4BE2B20C0D96}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "..\..\..\..\tests\TestUtils\TestUtils.csproj", "{DBB9BF00-A54A-4762-AAD6-B614ECA6078A}"
@@ -118,7 +120,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecordTests", "..\..\..\..\tests\CohortDistributionTests\ValidateCohortDistributionRecordTests\ValidateCohortDistributionRecordTests.csproj", "{2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "CohortDistributionServices\RetrieveCohortReplay\RetrieveCohortReplay.csproj", "{E2777768-19E9-42CC-B8C3-A10B282284C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationException", "ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj", "{703A7286-774E-4969-924B-6305366916BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationExceptionDataTests", "..\..\..\..\tests\RemoveValidationExceptionData\RemoveValidationExceptionDataTests.csproj", "{6F9FF96F-57D1-4F1E-B722-42639DA5588A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -322,6 +326,14 @@ Global
 		{2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{703A7286-774E-4969-924B-6305366916BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{703A7286-774E-4969-924B-6305366916BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{703A7286-774E-4969-924B-6305366916BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{703A7286-774E-4969-924B-6305366916BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E2777768-19E9-42CC-B8C3-A10B282284C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E2777768-19E9-42CC-B8C3-A10B282284C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E2777768-19E9-42CC-B8C3-A10B282284C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -363,6 +375,7 @@ Global
 		{CF9C9DB3-4178-4D3D-8232-4BE2B20C0D96} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{21183CC3-A28E-4407-B3A9-714DC39FE759} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 		{BD5E5333-2C20-4009-BF58-BFB930AD6B6C} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+		{703A7286-774E-4969-924B-6305366916BB} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
 		{E2777768-19E9-42CC-B8C3-A10B282284C3} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

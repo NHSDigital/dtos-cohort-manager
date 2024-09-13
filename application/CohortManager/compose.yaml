@@ -357,6 +357,17 @@ services:
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
+  remove-validation-exception-data:
+    container_name: remove-validation-exception-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7085
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
   devops-testing-service:
     container_name: devops-testing-service
     network_mode: host

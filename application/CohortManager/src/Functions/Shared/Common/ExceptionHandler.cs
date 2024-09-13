@@ -62,7 +62,6 @@ public class ExceptionHandler : IExceptionHandler
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
 
-
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
             {
