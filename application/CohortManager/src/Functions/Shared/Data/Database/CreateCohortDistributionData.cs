@@ -52,7 +52,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " PREFERRED_LANGUAGE," +
             " INTERPRETER_REQUIRED," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
             " IS_EXTRACTED " +
@@ -228,7 +228,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
@@ -301,9 +301,10 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
+                " [REQUEST_ID], " +
                 " [IS_EXTRACTED] " +
                 " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                 " WHERE NHS_NUMBER = @NhsNumber " +
@@ -334,7 +335,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var recordEndDate = DateTime.Today;
 
         var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " SET REASON_FOR_REMOVAL_DT = @recordEndDate " +
+            " SET REASON_FOR_REMOVAL_FROM_DT = @recordEndDate " +
             " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>
@@ -394,7 +395,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
@@ -420,7 +421,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
                     " WHERE PARTICIPANT_ID = @ParticipantId";
 
-        var parameters = new Dictionary<string, object>
+            var parameters = new Dictionary<string, object>
         {
             {"@Extracted", 1 },
             {"@RequestId", requestId },
@@ -465,7 +466,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}",ex.Message);
+            _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}", ex.Message);
             return false;
         }
     }
