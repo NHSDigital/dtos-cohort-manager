@@ -125,7 +125,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "CohortDistributionServices\RetrieveCohortReplay\RetrieveCohortReplay.csproj", "{044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}"
 EndProject
 Global
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
