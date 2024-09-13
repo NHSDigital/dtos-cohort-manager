@@ -1,5 +1,5 @@
 /*==============================================================*/
-/* Table: BS_COHORT_DISTRIBUTION Table                                */
+/* Table: BS_COHORT_DISTRIBUTION                                */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -42,7 +42,7 @@ BEGIN
         PREFERRED_LANGUAGE VARCHAR(35) NULL,
         INTERPRETER_REQUIRED SMALLINT NULL,
         REASON_FOR_REMOVAL VARCHAR(10) NULL,
-        REASON_FOR_REMOVAL_FROM_DT DATE NULL,
+        REASON_FOR_REMOVAL_DT DATE NULL,
         IS_EXTRACTED SMALLINT NULL,
         RECORD_INSERT_DATETIME DATE NULL,
         RECORD_UPDATE_DATETIME DATE NULL,
@@ -180,7 +180,7 @@ BEGIN
 END
 
 /*==============================================================*/
-/* Table: EXCEPTION_MANAGEMENT Table                                */
+/* Table: EXCEPTION_MANAGEMENT                                  */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -208,7 +208,7 @@ BEGIN
 END
 
 /*==============================================================*/
-/* Table: BS_SELECT_GP_PRACTICE_LKP Table                       */
+/* Table: BS_SELECT_GP_PRACTICE_LKP                             */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -231,7 +231,7 @@ CREATE TABLE [dbo].[BS_SELECT_GP_PRACTICE_LKP]
 END
 
 /*==============================================================*/
-/* Table: BS_SELECT_OUTCODE_MAPPING_LKP Table                       */
+/* Table: BS_SELECT_OUTCODE_MAPPING_LKP                         */
 /*==============================================================*/
 IF NOT EXISTS
 (
@@ -243,7 +243,7 @@ IF NOT EXISTS
 BEGIN
 CREATE TABLE [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP]
     (
-      OUTCODE VARCHAR(4),
+      OUTCODE VARCHAR(4) PRIMARY KEY,
       BSO VARCHAR(4),
       AUDIT_ID NUMERIC(38),
       AUDIT_CREATED_TIMESTAMP DATETIME,
@@ -270,3 +270,82 @@ CREATE TABLE [dbo].[BS_SELECT_REQUEST_AUDIT]
       CREATED_DATETIME DATETIME NULL,
     );
 END
+
+/*==============================================================*/
+/* Table: GP_PRACTICES                                          */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'GP_PRACTICES'
+)
+
+BEGIN
+CREATE TABLE GP_PRACTICES
+(
+    GP_PRACTICE_ID INT IDENTITY PRIMARY KEY,
+    GP_PRACTICE_CODE varchar(8) NOT NULL,
+    BSO_ORGANISATION_ID integer NOT NULL,
+    OUTCODE varchar(4),
+    GP_PRACTICE_GROUP_ID integer,
+    TRANSACTION_ID integer NOT NULL,
+    TRANSACTION_APP_DATE_TIME datetimeoffset NOT NULL,
+    TRANSACTION_USER_ORG_ROLE_ID integer NOT NULL,
+    TRANSACTION_DB_DATE_TIME datetimeoffset NOT NULL,
+    GP_PRACTICE_NAME varchar(100),
+    ADDRESS_LINE_1 varchar(35),
+    ADDRESS_LINE_2 varchar(35),
+    ADDRESS_LINE_3 varchar(35),
+    ADDRESS_LINE_4 varchar(35),
+    ADDRESS_LINE_5 varchar(35),
+    POSTCODE varchar(8),
+    TELEPHONE_NUMBER varchar(12),
+    OPEN_DATE date,
+    CLOSE_DATE date,
+    FAILSAFE_DATE date,
+    STATUS_CODE varchar(1) NOT NULL,
+    LAST_UPDATED_DATE_TIME datetimeoffset NOT NULL,
+    ACTIONED BIT NOT NULL DEFAULT 0,
+    LAST_ACTIONED_BY_USER_ORG_ROLE_ID integer,
+    LAST_ACTIONED_ON datetimeoffset
+)
+END
+
+/*==============================================================*/
+/* Table: EXCLUDED_SMU_LKP                                      */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'EXCLUDED_SMU_LKP'
+)
+
+BEGIN
+CREATE TABLE EXCLUDED_SMU_LKP
+(
+    GP_PRACTICE_CODE VARCHAR(8) PRIMARY KEY
+);
+END
+
+/*==============================================================*/
+/* Table: CURRENT_POSTING_LKP                                   */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'CURRENT_POSTING_LKP'
+)
+
+CREATE TABLE CURRENT_POSTING_LKP
+(
+    POSTING VARCHAR(4) PRIMARY KEY,
+    IN_USE VARCHAR(1),
+    INCLUDED_IN_COHORT VARCHAR(1),
+    POSTING_CATEGORY VARCHAR(10)
+);
