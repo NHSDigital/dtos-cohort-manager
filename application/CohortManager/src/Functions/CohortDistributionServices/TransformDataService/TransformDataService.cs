@@ -93,7 +93,6 @@ public class TransformDataService
             }
 
             // Converting from CohortDistributionParticipant to Participant and returning
-
             var response = JsonSerializer.Serialize(cohortDistributionParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
