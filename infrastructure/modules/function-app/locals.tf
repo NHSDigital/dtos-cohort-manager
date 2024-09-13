@@ -133,6 +133,7 @@ locals {
     FileValidation = {
 
       ExceptionFunctionURL = local.fnapp_urls.createException
+      caasfolder_STORAGE   = var.caasfolder_STORAGE
       inboundBlobName      = "inbound"
       fileExceptions       = "inbound-poison"
     }
