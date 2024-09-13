@@ -75,7 +75,7 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
+    public async Task Run_EmptyRequest_ReturnBadRequest()
     {
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -89,7 +89,7 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
+    public async Task Run_InvalidRequest_ReturnBadRequest()
     {
         // Arrange
         SetUpRequestBody("Invalid request body");
@@ -112,7 +112,7 @@ public class LookupValidationTests
     [DataRow(Actions.Removed, "")]
     [DataRow(Actions.Removed, null)]
     [DataRow(Actions.Removed, " ")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_ParticipantMustExist_Rule_Fails(string recordType, string nhsNumber)
+    public async Task Run_NullNhsNumber_ReturnCreatedAndCreateException(string recordType, string nhsNumber)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = recordType;

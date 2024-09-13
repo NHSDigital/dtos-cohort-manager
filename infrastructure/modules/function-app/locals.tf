@@ -133,14 +133,16 @@ locals {
     FileValidation = {
 
       ExceptionFunctionURL = local.fnapp_urls.createException
+      caasfolder_STORAGE   = var.caasfolder_STORAGE
       inboundBlobName      = "inbound"
       fileExceptions       = "inbound-poison"
     }
 
     StaticValidation = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
-      BlobContainerName    = "config"
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      DtOsDatabaseConnectionString = local.db_connection_string
+      BlobContainerName            = "config"
     }
 
     LookupValidation = {
