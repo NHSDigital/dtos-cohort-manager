@@ -196,7 +196,7 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["PREFERRED_LANGUAGE"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["INTERPRETER_REQUIRED"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL"]).Returns(DBNull.Value);
-        _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL_FROM_DT"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["IS_EXTRACTED"]).Returns(() => 0);

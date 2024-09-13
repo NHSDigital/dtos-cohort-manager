@@ -52,7 +52,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " PREFERRED_LANGUAGE," +
             " INTERPRETER_REQUIRED," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
             " IS_EXTRACTED " +
@@ -137,44 +137,44 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int serviceProviderId, int rowCount)
     {
-                var SQL = "SELECT TOP (@RowCount)" +
-                " [PARTICIPANT_ID], " +
-                " [NHS_NUMBER], " +
-                " [SUPERSEDED_NHS_NUMBER], " +
-                " [PRIMARY_CARE_PROVIDER], " +
-                " [PRIMARY_CARE_PROVIDER_FROM_DT], " +
-                " [NAME_PREFIX], " +
-                " [GIVEN_NAME], " +
-                " [OTHER_GIVEN_NAME], " +
-                " [FAMILY_NAME], " +
-                " [PREVIOUS_FAMILY_NAME], " +
-                " [DATE_OF_BIRTH], " +
-                " [GENDER], " +
-                " [ADDRESS_LINE_1], " +
-                " [ADDRESS_LINE_2], " +
-                " [ADDRESS_LINE_3], " +
-                " [ADDRESS_LINE_4], " +
-                " [ADDRESS_LINE_5], " +
-                " [POST_CODE], " +
-                " [USUAL_ADDRESS_FROM_DT], " +
-                " [DATE_OF_DEATH], " +
-                " [TELEPHONE_NUMBER_HOME], " +
-                " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
-                " [TELEPHONE_NUMBER_MOB], " +
-                " [TELEPHONE_NUMBER_MOB_FROM_DT], " +
-                " [EMAIL_ADDRESS_HOME], " +
-                " [EMAIL_ADDRESS_HOME_FROM_DT], " +
-                " [PREFERRED_LANGUAGE], " +
-                " [INTERPRETER_REQUIRED], " +
-                " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
-                " [RECORD_INSERT_DATETIME], " +
-                " [RECORD_UPDATE_DATETIME], " +
-                " [IS_EXTRACTED] " +
-                " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
-                " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.PARTICIPANT_ID = pm.PARTICIPANT_ID " +
-                " WHERE bcd.IS_EXTRACTED = @Extracted " +
-                " AND pm.SCREENING_ID = @ServiceProviderId";
+        var SQL = "SELECT TOP (@RowCount)" +
+        " [PARTICIPANT_ID], " +
+        " [NHS_NUMBER], " +
+        " [SUPERSEDED_NHS_NUMBER], " +
+        " [PRIMARY_CARE_PROVIDER], " +
+        " [PRIMARY_CARE_PROVIDER_FROM_DT], " +
+        " [NAME_PREFIX], " +
+        " [GIVEN_NAME], " +
+        " [OTHER_GIVEN_NAME], " +
+        " [FAMILY_NAME], " +
+        " [PREVIOUS_FAMILY_NAME], " +
+        " [DATE_OF_BIRTH], " +
+        " [GENDER], " +
+        " [ADDRESS_LINE_1], " +
+        " [ADDRESS_LINE_2], " +
+        " [ADDRESS_LINE_3], " +
+        " [ADDRESS_LINE_4], " +
+        " [ADDRESS_LINE_5], " +
+        " [POST_CODE], " +
+        " [USUAL_ADDRESS_FROM_DT], " +
+        " [DATE_OF_DEATH], " +
+        " [TELEPHONE_NUMBER_HOME], " +
+        " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
+        " [TELEPHONE_NUMBER_MOB], " +
+        " [TELEPHONE_NUMBER_MOB_FROM_DT], " +
+        " [EMAIL_ADDRESS_HOME], " +
+        " [EMAIL_ADDRESS_HOME_FROM_DT], " +
+        " [PREFERRED_LANGUAGE], " +
+        " [INTERPRETER_REQUIRED], " +
+        " [REASON_FOR_REMOVAL], " +
+        " [REASON_FOR_REMOVAL_FROM_DT], " +
+        " [RECORD_INSERT_DATETIME], " +
+        " [RECORD_UPDATE_DATETIME], " +
+        " [IS_EXTRACTED] " +
+        " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
+        " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.PARTICIPANT_ID = pm.PARTICIPANT_ID " +
+        " WHERE bcd.IS_EXTRACTED = @Extracted " +
+        " AND pm.SCREENING_ID = @ServiceProviderId";
 
         var parameters = new Dictionary<string, object>
         {
@@ -229,7 +229,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
@@ -298,7 +298,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [PREFERRED_LANGUAGE], " +
                 " [INTERPRETER_REQUIRED], " +
                 " [REASON_FOR_REMOVAL], " +
-                " [REASON_FOR_REMOVAL_DT], " +
+                " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
@@ -331,7 +331,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var recordEndDate = DateTime.Today;
 
         var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " SET REASON_FOR_REMOVAL_DT = @recordEndDate " +
+            " SET REASON_FOR_REMOVAL_FROM_DT = @recordEndDate " +
             " WHERE NHS_NUMBER = @NhsNumber  ";
 
         var parameters = new Dictionary<string, object>
@@ -391,7 +391,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
@@ -417,7 +417,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
                     " WHERE PARTICIPANT_ID = @ParticipantId";
 
-        var parameters = new Dictionary<string, object>
+            var parameters = new Dictionary<string, object>
         {
             {"@Extracted", 1 },
             {"@RequestId", requestId },
@@ -462,7 +462,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}",ex.Message);
+            _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}", ex.Message);
             return false;
         }
     }
