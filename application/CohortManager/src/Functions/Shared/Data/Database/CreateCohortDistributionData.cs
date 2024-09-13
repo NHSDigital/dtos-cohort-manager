@@ -137,7 +137,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int serviceProviderId, int rowCount)
     {
-                var SQL = "SELECT TOP (@RowCount)" +
+            var SQL = "SELECT TOP (@RowCount)" +
                 " [PARTICIPANT_ID], " +
                 " [NHS_NUMBER], " +
                 " [SUPERSEDED_NHS_NUMBER], " +
@@ -196,10 +196,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return new List<CohortDistributionParticipant>();
     }
 
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
+    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(int serviceProviderId, int rowCount,string requestId)
     {
-
-        var SQL = "SELECT" +
+            var SQL = "SELECT TOP (@RowCount)" +
                 " [PARTICIPANT_ID], " +
                 " [NHS_NUMBER], " +
                 " [SUPERSEDED_NHS_NUMBER], " +
@@ -233,12 +232,16 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED] " +
-            " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " WHERE REQUEST_ID = @RequestId";
+                " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
+                " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.PARTICIPANT_ID = pm.PARTICIPANT_ID " +
+                " WHERE REQUEST_ID = @RequestId" +
+                " AND pm.SCREENING_ID = @ServiceProviderId";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@RequestId", requestId }
+            {"@RequestId", requestId },
+            {"@RowCount", rowCount },
+            {"@ServiceProviderId", serviceProviderId }
         };
 
         var command = CreateCommand(parameters);

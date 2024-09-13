@@ -16,7 +16,9 @@ public class AddCohortDistributionTests
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
+    private readonly CreateCohortDistributionData _createCohortDistributionData;
     private const int serviceProviderId = (int)ServiceProvider.BsSelect;
+    private string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
     {
@@ -41,23 +43,23 @@ public class AddCohortDistributionTests
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
+
+        _createCohortDistributionData = new CreateCohortDistributionData(
+               _mockDBConnection.Object,
+               _databaseHelperMock.Object,
+               _loggerMock.Object
+           );
     }
 
     [TestMethod]
     public void InsertCohortDistributionData_ValidData_ReturnsSuccess()
     {
         // Arrange
-        var createCohortDistributionData = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _databaseHelperMock.Object,
-                _loggerMock.Object
-            );
-
         var cohortDistributionParticipant = new CohortDistributionParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         // Act
-        var result = createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
+        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
         Assert.IsTrue(result);
@@ -68,17 +70,11 @@ public class AddCohortDistributionTests
     public void InsertCohortDistributionData_InvalidData_ReturnsFailure()
     {
         // Arrange
-        var createCohortDistributionData = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _databaseHelperMock.Object,
-                _loggerMock.Object
-            );
-
         var cohortDistributionParticipant = new CohortDistributionParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         // Act
-        var result = createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
+        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
         Assert.IsFalse(result);
@@ -90,12 +86,6 @@ public class AddCohortDistributionTests
     public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
     {
         // Arrange
-        var createCohortDistributionData = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _databaseHelperMock.Object,
-                _loggerMock.Object
-            );
-
         _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
             .Returns(false);
@@ -105,7 +95,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -116,12 +106,6 @@ public class AddCohortDistributionTests
     public void ExtractCohortDistributionParticipants_AfterExtraction_MarksParticipantsAsExtracted()
     {
         // Arrange
-        var createCohortDistributionData = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _databaseHelperMock.Object,
-                _loggerMock.Object
-            );
-
         _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
             .Returns(false);
@@ -131,7 +115,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeastOnce());
@@ -143,28 +127,72 @@ public class AddCohortDistributionTests
     public void GetParticipant_NoParticipants_ReturnsEmptyCollection()
     {
         // Arrange
-        var createCohortDistributionData = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _databaseHelperMock.Object,
-                _loggerMock.Object
-            );
-
         _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(false);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         var rowCount = 0;
 
         // Act
-        var result = createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result.Count);
     }
 
+    [TestMethod]
+    public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants() //wp - check this again, split in more tests
+    {
+        // Arrange
+        _mockDataReader.SetupSequence(reader => reader.Read())
+        .Returns(true)
+        .Returns(false);
+
+        SetUpReader();
+
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
+            serviceProviderId,
+            1,
+            _requestId);
+
+        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
+            serviceProviderId,
+            1,
+            "Non Matching RequestID");
+
+        // Assert
+        Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
+        Assert.AreEqual(1, validRequestIdResult.Count);
+        Assert.AreEqual(0, inValidRequestIdResult.Count);
+    }
+
+    [TestMethod]
+    public void GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
+    {
+        // Arrange
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(false);
+
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
+            serviceProviderId,
+            1,
+            _requestId);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+
     private void SetUpReader()
     {
-        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(() => "1");
+        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(() => _requestId);
         _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns(() => "1");
         _mockDataReader.Setup(reader => reader["NHS_NUMBER"]).Returns(() => "123456");
         _mockDataReader.Setup(reader => reader["SUPERSEDED_NHS_NUMBER"]).Returns(DBNull.Value);
@@ -201,5 +229,4 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
         _mockDataReader.Setup(reader => reader["IS_EXTRACTED"]).Returns(() => 0);
     }
-
 }
