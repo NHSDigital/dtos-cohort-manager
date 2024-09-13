@@ -170,6 +170,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         " [REASON_FOR_REMOVAL_FROM_DT], " +
         " [RECORD_INSERT_DATETIME], " +
         " [RECORD_UPDATE_DATETIME], " +
+        " [REQUEST_ID], " +
         " [IS_EXTRACTED] " +
         " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
         " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.PARTICIPANT_ID = pm.PARTICIPANT_ID " +
@@ -301,6 +302,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [REASON_FOR_REMOVAL_FROM_DT], " +
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
+                " [REQUEST_ID], " +
                 " [IS_EXTRACTED] " +
                 " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                 " WHERE NHS_NUMBER = @NhsNumber " +
