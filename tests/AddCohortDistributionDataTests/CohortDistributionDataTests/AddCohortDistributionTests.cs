@@ -45,11 +45,10 @@ public class AddCohortDistributionTests
         _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
 
         _createCohortDistributionData = new CreateCohortDistributionData(
-               _mockDBConnection.Object,
-               _databaseHelperMock.Object,
-               _loggerMock.Object
-           );
-    }
+            _mockDBConnection.Object,
+            _databaseHelperMock.Object,
+            _loggerMock.Object);
+        }
 
     [TestMethod]
     public void InsertCohortDistributionData_ValidData_ReturnsSuccess()

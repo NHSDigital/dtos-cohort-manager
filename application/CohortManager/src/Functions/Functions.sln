@@ -124,13 +124,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationException",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationExceptionDataTests", "..\..\..\..\tests\RemoveValidationExceptionData\RemoveValidationExceptionDataTests.csproj", "{6F9FF96F-57D1-4F1E-B722-42639DA5588A}"
 EndProject
+
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+	    {A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Release|Any CPU.Build.0 = Release|Any CPU
