@@ -15,6 +15,10 @@
         "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
       },
       {
+        "RuleName": "58.CurrentPosting.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.CurrentPosting) OR new string[] {\"England\",\"Wales\",\"IoM\",\"HMP\",\"MHI\"}.Contains(participant.CurrentPosting)"
+      },
+      {
         "RuleName": "14.ReasonForRemoval.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
       },
