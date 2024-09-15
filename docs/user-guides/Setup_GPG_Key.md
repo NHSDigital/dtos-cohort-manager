@@ -143,6 +143,10 @@ From the list of GPG keys, copy the long form of the GPG key ID you'd like to us
 
 To set your primary GPG key you will need to run the below command but replacing `3AA5C34371567BD2` with your key ID.
 
+```shell
+git config --global user.signingkey 3AA5C34371567BD2
+```
+
 If you wish to configure git to sign all commits by default then run the below command.
 
 ```shell
