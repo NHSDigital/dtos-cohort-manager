@@ -9,7 +9,6 @@ using System.Net;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using Azure.Storage.Blobs;
 using Data.Database;
 using Model.Enums;
 using ParquetSharp.RowOriented;
@@ -35,7 +34,7 @@ public class ReceiveCaasFile
         var downloadFilePath = string.Empty;
         try
         {
-            if(blobStream == null)
+            if (blobStream == null)
             {
                 _logger.LogError("blobSteam was null");
                 return;
@@ -50,6 +49,7 @@ public class ReceiveCaasFile
                 await InsertValidationErrorIntoDatabase(name);
                 return;
             }
+
             _logger.LogInformation("fetch number of records from file name {name}", name);
             var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
             if (numberOfRecords == null) return;
@@ -58,167 +58,76 @@ public class ReceiveCaasFile
             {
                 FileName = name
             };
+
             var chunks = new List<Cohort>();
             var rowNumber = 0;
 
-            try
+            downloadFilePath = Path.Combine(Path.GetTempPath(), name);
+
+            _logger.LogInformation("Downloading the file {name} from the blob.", name);
+            using (var fileStream = File.Create(downloadFilePath))
             {
+                blobStream.CopyTo(fileStream);
+            }
+            var screeningService = GetScreeningService(name);
+            _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
 
-                try
+            _logger.LogInformation("Start reading the downloadedfile {name}.", name);
+            using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
+            {
+                for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
-                    downloadFilePath = Path.Combine(Path.GetTempPath(), name);
-
-                    _logger.LogInformation("Downloading the file {name} from the blob.", name);
-                    using (var fileStream = File.Create(downloadFilePath))
+                    var values = rowReader.ReadRows(i);
+                    foreach (var rec in values)
                     {
-                        blobStream.CopyTo(fileStream);
-                    }
-                    var screeningService = GetScreeningService(name);
+                        rowNumber++;
 
-                    _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
-                    _logger.LogInformation("Start reading the downloadedfile {name}.", name);
-                    using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
-                    {
-                        for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
+                        var participant = new Participant();
+                        participant = await MapParticipant(rec, participant, name, rowNumber);
+
+                        if (participant is null)
                         {
-                            var values = rowReader.ReadRows(i);
-                            foreach (var rec in values)
-                            {
-                                rowNumber++;
+                            chunks.Clear();
+                            cohort.Participants.Clear();
+                            _logger.LogError("Invalid data in the file {name}", name);
+                            return;
+                        }
+                        cohort.Participants.Add(participant);
 
-                                var participant = new Participant();
-                                participant.RecordType = Convert.ToString(rec.RecordType);
-                                participant.ChangeTimeStamp = Convert.ToString(rec.ChangeTimeStamp);
-                                participant.SerialChangeNumber = Convert.ToString(rec.SerialChangeNumber);
-                                participant.NhsNumber = Convert.ToString(rec.NhsNumber);
-                                participant.SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber);
-                                participant.PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider);
-                                participant.PrimaryCareProviderEffectiveFromDate =
-                                    Convert.ToString(rec.PrimaryCareEffectiveFromDate);
-                                participant.CurrentPosting = Convert.ToString(rec.CurrentPosting);
-                                participant.CurrentPostingEffectiveFromDate =
-                                    Convert.ToString(rec.CurrentPostingEffectiveFromDate);
-                                participant.NamePrefix = Convert.ToString(rec.NamePrefix);
-                                participant.FirstName = Convert.ToString(rec.FirstName);
-                                participant.OtherGivenNames = Convert.ToString(rec.OtherGivenNames);
-                                participant.Surname = Convert.ToString(rec.SurnamePrefix);
-                                participant.PreviousSurname = Convert.ToString(rec.PreviousSurnamePrefix);
-                                participant.DateOfBirth = Convert.ToString(rec.DateOfBirth);
-                                if (Enum.IsDefined(typeof(Gender), Convert.ToInt16(rec.Gender)))
-                                {
-                                    participant.Gender =
-                                        (Gender)Enum.ToObject(typeof(Gender), Convert.ToInt16(rec.Gender));
-                                }
-                                participant.AddressLine1 = Convert.ToString(rec.AddressLine1);
-                                participant.AddressLine2 = Convert.ToString(rec.AddressLine2);
-                                participant.AddressLine3 = Convert.ToString(rec.AddressLine3);
-                                participant.AddressLine4 = Convert.ToString(rec.AddressLine4);
-                                participant.AddressLine5 = Convert.ToString(rec.AddressLine5);
-                                participant.Postcode = Convert.ToString(rec.Postcode);
-                                participant.PafKey = Convert.ToString(rec.PafKey);
-                                participant.UsualAddressEffectiveFromDate =
-                                    Convert.ToString(rec.UsualAddressEffectiveFromDate);
-                                participant.ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval);
-                                participant.ReasonForRemovalEffectiveFromDate =
-                                    Convert.ToString(rec.ReasonForRemovalEffectiveFromDate);
-                                participant.DateOfDeath = Convert.ToString(rec.DateOfDeath);
-                                if (Enum.IsDefined(typeof(Status), Convert.ToInt16(rec.DeathStatus)))
-                                {
-                                    participant.DeathStatus = (Status)Enum.ToObject(typeof(Status),
-                                        Convert.ToInt16(rec.DeathStatus));
-                                }
-                                participant.TelephoneNumber = Convert.ToString(rec.TelephoneNumber);
-                                participant.TelephoneNumberEffectiveFromDate =
-                                    Convert.ToString(rec.TelephoneNumberEffectiveFromDate);
-                                participant.MobileNumber = Convert.ToString(rec.MobileNumber);
-                                participant.MobileNumberEffectiveFromDate =
-                                    Convert.ToString(rec.MobileNumberEffectiveFromDate);
-                                participant.EmailAddress = Convert.ToString(rec.EmailAddress);
-                                participant.EmailAddressEffectiveFromDate =
-                                    Convert.ToString(rec.EmailAddressEffectiveFromDate);
-                                participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired);
-                                participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
-                                participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(false) ? "1" : "0");
-
-                                cohort.Participants.Add(participant);
-
-                                if (cohort.Participants.Count == 20000)
-                                {
-                                    chunks.Add(cohort);
-                                    cohort.Participants.Clear();
-                                }
-                            }
+                        if (cohort.Participants.Count == 20000)
+                        {
+                            chunks.Add(cohort);
+                            cohort.Participants.Clear();
                         }
                     }
-
-                    _logger.LogInformation("Reading completed for the file {name}. Total number of record is {rowNumber}.", name, rowNumber);
-                    if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-                    await InsertValidationErrorIntoDatabase(name);
-                    return;
-                }
-
-                if (rowNumber != numberOfRecords)
-                {
-                    _logger.LogError("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
-                    await InsertValidationErrorIntoDatabase(name);
-                    return;
-                }
-
-                if (rowNumber == 0)
-                {
-                    _logger.LogError("File contains no records. File name:" + name);
-                    await InsertValidationErrorIntoDatabase(name);
-                    return;
                 }
             }
-            catch (Exception ex)
+
+            _logger.LogInformation("Reading completed for the file {name}. Total number of record is {rowNumber}.", name, rowNumber);
+            if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
+
+            if (rowNumber != numberOfRecords)
             {
-                _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}",
-                    ex.GetType().Name, ex.Message, ex.StackTrace);
+                _logger.LogError("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
                 await InsertValidationErrorIntoDatabase(name);
                 return;
             }
 
-            try
+            if (rowNumber == 0)
             {
-                _logger.LogInformation("Start processing {rowNumber} rows of record from {name} file.", rowNumber, name);
-                if (chunks.Count > 0)
-                {
-                    _logger.LogInformation("Start processing the files in chunks of 20000");
-                    foreach (var chunk in chunks)
-                    {
-                        var json = JsonSerializer.Serialize(chunk);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                        _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
-                    }
-                    _logger.LogInformation("Total {ChunksCount} number of chunks processed.", chunks.Count);
-                }
-
-                if (cohort.Participants.Count > 0)
-                {
-                    _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
-                    var json = JsonSerializer.Serialize(cohort);
-
-                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
-                }
-
-                _logger.LogInformation("File {name} processed successfully. Total {rowNumber} Objects created.", name, rowNumber);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+                _logger.LogError("File contains no records. File name:" + name);
                 await InsertValidationErrorIntoDatabase(name);
+                return;
             }
+
+            _logger.LogInformation("Start processing {rowNumber} rows of record from {name} file.", rowNumber, name);
+            SerializeParquetFile(chunks, cohort, name);
+            _logger.LogInformation("All rows processed for file named {name}.", name);
+
         }
         catch (Exception ex)
         {
-            _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}",
-                ex.GetType().Name, ex.Message, ex.StackTrace);
+            _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name);
             return;
         }
@@ -276,5 +185,106 @@ public class ReceiveCaasFile
         var screeningAcronym = name.Split('_')[0];
         _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
+    }
+
+    private async Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename)
+    {
+        try
+        {
+
+            if (chunks.Count > 0)
+            {
+                _logger.LogInformation("Start processing the files in chunks of 20000");
+                foreach (var chunk in chunks)
+                {
+                    var json = JsonSerializer.Serialize(chunk);
+                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
+                }
+                _logger.LogInformation("Total {ChunksCount} number of chunks processed.", chunks.Count);
+            }
+
+            if (cohort.Participants.Count > 0)
+            {
+                _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
+                var json = JsonSerializer.Serialize(cohort);
+
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
+                _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(filename);
+        }
+    }
+    private async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, Participant participant, string name, int rowNumber)
+    {
+        try
+        {
+            participant.RecordType = Convert.ToString(rec.RecordType);
+            participant.ChangeTimeStamp = Convert.ToString(rec.ChangeTimeStamp);
+            participant.SerialChangeNumber = Convert.ToString(rec.SerialChangeNumber);
+            participant.NhsNumber = Convert.ToString(rec.NhsNumber);
+            participant.SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber);
+            participant.PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider);
+            participant.PrimaryCareProviderEffectiveFromDate =
+                Convert.ToString(rec.PrimaryCareEffectiveFromDate);
+            participant.CurrentPosting = Convert.ToString(rec.CurrentPosting);
+            participant.CurrentPostingEffectiveFromDate =
+                Convert.ToString(rec.CurrentPostingEffectiveFromDate);
+            participant.NamePrefix = Convert.ToString(rec.NamePrefix);
+            participant.FirstName = Convert.ToString(rec.FirstName);
+            participant.OtherGivenNames = Convert.ToString(rec.OtherGivenNames);
+            participant.Surname = Convert.ToString(rec.SurnamePrefix);
+            participant.PreviousSurname = Convert.ToString(rec.PreviousSurnamePrefix);
+            participant.DateOfBirth = Convert.ToString(rec.DateOfBirth);
+            if (Enum.IsDefined(typeof(Gender), Convert.ToInt16(rec.Gender)))
+            {
+                participant.Gender =
+                    (Gender)Enum.ToObject(typeof(Gender), Convert.ToInt16(rec.Gender));
+            }
+            participant.AddressLine1 = Convert.ToString(rec.AddressLine1);
+            participant.AddressLine2 = Convert.ToString(rec.AddressLine2);
+            participant.AddressLine3 = Convert.ToString(rec.AddressLine3);
+            participant.AddressLine4 = Convert.ToString(rec.AddressLine4);
+            participant.AddressLine5 = Convert.ToString(rec.AddressLine5);
+            participant.Postcode = Convert.ToString(rec.Postcode);
+            participant.PafKey = Convert.ToString(rec.PafKey);
+            participant.UsualAddressEffectiveFromDate =
+                Convert.ToString(rec.UsualAddressEffectiveFromDate);
+            participant.ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval);
+            participant.ReasonForRemovalEffectiveFromDate =
+                Convert.ToString(rec.ReasonForRemovalEffectiveFromDate);
+            participant.DateOfDeath = Convert.ToString(rec.DateOfDeath);
+            if (Enum.IsDefined(typeof(Status), Convert.ToInt16(rec.DeathStatus)))
+            {
+                participant.DeathStatus = (Status)Enum.ToObject(typeof(Status),
+                    Convert.ToInt16(rec.DeathStatus));
+            }
+            participant.TelephoneNumber = Convert.ToString(rec.TelephoneNumber);
+            participant.TelephoneNumberEffectiveFromDate =
+                Convert.ToString(rec.TelephoneNumberEffectiveFromDate);
+            participant.MobileNumber = Convert.ToString(rec.MobileNumber);
+            participant.MobileNumberEffectiveFromDate =
+                Convert.ToString(rec.MobileNumberEffectiveFromDate);
+            participant.EmailAddress = Convert.ToString(rec.EmailAddress);
+            participant.EmailAddressEffectiveFromDate =
+                Convert.ToString(rec.EmailAddressEffectiveFromDate);
+            participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired);
+            participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
+            participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(false) ? "1" : "0");
+
+            return participant;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(name);
+            return null;
+        }
+
     }
 }

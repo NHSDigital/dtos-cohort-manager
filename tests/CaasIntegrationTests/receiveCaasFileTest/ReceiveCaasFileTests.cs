@@ -43,7 +43,7 @@ public class ReceiveCaasFileTests
     {
         // Arrange
 
-        using(var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
+        using (var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
         {
 
             _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
@@ -76,8 +76,6 @@ public class ReceiveCaasFileTests
     public async Task Run_SuccessfulParseWithInvalidInput_FailsAndLogsError()
     {
         // Arrange
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_invalidCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
         Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
@@ -86,57 +84,57 @@ public class ReceiveCaasFileTests
 
         _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("FileValidationURL")), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        using (var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
+        {
+            // Act
+            await _receiveCaasFileInstance.Run(fileSteam, "BSS_20240718150245_n30.parquet");
 
-        // Act
-        await _receiveCaasFileInstance.Run(memoryStream, _blobName);
+            // Assert
+            _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name record count not equal to actual record count. File name count:")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
 
-        // Assert
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-        It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name record count not equal to actual record count. File name count:")),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
+            _mockICallFunction.Verify(
+            x => x.SendPost(It.IsAny<string>(),
+            It.Is<string>(json => json == _expectedJson)),
+            Times.Never);
 
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.IsAny<string>(),
-        It.Is<string>(json => json == _expectedJson)),
-        Times.Never);
-
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-        It.IsAny<string>()),
-        Times.Once);
+            _mockICallFunction.Verify(
+            x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
+            It.IsAny<string>()),
+            Times.Once);
+        }
     }
 
     [TestMethod]
     public async Task Run_UnsuccessfulParseAndSendDataWithValidInput_FailsAndLogsError()
     {
         // Arrange
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
 
-        // Act
-        await _receiveCaasFileInstance.Run(memoryStream, _blobName);
+        using (var fileSteam = File.OpenRead("BSS_20240718150245_n4.parquet"))
+        {
+            // Act
+            await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-        // Assert
-        _mockLogger.Verify(l => l.Log(LogLevel.Information,
-        It.IsAny<EventId>(),
-        It.IsAny<It.IsAnyType>(),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.AtLeastOnce());
+            // Assert
+            _mockLogger.Verify(l => l.Log(LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.AtLeastOnce());
+        }
     }
 
     [TestMethod]
     public async Task Run_InvalidFileExtension_LogsValidationErrorAndReturns()
     {
         // Arrange
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
-
         var fileName = "Test.PDF";
         Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
@@ -147,32 +145,33 @@ public class ReceiveCaasFileTests
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         // Act & Assert
-        await _receiveCaasFileInstance.Run(memoryStream, fileName);
+        using (var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
+        {
+            await _receiveCaasFileInstance.Run(fileSteam, fileName);
 
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-        It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: ")),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
+            _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: ")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
 
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-        It.IsAny<string>()),
-        Times.Once);
+            _mockICallFunction.Verify(
+            x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
+            It.IsAny<string>()),
+            Times.Once);
 
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.IsAny<string>(),
-        It.Is<string>(json => json == _expectedJson)),
-        Times.Never);
+            _mockICallFunction.Verify(
+            x => x.SendPost(It.IsAny<string>(),
+            It.Is<string>(json => json == _expectedJson)),
+            Times.Never);
+        }
     }
 
     [TestMethod]
     public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
     {
         // Arrange
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
 
         Environment.SetEnvironmentVariable("targetFunction", "targetFunction");
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
@@ -183,91 +182,16 @@ public class ReceiveCaasFileTests
         _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("targetFunction")), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        // Act
-        await _receiveCaasFileInstance.Run(memoryStream, _blobName);
+        using (var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
+        {
+            // Act
+            await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-        // Assert
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.IsAny<string>(),
-        It.Is<string>(json => json == _expectedJson)),
-        Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_InvalidFileNameRecordCount_LogsFileNameInvalidAndReturns()
-    {
-        // Arrange
-        string fileName = "BSS_20240718150245_test.parquet";
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(_validCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
-
-        Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("FileValidationURL")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        // Act
-        await _receiveCaasFileInstance.Run(memoryStream, fileName);
-
-        // Assert
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-        It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: ")),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
-
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-        It.IsAny<string>()),
-        Times.Once);
-
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.IsAny<string>(),
-        It.Is<string>(json => json == _expectedJson)),
-        Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Run_FileNameRecordCountIsZero_LogsValidationFailedAndReturns()
-    {
-        // Arrange
-        var fileName = "BSS_20240718150245_n0.parquet";
-        var altValidCsvData = "Record Type,Change Time Stamp,Serial Change Number,NHS Number,Superseded by NHS number,Primary Care Provider ,Primary Care Provider Business Effective From Date,Current Posting,Current Posting Business Effective From Date,Previous Posting,Previous Posting Business Effective To Date,Name Prefix,Given Name ,Other Given Name(s) ,Family Name ,Previous Family Name ,Date of Birth,Gender,Address line 1,Address line 2,Address line 3,Address line 4,Address line 5,Postcode,PAF key,Usual Address Business Effective From Date,Reason for Removal,Reason for Removal Business Effective From Date,Date of Death,Death Status,Telephone Number (Home),Telephone Number (Home) Business Effective From Date,Telephone Number (Mobile),Telephone Number (Mobile) Business Effective From Date,E-mail address (Home),E-mail address (Home) Business Effective From Date,Preferred Language,Interpreter required,Invalid Flag,Record Identifier,Change Reason Code\n";
-        byte[] csvDataBytes = Encoding.UTF8.GetBytes(altValidCsvData);
-        var memoryStream = new MemoryStream(csvDataBytes);
-
-        Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("FileValidationURL")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        // Act
-        await _receiveCaasFileInstance.Run(memoryStream, fileName);
-
-        // Assert
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-        It.IsAny<EventId>(),
-        It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File contains no records. File name:")),
-        It.IsAny<Exception>(),
-        It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
-
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-        It.IsAny<string>()),
-        Times.Once);
-
-        _mockICallFunction.Verify(
-        x => x.SendPost(It.IsAny<string>(),
-        It.Is<string>(json => json == _expectedJson)),
-        Times.Never);
+            // Assert
+            _mockICallFunction.Verify(
+            x => x.SendPost(It.IsAny<string>(),
+            It.Is<string>(json => json == _expectedJson)),
+            Times.Once);
+        }
     }
 }
