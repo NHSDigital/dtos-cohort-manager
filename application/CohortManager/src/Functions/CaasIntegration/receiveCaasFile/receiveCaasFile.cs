@@ -129,7 +129,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
+            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await InsertValidationErrorIntoDatabase(name);
             return;
         }
@@ -218,7 +218,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
+            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await InsertValidationErrorIntoDatabase(filename);
         }
     }
