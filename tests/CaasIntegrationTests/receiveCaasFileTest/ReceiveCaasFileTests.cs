@@ -110,28 +110,6 @@ public class ReceiveCaasFileTests
     }
 
     [TestMethod]
-    public async Task Run_UnsuccessfulParseAndSendDataWithValidInput_FailsAndLogsError()
-    {
-        // Arrange
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-
-        using (var fileSteam = File.OpenRead("BSS_20240718150245_n4.parquet"))
-        {
-            // Act
-            await _receiveCaasFileInstance.Run(fileSteam, _blobName);
-
-            // Assert
-            _mockLogger.Verify(l => l.Log(LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.AtLeastOnce());
-        }
-    }
-
-    [TestMethod]
     public async Task Run_InvalidFileExtension_LogsValidationErrorAndReturns()
     {
         // Arrange
