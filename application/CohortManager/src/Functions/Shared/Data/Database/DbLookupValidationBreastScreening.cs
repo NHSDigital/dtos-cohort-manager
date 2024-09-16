@@ -57,4 +57,33 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             }
         }
     }
+
+    /// <summary>
+    /// Used in rule 58 of the lookup rules.
+    /// Validates that the current posting exists, and that it is in the cohort and in use.
+    /// </summary>
+    /// <param name="currentPosting">The participant's current posting (area code).</param>
+    /// <returns>bool, whether or not the current posting is valid.<returns>
+    public bool ValidateCurrentPosting(string currentPosting)
+    {
+        string sql = $"SELECT IN_USE, INCLUDED_IN_COHORT FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
+
+        using (_connection)
+        {
+            _connection.Open();
+            using (SqlCommand command = new SqlCommand(sql, _connection))
+            {
+                command.Parameters.AddWithValue("@currentPosting", currentPosting);
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while(reader.Read())
+                    {
+                        return reader["IN_USE"].ToString().Equals("Y") && reader["INCLUDED_IN_COHORT"].ToString().Equals("Y");
+                    }
+                    return false;
+                }
+            }
+        }
+    }
+
 }

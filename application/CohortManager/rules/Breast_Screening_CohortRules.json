@@ -4,7 +4,21 @@
         "Rules": [
             {
                 "RuleName": "54.ValidateBsoCode",
-                "Expression": "!((newParticipant.ReasonForRemoval == \"RDI\" || newParticipant.ReasonForRemoval == \"RDR\" || newParticipant.ReasonForRemoval == \"RPR\") && !newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(newParticipant.Postcode) || !dbLookup.ValidateOutcode(newParticipant.Postcode)) && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)))",
+                "LocalParams": [
+                    {
+                        "Name": "reasonForRemoval",
+                        "Expression": "newParticipant.ReasonForRemoval"
+                    },
+                    {
+                        "Name": "primaryCareProvider",
+                        "Expression": "newParticipant.PrimaryCareProvider"
+                    },
+                    {
+                        "Name": "postcode",
+                        "Expression": "newParticipant.Postcode"
+                    }
+                ],
+                "Expression": "!((reasonForRemoval == \"RDI\" || reasonForRemoval == \"RDR\" || reasonForRemoval == \"RPR\") && !primaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(postcode) || !dbLookup.ValidateOutcode(postcode)) && (string.IsNullOrEmpty(primaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(primaryCareProvider)))",
                 "Actions": {
                     "OnFailure": {
                         "Name": "OutputExpression",
