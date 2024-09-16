@@ -61,6 +61,7 @@ public class ReceiveCaasFile
 
             var chunks = new List<Cohort>();
             var rowNumber = 0;
+            var batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BatchSize"));
 
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
@@ -75,6 +76,9 @@ public class ReceiveCaasFile
             _logger.LogInformation("Start reading the downloadedfile {name}.", name);
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
+                /*
+                A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows. 
+                */
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
@@ -94,7 +98,7 @@ public class ReceiveCaasFile
                         }
                         cohort.Participants.Add(participant);
 
-                        if (cohort.Participants.Count == 20000)
+                        if (cohort.Participants.Count == batchSize)
                         {
                             chunks.Add(cohort);
                             cohort.Participants.Clear();
@@ -127,7 +131,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await InsertValidationErrorIntoDatabase(name);
             return;
         }
@@ -216,7 +220,7 @@ public class ReceiveCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError("Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await InsertValidationErrorIntoDatabase(filename);
         }
     }
