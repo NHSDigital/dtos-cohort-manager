@@ -76,9 +76,7 @@ public class ReceiveCaasFile
             _logger.LogInformation("Start reading the downloadedfile {name}.", name);
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
-                /*
-                A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows. 
-                */
+                /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
