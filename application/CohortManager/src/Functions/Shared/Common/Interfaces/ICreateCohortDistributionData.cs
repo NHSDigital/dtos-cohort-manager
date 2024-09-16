@@ -10,4 +10,5 @@ public interface ICreateCohortDistributionData
     bool UpdateCohortParticipantAsInactive(string NhsNumber);
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
     List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson);
+    List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(int serviceProviderId, int rowCount,string requestId);
 }
