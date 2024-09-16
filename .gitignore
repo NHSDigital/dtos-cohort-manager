@@ -51,11 +51,8 @@ local.settings.json
 # sample data
 application/CohortManager/SampleData/
 *.csv
-tests/CaasIntegrationTests/receiveCaasFileTest/BSS_20240718150245_n4.parquet
-tests/CaasIntegrationTests/receiveCaasFileTest/BSS_20240718150245_n3.parquet
-application/CohortManager/src/Functions/.idea/.idea.Functions/.idea/projectSettingsUpdater.xml
-application/CohortManager/src/Functions/.idea/.idea.Functions/.idea/indexLayout.xml
-
+*.parquet
+*.parquet
 
 recreate_local_settings.sh
 
