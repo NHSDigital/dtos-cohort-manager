@@ -1,0 +1,42 @@
+CREATE TABLE [dbo].[PARTICIPANT_DEMOGRAPHIC] (
+    [PARTICIPANT_ID]                BIGINT        IDENTITY (1, 1) NOT NULL,
+    [NHS_NUMBER]                    BIGINT        NULL,
+    [SUPERSEDED_BY_NHS_NUMBER]      BIGINT        NULL,
+    [PRIMARY_CARE_PROVIDER]         VARCHAR (10)  NULL,
+    [PRIMARY_CARE_PROVIDER_FROM_DT] DATE          NULL,
+    [CURRENT_POSTING]               VARCHAR (10)  NULL,
+    [CURRENT_POSTING_FROM_DT]       DATE          NULL,
+    [NAME_PREFIX]                   VARCHAR (35)  NULL,
+    [GIVEN_NAME]                    VARCHAR (100) NULL,
+    [OTHER_GIVEN_NAME]              VARCHAR (100) NULL,
+    [FAMILY_NAME]                   VARCHAR (100) NULL,
+    [PREVIOUS_FAMILY_NAME]          VARCHAR (100) NULL,
+    [DATE_OF_BIRTH]                 DATE          NULL,
+    [GENDER]                        SMALLINT      NULL,
+    [ADDRESS_LINE_1]                VARCHAR (100) NULL,
+    [ADDRESS_LINE_2]                VARCHAR (100) NULL,
+    [ADDRESS_LINE_3]                VARCHAR (100) NULL,
+    [ADDRESS_LINE_4]                VARCHAR (100) NULL,
+    [ADDRESS_LINE_5]                VARCHAR (100) NULL,
+    [POST_CODE]                     VARCHAR (10)  NULL,
+    [PAF_KEY]                       VARCHAR (10)  NULL,
+    [USUAL_ADDRESS_FROM_DT]         DATE          NULL,
+    [DATE_OF_DEATH]                 DATE          NULL,
+    [DEATH_STATUS]                  SMALLINT      NULL,
+    [TELEPHONE_NUMBER_HOME]         VARCHAR (35)  NULL,
+    [TELEPHONE_NUMBER_HOME_FROM_DT] DATE          NULL,
+    [TELEPHONE_NUMBER_MOB]          VARCHAR (35)  NULL,
+    [TELEPHONE_NUMBER_MOB_FROM_DT]  DATE          NULL,
+    [EMAIL_ADDRESS_HOME]            VARCHAR (100) NULL,
+    [EMAIL_ADDRESS_HOME_FROM_DT]    DATE          NULL,
+    [PREFERRED_LANGUAGE]            VARCHAR (35)  NULL,
+    [INTERPRETER_REQUIRED]          SMALLINT      NULL,
+    [INVALID_FLAG]                  SMALLINT      NULL,
+    [RECORD_INSERT_DATE_TIME]       DATE          NULL,
+    [RECORD_UPDATE_DATE_TIME]       DATE          NULL,
+    CONSTRAINT [PK_PARTICIPANT_DEMOGRAPHIC] PRIMARY KEY CLUSTERED ([PARTICIPANT_ID] ASC)
+);
+
+
+GO
+
