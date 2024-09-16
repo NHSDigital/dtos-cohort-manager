@@ -28,8 +28,6 @@ public class LookupValidationTests
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
     private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
     private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
-    // public TestContext _testContext { get; set; }
-    private string _ruleType;
 
     [TestInitialize]
     public void IntialiseTests()
