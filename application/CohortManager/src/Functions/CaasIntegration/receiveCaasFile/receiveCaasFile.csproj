@@ -7,7 +7,6 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="AutoMapper" Version="13.0.1" />
         <PackageReference Include="CsvHelper" Version="32.0.3" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
@@ -16,7 +15,6 @@
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
         <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.21.0" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0" />
-        <PackageReference Include="Parquet.Net" Version="4.25.0-pre.2" />
         <PackageReference Include="ParquetSharp" Version="17.0.0-beta1" />
         <PackageReference Include="System.IO.Packaging" Version="8.0.0" />
     </ItemGroup>
