@@ -1,13 +1,9 @@
 namespace Common;
 
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Model;
 using RulesEngine.Models;
 
@@ -90,25 +86,29 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
-    public async Task CreateValidationExceptionLog(Exception exception, string ruleName, Participant participant)
-    {
-
-    }
-    public async Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
         participantCsvRecord.Participant.ExceptionFlag = "Y";
 
+        var foundFatalRule = false;
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
             var errorMessage = (string) error.ActionResult.Output;
 
+            var IsFatal = ParseFatalRuleType(ruleDetails[2]);
+            if (IsFatal == 1)
+            {
+                foundFatalRule = true;
+                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {nhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
+            }
+
             var exception = new ValidationException
             {
                 RuleId = int.Parse(ruleDetails[0]),
                 RuleDescription = ruleDetails[1],
-                RuleContent = ruleDetails[1],
+                RuleContent = errorMessage,
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = errorMessage ?? ruleDetails[1],
@@ -119,7 +119,7 @@ public class ExceptionHandler : IExceptionHandler
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 ScreeningService = int.Parse(participantCsvRecord.Participant.ScreeningId),
                 Cohort = "",
-                Fatal = 0
+                Fatal = IsFatal
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);
@@ -128,11 +128,19 @@ public class ExceptionHandler : IExceptionHandler
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError("There was an error while logging an exception to the database");
-                return false;
+                return new ValidationExceptionLog
+                {
+                    IsFatal = foundFatalRule,
+                    CreatedException = false
+                };
             }
         }
 
-        return true;
+        return new ValidationExceptionLog()
+        {
+            IsFatal = foundFatalRule,
+            CreatedException = true
+        };
     }
 
     public async Task<bool> CreateRecordValidationExceptionLog(ValidationException validation)
@@ -196,7 +204,17 @@ public class ExceptionHandler : IExceptionHandler
             Cohort = "",
             Fatal = 1
         };
+    }
 
+    private int ParseFatalRuleType(string fatal)
+    {
+        var FatalRuleParsed = Enum.TryParse(fatal, out FatalRule IsFatal);
+        if (!FatalRuleParsed)
+        {
+            _logger.LogError("There was a problem parsing the fatal rule Type from the rule details");
+            return 0;
+        }
+        return (int)IsFatal;
     }
 
 }

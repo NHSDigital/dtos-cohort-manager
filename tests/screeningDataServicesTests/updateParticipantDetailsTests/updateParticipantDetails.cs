@@ -2,6 +2,7 @@ namespace NHS.CohortManger.Tests.ScreeningDataServicesTests;
 
 using System.Data;
 using System.Net;
+using System.Text.Json;
 using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,6 @@ public class UpdateParticipantDetailsTests
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
 
     public UpdateParticipantDetailsTests()
@@ -30,13 +30,13 @@ public class UpdateParticipantDetailsTests
 
         _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
         _mockDBConnection.Setup(x => x.BeginTransaction()).Returns(_mockTransaction.Object);
-
+        _mockTransaction.Setup(x => x.Commit());
         _commandMock.Setup(c => c.Dispose());
         _commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
         _commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
         _commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
         _commandMock.SetupProperty<string>(c => c.CommandText);
-
+        _commandMock.SetupProperty<IDbTransaction>(c => c.Transaction);
         _mockParameter.Setup(m => m.ParameterName).Returns("@fakeparam");
         _mockParameter.Setup(m => m.Value).Returns("fakeValue");
 
@@ -59,58 +59,54 @@ public class UpdateParticipantDetailsTests
     }
 
     [TestMethod]
-    public async Task UpdateParticipantDetails_Success()
+    public void UpdateParticipantDetails_Success()
     {
         // Arrange
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
-        .Returns(false)
-        .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
 
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         SetUpReader();
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
+        var participant = GetParticipant();
+        var result = sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsTrue(result);
     }
 
     [TestMethod]
-    public async Task UpdateParticipantDetails_FailsToGetOldId_False()
+    public void UpdateParticipantDetails_FailsToGetOldId_False()
     {
         // Arrange
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
+
+        _commandMock.Setup(x => x.ExecuteNonQuery())
+        .Throws<OutOfMemoryException>();
 
         SetUpReader();
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
+        var result = sut.UpdateParticipantDetails(_participantCsvRecord);
 
         // Assert
         Assert.IsFalse(result);
     }
+
+
 
     [TestMethod]
     public void UpdateParticipantAsEligible_UpdatesRecords_True()
@@ -119,12 +115,11 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         SetUpReader();
 
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -134,18 +129,16 @@ public class UpdateParticipantDetailsTests
     }
 
     [TestMethod]
-    public void UpdateParticipantAsEligible_DoesNetGetOldId_False()
+    public void UpdateParticipantAsEligible_DoesNotGetOldId_False()
     {
         // Arrange
         _moqDataReader.SetupSequence(reader => reader.Read())
-        .Returns(true)
         .Returns(false);
-        _moqDataReader.Setup(reader => reader.GetInt32(0)).Returns(1);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         SetUpReader();
 
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
         var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
@@ -159,6 +152,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var nhsId = "123456";
+        var screeningId = "1";
         var expectedParticipantId = 123456;
         _moqDataReader.SetupSequence(reader => reader.Read())
         .Returns(true)
@@ -168,10 +162,10 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId, screeningId);
 
         // Assert
         Assert.AreEqual(nhsId, result.NhsNumber);
@@ -182,6 +176,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var nhsId = "123456";
+        var screeningId = "1";
 
         _moqDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
@@ -191,17 +186,17 @@ public class UpdateParticipantDetailsTests
 
         SetUpReader();
 
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId);
+        var result = sut.GetParticipant(nhsId, screeningId);
 
         // Assert
         Assert.AreEqual("123456", result.NhsNumber);
     }
 
     [TestMethod]
-    public async Task UpdateParticipantDetails_Fails_When_Validation_Fails()
+    public void UpdateParticipantDetails_Fails_When_Validation_Fails()
     {
         // Arrange
         _moqDataReader.SetupSequence(reader => reader.Read())
@@ -212,14 +207,10 @@ public class UpdateParticipantDetailsTests
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
 
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s == "LookupValidationURL"), It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _callFunction.Object);
+        var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = await sut.UpdateParticipantDetails(_participantCsvRecord);
-
+        var result = sut.UpdateParticipantDetails(_participantCsvRecord);
         // Assert
         Assert.IsFalse(result);
         _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Once());//We still update the participant, but only set the Exception Flag.
@@ -231,7 +222,7 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.Setup(m => m["SCREENING_ID"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
         _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL"]).Returns("Some Provider");
-        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_FROM_DT"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["BUSINESS_RULE_VERSION"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["EXCEPTION_FLAG"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
@@ -243,6 +234,7 @@ public class UpdateParticipantDetailsTests
     {
         return new Participant()
         {
+            ParticipantId = "1",
             NhsNumber = "123456",
             SupersededByNhsNumber = "789012",
             PrimaryCareProvider = "ABC Clinic",
@@ -266,7 +258,9 @@ public class UpdateParticipantDetailsTests
             EmailAddress = "john.doe@example.com",
             PreferredLanguage = "English",
             IsInterpreterRequired = "0",
-            RecordType = Actions.Amended
+            RecordType = Actions.Amended,
+            ScreeningId = "1"
+
         };
     }
 }

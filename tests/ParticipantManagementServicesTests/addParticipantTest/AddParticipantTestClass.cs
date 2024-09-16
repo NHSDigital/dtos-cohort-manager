@@ -140,6 +140,13 @@ public class AddNewParticipantTestClass
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
+        _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
@@ -242,7 +249,7 @@ public class AddNewParticipantTestClass
             LogLevel.Information,
             0,
             It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Unable to call function")),
-            null,
+            It.IsAny<Exception>(),
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
     }
@@ -270,7 +277,7 @@ public class AddNewParticipantTestClass
             LogLevel.Information,
             0,
             It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Unable to call function")),
-            null,
+            It.IsAny<Exception>(),
             (Func<object, Exception, string>)It.IsAny<object>()
             ));
     }
@@ -287,6 +294,12 @@ public class AddNewParticipantTestClass
 
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
+        _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
         // Act
         var result = await sut.Run(_request.Object);
 

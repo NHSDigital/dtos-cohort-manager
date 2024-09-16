@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.Tests.CohortDistributionDataTests;
+namespace NHS.CohortManager.Tests.CohortDistributionDataTests;
 
 using Common;
 using Data.Database;

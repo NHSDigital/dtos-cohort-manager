@@ -59,6 +59,13 @@ public class LookupValidationTests
             Surname = "Smith"
         };
 
+        _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
+            .Returns(Task.FromResult(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            }));
+
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv", RulesType.CohortDistribution);
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -149,7 +156,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist.Fatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -199,7 +206,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.ParticipantMustNotExist")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.ParticipantMustNotExist.Fatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -258,7 +265,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -295,7 +302,7 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
-
+  
     [TestMethod]
     [DataRow("RDI", "ZZZTR2 7FG", "Y02688")] // Postcode starts with "ZZZ"
     [DataRow("RDR", null, null)] // Postcode Null

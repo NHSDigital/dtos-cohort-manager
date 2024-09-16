@@ -4,6 +4,7 @@ using Model;
 
 public interface IValidationExceptionData
 {
-    public bool Create(ValidationException exception);
-    public List<ValidationException> GetAll();
+    bool Create(ValidationException exception);
+    List<ValidationException> GetAll();
+    bool RemoveOldException(string nhsNumber, string screeningName);
 }
