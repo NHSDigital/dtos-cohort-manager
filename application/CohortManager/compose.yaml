@@ -279,6 +279,17 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
+  retrieve-distribution-replay:
+    container_name: retrieve-distribution-replay
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveCohortReplay/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8085
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
   remove-cohort-distribution-data:
     container_name: remove-cohort-distribution-data
     network_mode: host
