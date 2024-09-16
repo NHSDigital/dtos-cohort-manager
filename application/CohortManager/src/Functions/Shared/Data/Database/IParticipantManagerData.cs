@@ -7,6 +7,6 @@ public interface IParticipantManagerData
 {
     bool UpdateParticipantAsEligible(Participant participant, char isActive);
     bool UpdateParticipantDetails(ParticipantCsvRecord participantCsvRecord);
-    Participant GetParticipant(string NhsNumber);
+    Participant GetParticipant(string nhsNumber, string screeningId);
     Participant GetParticipantFromIDAndScreeningService(RetrieveParticipantRequestBody retrieveParticipantRequestBody);
 }
