@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
+using Google.Protobuf.Reflection;
 
 [TestClass]
 public class MarkParticipantAsIneligibleTests
@@ -106,7 +107,7 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<int>())).Returns(true);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
