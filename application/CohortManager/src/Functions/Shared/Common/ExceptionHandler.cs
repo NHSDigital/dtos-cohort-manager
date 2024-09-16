@@ -41,7 +41,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -59,7 +59,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "");
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "", participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -73,7 +73,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -81,7 +81,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "");
+        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "", "");
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -184,7 +184,7 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
+    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName, string screeningName)
     {
         // mapping liable to change.
         return new ValidationException
@@ -200,7 +200,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningService = 1,
             ExceptionDate = DateTime.UtcNow,
             ErrorRecord = exception.Message,
-            ScreeningName = "Breast Screening",
+            ScreeningName = screeningName ?? "Breast Screening",
             Cohort = "",
             Fatal = 1
         };
