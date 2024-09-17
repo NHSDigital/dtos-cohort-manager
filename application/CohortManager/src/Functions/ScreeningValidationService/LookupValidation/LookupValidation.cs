@@ -77,6 +77,9 @@ public class LookupValidation
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
+            var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
+            resultList.AddRange(ActionResults);
+
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
             if (validationErrors.Any())
