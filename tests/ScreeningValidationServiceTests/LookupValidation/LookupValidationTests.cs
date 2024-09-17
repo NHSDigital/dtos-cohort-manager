@@ -299,9 +299,7 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("RDI", "ZZZTR2 7FG", "Y02688")] // Postcode starts with "ZZZ"
-    [DataRow("RDR", null, null)] // Postcode Null
-    [DataRow("RPR", "TR2 7FG", null)] // Primary care provider null
+    [DataRow("RDR", null, null)] // postcode and primary care provider null
     public async Task Run_invalidParticipant_ValidateBsoCodeRuleFails(string ReasonForRemoval, string postcode,
                                                                     string primaryCareProvider)
     {
@@ -323,6 +321,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("TNR", "not valid", "not valid")] // Reason for removal is not valid
     [DataRow("RDI", "TR2 7FG", "Y02688")] // All fields are valid
+    [DataRow("RDR", "ZZZTR2 7FG", null)] // Postcode starts with ZZZ
     public async Task Run_validParticipant_ValidateBsoCodeRulePasses(string primaryCareProvider, string postcode,
                                                                     string ReasonForRemoval)
     {

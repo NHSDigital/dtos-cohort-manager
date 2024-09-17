@@ -1,0 +1,33 @@
+[
+    {
+        "WorkflowName": "Common",
+        "Rules": [
+            {
+                "RuleName": "54.ValidateBsoCode",
+                "LocalParams": [
+                    {
+                        "Name": "reasonForRemoval",
+                        "Expression": "newParticipant.ReasonForRemoval"
+                    },
+                    {
+                        "Name": "primaryCareProvider",
+                        "Expression": "newParticipant.PrimaryCareProvider"
+                    },
+                    {
+                        "Name": "postcode",
+                        "Expression": "newParticipant.Postcode"
+                    }
+                ],
+                "Expression": "!((reasonForRemoval == \"RDI\" || reasonForRemoval == \"RDR\" || reasonForRemoval == \"RPR\") && !primaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(postcode) || !dbLookup.ValidateOutcode(postcode)) && (string.IsNullOrEmpty(primaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(primaryCareProvider)))",
+                "Actions": {
+                    "OnFailure": {
+                        "Name": "OutputExpression",
+                        "Context": {
+                            "Expression": "\"It was not possible to determine the BSO dummy practice code for this participant\""
+                        }
+                    }
+                }
+            }
+        ]
+    }
+]

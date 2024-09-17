@@ -10,12 +10,8 @@ using System.Data.SqlClient;
 /// </summary>
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
-    private SqlConnection _connection;
+    private SqlConnection _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
 
-    public DbLookupValidationBreastScreening()
-    {
-        _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
-    }
 
     /// <summary>
     /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.
@@ -94,5 +90,4 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             }
         }
     }
-
 }

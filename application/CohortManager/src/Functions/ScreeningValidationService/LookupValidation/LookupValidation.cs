@@ -82,6 +82,7 @@ public class LookupValidation
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
+
             System.Console.WriteLine("Result: " + _dbLookup.ValidateCurrentPosting(newParticipant.CurrentPosting));
 
             // Validation rules are logically reversed
@@ -119,7 +120,7 @@ public class LookupValidation
         switch (rulesType)
         {
             case RulesType.CohortDistribution:
-                return "CohortRules.json";
+                return "cohortRules.json";
             case RulesType.ParticipantManagement:
                 return "lookupRules.json";
             default:

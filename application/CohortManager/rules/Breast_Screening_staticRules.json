@@ -23,7 +23,7 @@
           "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)"
         },
         {
-          "RuleName": "19.NewParticipantWithNoAddress.NonFatal",
+          "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
           "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))"
         },
         {
