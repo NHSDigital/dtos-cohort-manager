@@ -170,8 +170,7 @@ public class CreateDemographicData : ICreateDemographicData
     {
         if (GetDemographicData(nhsNumber) != null)
         {
-            var SQL = @" DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC 
-                         WHERE NHS_NUMBER = @NhsNumber ";
+            var SQL = @"DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC WHERE NHS_NUMBER = @NhsNumber";
 
             UpdateRecords(new List<SQLReturnModel>()
             {
