@@ -178,6 +178,7 @@ public class ExceptionHandler : IExceptionHandler
             _logger.LogError("There was an error while logging an exception to the database.");
             return false;
         }
+
         return true;
     }
 
