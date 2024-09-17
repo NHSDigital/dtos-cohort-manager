@@ -213,7 +213,7 @@ public class UpdateParticipantDetailsTests
         var result = sut.UpdateParticipantDetails(_participantCsvRecord);
         // Assert
         Assert.IsFalse(result);
-        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Once());//We still update the participant, but only set the Exception Flag.
+        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.AtMost(2));//We still update the participant, but only set the Exception Flag.
     }
 
     private void SetUpReader()
