@@ -10,7 +10,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRulesFromBlobStorage, ReadRulesFromBlobStorage>();
-        services.AddSingleton<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
+        services.AddTransient<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
     })
     .AddExceptionHandler()
     .Build();
