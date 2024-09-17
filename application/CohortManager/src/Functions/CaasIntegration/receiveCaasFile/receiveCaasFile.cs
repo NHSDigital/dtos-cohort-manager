@@ -36,7 +36,7 @@ public class ReceiveCaasFile
         {
             if (blobStream == null)
             {
-                _logger.LogError("blobSteam was null");
+                _logger.LogError("blobSteam was null.");
                 return;
             }
 
