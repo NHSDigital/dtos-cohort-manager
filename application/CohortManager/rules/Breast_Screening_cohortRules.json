@@ -3,7 +3,7 @@
         "WorkflowName": "Common",
         "Rules": [
             {
-                "RuleName": "54.ValidateBsoCode",
+                "RuleName": "54.ValidateBsoCode.NonFatal",
                 "Expression": "!((newParticipant.ReasonForRemoval == \"RDI\" || newParticipant.ReasonForRemoval == \"RDR\" || newParticipant.ReasonForRemoval == \"RPR\") && !newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(newParticipant.Postcode) || !dbLookup.ValidateOutcode(newParticipant.Postcode)) && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)))",
                 "Actions": {
                     "OnFailure": {
