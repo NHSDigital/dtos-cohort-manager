@@ -23,11 +23,11 @@ public class MarkParticipantAsEligibleTests
     {
         // Arrange
         string requestBody = @"{
-            ""isActive"": ""Y""
+            ""isActive"": 1
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<int>())).Returns(true);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
@@ -42,11 +42,11 @@ public class MarkParticipantAsEligibleTests
     {
         // Arrange
         string requestBody = @"{
-            ""isActive"": ""Y""
+            ""isActive"": 0
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<int>())).Returns(false);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
