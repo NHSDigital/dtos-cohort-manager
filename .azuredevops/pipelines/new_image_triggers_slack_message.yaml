@@ -151,6 +151,4 @@ jobs:
           functionAppName="$(echo $RESOURCES_TRIGGERINGALIAS)"
           echo $functionAppName
 
-          echo "TriggeringAlias: $(Resources.TriggeringAlias)"
-
           echo "##vso[task.setvariable variable=functionAppName;isoutput=true]$functionAppName"
