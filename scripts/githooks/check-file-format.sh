@@ -81,7 +81,7 @@ function run-editorconfig-natively() {
 
   # shellcheck disable=SC2046,SC2086
   editorconfig \
-    --exclude '.git/' '*.parquet' $dry_run_opt $($filter)
+    --exclude '.git/' $dry_run_opt $($filter)
 }
 
 
