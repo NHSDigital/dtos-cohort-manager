@@ -84,6 +84,7 @@ function run-editorconfig-natively() {
     --exclude '.git/' '*.parquet' $dry_run_opt $($filter)
 }
 
+
 # Run editorconfig in a Docker container.
 # Arguments (provided as environment variables):
 #   dry_run_opt=[dry run option]
