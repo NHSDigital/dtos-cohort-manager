@@ -42,7 +42,6 @@ public class ReceiveCaasFileTests
     public async Task Run_SuccessfulParseAndSendDataWithValidInput_SuccessfulSendToFunctionWithResponse()
     {
         // Arrange
-
         using (var fileSteam = File.OpenRead("BSS_20240718150245_n3.parquet"))
         {
 
