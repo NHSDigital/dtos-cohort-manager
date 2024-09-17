@@ -51,8 +51,6 @@ local.settings.json
 # sample data
 application/CohortManager/SampleData/
 *.csv
-*.parquet
-*.parquet
 
 recreate_local_settings.sh
 
