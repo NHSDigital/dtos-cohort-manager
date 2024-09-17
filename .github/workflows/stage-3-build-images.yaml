@@ -65,17 +65,26 @@ jobs:
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
-          PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+          PR_NUMBER=$(echo "refs/pull/213/merge" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
 
-          ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
-          PR_ID=$(echo ${PULLS_JSON} | jq -r '.[].number')
+          if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
+            PR_NUMBER=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+            echo "PR Number is: $PR_NUMBER"
+            echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          else
+            PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
 
-          SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
-          echo "Commit hash tag: $SHORT_COMMIT_HASH"
-          echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+            ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+            PR_ID=$(echo ${PULLS_JSON} | jq -r '.[].number')
 
-          echo "PR NUMBER: $PR_ID"
-          echo "PR_NUMBER=$PR_ID" >> $GITHUB_ENV
+            SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
+            echo "Commit hash tag: $SHORT_COMMIT_HASH"
+            echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+
+            echo "PR NUMBER: $PR_ID"
+            echo "PR_NUMBER=$PR_ID" >> $GITHUB_ENV
+          fi
+
           echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
           echo "ORIGINATING_BRANCH=$ORIGINATING_BRANCH" >> $GITHUB_ENV
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
