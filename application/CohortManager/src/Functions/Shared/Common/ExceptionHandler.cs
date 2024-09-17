@@ -189,7 +189,6 @@ public class ExceptionHandler : IExceptionHandler
             _logger.LogError("ExceptionFunctionURL environment variable is not set.");
             throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
         }
-
         return url;
     }
 
