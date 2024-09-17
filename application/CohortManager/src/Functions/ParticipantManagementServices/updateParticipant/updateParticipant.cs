@@ -67,7 +67,7 @@ public class UpdateParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
             var responseDataFromCohort = false;
