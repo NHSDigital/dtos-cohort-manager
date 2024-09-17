@@ -28,6 +28,8 @@ public class CreateDemographicData : ICreateDemographicData
             demographic.IsInterpreterRequired = null;
         }
 
+        RemoveOldDemographicData(demographic.NhsNumber);
+
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
@@ -149,18 +151,45 @@ public class CreateDemographicData : ICreateDemographicData
         return UpdateRecords(command);
     }
 
-    public Demographic GetDemographicData(string NhsNumber)
+    public Demographic GetDemographicData(string nhsNumber)
     {
         var SQL = @" SELECT TOP(1) * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
         {
-            {"@NhsNumber",  NhsNumber },
+            {"@NhsNumber",  nhsNumber },
         };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
         return GetDemographic(command);
+    }
+
+
+    private void RemoveOldDemographicData(string nhsNumber)
+    {
+        if (GetDemographicData(nhsNumber) != null)
+        {
+            var SQL = @" DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC 
+                         WHERE NHS_NUMBER = @NhsNumber ";
+
+            UpdateRecords(new List<SQLReturnModel>()
+            {
+                new SQLReturnModel()
+                {
+                    CommandType = CommandType.Command,
+                    SQL = SQL,
+                    Parameters = new Dictionary<string, object>()
+                    {
+                        {"@NhsNumber",  nhsNumber },
+                    }
+                }
+            });
+
+            _logger.LogInformation("A demographic record was found and will be updated");
+            return;
+        }
+        _logger.LogInformation("A demographic record was not found");
     }
 
     private Demographic GetDemographic(IDbCommand command)

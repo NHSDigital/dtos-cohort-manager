@@ -98,8 +98,13 @@ public class ProcessCaasFileFunction
                     try
                     {
                         var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-                        _logger.LogInformation("Called update participant");
+                        var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+                        if (demographicDataAdded)
+                        {
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                            _logger.LogInformation("Called update participant");
+                        }
                     }
                     catch (Exception ex)
                     {
