@@ -39,7 +39,7 @@ public class CreateParticipantData : ICreateParticipantData
             " SCREENING_ID," +
             " NHS_NUMBER," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
