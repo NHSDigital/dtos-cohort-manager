@@ -29,10 +29,11 @@ module "functionapp" {
   docker_CI_enable      = var.function_app.gl_docker_CI_enable
   enable_appsrv_storage = var.function_app.gl_enable_appsrv_storage
 
-  #Specific FNApp settings:
-  caasfolder_STORAGE = module.storage.sa_fe_primary_connection_string
-  db_name            = var.sqlserver.dbs.cohman.db_name_suffix
+  min_tls_version = var.min_tls_version
 
   tags = var.tags
 
+  #Specific FNApp settings:
+  caasfolder_STORAGE = module.storage.sa_fe_primary_connection_string
+  db_name            = var.sqlserver.dbs.cohman.db_name_suffix
 }

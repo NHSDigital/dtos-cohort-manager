@@ -96,11 +96,25 @@ variable "acr_mi_name" {
 ######################
 # security defaults
 ######################
+variable "cors_allowed_origin" {
+  type    = list(string)
+  default = [""]
+}
 
+variable "ftps_state" {
+  type        = string
+  description = "Enable FTPS enforcement for enhanced security. Allowed values = AllAllowed, FtpsOnly and Disabled. Defaults to AllAllowed."
+  default     = Disabled
+}
 variable "https_only" {
   type        = bool
-  description = "Can the Function App only be accessed via HTTPS?"
+  description = "Can the Function App only be accessed via HTTPS? Defaults to false."
   default     = true
+}
+
+variable "min_tls_version" {
+  type    = string
+  default = "TLS1.2" # Possible versions: TLS1.0", "TLS1.1", "TLS1.2
 }
 
 variable "remote_debugging_enabled" {

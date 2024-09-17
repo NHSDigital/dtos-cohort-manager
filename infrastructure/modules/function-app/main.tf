@@ -22,6 +22,12 @@ resource "azurerm_linux_function_app" "function" {
 
   app_settings = merge(local.global_app_settings, local.app_settings[each.key])
 
+  cors {
+    allowed_origins     = var.cors_allowed_origin
+    support_credentials = false
+  }
+
+  ftps_state = var.ftps_state
   https_only = var.https_only
 
   identity {
@@ -30,12 +36,9 @@ resource "azurerm_linux_function_app" "function" {
   }
 
   site_config {
-
+    application_insights_connection_string        = var.ai_connstring
     container_registry_use_managed_identity       = var.cont_registry_use_mi
     container_registry_managed_identity_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
-
-    application_insights_connection_string = var.ai_connstring
-    use_32_bit_worker                      = var.gl_worker_32bit
 
     application_stack {
       docker {
@@ -44,6 +47,9 @@ resource "azurerm_linux_function_app" "function" {
         image_tag    = var.image_tag
       }
     }
+
+    min_tls_version   = var.min_tls_version
+    use_32_bit_worker = var.gl_worker_32bit
   }
 
   storage_account_name       = var.sa_name
@@ -52,7 +58,7 @@ resource "azurerm_linux_function_app" "function" {
   tags = var.tags
 
   lifecycle {
-    #ignore_changes = [tags, app_settings, connection_string] testing comment
+    #ignore_changes = [tags, app_settings, connection_string]
     ignore_changes = [tags, connection_string]
   }
 }
