@@ -147,7 +147,7 @@ jobs:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          echo "FunctionAppName: $RESOURCES_TRIGGERINGALIAS"
+          echo "Image name: $RESOURCES_TRIGGERINGALIAS"
           functionAppName="$(echo $RESOURCES_TRIGGERINGALIAS)"
           echo $functionAppName
 
