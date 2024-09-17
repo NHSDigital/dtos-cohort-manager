@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31825.309
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -118,11 +118,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionR
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecordTests", "..\..\..\..\tests\CohortDistributionTests\ValidateCohortDistributionRecordTests\ValidateCohortDistributionRecordTests.csproj", "{2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationException", "ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj", "{703A7286-774E-4969-924B-6305366916BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationExceptionDataTests", "..\..\..\..\tests\RemoveValidationExceptionData\RemoveValidationExceptionDataTests.csproj", "{6F9FF96F-57D1-4F1E-B722-42639DA5588A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "CohortDistributionServices\RetrieveCohortReplay\RetrieveCohortReplay.csproj", "{044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}"
+EndProject
 Global
-    GlobalSection(SolutionConfigurationPlatforms) = preSolution
-        Debug|Any CPU = Debug|Any CPU
-        Release|Any CPU = Release|Any CPU
-    EndGlobalSection
     GlobalSection(ProjectConfigurationPlatforms) = postSolution
         {A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
         {A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -320,7 +322,19 @@ Global
         {2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {2E815BDB-DB3D-4EB1-B24C-34FF6B9E6113}.Release|Any CPU.Build.0 = Release|Any CPU
-    EndGlobalSection
+        {703A7286-774E-4969-924B-6305366916BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {703A7286-774E-4969-924B-6305366916BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {703A7286-774E-4969-924B-6305366916BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {703A7286-774E-4969-924B-6305366916BB}.Release|Any CPU.Build.0 = Release|Any CPU
+        {6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {6F9FF96F-57D1-4F1E-B722-42639DA5588A}.Release|Any CPU.Build.0 = Release|Any CPU
+        {044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {044BA6D3-7A45-4437-B3EB-5B2C9A947F0E}.Release|Any CPU.Build.0 = Release|Any CPU
+        EndGlobalSection
     GlobalSection(SolutionProperties) = preSolution
         HideSolutionNode = FALSE
     EndGlobalSection
@@ -357,8 +371,18 @@ Global
         {CF9C9DB3-4178-4D3D-8232-4BE2B20C0D96} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
         {21183CC3-A28E-4407-B3A9-714DC39FE759} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
         {BD5E5333-2C20-4009-BF58-BFB930AD6B6C} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
+        {703A7286-774E-4969-924B-6305366916BB} = {C1B3BF4F-54CA-4100-AA4E-EA91B17704B8}
+        {044BA6D3-7A45-4437-B3EB-5B2C9A947F0E} = {F589D54E-8BFF-45BD-85A8-0C1FCF4F58F3}
     EndGlobalSection
     GlobalSection(ExtensibilityGlobals) = postSolution
         SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
+    EndGlobalSection
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Debug|x64 = Debug|x64
+        Debug|x86 = Debug|x86
+        Release|Any CPU = Release|Any CPU
+        Release|x64 = Release|x64
+        Release|x86 = Release|x86
     EndGlobalSection
 EndGlobal

@@ -22,6 +22,7 @@ locals {
     removeCohortDistributionData     = "https://${var.names.function-app}-${lower(var.function_app.RemoveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RemoveCohortDistributionData"
     createCohortDistribution         = "https://${var.names.function-app}-${lower(var.function_app.CreateCohortDistribution.name_suffix)}.azurewebsites.net/api/CreateCohortDistribution"
     validateCohortDistributionRecord = "https://${var.names.function-app}-${lower(var.function_app.ValidateCohortDistributionRecord.name_suffix)}.azurewebsites.net/api/ValidateCohortDistributionRecord"
+    retrieveCohortDistributionData   = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RetrieveCohortDistributionData"
   }
   db_connection_string = "Server=${var.names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.db_name}"
 
@@ -132,14 +133,16 @@ locals {
     FileValidation = {
 
       ExceptionFunctionURL = local.fnapp_urls.createException
+      caasfolder_STORAGE   = var.caasfolder_STORAGE
       inboundBlobName      = "inbound"
       fileExceptions       = "inbound-poison"
     }
 
     StaticValidation = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
-      BlobContainerName    = "config"
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      DtOsDatabaseConnectionString = local.db_connection_string
+      BlobContainerName            = "config"
     }
 
     LookupValidation = {
@@ -162,6 +165,7 @@ locals {
     RetrieveCohortDistributionData = {
 
       DtOsDatabaseConnectionString = local.db_connection_string
+      ExceptionFunctionURL         = local.fnapp_urls.createException
     }
 
     RemoveCohortDistributionData = {
