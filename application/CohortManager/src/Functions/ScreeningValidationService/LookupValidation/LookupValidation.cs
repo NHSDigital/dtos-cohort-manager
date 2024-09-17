@@ -114,7 +114,7 @@ public class LookupValidation
         switch (rulesType)
         {
             case RulesType.CohortDistribution:
-                return "CohortRules.json";
+                return "cohortRules.json";
             case RulesType.ParticipantManagement:
                 return "lookupRules.json";
             default:
