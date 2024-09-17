@@ -69,35 +69,35 @@ jobs:
           export VERSION="${{ steps.variables.outputs.version }}"
           export DOES_PULL_REQUEST_EXIST="${{ steps.pr_exists.outputs.does_pull_request_exist }}"
           make list-variables
-  # commit-stage: # Recommended maximum execution time is 2 minutes
-  #   name: "Commit stage"
-  #   needs: [metadata]
-  #   uses: ./.github/workflows/stage-1-commit.yaml
-  #   with:
-  #     build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
-  #     build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
-  #     build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
-  #     nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
-  #     python_version: "${{ needs.metadata.outputs.python_version }}"
-  #     terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
-  #     version: "${{ needs.metadata.outputs.version }}"
-  #   secrets: inherit
-  # test-stage: # Recommended maximum execution time is 5 minutes
-  #   name: "Test stage"
-  #   needs: [metadata, commit-stage]
-  #   uses: ./.github/workflows/stage-2-test.yaml
-  #   with:
-  #     build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
-  #     build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
-  #     build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
-  #     nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
-  #     python_version: "${{ needs.metadata.outputs.python_version }}"
-  #     terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
-  #     version: "${{ needs.metadata.outputs.version }}"
-  #   secrets: inherit
+  commit-stage: # Recommended maximum execution time is 2 minutes
+    name: "Commit stage"
+    needs: [metadata]
+    uses: ./.github/workflows/stage-1-commit.yaml
+    with:
+      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+      python_version: "${{ needs.metadata.outputs.python_version }}"
+      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+      version: "${{ needs.metadata.outputs.version }}"
+    secrets: inherit
+  test-stage: # Recommended maximum execution time is 5 minutes
+    name: "Test stage"
+    needs: [metadata, commit-stage]
+    uses: ./.github/workflows/stage-2-test.yaml
+    with:
+      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+      python_version: "${{ needs.metadata.outputs.python_version }}"
+      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+      version: "${{ needs.metadata.outputs.version }}"
+    secrets: inherit
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
-    # needs: [metadata, commit-stage ] , test-stage]
+    needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
