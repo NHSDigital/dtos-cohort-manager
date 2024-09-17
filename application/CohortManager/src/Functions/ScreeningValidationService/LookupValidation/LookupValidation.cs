@@ -71,6 +71,9 @@ public class LookupValidation
 
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
+            System.Console.WriteLine("Current posting: " + newParticipant.CurrentPosting);
+            System.Console.WriteLine("Connection string: " + Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
+
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -78,6 +81,8 @@ public class LookupValidation
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+            System.Console.WriteLine("Result: " + _dbLookup.ValidateCurrentPosting(newParticipant.CurrentPosting));
 
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => x.IsSuccess == false);

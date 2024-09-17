@@ -1,5 +1,6 @@
 namespace Data.Database;
 
+using Microsoft.Identity.Client;
 using Model;
 using System.Data;
 using System.Data.SqlClient;
@@ -9,7 +10,12 @@ using System.Data.SqlClient;
 /// </summary>
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
-    private SqlConnection _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
+    private SqlConnection _connection;
+
+    public DbLookupValidationBreastScreening()
+    {
+        _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
+    }
 
     /// <summary>
     /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.
@@ -66,7 +72,8 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool ValidateCurrentPosting(string currentPosting)
     {
-        string sql = $"SELECT IN_USE, INCLUDED_IN_COHORT FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
+        string sql = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result" +
+                    "FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
 
         using (_connection)
         {
@@ -76,9 +83,11 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 command.Parameters.AddWithValue("@currentPosting", currentPosting);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
+                    System.Console.WriteLine("starting reader");
                     while(reader.Read())
                     {
-                        return reader["IN_USE"].ToString().Equals("Y") && reader["INCLUDED_IN_COHORT"].ToString().Equals("Y");
+                        System.Console.WriteLine("result: " + reader.GetInt32(0));
+                        return reader.GetInt32(0) == 1;
                     }
                     return false;
                 }

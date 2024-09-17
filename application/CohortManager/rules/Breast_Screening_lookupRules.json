@@ -33,7 +33,7 @@
                     "Name": "currentPosting",
                     "Expression": "newParticipant.CurrentPosting"
                 }],
-                "Expression": "!(!string.IsNullOrEmpty(currentPosting) && !dbLookup.ValidateCurrentPosting(currentPosting))",
+                "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
                 "Actions": {
                     "OnFailure": {
                         "Name": "OutputExpression",
