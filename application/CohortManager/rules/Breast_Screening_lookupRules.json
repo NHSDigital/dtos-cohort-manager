@@ -16,11 +16,11 @@
                 "Expression": "newParticipant.RecordType != Actions.Amended OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
             },
             {
-                "RuleName": "36.ValidatePrimaryCareProvider",
-                "Expression": "DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+                "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
+                "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
                 "Actions": {
-                    "OnSuccess": {
-                        "Name": "ErrorMessage",
+                    "OnFailure": {
+                        "Name": "OutputExpression",
                         "Context": {
                             "Expression": "\"Invalid primary care provider GP practice code\""
                         }

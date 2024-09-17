@@ -91,4 +91,5 @@ public class Participant
     public string? RecordUpdateDateTime { get; set; }
     public string? ScreeningAcronym { get; set; }
     public string? ScreeningName { get; set; }
+    public string? EligibilityFlag { get; set; }
 }

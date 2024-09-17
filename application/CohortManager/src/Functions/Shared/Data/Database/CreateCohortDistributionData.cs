@@ -425,11 +425,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     " WHERE PARTICIPANT_ID = @ParticipantId";
 
             var parameters = new Dictionary<string, object>
-        {
-            {"@Extracted", 1 },
-            {"@RequestId", requestId },
-            {"@ParticipantId", participant.ParticipantId}
-        };
+            {
+                {"@Extracted", 1 },
+                {"@RequestId", requestId },
+                {"@ParticipantId", participant.ParticipantId}
+            };
 
             sqlToExecute.Add(new SQLReturnModel
             {
