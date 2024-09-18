@@ -11,7 +11,7 @@ COPY . .
 RUN pip install Flask
 
 # Make port 5000 available to the world outside this container
-EXPOSE 5002
+EXPOSE 5000
 
 # Run the Flask app
 CMD ["python",  "./ControllerTest.py"]
