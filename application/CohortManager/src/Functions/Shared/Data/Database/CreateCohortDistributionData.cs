@@ -168,16 +168,18 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[PREFERRED_LANGUAGE], " +
             " bcd.[INTERPRETER_REQUIRED], " +
             " bcd.[REASON_FOR_REMOVAL], " +
-            " bcd.[REASON_FOR_REMOVAL_DT], " +
+            " bcd.[REASON_FOR_REMOVAL_FROM_DT], " +
             " bcd.[RECORD_INSERT_DATETIME], " +
             " bcd.[RECORD_UPDATE_DATETIME], " +
             " bcd.[IS_EXTRACTED], " +
             " bcd.[REQUEST_ID], " +
-            " pm.[SCREENING_ID] " +
+            " (SELECT TOP 1 SCREENING_ID " +
+            " FROM [dbo].[PARTICIPANT_MANAGEMENT] pm " +
+            " WHERE pm.NHS_NUMBER = bcd.NHS_NUMBER " +
+            " AND pm.SCREENING_ID = @ScreeningServiceId " +
+            " ORDER BY pm.RECORD_UPDATE_DATETIME DESC) AS SCREENING_ID " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
-            " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.NHS_NUMBER = pm.NHS_NUMBER " +
-            " WHERE bcd.IS_EXTRACTED = @Extracted " +
-            " AND pm.SCREENING_ID = @ScreeningServiceId";
+            " WHERE bcd.IS_EXTRACTED = @Extracted";
 
         var parameters = new Dictionary<string, object>
         {
@@ -426,11 +428,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
-                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID")
+                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
+                    ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID")
                 };
 
                 participants.Add(participant);
