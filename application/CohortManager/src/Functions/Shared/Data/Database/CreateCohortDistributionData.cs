@@ -216,7 +216,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @CreatedDateTime" +
             " ) ";
 
-             var parameters = new Dictionary<string, object>
+            var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId}  ,
             {"@StatusCode", statusCode},
