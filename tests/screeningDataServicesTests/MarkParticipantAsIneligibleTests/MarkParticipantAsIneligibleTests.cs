@@ -44,7 +44,7 @@ public class MarkParticipantAsIneligibleTests
 
         _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object, _handleException.Object);
 
-        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
+        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>(),It.IsAny<string>())).Returns(new Participant());
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
             {

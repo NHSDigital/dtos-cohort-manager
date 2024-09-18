@@ -32,4 +32,5 @@ variable "nsg_rules" {
     source_address_prefix      = string
     destination_address_prefix = string
   }))
+
 }
