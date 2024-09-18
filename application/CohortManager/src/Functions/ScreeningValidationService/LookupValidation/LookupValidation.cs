@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -14,19 +15,19 @@ using RulesEngine.Models;
 public class LookupValidation
 {
     private readonly IExceptionHandler _handleException;
-
     private readonly ICreateResponse _createResponse;
-
     private readonly ILogger<LookupValidation> _logger;
-
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
+    private readonly IDbLookupValidationBreastScreening _dbLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger, IReadRulesFromBlobStorage readRulesFromBlobStorage)
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException,ILogger<LookupValidation> logger,
+                            IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
+        _dbLookup = dbLookup;
     }
 
     [Function("LookupValidation")]
@@ -65,7 +66,7 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions)]
+                CustomTypes = [typeof(Actions), typeof(DbLookupValidationBreastScreening)]
             };
 
             var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -73,10 +74,12 @@ public class LookupValidation
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
+                new RuleParameter("dbLookup", _dbLookup)
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
+            // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
             if (validationErrors.Any())
@@ -111,7 +114,7 @@ public class LookupValidation
         switch (rulesType)
         {
             case RulesType.CohortDistribution:
-                return "CohortRules.json";
+                return "cohortRules.json";
             case RulesType.ParticipantManagement:
                 return "lookupRules.json";
             default:

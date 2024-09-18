@@ -60,7 +60,6 @@ jobs:
         continue-on-error: true
         run: |
           set -x
-
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
@@ -85,6 +84,7 @@ jobs:
           echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
           echo "ORIGINATING_BRANCH=$ORIGINATING_BRANCH" >> $GITHUB_ENV
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+
 
       - name: build docker images
         working-directory: ./application/CohortManager
