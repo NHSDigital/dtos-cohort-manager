@@ -28,6 +28,8 @@ public class CreateDemographicData : ICreateDemographicData
             demographic.IsInterpreterRequired = null;
         }
 
+        RemoveOldDemographicData(demographic.NhsNumber);
+
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
@@ -149,18 +151,80 @@ public class CreateDemographicData : ICreateDemographicData
         return UpdateRecords(command);
     }
 
-    public Demographic GetDemographicData(string NhsNumber)
+    public Demographic GetDemographicData(string nhsNumber)
     {
-        var SQL = @" SELECT TOP(1) * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
+        var SQL = @" SELECT TOP (1) [PARTICIPANT_ID]
+                    ,[NHS_NUMBER]
+                    ,[SUPERSEDED_BY_NHS_NUMBER]
+                    ,[PRIMARY_CARE_PROVIDER]
+                    ,[PRIMARY_CARE_PROVIDER_FROM_DT]
+                    ,[CURRENT_POSTING]
+                    ,[CURRENT_POSTING_FROM_DT]
+                    ,[NAME_PREFIX]
+                    ,[GIVEN_NAME]
+                    ,[OTHER_GIVEN_NAME]
+                    ,[FAMILY_NAME]
+                    ,[PREVIOUS_FAMILY_NAME]
+                    ,[DATE_OF_BIRTH]
+                    ,[GENDER]
+                    ,[ADDRESS_LINE_1]
+                    ,[ADDRESS_LINE_2]
+                    ,[ADDRESS_LINE_3]
+                    ,[ADDRESS_LINE_4]
+                    ,[ADDRESS_LINE_5]
+                    ,[POST_CODE]
+                    ,[PAF_KEY]
+                    ,[USUAL_ADDRESS_FROM_DT]
+                    ,[DATE_OF_DEATH]
+                    ,[DEATH_STATUS]
+                    ,[TELEPHONE_NUMBER_HOME]
+                    ,[TELEPHONE_NUMBER_HOME_FROM_DT]
+                    ,[TELEPHONE_NUMBER_MOB]
+                    ,[TELEPHONE_NUMBER_MOB_FROM_DT]
+                    ,[EMAIL_ADDRESS_HOME]
+                    ,[EMAIL_ADDRESS_HOME_FROM_DT]
+                    ,[PREFERRED_LANGUAGE]
+                    ,[INTERPRETER_REQUIRED]
+                    ,[INVALID_FLAG]
+                    ,[RECORD_INSERT_DATE_TIME]
+                    ,[RECORD_UPDATE_DATE_TIME]
+                FROM [dbo].[PARTICIPANT_DEMOGRAPHIC]
+                WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
         {
-            {"@NhsNumber",  NhsNumber },
+            {"@NhsNumber",  nhsNumber },
         };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
         return GetDemographic(command);
+    }
+
+
+    private void RemoveOldDemographicData(string nhsNumber)
+    {
+        if (GetDemographicData(nhsNumber) != null)
+        {
+            var SQL = @"DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC WHERE NHS_NUMBER = @NhsNumber";
+
+            UpdateRecords(new List<SQLReturnModel>()
+            {
+                new SQLReturnModel()
+                {
+                    CommandType = CommandType.Command,
+                    SQL = SQL,
+                    Parameters = new Dictionary<string, object>()
+                    {
+                        {"@NhsNumber",  nhsNumber },
+                    }
+                }
+            });
+
+            _logger.LogInformation("A demographic record was found and will be updated");
+            return;
+        }
+        _logger.LogInformation("A demographic record was not found");
     }
 
     private Demographic GetDemographic(IDbCommand command)
