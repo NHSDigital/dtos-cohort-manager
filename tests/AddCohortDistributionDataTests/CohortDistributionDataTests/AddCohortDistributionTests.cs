@@ -17,9 +17,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private readonly CreateCohortDistributionData _createCohortDistributionData;
     private const int serviceProviderId = (int)ServiceProvider.BsSelect;
-    private string _requestId = new Guid().ToString();
     private string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
@@ -52,12 +50,6 @@ public class AddCohortDistributionTests
             _loggerMock.Object);
         }
 
-        _createCohortDistributionData = new CreateCohortDistributionData(
-            _mockDBConnection.Object,
-            _databaseHelperMock.Object,
-            _loggerMock.Object);
-        }
-
     [TestMethod]
     public void InsertCohortDistributionData_ValidData_ReturnsSuccess()
     {
@@ -66,7 +58,6 @@ public class AddCohortDistributionTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
         var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
@@ -82,7 +73,6 @@ public class AddCohortDistributionTests
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
         var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
@@ -105,7 +95,6 @@ public class AddCohortDistributionTests
 
         // Act
         var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
-        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -125,7 +114,6 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
         var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
@@ -195,7 +183,6 @@ public class AddCohortDistributionTests
 
     private void SetUpReader()
     {
-        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(() => _requestId);
         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(() => _requestId);
         _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns(() => "1");
         _mockDataReader.Setup(reader => reader["NHS_NUMBER"]).Returns(() => "123456");
