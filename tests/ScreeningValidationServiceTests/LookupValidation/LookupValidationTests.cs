@@ -234,71 +234,6 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700101")]     // New Family Name & Gender
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
-    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_Demographics_Rule_Fails(
-        string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
-        Gender newGender, string newDateOfBirth)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.ExistingParticipant.Surname = existingFamilyName;
-        _requestBody.ExistingParticipant.Gender = existingGender;
-        _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.Surname = newFamilyName;
-        _requestBody.NewParticipant.Gender = newGender;
-        _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-
-    [TestMethod]
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]  // New Family Name Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
-    [DataRow(Actions.New, "", new Gender(), "", "Smith", Gender.Female, "19700101")]                    // New Record Type
-    public async Task Run_Should_Not_Create_Exception_When_Demographics_Rule_Passes(string recordType,
-        string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
-        Gender newGender, string newDateOfBirth)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.Surname = existingFamilyName;
-        _requestBody.ExistingParticipant.Gender = existingGender;
-        _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.Surname = newFamilyName;
-        _requestBody.NewParticipant.Gender = newGender;
-        _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
     [DataRow("RDR", null, null)] // postcode and primary care provider null
     public async Task Run_invalidParticipant_ValidateBsoCodeRuleFails(string ReasonForRemoval, string postcode,
                                                                     string primaryCareProvider)
@@ -339,6 +274,55 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "MHI")]
+    [DataRow(Actions.Removed, "MHI")]
+    public async Task Run_CreatesExceptionWhenCurrentPostingRuleFails_ReturnCreated(string recordType, string currentPosting)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "ABC")]
+    [DataRow(Actions.Amended, "ABC")]
+    [DataRow(Actions.Amended, "HMP")]
+    public async Task Run_DoesNotCreatesExceptionWhenCurrentPostingRulePasses_Return(string recordType, string currentPosting)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
 
     private void SetUpRequestBody(string json)
     {
