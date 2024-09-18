@@ -76,6 +76,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
@@ -200,6 +201,8 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
@@ -252,7 +255,7 @@ public class ProcessCaasFileTests
             ), Times.Once);
     }
 
-        [TestMethod]
+    [TestMethod]
     public void IsValidDate_ShouldReturnFalse_WhenDateIsInTheFuture()
     {
         // Arrange: Setup dependencies using Mock.Of and create future date

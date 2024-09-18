@@ -24,7 +24,7 @@ public class ParticipantManagerData : IParticipantManagerData
     }
 
     #region Update methods
-    public bool UpdateParticipantAsEligible(Participant participant, char isActive)
+    public bool UpdateParticipantAsEligible(Participant participant, int isActive)
     {
         try
         {
@@ -33,13 +33,15 @@ public class ParticipantManagerData : IParticipantManagerData
             var recordUpdateTime = DateTime.Now;
 
             var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
+                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
+                "     ELIGIBILITY_FLAG = @IsActive " +
                 " WHERE PARTICIPANT_ID = @participantId ";
 
             var Parameters = new Dictionary<string, object>
             {
                 {"@participantId", Participant.ParticipantId },
-                {"@recordEndDateOldRecords", recordUpdateTime }
+                {"@recordEndDateOldRecords", recordUpdateTime },
+                {"@IsActive", isActive }
             };
 
             return ExecuteCommand(SQL, Parameters);
@@ -61,7 +63,7 @@ public class ParticipantManagerData : IParticipantManagerData
             string insertParticipant = "UPDATE [dbo].[PARTICIPANT_MANAGEMENT] SET " +
                 " REASON_FOR_REMOVAL = @reasonForRemoval, " +
                 " RECORD_TYPE = @recordType, " +
-                " REASON_FOR_REMOVAL_DT = @reasonForRemovalDate, " +
+                " REASON_FOR_REMOVAL_FROM_DT = @reasonForRemovalDate, " +
                 " BUSINESS_RULE_VERSION = @businessRuleVersion, " +
                 " EXCEPTION_FLAG = @exceptionFlag, " +
                 " RECORD_UPDATE_DATETIME = @recordUpdateDateTime " +
@@ -80,7 +82,10 @@ public class ParticipantManagerData : IParticipantManagerData
                 { "@recordUpdateDateTime", dateToday },
             };
 
-            return ExecuteCommand(insertParticipant, commonParameters);
+            var updatedRecord = ExecuteCommand(insertParticipant, commonParameters);
+            var markedAsAsEligible = UpdateParticipantAsEligible(participantData, 1);
+
+            return updatedRecord && markedAsAsEligible;
         }
         catch (Exception ex)
         {
@@ -98,7 +103,7 @@ public class ParticipantManagerData : IParticipantManagerData
             "[PARTICIPANT_MANAGEMENT].[SCREENING_ID], " +
             "[PARTICIPANT_MANAGEMENT].[NHS_NUMBER], " +
             "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL], " +
-            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_DT], " +
+            "[PARTICIPANT_MANAGEMENT].[REASON_FOR_REMOVAL_FROM_DT], " +
             "[PARTICIPANT_MANAGEMENT].[BUSINESS_RULE_VERSION], " +
             "[PARTICIPANT_MANAGEMENT].[EXCEPTION_FLAG], " +
             "[PARTICIPANT_MANAGEMENT].[RECORD_INSERT_DATETIME], " +
@@ -153,7 +158,7 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.ScreeningId = reader["SCREENING_ID"] == DBNull.Value ? null : reader["SCREENING_ID"].ToString();
                 participant.NhsNumber = reader["NHS_NUMBER"] == DBNull.Value ? null : reader["NHS_NUMBER"].ToString();
                 participant.ReasonForRemoval = reader["REASON_FOR_REMOVAL"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL"].ToString();
-                participant.ReasonForRemovalEffectiveFromDate = reader["REASON_FOR_REMOVAL_DT"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_DT"].ToString();
+                participant.ReasonForRemovalEffectiveFromDate = reader["REASON_FOR_REMOVAL_FROM_DT"] == DBNull.Value ? null : reader["REASON_FOR_REMOVAL_FROM_DT"].ToString();
                 participant.BusinessRuleVersion = reader["BUSINESS_RULE_VERSION"] == DBNull.Value ? null : reader["BUSINESS_RULE_VERSION"].ToString();
                 participant.ExceptionFlag = reader["EXCEPTION_FLAG"] == DBNull.Value ? null : reader["EXCEPTION_FLAG"].ToString();
                 participant.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();

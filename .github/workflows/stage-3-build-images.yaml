@@ -55,23 +55,64 @@ jobs:
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
         run: |
-          echo "creating tags"
-          echo "The branch is: " ${{ github.ref }}
-          echo "pull request is: " ${{ github.event.pull_request.number }}
-          echo "event number is: " ${{ github.event.number }}
-          echo "COMMIT_HASH_TAG=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
+          set -x
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "The branch is: ${{ github.ref }}"
 
-          if [ -n "${{ github.event.pull_request.number }}" ]; then
-            echo "PR_NUM_TAG=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.number }}" ]; then
-            echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
-          else
-            echo "PR_NUM_TAG=latest" >> $GITHUB_ENV
-          fi
+          PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
 
-          # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
+          ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+          PR_ID=$(echo ${PULLS_JSON} | jq -r '.[].number')
+
+          SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
+          echo "Commit hash tag: $SHORT_COMMIT_HASH"
+          echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+
+          echo "PR NUMBER: $PR_ID"
+          echo "PR_NUMBER=$PR_ID" >> $GITHUB_ENV
+          echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
+          echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+
+
+      # - name: Create Tags
+      #   run: |
+      #     echo "GITHUB_REF: $GITHUB_REF"
+      #     echo "The branch is: ${{ github.ref }}"
+
+      #     # Extract the branch name from GITHUB_REF
+      #     BRANCH_NAME=$(echo "${{ github.ref }}" | cut -d'/' -f3,4)
+      #     echo "Branch name is: $BRANCH_NAME"
+
+      #     # Fetch all pull request references
+      #     git fetch origin "refs/pull/*/head:refs/remotes/origin/pr/*"
+
+      #     # Get the commit SHA for the branch
+      #     BRANCH_COMMIT_SHA=$(git rev-parse origin/${BRANCH_NAME})
+
+      #     # Extract the PR number from the fetched references
+      #     PR_REF=$(git show-ref | grep $BRANCH_COMMIT_SHA | grep 'refs/remotes/origin/pr/' | awk -F'/' '{print $5}')
+      #     echo "PR_NUMBER=$PR_REF" >> $GITHUB_ENV
+
+      #     echo "Creating tags..."
+
+      #     # Output the branch and pull request reference
+      #     echo "Branch is: ${{ github.ref }}"
+      #     echo "Pull request number is: ${PR_REF}"
+      #     echo "PR_NUM_TAG=${PR_REF}" >> $GITHUB_ENV
+
+      #     # Get and output the short commit hash
+      #     SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
+      #     echo "Commit hash tag: $SHORT_COMMIT_HASH"
+      #     echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+
+      #     # Set the environment tag
+      #     # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
+      #     echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: build docker images
         working-directory: ./application/CohortManager

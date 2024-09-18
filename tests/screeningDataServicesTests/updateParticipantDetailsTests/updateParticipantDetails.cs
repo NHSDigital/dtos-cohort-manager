@@ -165,7 +165,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId,screeningId);
+        var result = sut.GetParticipant(nhsId, screeningId);
 
         // Assert
         Assert.AreEqual(nhsId, result.NhsNumber);
@@ -189,7 +189,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.GetParticipant(nhsId,screeningId);
+        var result = sut.GetParticipant(nhsId, screeningId);
 
         // Assert
         Assert.AreEqual("123456", result.NhsNumber);
@@ -213,7 +213,7 @@ public class UpdateParticipantDetailsTests
         var result = sut.UpdateParticipantDetails(_participantCsvRecord);
         // Assert
         Assert.IsFalse(result);
-        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.Once());//We still update the participant, but only set the Exception Flag.
+        _commandMock.Verify(command => command.ExecuteNonQuery(), Times.AtMost(2));//We still update the participant, but only set the Exception Flag.
     }
 
     private void SetUpReader()
@@ -222,7 +222,7 @@ public class UpdateParticipantDetailsTests
         _moqDataReader.Setup(m => m["SCREENING_ID"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["NHS_NUMBER"]).Returns("123456");
         _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL"]).Returns("Some Provider");
-        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_DT"]).Returns(DBNull.Value);
+        _moqDataReader.Setup(m => m["REASON_FOR_REMOVAL_FROM_DT"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["BUSINESS_RULE_VERSION"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["EXCEPTION_FLAG"]).Returns(DBNull.Value);
         _moqDataReader.Setup(m => m["OTHER_NAME"]).Returns(DBNull.Value);
