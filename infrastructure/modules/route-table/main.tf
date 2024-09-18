@@ -9,7 +9,7 @@ resource "azurerm_route_table" "this" {
 
   tags = var.tags
 
-  disable_bgp_route_propagation = true  # Disabling BGP route propagation for security
+  disable_bgp_route_propagation = true # Disabling BGP route propagation for security
 
   dynamic "route" {
     for_each = var.routes
