@@ -57,10 +57,10 @@ for i, chunk in enumerate(csv_stream):
         schema = schema.set(27,pa.field('death_status',pa.int32()))
 
         pdschema = pd.DataFrame(({"column": name, "pa_dtype": str(pa_dtype)} for name, pa_dtype in zip(schema.names, schema.types)))
-        pdschema = pdschema.reindex(columns=["column", "pa_dtype"], fill_value=pd.NA) 
+        pdschema = pdschema.reindex(columns=["column", "pa_dtype"], fill_value=pd.NA)
         print(pdschema)
-        
         parquet_writer = pq.ParquetWriter(parquet_file, schema, compression='snappy')
+
     # Write CSV chunk to the parquet file
 
     chunk = chunk.rename(columns = {
