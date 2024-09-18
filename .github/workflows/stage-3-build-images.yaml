@@ -64,6 +64,7 @@ jobs:
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
+
           if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
             PR_NUMBER=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
             echo "PR Number is: $PR_NUMBER"
@@ -85,6 +86,7 @@ jobs:
           echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
           echo "ORIGINATING_BRANCH=$ORIGINATING_BRANCH" >> $GITHUB_ENV
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+
 
       - name: build docker images
         working-directory: ./application/CohortManager
