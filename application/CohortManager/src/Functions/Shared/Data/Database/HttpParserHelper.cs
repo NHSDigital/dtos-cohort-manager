@@ -5,27 +5,27 @@ using Common;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-public class HttpRequestHelper
+public class HttpParserHelper : IHttpParserHelper
 {
-    private readonly ILogger<HttpRequestHelper> _logger;
+    private readonly ILogger<HttpParserHelper> _logger;
     private readonly ICreateResponse _createResponse;
-    public HttpRequestHelper(ILogger<HttpRequestHelper> logger, ICreateResponse createResponse)
+    public HttpParserHelper(ILogger<HttpParserHelper> logger, ICreateResponse createResponse)
     {
         _logger = logger;
         _createResponse = createResponse;
     }
-    public static int GetQueryParameterAsInt(HttpRequestData req, string key, int defaultValue = 0)
+    public int GetQueryParameterAsInt(HttpRequestData req, string key, int defaultValue = 0)
     {
         var queryString = req.Query[key];
         return int.TryParse(queryString, out int value) ? value : defaultValue;
     }
 
-    public static int GetRowCount(HttpRequestData req)
+    public int GetRowCount(HttpRequestData req)
     {
         return GetQueryParameterAsInt(req, "rowCount");
     }
 
-    public static int GetServiceProviderId(HttpRequestData req)
+    public int GetServiceProviderId(HttpRequestData req)
     {
         return GetQueryParameterAsInt(req, "serviceProviderId");
     }

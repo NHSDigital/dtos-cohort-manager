@@ -15,34 +15,32 @@ public class RetrieveCohortDistributionData
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly HttpRequestHelper _httpRequestHelper;
-    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, HttpRequestHelper httpRequestHelper)
+    private readonly IHttpParserHelper _httpParserHelper;
+    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
-        _httpRequestHelper = httpRequestHelper;
+        _httpParserHelper = httpParserHelper;
     }
 
     [Function("RetrieveCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        int serviceProviderId = HttpRequestHelper.GetServiceProviderId(req);
-        int rowCount = HttpRequestHelper.GetRowCount(req);
+        int screeningServiceId = _httpParserHelper.GetQueryParameterAsInt(req, "screeningServiceId");
+        int rowCount = _httpParserHelper.GetRowCount(req);
 
-        if (rowCount == 0) return _httpRequestHelper.LogErrorResponse(req, "User has requested 0 rows, which is not possible.");
-        if (rowCount >= 1000) return _httpRequestHelper.LogErrorResponse(req, "User cannot request more than 1000 rows at a time.");
-        if (serviceProviderId == 0) return _httpRequestHelper.LogErrorResponse(req, "No ServiceProviderId has been provided.");
+        if (rowCount == 0) return _httpParserHelper.LogErrorResponse(req, "User has requested 0 rows, which is not possible.");
+        if (rowCount > 1000) return _httpParserHelper.LogErrorResponse(req, "User cannot request more than 1000 rows at a time.");
 
         try
         {
-            var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
-            if (cohortDistributionParticipants.Count == 0) _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants(screeningServiceId, rowCount);
+            if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
             var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
-
         }
         catch (Exception ex)
         {
