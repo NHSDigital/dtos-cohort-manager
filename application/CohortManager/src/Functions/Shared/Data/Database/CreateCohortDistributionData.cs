@@ -139,39 +139,41 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int screeningServiceId, int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
-            " [PARTICIPANT_ID], " +
-            " [NHS_NUMBER], " +
-            " [SUPERSEDED_NHS_NUMBER], " +
-            " [PRIMARY_CARE_PROVIDER], " +
-            " [PRIMARY_CARE_PROVIDER_FROM_DT], " +
-            " [NAME_PREFIX], " +
-            " [GIVEN_NAME], " +
-            " [OTHER_GIVEN_NAME], " +
-            " [FAMILY_NAME], " +
-            " [PREVIOUS_FAMILY_NAME], " +
-            " [DATE_OF_BIRTH], " +
-            " [GENDER], " +
-            " [ADDRESS_LINE_1], " +
-            " [ADDRESS_LINE_2], " +
-            " [ADDRESS_LINE_3], " +
-            " [ADDRESS_LINE_4], " +
-            " [ADDRESS_LINE_5], " +
-            " [POST_CODE], " +
-            " [USUAL_ADDRESS_FROM_DT], " +
-            " [DATE_OF_DEATH], " +
-            " [TELEPHONE_NUMBER_HOME], " +
-            " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
-            " [TELEPHONE_NUMBER_MOB], " +
-            " [TELEPHONE_NUMBER_MOB_FROM_DT], " +
-            " [EMAIL_ADDRESS_HOME], " +
-            " [EMAIL_ADDRESS_HOME_FROM_DT], " +
-            " [PREFERRED_LANGUAGE], " +
-            " [INTERPRETER_REQUIRED], " +
-            " [REASON_FOR_REMOVAL], " +
-            " [REASON_FOR_REMOVAL_DT], " +
-            " [RECORD_INSERT_DATETIME], " +
-            " [RECORD_UPDATE_DATETIME], " +
-            " [IS_EXTRACTED] " +
+            " bcd.[PARTICIPANT_ID], " +
+            " bcd.[NHS_NUMBER], " +
+            " bcd.[SUPERSEDED_NHS_NUMBER], " +
+            " bcd.[PRIMARY_CARE_PROVIDER], " +
+            " bcd.[PRIMARY_CARE_PROVIDER_FROM_DT], " +
+            " bcd.[NAME_PREFIX], " +
+            " bcd.[GIVEN_NAME], " +
+            " bcd.[OTHER_GIVEN_NAME], " +
+            " bcd.[FAMILY_NAME], " +
+            " bcd.[PREVIOUS_FAMILY_NAME], " +
+            " bcd.[DATE_OF_BIRTH], " +
+            " bcd.[GENDER], " +
+            " bcd.[ADDRESS_LINE_1], " +
+            " bcd.[ADDRESS_LINE_2], " +
+            " bcd.[ADDRESS_LINE_3], " +
+            " bcd.[ADDRESS_LINE_4], " +
+            " bcd.[ADDRESS_LINE_5], " +
+            " bcd.[POST_CODE], " +
+            " bcd.[USUAL_ADDRESS_FROM_DT], " +
+            " bcd.[DATE_OF_DEATH], " +
+            " bcd.[TELEPHONE_NUMBER_HOME], " +
+            " bcd.[TELEPHONE_NUMBER_HOME_FROM_DT], " +
+            " bcd.[TELEPHONE_NUMBER_MOB], " +
+            " bcd.[TELEPHONE_NUMBER_MOB_FROM_DT], " +
+            " bcd.[EMAIL_ADDRESS_HOME], " +
+            " bcd.[EMAIL_ADDRESS_HOME_FROM_DT], " +
+            " bcd.[PREFERRED_LANGUAGE], " +
+            " bcd.[INTERPRETER_REQUIRED], " +
+            " bcd.[REASON_FOR_REMOVAL], " +
+            " bcd.[REASON_FOR_REMOVAL_DT], " +
+            " bcd.[RECORD_INSERT_DATETIME], " +
+            " bcd.[RECORD_UPDATE_DATETIME], " +
+            " bcd.[IS_EXTRACTED], " +
+            " bcd.[REQUEST_ID], " +
+            " pm.[SCREENING_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " JOIN [dbo].[PARTICIPANT_MANAGEMENT] pm ON bcd.NHS_NUMBER = pm.NHS_NUMBER " +
             " WHERE bcd.IS_EXTRACTED = @Extracted " +
@@ -191,15 +193,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var requestId = Guid.NewGuid().ToString();
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants,requestId))
         {
-            LogRequestAudit(requestId, HttpStatusCode.OK.ToString());
+            LogRequestAudit(requestId, (int)HttpStatusCode.OK);
             return listOfAllParticipants;
         }
 
-        LogRequestAudit(requestId, HttpStatusCode.InternalServerError.ToString());
+        LogRequestAudit(requestId, (int)HttpStatusCode.InternalServerError);
         return new List<CohortDistributionParticipant>();
     }
 
-    private void LogRequestAudit(string requestId, string statusCode)
+    private void LogRequestAudit(string requestId, int statusCode)
     {
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
         string requestAuditSql = "INSERT INTO [dbo].[BS_SELECT_REQUEST_AUDIT] ( " +
@@ -221,7 +223,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
-            CommandType = CommandType.Scalar,
             SQL = requestAuditSql,
             Parameters = parameters
         });
@@ -425,7 +426,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     PreferredLanguage = DatabaseHelper.GetStringValue(reader, "PREFERRED_LANGUAGE"),
                     IsInterpreterRequired = DatabaseHelper.GetStringValue(reader, "INTERPRETER_REQUIRED"),
                     ReasonForRemoval = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL"),
-                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_FROM_DT"),
+                    ReasonForRemovalEffectiveFromDate = DatabaseHelper.GetStringValue(reader, "REASON_FOR_REMOVAL_DT"),
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
