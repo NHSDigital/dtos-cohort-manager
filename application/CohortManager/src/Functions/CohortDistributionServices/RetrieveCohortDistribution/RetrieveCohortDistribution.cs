@@ -41,7 +41,7 @@ public class RetrieveCohortDistributionData
     [Function("RetrieveCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        int screeningServiceId = _httpParserHelper.GetQueryParameterAsInt(req, "screeningServiceId");
+        int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
         int rowCount = _httpParserHelper.GetRowCount(req);
 
         if (rowCount == 0) return _httpParserHelper.LogErrorResponse(req, "User has requested 0 rows, which is not possible.");

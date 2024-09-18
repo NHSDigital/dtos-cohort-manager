@@ -25,9 +25,9 @@ public class HttpParserHelper : IHttpParserHelper
         return GetQueryParameterAsInt(req, "rowCount");
     }
 
-    public int GetServiceProviderId(HttpRequestData req)
+    public int GetScreeningServiceId(HttpRequestData req)
     {
-        return GetQueryParameterAsInt(req, "serviceProviderId");
+        return GetQueryParameterAsInt(req, "screeningServiceId");
     }
 
     public HttpResponseData LogErrorResponse(HttpRequestData req, string errorMessage)

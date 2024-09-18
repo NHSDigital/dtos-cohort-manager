@@ -27,8 +27,9 @@ public class RetrieveCohortReplay
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly HttpParserHelper _httpParserHelper;
-    public RetrieveCohortReplay(ILogger<RetrieveCohortReplay> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, HttpParserHelper httpParserHelper)
+    private readonly IHttpParserHelper _httpParserHelper;
+
+    public RetrieveCohortReplay(ILogger<RetrieveCohortReplay> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;

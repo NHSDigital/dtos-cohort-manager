@@ -265,10 +265,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [PREFERRED_LANGUAGE], " +
             " [INTERPRETER_REQUIRED], " +
             " [REASON_FOR_REMOVAL], " +
-            " [REASON_FOR_REMOVAL_DT], " +
+            " [REASON_FOR_REMOVAL_FROM_DT], " +
             " [RECORD_INSERT_DATETIME], " +
             " [RECORD_UPDATE_DATETIME], " +
-            " [IS_EXTRACTED] " +
+            " [IS_EXTRACTED], " +
+            " [REQUEST_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
             " WHERE REQUEST_ID = @RequestId";
 
@@ -432,8 +433,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
-                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
-                    ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID")
+                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID")
                 };
 
                 participants.Add(participant);
