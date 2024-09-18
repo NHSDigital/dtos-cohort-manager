@@ -9,6 +9,19 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
+/// </summary>
+/// <param name="req">The HTTP request data containing query parameters and request details.</param>
+/// <param name="rowCount">query parameter.</param>
+/// <param name="screeningServiceId">query parameter.</param>
+/// <returns>
+/// HTTP response with:
+/// - 400 Bad Request if parameters are invalid or missing.
+/// - 204 No Content if no data is found.
+/// - 200 OK - List<CohortDistributionParticipant> in JSON format.
+/// - 500 Internal Server Error if an exception occurs.
+/// </returns>
 public class RetrieveCohortDistributionData
 {
     private readonly ILogger<RetrieveCohortDistributionData> _logger;

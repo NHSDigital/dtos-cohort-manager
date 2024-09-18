@@ -202,7 +202,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     private void LogRequestAudit(string requestId, string statusCode)
     {
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
-        string insertParticipant = "INSERT INTO [dbo].[BS_SELECT_REQUEST_AUDIT] ( " +
+        string requestAuditSql = "INSERT INTO [dbo].[BS_SELECT_REQUEST_AUDIT] ( " +
             " REQUEST_ID, " +
             " STATUS_CODE," +
             " CREATED_DATETIME" +
@@ -222,7 +222,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         SQLToExecuteInOrder.Add(new SQLReturnModel()
         {
             CommandType = CommandType.Scalar,
-            SQL = insertParticipant,
+            SQL = requestAuditSql,
             Parameters = parameters
         });
 

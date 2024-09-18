@@ -14,8 +14,6 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 /// <param name="req">The HTTP request data containing query parameters and request details.</param>
 /// <param name="requestId">query parameter.</param>
-/// <param name="serviceProviderId">query parameter.</param>
-/// <param name="rowCount">query parameter.</param>
 /// <returns>
 /// HTTP response with:
 /// - 400 Bad Request if parameters are invalid or missing.
