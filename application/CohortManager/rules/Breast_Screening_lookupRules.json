@@ -4,11 +4,11 @@
     "Rules":
         [
             {
-                "RuleName": "36.ValidatePrimaryCareProvider",
-                "Expression": "DbLookupValidationBreastScreening.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+                "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
+                "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
                 "Actions": {
-                    "OnSuccess": {
-                        "Name": "ErrorMessage",
+                    "OnFailure": {
+                        "Name": "OutputExpression",
                         "Context": {
                             "Expression": "\"Invalid primary care provider GP practice code\""
                         }
