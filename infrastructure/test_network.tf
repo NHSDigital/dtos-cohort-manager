@@ -7,7 +7,6 @@ module "vnet_demo" {
   location            = module.baseline.resource_group_locations[var.vnet.resource_group_key]
 
   tags = var.tags
-
 }
 
 module "nsg_demo" {
@@ -63,6 +62,7 @@ locals {
     next_hop_in_ip_address = "10.10.1.1"
   }
 }
+
 module "route_table_in_use" {
   source = "./modules/route-table"
 
