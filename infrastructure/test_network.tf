@@ -32,7 +32,7 @@ module "subnet_without_delegation" {
   default_outbound_access_enabled   = true
   private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
 
-  tags                              = var.tags
+  tags = var.tags
 }
 
 module "subnet_with_delegation" {
@@ -46,9 +46,9 @@ module "subnet_with_delegation" {
   default_outbound_access_enabled   = true
   private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
 
-  delegation_name                  = "my-delegation"
-  service_delegation_name          = "Microsoft.Sql/servers"
-  service_delegation_actions        = ["Microsoft.Network/virtualNetworks/subnets/action"]
+  delegation_name            = "my-delegation"
+  service_delegation_name    = "Microsoft.Sql/servers"
+  service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
 
-  tags                              = var.tags
+  tags = var.tags
 }
