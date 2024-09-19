@@ -55,7 +55,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " REASON_FOR_REMOVAL_FROM_DT," +
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
-            " IS_EXTRACTED " +
+            " IS_EXTRACTED, " +
+            " CURRENT_POSTING " +
             " ) VALUES( " +
             " @participantId, " +
             " @nhsNumber, " +
@@ -87,7 +88,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @reasonForRemovalFromDate," +
             " @recordInsertDateTime," +
             " @recordUpdateDateTime," +
-            " @extracted" +
+            " @extracted," +
+            " @currentPosting" +
             " ) ";
 
         var parameters = new Dictionary<string, object>
@@ -117,12 +119,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@telephoneNumberMob", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.MobileNumber)},
             {"@telephoneNumberMobFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.MobileNumberEffectiveFromDate) },
             {"@preferredLanguage", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreferredLanguage)},
-            {"@interpreterRequired", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.IsInterpreterRequired) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfDeath)},
+            {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
             {"@reasonForRemovalFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
             {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.RecordInsertDateTime)},
             {"@recordUpdateDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.RecordUpdateDateTime)},
-            {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted}
+            {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
+            {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
@@ -303,7 +306,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [RECORD_INSERT_DATETIME], " +
                 " [RECORD_UPDATE_DATETIME], " +
                 " [IS_EXTRACTED], " +
-                " [REQUEST_ID] " +
+                " [REQUEST_ID], " +
+                " [CURRENT_POSTING] " +
                 " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                 " WHERE NHS_NUMBER = @NhsNumber " +
                 " ORDER BY PARTICIPANT_ID DESC ";
@@ -397,7 +401,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     RecordInsertDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_INSERT_DATETIME"),
                     RecordUpdateDateTime = DatabaseHelper.GetStringValue(reader, "RECORD_UPDATE_DATETIME"),
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
-                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID")
+                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
+                    CurrentPosting = DatabaseHelper.GetStringValue(reader, "CURRENT_POSTING"),
                 };
 
                 participants.Add(participant);

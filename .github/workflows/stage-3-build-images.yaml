@@ -43,8 +43,8 @@ jobs:
           echo "The branch is: " ${{ github.ref }}
 
       - name: Az CLI login
-        uses: azure/login@v1
         if: github.ref == 'refs/heads/main'
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -63,56 +63,24 @@ jobs:
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
-          PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+          if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
+            PR_NUM_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          else
+            PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+            ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+            echo "ORIGINATING_BRANCH: $ORIGINATING_BRANCH"
+            PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
+          fi
 
-          ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
-          PR_ID=$(echo ${PULLS_JSON} | jq -r '.[].number')
+          echo "PR_NUM_TAG: pr$PR_NUM_TAG"
+          echo "PR_NUM_TAG=pr$PR_NUM_TAG" >> $GITHUB_ENV
 
           SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
           echo "Commit hash tag: $SHORT_COMMIT_HASH"
           echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
 
-          echo "PR NUMBER: $PR_ID"
-          echo "PR_NUMBER=$PR_ID" >> $GITHUB_ENV
-          echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
-          echo ORIGINATING_BRANCH: $ORIGINATING_BRANCH
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
-
-      # - name: Create Tags
-      #   run: |
-      #     echo "GITHUB_REF: $GITHUB_REF"
-      #     echo "The branch is: ${{ github.ref }}"
-
-      #     # Extract the branch name from GITHUB_REF
-      #     BRANCH_NAME=$(echo "${{ github.ref }}" | cut -d'/' -f3,4)
-      #     echo "Branch name is: $BRANCH_NAME"
-
-      #     # Fetch all pull request references
-      #     git fetch origin "refs/pull/*/head:refs/remotes/origin/pr/*"
-
-      #     # Get the commit SHA for the branch
-      #     BRANCH_COMMIT_SHA=$(git rev-parse origin/${BRANCH_NAME})
-
-      #     # Extract the PR number from the fetched references
-      #     PR_REF=$(git show-ref | grep $BRANCH_COMMIT_SHA | grep 'refs/remotes/origin/pr/' | awk -F'/' '{print $5}')
-      #     echo "PR_NUMBER=$PR_REF" >> $GITHUB_ENV
-
-      #     echo "Creating tags..."
-
-      #     # Output the branch and pull request reference
-      #     echo "Branch is: ${{ github.ref }}"
-      #     echo "Pull request number is: ${PR_REF}"
-      #     echo "PR_NUM_TAG=${PR_REF}" >> $GITHUB_ENV
-
-      #     # Get and output the short commit hash
-      #     SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
-      #     echo "Commit hash tag: $SHORT_COMMIT_HASH"
-      #     echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
-
-      #     # Set the environment tag
-      #     # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
-      #     echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: build docker images
         working-directory: ./application/CohortManager
@@ -142,9 +110,9 @@ jobs:
             for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$COMMIT_HASH_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$PR_NUM_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$ENVIRONMENT_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
               # Push the images to the repository
               docker push "$repo_name:$COMMIT_HASH_TAG"

@@ -3,7 +3,7 @@
         "WorkflowName": "Common",
         "Rules": [
             {
-                "RuleName": "54.ValidateBsoCode",
+                "RuleName": "54.ValidateBsoCode.NonFatal",
                 "LocalParams": [
                     {
                         "Name": "reasonForRemoval",
@@ -27,6 +27,10 @@
                         }
                     }
                 }
+            },
+            {
+              "RuleName": "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal",
+              "Expression": "newParticipant.RecordType == Actions.New OR !new string[] { \"HMP\", \"MHI\" }.Contains(newParticipant.CurrentPosting) OR newParticipant.CurrentPosting == existingParticipant.CurrentPosting"
             }
         ]
     }
