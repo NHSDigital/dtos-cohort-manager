@@ -117,7 +117,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@telephoneNumberMob", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.MobileNumber)},
             {"@telephoneNumberMobFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.MobileNumberEffectiveFromDate) },
             {"@preferredLanguage", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreferredLanguage)},
-            {"@interpreterRequired", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.IsInterpreterRequired) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfDeath)},
+            {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
             {"@reasonForRemovalFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
             {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.RecordInsertDateTime)},
