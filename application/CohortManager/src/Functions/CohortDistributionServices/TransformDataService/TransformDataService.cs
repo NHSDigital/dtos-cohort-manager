@@ -63,7 +63,7 @@ public class TransformDataService
             cohortDistributionParticipant.NamePrefix = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.NamePrefix);
             cohortDistributionParticipant.FirstName = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.FirstName);
             cohortDistributionParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.OtherGivenNames);
-            cohortDistributionParticipant.Surname = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.Surname);
+            cohortDistributionParticipant.FamilyName = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.FamilyName);
             cohortDistributionParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.PreviousSurname);
             cohortDistributionParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.AddressLine1);
             cohortDistributionParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.AddressLine2);
@@ -129,7 +129,7 @@ public class TransformDataService
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         participant.FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName);
-        participant.Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname);
+        participant.FamilyName = GetTransformedData<string>(resultList, "FamilyName", participant.FamilyName);
         participant.NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber);
         participant.NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix);
         participant.Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender));

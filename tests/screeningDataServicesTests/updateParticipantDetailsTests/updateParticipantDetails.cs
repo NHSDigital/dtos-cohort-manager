@@ -241,7 +241,7 @@ public class UpdateParticipantDetailsTests
             NamePrefix = "Mr.",
             FirstName = "John",
             OtherGivenNames = "Middle",
-            Surname = "Doe",
+            FamilyName = "Doe",
             DateOfBirth = "1990-01-01",
             Gender = Gender.Male,
             AddressLine1 = "123 Main Street",
