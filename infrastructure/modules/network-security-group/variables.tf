@@ -34,7 +34,7 @@ variable "nsg_rules" {
   }))
 
   validation {
-    condition     = length(var.nsg_rules) == 0 || alltrue([
+    condition = length(var.nsg_rules) == 0 || alltrue([
       for rule in var.nsg_rules : (
         rule.name != "" &&
         rule.priority > 99 &&
