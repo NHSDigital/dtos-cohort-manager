@@ -1,10 +1,18 @@
 namespace StaticTests;
 
+using NHS.CohortManager.ScreeningValidationService;
 [TestClass]
-public class UnitTest1
+public class ValidationHelperTests
 {
     [TestMethod]
-    public void ValidateNhsNumber()
+    public void ValidateNhsNumber(string nhsNumber)
     {
+
+        //arrange
+        ValidationHelper
+        //act
+        ValidationHelperTests.
+
+        //assert
     }
 }
