@@ -3,28 +3,21 @@ variable "address_prefixes" {
   description = "The address prefixes for the subnet."
 }
 
-variable "default_outbound_access_enabled" {
-  type        = bool
-  default     = true
-  description = "Indicates whether the subnet has outbound access enabled."
-}
-
 variable "delegation_name" {
   type        = string
   default     = ""
   description = "The name of the delegation for the subnet."
 }
 
-variable "service_delegation_name" {
-  type        = string
-  default     = ""
-  description = "The name of the service delegation."
+variable "default_outbound_access_enabled" {
+  type        = bool
+  default     = true
+  description = "Indicates whether the subnet has outbound access enabled."
 }
 
-variable "service_delegation_actions" {
-  type        = list(string)
-  default     = []
-  description = "The actions for the service delegation."
+variable "location" {
+  type        = string
+  description = ""
 }
 
 variable "name" {
@@ -32,9 +25,31 @@ variable "name" {
   description = "The name of the subnet."
 }
 
-variable "network_security_group_id" {
+# Create this alongside the subnet
+# variable "network_security_group_id" {
+#   type        = string
+#   description = "The ID of the Network Security Group (NSG) to associate with the subnet."
+# }
+
+variable "network_security_group_name" {
   type        = string
-  description = "The ID of the Network Security Group (NSG) to associate with the subnet."
+  description = "The name of the network security group."
+}
+
+variable "network_security_group_nsg_rules" {
+  description = "The network security group rules."
+  default = []
+  type        = list(object({
+    name                     = string
+    priority                 = number
+    direction                = string
+    access                   = string
+    protocol                 = string
+    source_port_range        = string
+    destination_port_range   = string
+    source_address_prefix    = string
+    destination_address_prefix = string
+  }))
 }
 
 variable "private_endpoint_network_policies" {
@@ -51,6 +66,18 @@ variable "private_endpoint_network_policies" {
 variable "resource_group_name" {
   type        = string
   description = "The name of the resource group in which to create the VNET. Changing this forces a new resource to be created."
+}
+
+variable "service_delegation_name" {
+  type        = string
+  default     = ""
+  description = "The name of the service delegation."
+}
+
+variable "service_delegation_actions" {
+  type        = list(string)
+  default     = []
+  description = "The actions for the service delegation."
 }
 
 variable "tags" {
