@@ -266,6 +266,55 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "XXX")]
+    [DataRow(Actions.Removed, "XXX")]
+    [DataRow(Actions.New, "LDN")]
+    [DataRow(Actions.New, "R/C")]
+    [DataRow(Actions.New, "")] // New Record Type
+    public async Task Run_Should_Not_Create_Exception_When_Removal_Reason_Rule_Passes(string recordType,
+        string reasonForRemoval)
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "LDN")]
+    [DataRow(Actions.Removed, "LDN")]
+    [DataRow(Actions.Amended, "R/C")]
+    [DataRow(Actions.Removed, "R/C")]
+    public async Task Run_Should_Not_Create_Exception_When_Removal_Reason_Rule_Fail(string recordType,
+        string reasonForRemoval)
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

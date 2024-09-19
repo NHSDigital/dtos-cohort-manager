@@ -17,7 +17,7 @@
             },
             {
                 "RuleName": "11.ValidateReasonForRemoval.NonFatal",
-                "Expression": "participant.RecordType != Actions.Amended OR (participant.ReasonForRemoval == \"LDN\" OR participant.ReasonForRemoval == \"R/C\") AND string.IsNullOrEmpty(participant.SupersededByNhsNumber"
+                "Expression": "(newParticipant.RecordType == Actions.New) OR (existingParticipant.ReasonForRemoval != \"LDN\" OR existingParticipant.ReasonForRemoval != \"R/C\")"
             }
         ]
     }
