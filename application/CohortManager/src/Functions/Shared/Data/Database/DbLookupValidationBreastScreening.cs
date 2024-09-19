@@ -10,7 +10,14 @@ using System.Data.SqlClient;
 /// </summary>
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
-    private SqlConnection _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
+    private IDbConnection _connection;
+    private string _connectionString;
+
+    public DbLookupValidationBreastScreening(IDbConnection IdbConnection)
+    {
+        _connection = IdbConnection;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+    }
 
 
     /// <summary>
@@ -21,14 +28,18 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
     public bool ValidatePrimaryCareProvider(string primaryCareProvider)
     {
-        string sql = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
-        using (_connection)
+        using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, _connection))
+            using (IDbCommand command = _connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@primaryCareProvider", primaryCareProvider);
-                using (SqlDataReader reader = command.ExecuteReader())
+                command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@primaryCareProvider";
+                parameter.Value = primaryCareProvider ?? string.Empty;
+                command.Parameters.Add(parameter);
+
+                using (IDataReader reader = command.ExecuteReader())
                 {
                     return reader.Read();
                 }
@@ -44,15 +55,19 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     public bool ValidateOutcode(string postcode)
     {
         var outcode = postcode.Substring(0, postcode.IndexOf(" "));
-        string sql = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
 
-        using (_connection)
+        using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, _connection))
+            using (IDbCommand command = _connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@outcode", outcode);
-                using (SqlDataReader reader = command.ExecuteReader())
+                command.CommandText = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@primaryCareProvider";
+                parameter.Value = outcode ?? string.Empty;
+                command.Parameters.Add(parameter);
+
+                using (IDataReader reader = command.ExecuteReader())
                 {
                     return reader.Read();
                 }
@@ -68,21 +83,21 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool ValidateCurrentPosting(string currentPosting)
     {
-        string sql = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result" +
-                    "FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
-
-        using (_connection)
+        using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, _connection))
+            using (IDbCommand command = _connection.CreateCommand())
             {
-                command.Parameters.AddWithValue("@currentPosting", currentPosting);
-                using (SqlDataReader reader = command.ExecuteReader())
+                command.CommandText = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@currentPosting";
+                parameter.Value = currentPosting ?? string.Empty;
+                command.Parameters.Add(parameter);
+
+                using (IDataReader reader = command.ExecuteReader())
                 {
-                    System.Console.WriteLine("starting reader");
                     while(reader.Read())
                     {
-                        System.Console.WriteLine("result: " + reader.GetInt32(0));
                         return reader.GetInt32(0) == 1;
                     }
                     return false;

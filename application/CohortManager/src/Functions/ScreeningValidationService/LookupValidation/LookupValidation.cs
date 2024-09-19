@@ -18,7 +18,7 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-    private readonly IDbLookupValidationBreastScreening _dbLookup;
+    private IDbLookupValidationBreastScreening _dbLookup;
 
     public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException,ILogger<LookupValidation> logger,
                             IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
@@ -66,14 +66,9 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions), typeof(DbLookupValidationBreastScreening)]
+                CustomTypes = [typeof(Actions)]
             };
-
             var re = new RulesEngine.RulesEngine(rules, reSettings);
-
-            System.Console.WriteLine("Current posting: " + newParticipant.CurrentPosting);
-            System.Console.WriteLine("Connection string: " + Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
-
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -81,9 +76,6 @@ public class LookupValidation
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-
-
-            System.Console.WriteLine("Result: " + _dbLookup.ValidateCurrentPosting(newParticipant.CurrentPosting));
 
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => x.IsSuccess == false);

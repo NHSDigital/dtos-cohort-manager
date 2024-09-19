@@ -29,10 +29,12 @@
             },
             {
                 "RuleName": "58.CurrentPosting.NonFatal",
-                "LocalParams":[{
-                    "Name": "currentPosting",
-                    "Expression": "newParticipant.CurrentPosting"
-                }],
+                "LocalParams": [
+                    {
+                        "Name": "currentPosting",
+                        "Expression": "newParticipant.CurrentPosting"
+                    }
+                ],
                 "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
                 "Actions": {
                     "OnFailure": {
