@@ -27,7 +27,7 @@ declare -A docker_functions_map=(
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
-    ["ScreeningValidationService/RemoveValidationException"]="remove-validation-exception"
+    ["ScreeningValidationService/RemoveValidationException"]="remove-validation-exception-data"
 )
 
 changed_functions=""

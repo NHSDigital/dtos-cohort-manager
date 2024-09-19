@@ -114,6 +114,10 @@ parameters:
         repository: cohort-manager-validate-cohort-distribution-record
         tag:
           - development
+      - name: remove-validation-exception-data
+        repository: cohort-manager-remove-validation-exception-data
+        tag:
+          - development
 
 
 resources:
