@@ -13,8 +13,8 @@ module "functionapp" {
   location            = module.baseline.resource_group_locations[var.function_app.resource_group_key]
 
   asp_id     = module.app-plan.app_service_plan_id
-  sa_name    = module.storage.storage_account_name
-  sa_prm_key = module.storage.storage_account_primary_access_key
+  sa_name    = module.storage.storage_account_names["fnapp"]
+  sa_prm_key = module.storage.storage_account_primary_access_keys["fnapp"]
 
   ai_connstring        = module.app_insights.ai_connection_string_audit
   gl_worker_32bit      = var.function_app.gl_worker_32bit
@@ -30,7 +30,7 @@ module "functionapp" {
   enable_appsrv_storage = var.function_app.gl_enable_appsrv_storage
 
   #Specific FNApp settings:
-  caasfolder_STORAGE = module.storage.sa_fe_primary_connection_string
+  caasfolder_STORAGE = module.storage.storage_account_primary_connection_strings["file_exceptions"]
   db_name            = var.sqlserver.dbs.cohman.db_name_suffix
 
   tags = var.tags
