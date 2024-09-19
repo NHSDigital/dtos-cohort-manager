@@ -85,7 +85,9 @@ public class CreateParticipant : ICreateParticipant
             ScreeningAcronym = participant.ScreeningAcronym,
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
-            Extracted = null
+            Extracted = null,
+            RecordType = participant.RecordType,
+            CurrentPosting = demographic.CurrentPosting,
         };
     }
 }
