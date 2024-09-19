@@ -20,7 +20,7 @@ variable "tags" {
 }
 
 variable "nsg_rules" {
-  description = "Default NSG rules for securing subnets according to UK OFFICIAL, UK NHS, and Azure Security Benchmark."
+  description = "Additional NSG rules for securing subnets (Optional)."
   type = list(object({
     name                       = string
     priority                   = number
@@ -33,4 +33,20 @@ variable "nsg_rules" {
     destination_address_prefix = string
   }))
 
+  validation {
+    condition = length(var.nsg_rules) == 0 || alltrue([
+      for rule in var.nsg_rules : (
+        rule.name != "" &&
+        rule.priority > 99 &&
+        contains(["Inbound", "Outbound"], rule.direction) &&
+        contains(["Allow", "Deny"], rule.access) &&
+        contains(["Tcp", "Udp", "Icmp", "*"], rule.protocol) &&
+        rule.source_port_range != "" &&
+        rule.destination_port_range != "" &&
+        rule.source_address_prefix != "" &&
+        rule.destination_address_prefix != ""
+      )
+    ])
+    error_message = "Each network security group rule must have a valid name, priority, direction (Inbound or Outbound), access (Allow or Deny), protocol (Tcp, Udp, Icmp, or *), source port range, destination port range, source address prefix, and destination address prefix."
+  }
 }

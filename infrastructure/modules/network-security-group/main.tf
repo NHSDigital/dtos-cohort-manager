@@ -1,7 +1,3 @@
-/*--------------------------------------------------------------------------------------------------
-  Private Endpoint Subnets
---------------------------------------------------------------------------------------------------*/
-
 resource "azurerm_network_security_group" "this" {
   name                = var.name
   location            = var.location
@@ -22,4 +18,6 @@ resource "azurerm_network_security_group" "this" {
       destination_address_prefix = security_rule.value.destination_address_prefix
     }
   }
+
+  tags = var.tags
 }
