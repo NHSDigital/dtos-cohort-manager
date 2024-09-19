@@ -17,7 +17,7 @@ public class Participant
         FirstName = cohortDistributionParticipant.FirstName;
         OtherGivenNames = cohortDistributionParticipant.OtherGivenNames;
         FamilyName = cohortDistributionParticipant.FamilyName;
-        PreviousSurname = cohortDistributionParticipant.PreviousSurname;
+        PreviousFamilyName = cohortDistributionParticipant.PreviousFamilyName;
         DateOfBirth = cohortDistributionParticipant.DateOfBirth;
         Gender = cohortDistributionParticipant.Gender.GetValueOrDefault();
         AddressLine1 = cohortDistributionParticipant.AddressLine1;
@@ -59,7 +59,7 @@ public class Participant
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }
     public string? FamilyName { get; set; }
-    public string? PreviousSurname { get; set; }
+    public string? PreviousFamilyName { get; set; }
     public string? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public string? AddressLine1 { get; set; }

@@ -63,13 +63,13 @@
         }
       },
       {
-        "RuleName": "6.PreviousSurname.ExceedsMaximumLength",
-        "Expression": "participant.PreviousSurname.Length <= 35",
+        "RuleName": "6.PreviousFamilyName.ExceedsMaximumLength",
+        "Expression": "participant.PreviousFamilyName.Length <= 35",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "participant.PreviousSurname.Substring(0, 35)"
+              "Expression": "participant.PreviousFamilyName.Substring(0, 35)"
             }
           }
         }
