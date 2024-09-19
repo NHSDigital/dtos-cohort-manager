@@ -43,7 +43,8 @@ public class CreateParticipantData : ICreateParticipantData
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME " +
+            " RECORD_UPDATE_DATETIME, " +
+            " RECORD_TYPE " +
             " ) VALUES( " +
             " @screeningId, " +
             " @NHSNumber, " +
@@ -52,7 +53,8 @@ public class CreateParticipantData : ICreateParticipantData
             " @businessRuleVersion, " +
             " @exceptionFlag, " +
             " @recordInsertDateTime, " +
-            " @recordUpdateDateTime " +
+            " @recordUpdateDateTime, " +
+            " @recordType " +
             " ) ";
         var commonParameters = new Dictionary<string, object>
         {
@@ -64,6 +66,7 @@ public class CreateParticipantData : ICreateParticipantData
             { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
             { "@recordInsertDateTime", dateToday },
             { "@recordUpdateDateTime", DBNull.Value },
+            { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
         };
 
         sqlToExecuteInOrder.Add(new SQLReturnModel()
