@@ -54,3 +54,41 @@ module "subnet_with_delegation" {
 
   tags = var.tags
 }
+
+locals {
+  route = {
+    name                   = "example"
+    address_prefix         = "10.100.0.0/14"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = "10.10.1.1"
+  }
+}
+module "route_table_in_use" {
+  source = "./modules/route-table"
+
+  name                = "route-table-in-use"
+  resource_group_name = module.baseline.resource_group_names[var.vnet.resource_group_key]
+  location            = module.baseline.resource_group_locations[var.vnet.resource_group_key]
+  subnet_ids          = [module.subnet_without_delegation.id, module.subnet_with_delegation.id]
+
+  bgp_route_propagation_enabled = false
+
+  routes = [local.route]
+
+  tags = var.tags
+}
+
+module "route_table_not_in_use" {
+  source = "./modules/route-table"
+
+  name                = "route-table-not-in-use"
+  resource_group_name = module.baseline.resource_group_names[var.vnet.resource_group_key]
+  location            = module.baseline.resource_group_locations[var.vnet.resource_group_key]
+  subnet_ids          = []
+
+  bgp_route_propagation_enabled = false
+
+  routes = [local.route]
+
+  tags = var.tags
+}
