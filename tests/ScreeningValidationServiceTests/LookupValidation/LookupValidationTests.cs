@@ -343,7 +343,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow(Actions.Amended, "MHI")]
     [DataRow(Actions.Removed, "MHI")]
-    public async Task Run_CreatesExceptionWhenCurrentPostingRuleFails_ReturnCreated(string recordType, string currentPosting)
+    public async Task Run_InvalidCurrentPosting_CreatesException(string recordType, string currentPosting)
     {
         // Arrange
         SetupRules("CohortRules");
@@ -368,7 +368,7 @@ public class LookupValidationTests
     [DataRow(Actions.New, "ABC")]
     [DataRow(Actions.Amended, "ABC")]
     [DataRow(Actions.Amended, "HMP")]
-    public async Task Run_DoesNotCreatesExceptionWhenCurrentPostingRulePasses_Return(string recordType, string currentPosting)
+    public async Task Run_ValidCurrentPosting_DoesNotCreateException(string recordType, string currentPosting)
     {
         // Arrange
         SetupRules("CohortRules");
