@@ -20,7 +20,20 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public List<ValidationException> GetAll()
     {
-        var SQL = "SELECT * FROM [dbo].[EXCEPTION_MANAGEMENT]";
+        var SQL = @"SELECT
+                  [FILE_NAME]
+                ,[NHS_NUMBER]
+                ,[DATE_CREATED]
+                ,[DATE_RESOLVED]
+                ,[RULE_ID]
+                ,[RULE_DESCRIPTION]
+                ,[ERROR_RECORD]
+                ,[CATEGORY]
+                ,[SCREENING_NAME]
+                ,[EXCEPTION_DATE]
+                ,[COHORT_NAME]
+                ,[IS_FATAL]
+                FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
