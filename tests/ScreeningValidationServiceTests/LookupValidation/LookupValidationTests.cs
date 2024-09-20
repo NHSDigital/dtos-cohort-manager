@@ -273,7 +273,7 @@ public class LookupValidationTests
     [DataRow(Actions.New, "LDN")]
     [DataRow(Actions.New, "R/C")]
     [DataRow(Actions.New, "")] // New Record Type
-    public async Task Run_Should_Not_Create_Exception_When_Removal_Reason_Rule_Passes(string recordType,
+    public async Task Run_ValidReasonForRemoval_RulePasses(string recordType,
         string reasonForRemoval)
     {
         // Arrange
@@ -297,7 +297,7 @@ public class LookupValidationTests
     [DataRow(Actions.Removed, "LDN")]
     [DataRow(Actions.Amended, "R/C")]
     [DataRow(Actions.Removed, "R/C")]
-    public async Task Run_Should_Not_Create_Exception_When_Removal_Reason_Rule_Fail(string recordType,
+    public async Task Run_ValidReasonForRemoval_RuleFails(string recordType,
         string reasonForRemoval)
     {
         // Arrange
