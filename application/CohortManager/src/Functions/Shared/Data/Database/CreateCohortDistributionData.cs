@@ -500,7 +500,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             transaction.Rollback();
             _dbConnection.Close();
             _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}", ex.Message);
-            _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}", ex.Message);
             return false;
         }
     }
