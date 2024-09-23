@@ -44,12 +44,12 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             // Check the NHS number is a number
-            if(!long.TryParse(participant.NhsNumber, out _)){
+            if(!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            {
                 await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"),participant,input.FileName);
                 err++;
                 continue;
             }
-
 
 
             // Convert string properties to DateTime? for validation

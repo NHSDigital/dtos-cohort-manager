@@ -1,6 +1,5 @@
-namespace NHS.CohortManager.ScreeningValidationService;
+namespace Common;
 
-using System.Data;
 using System.Globalization;
 
 public static class ValidationHelper
