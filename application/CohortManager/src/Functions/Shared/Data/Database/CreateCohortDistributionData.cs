@@ -138,7 +138,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int screeningServiceId, int rowCount)
     {
-        var SQL = "SELECT TOP (@RowCount)" +
+        var SQL =
+            " WITH CTE AS (" +
+            " SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
             " bcd.[NHS_NUMBER], " +
             " bcd.[SUPERSEDED_NHS_NUMBER], " +
@@ -179,7 +181,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " AND pm.SCREENING_ID = @ScreeningServiceId " +
             " ORDER BY pm.RECORD_UPDATE_DATETIME DESC) AS SCREENING_ID " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
-            " WHERE bcd.IS_EXTRACTED = @Extracted";
+            " WHERE bcd.IS_EXTRACTED = @Extracted " +
+            ") " +
+            " SELECT * FROM CTE;";
 
         var parameters = new Dictionary<string, object>
         {
