@@ -2,7 +2,7 @@ namespace Model;
 
 public class Actions
 {
-    public const string New = "New";
-    public const string Amended = "Amended";
-    public const string Removed = "Removed";
+    public const string New = "ADD";
+    public const string Amended = "AMENDED";
+    public const string Removed = "REMOVED";
 }
