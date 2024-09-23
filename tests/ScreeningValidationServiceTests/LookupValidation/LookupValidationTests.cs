@@ -63,7 +63,7 @@ public class LookupValidationTests
             FamilyName = "Smith"
         };
 
-        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv", RulesType.CohortDistribution);
+        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.parquet", RulesType.CohortDistribution);
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
             var response = new Mock<HttpResponseData>(_context.Object);

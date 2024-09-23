@@ -190,9 +190,9 @@ public class StaticValidationTests
 
     #region Record Type (Rule 8)
     [TestMethod]
-    [DataRow("New")]
-    [DataRow("Amended")]
-    [DataRow("Removed")]
+    [DataRow("ADD")]
+    [DataRow("AMENDED")]
+    [DataRow("REMOVED")]
     public async Task Run_Should_Not_Create_Exception_When_RecordType_Rule_Passes(string recordType)
     {
         // Arrange
@@ -605,9 +605,9 @@ public class StaticValidationTests
 
     #region GP Practice Code (Rule 42)
     [TestMethod]
-    [DataRow("New", "ABC")]
-    [DataRow("Amended", null)]
-    [DataRow("Removed", null)]
+    [DataRow("ADD", "ABC")]
+    [DataRow("AMENDED", null)]
+    [DataRow("REMOVED", null)]
     public async Task Run_Should_Not_Create_Exception_When_GPPracticeCode_Rule_Passes(string recordType, string gpPracticeCode)
     {
         // Arrange
@@ -627,8 +627,8 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("New", null)]
-    [DataRow("New", "")]
+    [DataRow("ADD", null)]
+    [DataRow("ADD", "")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_GPPracticeCode_Rule_Fails(string recordType, string practiceCode)
     {
         // Arrange
@@ -651,7 +651,7 @@ public class StaticValidationTests
 
     #region Death Status (Rule 66)
     [TestMethod]
-    [DataRow("Amended", Status.Formal, "DEA")]
+    [DataRow("AMENDED", Status.Formal, "DEA")]
     public async Task Run_Should_Not_Create_Exception_When_DeathStatus_Rule_Passes(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -672,9 +672,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("Amended", Status.Formal, null)]
-    [DataRow("Amended", Status.Formal, "")]
-    [DataRow("Amended", Status.Formal, "AFL")]
+    [DataRow("AMENDED", Status.Formal, null)]
+    [DataRow("AMENDED", Status.Formal, "")]
+    [DataRow("AMENDED", Status.Formal, "AFL")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -794,10 +794,10 @@ public class StaticValidationTests
 
     #region New Participant with Reason For Removal, Removal Date or Date Of Death (Rule 47)
     [TestMethod]
-    [DataRow("New", null, null, null)]
-    [DataRow("New", "", "", "")]
-    [DataRow("Amended", "DEA", "20240101", "20240101")]
-    [DataRow("Removed", "DEA", "20240101", "20240101")]
+    [DataRow("ADD", null, null, null)]
+    [DataRow("ADD", "", "", "")]
+    [DataRow("AMENDED", "DEA", "20240101", "20240101")]
+    [DataRow("REMOVED", "DEA", "20240101", "20240101")]
     public async Task Run_Should_Not_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Passes(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
@@ -820,9 +820,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("New", "DEA", null, null)]
-    [DataRow("New", null, "20240101", null)]
-    [DataRow("New", null, null, "20240101")]
+    [DataRow("ADD", "DEA", null, null)]
+    [DataRow("ADD", null, "20240101", null)]
+    [DataRow("ADD", null, null, "20240101")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
