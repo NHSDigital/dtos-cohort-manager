@@ -43,8 +43,8 @@ jobs:
           echo "The branch is: " ${{ github.ref }}
 
       - name: Az CLI login
-        uses: azure/login@v1
         if: github.ref == 'refs/heads/main'
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -72,8 +72,8 @@ jobs:
             PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
           fi
 
-          echo "PR_NUM_TAG: $PR_NUM_TAG"
-          echo "PR_NUM_TAG=$PR_NUM_TAG" >> $GITHUB_ENV
+          echo "PR_NUM_TAG: pr$PR_NUM_TAG"
+          echo "PR_NUM_TAG=pr$PR_NUM_TAG" >> $GITHUB_ENV
 
           SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
           echo "Commit hash tag: $SHORT_COMMIT_HASH"
@@ -110,9 +110,9 @@ jobs:
             for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$COMMIT_HASH_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$PR_NUM_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$ENVIRONMENT_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
               # Push the images to the repository
               docker push "$repo_name:$COMMIT_HASH_TAG"
