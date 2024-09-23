@@ -177,16 +177,22 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[RECORD_INSERT_DATETIME], " +
             " bcd.[RECORD_UPDATE_DATETIME], " +
             " bcd.[IS_EXTRACTED], " +
-            " bcd.[REQUEST_ID], " +
-            " (SELECT TOP 1 SCREENING_ID " +
-            " FROM [dbo].[PARTICIPANT_MANAGEMENT] pm " +
-            " WHERE pm.NHS_NUMBER = bcd.NHS_NUMBER " +
-            " AND pm.SCREENING_ID = @ScreeningServiceId " +
-            " ORDER BY pm.RECORD_UPDATE_DATETIME DESC) AS SCREENING_ID " +
+            " bcd.[REQUEST_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " WHERE bcd.IS_EXTRACTED = @Extracted " +
-            ") " +
-            " SELECT * FROM CTE;";
+            " ORDER BY bcd.[RECORD_UPDATE_DATETIME] DESC" +
+            ")" +
+            " SELECT " +
+            " c.*, " +
+            " pm.SCREENING_ID " +
+            " FROM CTE c " +
+            " OUTER APPLY (" +
+            " SELECT TOP 1 SCREENING_ID " +
+            " FROM [dbo].[PARTICIPANT_MANAGEMENT] " +
+            " WHERE NHS_NUMBER = c.NHS_NUMBER " +
+            " AND SCREENING_ID = @ScreeningServiceId " +
+            " ORDER BY RECORD_UPDATE_DATETIME DESC" +
+            ") pm";
 
         var parameters = new Dictionary<string, object>
         {
@@ -200,7 +206,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var listOfAllParticipants = GetParticipant(command);
         var requestId = Guid.NewGuid().ToString();
-        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants,requestId))
+        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
             return listOfAllParticipants;
@@ -223,7 +229,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @CreatedDateTime" +
             " ) ";
 
-            var parameters = new Dictionary<string, object>
+        var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId}  ,
             {"@StatusCode", statusCode},
