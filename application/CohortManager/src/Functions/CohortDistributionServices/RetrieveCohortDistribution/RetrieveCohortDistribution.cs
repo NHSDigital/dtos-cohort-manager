@@ -45,6 +45,7 @@ public class RetrieveCohortDistributionData
         int rowCount = _httpParserHelper.GetRowCount(req);
 
         if (rowCount == 0) return _httpParserHelper.LogErrorResponse(req, "User has requested 0 rows, which is not possible.");
+        if (screeningServiceId == 0) return _httpParserHelper.LogErrorResponse(req, "Screening Service ID cannot be 0.");
         if (rowCount > 1000) return _httpParserHelper.LogErrorResponse(req, "User cannot request more than 1000 rows at a time.");
 
         try
