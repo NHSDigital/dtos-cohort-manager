@@ -21,7 +21,7 @@ public class ValidationExceptionData : IValidationExceptionData
     public List<ValidationException> GetAll()
     {
         var SQL = @"SELECT
-                  [FILE_NAME]
+                [FILE_NAME]
                 ,[NHS_NUMBER]
                 ,[DATE_CREATED]
                 ,[DATE_RESOLVED]
