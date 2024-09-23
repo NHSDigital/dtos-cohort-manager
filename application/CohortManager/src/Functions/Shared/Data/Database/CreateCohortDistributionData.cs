@@ -163,6 +163,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[ADDRESS_LINE_5], " +
             " bcd.[POST_CODE], " +
             " bcd.[USUAL_ADDRESS_FROM_DT], " +
+            " bcd.[CURRENT_POSTING], " +
+            " bcd.[CURRENT_POSTING_FROM_DT], " +
             " bcd.[DATE_OF_DEATH], " +
             " bcd.[TELEPHONE_NUMBER_HOME], " +
             " bcd.[TELEPHONE_NUMBER_HOME_FROM_DT], " +
