@@ -82,7 +82,6 @@ jobs:
 
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
-
       - name: build docker images
         working-directory: ./application/CohortManager
         run: |
@@ -116,7 +115,6 @@ jobs:
               docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
               # Push the images to the repository
-              docker push "$repo_name:latest"
               docker push "$repo_name:$COMMIT_HASH_TAG"
               if [ "$PR_NUM_TAG" != 'pr' ]; then
                 docker push "$repo_name:$PR_NUM_TAG"
