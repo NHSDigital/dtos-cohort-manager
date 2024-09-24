@@ -17,6 +17,10 @@
       {
         "RuleName": "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal",
         "Expression": "newParticipant.RecordType == Actions.New OR !new string[] { \"HMP\", \"MHI\" }.Contains(newParticipant.CurrentPosting) OR newParticipant.CurrentPosting == existingParticipant.CurrentPosting"
+      },
+      {
+        "RuleName": "35.Demographics.NonFatal",
+        "Expression": "newParticipant.RecordType != Actions.Amended OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
       }
     ]
   }

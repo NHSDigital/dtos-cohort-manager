@@ -31,10 +31,6 @@
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      },
-      {
-        "RuleName": "35.Demographics.NonFatal",
-        "Expression": "(newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
       }
     ]
   },
