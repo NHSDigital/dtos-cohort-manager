@@ -4,7 +4,6 @@ using System.Net;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
