@@ -117,16 +117,48 @@ public class AddParticipantFunction
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
-            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+            if (!string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+            {
+                var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+                var responseBodyJson = await _callFunction.GetResponseText(response);
+                var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
-            return responseBody;
+                return responseBody;
+            }
+
+            await SendValidationException(participantCsvRecord);
+
+            return new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = true
+            };
         }
         catch (Exception ex)
         {
             _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
             return null;
         }
+    }
+
+    private async Task SendValidationException(ParticipantCsvRecord participantCsvRecord)
+    {
+        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
+        {
+            RuleId = 1,
+            Cohort = "N/A",
+            NhsNumber = string.IsNullOrEmpty(participantCsvRecord.Participant.NhsNumber) ? "" : participantCsvRecord.Participant.NhsNumber,
+            DateCreated = DateTime.Now,
+            FileName = string.IsNullOrEmpty(participantCsvRecord.FileName) ? "" : participantCsvRecord.FileName,
+            DateResolved = DateTime.MaxValue,
+            RuleDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function",
+            Category = 1,
+            ScreeningName = "N/A",
+            Fatal = 0,
+            ErrorRecord = "N/A",
+            ExceptionDate = DateTime.Now,
+            RuleContent = "N/A",
+            ScreeningService = 0
+        });
     }
 }
