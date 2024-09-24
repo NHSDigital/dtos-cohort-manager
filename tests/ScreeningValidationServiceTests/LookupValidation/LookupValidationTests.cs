@@ -243,7 +243,7 @@ public class LookupValidationTests
     Gender newGender, string newDateOfBirth)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.Surname = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
@@ -277,7 +277,7 @@ public class LookupValidationTests
         Gender newGender, string newDateOfBirth)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.ExistingParticipant.Surname = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
