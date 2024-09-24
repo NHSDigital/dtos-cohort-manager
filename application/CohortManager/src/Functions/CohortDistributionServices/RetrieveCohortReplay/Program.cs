@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
@@ -21,6 +21,7 @@ var host = new HostBuilder()
         services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
     })
     .AddExceptionHandler()
     .Build();

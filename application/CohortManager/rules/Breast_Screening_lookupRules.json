@@ -1,72 +1,64 @@
 [
-    {
+  {
     "WorkflowName": "Common",
-    "Rules":
-        [
-            {
-                "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-                "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
-                "Actions": {
-                    "OnFailure": {
-                        "Name": "OutputExpression",
-                        "Context": {
-                            "Expression": "\"Invalid primary care provider GP practice code\""
-                        }
-                    }
-                }
-            },
-            {
-                "RuleName": "58.CurrentPosting.NonFatal",
-                "LocalParams": [
-                    {
-                        "Name": "currentPosting",
-                        "Expression": "newParticipant.CurrentPosting"
-                    }
-                ],
-                "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
-                "Actions": {
-                    "OnFailure": {
-                        "Name": "OutputExpression",
-                        "Context": {
-                            "Expression": "\"Missing or invalid Posting\""
-                        }
-                    }
+    "Rules": [
+      {
+        "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
+        "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+        "Actions": {
+            "OnFailure": {
+                "Name": "OutputExpression",
+                "Context": {
+                    "Expression": "\"Invalid primary care provider GP practice code\""
                 }
             }
-        ]
-    },
-    {
-      "WorkflowName": "New",
-      "Rules":
-          [
-              {
-                  "RuleName": "47.ParticipantMustNotExist.Fatal",
-                  "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-              }
-          ]
-    },
-    {
-      "WorkflowName": "Amended",
-      "Rules":
-          [
-              {
-                  "RuleName": "22.ParticipantMustExist.Fatal",
-                  "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-              },
-              {
-                  "RuleName": "35.Demographics.NonFatal",
-                  "Expression": "(newParticipant.Surname == existingParticipant.Surname AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.Surname == existingParticipant.Surname AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth)"
-              }
-          ]
-    },
-    {
-      "WorkflowName": "Removed",
-      "Rules":
-          [
-              {
-                  "RuleName": "22.ParticipantMustExist.Fatal",
-                  "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-              }
-          ]
-    }
+        }
+      },
+      {
+        "RuleName": "58.CurrentPosting.NonFatal",
+        "LocalParams": [
+            {
+                "Name": "currentPosting",
+                "Expression": "newParticipant.CurrentPosting"
+            }
+        ],
+        "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
+        "Actions": {
+            "OnFailure": {
+                "Name": "OutputExpression",
+                "Context": {
+                    "Expression": "\"Missing or invalid Posting\""
+                }
+            }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "New",
+    "Rules": [
+      {
+        "RuleName": "47.ParticipantMustNotExist.Fatal",
+        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Amended",
+    "Rules": [
+      {
+        "RuleName": "22.ParticipantMustExist.Fatal",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Removed",
+    "Rules": [
+      {
+        "RuleName": "22.ParticipantMustExist.Fatal",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      }
+    ]
+  }
 ]

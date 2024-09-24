@@ -83,7 +83,7 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = demographic.RecordInsertDateTime,
             RecordUpdateDateTime = demographic.RecordUpdateDateTime,
             ScreeningAcronym = participant.ScreeningAcronym,
-            ScreeningId = participant.ScreeningId,
+            ScreeningServiceId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
             Extracted = null,
             RecordType = participant.RecordType,
