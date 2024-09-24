@@ -11,9 +11,6 @@ public class ValidationHelperTests
     [DataRow("9876543210")]
     public void ValidateNhsNumber_ValidNHNumbers_ReturnsTrue(string nhsNumber)
     {
-
-        //arrange
-
         //act
         var result = ValidationHelper.ValidateNHSNumber(nhsNumber);
 
@@ -29,9 +26,6 @@ public class ValidationHelperTests
     [DataRow("sdfgsdg")]
     public void ValidateNhsNumber_InvalidNHNumbers_ReturnsFalse(string nhsNumber)
     {
-
-        //arrange
-
         //act
         var result = ValidationHelper.ValidateNHSNumber(nhsNumber);
 
