@@ -1,7 +1,6 @@
-namespace Data.Database;
+namespace Common.Interfaces;
 
 using Microsoft.Azure.Functions.Worker.Http;
-
 
 public interface IHttpParserHelper
 {

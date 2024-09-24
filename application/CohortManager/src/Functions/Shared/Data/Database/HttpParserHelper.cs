@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System.Net;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
