@@ -3,6 +3,7 @@ namespace Data.Database;
 using System.Data;
 using System.Net;
 using System.Text.Json;
+using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -476,7 +477,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             participant.Extracted = "1";
             participant.RequestId = requestId;
             participant.ScreeningServiceId = screeningServiceId.ToString();
-            participant.ScreeningName = nameof(ServiceProvider.BsSelect);
+            participant.ScreeningAcronym = nameof(ServiceProvider.BSS);
+            participant.ScreeningName = EnumHelper.GetDisplayName(ServiceProvider.BSS);
         }
 
         return UpdateRecords(sqlToExecute);
