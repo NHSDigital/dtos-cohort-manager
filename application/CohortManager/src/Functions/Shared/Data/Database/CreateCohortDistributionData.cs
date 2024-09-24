@@ -105,9 +105,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@namePrefix",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.NamePrefix) },
             {"@givenName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.FirstName) },
             {"@otherGivenNames", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.OtherGivenNames) },
-            {"@familyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.Surname) },
-            {"@previousFamilyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreviousSurname) },
-            {"@dateOfBirth", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.DateOfBirth) ? DateTime.MaxValue : _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfBirth)},
+            {"@familyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.FamilyName) },
+            {"@previousFamilyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreviousFamilyName) },
+            {"@dateOfBirth", string.IsNullOrEmpty(cohortDistributionParticipant.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfBirth)},
             {"@gender", cohortDistributionParticipant.Gender.HasValue ? cohortDistributionParticipant.Gender : DBNull.Value},
             {"@addressLine1", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine1)},
             {"@addressLine2", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine2)},
@@ -183,6 +183,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " WHERE bcd.IS_EXTRACTED = @Extracted";
 
+
         var parameters = new Dictionary<string, object>
         {
             {"@RowCount", rowCount },
@@ -234,6 +235,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     }
 
+
     public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
         var SQL = "SELECT" +
@@ -256,6 +258,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [ADDRESS_LINE_5], " +
             " [POST_CODE], " +
             " [USUAL_ADDRESS_FROM_DT], " +
+            " [CURRENT_POSTING], " +
+            " [CURRENT_POSTING_FROM_DT], " +
             " [CURRENT_POSTING], " +
             " [CURRENT_POSTING_FROM_DT], " +
             " [DATE_OF_DEATH], " +
@@ -328,6 +332,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [ADDRESS_LINE_5], " +
                 " [POST_CODE], " +
                 " [USUAL_ADDRESS_FROM_DT], " +
+                " [CURRENT_POSTING], " +
+                " [CURRENT_POSTING_FROM_DT], " +
                 " [CURRENT_POSTING], " +
                 " [CURRENT_POSTING_FROM_DT], " +
                 " [DATE_OF_DEATH], " +
@@ -414,9 +420,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     NamePrefix = DatabaseHelper.GetStringValue(reader, "NAME_PREFIX"),
                     FirstName = DatabaseHelper.GetStringValue(reader, "GIVEN_NAME"),
                     OtherGivenNames = DatabaseHelper.GetStringValue(reader, "OTHER_GIVEN_NAME"),
-                    Surname = DatabaseHelper.GetStringValue(reader, "FAMILY_NAME"),
-                    PreviousSurname = DatabaseHelper.GetStringValue(reader, "PREVIOUS_FAMILY_NAME"),
-                    DateOfBirth = DatabaseHelper.GetStringValue(reader, "DATE_OF_BIRTH"),
+                    FamilyName = DatabaseHelper.GetStringValue(reader, "FAMILY_NAME"),
+                    PreviousFamilyName = DatabaseHelper.GetStringValue(reader, "PREVIOUS_FAMILY_NAME"),
+                    DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_BIRTH"].ToString()).ToString("yyyyMMdd"),
                     Gender = DatabaseHelper.GetGenderValue(reader, "GENDER"),
                     AddressLine1 = DatabaseHelper.GetStringValue(reader, "ADDRESS_LINE_1"),
                     AddressLine2 = DatabaseHelper.GetStringValue(reader, "ADDRESS_LINE_2"),
@@ -462,6 +468,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     " WHERE PARTICIPANT_ID = @ParticipantId";
 
             var parameters = new Dictionary<string, object>
+        {
+            {"@Extracted", 1 },
+            {"@RequestId", requestId },
+            {"@ParticipantId", participant.ParticipantId}
+        };
         {
             {"@Extracted", 1 },
             {"@RequestId", requestId },

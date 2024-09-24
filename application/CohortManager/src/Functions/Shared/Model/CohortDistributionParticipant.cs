@@ -32,10 +32,10 @@ public class CohortDistributionParticipant
     public string? OtherGivenNames { get; set; }
 
     [JsonPropertyName("Family Name")]
-    public string? Surname { get; set; }
+    public string? FamilyName { get; set; }
 
     [JsonPropertyName("Previous Family Name")]
-    public string? PreviousSurname { get; set; }
+    public string? PreviousFamilyName { get; set; }
 
     [JsonPropertyName("Date of Birth")]
     public string? DateOfBirth { get; set; }
