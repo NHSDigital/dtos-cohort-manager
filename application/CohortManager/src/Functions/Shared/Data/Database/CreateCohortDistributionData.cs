@@ -235,7 +235,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     }
 
-
     public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
         var SQL = "SELECT" +
@@ -473,12 +472,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@RequestId", requestId },
             {"@ParticipantId", participant.ParticipantId}
         };
-        {
-            {"@Extracted", 1 },
-            {"@RequestId", requestId },
-            {"@ParticipantId", participant.ParticipantId}
-        };
-
             sqlToExecute.Add(new SQLReturnModel
             {
                 Parameters = parameters,
