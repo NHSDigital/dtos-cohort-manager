@@ -18,9 +18,10 @@ var host = new HostBuilder()
             var conn = providerFactory.CreateConnection();
             return conn;
         });
-        services.AddSingleton<ICreateCohortDistributionData, CreateCohortDistributionData>();
+        services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
     })
     .AddExceptionHandler()
     .Build();
