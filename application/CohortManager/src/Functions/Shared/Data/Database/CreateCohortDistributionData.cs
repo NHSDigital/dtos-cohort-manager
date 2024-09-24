@@ -1,12 +1,12 @@
 namespace Data.Database;
 
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Net;
 using System.Text.Json;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
@@ -142,60 +142,50 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int screeningServiceId, int rowCount)
     {
-    var SQL = "WITH CTE AS ( " +
-        " SELECT " +
-        " pm.[SCREENING_ID], " +
-        " BCD.* " +
-        " FROM [dbo].[PARTICIPANT_MANAGEMENT] pm " +
-        " INNER JOIN [dbo].[BS_COHORT_DISTRIBUTION] bcd ON bcd.[NHS_NUMBER] = pm.[NHS_NUMBER] " +
-        " GROUP by " +
-        " pm.NHS_NUMBER, " +
-        " pm.[SCREENING_ID], " +
-        " bcd.BS_COHORT_DISTRIBUTION_ID, " +
-        " bcd.[PARTICIPANT_ID], " +
-        " bcd.[NHS_NUMBER], " +
-        " bcd.[SUPERSEDED_NHS_NUMBER], " +
-        " bcd.[PRIMARY_CARE_PROVIDER], " +
-        " bcd.[PRIMARY_CARE_PROVIDER_FROM_DT], " +
-        " bcd.[NAME_PREFIX], " +
-        " bcd.[GIVEN_NAME], " +
-        " bcd.[OTHER_GIVEN_NAME], " +
-        " bcd.[FAMILY_NAME], " +
-        " bcd.[PREVIOUS_FAMILY_NAME], " +
-        " bcd.[DATE_OF_BIRTH], " +
-        " bcd.[GENDER], " +
-        " bcd.[ADDRESS_LINE_1], " +
-        " bcd.[ADDRESS_LINE_2], " +
-        " bcd.[ADDRESS_LINE_3], " +
-        " bcd.[ADDRESS_LINE_4], " +
-        " bcd.[ADDRESS_LINE_5], " +
-        " bcd.[POST_CODE], " +
-        " bcd.[USUAL_ADDRESS_FROM_DT], " +
-        " bcd.[CURRENT_POSTING], " +
-        " bcd.[CURRENT_POSTING_FROM_DT], " +
-        " bcd.[DATE_OF_DEATH], " +
-        " bcd.[TELEPHONE_NUMBER_HOME], " +
-        " bcd.[TELEPHONE_NUMBER_HOME_FROM_DT], " +
-        " bcd.[TELEPHONE_NUMBER_MOB], " +
-        " bcd.[TELEPHONE_NUMBER_MOB_FROM_DT], " +
-        " bcd.[EMAIL_ADDRESS_HOME], " +
-        " bcd.[EMAIL_ADDRESS_HOME_FROM_DT], " +
-        " bcd.[PREFERRED_LANGUAGE], " +
-        " bcd.[INTERPRETER_REQUIRED], " +
-        " bcd.[REASON_FOR_REMOVAL], " +
-        " bcd.[REASON_FOR_REMOVAL_FROM_DT], " +
-        " bcd.[RECORD_INSERT_DATETIME], " +
-        " bcd.[RECORD_UPDATE_DATETIME], " +
-        " bcd.[IS_EXTRACTED], " +
-        " bcd.[REQUEST_ID]" +
-        ") " +
-        "SELECT * from CTE";
+        var SQL = "SELECT TOP (@RowCount)" +
+            " bcd.[PARTICIPANT_ID], " +
+            " bcd.[NHS_NUMBER], " +
+            " bcd.[SUPERSEDED_NHS_NUMBER], " +
+            " bcd.[PRIMARY_CARE_PROVIDER], " +
+            " bcd.[PRIMARY_CARE_PROVIDER_FROM_DT], " +
+            " bcd.[NAME_PREFIX], " +
+            " bcd.[GIVEN_NAME], " +
+            " bcd.[OTHER_GIVEN_NAME], " +
+            " bcd.[FAMILY_NAME], " +
+            " bcd.[PREVIOUS_FAMILY_NAME], " +
+            " bcd.[DATE_OF_BIRTH], " +
+            " bcd.[GENDER], " +
+            " bcd.[ADDRESS_LINE_1], " +
+            " bcd.[ADDRESS_LINE_2], " +
+            " bcd.[ADDRESS_LINE_3], " +
+            " bcd.[ADDRESS_LINE_4], " +
+            " bcd.[ADDRESS_LINE_5], " +
+            " bcd.[POST_CODE], " +
+            " bcd.[USUAL_ADDRESS_FROM_DT], " +
+            " bcd.[CURRENT_POSTING], " +
+            " bcd.[CURRENT_POSTING_FROM_DT], " +
+            " bcd.[DATE_OF_DEATH], " +
+            " bcd.[TELEPHONE_NUMBER_HOME], " +
+            " bcd.[TELEPHONE_NUMBER_HOME_FROM_DT], " +
+            " bcd.[TELEPHONE_NUMBER_MOB], " +
+            " bcd.[TELEPHONE_NUMBER_MOB_FROM_DT], " +
+            " bcd.[EMAIL_ADDRESS_HOME], " +
+            " bcd.[EMAIL_ADDRESS_HOME_FROM_DT], " +
+            " bcd.[PREFERRED_LANGUAGE], " +
+            " bcd.[INTERPRETER_REQUIRED], " +
+            " bcd.[REASON_FOR_REMOVAL], " +
+            " bcd.[REASON_FOR_REMOVAL_FROM_DT], " +
+            " bcd.[RECORD_INSERT_DATETIME], " +
+            " bcd.[RECORD_UPDATE_DATETIME], " +
+            " bcd.[IS_EXTRACTED], " +
+            " bcd.[REQUEST_ID] " +
+            " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
+            " WHERE bcd.IS_EXTRACTED = @Extracted";
 
         var parameters = new Dictionary<string, object>
         {
             {"@RowCount", rowCount },
             {"@Extracted", 0 },
-            {"@ScreeningServiceId", screeningServiceId }
         };
 
         var command = CreateCommand(parameters);
@@ -203,7 +193,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var listOfAllParticipants = GetParticipant(command);
         var requestId = Guid.NewGuid().ToString();
-        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId))
+        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
             return listOfAllParticipants;
@@ -265,6 +255,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [ADDRESS_LINE_5], " +
             " [POST_CODE], " +
             " [USUAL_ADDRESS_FROM_DT], " +
+            " [CURRENT_POSTING], " +
+            " [CURRENT_POSTING_FROM_DT], " +
             " [DATE_OF_DEATH], " +
             " [TELEPHONE_NUMBER_HOME], " +
             " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
@@ -335,6 +327,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [ADDRESS_LINE_5], " +
                 " [POST_CODE], " +
                 " [USUAL_ADDRESS_FROM_DT], " +
+                " [CURRENT_POSTING], " +
+                " [CURRENT_POSTING_FROM_DT], " +
                 " [DATE_OF_DEATH], " +
                 " [TELEPHONE_NUMBER_HOME], " +
                 " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
@@ -446,7 +440,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     Extracted = DatabaseHelper.GetStringValue(reader, "IS_EXTRACTED"),
                     RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
                     CurrentPosting = DatabaseHelper.GetStringValue(reader, "CURRENT_POSTING"),
-                    ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID")
                 };
 
                 participants.Add(participant);
@@ -455,7 +448,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
     }
 
-    private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId)
+    private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId, int screeningServiceId)
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
@@ -482,6 +475,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
             participant.Extracted = "1";
             participant.RequestId = requestId;
+            participant.ScreeningServiceId = screeningServiceId.ToString();
+            participant.ScreeningName = nameof(ServiceProvider.BsSelect);
         }
 
         return UpdateRecords(sqlToExecute);

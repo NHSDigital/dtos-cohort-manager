@@ -42,7 +42,7 @@ public class Participant
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
         ScreeningName = cohortDistributionParticipant.ScreeningName;
-        ScreeningId = cohortDistributionParticipant.ScreeningId;
+        ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
     }
 
