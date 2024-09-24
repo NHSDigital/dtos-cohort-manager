@@ -47,11 +47,12 @@ else
 fi
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-# changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-# remove-from-cohort-distribution-data create-cohort-distribution retrieve-cohort-distribution-data allocate-service-provider \
-# transform-data-service demographic-data-management remove-participant add-participant \
-# update-participant file-validation lookup-validation static-validation demographic-data-service \
-# get-validation-exceptions create-participant mark-participant-as-eligible mark-participant-as-ineligible \
-# update-participant-details"
+changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
+create-cohort-distribution remove-cohort-distribution-data retrieve-distribution-data \
+retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
+demographic-data-management devops-testing-service remove-participant add-participant update-participant \
+create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
+mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
+remove-validation-exception"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/DTOSS-0000-refreshing-images-dev
 
   workflow_call:
     inputs:
