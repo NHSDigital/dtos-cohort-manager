@@ -49,10 +49,10 @@ public class AllocateServiceProviderToParticipantByService
             // check request parameters
             if (string.IsNullOrEmpty(configRequest.NhsNumber) || string.IsNullOrEmpty(configRequest.Postcode) || string.IsNullOrEmpty(configRequest.ScreeningAcronym))
             {
-                logMessage = $"One or more of the required parameters is missing. NhsNumber: {configRequest.NhsNumber} Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningAcronym}";
+                logMessage = $"One or more of the required parameters is missing. NhsNumber: REDACTED Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningAcronym}";
                 _logger.LogError(logMessage);
 
-                await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
@@ -63,7 +63,7 @@ public class AllocateServiceProviderToParticipantByService
                 logMessage = $"Cannot find allocation configuration file. Path may be invalid";
                 _logger.LogError(logMessage);
 
-                await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
@@ -83,7 +83,7 @@ public class AllocateServiceProviderToParticipantByService
             logMessage = $"No matching entry found.";
             _logger.LogError(logMessage);
 
-            await CallCreateValidationException(configRequest.NhsNumber, logMessage);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
 
         }
@@ -97,27 +97,28 @@ public class AllocateServiceProviderToParticipantByService
     }
 
 
-    private async Task CallCreateValidationException(string nhsNumber, string logMessage)
-    {
-        _logger.LogError(logMessage);
+    // private async Task CallCreateValidationException(string nhsNumber, string logMessage)
+    // {
+    //     _logger.LogError(logMessage);
 
-        _logger.LogInformation("Creating a new Validation exception entry...");
+    //     _logger.LogInformation("Creating a new Validation exception entry...");
 
-        // create an entry on the validation table
-        ValidationException exception = new ValidationException
-        {
-            FileName = null,
-            NhsNumber = nhsNumber ?? null,
-            DateCreated = DateTime.UtcNow,
-            RuleDescription = "Failed to retrieve the Service Provider from Allocation Config",
-            ErrorRecord = logMessage,
-            DateResolved = DateTime.MaxValue,
-            ScreeningName = "Screening Service",
-        };
+    //     // create an entry on the validation table
+    //     ValidationException exception = new ValidationException
+    //     {
+    //         FileName = null,
+    //         NhsNumber = nhsNumber ?? null,
+    //         DateCreated = DateTime.UtcNow,
+    //         RuleDescription = "Failed to retrieve the Service Provider from Allocation Config",
+    //         ErrorRecord = logMessage,
+    //         DateResolved = DateTime.MaxValue,
+    //         ScreeningName = "Screening Service",
+    //     };
 
-        string exceptionJson = JsonSerializer.Serialize(exception);
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("CreateValidationExceptionURL"), exceptionJson);
-    }
+    //     string exceptionJson = JsonSerializer.Serialize(exception);
+    //     await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), exceptionJson);
+    // }
+
     private string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
 
