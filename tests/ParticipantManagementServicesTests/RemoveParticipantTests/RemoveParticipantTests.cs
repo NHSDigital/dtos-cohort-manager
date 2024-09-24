@@ -37,7 +37,7 @@ public class RemoveParticipantTests
             Participant = new Participant()
             {
                 FirstName = "Joe",
-                Surname = "Bloggs",
+                FamilyName = "Bloggs",
                 NhsNumber = "1",
                 RecordType = Actions.Removed
             }
