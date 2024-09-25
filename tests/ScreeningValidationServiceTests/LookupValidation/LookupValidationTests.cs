@@ -50,13 +50,13 @@ public class LookupValidationTests
         // Test data setup
         var existingParticipant = new Participant
         {
-            NhsNumber = "1",
+            NhsNumber = "9876543210",
             FirstName = "John",
             FamilyName = "Smith"
         };
         var newParticipant = new Participant
         {
-            NhsNumber = "1",
+            NhsNumber = "9876543210",
             FirstName = "John",
             FamilyName = "Smith"
         };

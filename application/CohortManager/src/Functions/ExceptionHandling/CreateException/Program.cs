@@ -21,7 +21,7 @@ var host = new HostBuilder()
             return conn;
         });
 
-        services.AddSingleton<IValidationExceptionData, ValidationExceptionData>();
+        services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
     .Build();
