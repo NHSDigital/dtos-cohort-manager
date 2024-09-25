@@ -3,7 +3,7 @@ namespace Data.Database;
 using Microsoft.Identity.Client;
 using Model;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 /// <summary>
 /// Various validation methods for use in the breast screening lookup/ cohort rules
