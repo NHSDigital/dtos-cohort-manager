@@ -52,13 +52,13 @@ public class LookupValidationTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith"
+            FamilyName = "Smith"
         };
         var newParticipant = new Participant
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith"
+            FamilyName = "Smith"
         };
 
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv", RulesType.CohortDistribution);
@@ -243,12 +243,12 @@ public class LookupValidationTests
     Gender newGender, string newDateOfBirth)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.ExistingParticipant.Surname = existingFamilyName;
+        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.Surname = newFamilyName;
+        _requestBody.NewParticipant.FamilyName = newFamilyName;
         _requestBody.NewParticipant.Gender = newGender;
         _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
         var json = JsonSerializer.Serialize(_requestBody);
@@ -277,12 +277,12 @@ public class LookupValidationTests
         Gender newGender, string newDateOfBirth)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.Surname = existingFamilyName;
+        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.Surname = newFamilyName;
+        _requestBody.NewParticipant.FamilyName = newFamilyName;
         _requestBody.NewParticipant.Gender = newGender;
         _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
         var json = JsonSerializer.Serialize(_requestBody);

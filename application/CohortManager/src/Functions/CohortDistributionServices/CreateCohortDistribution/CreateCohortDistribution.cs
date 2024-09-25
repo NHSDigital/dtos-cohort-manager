@@ -74,7 +74,7 @@ public class CreateCohortDistribution
             response = await HandleErrorResponseIfNull(serviceProvider, req);
             if (response != null) return response;
 
-            if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningId))
+            if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningServiceId))
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
                 // we return OK here as there has not been an error
