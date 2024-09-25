@@ -153,7 +153,7 @@ public class ExceptionHandler : IExceptionHandler
 
     /// <summary>
     /// Method is used to create a default validation exception for the database
-    /// note: errorDescription is the Rule description  
+    /// note: errorDescription is the Rule description
     /// </summary>
     /// <param name="participant"></param>
     /// <param name="fileName"></param>
