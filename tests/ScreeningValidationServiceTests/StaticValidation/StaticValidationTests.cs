@@ -717,7 +717,7 @@ public class StaticValidationTests
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
