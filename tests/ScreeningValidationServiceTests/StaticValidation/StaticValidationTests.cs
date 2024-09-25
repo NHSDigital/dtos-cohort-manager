@@ -698,7 +698,7 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Reason For Removal Effective From Date (Rule 71)
+    #region Reason For Removal Effective From Date (Rule 19)
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
