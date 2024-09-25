@@ -90,6 +90,10 @@ parameters:
         repository: cohort-manager-retrieve-cohort-distribution-data
         tag:
           - development
+      - name: retrieve-cohort-replay
+        repository: cohort-manager-retrieve-cohort-replay
+        tag:
+          - development
       - name: remove-cohort-distribution-data
         repository: cohort-manager-remove-cohort-distribution-data
         tag:
