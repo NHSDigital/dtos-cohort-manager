@@ -1008,7 +1008,7 @@ public class StaticValidationTests
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.Fatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
