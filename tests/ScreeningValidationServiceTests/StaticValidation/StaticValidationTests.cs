@@ -992,4 +992,25 @@ public class StaticValidationTests
         _request.Setup(r => r.Body).Returns(bodyStream);
     }
 
+    #region Supplied Posting is Null Validation (Rule 53)
+    [TestMethod]
+    [DataRow(null, "PCP123")]
+    public async Task Run_Should_Raise_Exception_When_CurrentPosting_Is_Null_And_PrimaryCareProvider_Is_Not_Null(string? currentPosting, string? primaryCareProvider)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
+        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json); // Ensure the request body is set up correctly
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.Fatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
 }

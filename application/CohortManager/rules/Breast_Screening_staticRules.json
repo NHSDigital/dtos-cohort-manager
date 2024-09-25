@@ -73,6 +73,10 @@
       {
         "RuleName": "62.ValidateReasonForRemoval.NonFatal",
         "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
+      },
+      {
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.Fatal",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
       }
     ]
   }
