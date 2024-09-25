@@ -144,6 +144,7 @@ locals {
 
       ExceptionFunctionURL         = local.fnapp_urls.createException
       DtOsDatabaseConnectionString = local.db_connection_string
+      RemoveOldValidationRecord    = local.fnapp_urls.removeValidationExceptionData
       BlobContainerName            = "config"
     }
 
