@@ -50,7 +50,7 @@ public class FileValidation
                 var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
                 if (copied)
                 {
-                    _logger.LogInformation("File validation exception with NHS number: {NhsNumber}", requestBody.NhsNumber);
+                    _logger.LogInformation("File validation exception has completed successfully");
                     return req.CreateResponse(HttpStatusCode.OK);
                 }
                 _logger.LogError("there has been an error while copying the bad file or saving the exception");
@@ -61,7 +61,7 @@ public class FileValidation
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,ex.Message);
+            _logger.LogError(ex, ex.Message);
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
