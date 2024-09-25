@@ -268,8 +268,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-distribution-data:
-    container_name: retrieve-distribution-data
+  retrieve-cohort-distribution-data:
+    container_name: retrieve-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -279,8 +279,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-distribution-replay:
-    container_name: retrieve-distribution-replay
+  retrieve-cohort-replay:
+    container_name: retrieve-cohort-replay
     network_mode: host
     build:
       context: ./src/Functions/

@@ -8,7 +8,8 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
     #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
-    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-distribution-data" #inconsistant file name for the function (should be retrieve-cohort-distribution-data )
+    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
+    ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
     ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
     ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
@@ -53,6 +54,6 @@ fi
 # demographic-data-management devops-testing-service remove-participant add-participant update-participant \
 # create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
-# remove-validation-exception-data"
+# remove-validation-exception-data retrieve-cohort-replay"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"

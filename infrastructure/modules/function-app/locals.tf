@@ -23,6 +23,7 @@ locals {
     createCohortDistribution         = "https://${var.names.function-app}-${lower(var.function_app.CreateCohortDistribution.name_suffix)}.azurewebsites.net/api/CreateCohortDistribution"
     validateCohortDistributionRecord = "https://${var.names.function-app}-${lower(var.function_app.ValidateCohortDistributionRecord.name_suffix)}.azurewebsites.net/api/ValidateCohortDistributionRecord"
     retrieveCohortDistributionData   = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RetrieveCohortDistributionData"
+    retrieveCohortReplay             = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortReplay.name_suffix)}.azurewebsites.net/api/RetrieveCohortReplay"
   }
   db_connection_string = "Server=${var.names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.db_name}"
 
@@ -201,6 +202,11 @@ locals {
 
     ValidateCohortDistributionRecord = {
       LookupValidationURL          = local.fnapp_urls.lookupValidation
+      DtOsDatabaseConnectionString = local.db_connection_string
+    }
+
+    RetrieveCohortReplay = {
+      ExceptionFunctionURL         = local.fnapp_urls.createException
       DtOsDatabaseConnectionString = local.db_connection_string
     }
 
