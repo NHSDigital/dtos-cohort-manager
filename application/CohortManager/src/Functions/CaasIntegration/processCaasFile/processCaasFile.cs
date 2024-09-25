@@ -43,6 +43,15 @@ public class ProcessCaasFileFunction
 
         foreach (var participant in input.Participants)
         {
+            // Check the NHS number is a number
+            if(!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            {
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"),participant,input.FileName);
+                err++;
+                continue;
+            }
+
+
             // Convert string properties to DateTime? for validation
             DateTime? primaryCareDate = TryParseDate(participant.PrimaryCareProviderEffectiveFromDate);
             DateTime? addressDate = TryParseDate(participant.UsualAddressEffectiveFromDate);
@@ -70,6 +79,8 @@ public class ProcessCaasFileFunction
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
                 FileName = input.FileName
             };
+
+
 
             switch (participant.RecordType?.Trim())
             {
