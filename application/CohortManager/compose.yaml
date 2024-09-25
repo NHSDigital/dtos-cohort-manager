@@ -279,8 +279,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-cohort-distribution-replay:
-    container_name: retrieve-cohort-distribution-replay
+  retrieve-cohort-replay:
+    container_name: retrieve-cohort-replay
     network_mode: host
     build:
       context: ./src/Functions/
