@@ -54,6 +54,6 @@ fi
 # demographic-data-management devops-testing-service remove-participant add-participant update-participant \
 # create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
-# remove-validation-exception-data"
+# remove-validation-exception-data retrieve-cohort-replay"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
