@@ -75,7 +75,7 @@
         "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
       },
       {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.Fatal",
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NonFatal",
         "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
       }
     ]
