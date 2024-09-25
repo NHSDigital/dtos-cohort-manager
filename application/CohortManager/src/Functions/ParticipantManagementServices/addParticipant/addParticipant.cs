@@ -126,7 +126,8 @@ public class AddParticipantFunction
                 return responseBody;
             }
 
-            await SendValidationException(participantCsvRecord);
+            var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "N/A");
 
             return new ValidationExceptionLog()
             {
@@ -139,26 +140,5 @@ public class AddParticipantFunction
             _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
             return null;
         }
-    }
-
-    private async Task SendValidationException(ParticipantCsvRecord participantCsvRecord)
-    {
-        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
-        {
-            RuleId = 1,
-            Cohort = "N/A",
-            NhsNumber = string.IsNullOrEmpty(participantCsvRecord.Participant.NhsNumber) ? "" : participantCsvRecord.Participant.NhsNumber,
-            DateCreated = DateTime.Now,
-            FileName = string.IsNullOrEmpty(participantCsvRecord.FileName) ? "" : participantCsvRecord.FileName,
-            DateResolved = DateTime.MaxValue,
-            RuleDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function",
-            Category = 1,
-            ScreeningName = "N/A",
-            Fatal = 0,
-            ErrorRecord = "N/A",
-            ExceptionDate = DateTime.Now,
-            RuleContent = "N/A",
-            ScreeningService = 0
-        });
     }
 }

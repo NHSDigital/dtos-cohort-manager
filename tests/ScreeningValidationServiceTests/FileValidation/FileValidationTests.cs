@@ -19,6 +19,7 @@ public class FileValidationTests
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<IBlobStorageHelper> _blobStorageHelper = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ValidationException _requestBody;
     private readonly FileValidation _function;
@@ -36,7 +37,7 @@ public class FileValidationTests
             DateCreated = DateTime.Now,
         };
 
-        _function = new FileValidation(_logger.Object, _callFunction.Object, _blobStorageHelper.Object);
+        _function = new FileValidation(_logger.Object, _blobStorageHelper.Object, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

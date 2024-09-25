@@ -12,14 +12,15 @@ using Model;
 public class FileValidation
 {
     private readonly ILogger<FileValidation> _logger;
-    private readonly ICallFunction _callFunction;
     private readonly IBlobStorageHelper _blobStorageHelper;
 
-    public FileValidation(ILogger<FileValidation> logger, ICallFunction callFunction, IBlobStorageHelper blobStorageHelper)
+    private readonly IExceptionHandler _handleException;
+
+    public FileValidation(ILogger<FileValidation> logger, IBlobStorageHelper blobStorageHelper, IExceptionHandler handleException)
     {
         _logger = logger;
-        _callFunction = callFunction;
         _blobStorageHelper = blobStorageHelper;
+        _handleException = handleException;
     }
 
     [Function("FileValidation")]
@@ -36,36 +37,22 @@ public class FileValidation
             }
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
-            var requestObject = new ValidationException()
-            {
-                RuleId = requestBody.RuleId == null ? 0 : requestBody.RuleId,
-                Cohort = "",
-                NhsNumber = string.IsNullOrEmpty(requestBody.NhsNumber) ? "" : requestBody.NhsNumber,
-                DateCreated = requestBody.DateCreated ?? DateTime.Now,
-                FileName = string.IsNullOrEmpty(requestBody.FileName) ? "" : requestBody.FileName,
-                DateResolved = requestBody.DateResolved ?? DateTime.MaxValue,
-                RuleDescription = requestBody.RuleDescription ?? "The file failed file validation. Check the file Exceptions blob store.",
-                Category = requestBody.Category ?? 0,
-                ScreeningName = requestBody.ScreeningName ?? "",
-                Fatal = requestBody.Fatal ?? 0,
-                ErrorRecord = requestBody.ErrorRecord ?? "",
-                ExceptionDate = requestBody.ExceptionDate ?? DateTime.Now,
-                RuleContent = requestBody.RuleContent ?? "",
-                ScreeningService = requestBody.ScreeningService ?? 0
-            };
+            var foo = "The file failed file validation. Check the file Exceptions blob store.";
 
-            var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), JsonSerializer.Serialize<ValidationException>(requestObject));
-            if (createResponse.StatusCode != HttpStatusCode.OK)
+            var errorDescription = $"A record with Nhs Number: {requestBody.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            var isAdded = await _handleException.CreateRecordValidationExceptionLog(requestBody.NhsNumber, requestBody.FileName, errorDescription, "N/A");
+
+            if (!isAdded)
             {
                 return req.CreateResponse(HttpStatusCode.BadRequest);
             }
 
-            if (requestObject.FileName != null)
+            if (requestBody.FileName != null)
             {
-                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), requestObject.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
                 if (copied)
                 {
-                    _logger.LogInformation("File validation exception: {RuleId} from {NhsNumber}", requestObject.RuleId, requestObject.NhsNumber);
+                    _logger.LogInformation("File validation exception with NHS number: {NhsNumber}", requestBody.NhsNumber);
                     return req.CreateResponse(HttpStatusCode.OK);
                 }
                 _logger.LogError("there has been an error while copying the bad file or saving the exception");
