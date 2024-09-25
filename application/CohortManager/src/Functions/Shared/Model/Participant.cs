@@ -16,8 +16,8 @@ public class Participant
         NamePrefix = cohortDistributionParticipant.NamePrefix;
         FirstName = cohortDistributionParticipant.FirstName;
         OtherGivenNames = cohortDistributionParticipant.OtherGivenNames;
-        Surname = cohortDistributionParticipant.Surname;
-        PreviousSurname = cohortDistributionParticipant.PreviousSurname;
+        FamilyName = cohortDistributionParticipant.FamilyName;
+        PreviousFamilyName = cohortDistributionParticipant.PreviousFamilyName;
         DateOfBirth = cohortDistributionParticipant.DateOfBirth;
         Gender = cohortDistributionParticipant.Gender.GetValueOrDefault();
         AddressLine1 = cohortDistributionParticipant.AddressLine1;
@@ -42,7 +42,8 @@ public class Participant
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
         ScreeningName = cohortDistributionParticipant.ScreeningName;
-        ScreeningId = cohortDistributionParticipant.ScreeningId;
+        ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
+        CurrentPosting = cohortDistributionParticipant.CurrentPosting;
     }
 
     public string? RecordType { get; set; }
@@ -57,8 +58,8 @@ public class Participant
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }
-    public string? Surname { get; set; }
-    public string? PreviousSurname { get; set; }
+    public string? FamilyName { get; set; }
+    public string? PreviousFamilyName { get; set; }
     public string? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public string? AddressLine1 { get; set; }

@@ -73,7 +73,7 @@ public class ParticipantManagerData : IParticipantManagerData
             var commonParameters = new Dictionary<string, object>
             {
                 { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
-                { "@recordType", _databaseHelper.CheckIfNumberNull(participantData.RecordType)  ? DBNull.Value : participantData.RecordType},
+                { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
                 { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
                 { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
                 { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},

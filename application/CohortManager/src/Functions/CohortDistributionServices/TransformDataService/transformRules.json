@@ -51,25 +51,25 @@
         }
       },
       {
-        "RuleName": "5.Surname.ExceedsMaximumLength",
-        "Expression": "participant.Surname.Length <= 35",
+        "RuleName": "5.FamilyName.ExceedsMaximumLength",
+        "Expression": "participant.FamilyName.Length <= 35",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "participant.Surname.Substring(0, 35)"
+              "Expression": "participant.FamilyName.Substring(0, 35)"
             }
           }
         }
       },
       {
-        "RuleName": "6.PreviousSurname.ExceedsMaximumLength",
-        "Expression": "participant.PreviousSurname.Length <= 35",
+        "RuleName": "6.PreviousFamilyName.ExceedsMaximumLength",
+        "Expression": "participant.PreviousFamilyName.Length <= 35",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "participant.PreviousSurname.Substring(0, 35)"
+              "Expression": "participant.PreviousFamilyName.Substring(0, 35)"
             }
           }
         }

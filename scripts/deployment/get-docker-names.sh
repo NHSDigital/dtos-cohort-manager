@@ -8,7 +8,8 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
     #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
-    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-distribution-data" #inconsistant file name for the function (should be retrieve-cohort-distribution-data )
+    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
+    ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
     ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
     ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
@@ -48,10 +49,11 @@ fi
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-# remove-from-cohort-distribution-data create-cohort-distribution retrieve-cohort-distribution-data allocate-service-provider \
-# transform-data-service demographic-data-management remove-participant add-participant \
-# update-participant file-validation lookup-validation static-validation demographic-data-service \
-# get-validation-exceptions create-participant mark-participant-as-eligible mark-participant-as-ineligible \
-# update-participant-details"
+# create-cohort-distribution remove-cohort-distribution-data retrieve-distribution-data \
+# retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
+# demographic-data-management devops-testing-service remove-participant add-participant update-participant \
+# create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
+# mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
+# remove-validation-exception-data retrieve-cohort-replay"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"

@@ -6,9 +6,9 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
     })
+    .AddExceptionHandler()
     .Build();
 
 host.Run();

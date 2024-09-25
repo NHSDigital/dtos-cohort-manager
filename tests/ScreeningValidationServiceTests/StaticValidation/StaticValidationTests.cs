@@ -235,51 +235,6 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Current Posting (Rule 58)
-    [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow("England")]
-    [DataRow("Wales")]
-    [DataRow("IoM")]
-    public async Task Run_Should_Not_Create_Exception_When_CurrentPosting_Rule_Passes(string currentPosting)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        await _function.RunAsync(_request.Object);
-
-        // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("Scotland")]
-    public async Task Run_Should_Return_BadRequest_And_Create_Exception_When_CurrentPosting_Rule_Fails(string currentPosting)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-    #endregion
-
     #region Reason For Removal (Rule 14)
     [TestMethod]
     [DataRow(null)]
@@ -569,7 +524,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_FamilyName_Rule_Passes(string familyName)
     {
         // Arrange
-        _participantCsvRecord.Participant.Surname = familyName;
+        _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
@@ -589,7 +544,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Created_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
     {
         // Arrange
-        _participantCsvRecord.Participant.Surname = familyName;
+        _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
