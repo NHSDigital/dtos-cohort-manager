@@ -35,6 +35,7 @@ public class FileValidationTests
             RuleId = 1,
             NhsNumber = "1",
             DateCreated = DateTime.Now,
+            FileName = "filename"
         };
 
         _function = new FileValidation(_logger.Object, _blobStorageHelper.Object, _exceptionHandler.Object);
@@ -85,6 +86,8 @@ public class FileValidationTests
 
         _blobStorageHelper.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Returns(Task.FromResult(true));
+
+        _exceptionHandler.Setup(x => x.CreateRecordValidationExceptionLog(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         // Act
         var result = await _function.RunAsync(_request.Object);

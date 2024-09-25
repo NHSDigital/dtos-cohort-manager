@@ -37,9 +37,7 @@ public class FileValidation
             }
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
-            var foo = "The file failed file validation. Check the file Exceptions blob store.";
-
-            var errorDescription = $"A record with Nhs Number: {requestBody.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            var errorDescription = "The file failed file validation. Check the file Exceptions blob store.";
             var isAdded = await _handleException.CreateRecordValidationExceptionLog(requestBody.NhsNumber, requestBody.FileName, errorDescription, "N/A");
 
             if (!isAdded)
