@@ -6,7 +6,7 @@ using System.Reflection;
 public static class EnumHelper
 {
     /// <summary>
-    /// Get the Display name of an Enum
+    /// Get the Display Attribute Name of an Enum
     /// </summary>
     public static string GetDisplayName(Enum enumValue)
     {
