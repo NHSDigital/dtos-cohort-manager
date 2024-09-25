@@ -320,7 +320,7 @@ services:
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution

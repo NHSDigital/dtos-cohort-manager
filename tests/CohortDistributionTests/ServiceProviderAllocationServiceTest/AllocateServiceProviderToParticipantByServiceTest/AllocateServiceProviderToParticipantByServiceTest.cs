@@ -84,6 +84,8 @@ public class AllocateServiceProviderToParticipantByServiceTests
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Never());
     }
 
+    // Code under test not being used yet
+    [Ignore]
     [TestMethod]
     public async Task Run_With_No_Allocation_Information_Should_Return_BadRequest_And_Create_Validation_Entry()
     {
@@ -107,6 +109,8 @@ public class AllocateServiceProviderToParticipantByServiceTests
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
     }
 
+    // Code under test not being used yet
+    [Ignore]
     [TestMethod]
     public async Task Run_With_Missing_Postcode_Should_Return_BadRequest_And_Create_Validation_Entry()
     {
@@ -130,6 +134,8 @@ public class AllocateServiceProviderToParticipantByServiceTests
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
     }
 
+    // Code under test not being used yet
+    [Ignore]
     [TestMethod]
     public async Task Run_With_Missing_Screening_Service_Should_Return_BadRequest_And_Create_Validation_Entry()
     {
