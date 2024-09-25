@@ -40,8 +40,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New },
-                new() { RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -69,8 +69,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended },
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended },
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -97,8 +97,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed },
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed },
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -127,7 +127,7 @@ public class ProcessCaasFileTests
             Participants = new List<Participant>
             {
 
-                new() { RecordType = "Unknown" }
+                new() {NhsNumber = "9876543210", RecordType = "Unknown" }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -160,7 +160,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New }
+                new() {NhsNumber = "9876543210", RecordType = Actions.New }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -195,7 +195,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -230,7 +230,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
