@@ -138,7 +138,6 @@ public class ReceiveCaasFile
     {
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-            RuleId = 1,
             FileName = fileName
         });
 

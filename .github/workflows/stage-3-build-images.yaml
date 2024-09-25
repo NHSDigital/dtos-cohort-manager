@@ -116,7 +116,9 @@ jobs:
 
               # Push the images to the repository
               docker push "$repo_name:$COMMIT_HASH_TAG"
-              docker push "$repo_name:$PR_NUM_TAG"
+              if [ "$PR_NUM_TAG" != 'pr' ]; then
+                docker push "$repo_name:$PR_NUM_TAG"
+              fi
               docker push "$repo_name:$ENVIRONMENT_TAG"
             done
           fi
