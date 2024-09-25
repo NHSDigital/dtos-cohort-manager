@@ -28,8 +28,6 @@ public class AllocateServiceProviderToParticipantByService
     [Function("AllocateServiceProviderToParticipantByService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-
-        // Cohort Distribution still WIP, and nothing is calling this function yet
         // Currently using AllocationConfigRequest Object to deserialize and validate the incoming JSON data
         string requestBody = "";
         AllocationConfigRequestBody configRequest = new AllocationConfigRequestBody();
@@ -95,29 +93,6 @@ public class AllocateServiceProviderToParticipantByService
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
-
-
-    // private async Task CallCreateValidationException(string nhsNumber, string logMessage)
-    // {
-    //     _logger.LogError(logMessage);
-
-    //     _logger.LogInformation("Creating a new Validation exception entry...");
-
-    //     // create an entry on the validation table
-    //     ValidationException exception = new ValidationException
-    //     {
-    //         FileName = null,
-    //         NhsNumber = nhsNumber ?? null,
-    //         DateCreated = DateTime.UtcNow,
-    //         RuleDescription = "Failed to retrieve the Service Provider from Allocation Config",
-    //         ErrorRecord = logMessage,
-    //         DateResolved = DateTime.MaxValue,
-    //         ScreeningName = "Screening Service",
-    //     };
-
-    //     string exceptionJson = JsonSerializer.Serialize(exception);
-    //     await _callFunction.SendPost(Environment.GetEnvironmentVariable("ExceptionFunctionURL"), exceptionJson);
-    // }
 
     private string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
