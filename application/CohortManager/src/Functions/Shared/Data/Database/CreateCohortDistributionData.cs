@@ -183,7 +183,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " WHERE bcd.IS_EXTRACTED = @Extracted";
 
-
         var parameters = new Dictionary<string, object>
         {
             {"@RowCount", rowCount },
@@ -259,8 +258,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [USUAL_ADDRESS_FROM_DT], " +
             " [CURRENT_POSTING], " +
             " [CURRENT_POSTING_FROM_DT], " +
-            " [CURRENT_POSTING], " +
-            " [CURRENT_POSTING_FROM_DT], " +
             " [DATE_OF_DEATH], " +
             " [TELEPHONE_NUMBER_HOME], " +
             " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
@@ -331,8 +328,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 " [ADDRESS_LINE_5], " +
                 " [POST_CODE], " +
                 " [USUAL_ADDRESS_FROM_DT], " +
-                " [CURRENT_POSTING], " +
-                " [CURRENT_POSTING_FROM_DT], " +
                 " [CURRENT_POSTING], " +
                 " [CURRENT_POSTING_FROM_DT], " +
                 " [DATE_OF_DEATH], " +
