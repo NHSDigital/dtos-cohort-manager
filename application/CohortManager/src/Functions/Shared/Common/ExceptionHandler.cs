@@ -157,7 +157,7 @@ public class ExceptionHandler : IExceptionHandler
     /// <param name="fileName"></param>
     /// <param name="errorDescription"></param>
     /// <returns></returns>
-    private ValidationException CreateDefaultValidationException(string nhsNumber, string fileName, string errorDescription, string screeningName)
+    private ValidationException CreateDefaultValidationException(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
 
         return new ValidationException()
@@ -172,14 +172,14 @@ public class ExceptionHandler : IExceptionHandler
             Category = 1,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? "N/A" : screeningName,
             Fatal = 0,
-            ErrorRecord = "N/A",
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? "N/A" : errorRecord,
             ExceptionDate = DateTime.Now
         };
     }
 
-    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName)
+    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
-        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName);
+        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
         var url = GetUrlFromEnvironment();
         var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));

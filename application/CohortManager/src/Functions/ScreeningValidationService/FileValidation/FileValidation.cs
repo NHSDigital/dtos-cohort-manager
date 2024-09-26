@@ -38,7 +38,7 @@ public class FileValidation
             requestBody = JsonSerializer.Deserialize<ValidationException>(requestBodyJson);
 
             var errorDescription = "The file failed file validation. Check the file Exceptions blob store.";
-            var isAdded = await _handleException.CreateRecordValidationExceptionLog(requestBody.NhsNumber, requestBody.FileName, errorDescription, "N/A");
+            var isAdded = await _handleException.CreateRecordValidationExceptionLog(requestBody.NhsNumber, requestBody.FileName, errorDescription, "N/A", requestBody.ErrorRecord);
 
             if (!isAdded)
             {

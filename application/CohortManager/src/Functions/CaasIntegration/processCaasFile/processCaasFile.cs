@@ -44,9 +44,9 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             // Check the NHS number is a number
-            if(!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"),participant,input.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"), participant, input.FileName);
                 err++;
                 continue;
             }
@@ -145,7 +145,7 @@ public class ProcessCaasFileFunction
                         _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
                         var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "N/A");
+                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "N/A", JsonSerializer.Serialize(participant));
                     }
                     catch (Exception ex)
                     {
