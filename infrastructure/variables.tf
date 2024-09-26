@@ -65,6 +65,7 @@ variable "regions" {
   type = map(object({
     address_space     = optional(string)
     is_primary_region = bool
+    create_peering    = optional(bool)
     subnets = optional(map(object({
       cidr_newbits = string
       cidr_offset  = string
