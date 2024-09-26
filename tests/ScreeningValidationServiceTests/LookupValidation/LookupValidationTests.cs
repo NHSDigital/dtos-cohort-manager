@@ -14,7 +14,6 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using Data.Database;
-using Grpc.Core;
 
 [TestClass]
 public class LookupValidationTests

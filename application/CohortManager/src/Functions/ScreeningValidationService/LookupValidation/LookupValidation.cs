@@ -55,8 +55,6 @@ public class LookupValidation
         {
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
-            System.Console.WriteLine("Language code: " + newParticipant.PreferredLanguage);
-            System.Console.WriteLine("Language code valid: " + _dbLookup.ValidateLanguageCode(newParticipant.PreferredLanguage));
 
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
