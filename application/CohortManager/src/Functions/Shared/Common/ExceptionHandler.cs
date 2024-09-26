@@ -116,7 +116,6 @@ public class ExceptionHandler : IExceptionHandler
             {
                 RuleId = int.Parse(ruleDetails[0]),
                 RuleDescription = ruleDetails[1],
-                RuleContent = errorMessage,
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = errorMessage ?? ruleDetails[1],
@@ -215,7 +214,6 @@ public class ExceptionHandler : IExceptionHandler
             DateResolved = DateTime.MaxValue,
             RuleId = exception.HResult,
             RuleDescription = exception.Message,
-            RuleContent = "System Exception",
             Category = SystemExceptionCategory,
             ScreeningService = 1,
             ExceptionDate = DateTime.UtcNow,
