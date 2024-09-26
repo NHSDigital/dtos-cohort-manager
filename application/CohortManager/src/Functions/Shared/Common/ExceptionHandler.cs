@@ -86,14 +86,6 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
-    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName, string screeningName)
-    {
-        var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "", screeningName);
-
-        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
-    }
-
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
