@@ -1,5 +1,5 @@
 public class DataServiceResponse<TEntity>
 {
-    public TEntity Data;
+    public string JsonData;
     public string ErrorMessage;
 }

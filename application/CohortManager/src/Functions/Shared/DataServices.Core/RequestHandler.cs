@@ -1,30 +1,54 @@
 using System.Formats.Tar;
+using System.Text.Json;
 using DataServices.Database;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.Extensions.Logging;
 
-public class RequestHandler<TEntity>
+public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
 {
 
-    private readonly DataServicesContext _dataServicesContext;
-
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
-    public RequestHandler(DataServicesContext dataServicesContext)
-    {
 
-        _dataServicesContext = dataServicesContext;
+    private ILogger<RequestHandler<TEntity>> _logger;
+
+
+    public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger)
+    {
+        _dataServiceAccessor = dataServiceAccessor;
+        _logger = logger;
     }
 
-    public DataServiceResponse<TEntity> HandleRequest(HttpRequestMessage httpRequestMessage, string? Key)
+    public async Task<DataServiceResponse<string>> HandleRequest(HttpRequestMessage httpRequestMessage, Func<TEntity,bool> keyPredicate)
     {
+
+        // _logger.LogInformation("Http Request Method of type {method} has been received",httpRequestMessage.Method);
+        if(keyPredicate != null){
+            return await getById(httpRequestMessage,keyPredicate);
+        }
+        else{
+            return await Get(httpRequestMessage);
+        }
+
 
     }
 
-    private async Task<DataServiceResponse<TEntity>> Get(HttpRequestMessage httpRequestMessage)
+    private async Task<DataServiceResponse<string>> Get(HttpRequestMessage httpRequestMessage)
     {
-        throw new NotImplementedException();
+        var result = await _dataServiceAccessor.GetRange(i => true);
+
+        return new DataServiceResponse<string>{
+            JsonData = JsonSerializer.Serialize(result)
+        };
     }
 
-    private async Task<DataServiceResponse<TEntity>> getById(HttpRequestMessage httpRequestMessage)
+    private async Task<DataServiceResponse<string>> getById(HttpRequestMessage httpRequestMessage, Func<TEntity,bool> keyPredicate)
     {
-        throw new NotImplementedException();
+
+        var result = await _dataServiceAccessor.GetSingle(keyPredicate);
+
+        return new DataServiceResponse<string>{
+            JsonData = JsonSerializer.Serialize(result)
+        };
+
     }
 }

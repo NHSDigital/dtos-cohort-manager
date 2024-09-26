@@ -2,20 +2,37 @@
 
 using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where TEntity : class
 {
     private readonly DataServicesContext _context;
-    public DataServiceAccessor(DataServicesContext context)
+    private readonly ILogger<DataServiceAccessor<TEntity>> _logger;
+    public DataServiceAccessor(DataServicesContext context, ILogger<DataServiceAccessor<TEntity>> logger)
     {
         _context = context;
+        _logger = logger;
 
+        // var prrop = _context.GetType().GetProperty(nameof(TEntity));
+        // _logger.LogError($"Logger error { prrop.Name }");
+
+
+        var properties = context.GetType().GetProperties();
+
+        foreach (var property in properties)
+        {
+            var setType = property.PropertyType;
+            var isDbSet = setType.IsGenericType && (typeof (DbSet<>).IsAssignableFrom(setType.GetGenericTypeDefinition()));
+
+            _logger.LogCritical($"{setType}");
+        }
 
     }
 
     public async Task<TEntity> GetSingle(Func<TEntity,bool> predicate)
     {
-       var result = await _context.Set<TEntity>().FindAsync(predicate);
+       var result = _context.Set<TEntity>().FirstOrDefault(predicate);
+       await Task.CompletedTask;
        return result;
     }
 
@@ -33,10 +50,11 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
-    private bool Exists<TEntity>(TEntity entity)
-    {
-        return this.Set<TEntity>().Local.Any(e => e == entity);
-    }
+    // private bool Exists<TEntity>(TEntity entity)
+    // {
+    //     return this.Set<TEntity>().Local.Any(e => e == entity);
+    // }
+
 
 
 }
