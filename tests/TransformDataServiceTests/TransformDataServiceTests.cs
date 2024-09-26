@@ -11,7 +11,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
