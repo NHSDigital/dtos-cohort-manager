@@ -29,5 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\DataServices.Database\DataServices.Database.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Core\DataServices.Core.csproj" />
   </ItemGroup>
 </Project>

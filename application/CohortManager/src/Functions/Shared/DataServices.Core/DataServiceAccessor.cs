@@ -3,12 +3,14 @@
 using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 
-public class DataServiceAccessor<TEntity> where TEntity : class
+public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where TEntity : class
 {
     private readonly DataServicesContext _context;
     public DataServiceAccessor(DataServicesContext context)
     {
         _context = context;
+
+
     }
 
     public async Task<TEntity> GetSingle(Func<TEntity,bool> predicate)
@@ -29,6 +31,11 @@ public class DataServiceAccessor<TEntity> where TEntity : class
         var result = await _context.AddAsync(entity);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    private bool Exists<TEntity>(TEntity entity)
+    {
+        return this.Set<TEntity>().Local.Any(e => e == entity);
     }
 
 
