@@ -41,7 +41,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
+        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, fileName, participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -59,7 +59,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "", participant.ScreeningName);
+        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, "", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -73,7 +73,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
+        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, fileName, participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -184,7 +184,7 @@ public class ExceptionHandler : IExceptionHandler
     {
         return new ValidationException()
         {
-            RuleId = 1,
+            RuleId = exception.HResult,
             Cohort = "N/A",
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
             DateCreated = DateTime.Now,
@@ -222,26 +222,6 @@ public class ExceptionHandler : IExceptionHandler
             throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
         }
         return url;
-    }
-
-    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName, string screeningName)
-    {
-        // mapping liable to change.
-        return new ValidationException
-        {
-            NhsNumber = nhsNumber,
-            DateCreated = DateTime.Now,
-            FileName = fileName,
-            DateResolved = DateTime.MaxValue,
-            RuleId = exception.HResult,
-            RuleDescription = exception.Message,
-            Category = SystemExceptionCategory,
-            ExceptionDate = DateTime.UtcNow,
-            ErrorRecord = exception.Message,
-            ScreeningName = screeningName ?? "Breast Screening",
-            Cohort = "",
-            Fatal = 1
-        };
     }
 
     private int ParseFatalRuleType(string fatal)
