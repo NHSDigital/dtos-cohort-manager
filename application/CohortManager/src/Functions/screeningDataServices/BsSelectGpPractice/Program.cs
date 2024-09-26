@@ -6,10 +6,10 @@ using DataServices.Database;
 using DataServices.Core;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services => {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
+        // services.AddApplicationInsightsTelemetryWorkerService();
+        // services.ConfigureFunctionsApplicationInsights();
 
         // services.AddDbContext<DataServicesContext>(
         //     options => options.UseSqlServer(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"))

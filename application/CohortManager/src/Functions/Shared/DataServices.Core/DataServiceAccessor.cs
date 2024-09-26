@@ -31,7 +31,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<TEntity> GetSingle(Func<TEntity,bool> predicate)
     {
-       var result = _context.Set<TEntity>().FirstOrDefault(predicate);
+       var result = _context.Set<TEntity>().SingleOrDefault(predicate);
        await Task.CompletedTask;
        return result;
     }
@@ -50,11 +50,19 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
-    // private bool Exists<TEntity>(TEntity entity)
-    // {
-    //     return this.Set<TEntity>().Local.Any(e => e == entity);
-    // }
+    public async Task<bool> Remove(Func<TEntity,bool> predicate)
+    {
+        var result = _context.Set<TEntity>().SingleOrDefault(predicate);
+        await Task.CompletedTask;
+        if(result == null)
+        {
+            return false;
+        }
+        _context.Set<TEntity>().Remove(result);
+        await _context.SaveChangesAsync();
+        return true;
 
+    }
 
 
 }
