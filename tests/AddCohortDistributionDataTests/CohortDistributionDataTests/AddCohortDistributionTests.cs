@@ -17,7 +17,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private const int serviceProviderId = (int)ServiceProvider.BsSelect;
+    private const int serviceProviderId = (int)ServiceProvider.BSS;
     private string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
