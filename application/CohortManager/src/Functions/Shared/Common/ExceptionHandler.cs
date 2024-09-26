@@ -124,7 +124,6 @@ public class ExceptionHandler : IExceptionHandler
                 ExceptionDate = DateTime.UtcNow,
                 Category = 1,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
-                ScreeningService = int.Parse(participantCsvRecord.Participant.ScreeningId),
                 Cohort = "",
                 Fatal = IsFatal
             };
@@ -215,7 +214,6 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = exception.HResult,
             RuleDescription = exception.Message,
             Category = SystemExceptionCategory,
-            ScreeningService = 1,
             ExceptionDate = DateTime.UtcNow,
             ErrorRecord = exception.Message,
             ScreeningName = screeningName ?? "Breast Screening",
