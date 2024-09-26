@@ -3,7 +3,6 @@ namespace NHS.CohortManager.ScreeningValidationService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Common;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;

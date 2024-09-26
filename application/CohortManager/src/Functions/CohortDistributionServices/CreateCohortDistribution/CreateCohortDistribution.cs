@@ -66,13 +66,19 @@ public class CreateCohortDistribution
 
         try
         {
+            // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
             var response = await HandleErrorResponseIfNull(participantData, req);
             if (response != null) return response;
 
-            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
-            response = await HandleErrorResponseIfNull(serviceProvider, req);
-            if (response != null) return response;
+            // Allocate service provider
+            var serviceProvider = "BS SELECT"; // Hardcoded value for now
+            if (!string.IsNullOrEmpty(participantData.Postcode)) {
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
+                response = await HandleErrorResponseIfNull(serviceProvider, req);
+                if (response != null) return response;
+            }
+
 
             if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningServiceId))
             {
@@ -81,6 +87,7 @@ public class CreateCohortDistribution
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
+            // Validate cohort distribution record & transform data service
             participantData.RecordType = requestBody.RecordType;
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
             if (!validationRecordCreated)

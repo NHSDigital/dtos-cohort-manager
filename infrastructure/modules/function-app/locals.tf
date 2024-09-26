@@ -25,8 +25,6 @@ locals {
     retrieveCohortDistributionData   = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RetrieveCohortDistributionData"
     removeValidationExceptionData    = "https://${var.names.function-app}-${lower(var.function_app.RemoveValidationExceptionData.name_suffix)}.azurewebsites.net/api/RemoveValidationExceptionData"
     retrieveCohortReplay             = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortReplay.name_suffix)}.azurewebsites.net/api/RetrieveCohortReplay"
-    removeValidationExceptionData    = "https://${var.names.function-app}-${lower(var.function_app.RemoveValidationExceptionData.name_suffix)}.azurewebsites.net/api/RemoveValidationExceptionData"
-    retrieveCohortReplay             = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortReplay.name_suffix)}.azurewebsites.net/api/RetrieveCohortReplay"
   }
   db_connection_string = "Server=${var.names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.db_name}"
 
