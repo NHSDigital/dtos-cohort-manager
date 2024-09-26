@@ -14,11 +14,14 @@ using RulesEngine.Models;
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
-
-
-    private static readonly int SystemExceptionCategory = 99; //Liable to change based on requirements
-
     private readonly ICallFunction _callFunction;
+    private static readonly int DefaultCategory = 5;
+    private static readonly int DefaultRuleId = 0;
+    private static readonly string DefaultCohortName = "";
+    private static readonly string DefaultScreeningName = "";
+    private static readonly string DefaultErrorRecord = "N/A";
+    private static readonly string DefaultFileName = "";
+    private static readonly string DefaultNhsNumber = "";
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -41,7 +44,9 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, fileName, participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
+        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -58,8 +63,9 @@ public class ExceptionHandler : IExceptionHandler
         {
             participant.ExceptionFlag = "Y";
         }
-
-        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, "", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
+        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, DefaultFileName, screeningName, JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -73,7 +79,9 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber ?? "", exception, fileName, participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
+        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -114,9 +122,9 @@ public class ExceptionHandler : IExceptionHandler
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
-                Category = 1,
+                Category = DefaultCategory,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
-                CohortName = "",
+                CohortName = DefaultCohortName,
                 Fatal = IsFatal
             };
 
@@ -154,17 +162,17 @@ public class ExceptionHandler : IExceptionHandler
 
         return new ValidationException()
         {
-            RuleId = 1,
-            CohortName = "N/A",
-            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
+            RuleId = DefaultRuleId,
+            CohortName = DefaultCohortName,
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
             DateCreated = DateTime.Now,
-            FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
+            FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = errorDescription,
-            Category = 1,
-            ScreeningName = string.IsNullOrEmpty(screeningName) ? "N/A" : screeningName,
+            Category = DefaultCategory,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 0,
-            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? "N/A" : errorRecord,
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
             ExceptionDate = DateTime.Now
         };
     }
@@ -185,16 +193,16 @@ public class ExceptionHandler : IExceptionHandler
         return new ValidationException()
         {
             RuleId = exception.HResult,
-            CohortName = "N/A",
-            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
+            CohortName = DefaultCohortName,
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
             DateCreated = DateTime.Now,
-            FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
+            FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
-            Category = SystemExceptionCategory,
-            ScreeningName = string.IsNullOrEmpty(screeningName) ? "Breast Screening" : screeningName,
+            Category = DefaultCategory,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
-            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? "N/A" : errorRecord,
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
             ExceptionDate = DateTime.Now
         };
     }
