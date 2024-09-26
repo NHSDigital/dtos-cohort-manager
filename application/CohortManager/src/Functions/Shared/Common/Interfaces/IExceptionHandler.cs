@@ -10,6 +10,6 @@ public interface IExceptionHandler
     Task CreateSystemExceptionLog(Exception exception, Participant participant);
     Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName);
     Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
-    Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName);
+    Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord);
     Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord);
 }

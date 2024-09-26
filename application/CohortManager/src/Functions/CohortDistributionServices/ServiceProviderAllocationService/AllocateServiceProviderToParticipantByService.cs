@@ -50,7 +50,7 @@ public class AllocateServiceProviderToParticipantByService
                 logMessage = $"One or more of the required parameters is missing. NhsNumber: REDACTED Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningAcronym}";
                 _logger.LogError(logMessage);
 
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
@@ -61,7 +61,7 @@ public class AllocateServiceProviderToParticipantByService
                 logMessage = $"Cannot find allocation configuration file. Path may be invalid";
                 _logger.LogError(logMessage);
 
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
@@ -81,7 +81,7 @@ public class AllocateServiceProviderToParticipantByService
             logMessage = $"No matching entry found.";
             _logger.LogError(logMessage);
 
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null, "", configRequest.ErrorRecord);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
 
         }
@@ -89,7 +89,7 @@ public class AllocateServiceProviderToParticipantByService
         catch (Exception ex)
         {
             _logger.LogError(ex.Message, ex);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, configRequest.NhsNumber, "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

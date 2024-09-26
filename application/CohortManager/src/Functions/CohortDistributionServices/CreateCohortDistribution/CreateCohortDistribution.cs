@@ -50,9 +50,9 @@ public class CreateCohortDistribution
         {
             if (requestBody.NhsNumber != null && requestBody.FileName != null)
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "");
             }
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "");
 
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -73,14 +73,15 @@ public class CreateCohortDistribution
 
             // Allocate service provider
             var serviceProvider = "BS SELECT"; // Hardcoded value for now
-            if (!string.IsNullOrEmpty(participantData.Postcode)) {
-                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
+            if (!string.IsNullOrEmpty(participantData.Postcode))
+            {
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
                 response = await HandleErrorResponseIfNull(serviceProvider, req);
                 if (response != null) return response;
             }
 
 
-            if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningServiceId))
+            if (ParticipantHasException(requestBody.NhsNumber, participantData.ScreeningServiceId))
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
                 // we return OK here as there has not been an error
@@ -111,7 +112,7 @@ public class CreateCohortDistribution
         catch (Exception ex)
         {
             _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
@@ -136,7 +137,7 @@ public class CreateCohortDistribution
 
     private bool ParticipantHasException(string nhsNumber, string screeningId)
     {
-        var participant = _participantManagerData.GetParticipant(nhsNumber,screeningId);
+        var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
         var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
         return exceptionFlag == Exists.Yes;
     }

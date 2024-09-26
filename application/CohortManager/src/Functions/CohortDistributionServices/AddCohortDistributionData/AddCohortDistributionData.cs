@@ -52,7 +52,7 @@ public class AddCohortDistributionDataFunction
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantCsvRecord.NhsNumber, "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantCsvRecord.NhsNumber, "", "", JsonSerializer.Serialize(participantCsvRecord));
             _logger.LogError(ex.Message, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }

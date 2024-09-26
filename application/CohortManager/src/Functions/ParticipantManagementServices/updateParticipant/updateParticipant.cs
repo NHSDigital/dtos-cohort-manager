@@ -100,7 +100,7 @@ public class UpdateParticipantFunction
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, JsonSerializer.Serialize(participant)))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;

@@ -78,10 +78,10 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
-    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName)
+    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "", "");
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -164,6 +164,36 @@ public class ExceptionHandler : IExceptionHandler
             Category = 1,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? "N/A" : screeningName,
             Fatal = 0,
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? "N/A" : errorRecord,
+            ExceptionDate = DateTime.Now
+        };
+    }
+
+    /// <summary>
+    /// Method is used to create a default system validation exception for the database
+    /// note: RuleId is exception status code
+    /// note: RuleDescription is exception message
+    /// </summary>
+    /// <param name="nhsNumber"></param>
+    /// <param name="exception"></param>
+    /// <param name="fileName"></param>
+    /// <param name="screeningName"></param>
+    /// <param name="errorRecord"></param>
+    /// <returns></returns>
+    private ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord)
+    {
+        return new ValidationException()
+        {
+            RuleId = 1,
+            Cohort = "N/A",
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
+            DateCreated = DateTime.Now,
+            FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
+            DateResolved = DateTime.MaxValue,
+            RuleDescription = exception.Message,
+            Category = SystemExceptionCategory,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? "Breast Screening" : screeningName,
+            Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? "N/A" : errorRecord,
             ExceptionDate = DateTime.Now
         };
