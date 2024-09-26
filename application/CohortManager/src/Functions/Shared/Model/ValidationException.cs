@@ -12,6 +12,6 @@ public class ValidationException
     public int? Category { get; set; }
     public string? ScreeningName { get; set; }
     public DateTime? ExceptionDate { get; set; }
-    public string? Cohort { get; set; }
+    public string? CohortName { get; set; }
     public int? Fatal { get; set; }
 }

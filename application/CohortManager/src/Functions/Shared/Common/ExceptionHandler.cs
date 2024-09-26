@@ -116,7 +116,7 @@ public class ExceptionHandler : IExceptionHandler
                 ExceptionDate = DateTime.UtcNow,
                 Category = 1,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
-                Cohort = "",
+                CohortName = "",
                 Fatal = IsFatal
             };
 
@@ -155,7 +155,7 @@ public class ExceptionHandler : IExceptionHandler
         return new ValidationException()
         {
             RuleId = 1,
-            Cohort = "N/A",
+            CohortName = "N/A",
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
             DateCreated = DateTime.Now,
             FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
@@ -185,7 +185,7 @@ public class ExceptionHandler : IExceptionHandler
         return new ValidationException()
         {
             RuleId = exception.HResult,
-            Cohort = "N/A",
+            CohortName = "N/A",
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
             DateCreated = DateTime.Now,
             FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
