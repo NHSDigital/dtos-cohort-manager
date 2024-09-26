@@ -107,10 +107,10 @@ public class ExceptionHandler : IExceptionHandler
             var exception = new ValidationException
             {
                 RuleId = int.Parse(ruleDetails[0]),
-                RuleDescription = ruleDetails[1],
+                RuleDescription = errorMessage ?? ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                ErrorRecord = errorMessage ?? ruleDetails[1],
+                ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
