@@ -33,7 +33,7 @@
         }
       },
       {
-        "RuleName": "XX.ValidateLanguageCode.NonFatal",
+        "RuleName": "00.ValidateLanguageCode.NonFatal",
         "LocalParams": [{
           "Name": "languageCode",
           "Expression": "newParticipant.PreferredLanguage"

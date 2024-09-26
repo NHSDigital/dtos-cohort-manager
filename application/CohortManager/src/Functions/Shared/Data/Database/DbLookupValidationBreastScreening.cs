@@ -76,7 +76,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     }
 
     /// <summary>
-    /// Used in rule XX in the lookup rules. Validates the participants preferred language code.
+    /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
     /// </summary>
     /// <param name="languageCode">The participant's preferred language code.</param>
     /// <returns>bool, whether or not the language code exists in the DB.<returns>
@@ -87,7 +87,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             _connection.Open();
             using (IDbCommand command = _connection.CreateCommand())
             {
-                command.CommandText = $"SELECT LANGUAGE_CODE FROM [dbo].[LANGUAGE_CODES] WHERE LANGUAGE_CODE = languageCode";
+                command.CommandText = $"SELECT LANGUAGE_CODE FROM [dbo].[LANGUAGE_CODES] WHERE LANGUAGE_CODE = @languageCode";
                 var parameter = command.CreateParameter();
                 parameter.ParameterName = "@languageCode";
                 parameter.Value = languageCode ?? string.Empty;
