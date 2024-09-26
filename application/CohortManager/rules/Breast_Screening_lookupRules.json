@@ -15,13 +15,17 @@
         }
       },
       {
-        "RuleName": "xx.ValidateLanguageCode.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.) || dbLookup.ValidateLookupCode(newParticipant.PrimaryCareProvider)",
+        "RuleName": "XX.ValidateLanguageCode.NonFatal",
+        "LocalParams": [{
+          "Name": "languageCode",
+          "Expression": "newParticipant.PreferredLanguage"
+        }],
+        "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Invalid primary care provider GP practice code\""
+              "Expression": "\"Invalid preferred language code\""
             }
           }
         }
