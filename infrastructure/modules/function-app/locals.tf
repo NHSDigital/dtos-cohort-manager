@@ -23,6 +23,7 @@ locals {
     createCohortDistribution         = "https://${var.names.function-app}-${lower(var.function_app.CreateCohortDistribution.name_suffix)}.azurewebsites.net/api/CreateCohortDistribution"
     validateCohortDistributionRecord = "https://${var.names.function-app}-${lower(var.function_app.ValidateCohortDistributionRecord.name_suffix)}.azurewebsites.net/api/ValidateCohortDistributionRecord"
     retrieveCohortDistributionData   = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortDistributionData.name_suffix)}.azurewebsites.net/api/RetrieveCohortDistributionData"
+    removeValidationExceptionData    = "https://${var.names.function-app}-${lower(var.function_app.RemoveValidationExceptionData.name_suffix)}.azurewebsites.net/api/RemoveValidationExceptionData"
     retrieveCohortReplay             = "https://${var.names.function-app}-${lower(var.function_app.RetrieveCohortReplay.name_suffix)}.azurewebsites.net/api/RetrieveCohortReplay"
   }
   db_connection_string = "Server=${var.names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.db_name}"
@@ -143,13 +144,15 @@ locals {
 
       ExceptionFunctionURL         = local.fnapp_urls.createException
       DtOsDatabaseConnectionString = local.db_connection_string
+      RemoveOldValidationRecord    = local.fnapp_urls.removeValidationExceptionData
       BlobContainerName            = "config"
     }
 
     LookupValidation = {
 
-      ExceptionFunctionURL = local.fnapp_urls.createException
-      BlobContainerName    = "config"
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      DtOsDatabaseConnectionString = local.db_connection_string
+      BlobContainerName            = "config"
     }
 
     DemographicDataManagement = {
@@ -211,5 +214,11 @@ locals {
     }
 
     DevOpsTestingService = {}
+
+    RemoveValidationExceptionData = {
+
+      ExceptionFunctionURL         = local.fnapp_urls.createException
+      DtOsDatabaseConnectionString = local.db_connection_string
+    }
   }
 }

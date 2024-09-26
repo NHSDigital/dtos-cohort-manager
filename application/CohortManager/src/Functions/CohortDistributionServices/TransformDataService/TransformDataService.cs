@@ -18,7 +18,7 @@ using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 public class TransformDataService
 {

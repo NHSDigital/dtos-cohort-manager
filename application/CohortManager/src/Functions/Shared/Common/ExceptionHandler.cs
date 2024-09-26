@@ -119,7 +119,7 @@ public class ExceptionHandler : IExceptionHandler
                 RuleContent = errorMessage,
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                ErrorRecord = ruleDetails[1],
+                ErrorRecord = errorMessage ?? ruleDetails[1],
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
