@@ -52,25 +52,6 @@ public class ExceptionHandler : IExceptionHandler
     }
 
     /// <summary>
-    /// Overloaded method to create a system exception, for use where file name is not accessible.
-    /// </summary>
-    /// <param name="exception">The exception to be written to the database.</param>
-    /// <param name="participant">The participant that created the exception.</param>
-    public async Task CreateSystemExceptionLog(Exception exception, Participant participant)
-    {
-        var url = GetUrlFromEnvironment();
-        if (participant.NhsNumber != null)
-        {
-            participant.ExceptionFlag = "Y";
-        }
-        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
-        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
-        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, DefaultFileName, screeningName, JsonSerializer.Serialize(participant));
-
-        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
-    }
-
-    /// <summary>
     /// Overloaded method to create a system exception given BasicParticipantData.
     /// </summary>
     /// <param name="exception">The exception to be written to the database.</param>
