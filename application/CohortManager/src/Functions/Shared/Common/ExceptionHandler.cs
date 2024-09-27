@@ -109,7 +109,7 @@ public class ExceptionHandler : IExceptionHandler
             if (IsFatal == 1)
             {
                 foundFatalRule = true;
-                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {nhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
+                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
             }
 
             var exception = new ValidationException
