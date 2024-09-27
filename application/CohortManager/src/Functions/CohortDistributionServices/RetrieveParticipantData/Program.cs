@@ -10,13 +10,6 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddTransient<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("Microsoft.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            return conn;
-        });
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
@@ -24,6 +17,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
+    .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();
 

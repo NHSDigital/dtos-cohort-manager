@@ -11,18 +11,13 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddTransient<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("Microsoft.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            return conn;
-        });
+
         services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
     })
+    .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();
 host.Run();
