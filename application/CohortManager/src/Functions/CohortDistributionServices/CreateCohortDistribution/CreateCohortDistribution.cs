@@ -50,9 +50,9 @@ public class CreateCohortDistribution
         {
             if (requestBody.NhsNumber != null && requestBody.FileName != null)
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             }
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
 
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -112,7 +112,7 @@ public class CreateCohortDistribution
         catch (Exception ex)
         {
             _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }

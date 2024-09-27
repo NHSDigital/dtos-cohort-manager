@@ -81,7 +81,7 @@ public class AllocateServiceProviderToParticipantByService
             logMessage = $"No matching entry found.";
             _logger.LogError(logMessage);
 
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, null, "", configRequest.ErrorRecord);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
 
         }
