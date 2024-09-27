@@ -36,6 +36,12 @@ provider "azurerm" {
   features {}
 }
 
+provider "azurerm" {
+  alias           = "devops"
+  subscription_id = var.DEVOPS_SUBSCRIPTION_ID
+  features {}
+}
+
 provider "azuread" {
   # Configuration options
 }

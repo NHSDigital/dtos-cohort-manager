@@ -53,10 +53,12 @@ public class RetrieveParticipantData
         try
         {
             var participantData = _participantManagerData.GetParticipantFromIDAndScreeningService(requestBody);
+            _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
             var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
             var participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
 
             var responseBody = JsonSerializer.Serialize(participant);
+            _logger.LogInformation("ParticipantScreeningID: {ScreeningServiceId}", participant.ScreeningServiceId);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
         }
