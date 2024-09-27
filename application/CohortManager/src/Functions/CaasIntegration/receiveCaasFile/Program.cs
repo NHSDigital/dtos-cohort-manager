@@ -11,18 +11,11 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddSingleton<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            return conn;
-        });
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<IScreeningServiceData, ScreeningServiceData>();
-    })
+    }).AddDatabaseConnection()
     .Build();
 
 host.Run();
