@@ -11,19 +11,11 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-        var databaseCOnnectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
-        services.AddTransient<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            conn.ConnectionString = databaseCOnnectionString;
-            return conn;
-        });
 
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
+    .AddDatabaseConnection()
     .Build();
 
 host.Run();

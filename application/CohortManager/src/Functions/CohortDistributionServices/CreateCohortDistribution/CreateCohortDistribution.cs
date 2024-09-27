@@ -68,6 +68,7 @@ public class CreateCohortDistribution
         {
             // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
+            _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
             var response = await HandleErrorResponseIfNull(participantData, req);
             if (response != null) return response;
 
@@ -79,7 +80,6 @@ public class CreateCohortDistribution
                 response = await HandleErrorResponseIfNull(serviceProvider, req);
                 if (response != null) return response;
             }
-
 
             if (ParticipantHasException(requestBody.NhsNumber, participantData.ScreeningServiceId))
             {
