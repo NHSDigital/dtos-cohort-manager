@@ -12,21 +12,6 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     {
         _context = context;
         _logger = logger;
-
-        // var prrop = _context.GetType().GetProperty(nameof(TEntity));
-        // _logger.LogError($"Logger error { prrop.Name }");
-
-
-        var properties = context.GetType().GetProperties();
-
-        foreach (var property in properties)
-        {
-            var setType = property.PropertyType;
-            var isDbSet = setType.IsGenericType && (typeof (DbSet<>).IsAssignableFrom(setType.GetGenericTypeDefinition()));
-
-            _logger.LogCritical($"{setType}");
-        }
-
     }
 
     public async Task<TEntity> GetSingle(Func<TEntity,bool> predicate)
@@ -61,7 +46,13 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         _context.Set<TEntity>().Remove(result);
         await _context.SaveChangesAsync();
         return true;
+    }
 
+    public async Task<bool> Update(TEntity entity)
+    {
+        var result = _context.Update(entity);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
 
