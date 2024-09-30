@@ -9,7 +9,7 @@ module "functionapp" {
     ]
   ]) : "${pair.function_key}-${pair.region_key}" => pair }
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/DTOSS-4393-Terraform-Modules-Function-Apps"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
   resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
