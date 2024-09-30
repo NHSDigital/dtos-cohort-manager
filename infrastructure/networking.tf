@@ -86,7 +86,7 @@ module "peering_hub_spoke" {
   for_each = var.regions
 
   providers = {
-    azurerm = azurerm.devops
+    azurerm = azurerm.dev-hub
   }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
