@@ -7,7 +7,7 @@ module "functionapp" {
         function_config = function_config
       }
     ]
-  ]) : "${pair.region_key}-${pair.function_key}" => pair }
+  ]) : "${pair.function_key}-${pair.region_key}" => pair }
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/DTOSS-4393-Terraform-Modules-Function-Apps"
 
@@ -25,8 +25,8 @@ module "functionapp" {
   worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
-  acr_mi_client_id      = data.azurerm_user_assigned_identity.acr_mi.client_id
-  acr_login_server      = data.azurerm_container_registry.acr.login_server
+  acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
+  acr_login_server = data.azurerm_container_registry.acr.login_server
 
   # Use the ACR assigned identity for the Function Apps too:
   assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
