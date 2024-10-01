@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -159,15 +160,20 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@screeningName", screeningName}
         });
         command.CommandText = SQL;
-
-        _dbConnection.ConnectionString = _connectionString;
-        _dbConnection.Open();
-        using (var reader = command.ExecuteReader())
+        using (_dbConnection)
         {
-            // Return true if the reader has at least one row.
-            recordExists = reader.Read();
+            _dbConnection.ConnectionString = _connectionString;
+            _dbConnection.Open();
+            using (command)
+            {
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    // Return true if the reader has at least one row.
+                    recordExists = reader.Read();
+                }
+                _dbConnection.Close();
+            }
         }
-        _dbConnection.Close();
 
         return recordExists;
     }
