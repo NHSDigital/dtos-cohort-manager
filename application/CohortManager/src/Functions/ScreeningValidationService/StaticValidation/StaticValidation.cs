@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -23,15 +22,12 @@ public class StaticValidation
 
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
 
-    private readonly ICallFunction _callFunction;
-
-    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
+    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
-        _callFunction = callFunction;
     }
 
     [Function("StaticValidation")]
