@@ -66,7 +66,7 @@ public class MarkParticipantAsIneligible
 
             if (participantData != null)
             {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participantData, 'N');
+                updated = _participantManagerData.UpdateParticipantAsEligible(participantData, 0);
             }
             if (updated)
             {
@@ -80,7 +80,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,$"an error occurred: {ex}");
+            _logger.LogError(ex, $"an error occurred: {ex}");
             await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -100,7 +100,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,$"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogError(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
     }

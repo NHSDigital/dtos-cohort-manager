@@ -66,21 +66,29 @@ public class CreateCohortDistribution
 
         try
         {
+            // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
+            _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
             var response = await HandleErrorResponseIfNull(participantData, req);
             if (response != null) return response;
 
-            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
-            response = await HandleErrorResponseIfNull(serviceProvider, req);
-            if (response != null) return response;
+            // Allocate service provider
+            var serviceProvider = "BS SELECT"; // Hardcoded value for now
+            if (!string.IsNullOrEmpty(participantData.Postcode))
+            {
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
+                response = await HandleErrorResponseIfNull(serviceProvider, req);
+                if (response != null) return response;
+            }
 
-            if (ParticipantHasException(requestBody.NhsNumber,participantData.ScreeningId))
+            if (ParticipantHasException(requestBody.NhsNumber, participantData.ScreeningServiceId))
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
                 // we return OK here as there has not been an error
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
+            // Validate cohort distribution record & transform data service
             participantData.RecordType = requestBody.RecordType;
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
             if (!validationRecordCreated)
@@ -129,7 +137,7 @@ public class CreateCohortDistribution
 
     private bool ParticipantHasException(string nhsNumber, string screeningId)
     {
-        var participant = _participantManagerData.GetParticipant(nhsNumber,screeningId);
+        var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
         var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
         return exceptionFlag == Exists.Yes;
     }

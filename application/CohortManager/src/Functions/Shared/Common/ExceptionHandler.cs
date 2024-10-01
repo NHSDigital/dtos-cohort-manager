@@ -41,7 +41,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -59,7 +59,7 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "");
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, "", participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -73,7 +73,7 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName, participant.ScreeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -81,7 +81,15 @@ public class ExceptionHandler : IExceptionHandler
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "");
+        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "", "");
+
+        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+    }
+
+    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName, string screeningName)
+    {
+        var url = GetUrlFromEnvironment();
+        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "", screeningName);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
@@ -95,7 +103,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var errorMessage = (string) error.ActionResult.Output;
+            var errorMessage = (string)error.ActionResult.Output;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
@@ -111,7 +119,7 @@ public class ExceptionHandler : IExceptionHandler
                 RuleContent = errorMessage,
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                ErrorRecord = ruleDetails[1],
+                ErrorRecord = errorMessage ?? ruleDetails[1],
                 DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.UtcNow,
@@ -143,28 +151,40 @@ public class ExceptionHandler : IExceptionHandler
         };
     }
 
-    public async Task<bool> CreateRecordValidationExceptionLog(ValidationException validation)
+    /// <summary>
+    /// Method is used to create a default validation exception for the database
+    /// note: errorDescription is the Rule description
+    /// </summary>
+    /// <param name="participant"></param>
+    /// <param name="fileName"></param>
+    /// <param name="errorDescription"></param>
+    /// <returns></returns>
+    private ValidationException CreateDefaultValidationException(string nhsNumber, string fileName, string errorDescription, string screeningName)
     {
-        var requestObject = new ValidationException()
+
+        return new ValidationException()
         {
-            RuleId = validation.RuleId == null ? 0 : validation.RuleId,
-            Cohort = "",
-            NhsNumber = string.IsNullOrEmpty(validation.NhsNumber) ? "" : validation.NhsNumber,
-            DateCreated = validation.DateCreated ?? DateTime.Now,
-            FileName = string.IsNullOrEmpty(validation.FileName) ? "" : validation.FileName,
-            DateResolved = validation.DateResolved ?? DateTime.MaxValue,
-            RuleDescription = validation.RuleDescription ?? "The file failed validation failed for an unexpected exception",
-            Category = validation.Category ?? 0,
-            ScreeningName = validation.ScreeningName ?? "",
-            Fatal = validation.Fatal ?? 1,
-            ErrorRecord = validation.ErrorRecord ?? "",
-            ExceptionDate = validation.ExceptionDate ?? DateTime.Now,
-            RuleContent = validation.RuleContent ?? "",
-            ScreeningService = validation.ScreeningService ?? 0
+            RuleId = 1,
+            Cohort = "N/A",
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? "" : nhsNumber,
+            DateCreated = DateTime.Now,
+            FileName = string.IsNullOrEmpty(fileName) ? "" : fileName,
+            DateResolved = DateTime.MaxValue,
+            RuleDescription = errorDescription,
+            Category = 1,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? "N/A" : screeningName,
+            Fatal = 0,
+            ErrorRecord = "N/A",
+            ExceptionDate = DateTime.Now
         };
+    }
+
+    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName)
+    {
+        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName);
 
         var url = GetUrlFromEnvironment();
-        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(requestObject));
+        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -184,7 +204,7 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
+    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName, string screeningName)
     {
         // mapping liable to change.
         return new ValidationException
@@ -200,7 +220,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningService = 1,
             ExceptionDate = DateTime.UtcNow,
             ErrorRecord = exception.Message,
-            ScreeningName = "BSS",
+            ScreeningName = screeningName ?? "Breast Screening",
             Cohort = "",
             Fatal = 1
         };

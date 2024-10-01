@@ -66,7 +66,7 @@ public class AddParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
             if (response.CreatedException)
@@ -105,7 +105,7 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex,$"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation(ex, $"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -117,6 +117,18 @@ public class AddParticipantFunction
 
         try
         {
+            if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+            {
+                var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "N/A");
+
+                return new ValidationExceptionLog()
+                {
+                    IsFatal = false,
+                    CreatedException = true
+                };
+            }
+
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);

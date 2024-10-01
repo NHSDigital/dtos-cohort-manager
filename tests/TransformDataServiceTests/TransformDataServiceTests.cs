@@ -11,7 +11,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
@@ -37,7 +37,7 @@ public class TransformDataServiceTests
             {
                 NhsNumber = "1",
                 FirstName = "John",
-                Surname = "Smith",
+                FamilyName = "Smith",
                 NamePrefix = "MR",
                 Gender = Gender.Male
             },
@@ -108,7 +108,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith",
+            FamilyName = "Smith",
             NamePrefix = expectedTransformedPrefix,
             Gender = Gender.Male
         };
@@ -134,7 +134,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith",
+            FamilyName = "Smith",
             NamePrefix = null,
             Gender = Gender.Male
         };
@@ -160,7 +160,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith",
+            FamilyName = "Smith",
             NamePrefix = "DR",
             Gender = Gender.Male,
         };
@@ -179,9 +179,9 @@ public class TransformDataServiceTests
         {
             NamePrefix = new string('A', 36),
             FirstName = new string('A', 36),
-            Surname = new string('A', 36),
+            FamilyName = new string('A', 36),
             OtherGivenNames = new string('A', 105),
-            PreviousSurname = new string('A', 36),
+            PreviousFamilyName = new string('A', 36),
             AddressLine1 = new string('A', 36),
             AddressLine2 = new string('A', 36),
             AddressLine3 = new string('A', 36),
@@ -203,9 +203,9 @@ public class TransformDataServiceTests
         {
             NamePrefix = null,
             FirstName = new string('A', 35),
-            Surname = new string('A', 35),
+            FamilyName = new string('A', 35),
             OtherGivenNames = new string('A', 100),
-            PreviousSurname = new string('A', 35),
+            PreviousFamilyName = new string('A', 35),
             AddressLine1 = new string('A', 35),
             AddressLine2 = new string('A', 35),
             AddressLine3 = new string('A', 35),
@@ -239,7 +239,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith",
+            FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.NotSpecified,
         };
@@ -266,7 +266,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            Surname = "Smith",
+            FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
         };
@@ -313,7 +313,7 @@ public class TransformDataServiceTests
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
-        _requestBody.Participant.Surname = "{[Smith£$^`~#@_|\\]}";
+        _requestBody.Participant.FamilyName = "{[Smith£$^`~#@_|\\]}";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -325,7 +325,7 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John.,-()/='+:?!\"%&;<>*",
-            Surname = "((Smith   '   -:/))",
+            FamilyName = "((Smith   '   -:/))",
             NamePrefix = "DR",
             Gender = Gender.Male
         };

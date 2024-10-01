@@ -16,8 +16,8 @@ public class CreateParticipant : ICreateParticipant
             NamePrefix = demographic.NamePrefix,
             FirstName = demographic.FirstName,
             OtherGivenNames = demographic.OtherGivenNames,
-            Surname = demographic.Surname,
-            PreviousSurname = demographic.PreviousSurname,
+            FamilyName = demographic.FamilyName,
+            PreviousFamilyName = demographic.PreviousFamilyName,
             DateOfBirth = demographic.DateOfBirth,
             Gender = demographic.Gender.GetValueOrDefault(),
             AddressLine1 = demographic.AddressLine1,
@@ -58,8 +58,8 @@ public class CreateParticipant : ICreateParticipant
             NamePrefix = demographic.NamePrefix,
             FirstName = demographic.FirstName,
             OtherGivenNames = demographic.OtherGivenNames,
-            Surname = demographic.Surname,
-            PreviousSurname = demographic.PreviousSurname,
+            FamilyName = demographic.FamilyName,
+            PreviousFamilyName = demographic.PreviousFamilyName,
             DateOfBirth = demographic.DateOfBirth,
             Gender = demographic.Gender.GetValueOrDefault(),
             AddressLine1 = demographic.AddressLine1,
@@ -83,9 +83,11 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = demographic.RecordInsertDateTime,
             RecordUpdateDateTime = demographic.RecordUpdateDateTime,
             ScreeningAcronym = participant.ScreeningAcronym,
-            ScreeningId = participant.ScreeningId,
+            ScreeningServiceId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
-            Extracted = null
+            Extracted = null,
+            RecordType = participant.RecordType,
+            CurrentPosting = demographic.CurrentPosting,
         };
     }
 }

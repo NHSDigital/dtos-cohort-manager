@@ -17,7 +17,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private const int serviceProviderId = (int)ServiceProvider.BsSelect;
+    private const int serviceProviderId = (int)ServiceProvider.BSS;
     private string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
@@ -140,7 +140,7 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants() //wp - check this again, split in more tests
+    public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
     {
         // Arrange
         _mockDataReader.SetupSequence(reader => reader.Read())
@@ -152,15 +152,9 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
-            serviceProviderId,
-            1,
-            _requestId);
+        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
-        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
-            serviceProviderId,
-            1,
-            "Non Matching RequestID");
+        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
 
         // Assert
         Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
@@ -178,15 +172,13 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(
-            serviceProviderId,
-            1,
-            _requestId);
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result.Count);
     }
+
 
 
     private void SetUpReader()

@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -20,7 +21,20 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public List<ValidationException> GetAll()
     {
-        var SQL = "SELECT * FROM [dbo].[EXCEPTION_MANAGEMENT]";
+        var SQL = @"SELECT
+                [FILE_NAME]
+                ,[NHS_NUMBER]
+                ,[DATE_CREATED]
+                ,[DATE_RESOLVED]
+                ,[RULE_ID]
+                ,[RULE_DESCRIPTION]
+                ,[ERROR_RECORD]
+                ,[CATEGORY]
+                ,[SCREENING_NAME]
+                ,[EXCEPTION_DATE]
+                ,[COHORT_NAME]
+                ,[IS_FATAL]
+                FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
@@ -146,15 +160,20 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@screeningName", screeningName}
         });
         command.CommandText = SQL;
-
-        _dbConnection.ConnectionString = _connectionString;
-        _dbConnection.Open();
-        using (var reader = command.ExecuteReader())
+        using (_dbConnection)
         {
-            // Return true if the reader has at least one row.
-            recordExists = reader.Read();
+            _dbConnection.ConnectionString = _connectionString;
+            _dbConnection.Open();
+            using (command)
+            {
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    // Return true if the reader has at least one row.
+                    recordExists = reader.Read();
+                }
+                _dbConnection.Close();
+            }
         }
-        _dbConnection.Close();
 
         return recordExists;
     }

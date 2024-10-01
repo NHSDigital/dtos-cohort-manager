@@ -8,20 +8,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-        services.AddTransient<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("System.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            return conn;
-        });
+
         services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
     })
+    .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();
 host.Run();

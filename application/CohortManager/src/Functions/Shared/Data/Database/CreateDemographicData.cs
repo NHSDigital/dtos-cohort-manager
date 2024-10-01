@@ -28,6 +28,8 @@ public class CreateDemographicData : ICreateDemographicData
             demographic.IsInterpreterRequired = null;
         }
 
+        RemoveOldDemographicData(demographic.NhsNumber);
+
         var command = new List<SQLReturnModel>()
         {
             new SQLReturnModel()
@@ -117,8 +119,8 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
                     {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
-                    {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.Surname)},
-                    {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousSurname)},
+                    {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FamilyName)},
+                    {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousFamilyName)},
                     {"@DATE_OF_BIRTH", string.IsNullOrEmpty(demographic.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfBirth)},
                     {"@GENDER", demographic.Gender.HasValue ? demographic.Gender : DBNull.Value},
                     {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
@@ -149,18 +151,80 @@ public class CreateDemographicData : ICreateDemographicData
         return UpdateRecords(command);
     }
 
-    public Demographic GetDemographicData(string NhsNumber)
+    public Demographic GetDemographicData(string nhsNumber)
     {
-        var SQL = @" SELECT TOP(1) * FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
+        var SQL = @" SELECT TOP (1) [PARTICIPANT_ID]
+                    ,[NHS_NUMBER]
+                    ,[SUPERSEDED_BY_NHS_NUMBER]
+                    ,[PRIMARY_CARE_PROVIDER]
+                    ,[PRIMARY_CARE_PROVIDER_FROM_DT]
+                    ,[CURRENT_POSTING]
+                    ,[CURRENT_POSTING_FROM_DT]
+                    ,[NAME_PREFIX]
+                    ,[GIVEN_NAME]
+                    ,[OTHER_GIVEN_NAME]
+                    ,[FAMILY_NAME]
+                    ,[PREVIOUS_FAMILY_NAME]
+                    ,[DATE_OF_BIRTH]
+                    ,[GENDER]
+                    ,[ADDRESS_LINE_1]
+                    ,[ADDRESS_LINE_2]
+                    ,[ADDRESS_LINE_3]
+                    ,[ADDRESS_LINE_4]
+                    ,[ADDRESS_LINE_5]
+                    ,[POST_CODE]
+                    ,[PAF_KEY]
+                    ,[USUAL_ADDRESS_FROM_DT]
+                    ,[DATE_OF_DEATH]
+                    ,[DEATH_STATUS]
+                    ,[TELEPHONE_NUMBER_HOME]
+                    ,[TELEPHONE_NUMBER_HOME_FROM_DT]
+                    ,[TELEPHONE_NUMBER_MOB]
+                    ,[TELEPHONE_NUMBER_MOB_FROM_DT]
+                    ,[EMAIL_ADDRESS_HOME]
+                    ,[EMAIL_ADDRESS_HOME_FROM_DT]
+                    ,[PREFERRED_LANGUAGE]
+                    ,[INTERPRETER_REQUIRED]
+                    ,[INVALID_FLAG]
+                    ,[RECORD_INSERT_DATE_TIME]
+                    ,[RECORD_UPDATE_DATE_TIME]
+                FROM [dbo].[PARTICIPANT_DEMOGRAPHIC]
+                WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
         {
-            {"@NhsNumber",  NhsNumber },
+            {"@NhsNumber",  nhsNumber },
         };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
         return GetDemographic(command);
+    }
+
+
+    private void RemoveOldDemographicData(string nhsNumber)
+    {
+        if (GetDemographicData(nhsNumber) != null)
+        {
+            var SQL = @"DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC WHERE NHS_NUMBER = @NhsNumber";
+
+            UpdateRecords(new List<SQLReturnModel>()
+            {
+                new SQLReturnModel()
+                {
+                    CommandType = CommandType.Command,
+                    SQL = SQL,
+                    Parameters = new Dictionary<string, object>()
+                    {
+                        {"@NhsNumber",  nhsNumber },
+                    }
+                }
+            });
+
+            _logger.LogInformation("A demographic record was found and will be updated");
+            return;
+        }
+        _logger.LogInformation("A demographic record was not found");
     }
 
     private Demographic GetDemographic(IDbCommand command)
@@ -180,8 +244,8 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.NamePrefix = reader["NAME_PREFIX"] == DBNull.Value ? null : reader["NAME_PREFIX"].ToString();
                 demographic.FirstName = reader["GIVEN_NAME"] == DBNull.Value ? null : reader["GIVEN_NAME"].ToString();
                 demographic.OtherGivenNames = reader["OTHER_GIVEN_NAME"] == DBNull.Value ? null : reader["OTHER_GIVEN_NAME"].ToString();
-                demographic.Surname = reader["FAMILY_NAME"] == DBNull.Value ? null : reader["FAMILY_NAME"].ToString();
-                demographic.PreviousSurname = reader["PREVIOUS_FAMILY_NAME"] == DBNull.Value ? null : reader["PREVIOUS_FAMILY_NAME"].ToString();
+                demographic.FamilyName = reader["FAMILY_NAME"] == DBNull.Value ? null : reader["FAMILY_NAME"].ToString();
+                demographic.PreviousFamilyName = reader["PREVIOUS_FAMILY_NAME"] == DBNull.Value ? null : reader["PREVIOUS_FAMILY_NAME"].ToString();
                 demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_BIRTH"].ToString()).ToString("yyyyMMdd");
                 demographic.Gender = reader["GENDER"] == DBNull.Value ? null : (Gender)reader["GENDER"];
                 demographic.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
