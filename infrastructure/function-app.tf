@@ -9,7 +9,9 @@ module "functionapp" {
     ]
   ]) : "${pair.function_key}-${pair.region_key}" => pair }
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
+  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
+  # test version
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
   resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
@@ -33,6 +35,17 @@ module "functionapp" {
 
   image_tag  = var.function_apps.docker_env_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.function_config.name_suffix)}"
+
+  # Private Endpoint Configuration
+  private_endpoint_properties = {
+    private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region_key].private_dns_zone.id]
+    private_endpoint_enabled             = var.features.private_endpoints_enabled
+    #private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
+    private_endpoint_subnet_id           = "/subscriptions/d924faab-506b-41d8-9c89-81d6b842c526/resourceGroups/rg-cohman-int-uks-networking/providers/Microsoft.Network/virtualNetworks/VNET-INT-UKS-COHMAN/subnets/SN-INT-UKS-COHMAN-pep" # module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
+    private_service_connection_is_manual = var.features.private_service_connection_is_manual
+    public_network_access_enabled        = var.features.public_network_access_enabled
+    vnet_integration_subnet_id           = "/subscriptions/d924faab-506b-41d8-9c89-81d6b842c526/resourceGroups/rg-cohman-int-uks-networking/providers/Microsoft.Network/virtualNetworks/VNET-INT-UKS-COHMAN/subnets/SN-INT-UKS-COHMAN-apps" # module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+  }
 }
 
 
