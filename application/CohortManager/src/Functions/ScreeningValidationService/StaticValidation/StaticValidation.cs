@@ -68,7 +68,7 @@ public class StaticValidation
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-            // await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
+            _logger.LogInformation("Testing: RemoveOldValidationRecord Method removed here, Pipeline failing.");
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -86,15 +86,5 @@ public class StaticValidation
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task RemoveOldValidationRecord(string nhsNumber, string screeningName)
-    {
-        var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
-        {
-            NhsNumber = nhsNumber,
-            ScreeningName = screeningName
-        });
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("RemoveOldValidationRecord"), OldExceptionRecordJson);
     }
 }
