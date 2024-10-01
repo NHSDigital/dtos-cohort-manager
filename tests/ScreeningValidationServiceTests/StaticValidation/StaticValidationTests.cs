@@ -31,8 +31,6 @@ public class StaticValidationTests
     private readonly StaticValidation _function;
     private Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
 
-    private Mock<ICallFunction> _callFunction = new();
-
     public StaticValidationTests()
     {
         Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
@@ -53,7 +51,7 @@ public class StaticValidationTests
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
-        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object, _callFunction.Object);
+        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
