@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - chore/rebuild-new-images
 
   workflow_call:
     inputs:
