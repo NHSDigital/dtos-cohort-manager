@@ -166,7 +166,7 @@ public class ValidationExceptionData : IValidationExceptionData
             _dbConnection.Open();
             using (command)
             {
-                using (var reader = command.ExecuteReader())
+                using (IDataReader reader = command.ExecuteReader())
                 {
                     // Return true if the reader has at least one row.
                     recordExists = reader.Read();
