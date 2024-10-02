@@ -38,8 +38,8 @@ module "functionapp" {
 
   # Private Endpoint Configuration
   private_endpoint_properties = {
-    private_dns_zone_ids     = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region_key].private_dns_zone.id]
-    private_endpoint_enabled = var.features.private_endpoints_enabled
+    private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region_key].private_dns_zone.id]
+    private_endpoint_enabled             = var.features.private_endpoints_enabled
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
