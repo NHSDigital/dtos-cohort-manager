@@ -125,8 +125,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
             {"@reasonForRemovalFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
-            {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.RecordInsertDateTime)},
-            {"@recordUpdateDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.RecordUpdateDateTime)},
+            {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime)},
+            {"@recordUpdateDateTime", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.RecordUpdateDateTime)},
             {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
             {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
         };

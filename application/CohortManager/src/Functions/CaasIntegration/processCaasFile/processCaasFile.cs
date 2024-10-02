@@ -188,7 +188,7 @@ public class ProcessCaasFileFunction
         return null;
     }
 
-    public static bool IsValidDate(DateTime? date)
+    public bool IsValidDate(DateTime? date)
     {
         if (date.HasValue && date.Value > DateTime.UtcNow)
         {
