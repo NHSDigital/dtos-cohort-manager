@@ -34,25 +34,13 @@ public partial class ReceiveCaasFile
         var downloadFilePath = string.Empty;
         try
         {
-            if (blobStream == null)
+            if(!await InitialChecks(blobStream, name))
             {
-                _logger.LogError("blobSteam was null");
                 return;
             }
 
-            _logger.LogInformation("Validating naming convention and file extension of {name}", name);
-            if (!FileNameAndFileExtensionIsValid(name))
-            {
-                _logger.LogError(
-                    "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {name}",
-                    name);
-                await InsertValidationErrorIntoDatabase(name);
-                return;
-            }
-
-            _logger.LogInformation("fetch number of records from file name {name}", name);
             var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
-            if (numberOfRecords == null || numberOfRecords == 0) return;
+            if (numberOfRecords is null or 0) return;
 
             Cohort cohort = new()
             {
@@ -66,14 +54,13 @@ public partial class ReceiveCaasFile
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
             _logger.LogInformation("Downloading the file {name} from the blob.", name);
-            using (var fileStream = File.Create(downloadFilePath))
+            await using (var fileStream = File.Create(downloadFilePath))
             {
-                blobStream.CopyTo(fileStream);
+                await blobStream.CopyToAsync(fileStream);
             }
             var screeningService = GetScreeningService(name);
-            _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
 
-            _logger.LogInformation("Start reading the downloadedfile {name}.", name);
+            _logger.LogInformation("Start reading the downloaded file {name}.", name);
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
@@ -84,9 +71,11 @@ public partial class ReceiveCaasFile
                     {
                         rowNumber++;
 
-                        var participant = new Participant();
-                        participant.ScreeningId = screeningService.ScreeningId;
-                        participant.ScreeningName = screeningService.ScreeningName;
+                        var participant = new Participant
+                        {
+                            ScreeningId = screeningService.ScreeningId,
+                            ScreeningName = screeningService.ScreeningName
+                        };
                         participant = await MapParticipant(rec, participant, name, rowNumber);
 
                         if (participant is null)
@@ -107,19 +96,17 @@ public partial class ReceiveCaasFile
                 }
             }
 
-            _logger.LogInformation("Reading completed for the file {name}. Total number of record is {rowNumber}.", name, rowNumber);
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
 
             if (rowNumber != numberOfRecords)
             {
-                _logger.LogError("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
+                _logger.LogError("File name record count not equal to actual record count. File name count: {Name} | Actual count: {RowNumber}",name, rowNumber);
                 await InsertValidationErrorIntoDatabase(name);
                 return;
             }
 
-            _logger.LogInformation("Start processing {rowNumber} rows of record from {name} file.", rowNumber, name);
-            SerializeParquetFile(chunks, cohort, name);
-            _logger.LogInformation("All rows processed for file named {name}.", name);
+            await SerializeParquetFile(chunks, cohort, name);
+            _logger.LogInformation("All rows processed for file named {Name}.", name);
 
         }
         catch (Exception ex)
@@ -134,20 +121,21 @@ public partial class ReceiveCaasFile
         }
     }
 
-    private async Task InsertValidationErrorIntoDatabase(string fileName)
+    private async Task<bool> InitialChecks(Stream blobStream, string name)
     {
-        var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
-        {
-            RuleId = 1,
-            FileName = fileName
-        });
-
-        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
-        if (result.StatusCode != HttpStatusCode.OK)
-        {
-            _logger.LogError("An error occurred while saving or moving the failed file {fileName}.", fileName);
-        }
-        _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
+         _logger.LogInformation("Validating naming convention and file extension of: {Name}", name);
+         if (FileNameAndFileExtensionIsValid(name) && (blobStream != null))
+         {
+             return true;
+         }
+         else
+         {
+             _logger.LogError(
+                 "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {Name}",
+                 name);
+             await InsertValidationErrorIntoDatabase(name);
+             return false;
+         }
     }
 
     private static bool FileNameAndFileExtensionIsValid(string name)
@@ -164,6 +152,7 @@ public partial class ReceiveCaasFile
 
     private async Task<int?> GetNumberOfRecordsFromFileName(string name)
     {
+        _logger.LogInformation("fetch number of records from file name: {Name}", name);
         var str = name.Remove(name.IndexOf('.'));
         var numberOfRecords = str.Split('_')[2].Substring(1);
 
@@ -173,16 +162,32 @@ public partial class ReceiveCaasFile
         }
         else
         {
-            _logger.LogError("File name is invalid. File name: " + name);
+            _logger.LogError("File name is invalid. File name: {Name}", name);
             await InsertValidationErrorIntoDatabase(name);
             return null;
         }
     }
 
+      private async Task InsertValidationErrorIntoDatabase(string fileName)
+    {
+        var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
+        {
+            RuleId = 1,
+            FileName = fileName
+        });
+
+        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("An error occurred while saving or moving the failed file {FileName}.", fileName);
+        }
+        _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
+    }
+
     private ScreeningService GetScreeningService(string name)
     {
         var screeningAcronym = name.Split('_')[0];
-        _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
+        _logger.LogInformation("screening Acronym {ScreeningAcronym}", screeningAcronym);
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 
@@ -193,7 +198,7 @@ public partial class ReceiveCaasFile
 
             if (chunks.Count > 0)
             {
-                _logger.LogInformation("Start processing the files in chunks of 20000");
+                _logger.LogInformation("Start processing the files in chunks");
                 foreach (var chunk in chunks)
                 {
                     var json = JsonSerializer.Serialize(chunk);
