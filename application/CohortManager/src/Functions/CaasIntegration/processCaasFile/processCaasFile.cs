@@ -181,7 +181,7 @@ public class ProcessCaasFileFunction
 
     private static DateTime? TryParseDate(string? dateString)
     {
-        if (DateTime.TryParse(dateString ,out var date))
+        if (DateTime.TryParse(dateString, out var date))
         {
             return date;
         }

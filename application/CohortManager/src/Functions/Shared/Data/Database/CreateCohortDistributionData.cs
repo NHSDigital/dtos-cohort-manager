@@ -52,6 +52,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " TELEPHONE_NUMBER_HOME_FROM_DT," +
             " TELEPHONE_NUMBER_MOB," +
             " TELEPHONE_NUMBER_MOB_FROM_DT," +
+            " EMAIL_ADDRESS_HOME," +
+            " EMAIL_ADDRESS_HOME_FROM_DT," +
             " PREFERRED_LANGUAGE," +
             " INTERPRETER_REQUIRED," +
             " REASON_FOR_REMOVAL," +
@@ -59,7 +61,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " RECORD_INSERT_DATETIME, " +
             " RECORD_UPDATE_DATETIME, " +
             " IS_EXTRACTED, " +
-            " CURRENT_POSTING " +
+            " CURRENT_POSTING, " +
+            " CURRENT_POSTING_FROM_DT" +
             " ) VALUES( " +
             " @participantId, " +
             " @nhsNumber, " +
@@ -85,6 +88,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @telephoneNumberHomeFromDate, " +
             " @telephoneNumberMob, " +
             " @telephoneNumberMobFromDate, " +
+            " @emailAddressHome," +
+            " @emailAddressFromDate," +
             " @preferredLanguage," +
             " @interpreterRequired," +
             " @reasonForRemoval," +
@@ -92,7 +97,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " @recordInsertDateTime," +
             " @recordUpdateDateTime," +
             " @extracted," +
-            " @currentPosting" +
+            " @currentPosting," +
+            " @currentPostingFromDate" +
             " ) ";
 
         var parameters = new Dictionary<string, object>
@@ -121,14 +127,17 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@telephoneNumberHomeFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.TelephoneNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.TelephoneNumberEffectiveFromDate)},
             {"@telephoneNumberMob", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.MobileNumber)},
             {"@telephoneNumberMobFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.MobileNumberEffectiveFromDate) },
+            {"@emailAddressHome", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.EmailAddress) },
+            {"@emailAddressHomeFromDate", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.EmailAddressEffectiveFromDate) },
             {"@preferredLanguage", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreferredLanguage)},
             {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
-            {"@reasonForRemovalFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDateToString(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
+            {"@reasonForRemovalFromDate", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
             {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime)},
             {"@recordUpdateDateTime", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.RecordUpdateDateTime)},
             {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
             {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
+            {"@currentPostingFromDate",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPostingEffectiveFromDate) },
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
