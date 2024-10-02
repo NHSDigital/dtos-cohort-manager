@@ -389,6 +389,49 @@ public class LookupValidationTests
             Times.Never());
     }
 
+    [TestMethod]
+    [DataRow("ABC")] // Invalid CurrentPosting
+    public async Task Run_CurrentPosting_CreatesException(string currentPosting)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(false);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("BAA")] // valid CurrentPosting
+    public async Task Run_CurrentPosting_DoesNotCreateException(string currentPosting)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(true);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
 
     private void SetUpRequestBody(string json)
     {

@@ -83,7 +83,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool ValidateCurrentPosting(string currentPosting)
     {
-        if (currentPosting == null) return true;
         using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
@@ -92,7 +91,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 command.CommandText = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
                 var parameter = command.CreateParameter();
                 parameter.ParameterName = "@currentPosting";
-                parameter.Value = currentPosting;
+                parameter.Value = currentPosting ?? string.Empty;
                 command.Parameters.Add(parameter);
 
                 using (IDataReader reader = command.ExecuteReader())
