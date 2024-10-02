@@ -92,7 +92,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 command.CommandText = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
                 var parameter = command.CreateParameter();
                 parameter.ParameterName = "@currentPosting";
-                parameter.Value = currentPosting ?? string.Empty;
+                parameter.Value = currentPosting;
                 command.Parameters.Add(parameter);
 
                 using (IDataReader reader = command.ExecuteReader())
