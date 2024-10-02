@@ -83,6 +83,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool ValidateCurrentPosting(string currentPosting)
     {
+        if (currentPosting == null) return true;
         using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
@@ -96,7 +97,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
                         return reader.GetInt32(0) == 1;
                     }

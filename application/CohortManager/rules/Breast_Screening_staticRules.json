@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
+        "Expression": "ValidationHelper.ValidateCurrentPostingAndPrimaryCareProvider(participant.CurrentPosting, participant.PrimaryCareProvider)"
       }
     ]
   }
