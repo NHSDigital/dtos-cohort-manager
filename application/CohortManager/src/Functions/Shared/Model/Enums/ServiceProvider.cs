@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 public enum ServiceProvider : short
 {
-    [Display(Name = "BS Select")]
+    [Display(Name = "BS SELECT")]
     BSS = 1
 }
 
