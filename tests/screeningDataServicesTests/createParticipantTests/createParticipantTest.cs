@@ -19,7 +19,6 @@ public class CreateParticipantTests
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private Mock<IParticipantManagerData> _participantManagerData = new();
-
     private Mock<ICallFunction> _callFunction = new();
 
     [TestMethod]
