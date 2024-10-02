@@ -7,6 +7,7 @@ using Model;
 using Common;
 using System.Net;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using Data.Database;
@@ -34,7 +35,7 @@ public partial class ReceiveCaasFile
         var downloadFilePath = string.Empty;
         try
         {
-            if(!await InitialChecks(blobStream, name))
+            if (!await InitialChecks(blobStream, name))
             {
                 return;
             }
@@ -100,7 +101,7 @@ public partial class ReceiveCaasFile
 
             if (rowNumber != numberOfRecords)
             {
-                _logger.LogError("File name record count not equal to actual record count. File name count: {Name} | Actual count: {RowNumber}",name, rowNumber);
+                _logger.LogError("File name record count not equal to actual record count. File name count: {Name} | Actual count: {RowNumber}", name, rowNumber);
                 await InsertValidationErrorIntoDatabase(name);
                 return;
             }
@@ -123,19 +124,19 @@ public partial class ReceiveCaasFile
 
     private async Task<bool> InitialChecks(Stream blobStream, string name)
     {
-         _logger.LogInformation("Validating naming convention and file extension of: {Name}", name);
-         if (FileNameAndFileExtensionIsValid(name) && (blobStream != null))
-         {
-             return true;
-         }
-         else
-         {
-             _logger.LogError(
-                 "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {Name}",
-                 name);
-             await InsertValidationErrorIntoDatabase(name);
-             return false;
-         }
+        _logger.LogInformation("Validating naming convention and file extension of: {Name}", name);
+        if (FileNameAndFileExtensionIsValid(name) && (blobStream != null))
+        {
+            return true;
+        }
+        else
+        {
+            _logger.LogError(
+                "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {Name}",
+                name);
+            await InsertValidationErrorIntoDatabase(name);
+            return false;
+        }
     }
 
     private static bool FileNameAndFileExtensionIsValid(string name)
@@ -168,7 +169,7 @@ public partial class ReceiveCaasFile
         }
     }
 
-      private async Task InsertValidationErrorIntoDatabase(string fileName)
+    private async Task InsertValidationErrorIntoDatabase(string fileName)
     {
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
