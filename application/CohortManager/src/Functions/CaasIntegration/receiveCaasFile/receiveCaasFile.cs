@@ -14,7 +14,7 @@ using Model.Enums;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 
-public class ReceiveCaasFile
+public partial class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
@@ -52,7 +52,7 @@ public class ReceiveCaasFile
 
             _logger.LogInformation("fetch number of records from file name {name}", name);
             var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
-            if (numberOfRecords == null) return;
+            if (numberOfRecords == null || numberOfRecords == 0) return;
 
             Cohort cohort = new()
             {
@@ -117,13 +117,6 @@ public class ReceiveCaasFile
                 return;
             }
 
-            if (rowNumber == 0)
-            {
-                _logger.LogError("File contains no records. File name:" + name);
-                await InsertValidationErrorIntoDatabase(name);
-                return;
-            }
-
             _logger.LogInformation("Start processing {rowNumber} rows of record from {name} file.", rowNumber, name);
             SerializeParquetFile(chunks, cohort, name);
             _logger.LogInformation("All rows processed for file named {name}.", name);
@@ -165,7 +158,7 @@ public class ReceiveCaasFile
         '_n' Matches the literal _n
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase);
+        var match = MyRegex().Match(name);
         return match.Success;
     }
 
@@ -292,4 +285,7 @@ public class ReceiveCaasFile
             return null;
         }
     }
+
+    [GeneratedRegex(@"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase, "en-GB")]
+    private static partial Regex MyRegex();
 }
