@@ -72,15 +72,6 @@ public static class ValidationHelper
 
     }
 
-    public static bool ValidateCurrentPostingAndPrimaryCareProvider(string currentPosting, string primaryCareProvider)
-    {
-        if (currentPosting == null && primaryCareProvider != null)
-        {
-            return false;
-        }
-        return true;
-    }
-
     private static bool ParseInt32(char value, out int integerValue)
     {
         integerValue = (int)char.GetNumericValue(value);
