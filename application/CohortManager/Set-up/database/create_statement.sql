@@ -350,3 +350,21 @@ CREATE TABLE CURRENT_POSTING_LKP
     INCLUDED_IN_COHORT VARCHAR(1),
     POSTING_CATEGORY VARCHAR(10)
 );
+
+/*==============================================================*/
+/* Table: LANGUAGE_CODES                                        */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'LANGUAGE_CODES'
+)
+
+CREATE TABLE LANGUAGE_CODES
+(
+    LANGUAGE_CODE VARCHAR(2) PRIMARY KEY,
+    LANGUAGE_DESCRIPTION VARCHAR(100)
+);
+

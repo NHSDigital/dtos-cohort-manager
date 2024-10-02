@@ -76,6 +76,31 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     }
 
     /// <summary>
+    /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
+    /// </summary>
+    /// <param name="languageCode">The participant's preferred language code.</param>
+    /// <returns>bool, whether or not the language code exists in the DB.<returns>
+    public bool ValidateLanguageCode(string languageCode) {
+
+        using (_connection = new SqlConnection(_connectionString))
+        {
+            _connection.Open();
+            using (IDbCommand command = _connection.CreateCommand())
+            {
+                command.CommandText = $"SELECT LANGUAGE_CODE FROM [dbo].[LANGUAGE_CODES] WHERE LANGUAGE_CODE = @languageCode";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@languageCode";
+                parameter.Value = languageCode ?? string.Empty;
+                command.Parameters.Add(parameter);
+
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    return reader.Read();
+                }
+            }
+        }
+    }
+
     /// Used in rule 58 of the lookup rules.
     /// Validates that the current posting exists, and that it is in the cohort and in use.
     /// </summary>
