@@ -5,6 +5,16 @@ resource "azurerm_resource_group" "rg_vnet" {
   location = each.key
 }
 
+resource "azurerm_resource_group" "rg_private_endpoints" {
+  for_each = {
+    for key, val in var.regions :
+    key => val if var.features.private_endpoints_enabled
+  }
+
+  name     = "${module.regions_config[each.key].names.resource-group}-private-endpoints"
+  location = each.key
+}
+
 module "vnet" {
   for_each = var.regions
 
@@ -69,8 +79,8 @@ locals {
 --------------------------------------------------------------------------------------------------*/
 
 module "peering_spoke_hub" {
-  # loop through regions and only create peering if create_peering is set to true
-  for_each = { for key, val in var.regions : key => val if val.create_peering == true }
+  # loop through regions and only create peering if connect_peering is set to true
+  for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
