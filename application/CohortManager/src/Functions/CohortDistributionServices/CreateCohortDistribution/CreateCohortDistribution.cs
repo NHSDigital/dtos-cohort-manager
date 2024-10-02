@@ -50,9 +50,9 @@ public class CreateCohortDistribution
         {
             if (requestBody.NhsNumber != null && requestBody.FileName != null)
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             }
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
 
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -76,7 +76,7 @@ public class CreateCohortDistribution
             var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
             if (!string.IsNullOrEmpty(participantData.Postcode))
             {
-                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
                 response = await HandleErrorResponseIfNull(serviceProvider, req);
                 if (response != null) return response;
             }
@@ -112,7 +112,7 @@ public class CreateCohortDistribution
         catch (Exception ex)
         {
             _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
