@@ -128,16 +128,16 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@telephoneNumberMob", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.MobileNumber)},
             {"@telephoneNumberMobFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.MobileNumberEffectiveFromDate) },
             {"@emailAddressHome", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.EmailAddress) },
-            {"@emailAddressHomeFromDate", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.EmailAddressEffectiveFromDate) },
+            {"@emailAddressFromDate", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.EmailAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.EmailAddressEffectiveFromDate) },
             {"@preferredLanguage", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreferredLanguage)},
             {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
-            {"@reasonForRemovalFromDate", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
+            {"@reasonForRemovalFromDate",  _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
             {"@recordInsertDateTime", _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.RecordInsertDateTime)},
             {"@recordUpdateDateTime", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.RecordUpdateDateTime)},
             {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
             {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
-            {"@currentPostingFromDate",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPostingEffectiveFromDate) },
+            {"@currentPostingFromDate",  _databaseHelper.CheckIfDateNull(cohortDistributionParticipant.CurrentPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(cohortDistributionParticipant.CurrentPostingEffectiveFromDate)},
         };
 
         SQLToExecuteInOrder.Add(new SQLReturnModel()
