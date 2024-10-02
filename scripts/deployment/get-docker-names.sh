@@ -15,7 +15,6 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
     ["CohortDistributionServices/ValidateCohortDistributionRecord"]="validate-cohort-distribution-record"
     ["DemographicServices/DemographicDataManagementFunction"]="demographic-data-management"
-    ["DevOpsTestingService"]="devops-testing-service"
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/addParticipant"]="add-participant"
     ["ParticipantManagementServices/updateParticipant"]="update-participant"
@@ -36,8 +35,12 @@ changed_functions=""
 if [ -z "$CHANGED_FOLDERS" ]; then
     changed_functions="null"
     echo "No files changed"
-elif [[ "$CHANGED_FOLDERS" == "*Shared*" ]]; then
-    changed_functions=""
+elif [[ "$CHANGED_FOLDERS" == *Shared* ]]; then
+    echo "Shared folder changed, returning all functions"
+    for key in "${!docker_functions_map[@]}"; do
+        changed_functions+=" ${docker_functions_map[$key]}"
+        echo "Adding in: ${docker_functions_map[$key]}"
+    done
 else
     echo "files changed $CHANGED_FOLDERS "
     for folder in $CHANGED_FOLDERS; do
