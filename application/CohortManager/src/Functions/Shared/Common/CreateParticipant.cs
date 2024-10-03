@@ -88,6 +88,7 @@ public class CreateParticipant : ICreateParticipant
             Extracted = null,
             RecordType = participant.RecordType,
             CurrentPosting = demographic.CurrentPosting,
+            CurrentPostingEffectiveFromDate = demographic.CurrentPostingEffectiveFromDate
         };
     }
 }

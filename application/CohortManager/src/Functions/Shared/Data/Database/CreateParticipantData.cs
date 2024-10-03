@@ -22,8 +22,6 @@ public class CreateParticipantData : ICreateParticipantData
     public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
         var participantData = participantCsvRecord.Participant;
-
-        DateTime dateToday = DateTime.Today;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
@@ -52,11 +50,11 @@ public class CreateParticipantData : ICreateParticipantData
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
             { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
-            { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@reasonForRemovalDate", string.IsNullOrEmpty(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
             { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
-            { "@recordInsertDateTime", dateToday },
-            { "@recordUpdateDateTime", DBNull.Value },
+            { "@recordInsertDateTime", DateTime.Now},
+            { "@recordUpdateDateTime", DBNull.Value},
             { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
         };
 

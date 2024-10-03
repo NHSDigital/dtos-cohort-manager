@@ -121,7 +121,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
-                    while(reader.Read())
+                    while (reader.Read())
                     {
                         return reader.GetInt32(0) == 1;
                     }
