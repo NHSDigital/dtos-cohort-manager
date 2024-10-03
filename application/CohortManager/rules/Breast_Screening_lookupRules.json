@@ -22,7 +22,11 @@
             "Expression": "newParticipant.CurrentPosting"
           }
         ],
+<<<<<<< HEAD
         "Expression": "string.IsNullOrEmpty(currentPosting) OR dbLookup.ValidateCurrentPosting(currentPosting)",
+=======
+        "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
+>>>>>>> 466f0ba (fix: DTOSS-3638 Resolve warren comments)
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -34,10 +38,19 @@
       },
       {
         "RuleName": "00.ValidateLanguageCode.NonFatal",
+<<<<<<< HEAD
         "LocalParams": [{
           "Name": "languageCode",
           "Expression": "newParticipant.PreferredLanguage"
         }],
+=======
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
+>>>>>>> 466f0ba (fix: DTOSS-3638 Resolve warren comments)
         "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
         "Actions": {
           "OnFailure": {
@@ -51,7 +64,11 @@
     ]
   },
   {
+<<<<<<< HEAD
     "WorkflowName": "New",
+=======
+    "WorkflowName": "ADD",
+>>>>>>> 466f0ba (fix: DTOSS-3638 Resolve warren comments)
     "Rules": [
       {
         "RuleName": "47.ParticipantMustNotExist.Fatal",
@@ -60,7 +77,11 @@
     ]
   },
   {
+<<<<<<< HEAD
     "WorkflowName": "Amended",
+=======
+    "WorkflowName": "AMENDED",
+>>>>>>> 466f0ba (fix: DTOSS-3638 Resolve warren comments)
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
@@ -69,7 +90,11 @@
     ]
   },
   {
+<<<<<<< HEAD
     "WorkflowName": "Removed",
+=======
+    "WorkflowName": "REMOVED",
+>>>>>>> 466f0ba (fix: DTOSS-3638 Resolve warren comments)
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
