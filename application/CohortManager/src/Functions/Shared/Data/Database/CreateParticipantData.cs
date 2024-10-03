@@ -1,7 +1,6 @@
 namespace Data.Database;
 
 using System.Data;
-using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
