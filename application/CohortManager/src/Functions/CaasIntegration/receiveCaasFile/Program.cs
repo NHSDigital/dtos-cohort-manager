@@ -12,7 +12,8 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<IScreeningServiceData, ScreeningServiceData>();
-    }).AddDatabaseConnection()
+    })
+    .AddDatabaseConnection()
     .Build();
 
 host.Run();
