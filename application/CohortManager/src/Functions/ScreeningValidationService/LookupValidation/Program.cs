@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Data.Common;
+
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()

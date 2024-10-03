@@ -2,7 +2,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using System.Data;
-using System.Data.Common;
+
 using Microsoft.Data.SqlClient;
 using Data.Database;
 using Common;

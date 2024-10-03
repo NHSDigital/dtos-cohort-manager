@@ -35,10 +35,11 @@ public class RemoveCohortDistributionData
 
         if (!isUpdated)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            _logger.LogInformation("No record could be removed there could have no record to remove or some other error could have happened");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-
+        _logger.LogInformation("The cohort distribution record has been removed");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req); s
     }
 }

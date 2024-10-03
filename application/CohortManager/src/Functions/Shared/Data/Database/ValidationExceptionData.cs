@@ -2,7 +2,6 @@ namespace Data.Database;
 
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Model;
 

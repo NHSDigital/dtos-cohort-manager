@@ -1,10 +1,6 @@
 namespace Data.Database;
 
 using System.Data;
-using System.Net;
-using System.Reflection.Metadata;
-using System.Text.Json;
-using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -14,17 +10,12 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
-    private readonly ICallFunction _callFunction;
-    private readonly IParticipantManagerData _updateParticipantData;
 
-    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
-        ICallFunction callFunction, IParticipantManagerData updateParticipantData)
+    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _callFunction = callFunction;
-        _updateParticipantData = updateParticipantData;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
