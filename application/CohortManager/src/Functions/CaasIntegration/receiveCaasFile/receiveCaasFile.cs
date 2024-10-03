@@ -54,14 +54,14 @@ public partial class ReceiveCaasFile
 
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
-            _logger.LogInformation("Downloading the file {name} from the blob.", name);
+            _logger.LogInformation("Downloading the file {Name} from the blob.", name);
             await using (var fileStream = File.Create(downloadFilePath))
             {
                 await blobStream.CopyToAsync(fileStream);
             }
             var screeningService = GetScreeningService(name);
 
-            _logger.LogInformation("Start reading the downloaded file {name}.", name);
+            _logger.LogInformation("Start reading the downloaded file: {Name}.", name);
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
@@ -83,7 +83,7 @@ public partial class ReceiveCaasFile
                         {
                             chunks.Clear();
                             cohort.Participants.Clear();
-                            _logger.LogError("Invalid data in the file {name}", name);
+                            _logger.LogError("Invalid data in the file: {Name}", name);
                             return;
                         }
                         cohort.Participants.Add(participant);
@@ -102,18 +102,18 @@ public partial class ReceiveCaasFile
             if (rowNumber != numberOfRecords)
             {
                 _logger.LogError("File name record count not equal to actual record count. File name count: {Name} | Actual count: {RowNumber}", name, rowNumber);
-                await InsertValidationErrorIntoDatabase(name);
+                await InsertValidationErrorIntoDatabase(name, "N/A");
                 return;
             }
 
-            await SerializeParquetFile(chunks, cohort, name);
+            await SerializeParquetFile(chunks, cohort, name, rowNumber);
             _logger.LogInformation("All rows processed for file named {Name}.", name);
 
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, "N/A");
             return;
         }
         finally
@@ -134,7 +134,7 @@ public partial class ReceiveCaasFile
             _logger.LogError(
                 "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {Name}",
                 name);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, "N/A");
             return false;
         }
     }
@@ -147,7 +147,7 @@ public partial class ReceiveCaasFile
         '_n' Matches the literal _n
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
-        var match = MyRegex().Match(name);
+        var match = FileFormatRegex().Match(name);
         return match.Success;
     }
 
@@ -164,23 +164,23 @@ public partial class ReceiveCaasFile
         else
         {
             _logger.LogError("File name is invalid. File name: {Name}", name);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, "N/A");
             return null;
         }
     }
 
-    private async Task InsertValidationErrorIntoDatabase(string fileName)
+    private async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
     {
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-            RuleId = 1,
-            FileName = fileName
+            FileName = fileName,
+            ErrorRecord = errorRecord
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
         if (result.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogError("An error occurred while saving or moving the failed file {FileName}.", fileName);
+            _logger.LogError("An error occurred while saving or moving the failed file: {FileName}.", fileName);
         }
         _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
     }
@@ -192,7 +192,7 @@ public partial class ReceiveCaasFile
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 
-    private async Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename)
+    private async Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename, int rowNumber)
     {
         try
         {
@@ -204,9 +204,7 @@ public partial class ReceiveCaasFile
                 {
                     var json = JsonSerializer.Serialize(chunk);
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                    _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
                 }
-                _logger.LogInformation("Total {ChunksCount} number of chunks processed.", chunks.Count);
             }
 
             if (cohort.Participants.Count > 0)
@@ -215,14 +213,14 @@ public partial class ReceiveCaasFile
                 var json = JsonSerializer.Serialize(cohort);
 
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("targetFunction"), json);
-                _logger.LogInformation("Created {CohortCount} Objects.", cohort.Participants.Count);
             }
+            _logger.LogInformation("Created {CohortCount} Objects.", rowNumber);
 
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await InsertValidationErrorIntoDatabase(filename);
+            await InsertValidationErrorIntoDatabase(filename, "N/A");
         }
     }
     private async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, Participant participant, string name, int rowNumber)
@@ -287,11 +285,11 @@ public partial class ReceiveCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(participant));
             return null;
         }
     }
 
     [GeneratedRegex(@"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase, "en-GB")]
-    private static partial Regex MyRegex();
+    private static partial Regex FileFormatRegex();
 }
