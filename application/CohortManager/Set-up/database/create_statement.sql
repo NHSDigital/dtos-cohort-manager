@@ -411,33 +411,3 @@ BEGIN
       RLP_DATE_ENABLED DATETIME
     );
 END
-
--- Add description to the table
-EXEC sp_addextendedproperty
-    @name = N'Description',
-    @value = N'Contains BSO level details/parameters. One row per BSO. Changes are timestamped and trigger updates to audit_bso_organisations.',
-    @level0type = N'Schema', @level0name = dbo,
-    @level1type = N'Table', @level1name = BSO_ORGANISATIONS;
-
--- Add description to columns
-EXEC sp_addextendedproperty
-    @name = N'Description',
-    @value = N'The date and time that the auto batch process last finished processing for the BSO. This is used to ensure only a single app server processes the data per run',
-    @level0type = N'Schema', @level0name = dbo,
-    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
-    @level2type = N'Column', @level2name = AUTO_BATCH_LAST_RUN;
-
-EXEC sp_addextendedproperty
-    @name = N'Description',
-    @value = N'The date and time used to determine the inclusive upper limit of the data that was included in the last auto batch run',
-    @level0type = N'Schema', @level0name = dbo,
-    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
-    @level2type = N'Column', @level2name = AUTO_BATCH_MAX_DATE_TIME_PROCESSED;
-
-EXEC sp_addextendedproperty
-    @name = N'Description',
-    @value = N'Cannot be false if is_agex_active is true',
-    @level0type = N'Schema', @level0name = dbo,
-    @level1type = N'Table', @level1name = BSO_ORGANISATIONS,
-    @level2type = N'Column', @level2name = IS_AGEX;
-
