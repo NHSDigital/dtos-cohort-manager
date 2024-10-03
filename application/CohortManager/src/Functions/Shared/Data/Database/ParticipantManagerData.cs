@@ -24,7 +24,7 @@ public class ParticipantManagerData : IParticipantManagerData
     }
 
     #region Update methods
-    public bool UpdateParticipantAsEligible(Participant participant, char isActive)
+    public bool UpdateParticipantAsEligible(Participant participant, int isActive)
     {
         try
         {
@@ -33,13 +33,15 @@ public class ParticipantManagerData : IParticipantManagerData
             var recordUpdateTime = DateTime.Now;
 
             var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
-                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords " +
+                " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
+                "     ELIGIBILITY_FLAG = @IsActive " +
                 " WHERE PARTICIPANT_ID = @participantId ";
 
             var Parameters = new Dictionary<string, object>
             {
                 {"@participantId", Participant.ParticipantId },
-                {"@recordEndDateOldRecords", recordUpdateTime }
+                {"@recordEndDateOldRecords", recordUpdateTime },
+                {"@IsActive", isActive }
             };
 
             return ExecuteCommand(SQL, Parameters);
@@ -71,7 +73,7 @@ public class ParticipantManagerData : IParticipantManagerData
             var commonParameters = new Dictionary<string, object>
             {
                 { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
-                { "@recordType", _databaseHelper.CheckIfNumberNull(participantData.RecordType)  ? DBNull.Value : participantData.RecordType},
+                { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
                 { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
                 { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
                 { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
@@ -80,7 +82,10 @@ public class ParticipantManagerData : IParticipantManagerData
                 { "@recordUpdateDateTime", dateToday },
             };
 
-            return ExecuteCommand(insertParticipant, commonParameters);
+            var updatedRecord = ExecuteCommand(insertParticipant, commonParameters);
+            var markedAsAsEligible = UpdateParticipantAsEligible(participantData, 1);
+
+            return updatedRecord && markedAsAsEligible;
         }
         catch (Exception ex)
         {

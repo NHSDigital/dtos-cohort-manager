@@ -67,7 +67,7 @@ public class UpdateParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
             var responseDataFromCohort = false;
@@ -100,7 +100,7 @@ public class UpdateParticipantFunction
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, JsonSerializer.Serialize(participant)))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;
@@ -126,6 +126,18 @@ public class UpdateParticipantFunction
 
         try
         {
+            if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+            {
+                var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
+
+                return new ValidationExceptionLog()
+                {
+                    IsFatal = false,
+                    CreatedException = true
+                };
+            }
+
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
@@ -134,7 +146,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
             return null;
         }
     }

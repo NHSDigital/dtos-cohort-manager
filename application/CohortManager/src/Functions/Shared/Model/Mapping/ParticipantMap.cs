@@ -18,8 +18,8 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.NamePrefix).Name("Name Prefix");
         Map(m => m.FirstName).Name("Given Name");
         Map(m => m.OtherGivenNames).Name("Other Given Name(s)");
-        Map(m => m.Surname).Name("Family Name");
-        Map(m => m.PreviousSurname).Name("Previous Family Name");
+        Map(m => m.FamilyName).Name("Family Name");
+        Map(m => m.PreviousFamilyName).Name("Previous Family Name");
         Map(m => m.DateOfBirth).Name("Date of Birth");
         Map(m => m.Gender).Name("Gender");
         Map(m => m.AddressLine1).Name("Address line 1");

@@ -1,4 +1,6 @@
 module "eventgrid" {
+  count = var.features["event_grid_enabled"] ? 1 : 0
+
   source = ".//modules/event-grid"
 
   names = module.config.names

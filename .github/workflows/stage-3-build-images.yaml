@@ -43,8 +43,8 @@ jobs:
           echo "The branch is: " ${{ github.ref }}
 
       - name: Az CLI login
-        uses: azure/login@v1
         if: github.ref == 'refs/heads/main'
+        uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -55,23 +55,32 @@ jobs:
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
         run: |
-          echo "creating tags"
-          echo "The branch is: " ${{ github.ref }}
-          echo "pull request is: " ${{ github.event.pull_request.number }}
-          echo "event number is: " ${{ github.event.number }}
-          echo "COMMIT_HASH_TAG=$(git rev-parse --short $GITHUB_SHA)" >> $GITHUB_ENV
+          set -x
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "The branch is: ${{ github.ref }}"
 
-          if [ -n "${{ github.event.pull_request.number }}" ]; then
-            echo "PR_NUM_TAG=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.number }}" ]; then
-            echo "PR_NUM_TAG=${{ github.event.number }}" >> $GITHUB_ENV
+          if [[ "$GITHUB_REF" == refs/pull/*/merge ]]; then
+            PR_NUM_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
           else
-            echo "PR_NUM_TAG=latest" >> $GITHUB_ENV
+            PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+            ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+            echo "ORIGINATING_BRANCH: $ORIGINATING_BRANCH"
+            PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
           fi
 
-          # echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
+          echo "PR_NUM_TAG: pr$PR_NUM_TAG"
+          echo "PR_NUM_TAG=pr$PR_NUM_TAG" >> $GITHUB_ENV
+
+          SHORT_COMMIT_HASH=$(git rev-parse --short $GITHUB_SHA)
+          echo "Commit hash tag: $SHORT_COMMIT_HASH"
+          echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
+
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+
 
       - name: build docker images
         working-directory: ./application/CohortManager
@@ -101,13 +110,15 @@ jobs:
             for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$COMMIT_HASH_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$PR_NUM_TAG"
-              docker tag cohort-manager-$function:$PR_NUM_TAG "$repo_name:$ENVIRONMENT_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
+              docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
               # Push the images to the repository
               docker push "$repo_name:$COMMIT_HASH_TAG"
-              docker push "$repo_name:$PR_NUM_TAG"
+              if [ "$PR_NUM_TAG" != 'pr' ]; then
+                docker push "$repo_name:$PR_NUM_TAG"
+              fi
               docker push "$repo_name:$ENVIRONMENT_TAG"
             done
           fi

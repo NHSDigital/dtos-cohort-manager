@@ -1,6 +1,6 @@
 # This file is for you! Please, updated to the versions agreed by your team.
 
-terraform 1.5.7
+terraform 1.9.6
 pre-commit 3.4.0
 
 # ==============================================================================

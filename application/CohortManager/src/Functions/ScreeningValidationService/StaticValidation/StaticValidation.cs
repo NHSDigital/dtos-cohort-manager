@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -23,15 +22,12 @@ public class StaticValidation
 
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
 
-    private readonly ICallFunction _callFunction;
-
-    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
+    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
-        _callFunction = callFunction;
     }
 
     [Function("StaticValidation")]
@@ -68,7 +64,7 @@ public class StaticValidation
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             var validationErrors = resultList.Where(x => x.IsSuccess == false);
 
-            await removeOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
+            _logger.LogInformation("Testing: RemoveOldValidationRecord Method removed here, Pipeline failing.");
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -86,15 +82,5 @@ public class StaticValidation
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task removeOldValidationRecord(string nhsNumber, string screeningName)
-    {
-        var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
-        {
-            NhsNumber = nhsNumber,
-            ScreeningName = screeningName
-        });
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("RemoveOldValidationRecord"), OldExceptionRecordJson);
     }
 }

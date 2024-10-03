@@ -18,7 +18,7 @@ using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 public class TransformDataService
 {
@@ -63,8 +63,8 @@ public class TransformDataService
             cohortDistributionParticipant.NamePrefix = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.NamePrefix);
             cohortDistributionParticipant.FirstName = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.FirstName);
             cohortDistributionParticipant.OtherGivenNames = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.OtherGivenNames);
-            cohortDistributionParticipant.Surname = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.Surname);
-            cohortDistributionParticipant.PreviousSurname = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.PreviousSurname);
+            cohortDistributionParticipant.FamilyName = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.FamilyName);
+            cohortDistributionParticipant.PreviousFamilyName = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.PreviousFamilyName);
             cohortDistributionParticipant.AddressLine1 = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.AddressLine1);
             cohortDistributionParticipant.AddressLine2 = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.AddressLine2);
             cohortDistributionParticipant.AddressLine3 = await transformString.CheckParticipantCharactersAsync(cohortDistributionParticipant.AddressLine3);
@@ -98,8 +98,8 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, cohortDistributionParticipant.NhsNumber, "");
-            _logger.LogWarning(ex, "exception occured while running transform data service");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, cohortDistributionParticipant.NhsNumber, "", "", JsonSerializer.Serialize(cohortDistributionParticipant));
+            _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
@@ -129,12 +129,12 @@ public class TransformDataService
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         participant.FirstName = GetTransformedData<string>(resultList, "FirstName", participant.FirstName);
-        participant.Surname = GetTransformedData<string>(resultList, "Surname", participant.Surname);
+        participant.FamilyName = GetTransformedData<string>(resultList, "FamilyName", participant.FamilyName);
         participant.NhsNumber = GetTransformedData<string>(resultList, "NhsNumber", participant.NhsNumber);
         participant.NamePrefix = GetTransformedData<string>(resultList, "NamePrefix", participant.NamePrefix);
         participant.Gender = (Gender)GetTransformedData<int>(resultList, "Gender", Convert.ToInt32(participant.Gender));
         participant.OtherGivenNames = GetTransformedData<string>(resultList, "OtherGivenNames", participant.OtherGivenNames);
-        participant.PreviousSurname = GetTransformedData<string>(resultList, "PreviousSurname", participant.PreviousSurname);
+        participant.PreviousFamilyName = GetTransformedData<string>(resultList, "PreviousFamilyName", participant.PreviousFamilyName);
         participant.AddressLine1 = GetTransformedData<string>(resultList, "AddressLine1", participant.AddressLine1);
         participant.AddressLine2 = GetTransformedData<string>(resultList, "AddressLine2", participant.AddressLine2);
         participant.AddressLine3 = GetTransformedData<string>(resultList, "AddressLine3", participant.AddressLine3);

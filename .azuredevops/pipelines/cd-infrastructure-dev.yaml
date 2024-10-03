@@ -12,6 +12,7 @@ trigger:
 
 variables:
   - group: global_variable_group
+  - group: hub_variable_group
   - name: TF_DIRECTORY
     value: '$(System.DefaultWorkingDirectory)/infrastructure'
 

@@ -40,8 +40,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New },
-                new() { RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -69,13 +69,14 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended },
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended },
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
@@ -96,8 +97,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed },
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed },
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -126,7 +127,7 @@ public class ProcessCaasFileTests
             Participants = new List<Participant>
             {
 
-                new() { RecordType = "Unknown" }
+                new() {NhsNumber = "9876543210", RecordType = "Unknown" }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -159,7 +160,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New }
+                new() {NhsNumber = "9876543210", RecordType = Actions.New }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -194,11 +195,13 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
+
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
@@ -227,7 +230,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -252,7 +255,7 @@ public class ProcessCaasFileTests
             ), Times.Once);
     }
 
-        [TestMethod]
+    [TestMethod]
     public void IsValidDate_ShouldReturnFalse_WhenDateIsInTheFuture()
     {
         // Arrange: Setup dependencies using Mock.Of and create future date

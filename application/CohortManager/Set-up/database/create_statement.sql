@@ -165,12 +165,13 @@ BEGIN
         SCREENING_ID BIGINT NULL,
         NHS_NUMBER BIGINT NULL,
         RECORD_TYPE VARCHAR(10) NULL,
-        REASON_FOR_REMOVAL VARCHAR(10) NULL,
+        ELIGIBILITY_FLAG SMALLINT NULL,
+        REASON_FOR_REMOVAL VARCHAR(10)  NULL,
         REASON_FOR_REMOVAL_FROM_DT DATE NULL,
-        BUSINESS_RULE_VERSION VARCHAR(10) NULL,
-        EXCEPTION_FLAG SMALLINT NULL,
-        RECORD_INSERT_DATETIME DATETIME NULL,
-        RECORD_UPDATE_DATETIME DATETIME NULL,
+        BUSINESS_RULE_VERSION VARCHAR (10)  NULL,
+        EXCEPTION_FLAG SMALLINT  NULL,
+        RECORD_INSERT_DATETIME DATETIME  NULL,
+        RECORD_UPDATE_DATETIME DATETIME  NULL,
         CONSTRAINT PK_PARTICIPANT_MANAGEMENT
             PRIMARY KEY (PARTICIPANT_ID),
         CONSTRAINT FK_PARTICIP_SCREENING_SCREENIN
@@ -193,7 +194,7 @@ BEGIN
     CREATE TABLE [dbo].[EXCEPTION_MANAGEMENT]
     (
         FILE_NAME VARCHAR(250) NULL,
-        NHS_NUMBER BIGINT NULL,
+        NHS_NUMBER VARCHAR(50) NULL,
         DATE_CREATED DATE NULL,
         DATE_RESOLVED DATE NULL,
         RULE_ID INT NULL,
@@ -351,7 +352,24 @@ CREATE TABLE CURRENT_POSTING_LKP
 );
 
 /*==============================================================*/
-/* Table: BSO_ORGANISATIONS Table                       */
+/* Table: LANGUAGE_CODES                                        */
+/*==============================================================*/
+IF NOT EXISTS
+(
+    SELECT *
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_SCHEMA = 'dbo'
+          AND TABLE_NAME = 'LANGUAGE_CODES'
+)
+
+CREATE TABLE LANGUAGE_CODES
+(
+    LANGUAGE_CODE VARCHAR(2) PRIMARY KEY,
+    LANGUAGE_DESCRIPTION VARCHAR(100)
+);
+
+/*==============================================================*/
+/* Table: BSO_ORGANISATIONS Table                               */
 /*==============================================================*/
 IF NOT EXISTS
 (
