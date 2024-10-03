@@ -73,7 +73,7 @@ public class CreateCohortDistribution
             if (response != null) return response;
 
             // Allocate service provider
-            var serviceProvider = "BS SELECT"; // Hardcoded value for now
+            var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
             if (!string.IsNullOrEmpty(participantData.Postcode))
             {
                 serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
