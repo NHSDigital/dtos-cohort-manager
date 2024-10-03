@@ -1,0 +1,82 @@
+---
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)
+
+pool:
+  vmImage: ubuntu-latest
+
+trigger: none
+
+# https://crontab.guru/#0_0_*_*_*
+schedules:
+  - cron: "0 0 * * Sun"
+    displayName: Run every Sunday at 0:00
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - group: global_variable_group
+  - name: function_subscription
+    value: 67aab2fa-fcc7-49da-9dc6-cb90f0fa0628
+  - name: dev_rg
+    value: rg-cohort-manager-dev-uks
+
+jobs:
+  - job: owasp_zap_report
+    displayName: Generate OWASP ZAP report
+    steps:
+    - checkout: self
+    - task: AzureCLI@2
+      name: owasp_zap_report_create
+      displayName: owasp zap report create
+      inputs:
+        azureSubscription: sc-cohort-manager-dev
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "generating report"
+
+          az account show -o jsonc
+
+          az account set --subscription $(function_subscription)
+
+          function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
+
+          # mkdir -p $(pwd)/zap_output/.ZAP/session
+          # mkdir -p $(pwd)/zap_output/.ZAP/dirbuster
+          # mkdir -p $(pwd)/zap_output/.ZAP/fuzzers
+          # mkdir -p $(pwd)/zap_output/.ZAP/plugin
+          # chmod -R 777 $(pwd)/zap_output
+          # mkdir -p $(pwd)/zap_wrk
+
+
+          # mkdir -p (pwd):/zap/wrk
+          # pwd
+
+          for function in $function_list; do
+            function_url=$(az functionapp show --resource-group $(dev_rg) --name $function --query "defaultHostName" --output tsv  )
+            echo https://$function_url
+
+            # docker run -v $(pwd)/zap_wrk:/zap/wrk -v $(pwd)/zap_output/.ZAP:/home/zap/.ZAP -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url -r zap_report.html
+
+            # docker run -v $(pwd):/zap/wrk -v $(pwd)/zap_output/.ZAP:/home/zap/.ZAP -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url  -r zap_report.html
+
+            docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url > zap_report_$function
+
+            pip install python-hcl2
+            export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
+            chmod 755 scripts/azure/GetImageTagsByManifest.sh
+
+            #echo "the output: $(cat zap_report_$function)"
+
+            python3 scripts/azure/SlackWebhookController.py -v -f $function -d zap_report_$function
+
+
+          done
+
+          for function in $function_list; do
+            cat zap_report_$function
+          done
+
+
