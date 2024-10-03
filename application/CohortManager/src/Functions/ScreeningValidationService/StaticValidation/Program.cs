@@ -1,7 +1,4 @@
-using System.Data;
-
 using Common;
-using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

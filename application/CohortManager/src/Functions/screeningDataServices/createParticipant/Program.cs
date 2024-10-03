@@ -1,5 +1,4 @@
 using System.Data;
-
 using Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;

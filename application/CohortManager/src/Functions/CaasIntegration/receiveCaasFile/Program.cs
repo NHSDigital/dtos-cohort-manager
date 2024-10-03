@@ -4,9 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Data.Database;
 
-using Microsoft.Data.SqlClient;
-using System.Data;
-
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
