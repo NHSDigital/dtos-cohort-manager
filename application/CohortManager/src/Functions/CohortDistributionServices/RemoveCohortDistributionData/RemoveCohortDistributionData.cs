@@ -40,6 +40,6 @@ public class RemoveCohortDistributionData
         }
 
         _logger.LogInformation("The cohort distribution record has been removed");
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req); s
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
