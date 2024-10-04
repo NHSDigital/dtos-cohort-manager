@@ -113,15 +113,15 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NhsNumber) ? DBNull.Value : long.Parse(demographic.NhsNumber)},
                     {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
                     {"@PRIMARY_CARE_PROVIDER", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProvider)},
-                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", string.IsNullOrEmpty(demographic.PrimaryCareProvider) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
+                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
                     {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
-                    {"@CURRENT_POSTING_FROM_DT", string.IsNullOrEmpty(demographic.CurrentPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
+                    {"@CURRENT_POSTING_FROM_DT", _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
                     {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
                     {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
                     {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FamilyName)},
                     {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousFamilyName)},
-                    {"@DATE_OF_BIRTH", string.IsNullOrEmpty(demographic.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfBirth)},
+                    {"@DATE_OF_BIRTH", _databaseHelper.ParseDates(demographic.DateOfBirth)},
                     {"@GENDER", demographic.Gender.HasValue ? demographic.Gender : DBNull.Value},
                     {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
                     {"@ADDRESS_LINE_2", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine2)},
@@ -130,20 +130,20 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@ADDRESS_LINE_5", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine5)},
                     {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
                     {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
-                    {"@USUAL_ADDRESS_FROM_DT", string.IsNullOrEmpty(demographic.UsualAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
-                    {"@DATE_OF_DEATH", string.IsNullOrEmpty(demographic.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfDeath)},
+                    {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
+                    {"@DATE_OF_DEATH", _databaseHelper.ParseDates(demographic.DateOfDeath)},
                     {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
                     {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
-                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", string.IsNullOrEmpty(demographic.TelephoneNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
                     {"@TELEPHONE_NUMBER_MOB", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumber)},
-                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", string.IsNullOrEmpty(demographic.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.MobileNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", _databaseHelper.ParseDates(demographic.MobileNumberEffectiveFromDate)},
                     {"@EMAIL_ADDRESS_HOME", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddress)},
-                    {"@EMAIL_ADDRESS_HOME_FROM_DT", string.IsNullOrEmpty(demographic.EmailAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.EmailAddressEffectiveFromDate)},
+                    {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.EmailAddressEffectiveFromDate)},
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
                     {"@RECORD_INSERT_DATE_TIME", DateTime.Now},
-                    {"@RECORD_UPDATE_DATE_TIME", string.IsNullOrEmpty(demographic.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordUpdateDateTime)}
+                    {"@RECORD_UPDATE_DATE_TIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
                 },
             }
         };
@@ -246,7 +246,7 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.OtherGivenNames = reader["OTHER_GIVEN_NAME"] == DBNull.Value ? null : reader["OTHER_GIVEN_NAME"].ToString();
                 demographic.FamilyName = reader["FAMILY_NAME"] == DBNull.Value ? null : reader["FAMILY_NAME"].ToString();
                 demographic.PreviousFamilyName = reader["PREVIOUS_FAMILY_NAME"] == DBNull.Value ? null : reader["PREVIOUS_FAMILY_NAME"].ToString();
-                demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_BIRTH"].ToString()).ToString("yyyyMMdd");
+                demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : reader["DATE_OF_BIRTH"].ToString();
                 demographic.Gender = reader["GENDER"] == DBNull.Value ? null : (Gender)reader["GENDER"];
                 demographic.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
                 demographic.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
@@ -256,7 +256,7 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.Postcode = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
                 demographic.PafKey = reader["PAF_KEY"] == DBNull.Value ? null : reader["PAF_KEY"].ToString();
                 demographic.UsualAddressEffectiveFromDate = reader["USUAL_ADDRESS_FROM_DT"] == DBNull.Value ? null : reader["USUAL_ADDRESS_FROM_DT"].ToString();
-                demographic.DateOfDeath = reader["DATE_OF_DEATH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_DEATH"].ToString()).ToString("yyyyMMdd");
+                demographic.DateOfDeath = reader["DATE_OF_DEATH"] == DBNull.Value ? null : reader["DATE_OF_DEATH"].ToString();
                 demographic.DeathStatus = reader["DEATH_STATUS"] == DBNull.Value ? null : (Status)reader["DEATH_STATUS"];
                 demographic.TelephoneNumber = reader["TELEPHONE_NUMBER_HOME"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME"].ToString();
                 demographic.TelephoneNumberEffectiveFromDate = reader["TELEPHONE_NUMBER_HOME_FROM_DT"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME_FROM_DT"].ToString();
