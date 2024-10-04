@@ -4,7 +4,25 @@
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "notNewRecordType",
+            "Expression": "newParticipant.RecordType != Actions.New"
+          },
+          {
+            "Name": "validPrimaryCareProvider",
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+          },
+          {
+            "Name": "validReasonForRemovalFields",
+            "Expression": "newParticipant.ReasonForRemoval != null OR newParticipant.ReasonForRemovalEffectiveFromDate != null"
+          }
+        ],
+        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (notNewRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -34,10 +52,12 @@
       },
       {
         "RuleName": "00.ValidateLanguageCode.NonFatal",
-        "LocalParams": [{
-          "Name": "languageCode",
-          "Expression": "newParticipant.PreferredLanguage"
-        }],
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
         "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
         "Actions": {
           "OnFailure": {
