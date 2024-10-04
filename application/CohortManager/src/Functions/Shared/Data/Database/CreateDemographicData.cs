@@ -142,7 +142,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
-                    {"@RECORD_INSERT_DATE_TIME", string.IsNullOrEmpty(demographic.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordInsertDateTime)},
+                    {"@RECORD_INSERT_DATE_TIME", DateTime.Now},
                     {"@RECORD_UPDATE_DATE_TIME", string.IsNullOrEmpty(demographic.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordUpdateDateTime)}
                 },
             }

@@ -1,10 +1,10 @@
 using System.Data;
-using System.Data.Common;
 using Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Data.Database;
+using System.Data.Common;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()

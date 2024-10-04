@@ -76,7 +76,17 @@
       },
       {
         "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
+        "LocalParams": [
+          {
+            "Name": "currentPosting",
+            "Expression": "participant.CurrentPosting"
+          },
+          {
+            "Name": "primaryCareProvider",
+            "Expression": "participant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))"
       }
     ]
   }

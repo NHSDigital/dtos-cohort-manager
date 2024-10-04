@@ -6,30 +6,46 @@
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
         "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
         "Actions": {
-            "OnFailure": {
-                "Name": "OutputExpression",
-                "Context": {
-                    "Expression": "\"Invalid primary care provider GP practice code\""
-                }
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid primary care provider GP practice code\""
             }
+          }
         }
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
         "LocalParams": [
-            {
-                "Name": "currentPosting",
-                "Expression": "newParticipant.CurrentPosting"
-            }
+          {
+            "Name": "currentPosting",
+            "Expression": "newParticipant.CurrentPosting"
+          }
         ],
-        "Expression": "!(!dbLookup.ValidateCurrentPosting(currentPosting))",
+        "Expression": "string.IsNullOrEmpty(currentPosting) OR dbLookup.ValidateCurrentPosting(currentPosting)",
         "Actions": {
-            "OnFailure": {
-                "Name": "OutputExpression",
-                "Context": {
-                    "Expression": "\"Missing or invalid Posting\""
-                }
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Missing or invalid Posting\""
             }
+          }
+        }
+      },
+      {
+        "RuleName": "00.ValidateLanguageCode.NonFatal",
+        "LocalParams": [{
+          "Name": "languageCode",
+          "Expression": "newParticipant.PreferredLanguage"
+        }],
+        "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid preferred language code\""
+            }
+          }
         }
       }
     ]

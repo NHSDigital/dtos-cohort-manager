@@ -44,9 +44,9 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             // Check the NHS number is a number
-            if(!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"),participant,input.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"), participant, input.FileName);
                 err++;
                 continue;
             }
@@ -59,6 +59,7 @@ public class ProcessCaasFileFunction
             DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
             DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
             DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+            DateTime? dateOfBirth = TryParseDate(participant.DateOfBirth);
 
             // Validate the date fields
             if (!IsValidDate(primaryCareDate) ||
@@ -66,7 +67,8 @@ public class ProcessCaasFileFunction
                 !IsValidDate(reasonForRemovalDate) ||
                 !IsValidDate(homeTelephoneDate) ||
                 !IsValidDate(mobileTelephoneDate) ||
-                !IsValidDate(emailAddressDate))
+                !IsValidDate(emailAddressDate) ||
+                !IsValidDate(dateOfBirth))
             {
                 await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
                 err++;
@@ -145,7 +147,7 @@ public class ProcessCaasFileFunction
                         _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
                         var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "N/A");
+                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participant));
                     }
                     catch (Exception ex)
                     {
@@ -177,7 +179,7 @@ public class ProcessCaasFileFunction
         return true;
     }
 
-    private DateTime? TryParseDate(string? dateString)
+    private static DateTime? TryParseDate(string? dateString)
     {
         if (DateTime.TryParse(dateString, out var date))
         {

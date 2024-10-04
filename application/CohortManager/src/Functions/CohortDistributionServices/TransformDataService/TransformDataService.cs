@@ -84,8 +84,8 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "");
-            _logger.LogWarning(ex, "exception occured while running transform data service");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", "", JsonSerializer.Serialize(participant));
+            _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

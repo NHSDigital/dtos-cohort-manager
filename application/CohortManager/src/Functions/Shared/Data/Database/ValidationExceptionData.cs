@@ -55,7 +55,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
                     ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
                     ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
-                    Cohort = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
+                    CohortName = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
                     Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
@@ -91,7 +91,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     @category,
                     @screeningName,
                     @exceptionDate,
-                    @cohort,
+                    @cohortName,
                     @fatal
                 );";
 
@@ -107,7 +107,7 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@category", exception.Category},
             {"@screeningName", exception.ScreeningName},
             {"@exceptionDate", exception.ExceptionDate},
-            {"@cohort", exception.Cohort},
+            {"@cohortName", exception.CohortName},
             {"@fatal", exception.Fatal}
         };
 
@@ -166,7 +166,7 @@ public class ValidationExceptionData : IValidationExceptionData
             _dbConnection.Open();
             using (command)
             {
-                using (var reader = command.ExecuteReader())
+                using (IDataReader reader = command.ExecuteReader())
                 {
                     // Return true if the reader has at least one row.
                     recordExists = reader.Read();
