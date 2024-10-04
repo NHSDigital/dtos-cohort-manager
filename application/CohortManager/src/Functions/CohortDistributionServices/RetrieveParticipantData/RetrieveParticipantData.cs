@@ -35,6 +35,7 @@ public class RetrieveParticipantData
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         RetrieveParticipantRequestBody requestBody;
+        var participant = new CohortDistributionParticipant();
         try
         {
             string requestBodyJson;
@@ -55,8 +56,7 @@ public class RetrieveParticipantData
             var participantData = _participantManagerData.GetParticipantFromIDAndScreeningService(requestBody);
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
             var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
-            var participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
-
+            participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
             var responseBody = JsonSerializer.Serialize(participant);
             _logger.LogInformation("ParticipantScreeningID: {ScreeningServiceId}", participant.ScreeningServiceId);
 
@@ -64,9 +64,8 @@ public class RetrieveParticipantData
         }
         catch (Exception ex)
         {
-
             _logger.LogError("Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "", "", JsonSerializer.Serialize(participant) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }

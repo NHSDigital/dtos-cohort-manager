@@ -100,7 +100,7 @@ public class UpdateParticipantFunction
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, JsonSerializer.Serialize(participant)))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;
@@ -129,7 +129,7 @@ public class UpdateParticipantFunction
             if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
             {
                 var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
-                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "N/A");
+                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
 
                 return new ValidationExceptionLog()
                 {

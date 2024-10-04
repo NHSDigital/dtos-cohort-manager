@@ -94,7 +94,7 @@ public class AddParticipantFunction
             _logger.LogInformation("participant created, marked as eligible");
 
 
-            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName))
+            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, JsonSerializer.Serialize(participant)))
             {
                 _logger.LogInformation("participant failed to send to Cohort Distribution Service");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
@@ -120,7 +120,7 @@ public class AddParticipantFunction
             if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
             {
                 var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
-                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "N/A");
+                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
 
                 return new ValidationExceptionLog()
                 {

@@ -2,7 +2,6 @@ namespace Data.Database;
 
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -55,7 +54,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
                     ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
                     ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
-                    Cohort = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
+                    CohortName = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
                     Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
@@ -91,7 +90,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     @category,
                     @screeningName,
                     @exceptionDate,
-                    @cohort,
+                    @cohortName,
                     @fatal
                 );";
 
@@ -107,7 +106,7 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@category", exception.Category},
             {"@screeningName", exception.ScreeningName},
             {"@exceptionDate", exception.ExceptionDate},
-            {"@cohort", exception.Cohort},
+            {"@cohortName", exception.CohortName},
             {"@fatal", exception.Fatal}
         };
 
