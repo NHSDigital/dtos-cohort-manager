@@ -88,7 +88,7 @@ locals {
       StaticValidationURL          = local.fnapp_urls.staticValidation
       ExceptionFunctionURL         = local.fnapp_urls.createException
       DSmarkParticipantAsEligible  = local.fnapp_urls.markParticipantAsEligible
-      markParticipantAsIneligible" = local.fnapp_urls.markParticipantAsIneligible
+      markParticipantAsIneligible  = local.fnapp_urls.markParticipantAsIneligible
     }
 
     CreateParticipant = {
