@@ -8,9 +8,6 @@ using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
-using System.Data;
-using NHS.CohortManager.CohortDistribution;
-using Microsoft.Identity.Client;
 
 public class UpdateParticipantFunction
 {
@@ -72,22 +69,25 @@ public class UpdateParticipantFunction
 
             var responseDataFromCohort = false;
             var updateResponse = false;
+            var participantEligibleResponse = false;
             if (response.CreatedException)
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
-                updateResponse = await updateParticipant(participantCsvRecord, req);
+                updateResponse = await updateParticipant(participantCsvRecord);
+                participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
+
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
-                return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            updateResponse = await updateParticipant(participantCsvRecord, req);
-
+            updateResponse = await updateParticipant(participantCsvRecord);
+            participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
         }
         catch (Exception ex)
@@ -108,11 +108,35 @@ public class UpdateParticipantFunction
         return true;
     }
 
-    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord, HttpRequestData req)
+    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
+
         var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _logger.LogInformation("Participant updated.");
+            return true;
+        }
+        return false;
+    }
+
+    private async Task<bool> markParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
+    {
+        HttpWebResponse eligibleResponse;
+
+        if (participantCsvRecord.Participant.EligibilityFlag == "1")
+        {
+            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
+            eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+        }
+        else
+        {
+            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
+            eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), participantJson);
+        }
+
+        if (eligibleResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
             return true;

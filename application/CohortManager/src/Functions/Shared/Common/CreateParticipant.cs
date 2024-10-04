@@ -42,8 +42,28 @@ public class CreateParticipant : ICreateParticipant
             IsInterpreterRequired = demographic.IsInterpreterRequired,
             InvalidFlag = demographic.InvalidFlag,
             ScreeningId = participant.ScreeningId,
-            ScreeningName = participant.ScreeningName
+            ScreeningName = participant.ScreeningName,
+            EligibilityFlag = GetEligibilityFlag(participant)
         };
+    }
+
+
+    /// <summary>
+    ///  sets the flag to 1 or 0 even if the value of the flag is null
+    /// </summary>
+    /// <param name="basicParticipantData"></param>
+    /// <returns>a string of 1 or 0</returns>
+    private string GetEligibilityFlag(BasicParticipantData basicParticipantData)
+    {
+        if (basicParticipantData.EligibilityFlag == null)
+        {
+            if (basicParticipantData.RecordType == Actions.Removed)
+            {
+                return "0";
+            }
+            return "1";
+        }
+        return basicParticipantData.EligibilityFlag;
     }
 
     public CohortDistributionParticipant CreateCohortDistributionParticipantModel(Participant participant, Demographic demographic)

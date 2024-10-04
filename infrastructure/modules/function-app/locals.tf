@@ -87,6 +87,8 @@ locals {
       DemographicURIGet            = local.fnapp_urls.demographicDataFunction
       StaticValidationURL          = local.fnapp_urls.staticValidation
       ExceptionFunctionURL         = local.fnapp_urls.createException
+      DSmarkParticipantAsEligible  = local.fnapp_urls.markParticipantAsEligible
+      markParticipantAsIneligible" = local.fnapp_urls.markParticipantAsIneligible
     }
 
     CreateParticipant = {
