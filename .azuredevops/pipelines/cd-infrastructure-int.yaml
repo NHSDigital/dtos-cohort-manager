@@ -17,7 +17,7 @@ variables:
     value: '$(System.DefaultWorkingDirectory)/infrastructure'
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: private-pool-dev-uks
 
 # integration environment
 
