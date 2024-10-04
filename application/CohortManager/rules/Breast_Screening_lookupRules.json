@@ -19,7 +19,7 @@
           },
           {
             "Name": "validReasonForRemovalFields",
-            "Expression": "newParticipant.ReasonForRemoval != null OR newParticipant.ReasonForRemovalEffectiveFromDate != null"
+            "Expression": "!string.IsNullOrEmpty(newParticipant.ReasonForRemoval) OR !string.IsNullOrEmpty(newParticipant.ReasonForRemovalEffectiveFromDate)"
           }
         ],
         "Expression": "(newRecordType AND validPrimaryCareProvider) OR (notNewRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
