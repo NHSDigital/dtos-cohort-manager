@@ -3,9 +3,6 @@ namespace Data.Database;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using Model;
-using Common;
-using System.Text.Json;
-using System.Net;
 using NHS.CohortManager.CohortDistribution;
 
 public class ParticipantManagerData : IParticipantManagerData
@@ -76,8 +73,8 @@ public class ParticipantManagerData : IParticipantManagerData
                 { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
                 { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
                 { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
-                { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-                { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
+                { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+                { "@businessRuleVersion", _databaseHelper.ConvertNullToDbNull(participantData.BusinessRuleVersion)},
                 { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
                 { "@recordUpdateDateTime", dateToday },
             };

@@ -276,7 +276,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
+    public async Task GetAddress_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         var participant = new CohortDistributionParticipant()
@@ -309,7 +309,7 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
@@ -328,6 +328,37 @@ public class TransformDataServiceTests
             FamilyName = "((Smith   '   -:/))",
             NamePrefix = "DR",
             Gender = Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_RfrIsDeaAndDateOfDeathIsNull_SetDateOfDeathToRfrDate()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "DEA";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = "2/10/2024";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "DEA",
+            ReasonForRemovalEffectiveFromDate = "2/10/2024",
+            DateOfDeath = "2/10/2024"
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
