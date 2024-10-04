@@ -279,20 +279,17 @@ variable "sqlserver" {
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sa_config = map(object({
-      name_suffix                   = optional(string, "fnappstor")
-      account_tier                  = optional(string, "Standard")
-      replication_type              = optional(string, "LRS")
-      public_network_access_enabled = optional(bool, true)
-    }))
-    cont_config = map(object({
-      sa_key           = optional(string, "file_exceptions")
-      cont_name        = optional(string, "config")
-      cont_access_type = optional(string, "private")
-    }))
-  })
+  type = map(object({
+    name_suffix                   = string
+    resource_group_key            = string
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
+    public_network_access_enabled = optional(bool, false)
+    containers = optional(map(object({
+      container_name        = string
+      container_access_type = optional(string, "private")
+    })), {})
+  }))
 }
 
 variable "tags" {

@@ -1,13 +1,17 @@
 module "storage" {
+  for_each = var.storage_accounts
+
   source = ".//modules/storage"
 
-  names = module.config.names
+  name                = substr("${module.regions_config[module.baseline.resource_group_locations[each.value.resource_group_key]].names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
+  resource_group_name = module.baseline.resource_group_names[each.value.resource_group_key]
+  location            = module.baseline.resource_group_locations[each.value.resource_group_key]
 
-  resource_group_name = module.baseline.resource_group_names[var.storage_accounts.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.storage_accounts.resource_group_key]
+  containers = each.value.containers
 
-  storage_accounts = var.storage_accounts.sa_config
-  containers       = var.storage_accounts.cont_config
+  account_replication_type      = each.value.replication_type
+  account_tier                  = each.value.account_tier
+  public_network_access_enabled = each.value.public_network_access_enabled
 
   tags = var.tags
 

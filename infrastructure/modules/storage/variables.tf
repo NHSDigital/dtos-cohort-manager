@@ -1,3 +1,12 @@
+variable "name" {
+  type        = string
+  description = "The name of the Storage Account"
+
+  validation {
+    condition     = length(var.name) <= 24
+    error_message = "The Storage Account name must be between 3 and 24 characters in length."
+  }
+}
 
 variable "resource_group_name" {
   type        = string
@@ -9,17 +18,31 @@ variable "location" {
   description = "The location/region where the Storage Account is created."
 }
 
-variable "storage_accounts" {
-  description = "Definition of Storage Accounts configuration"
+variable "account_replication_type" {
+  type        = string
+  description = "The type of replication to use for this Storage Account. Can be either LRS, GRS, RAGRS or ZRS."
+  default     = "LRS"
+
+}
+
+variable "account_tier" {
+  type        = string
+  description = "Defines the Tier to use for this storage account. Valid options are Standard and Premium."
+  default     = "Standard"
 }
 
 variable "containers" {
   description = "Definition of Containers configuration"
+  type = map(object({
+    container_name        = string
+    container_access_type = string
+  }))
 }
 
-variable "names" {
-  type        = map(string)
-  description = "The basic part of the Storage Account name."
+variable "public_network_access_enabled" {
+  type        = bool
+  description = "Controls whether data in the account may be accessed from public networks."
+  default     = false
 }
 
 variable "tags" {

@@ -1,12 +1,12 @@
-resource "azurerm_storage_account" "sa" {
-  for_each = var.storage_accounts
+resource "azurerm_storage_account" "storage_account" {
 
-  name                          = substr("${var.names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
+  name                          = var.name
   resource_group_name           = var.resource_group_name
   location                      = var.location
-  account_tier                  = each.value.account_tier
-  account_replication_type      = each.value.replication_type
-  public_network_access_enabled = each.value.public_network_access_enabled
+
+  account_replication_type      = var.account_replication_type
+  account_tier                  = var.account_tier
+  public_network_access_enabled = var.public_network_access_enabled
 
   tags = var.tags
 
@@ -19,7 +19,7 @@ resource "azurerm_storage_account" "sa" {
 resource "azurerm_storage_container" "container" {
   for_each = var.containers
 
-  name                  = each.value.cont_name
-  storage_account_name  = azurerm_storage_account.sa[each.value.sa_key].name
-  container_access_type = each.value.cont_access_type
+  name                  = each.value.container_name
+  storage_account_name  = azurerm_storage_account.storage_account.name
+  container_access_type = each.value.container_access_type
 }
