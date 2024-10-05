@@ -19,10 +19,14 @@ module "functionapp" {
 
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
-  asp_id     = module.app-plan.app_service_plan_id
-  sa_name    = module.storage["fnapp"].storage_account_name
-  sa_prm_key = module.storage["fnapp"].storage_account_primary_access_key
+  public_network_access_enabled = var.features.public_network_access_enabled
 
+  # Do VNet integration at App Service level instead
+  # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+
+  asp_id               = module.app-plan.app_service_plan_id
+  sa_name              = module.storage["fnapp"].storage_account_name
+  sa_prm_key           = module.storage["fnapp"].storage_account_primary_access_key
   ai_connstring        = module.app_insights.ai_connection_string_audit
   worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
@@ -43,10 +47,6 @@ module "functionapp" {
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
-    public_network_access_enabled        = var.features.public_network_access_enabled
-    # Do VNet integration at App Service level instead
-    # vnet_integration_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
-    vnet_integration_subnet_id           = null
   } : null
 }
 

@@ -15,7 +15,6 @@ resource "azurerm_storage_account" "storage_account" {
   }
 }
 
-
 resource "azurerm_storage_container" "container" {
   for_each = var.containers
 
