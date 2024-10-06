@@ -25,12 +25,18 @@ variable "sku_name" {
   default     = "B1"
 }
 
+variable "vnet_integration_enabled" {
+  type        = bool
+  description = "Indicates whether the App Service Plan is integrated with a VNET."
+  default     = false
+}
+
 variable "vnet_integration_subnet_id" {
   type        = string
   description = "The ID of the subnet to integrate with."
   default     = ""
-
 }
+
 variable "tags" {
   type        = map(string)
   description = "Resource tags to be applied throughout the deployment."

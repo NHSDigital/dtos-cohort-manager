@@ -98,7 +98,7 @@ module "peering_spoke_hub" {
 }
 
 module "peering_hub_spoke" {
-  for_each = { for key, val in var.regions : key => val if val.create_peering == true }
+  for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
   providers = {
     azurerm = azurerm.dev-hub

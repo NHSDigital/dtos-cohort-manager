@@ -129,9 +129,10 @@ variable "app_insights" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    resource_group_key = optional(string, "cohman")
-    sku_name           = optional(string, "P2v3")
-    os_type            = optional(string, "Linux")
+    resource_group_key       = optional(string, "cohman")
+    sku_name                 = optional(string, "P2v3")
+    os_type                  = optional(string, "Linux")
+    vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
       memory_percentage = object({
