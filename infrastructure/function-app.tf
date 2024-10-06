@@ -24,7 +24,7 @@ module "functionapp" {
   # Do VNet integration at App Service level instead
   # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
-  asp_id               = module.app-plan.app_service_plan_id
+  asp_id               = module.app-service-plan[each.value.region_key].app_service_plan_id
   sa_name              = module.storage["fnapp"].storage_account_name
   sa_prm_key           = module.storage["fnapp"].storage_account_primary_access_key
   ai_connstring        = module.app_insights.ai_connection_string_audit

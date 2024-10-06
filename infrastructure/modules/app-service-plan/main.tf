@@ -17,6 +17,6 @@ resource "azurerm_service_plan" "appserviceplan" {
 resource "azurerm_app_service_virtual_network_swift_connection" "appservice_vnet_swift_connection" {
   count = length(var.vnet_integration_subnet_id) > 0 ? 1 : 0
 
-  app_service_id = azurerm_app_service.appserviceplan.id
+  app_service_id = azurerm_service_plan.appserviceplan.id
   subnet_id      = var.vnet_integration_subnet_id
 }

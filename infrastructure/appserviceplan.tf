@@ -1,4 +1,4 @@
-module "app-plan" {
+module "app-service-plan" {
   for_each = var.regions
 
   source = ".//modules/app-service-plan"
