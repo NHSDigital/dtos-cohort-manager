@@ -2,7 +2,8 @@ terraform {
   required_version = ">= 1.9.2"
   required_providers {
     azurerm = {
-      source  = "hashicorp/azurerm"
+      source = "hashicorp/azurerm"
+      # version = ">= 4.2.0"
       version = "= 3.112.0"
     }
 
@@ -37,8 +38,8 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "devops"
-  subscription_id = var.DEVOPS_SUBSCRIPTION_ID
+  alias           = "dev-hub"
+  subscription_id = var.DEVHUB_SUBSCRIPTION_ID
   features {}
 }
 
