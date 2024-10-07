@@ -65,12 +65,15 @@ variable "regions" {
   type = map(object({
     address_space     = optional(string)
     is_primary_region = bool
-    create_peering    = optional(bool, false)
+    connect_peering   = optional(bool, false)
     subnets = optional(map(object({
-      cidr_newbits = string
-      cidr_offset  = string
-      create_nsg   = optional(bool)   # defaults to true
-      name         = optional(string) # Optional name override
+      cidr_newbits               = string
+      cidr_offset                = string
+      create_nsg                 = optional(bool, true) # defaults to true
+      name                       = optional(string)     # Optional name override
+      delegation_name            = optional(string)
+      service_delegation_name    = optional(string)
+      service_delegation_actions = optional(list(string))
     })))
   }))
 }
@@ -126,9 +129,10 @@ variable "app_insights" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    resource_group_key = optional(string, "cohman")
-    sku_name           = optional(string, "P2v3")
-    os_type            = optional(string, "Linux")
+    resource_group_key       = optional(string, "cohman")
+    sku_name                 = optional(string, "P2v3")
+    os_type                  = optional(string, "Linux")
+    vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
       memory_percentage = object({
@@ -170,19 +174,20 @@ variable "event_grid" {
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
-    resource_group_key       = string
-    acr_mi_name              = string
-    acr_name                 = string
-    acr_rg_name              = string
-    cont_registry_use_mi     = bool
-    docker_CI_enable         = string
-    docker_env_tag           = string
-    docker_img_prefix        = string
-    enable_appsrv_storage    = bool
-    ftps_state               = string
-    https_only               = bool
-    remote_debugging_enabled = bool
-    worker_32bit             = bool
+    resource_group_key            = string
+    acr_mi_name                   = string
+    acr_name                      = string
+    acr_rg_name                   = string
+    cont_registry_use_mi          = bool
+    docker_CI_enable              = string
+    docker_env_tag                = string
+    docker_img_prefix             = string
+    enable_appsrv_storage         = bool
+    ftps_state                    = string
+    https_only                    = bool
+    remote_debugging_enabled      = bool
+    storage_uses_managed_identity = bool
+    worker_32bit                  = bool
     fa_config = map(object({
       name_suffix                  = string
       function_endpoint_name       = string
@@ -211,6 +216,7 @@ variable "key_vault" {
     purge_prot         = optional(bool, false)
     sku_name           = optional(string, "standard")
   })
+  default = {}
 }
 
 variable "law" {
@@ -244,53 +250,50 @@ variable "sqlserver" {
   description = "Configuration for the Azure MSSQL server instance and a default database "
   type = object({
 
-    sql_uai_name         = optional(string, "")
-    sql_admin_group_name = optional(string, "")
-    ad_auth_only         = optional(bool, true)
+    sql_uai_name         = optional(string)
+    sql_admin_group_name = optional(string)
+    ad_auth_only         = optional(bool)
 
     # Server Instance
-    server = object({
+    server = optional(object({
       resource_group_key            = optional(string, "cohman")
       sqlversion                    = optional(string, "12.0")
       tlsversion                    = optional(number, 1.2)
       azure_services_access_enabled = optional(bool, true)
-    })
+    }), {})
 
     # Database
-    dbs = map(object({
+    dbs = optional(map(object({
       db_name_suffix = optional(string, "cohman")
       collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
       licence_type   = optional(string, "LicenseIncluded")
       max_gb         = optional(number, 5)
       read_scale     = optional(bool, false)
       sku            = optional(string, "S0")
-    }))
+    })), {})
 
     # FW Rules
-    fw_rules = map(object({
-      fw_rule_name = optional(string, "AllowAccessFromAzure")
-      start_ip     = optional(string, "0.0.0.0")
-      end_ip       = optional(string, "0.0.0.0")
-    }))
+    fw_rules = optional(map(object({
+      fw_rule_name = string
+      start_ip     = string
+      end_ip       = string
+    })), {})
   })
 }
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sa_config = map(object({
-      name_suffix                   = optional(string, "fnappstor")
-      account_tier                  = optional(string, "Standard")
-      replication_type              = optional(string, "LRS")
-      public_network_access_enabled = optional(bool, true)
-    }))
-    cont_config = map(object({
-      sa_key           = optional(string, "file_exceptions")
-      cont_name        = optional(string, "config")
-      cont_access_type = optional(string, "private")
-    }))
-  })
+  type = map(object({
+    name_suffix                   = string
+    resource_group_key            = string
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
+    public_network_access_enabled = optional(bool, false)
+    containers = optional(map(object({
+      container_name        = string
+      container_access_type = optional(string, "private")
+    })), {})
+  }))
 }
 
 variable "tags" {
