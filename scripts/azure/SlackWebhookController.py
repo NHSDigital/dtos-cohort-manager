@@ -53,7 +53,7 @@ def main(argv):
     if containerURL:
         new_docker_image_available(functionDeployedName, containerURL, tags, slack)
     elif report:
-        unstructured_slack_message(functionDeployedName, file_path, slack)
+        unstructured_slack_message(functionDeployedName, report, slack)
     else:
         new_function_deployed(functionDeployedName, tags, slack)
 
