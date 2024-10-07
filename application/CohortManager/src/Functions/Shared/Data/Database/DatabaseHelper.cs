@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System.Data;
 using System.Globalization;
+using System.Net;
 using Microsoft.Extensions.Logging;
 using Model.Enums;
 
@@ -71,5 +72,12 @@ public class DatabaseHelper : IDatabaseHelper
     public int ParseExceptionFlag(object exception)
     {
         return exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0;
+    }
+
+    public static List<string> GetHttpStatusCodeStringList()
+    {
+        return ((HttpStatusCode[])Enum.GetValues(typeof(HttpStatusCode)))
+                .Select(code => ((int)code).ToString())
+                .ToList();
     }
 }

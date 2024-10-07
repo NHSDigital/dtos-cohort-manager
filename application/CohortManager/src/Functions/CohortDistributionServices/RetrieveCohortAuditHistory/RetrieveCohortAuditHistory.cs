@@ -45,12 +45,10 @@ public class RetrieveCohortAuditHistory
         var requestId = req.Query["requestId"];
         var statusCode = req.Query["statusCode"];
         var dateFrom = req.Query["dateFrom"];
+        var acceptedStatusCodes = new string[] { ((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString() };
 
         if (string.IsNullOrEmpty(requestId)) return _httpParserHelper.LogErrorResponse(req, "No request Id provided.");
-        if (statusCode != HttpStatusCode.Accepted.ToString() || statusCode != HttpStatusCode.InternalServerError.ToString()) return _httpParserHelper.LogErrorResponse(req, "Incorrect status code."); //wp - I don't like this but it's a placeholder for now
-
-        // if (!DateTime.TryParse(dateFromStr, out var dateFrom)) return _httpParserHelper.LogErrorResponse(req, "Invalid date format for dateFrom.");
-        // if (!Enum.TryParse<HttpStatusCode>(statusCode, out _)) return _httpParserHelper.LogErrorResponse(req, "Incorrect status code.");
+        if (!acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200 and 500 are accepted.");
 
         try
         {

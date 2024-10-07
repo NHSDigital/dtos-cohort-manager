@@ -500,17 +500,21 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
             " WHERE REQUEST_ID = @RequestId " +
-            " AND STATUS_CODE = @StatusCode " +
-            " AND CREATED_DATETIME >= @DateFrom ";
+            " AND STATUS_CODE = @StatusCode ";
 
         var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId },
-            {"@StatusCode", statusCode },
-            {"@DateFrom", dateFrom },
+            {"@StatusCode", statusCode }
         };
 
-        var command = CreateCommand(parameters);
+        if (!string.IsNullOrEmpty(dateFrom))
+        {
+            SQL += "AND CREATED_DATETIME >= @DateFrom ";
+            parameters.Add("@DateFrom", dateFrom);
+        }
+
+        using var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
         return ExecuteQuery(command, reader =>
@@ -518,14 +522,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             var cohortAuditHistoryList = new List<CohortAuditHistory>();
             while (reader.Read())
             {
-                var cohortAuditHistory = new CohortAuditHistory
+                cohortAuditHistoryList.Add(new CohortAuditHistory
                 {
                     RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
                     StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
                     CreatedDateTime = DatabaseHelper.GetStringValue(reader, "CREATED_DATETIME"),
-                };
-
-                cohortAuditHistoryList.Add(cohortAuditHistory);
+                });
             }
             return cohortAuditHistoryList;
         });
