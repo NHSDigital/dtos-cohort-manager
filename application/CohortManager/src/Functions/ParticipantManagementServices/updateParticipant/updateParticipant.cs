@@ -123,20 +123,20 @@ public class UpdateParticipantFunction
 
     private async Task<bool> markParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
     {
-        HttpWebResponse eligibleResponse;
+        HttpWebResponse eligibilityResponse;
 
         if (participantCsvRecord.Participant.EligibilityFlag == "1")
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
         }
         else
         {
-            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), participantJson);
+            var participantJson = JsonSerializer.Serialize(participantCsvRecord);
+            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), participantJson);
         }
 
-        if (eligibleResponse.StatusCode == HttpStatusCode.OK)
+        if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
             return true;
