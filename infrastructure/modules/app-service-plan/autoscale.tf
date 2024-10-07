@@ -1,12 +1,12 @@
 
 resource "azurerm_monitor_autoscale_setting" "asp_autoscale" {
-  name                = "${var.names.app-service-plan}-autoscale"
+  name                = "${var.name}-autoscale"
   resource_group_name = var.resource_group_name
   location            = var.location
   target_resource_id  = azurerm_service_plan.appserviceplan.id
 
   profile {
-    name = "${var.names.app-service-plan}-${var.metric}"
+    name = "${var.name}-${var.metric}"
 
     capacity {
       minimum = var.capacity_min

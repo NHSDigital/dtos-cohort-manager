@@ -1,3 +1,8 @@
+variable "name" {
+  type        = string
+  description = "Name of the App Service Plan."
+}
+
 variable "resource_group_name" {
   type        = string
   description = "The name of the resource group in which to create the App Service Plan. Changing this forces a new resource to be created."
@@ -6,11 +11,6 @@ variable "resource_group_name" {
 variable "location" {
   type        = string
   description = "The location/region where the App Service Plan is created."
-}
-
-variable "names" {
-  type        = map(string)
-  description = "Standard naming configuration object for sub-resources."
 }
 
 variable "os_type" {
@@ -24,6 +24,19 @@ variable "sku_name" {
   description = "SKU name for deployed App Service Plan."
   default     = "B1"
 }
+
+variable "vnet_integration_enabled" {
+  type        = bool
+  description = "Indicates whether the App Service Plan is integrated with a VNET."
+  default     = false
+}
+
+variable "vnet_integration_subnet_id" {
+  type        = string
+  description = "The ID of the subnet to integrate with."
+  default     = ""
+}
+
 variable "tags" {
   type        = map(string)
   description = "Resource tags to be applied throughout the deployment."

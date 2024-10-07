@@ -7,8 +7,6 @@ features = {
   api_management_enabled    = false
   event_grid_enabled        = false
   private_endpoints_enabled = true
-  private_service_connection_is_manual = false
-  public_network_access_enabled        = false
 }
 
 tags = {
@@ -18,7 +16,7 @@ tags = {
 resource_groups = {
   # cohman RG
   cohman = {
-    name     = "rg-cohman-int-uks"
+    name     = "rg-cohort-manager-int-uks"
     location = "uksouth"
   }
 }
@@ -36,12 +34,9 @@ regions = {
     address_space     = "10.105.0.0/16"
     connect_peering   = true
     subnets = {
-      apps = {
+      asp = {
         cidr_newbits = 8
         cidr_offset  = 2
-        delegation_name            = "Microsoft.Web/serverFarms"
-        service_delegation_name    = "Microsoft.Web/serverFarms"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
       pep = {
         cidr_newbits = 8
@@ -82,9 +77,8 @@ app_insights = {
 app_service_plan = {
   resource_group_key = "cohman"
 
-  os_type  = "Linux"
   sku_name = "P2v3"
-  vnet_integration_enabled = true
+  os_type  = "Linux"
 
   autoscale = {
     memory_percentage = {
@@ -434,6 +428,12 @@ function_apps = {
       ]
     }
 
+    DevOpsTestingService = {
+      name_suffix              = "devops-testing-service"
+      function_endpoint_name   = "DevOpsTestingService"
+      app_urls = []
+    }
+
     AddCohortDistributionData = {
       name_suffix              = "add-cohort-distribution-data"
       function_endpoint_name   = "AddCohortDistributionData"
@@ -620,34 +620,44 @@ sqlserver = {
 }
 
 storage_accounts = {
+  resource_group_key = "cohman"
+  sa_config = {
     fnapp = {
       name_suffix                   = "fnappstor"
-    resource_group_key            = "cohman"
       account_tier                  = "Standard"
       replication_type              = "LRS"
-    public_network_access_enabled = false
-    containers = {}
+      public_network_access_enabled = true
     }
+
     file_exceptions = {
       name_suffix                   = "filexptns"
-    resource_group_key            = "cohman"
       account_tier                  = "Standard"
       replication_type              = "LRS"
-    public_network_access_enabled = false
-    containers = {
+      public_network_access_enabled = true
+    }
+  }
+
+  cont_config = {
     file-exceptions = {
-        container_name        = "file-exceptions"
-        container_access_type = "private"
+      sa_key           = "file_exceptions"
+      cont_name        = "file-exceptions"
+      cont_access_type = "private"
     }
     config = {
-        container_name        = "config"
+      sa_key           = "file_exceptions"
+      cont_name        = "config"
+      cont_access_type = "private"
     }
     inbound = {
-        container_name        = "inbound"
+      sa_key           = "file_exceptions"
+      cont_name        = "inbound"
+      cont_access_type = "private"
     }
+
     inbound-poison = {
-        container_name        = "inbound-poison"
-      }
+      sa_key           = "file_exceptions"
+      cont_name        = "inbound-poison"
+      cont_access_type = "private"
     }
   }
 }

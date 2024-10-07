@@ -1,5 +1,5 @@
 # Things to change for further environments:
-# - stage variable group name: ENVIRONMENT_variable_group
+# - stage variable group name: dtos_ENVIRONMENT_variables
 # -
 
 trigger:
@@ -17,10 +17,9 @@ variables:
     value: '$(System.DefaultWorkingDirectory)/infrastructure'
 
 pool:
-  #vmImage: ubuntu-latest
-  name: 'private-pool-dev-uks'
+  vmImage: ubuntu-latest
 
-# Integration environment
+# integration environment
 
 stages:
   - stage: terraform_plan
