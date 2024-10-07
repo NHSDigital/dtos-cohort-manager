@@ -1,3 +1,5 @@
+namespace Model;
+
 public static class EligibilityFlag
 {
     public const string Eligible = "1";
