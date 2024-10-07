@@ -36,42 +36,20 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           echo "generating report"
-
-          az account show -o jsonc
-
           az account set --subscription $(function_subscription)
 
           function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
-
-          # mkdir -p $(pwd)/zap_output/.ZAP/session
-          # mkdir -p $(pwd)/zap_output/.ZAP/dirbuster
-          # mkdir -p $(pwd)/zap_output/.ZAP/fuzzers
-          # mkdir -p $(pwd)/zap_output/.ZAP/plugin
-          # chmod -R 777 $(pwd)/zap_output
-          # mkdir -p $(pwd)/zap_wrk
-
-
-          # mkdir -p (pwd):/zap/wrk
-          # pwd
-
           for function in $function_list; do
+
             function_url=$(az functionapp show --resource-group $(dev_rg) --name $function --query "defaultHostName" --output tsv  )
             echo https://$function_url
-
-            # docker run -v $(pwd)/zap_wrk:/zap/wrk -v $(pwd)/zap_output/.ZAP:/home/zap/.ZAP -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url -r zap_report.html
-
-            # docker run -v $(pwd):/zap/wrk -v $(pwd)/zap_output/.ZAP:/home/zap/.ZAP -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url  -r zap_report.html
 
             docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url > zap_report_$function
 
             pip install python-hcl2
             export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
             chmod 755 scripts/azure/GetImageTagsByManifest.sh
-
-            #echo "the output: $(cat zap_report_$function)"
-
-            python3 scripts/azure/SlackWebhookController.py -v -f $function -d zap_report_$function
-
+            python3 scripts/azure/SlackWebhookController.py -v -f $function -r zap_report_$function
 
           done
 

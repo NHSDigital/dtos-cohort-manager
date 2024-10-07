@@ -17,19 +17,19 @@ def main(argv):
     containerURL, functionDeployedName, tags, data ='', '', '', ''
     verbose=False
     try:
-        opts, args = getopt.getopt(argv,"hc:d:f:t:v",["containerURL=", "data=","functionDeployedName=", "tags=","verbose"])
+        opts, args = getopt.getopt(argv,"hc:f:r:t:v", ["containerURL=", "functionDeployedName=", "report=", "tags=","verbose"])
     except getopt.GetoptError:
         print('SlackWebhookController.py -c <containerURL> -d <data>  -f <functionDeployedName> -t <tags>')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print('SlackWebhookController.py -c <containerURL> -d <data> -f <functionDeployedName> -t <tags> ')
+            print('SlackWebhookController.py -c <containerURL> -f <functionDeployedName> -r <reportFile> -t <tags> ')
             sys.exit()
         elif opt in ("-c", "--containerURL"):
             containerURL = arg
-        elif opt in ("-d", "--data"):
-            data = arg
+        elif opt in ("-r", "--report"):
+            report = arg
         elif opt in ("-f", "--functionDeployed"):
             functionDeployedName = arg
         elif opt in ("-t", "--tags"):
@@ -44,14 +44,6 @@ def main(argv):
     webhook_url = os.environ.get('SLACK_WEBHOOK_URL')
     slack = SlackWebhookBot(webhook_url)
 
-    # Read the contents of the file
-    file_path = data
-    with open(file_path, 'r') as file:
-        file_contents = file.read()
-
-    # Define the command and pass the file contents as an argument
-    command = ['echo', file_contents]  # Replace 'echo' with your actual command
-
     # Execute the command
     result = subprocess.run(command, capture_output=True, text=True)
 
@@ -59,15 +51,16 @@ def main(argv):
         print('functionDeployedName is: ', functionDeployedName)
         print('containerURL is: ', containerURL)
         print("tags: ", tags)
-        print("data: ", result.stdout)
+        print("file_path: ", result.stdout)
 
 
-    # if containerURL:
-    #     new_docker_image_available(functionDeployedName, containerURL, tags, slack)
-    # else:
-    #     new_function_deployed(functionDeployedName, tags, slack)
+    if containerURL:
+        new_docker_image_available(functionDeployedName, containerURL, tags, slack)
+    else if report:
+        unstructured_slack_message(functionDeployedName, file_path, slack)
+    else:
+        new_function_deployed(functionDeployedName, tags, slack)
 
-    unstructured_slack_message(functionDeployedName, file_path, slack)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
