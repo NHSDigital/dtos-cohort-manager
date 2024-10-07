@@ -44,14 +44,10 @@ def main(argv):
     webhook_url = os.environ.get('SLACK_WEBHOOK_URL')
     slack = SlackWebhookBot(webhook_url)
 
-    # Execute the command
-    result = subprocess.run(command, capture_output=True, text=True)
-
     if verbose:
         print('functionDeployedName is: ', functionDeployedName)
         print('containerURL is: ', containerURL)
         print("tags: ", tags)
-        print("file_path: ", result.stdout)
 
 
     if containerURL:
