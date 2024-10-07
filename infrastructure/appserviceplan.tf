@@ -1,12 +1,16 @@
-module "app-plan" {
+module "app-service-plan" {
+  for_each = var.regions
+
   source = ".//modules/app-service-plan"
 
-  names               = module.config.names
+  name                = module.regions_config[each.key].names.app-service-plan
   resource_group_name = module.baseline.resource_group_names[var.app_service_plan.resource_group_key]
   location            = module.baseline.resource_group_locations[var.app_service_plan.resource_group_key]
 
   os_type  = var.app_service_plan.os_type
   sku_name = var.app_service_plan.sku_name
+
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.key].names.subnet}-apps"].id
 
   tags = var.tags
 

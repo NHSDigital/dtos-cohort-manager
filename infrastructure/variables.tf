@@ -65,12 +65,15 @@ variable "regions" {
   type = map(object({
     address_space     = optional(string)
     is_primary_region = bool
-    create_peering    = optional(bool, false)
+    connect_peering   = optional(bool, false)
     subnets = optional(map(object({
       cidr_newbits = string
       cidr_offset  = string
-      create_nsg   = optional(bool)   # defaults to true
+      create_nsg                 = optional(bool, true) # defaults to true
       name         = optional(string) # Optional name override
+      delegation_name            = optional(string)
+      service_delegation_name    = optional(string)
+      service_delegation_actions = optional(list(string))
     })))
   }))
 }
@@ -129,6 +132,7 @@ variable "app_service_plan" {
     resource_group_key = optional(string, "cohman")
     sku_name           = optional(string, "P2v3")
     os_type            = optional(string, "Linux")
+    vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
       memory_percentage = object({
@@ -277,20 +281,17 @@ variable "sqlserver" {
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sa_config = map(object({
-      name_suffix                   = optional(string, "fnappstor")
+  type = map(object({
+    name_suffix                   = string
+    resource_group_key            = string
       account_tier                  = optional(string, "Standard")
       replication_type              = optional(string, "LRS")
-      public_network_access_enabled = optional(bool, true)
+    public_network_access_enabled = optional(bool, false)
+    containers = optional(map(object({
+      container_name        = string
+      container_access_type = optional(string, "private")
+    })), {})
     }))
-    cont_config = map(object({
-      sa_key           = optional(string, "file_exceptions")
-      cont_name        = optional(string, "config")
-      cont_access_type = optional(string, "private")
-    }))
-  })
 }
 
 variable "tags" {

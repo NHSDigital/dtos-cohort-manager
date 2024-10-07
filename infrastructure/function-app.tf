@@ -1,26 +1,24 @@
 module "functionapp" {
-  for_each = { for pair in flatten([
-    for region_key, region_functions in local.function_apps_config : [
-      for function_key, function_config in region_functions : {
-        region_key      = region_key
-        function_key    = function_key
-        function_config = function_config
-      }
-    ]
-  ]) : "${pair.function_key}-${pair.region_key}" => pair }
+  for_each = local.function_app_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
+  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
+  # test version
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
   resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.function_apps.resource_group_key]
+  location            = each.value.region_key
 
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
-  asp_id     = module.app-plan.app_service_plan_id
-  sa_name    = module.storage.storage_account_names["fnapp"]
-  sa_prm_key = module.storage.storage_account_primary_access_keys["fnapp"]
+  public_network_access_enabled = var.features.public_network_access_enabled
 
+  # Do VNet integration at App Service level instead
+  # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+
+  asp_id               = module.app-service-plan[each.value.region_key].app_service_plan_id
+  sa_name              = module.storage["fnapp-${each.value.region_key}"].storage_account_name
+  sa_prm_key           = module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
   ai_connstring        = module.app_insights.ai_connection_string_audit
   worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
@@ -33,6 +31,15 @@ module "functionapp" {
 
   image_tag  = var.function_apps.docker_env_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.function_config.name_suffix)}"
+
+  # Private Endpoint Configuration if enabled
+  private_endpoint_properties = var.features.private_endpoints_enabled ? {
+    private_dns_zone_ids                 = [data.terraform_remote_state.hub.outputs.private_dns_zone_app_services[each.value.region_key].private_dns_zone.id]
+    private_endpoint_enabled             = var.features.private_endpoints_enabled
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
+    private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
+    private_service_connection_is_manual = var.features.private_service_connection_is_manual
+  } : null
 }
 
 # Loop through the Key Vault URLs for each region and create the Key Vault Access Policies for each Function App:
@@ -113,10 +120,13 @@ locals {
 
   # Create a map of the storage accounts for each function app as defined in the storage_account_env_var_name attribute
   env_vars_storage_accounts = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
     for key, value in var.function_apps.fa_config :
     key => length(value.storage_account_env_var_name) > 0 ? {
-      "${value.storage_account_env_var_name}" = module.storage.storage_account_primary_connection_strings["file_exceptions"]
+        "${value.storage_account_env_var_name}" = module.storage["file_exceptions-${region_key}"].storage_account_primary_connection_string
     } : null
+  }
   }
 
   # Create a map of the storage containers for each function app as defined in the storage_containers attribute
@@ -168,11 +178,24 @@ locals {
       app_key => merge(
         local.global_app_settings,
         local.env_vars_app_urls[region_key][app_key],
-        local.env_vars_storage_accounts[app_key],
+        local.env_vars_storage_accounts[region_key][app_key],
         local.env_vars_storage_containers[app_key],
         local.env_vars_database_connection_strings[region_key][app_key],
         local.env_vars_key_vault_urls[region_key][app_key]
       )
     }
+  }
+
+  # Finaly build a "super map" of all the app settings for each function app in each region
+  function_app_map = {
+    for value in flatten([
+      for region_key, region_functions in local.function_apps_config : [
+        for function_key, function_config in region_functions : {
+          region_key      = region_key
+          function_key    = function_key
+          function_config = function_config
+        }
+      ]
+    ]) : "${value.function_key}-${value.region_key}" => value
   }
 }
