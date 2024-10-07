@@ -492,6 +492,46 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
+    public List<CohortAuditHistory> GetCohortAuditHistory(string requestId, string statusCode, string? dateFrom)
+    {
+        var SQL = "SELECT" +
+            " [REQUEST_ID], " +
+            " [STATUS_CODE], " +
+            " [CREATED_DATETIME] " +
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            " WHERE REQUEST_ID = @RequestId " +
+            " AND STATUS_CODE = @StatusCode " +
+            " AND CREATED_DATETIME >= @DateFrom ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@RequestId", requestId },
+            {"@StatusCode", statusCode },
+            {"@DateFrom", dateFrom },
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return ExecuteQuery(command, reader =>
+        {
+            var cohortAuditHistoryList = new List<CohortAuditHistory>();
+            while (reader.Read())
+            {
+                var cohortAuditHistory = new CohortAuditHistory
+                {
+                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
+                    StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
+                    CreatedDateTime = DatabaseHelper.GetStringValue(reader, "CREATED_DATETIME"),
+                };
+
+                cohortAuditHistoryList.Add(cohortAuditHistory);
+            }
+            return cohortAuditHistoryList;
+        });
+    }
+
+
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
         var command = CreateCommand(sqlToExecute[0].Parameters);
