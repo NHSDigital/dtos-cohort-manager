@@ -122,11 +122,11 @@ locals {
   env_vars_storage_accounts = {
     for region_key, region_value in module.regions_config :
     region_key => {
-    for key, value in var.function_apps.fa_config :
-    key => length(value.storage_account_env_var_name) > 0 ? {
+      for key, value in var.function_apps.fa_config :
+      key => length(value.storage_account_env_var_name) > 0 ? {
         "${value.storage_account_env_var_name}" = module.storage["file_exceptions-${region_key}"].storage_account_primary_connection_string
-    } : null
-  }
+      } : null
+    }
   }
 
   # Create a map of the storage containers for each function app as defined in the storage_containers attribute

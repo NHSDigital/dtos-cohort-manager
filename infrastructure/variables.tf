@@ -67,10 +67,10 @@ variable "regions" {
     is_primary_region = bool
     connect_peering   = optional(bool, false)
     subnets = optional(map(object({
-      cidr_newbits = string
-      cidr_offset  = string
+      cidr_newbits               = string
+      cidr_offset                = string
       create_nsg                 = optional(bool, true) # defaults to true
-      name         = optional(string) # Optional name override
+      name                       = optional(string)     # Optional name override
       delegation_name            = optional(string)
       service_delegation_name    = optional(string)
       service_delegation_actions = optional(list(string))
@@ -129,9 +129,9 @@ variable "app_insights" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    resource_group_key = optional(string, "cohman")
-    sku_name           = optional(string, "P2v3")
-    os_type            = optional(string, "Linux")
+    resource_group_key       = optional(string, "cohman")
+    sku_name                 = optional(string, "P2v3")
+    os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
@@ -284,14 +284,14 @@ variable "storage_accounts" {
   type = map(object({
     name_suffix                   = string
     resource_group_key            = string
-      account_tier                  = optional(string, "Standard")
-      replication_type              = optional(string, "LRS")
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
     public_network_access_enabled = optional(bool, false)
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")
     })), {})
-    }))
+  }))
 }
 
 variable "tags" {
