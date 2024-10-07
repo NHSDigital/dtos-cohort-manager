@@ -1,4 +1,3 @@
-
 module "regions_config" {
   for_each = var.regions
 

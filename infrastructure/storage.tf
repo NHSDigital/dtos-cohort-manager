@@ -1,14 +1,48 @@
 module "storage" {
-  source = ".//modules/storage"
+  for_each = local.storage_accounts_map
 
-  names = module.config.names
+  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=3ff9a88bed4d9506e516809bdb9c5757b362ac2d"
 
-  resource_group_name = module.baseline.resource_group_names[var.storage_accounts.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.storage_accounts.resource_group_key]
+  name                = substr("${module.regions_config[each.value.region_key].names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
+  resource_group_name = module.baseline.resource_group_names[each.value.resource_group_key]
+  location            = each.value.region_key
 
-  storage_accounts = var.storage_accounts.sa_config
-  containers       = var.storage_accounts.cont_config
+  containers = each.value.containers
+
+  account_replication_type      = each.value.replication_type
+  account_tier                  = each.value.account_tier
+  public_network_access_enabled = each.value.public_network_access_enabled
+
+  # Private Endpoint Configuration if enabled
+  private_endpoint_properties = var.features.private_endpoints_enabled ? {
+    private_dns_zone_ids_blob            = [data.terraform_remote_state.hub.outputs.private_dns_zone_storage_blob[each.value.region_key].private_dns_zone.id]
+    private_dns_zone_ids_queue           = [data.terraform_remote_state.hub.outputs.private_dns_zone_storage_queue[each.value.region_key].private_dns_zone.id]
+    private_endpoint_enabled             = var.features.private_endpoints_enabled
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
+    private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
+    private_service_connection_is_manual = var.features.private_service_connection_is_manual
+  } : null
 
   tags = var.tags
+}
 
+locals {
+  storage_accounts_flatlist = flatten([
+    for region_key, region_val in var.regions : [
+      for storage_key, storage_val in var.storage_accounts : {
+        name                          = "${storage_key}-${region_key}"
+        region_key                    = region_key
+        resource_group_key            = storage_val.resource_group_key
+        name_suffix                   = storage_val.name_suffix
+        replication_type              = storage_val.replication_type
+        account_tier                  = storage_val.account_tier
+        public_network_access_enabled = storage_val.public_network_access_enabled
+        containers                    = storage_val.containers
+      }
+    ]
+  ])
+
+  # Project the above list into a map with unique keys for consumption in a for_each meta argument
+  storage_accounts_map = { for storage in local.storage_accounts_flatlist : storage.name => storage }
 }
