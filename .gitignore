@@ -54,3 +54,4 @@ application/CohortManager/SampleData/
 recreate_local_settings.sh
 
 .history
+infrastructure/.terraform.lock.hcl

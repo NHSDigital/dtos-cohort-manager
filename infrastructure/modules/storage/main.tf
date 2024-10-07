@@ -1,8 +1,8 @@
 resource "azurerm_storage_account" "storage_account" {
 
   name                = var.name
-  resource_group_name           = var.resource_group_name
-  location                      = var.location
+  resource_group_name = var.resource_group_name
+  location            = var.location
 
   account_replication_type      = var.account_replication_type
   account_tier                  = var.account_tier
@@ -39,7 +39,7 @@ module "private_endpoint_blob_storage" {
 
   private_dns_zone_group = {
     name                 = "${var.name}-blob-private-endpoint-zone-group"
-    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids
+    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids_blob
   }
 
   private_service_connection = {
@@ -64,7 +64,7 @@ module "private_endpoint_queue_storage" {
 
   private_dns_zone_group = {
     name                 = "${var.name}-queue-private-endpoint-zone-group"
-    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids
+    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids_queue
   }
 
   private_service_connection = {
