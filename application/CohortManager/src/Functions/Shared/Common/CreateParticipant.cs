@@ -53,7 +53,7 @@ public class CreateParticipant : ICreateParticipant
     /// </summary>
     /// <param name="basicParticipantData"></param>
     /// <returns>a string of 1 or 0</returns>
-    private string GetEligibilityFlag(BasicParticipantData basicParticipantData)
+    private static string GetEligibilityFlag(BasicParticipantData basicParticipantData)
     {
         if (basicParticipantData.EligibilityFlag == null)
         {
