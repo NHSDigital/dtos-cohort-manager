@@ -125,7 +125,7 @@ public class UpdateParticipantFunction
     {
         HttpWebResponse eligibilityResponse;
 
-        if (participantCsvRecord.Participant.EligibilityFlag == "1")
+        if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
             eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);

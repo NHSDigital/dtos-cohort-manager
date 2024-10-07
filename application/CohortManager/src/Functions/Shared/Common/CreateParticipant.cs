@@ -59,9 +59,9 @@ public class CreateParticipant : ICreateParticipant
         {
             if (basicParticipantData.RecordType == Actions.Removed)
             {
-                return "0";
+                return EligibilityFlag.Ineligible;
             }
-            return "1";
+            return EligibilityFlag.Eligible;
         }
         return basicParticipantData.EligibilityFlag;
     }
