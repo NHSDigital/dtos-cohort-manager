@@ -2,11 +2,10 @@ namespace Data.Database;
 
 public interface IDatabaseHelper
 {
-    public DateTime ParseDates(string dateString);
-    public object ConvertNullToDbNull(string value);
-    public bool CheckIfDateNull(string property);
-    public bool CheckIfNumberNull(string property);
-    public string ParseDateToString(string dateToParse);
-    public int ConvertBoolStringToInt(string value);
-    public int ParseExceptionFlag(object exception);
+    object ParseDates(string dateString);
+    object ConvertNullToDbNull(string value);
+    bool CheckIfNumberNull(string property);
+    int ConvertBoolStringToInt(string value);
+    int ParseExceptionFlag(object exception);
+    object ParseDateTime(string dateTimeString);
 }

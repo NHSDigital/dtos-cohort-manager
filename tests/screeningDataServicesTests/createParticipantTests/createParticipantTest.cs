@@ -2,7 +2,6 @@ namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -18,12 +17,8 @@ public class CreateParticipantTests
     private readonly Mock<ILogger<ScreeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
-    private readonly Mock<FunctionContext> _mockContext = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private Mock<HttpRequestData> _mockRequest;
-
     private Mock<IParticipantManagerData> _participantManagerData = new();
-
     private Mock<ICallFunction> _callFunction = new();
 
     [TestMethod]

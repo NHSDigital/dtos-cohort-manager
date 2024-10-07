@@ -23,22 +23,31 @@ public class RemoveCohortDistributionData
     [Function("RemoveCohortDistributionData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        _logger.LogInformation($"C# HTTP trigger function processed a request");
-        string nhsNumber = req.Query["NhsNumber"];
-
-        if (string.IsNullOrEmpty(nhsNumber))
+        try
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            _logger.LogInformation($"C# HTTP trigger function processed a request");
+            string nhsNumber = req.Query["NhsNumber"];
+
+            if (string.IsNullOrEmpty(nhsNumber))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+            var isUpdated = _createCohortDistributionData.UpdateCohortParticipantAsInactive(nhsNumber);
+
+            if (!isUpdated)
+            {
+                _logger.LogInformation("No record could be removed there could have been no record to remove or some other error could have happened");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            }
+
+            _logger.LogInformation("The cohort distribution record has been removed");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-
-        var isUpdated = _createCohortDistributionData.UpdateCohortParticipantAsInactive(nhsNumber);
-
-        if (!isUpdated)
+        catch (Exception ex)
         {
+            _logger.LogInformation("an error has been thrown by the remove cohort distribution function: {ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-
     }
 }

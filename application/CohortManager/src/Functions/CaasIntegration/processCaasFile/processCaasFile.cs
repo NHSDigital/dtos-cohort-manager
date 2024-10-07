@@ -59,6 +59,7 @@ public class ProcessCaasFileFunction
             DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
             DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
             DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+            DateTime? dateOfBirth = TryParseDate(participant.DateOfBirth);
 
             // Validate the date fields
             if (!IsValidDate(primaryCareDate) ||
@@ -66,7 +67,8 @@ public class ProcessCaasFileFunction
                 !IsValidDate(reasonForRemovalDate) ||
                 !IsValidDate(homeTelephoneDate) ||
                 !IsValidDate(mobileTelephoneDate) ||
-                !IsValidDate(emailAddressDate))
+                !IsValidDate(emailAddressDate) ||
+                !IsValidDate(dateOfBirth))
             {
                 await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
                 err++;
@@ -177,7 +179,7 @@ public class ProcessCaasFileFunction
         return true;
     }
 
-    private DateTime? TryParseDate(string? dateString)
+    private static DateTime? TryParseDate(string? dateString)
     {
         if (DateTime.TryParse(dateString, out var date))
         {
