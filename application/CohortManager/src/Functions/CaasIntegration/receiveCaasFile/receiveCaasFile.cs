@@ -12,12 +12,15 @@ using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
 using Data.Database;
+using System.Reflection.PortableExecutable;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly ICallFunction _callFunction;
     private readonly IScreeningServiceData _screeningServiceData;
+
+
 
     public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, ICallFunction callFunction, IScreeningServiceData screeningServiceData)
     {
@@ -32,18 +35,23 @@ public class ReceiveCaasFile
         try
         {
             _logger.LogInformation("loading file from blob {name}", name);
-            if (!FileNameAndFileExtensionIsValid(name))
+
+            FileNameParser fileNameParser = new FileNameParser(name);
+            if (!fileNameParser.IsValid)
             {
                 _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
                 await InsertValidationErrorIntoDatabase(name, "N/A");
                 return;
             }
 
-            var numberOfRecords = await GetNumberOfRecordsFromFileName(name);
+            var numberOfRecords = fileNameParser.FileCount();
             if (numberOfRecords == null)
             {
+                _logger.LogError("File name is invalid. File name: " + name);
+                await InsertValidationErrorIntoDatabase(name, "N/A");
                 return;
             }
+            _logger.LogInformation($"Number of records expected {numberOfRecords}");
 
             var badRecords = new Dictionary<int, string>();
             Cohort cohort = new()
@@ -63,7 +71,7 @@ public class ReceiveCaasFile
                 using var csv = new CsvReader(blobStreamReader, config);
                 csv.Context.RegisterClassMap<ParticipantMap>();
                 var records = csv.GetRecords<Participant>();
-                var screeningService = GetScreeningService(name);
+                var screeningService = GetScreeningService(fileNameParser);
 
                 _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
 
@@ -151,39 +159,44 @@ public class ReceiveCaasFile
 
     }
 
-    private static bool FileNameAndFileExtensionIsValid(string name)
-    {
-        /* for file format asdfasdfasdf_-_BSS_ccyymmddhhmmss_n8.csv
-        '^.*_-_' Matches the messageId and '_-_' used as a delimiter between the Mesh MessageId and the fileName
-        '\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
-        '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
-        '_n' Matches the literal _n
-        '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
-        '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^.*_-_\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
-        return match.Success;
-    }
+    // private static bool FileNameAndFileExtensionIsValid(string name)
+    // {
+    //     /* for file format asdfasdfasdf_-_BSS_ccyymmddhhmmss_n8.csv
+    //     '^.*_-_' Matches the messageId and '_-_' used as a delimiter between the Mesh MessageId and the fileName
+    //     '\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
+    //     '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
+    //     '_n' Matches the literal _n
+    //     '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
+    //     '\.csv$' matches .csv at the end of the string */
+    //     var match = Regex.Match(name, @"^.*_-_\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
+    //     return match.Success;
+    // }
 
-    private async Task<int?> GetNumberOfRecordsFromFileName(string name)
-    {
-        var str = name.Remove(name.IndexOf('.'));
-        var numberOfRecords = (str.Split('_')[2]).Substring(1);
+//     private async Task<int?> GetNumberOfRecordsFromFileName(string name)
+//     {
+//         //var str = name.Remove(name.IndexOf('.'));
+//         // var numberOfRecords = (str.Split('_')[2]).Substring(1);
 
-        if (Int32.TryParse(numberOfRecords, out int n))
-        {
-            return n;
-        }
-        else
-        {
-            _logger.LogError("File name is invalid. File name: " + name);
-            await InsertValidationErrorIntoDatabase(name, "N/A");
-            return null;
-        }
-    }
+//         var match = Regex.Match(name, @"^.*_-_\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
+//         Group g = match.Groups[1];
+//         var numberOfRecords = g.Captures[0].ToString();
+//         _logger.LogWarning($"Number of Records = {numberOfRecords}");
 
-    private ScreeningService GetScreeningService(string name)
+//         if (Int32.TryParse(numberOfRecords, out int n))
+//         {
+//             return n;
+//         }
+//         else
+//         {
+//             _logger.LogError("File name is invalid. File name: " + name);
+//             await InsertValidationErrorIntoDatabase(name, "N/A");
+//             return null;
+//         }
+//     }
+
+    private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
-        var screeningAcronym = name.Split('_')[0];
+        var screeningAcronym = fileNameParser.GetScreeningService();
         _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
