@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
+using Model;
 
 public class TransformString
 {
@@ -16,7 +17,25 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<string> CheckParticipantCharactersAsync(string stringField)
+    public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant) {
+        participant.NamePrefix = await CheckParticipantCharactersAsync(participant.NamePrefix);
+        participant.FirstName = await CheckParticipantCharactersAsync(participant.FirstName);
+        participant.OtherGivenNames = await CheckParticipantCharactersAsync(participant.OtherGivenNames);
+        participant.FamilyName = await CheckParticipantCharactersAsync(participant.FamilyName);
+        participant.PreviousFamilyName = await CheckParticipantCharactersAsync(participant.PreviousFamilyName);
+        participant.AddressLine1 = await CheckParticipantCharactersAsync(participant.AddressLine1);
+        participant.AddressLine2 = await CheckParticipantCharactersAsync(participant.AddressLine2);
+        participant.AddressLine3 = await CheckParticipantCharactersAsync(participant.AddressLine3);
+        participant.AddressLine4 = await CheckParticipantCharactersAsync(participant.AddressLine4);
+        participant.AddressLine5 = await CheckParticipantCharactersAsync(participant.AddressLine5);
+        participant.Postcode = await CheckParticipantCharactersAsync(participant.Postcode);
+        participant.TelephoneNumber = await CheckParticipantCharactersAsync(participant.TelephoneNumber);
+        participant.MobileNumber = await CheckParticipantCharactersAsync(participant.MobileNumber);
+
+        return participant;
+    }
+
+    private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
 
@@ -44,7 +63,7 @@ public class TransformString
         }
     }
 
-    public async Task<string> TransformCharactersAsync(string invalidString)
+    private async Task<string> TransformCharactersAsync(string invalidString)
     {
         StringBuilder stringBuilder = new(invalidString.Length);
 

@@ -7,28 +7,11 @@ public static class ValidationHelper
     // Validates that the date is not in the future and that it is in one of the expected formats
     public static bool ValidatePastDate(string dateString)
     {
-        DateTime date;
+        string[] formats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
 
-        if (DateTime.TryParseExact(dateString, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        if (DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
         {
-            if (date <= DateTime.Today)
-            {
-                return true;
-            }
-        }
-        else if (DateTime.TryParseExact(dateString, "yyyyMM", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-        {
-            if (date <= DateTime.Today)
-            {
-                return true;
-            }
-        }
-        else if (DateTime.TryParseExact(dateString, "yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
-        {
-            if (date <= DateTime.Today)
-            {
-                return true;
-            }
+            return date < DateTime.Today;
         }
 
         return false;
