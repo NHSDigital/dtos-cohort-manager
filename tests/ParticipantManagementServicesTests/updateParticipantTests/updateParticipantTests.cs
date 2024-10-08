@@ -41,6 +41,9 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
         Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
         Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
+        Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
+        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
+
 
         _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunction.Object);
 
@@ -83,6 +86,12 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
                 .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
 
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
+                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
+
         _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
@@ -118,9 +127,12 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
-            .Returns(Task.FromResult<string>(""));
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
 
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(json));
 
@@ -173,6 +185,14 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
 
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+
+
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
         JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
         {
@@ -206,6 +226,12 @@ public class UpdateParticipantTests
         _updateParticipantWebResponse.Setup(x => x.StatusCode).Throws(new Exception("an error occurred"));
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
                         .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
+
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
 
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
                         .Returns(Task.FromResult<Demographic>(new Demographic()));

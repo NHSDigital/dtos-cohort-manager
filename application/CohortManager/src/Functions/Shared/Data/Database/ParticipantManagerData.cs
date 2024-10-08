@@ -21,7 +21,7 @@ public class ParticipantManagerData : IParticipantManagerData
     }
 
     #region Update methods
-    public bool UpdateParticipantAsEligible(Participant participant, int isActive)
+    public bool UpdateParticipantAsEligible(Participant participant)
     {
         try
         {
@@ -31,15 +31,16 @@ public class ParticipantManagerData : IParticipantManagerData
 
             var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
                 " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
-                "     ELIGIBILITY_FLAG = @IsActive " +
+                " ELIGIBILITY_FLAG = @eligibilityFlag " +
                 " WHERE PARTICIPANT_ID = @participantId ";
 
             var Parameters = new Dictionary<string, object>
             {
                 {"@participantId", Participant.ParticipantId },
                 {"@recordEndDateOldRecords", recordUpdateTime },
-                {"@IsActive", isActive }
+                {"@eligibilityFlag", _databaseHelper.CheckIfNumberNull(participant.EligibilityFlag) ? DBNull.Value : participant.EligibilityFlag }
             };
+
 
             return ExecuteCommand(SQL, Parameters);
         }
@@ -80,9 +81,7 @@ public class ParticipantManagerData : IParticipantManagerData
             };
 
             var updatedRecord = ExecuteCommand(insertParticipant, commonParameters);
-            var markedAsAsEligible = UpdateParticipantAsEligible(participantData, 1);
-
-            return updatedRecord && markedAsAsEligible;
+            return updatedRecord;
         }
         catch (Exception ex)
         {

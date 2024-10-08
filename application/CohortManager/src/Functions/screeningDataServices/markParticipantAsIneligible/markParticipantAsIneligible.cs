@@ -66,7 +66,7 @@ public class MarkParticipantAsIneligible
 
             if (participantData != null)
             {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participantData, 0);
+                updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
             }
             if (updated)
             {
