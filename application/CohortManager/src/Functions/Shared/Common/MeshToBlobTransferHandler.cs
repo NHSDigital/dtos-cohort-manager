@@ -163,14 +163,16 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             return null;
         }
 
+        string fileName = string.Concat(messageId,"_-_",result.Response.FileAttachment.FileName);
+
         if(result.Response.MessageMetaData.ContentEncoding == "GZIP")
         {
             var decompressedFileContent = GZIPHelpers.DeCompressBuffer(result.Response.FileAttachment.Content);
-            return new BlobFile(decompressedFileContent,result.Response.FileAttachment.FileName);
+            return new BlobFile(decompressedFileContent,fileName);
         }
 
 
-        return new BlobFile(result.Response.FileAttachment.Content, result.Response.FileAttachment.FileName);
+        return new BlobFile(result.Response.FileAttachment.Content, fileName);
     }
 }
 
