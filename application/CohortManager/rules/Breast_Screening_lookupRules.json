@@ -10,10 +10,6 @@
             "Expression": "newParticipant.RecordType == Actions.New"
           },
           {
-            "Name": "notNewRecordType",
-            "Expression": "newParticipant.RecordType != Actions.New"
-          },
-          {
             "Name": "validPrimaryCareProvider",
             "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
           },
@@ -22,7 +18,7 @@
             "Expression": "!string.IsNullOrEmpty(newParticipant.ReasonForRemoval) OR !string.IsNullOrEmpty(newParticipant.ReasonForRemovalEffectiveFromDate)"
           }
         ],
-        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (notNewRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
+        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (!newRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
