@@ -33,10 +33,10 @@ variable "appinsights_type" {
   description = "Type of Application Insigts (default: web)."
 }
 
-variable "law_id" {
-  type        = string
-  description = "Is the LAW workspace ID."
-}
+# variable "law_id" {
+#   type        = string
+#   description = "Is the LAW workspace ID."
+# }
 
 ### DevOps subscripion AppInsights
 
