@@ -159,41 +159,6 @@ public class ReceiveCaasFile
 
     }
 
-    // private static bool FileNameAndFileExtensionIsValid(string name)
-    // {
-    //     /* for file format asdfasdfasdf_-_BSS_ccyymmddhhmmss_n8.csv
-    //     '^.*_-_' Matches the messageId and '_-_' used as a delimiter between the Mesh MessageId and the fileName
-    //     '\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
-    //     '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
-    //     '_n' Matches the literal _n
-    //     '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
-    //     '\.csv$' matches .csv at the end of the string */
-    //     var match = Regex.Match(name, @"^.*_-_\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
-    //     return match.Success;
-    // }
-
-//     private async Task<int?> GetNumberOfRecordsFromFileName(string name)
-//     {
-//         //var str = name.Remove(name.IndexOf('.'));
-//         // var numberOfRecords = (str.Split('_')[2]).Substring(1);
-
-//         var match = Regex.Match(name, @"^.*_-_\w{1,}_\d{14}_n([1-9]\d*|0)\.csv$", RegexOptions.IgnoreCase);
-//         Group g = match.Groups[1];
-//         var numberOfRecords = g.Captures[0].ToString();
-//         _logger.LogWarning($"Number of Records = {numberOfRecords}");
-
-//         if (Int32.TryParse(numberOfRecords, out int n))
-//         {
-//             return n;
-//         }
-//         else
-//         {
-//             _logger.LogError("File name is invalid. File name: " + name);
-//             await InsertValidationErrorIntoDatabase(name, "N/A");
-//             return null;
-//         }
-//     }
-
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
         var screeningAcronym = fileNameParser.GetScreeningService();
