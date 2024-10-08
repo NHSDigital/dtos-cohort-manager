@@ -484,6 +484,55 @@ public class LookupValidationTests
             Times.Once());
     }
 
+    [TestMethod]
+    [DataRow(Actions.Amended, "LDN")]
+    [DataRow(Actions.Amended, "R/C")]
+    [DataRow(Actions.Removed, "LDN")]
+    [DataRow(Actions.Removed, "R/C")]
+    public async Task Run_ValidReasonForRemoval_RuleFails(string recordType, string reasonForRemoval)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "XXX")]
+    [DataRow(Actions.Removed, "XXX")]
+    [DataRow(Actions.New, "LDN")]
+    [DataRow(Actions.New, "R/C")]
+    [DataRow(Actions.New, "")]
+    public async Task Run_ValidReasonForRemoval_DoesNotCreateException(string recordType, string reasonForRemoval)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
