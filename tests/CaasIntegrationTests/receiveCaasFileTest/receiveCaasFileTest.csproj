@@ -22,12 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="BSS_20240718150245_n3.parquet">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="BSS_20240718150245_n4.parquet">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -35,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\CaasIntegration\receiveCaasFile\receiveCaasFile.csproj" />
+    <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
