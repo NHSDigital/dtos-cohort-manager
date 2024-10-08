@@ -40,8 +40,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New },
-                new() { RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
+                new() { NhsNumber = "9876543210", RecordType = Actions.New },
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -69,13 +69,14 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended },
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended },
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
 
         // Act
@@ -96,8 +97,8 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed },
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed },
+                new() {NhsNumber = "9876543210",  RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -126,7 +127,7 @@ public class ProcessCaasFileTests
             Participants = new List<Participant>
             {
 
-                new() { RecordType = "Unknown" }
+                new() {NhsNumber = "9876543210", RecordType = "Unknown" }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -159,7 +160,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.New }
+                new() {NhsNumber = "9876543210", RecordType = Actions.New }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -194,11 +195,13 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Amended }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Amended }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
+
+        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
@@ -227,7 +230,7 @@ public class ProcessCaasFileTests
         {
             Participants = new List<Participant>
             {
-                new() { RecordType = Actions.Removed }
+                new() {NhsNumber = "9876543210", RecordType = Actions.Removed }
             }
         };
         var json = JsonSerializer.Serialize(cohort);
@@ -250,5 +253,67 @@ public class ProcessCaasFileTests
             null,
             (Func<object, Exception, string>)It.IsAny<object>()
             ), Times.Once);
+    }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnFalse_WhenDateIsInTheFuture()
+    {
+        // Arrange: Setup dependencies using Mock.Of and create future date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var futureDate = DateTime.UtcNow.AddDays(1);
+
+        // Act: Call IsValidDate with a future date
+        bool result = validator.IsValidDate(futureDate);
+
+        // Assert: The method should return false for dates in the future
+        Assert.IsFalse(result, "The 'IsValidDate' method should return false for dates in the future.");
+    }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnTrue_WhenDateIsNotInTheFuture()
+    {
+        // Arrange: Setup dependencies using Mock.Of and create future date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var pastDate = DateTime.UtcNow.AddDays(-1);
+        var currentDate = DateTime.UtcNow;
+
+        // Act & Assert: The method should return true for past and current dates
+        Assert.IsTrue(validator.IsValidDate(pastDate), "The 'IsValidDate' method should return true for dates in the past.");
+        Assert.IsTrue(validator.IsValidDate(currentDate), "The 'IsValidDate' method should return true for the current date.");
+    }
+
+    [TestMethod]
+    public void IsValidDate_ShouldReturnTrue_WhenDateIsNull()
+    {
+        // Arrange: Set up dependencies and create a null date
+        var logger = Mock.Of<ILogger<ProcessCaasFileFunction>>();
+        var callFunction = Mock.Of<ICallFunction>();
+        var createResponse = Mock.Of<ICreateResponse>();
+        var checkDemographic = Mock.Of<ICheckDemographic>();
+        var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
+        var handleException = Mock.Of<IExceptionHandler>();
+
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        DateTime? nullDate = null;
+
+        // Act: Call IsValidDate with a null date
+        bool result = validator.IsValidDate(nullDate);
+
+        // Assert: The method should return true for null dates
+        Assert.IsTrue(result, "The 'IsValidDate' method should return true for null dates.");
     }
 }

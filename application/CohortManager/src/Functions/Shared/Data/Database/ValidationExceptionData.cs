@@ -20,7 +20,20 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public List<ValidationException> GetAll()
     {
-        var SQL = "SELECT * FROM [dbo].[EXCEPTION_MANAGEMENT]";
+        var SQL = @"SELECT
+                [FILE_NAME]
+                ,[NHS_NUMBER]
+                ,[DATE_CREATED]
+                ,[DATE_RESOLVED]
+                ,[RULE_ID]
+                ,[RULE_DESCRIPTION]
+                ,[ERROR_RECORD]
+                ,[CATEGORY]
+                ,[SCREENING_NAME]
+                ,[EXCEPTION_DATE]
+                ,[COHORT_NAME]
+                ,[IS_FATAL]
+                FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
@@ -41,7 +54,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
                     ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
                     ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
-                    Cohort = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
+                    CohortName = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
                     Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
@@ -52,6 +65,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public bool Create(ValidationException exception)
     {
+
         var SQL = @"INSERT INTO [dbo].[EXCEPTION_MANAGEMENT] (
                     FILE_NAME,
                     NHS_NUMBER,
@@ -76,7 +90,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     @category,
                     @screeningName,
                     @exceptionDate,
-                    @cohort,
+                    @cohortName,
                     @fatal
                 );";
 
@@ -92,7 +106,7 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@category", exception.Category},
             {"@screeningName", exception.ScreeningName},
             {"@exceptionDate", exception.ExceptionDate},
-            {"@cohort", exception.Cohort},
+            {"@cohortName", exception.CohortName},
             {"@fatal", exception.Fatal}
         };
 
@@ -101,6 +115,68 @@ public class ValidationExceptionData : IValidationExceptionData
 
         return ExecuteCommand(command);
     }
+
+    public bool RemoveOldException(string nhsNumber, string screeningName)
+    {
+
+        if (!RecordExists(nhsNumber, screeningName))
+        {
+            return false;
+        }
+
+        // we only need to get the last unresolved exception for the nhs number and screening service
+        var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
+                    SET DATE_RESOLVED = @todaysDate
+                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate AND SCREENING_NAME = @screeningName";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+            {"@todaysDate", DateTime.Today},
+            {"@MaxDate", "9999-12-31"},
+            {"@screeningName", screeningName},
+        });
+
+        command.CommandText = SQL;
+        var removed = ExecuteCommand(command);
+        if (removed)
+        {
+            _logger.LogInformation("Removed old exception record successfully");
+            return true;
+        }
+        _logger.LogWarning("An exception record was found but not Removed successfully");
+        return false;
+    }
+
+    private bool RecordExists(string nhsNumber, string screeningName)
+    {
+        var recordExists = false;
+        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
+
+        var command = CreateCommand(new Dictionary<string, object>()
+        {
+            {"@nhsNumber", nhsNumber},
+            {"@screeningName", screeningName}
+        });
+        command.CommandText = SQL;
+        using (_dbConnection)
+        {
+            _dbConnection.ConnectionString = _connectionString;
+            _dbConnection.Open();
+            using (command)
+            {
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    // Return true if the reader has at least one row.
+                    recordExists = reader.Read();
+                }
+                _dbConnection.Close();
+            }
+        }
+
+        return recordExists;
+    }
+
 
     private bool ExecuteCommand(IDbCommand command)
     {

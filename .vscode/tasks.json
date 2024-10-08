@@ -19,10 +19,12 @@
         "screeningDataServices/updateParticipantDetails",
         "ScreeningValidationService/FileValidation",
         "ScreeningValidationService/LookupValidation",
+        "ScreeningValidationService/RemoveValidationException",
         "ScreeningValidationService/StaticValidation",
         "CohortDistributionServices/CreateCohortDistribution",
         "CohortDistributionServices/RetrieveParticipantData",
         "CohortDistributionServices/ServiceProviderAllocationService",
+        "CohortDistributionServices/ValidateCohortDistributionRecord",
         "CohortDistributionServices/TransformDataService",
         "CohortDistributionServices/AddCohortDistributionData",
         "CohortDistributionServices/RemoveCohortDistributionData"
@@ -271,13 +273,31 @@
       }
     },
     {
-      "label": "ScreeningValidationService/StaticValidation",
+      "label": "ScreeningValidationService/RemoveValidationException",
       "type": "shell",
       "osx": {
         "command": "sleep 7.5 && func start"
       },
       "windows": {
         "command": "timeout 14 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException"
+      }
+    },
+    {
+      "label": "ScreeningValidationService/StaticValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 8 && func start"
+      },
+      "windows": {
+        "command": "timeout 15 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -292,10 +312,10 @@
       "label": "CohortDistributionServices/CreateCohortDistribution",
       "type": "shell",
       "osx": {
-        "command": "sleep 8 && func start"
+        "command": "sleep 8.5 && func start"
       },
       "windows": {
-        "command": "timeout 15 && func start",
+        "command": "timeout 16 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -310,10 +330,10 @@
       "label": "CohortDistributionServices/RetrieveParticipantData",
       "type": "shell",
       "osx": {
-        "command": "sleep 8.5 && func start"
+        "command": "sleep 9 && func start"
       },
       "windows": {
-        "command": "timeout 16 && func start",
+        "command": "timeout 17 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -328,10 +348,10 @@
       "label": "CohortDistributionServices/ServiceProviderAllocationService",
       "type": "shell",
       "osx": {
-        "command": "sleep 9 && func start"
+        "command": "sleep 9.5 && func start"
       },
       "windows": {
-        "command": "timeout 17 && func start",
+        "command": "timeout 18 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -343,13 +363,31 @@
       }
     },
     {
+      "label": "CohortDistributionServices/ValidateCohortDistributionRecord",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 10 && func start"
+      },
+      "windows": {
+        "command": "timeout 19 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ValidateCohortDistributionRecord"
+      }
+    },
+    {
       "label": "CohortDistributionServices/TransformDataService",
       "type": "shell",
       "osx": {
-        "command": "sleep 9.5 && func start"
+        "command": "sleep 10.5 && func start"
       },
       "windows": {
-        "command": "timeout 18 && func start",
+        "command": "timeout 20 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -364,10 +402,10 @@
       "label": "CohortDistributionServices/AddCohortDistributionData",
       "type": "shell",
       "osx": {
-        "command": "sleep 10 && func start"
+        "command": "sleep 11 && func start"
       },
       "windows": {
-        "command": "timeout 19 && func start",
+        "command": "timeout 21 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -382,10 +420,10 @@
       "label": "CohortDistributionServices/RemoveCohortDistributionData",
       "type": "shell",
       "osx": {
-        "command": "sleep 10.5 && func start"
+        "command": "sleep 11.5 && func start"
       },
       "windows": {
-        "command": "timeout 20 && func start",
+        "command": "timeout 22 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"

@@ -50,7 +50,7 @@ public class ValidateCohortDistributionRecord
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
             _logger.LogError($"there was an error while deserializing records");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -60,23 +60,23 @@ public class ValidateCohortDistributionRecord
             var existingParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
             var newParticipant = requestBody.CohortDistributionParticipant;
 
-            var validationRes = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
-            if (validationRes)
+            var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
+            if (validationResult.CreatedException)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationResult));
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
             _logger.LogError($"there was an error validating the cohort distribution records {ex.Message}");
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
     }
 
-    private async Task<bool> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
+    private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
     {
         if (existingParticipant == null)
         {
@@ -92,10 +92,9 @@ public class ValidateCohortDistributionRecord
 
 
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-        if (response.StatusCode == HttpStatusCode.Created)
-        {
-            return true;
-        }
-        return false;
+        var responseBodyJson = await _callFunction.GetResponseText(response);
+        var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+        return responseBody;
     }
 }

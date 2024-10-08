@@ -16,13 +16,15 @@ public class CohortDistributionHandler : ICohortDistributionHandler
         _callFunction = callFunction;
     }
 
-    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService, string fileName)
+    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService, string recordType, string fileName, string errorRecord)
     {
         CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody
         {
             NhsNumber = nhsNumber,
             ScreeningService = screeningService,
-            FileName = fileName
+            FileName = fileName,
+            RecordType = recordType,
+            ErrorRecord = errorRecord
         };
         string json = JsonSerializer.Serialize(requestBody);
 

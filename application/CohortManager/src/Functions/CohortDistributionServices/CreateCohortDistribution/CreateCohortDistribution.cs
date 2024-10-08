@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using Model;
+using Model.Enums;
+using Data.Database;
 
 public class CreateCohortDistribution
 {
@@ -16,17 +18,17 @@ public class CreateCohortDistribution
     private readonly ILogger<CreateCohortDistribution> _logger;
     private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
-
-
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IParticipantManagerData _participantManagerData;
 
-    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICallFunction callFunction, ICohortDistributionHelper CohortDistributionHelper, IExceptionHandler exceptionHandler)
+    public CreateCohortDistribution(ICreateResponse createResponse, ILogger<CreateCohortDistribution> logger, ICallFunction callFunction, ICohortDistributionHelper CohortDistributionHelper, IExceptionHandler exceptionHandler, IParticipantManagerData participantManagerData)
     {
         _createResponse = createResponse;
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
+        _participantManagerData = participantManagerData;
     }
 
     [Function("CreateCohortDistribution")]
@@ -48,9 +50,9 @@ public class CreateCohortDistribution
         {
             if (requestBody.NhsNumber != null && requestBody.FileName != null)
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             }
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
 
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
@@ -64,35 +66,53 @@ public class CreateCohortDistribution
 
         try
         {
+            // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(requestBody);
+            _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
             var response = await HandleErrorResponseIfNull(participantData, req);
             if (response != null) return response;
 
-            var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode);
-            response = await HandleErrorResponseIfNull(serviceProvider, req);
-            if (response != null) return response;
-
-            var validationResult = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
-
-            response = await HandleErrorResponseIfNull(validationResult, req);
-            if (response != null) return response;
-
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            response = await HandleErrorResponseIfNull(transformedParticipant, req);
-            if (response != null) return response;
-
-            var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
-            if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+            // Allocate service provider
+            var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
+            if (!string.IsNullOrEmpty(participantData.Postcode))
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(requestBody.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
+                response = await HandleErrorResponseIfNull(serviceProvider, req);
+                if (response != null) return response;
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            if (ParticipantHasException(requestBody.NhsNumber, participantData.ScreeningServiceId))
+            {
+                _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
+                // we return OK here as there has not been an error
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            }
+
+            // Validate cohort distribution record & transform data service
+            participantData.RecordType = requestBody.RecordType;
+            var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(requestBody.NhsNumber, requestBody.FileName, participantData);
+            if (!validationRecordCreated)
+            {
+                _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
+
+                var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
+                response = await HandleErrorResponseIfNull(transformedParticipant, req);
+                if (response != null) return response;
+
+                var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
+                if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            }
+            _logger.LogInformation("Validation error: A rule triggered a fatal error, preventing the cohort distribution record with NHS number {NhsNumber} from being added to the database", participantData.NhsNumber);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
         catch (Exception ex)
         {
             _logger.LogError("One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", requestBody.ErrorRecord ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
@@ -113,5 +133,12 @@ public class CreateCohortDistribution
 
         _logger.LogInformation("Called add cohort distribution function");
         return response;
+    }
+
+    private bool ParticipantHasException(string nhsNumber, string screeningId)
+    {
+        var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
+        var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
+        return exceptionFlag == Exists.Yes;
     }
 }

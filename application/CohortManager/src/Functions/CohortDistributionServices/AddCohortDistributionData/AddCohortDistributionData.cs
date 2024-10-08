@@ -48,12 +48,11 @@ public class AddCohortDistributionDataFunction
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantCsvRecord.NhsNumber, "");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantCsvRecord.NhsNumber, "", "", JsonSerializer.Serialize(participantCsvRecord));
             _logger.LogError(ex.Message, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }

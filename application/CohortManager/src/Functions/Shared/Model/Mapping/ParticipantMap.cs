@@ -15,13 +15,11 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.PrimaryCareProviderEffectiveFromDate).Name("Primary Care Provider Business Effective From Date");
         Map(m => m.CurrentPosting).Name("Current Posting");
         Map(m => m.CurrentPostingEffectiveFromDate).Name("Current Posting Business Effective From Date");
-        Map(m => m.PreviousPosting).Name("Previous Posting");
-        Map(m => m.PreviousPostingEffectiveFromDate).Name("Previous Posting Business Effective To Date");
         Map(m => m.NamePrefix).Name("Name Prefix");
         Map(m => m.FirstName).Name("Given Name");
         Map(m => m.OtherGivenNames).Name("Other Given Name(s)");
-        Map(m => m.Surname).Name("Family Name");
-        Map(m => m.PreviousSurname).Name("Previous Family Name");
+        Map(m => m.FamilyName).Name("Family Name");
+        Map(m => m.PreviousFamilyName).Name("Previous Family Name");
         Map(m => m.DateOfBirth).Name("Date of Birth");
         Map(m => m.Gender).Name("Gender");
         Map(m => m.AddressLine1).Name("Address line 1");
@@ -45,7 +43,5 @@ public class ParticipantMap : ClassMap<Participant>
         Map(m => m.PreferredLanguage).Name("Preferred Language");
         Map(m => m.IsInterpreterRequired).Name("Interpreter required");
         Map(m => m.InvalidFlag).Name("Invalid Flag");
-        Map(m => m.RecordIdentifier).Name("Record Identifier");
-        Map(m => m.ChangeReasonCode).Name("Change Reason Code");
     }
 }

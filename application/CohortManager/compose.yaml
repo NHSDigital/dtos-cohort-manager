@@ -136,6 +136,8 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DSmarkParticipantAsEligible= http://localhost:7067/api/markParticipantAsEligible
+      - markParticipantAsIneligible= http://localhost:7068/api/markParticipantAsIneligible
 
   # Screening Data Service
   create-participant:
@@ -232,6 +234,7 @@ services:
       - ASPNETCORE_URLS=http://*:7073
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - inboundBlobName=inbound
+      - caasfolder_STORAGE=UseDevelopmentStorage=true
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   static-validation:
@@ -246,6 +249,7 @@ services:
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - RemoveOldValidationRecord=http://localhost:7085/api/RemoveValidationExceptionData
 
   lookup-validation:
     container_name: lookup-validation
@@ -258,6 +262,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Demographic Services
   demographic-data-management:
@@ -283,8 +288,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-distribution-data:
-    container_name: retrieve-distribution-data
+  retrieve-cohort-distribution-data:
+    container_name: retrieve-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -294,8 +299,19 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  remove-from-cohort-distribution-data:
-    container_name: remove-from-cohort-distribution-data
+  retrieve-cohort-replay:
+    container_name: retrieve-cohort-replay
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveCohortReplay/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8085
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+  remove-cohort-distribution-data:
+    container_name: remove-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -324,7 +340,7 @@ services:
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
@@ -339,7 +355,8 @@ services:
       - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
-      - ValidateCohortDistributionRecordURL = http://localhost:7084/api/ValidateCohortDistributionRecord
+      - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
@@ -361,11 +378,16 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7084
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  devops-testing-service:
-    container_name: devops-testing-service
+  remove-validation-exception-data:
+    container_name: remove-validation-exception-data
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: DevOpsTestingService/Dockerfile
+      dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7085
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

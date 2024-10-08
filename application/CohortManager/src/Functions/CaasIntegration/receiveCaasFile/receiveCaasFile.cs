@@ -31,10 +31,11 @@ public class ReceiveCaasFile
     {
         try
         {
+            _logger.LogInformation("loading file from blob {name}", name);
             if (!FileNameAndFileExtensionIsValid(name))
             {
                 _logger.LogError("File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.csv. file Name: " + name);
-                await InsertValidationErrorIntoDatabase(name);
+                await InsertValidationErrorIntoDatabase(name, "N/A");
                 return;
             }
 
@@ -64,6 +65,8 @@ public class ReceiveCaasFile
                 var records = csv.GetRecords<Participant>();
                 var screeningService = GetScreeningService(name);
 
+                _logger.LogInformation("screeningService {screeningService}", screeningService.ScreeningName);
+
                 foreach (var participant in records)
                 {
                     rowNumber++;
@@ -80,27 +83,27 @@ public class ReceiveCaasFile
                     {
                         badRecords.Add(rowNumber, csv.Context.Parser.RawRecord);
                         _logger.LogError("Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-                        await InsertValidationErrorIntoDatabase(name);
+                        await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(participant));
                     }
                 }
 
                 if (rowNumber != numberOfRecords)
                 {
                     _logger.LogError("File name record count not equal to actual record count. File name count: " + name + "| Actual count: " + rowNumber);
-                    await InsertValidationErrorIntoDatabase(name);
+                    await InsertValidationErrorIntoDatabase(name, "N/A");
                     return;
                 }
                 if (rowNumber == 0)
                 {
                     _logger.LogError("File contains no records. File name:" + name);
-                    await InsertValidationErrorIntoDatabase(name);
+                    await InsertValidationErrorIntoDatabase(name, "N/A");
                     return;
                 }
             }
             catch (Exception ex) when (ex is HeaderValidationException || ex is CsvHelperException || ex is FileFormatException)
             {
                 _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
-                await InsertValidationErrorIntoDatabase(name);
+                await InsertValidationErrorIntoDatabase(name, "N/A");
                 return;
             }
             try
@@ -120,23 +123,23 @@ public class ReceiveCaasFile
             catch (Exception ex)
             {
                 _logger.LogError("Message:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-                await InsertValidationErrorIntoDatabase(name);
+                await InsertValidationErrorIntoDatabase(name, "N/A");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError("{MessageType} validation failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, "N/A");
             return;
         }
     }
 
-    private async Task InsertValidationErrorIntoDatabase(string fileName)
+    private async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
     {
         var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
         {
-            RuleId = 1,
-            FileName = fileName
+            FileName = fileName,
+            ErrorRecord = errorRecord
         });
 
         var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("FileValidationURL"), json);
@@ -172,7 +175,7 @@ public class ReceiveCaasFile
         else
         {
             _logger.LogError("File name is invalid. File name: " + name);
-            await InsertValidationErrorIntoDatabase(name);
+            await InsertValidationErrorIntoDatabase(name, "N/A");
             return null;
         }
     }
@@ -180,6 +183,7 @@ public class ReceiveCaasFile
     private ScreeningService GetScreeningService(string name)
     {
         var screeningAcronym = name.Split('_')[0];
+        _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
         return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 }

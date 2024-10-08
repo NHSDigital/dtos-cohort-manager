@@ -41,7 +41,7 @@ public class MarkParticipantAsEligible
             var updated = false;
             if (participant != null)
             {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participant, 'Y');
+                updated = _participantManagerData.UpdateParticipantAsEligible(participant);
 
             }
             if (updated)
@@ -57,8 +57,7 @@ public class MarkParticipantAsEligible
         catch (Exception ex)
         {
             _logger.LogError($"an error occurred: {ex}");
-            _handleException.CreateSystemExceptionLog(ex, participant, ""
-            );
+            _handleException.CreateSystemExceptionLog(ex, participant, "");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }

@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
+using Google.Protobuf.Reflection;
 
 [TestClass]
 public class MarkParticipantAsIneligibleTests
@@ -44,7 +45,7 @@ public class MarkParticipantAsIneligibleTests
 
         _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object, _handleException.Object);
 
-        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>())).Returns(new Participant());
+        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant());
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
             {
@@ -99,7 +100,14 @@ public class MarkParticipantAsIneligibleTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(true);
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(true);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -119,6 +127,14 @@ public class MarkParticipantAsIneligibleTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+
+
         // Act
         var result = await _function.RunAsync(_request.Object);
 
@@ -137,7 +153,14 @@ public class MarkParticipantAsIneligibleTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(false);
 
         // Act
         var result = await _function.RunAsync(_request.Object);

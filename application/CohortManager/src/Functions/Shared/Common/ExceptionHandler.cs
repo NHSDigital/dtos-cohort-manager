@@ -1,24 +1,27 @@
 namespace Common;
 
 using System.Net;
-using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Model;
 using RulesEngine.Models;
+
+/// <summary>
+/// Various methods for creating an exception and writing to the exception management table.
+/// </summary>
 
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
-
-
-    private static readonly int SystemExceptionCategory = 99; //Liable to change based on requirements
-
     private readonly ICallFunction _callFunction;
+    private static readonly int DefaultCategory = 5;
+    private static readonly int DefaultRuleId = 0;
+    private static readonly string DefaultCohortName = "";
+    private static readonly string DefaultScreeningName = "";
+    private static readonly string DefaultErrorRecord = "N/A";
+    private static readonly string DefaultFileName = "";
+    private static readonly string DefaultNhsNumber = "";
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -27,6 +30,12 @@ public class ExceptionHandler : IExceptionHandler
         _callFunction = callFunction;
     }
 
+    /// <summary>
+    /// Creates a system exception.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
@@ -35,52 +44,69 @@ public class ExceptionHandler : IExceptionHandler
             participant.ExceptionFlag = "Y";
         }
 
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
+        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    /// <summary>
+    /// Overloaded method to create a system exception given BasicParticipantData.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(participant.NhsNumber ?? "0", exception, fileName);
+        var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
+        var screeningName = participant.ScreeningName ?? DefaultScreeningName;
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
-    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string NhsNumber, string fileName)
+    public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var url = GetUrlFromEnvironment();
-        var validationException = CreateValidationException(NhsNumber ?? "0", exception, "");
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
-    public async Task<bool> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
         participantCsvRecord.Participant.ExceptionFlag = "Y";
 
+        var foundFatalRule = false;
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
+            var errorMessage = (string)error.ActionResult.Output;
+
+            var IsFatal = ParseFatalRuleType(ruleDetails[2]);
+            if (IsFatal == 1)
+            {
+                foundFatalRule = true;
+                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
+            }
 
             var exception = new ValidationException
             {
                 RuleId = int.Parse(ruleDetails[0]),
-                RuleDescription = ruleDetails[1],
-                RuleContent = ruleDetails[1],
+                RuleDescription = errorMessage ?? ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
-                ErrorRecord = ruleDetails[1],
-                DateCreated = DateTime.UtcNow,
+                ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+                DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
-                ExceptionDate = DateTime.UtcNow,
-                Category = 1,
+                ExceptionDate = DateTime.Now,
+                Category = DefaultCategory,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
-                ScreeningService = int.Parse(participantCsvRecord.Participant.ScreeningId),
-                Cohort = "",
-                Fatal = 0
+                CohortName = DefaultCohortName,
+                Fatal = IsFatal
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);
@@ -89,35 +115,85 @@ public class ExceptionHandler : IExceptionHandler
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError("There was an error while logging an exception to the database");
-                return false;
+                return new ValidationExceptionLog
+                {
+                    IsFatal = foundFatalRule,
+                    CreatedException = false
+                };
             }
         }
 
-        return true;
+        return new ValidationExceptionLog()
+        {
+            IsFatal = foundFatalRule,
+            CreatedException = true
+        };
     }
 
-    public async Task<bool> CreateRecordValidationExceptionLog(ValidationException validation)
+    /// <summary>
+    /// Method is used to create a default validation exception for the database
+    /// note: errorDescription is the Rule description
+    /// </summary>
+    /// <param name="participant"></param>
+    /// <param name="fileName"></param>
+    /// <param name="errorDescription"></param>
+    /// <returns></returns>
+    private ValidationException CreateDefaultValidationException(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
-        var requestObject = new ValidationException()
+
+        return new ValidationException()
         {
-            RuleId = validation.RuleId == null ? 0 : validation.RuleId,
-            Cohort = "",
-            NhsNumber = string.IsNullOrEmpty(validation.NhsNumber) ? "" : validation.NhsNumber,
-            DateCreated = validation.DateCreated ?? DateTime.Now,
-            FileName = string.IsNullOrEmpty(validation.FileName) ? "" : validation.FileName,
-            DateResolved = validation.DateResolved ?? DateTime.MaxValue,
-            RuleDescription = validation.RuleDescription ?? "The file failed validation failed for an unexpected exception",
-            Category = validation.Category ?? 0,
-            ScreeningName = validation.ScreeningName ?? "",
-            Fatal = validation.Fatal ?? 1,
-            ErrorRecord = validation.ErrorRecord ?? "",
-            ExceptionDate = validation.ExceptionDate ?? DateTime.Now,
-            RuleContent = validation.RuleContent ?? "",
-            ScreeningService = validation.ScreeningService ?? 0
+            RuleId = DefaultRuleId,
+            CohortName = DefaultCohortName,
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
+            DateCreated = DateTime.Now,
+            FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
+            DateResolved = DateTime.MaxValue,
+            RuleDescription = errorDescription,
+            Category = DefaultCategory,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
+            Fatal = 0,
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
+            ExceptionDate = DateTime.Now
         };
+    }
+
+    /// <summary>
+    /// Method is used to create a default system validation exception for the database
+    /// note: RuleId is exception status code
+    /// note: RuleDescription is exception message
+    /// </summary>
+    /// <param name="nhsNumber"></param>
+    /// <param name="exception"></param>
+    /// <param name="fileName"></param>
+    /// <param name="screeningName"></param>
+    /// <param name="errorRecord"></param>
+    /// <returns></returns>
+    private ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord)
+    {
+        return new ValidationException()
+        {
+            RuleId = exception.HResult,
+            CohortName = DefaultCohortName,
+            NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
+            DateCreated = DateTime.Now,
+            FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
+            DateResolved = DateTime.MaxValue,
+            RuleDescription = exception.Message,
+            Category = DefaultCategory,
+            ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
+            Fatal = 1,
+            ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
+            ExceptionDate = DateTime.Now
+        };
+    }
+
+    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
+    {
+        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
         var url = GetUrlFromEnvironment();
-        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(requestObject));
+        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -137,27 +213,15 @@ public class ExceptionHandler : IExceptionHandler
         return url;
     }
 
-    private ValidationException CreateValidationException(string nhsNumber, Exception exception, string fileName)
+    private int ParseFatalRuleType(string fatal)
     {
-        // mapping liable to change.
-        return new ValidationException
+        var FatalRuleParsed = Enum.TryParse(fatal, out FatalRule IsFatal);
+        if (!FatalRuleParsed)
         {
-            NhsNumber = nhsNumber,
-            DateCreated = DateTime.Now,
-            FileName = fileName,
-            DateResolved = DateTime.MaxValue,
-            RuleId = exception.HResult,
-            RuleDescription = exception.Message,
-            RuleContent = "System Exception",
-            Category = SystemExceptionCategory,
-            ScreeningService = 1,
-            ExceptionDate = DateTime.UtcNow,
-            ErrorRecord = exception.Message,
-            ScreeningName = "BSS",
-            Cohort = "",
-            Fatal = 1
-        };
-
+            _logger.LogError("There was a problem parsing the fatal rule Type from the rule details");
+            return 0;
+        }
+        return (int)IsFatal;
     }
 
 }

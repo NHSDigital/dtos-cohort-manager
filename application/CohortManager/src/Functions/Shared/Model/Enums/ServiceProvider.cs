@@ -1,7 +1,10 @@
 namespace Model.Enums;
 
+using System.ComponentModel.DataAnnotations;
+
 public enum ServiceProvider : short
 {
-    BsSelect = 1
+    [Display(Name = "BS SELECT")]
+    BSS = 1
 }
 

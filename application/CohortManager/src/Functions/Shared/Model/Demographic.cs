@@ -10,13 +10,11 @@ public class Demographic
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
     public string? CurrentPosting { get; set; }
     public string? CurrentPostingEffectiveFromDate { get; set; }
-    public string? PreviousPosting { get; set; }
-    public string? PreviousPostingEffectiveFromDate { get; set; }
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }
-    public string? Surname { get; set; }
-    public string? PreviousSurname { get; set; }
+    public string? FamilyName { get; set; }
+    public string? PreviousFamilyName { get; set; }
     public string? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public string? AddressLine1 { get; set; }

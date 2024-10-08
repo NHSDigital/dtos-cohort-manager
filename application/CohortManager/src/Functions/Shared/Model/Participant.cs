@@ -7,6 +7,7 @@ public class Participant
     public Participant() { }
     public Participant(CohortDistributionParticipant cohortDistributionParticipant)
     {
+        RecordType = cohortDistributionParticipant.RecordType;
         ParticipantId = cohortDistributionParticipant.ParticipantId;
         NhsNumber = cohortDistributionParticipant.NhsNumber;
         SupersededByNhsNumber = cohortDistributionParticipant.SupersededByNhsNumber;
@@ -15,8 +16,8 @@ public class Participant
         NamePrefix = cohortDistributionParticipant.NamePrefix;
         FirstName = cohortDistributionParticipant.FirstName;
         OtherGivenNames = cohortDistributionParticipant.OtherGivenNames;
-        Surname = cohortDistributionParticipant.Surname;
-        PreviousSurname = cohortDistributionParticipant.PreviousSurname;
+        FamilyName = cohortDistributionParticipant.FamilyName;
+        PreviousFamilyName = cohortDistributionParticipant.PreviousFamilyName;
         DateOfBirth = cohortDistributionParticipant.DateOfBirth;
         Gender = cohortDistributionParticipant.Gender.GetValueOrDefault();
         AddressLine1 = cohortDistributionParticipant.AddressLine1;
@@ -41,7 +42,8 @@ public class Participant
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
         ScreeningName = cohortDistributionParticipant.ScreeningName;
-        ScreeningId = cohortDistributionParticipant.ScreeningId;
+        ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
+        CurrentPosting = cohortDistributionParticipant.CurrentPosting;
     }
 
     public string? RecordType { get; set; }
@@ -53,13 +55,11 @@ public class Participant
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
     public string? CurrentPosting { get; set; }
     public string? CurrentPostingEffectiveFromDate { get; set; }
-    public string? PreviousPosting { get; set; }
-    public string? PreviousPostingEffectiveFromDate { get; set; }
     public string? NamePrefix { get; set; }
     public string? FirstName { get; set; }
     public string? OtherGivenNames { get; set; }
-    public string? Surname { get; set; }
-    public string? PreviousSurname { get; set; }
+    public string? FamilyName { get; set; }
+    public string? PreviousFamilyName { get; set; }
     public string? DateOfBirth { get; set; }
     public Gender? Gender { get; set; }
     public string? AddressLine1 { get; set; }
@@ -83,8 +83,6 @@ public class Participant
     public string? PreferredLanguage { get; set; }
     public string? IsInterpreterRequired { get; set; }
     public string? InvalidFlag { get; set; }
-    public string? RecordIdentifier { get; set; }
-    public string? ChangeReasonCode { get; set; }
     public string? ParticipantId { get; set; }
     public string? ScreeningId { get; set; }
     public string? BusinessRuleVersion { get; set; }
@@ -93,4 +91,5 @@ public class Participant
     public string? RecordUpdateDateTime { get; set; }
     public string? ScreeningAcronym { get; set; }
     public string? ScreeningName { get; set; }
+    public string? EligibilityFlag { get; set; }
 }

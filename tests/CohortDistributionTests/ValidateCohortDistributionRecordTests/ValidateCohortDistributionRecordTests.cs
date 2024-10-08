@@ -69,7 +69,7 @@ public class ValidateCohortDistributionRecordTests
     public async Task Run_BodyEmpty_BadRequest()
     {
         //Arrange
-        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         //Act
         var result = await _function.RunAsync(_request.Object);
 
@@ -88,7 +88,7 @@ public class ValidateCohortDistributionRecordTests
 
         _exceptionHandler.Verify(
         x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
-        It.IsAny<string>(), It.IsAny<string>()),
+        It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
         Times.Once);
 
 
@@ -120,7 +120,7 @@ public class ValidateCohortDistributionRecordTests
 
         _exceptionHandler.Verify(
             x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(),
-            It.IsAny<string>(), It.IsAny<string>()),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Once);
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
@@ -135,11 +135,13 @@ public class ValidateCohortDistributionRecordTests
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(It.IsAny<string>()))
             .Returns(existingParticipant);
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-
-
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
+            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })
+        ));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -157,10 +159,13 @@ public class ValidateCohortDistributionRecordTests
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(It.IsAny<string>()))
             .Returns(existingParticipant);
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
+            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })
+        ));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -181,14 +186,14 @@ public class ValidateCohortDistributionRecordTests
         _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
         .Throws(new Exception("some new exception"));
 
-        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>()))
+        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), _requestBody.NhsNumber, _requestBody.FileName), Times.Once);
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), _requestBody.NhsNumber, _requestBody.FileName, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
@@ -206,7 +211,7 @@ public class ValidateCohortDistributionRecordTests
         _createCohortDistributionData.Setup(x => x.GetLastCohortDistributionParticipant(_requestBody.NhsNumber))
         .Throws(exception);
 
-        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>()))
+        _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Verifiable();
 
         // Act
@@ -224,7 +229,7 @@ public class ValidateCohortDistributionRecordTests
             Times.Once,
             $"there was an error validating the cohort distribution records {exception.Message}"
         );
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), _requestBody.NhsNumber, _requestBody.FileName), Times.Once);
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), _requestBody.NhsNumber, _requestBody.FileName, It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 

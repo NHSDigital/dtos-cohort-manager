@@ -1,10 +1,6 @@
 namespace Data.Database;
 
 using System.Data;
-using System.Net;
-using System.Reflection.Metadata;
-using System.Text.Json;
-using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -14,44 +10,30 @@ public class CreateParticipantData : ICreateParticipantData
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateParticipantData> _logger;
-    private readonly ICallFunction _callFunction;
-    private readonly IParticipantManagerData _updateParticipantData;
 
-    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger,
-        ICallFunction callFunction, IParticipantManagerData updateParticipantData)
+    public CreateParticipantData(IDbConnection dbConnection, IDatabaseHelper databaseHelper, ILogger<CreateParticipantData> logger)
     {
         _dbConnection = dbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _callFunction = callFunction;
-        _updateParticipantData = updateParticipantData;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
     public async Task<bool> CreateParticipantEntry(ParticipantCsvRecord participantCsvRecord)
     {
         var participantData = participantCsvRecord.Participant;
-
-        // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantData = _updateParticipantData.GetParticipant(participantData.NhsNumber);
-        var response = await ValidateData(existingParticipantData, participantData, participantCsvRecord.FileName);
-        if (response.ExceptionFlag == "Y")
-        {
-            participantData = response;
-        }
-
-        DateTime dateToday = DateTime.Today;
         var sqlToExecuteInOrder = new List<SQLReturnModel>();
 
         string insertParticipant = "INSERT INTO [dbo].[PARTICIPANT_MANAGEMENT] ( " +
             " SCREENING_ID," +
             " NHS_NUMBER," +
             " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_DT," +
+            " REASON_FOR_REMOVAL_FROM_DT," +
             " BUSINESS_RULE_VERSION," +
             " EXCEPTION_FLAG," +
             " RECORD_INSERT_DATETIME," +
-            " RECORD_UPDATE_DATETIME" +
+            " RECORD_UPDATE_DATETIME, " +
+            " RECORD_TYPE " +
             " ) VALUES( " +
             " @screeningId, " +
             " @NHSNumber, " +
@@ -60,18 +42,20 @@ public class CreateParticipantData : ICreateParticipantData
             " @businessRuleVersion, " +
             " @exceptionFlag, " +
             " @recordInsertDateTime, " +
-            " @recordUpdateDateTime " +
+            " @recordUpdateDateTime, " +
+            " @recordType " +
             " ) ";
         var commonParameters = new Dictionary<string, object>
         {
             { "@screeningId", _databaseHelper.CheckIfNumberNull(participantData.ScreeningId) ? DBNull.Value : participantData.ScreeningId},
             { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
             { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
-            { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-            { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
+            { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+            { "@businessRuleVersion", _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
             { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
-            { "@recordInsertDateTime", dateToday },
-            { "@recordUpdateDateTime", DBNull.Value },
+            { "@recordInsertDateTime", DateTime.Now},
+            { "@recordUpdateDateTime", DBNull.Value},
+            { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
         };
 
         sqlToExecuteInOrder.Add(new SQLReturnModel()
@@ -218,25 +202,5 @@ public class CreateParticipantData : ICreateParticipantData
         }
 
         return dbCommand;
-    }
-    private async Task<Participant> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
-    {
-        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
-
-        try
-        {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
-            if (response.StatusCode == HttpStatusCode.Created)
-            {
-                newParticipant.ExceptionFlag = "Y";
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
-            return null;
-        }
-
-        return newParticipant;
     }
 }

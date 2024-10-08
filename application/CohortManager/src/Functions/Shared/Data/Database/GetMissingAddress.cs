@@ -2,7 +2,7 @@ namespace Data.Database;
 
 using System.Data;
 using Model;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 
 public class GetMissingAddress
 {
@@ -22,7 +22,7 @@ public class GetMissingAddress
         using (_connection)
         {
             _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, (SqlConnection) _connection))
+            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
             {
                 command.Parameters.AddWithValue("@ParticipantId", _participant.ParticipantId);
                 using (SqlDataReader reader = command.ExecuteReader())

@@ -17,12 +17,15 @@ public class UpdateParticipantDetails
     private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
+    private readonly ICallFunction _callFunction;
+
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
     {
         _logger = logger;
         _createResponse = createResponse;
         _participantManagerData = participantManagerData;
         _handleException = handleException;
+        _callFunction = callFunction;
     }
 
     [Function("updateParticipantDetails")]
@@ -39,7 +42,22 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var isAdded = await _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
+            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+            var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
+            if (response.IsFatal)
+            {
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+            }
+
+            if (response.CreatedException)
+            {
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
+            }
+
+            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
+
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -49,9 +67,27 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex, ex.Message, ex);
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+    private async Task<ValidationExceptionLog> ValidateData(Participant existingParticipant, Participant newParticipant, string fileName)
+    {
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+            return responseBody;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            return null;
         }
     }
 }

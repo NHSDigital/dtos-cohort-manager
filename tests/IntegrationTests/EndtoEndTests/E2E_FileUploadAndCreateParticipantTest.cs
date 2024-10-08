@@ -1,13 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Azure.Storage.Blobs;
-using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Logging;
-using System.Linq;
-using Model;
-using System.Collections.Generic;
 using Tests.Integration.Helpers;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace Tests.Integration.EndtoEndTests
 {
@@ -15,39 +11,34 @@ namespace Tests.Integration.EndtoEndTests
     [TestCategory("Integration")]
     public class E2E_FileUploadAndCreateParticipantTest : BaseIntegrationTest
     {
-        private BlobServiceClient _blobServiceClient;
+        private BlobStorageHelper _blobStorageHelper;
+        private List<string> _nhsNumbers;
+        private string _connectionString;
         private string _localFilePath;
         private string _blobContainerName;
-        private string _connectionString;
-        private AppSettings _config;
-        private List<string> _nhsNumbers;
 
-        protected override void LoadConfiguration()
+        protected override void ConfigureServices(IServiceCollection services)
         {
-            _config = TestConfig.Get();
-            _connectionString = _config.ConnectionStrings.DtOsDatabaseConnectionString;
-            _blobServiceClient = new BlobServiceClient(_config.AzureWebJobsStorage);
-            _localFilePath = _config.FilePaths.Local;
-            _blobContainerName = _config.BlobContainerName;
+            base.ConfigureServices(services);
+            services.AddSingleton<AppSettings>();
+            services.AddSingleton<BlobStorageHelper>();
         }
 
-        protected override void AssertAllConfigurations()
+        [TestInitialize]
+        public async Task TestInitialize()
         {
-            Assert.IsNotNull(_connectionString, "Database connection string is not set in configuration");
-            Assert.IsNotNull(_blobServiceClient, "Blob service connection string is not set in configuration");
-            Assert.IsNotNull(_localFilePath, "Local file path is not set in configuration");
-            Assert.IsNotNull(_blobContainerName, "Blob container name is not set in configuration");
-        }
-
-        protected override async Task AdditionalSetupAsync()
-        {
+            _blobStorageHelper = ServiceProvider.GetService<BlobStorageHelper>();
+            _connectionString = AppSettings.ConnectionStrings.DtOsDatabaseConnectionString;
+            _localFilePath = AppSettings.FilePaths.Local;
+            _blobContainerName = AppSettings.BlobContainerName;
             _nhsNumbers = CsvHelperService.ExtractNhsNumbersFromCsv(_localFilePath);
+
             await CleanDatabaseAsync();
         }
 
         private async Task CleanDatabaseAsync()
         {
-            var query = "DELETE FROM PARTICIPANT_MANAGEMENT; DELETE FROM PARTICIPANT_DEMOGRAPHIC";
+            var query = "DELETE FROM PARTICIPANT_MANAGEMENT; DELETE FROM PARTICIPANT_DEMOGRAPHIC; DELETE FROM BS_COHORT_DISTRIBUTION";
             await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, query);
             Logger.LogInformation("Database cleanup completed.");
         }
@@ -62,15 +53,14 @@ namespace Tests.Integration.EndtoEndTests
 
             await UploadFileToBlobStorageAsync();
 
-            var participantVerified = await VerifyRecordCountAsync("PARTICIPANT_MANAGEMENT", originalParticipantCount, expectedIncrement: _nhsNumbers.Count);
-            var demographicVerified = await VerifyRecordCountAsync("PARTICIPANT_DEMOGRAPHIC", originalDemographicCount, expectedIncrement: _nhsNumbers.Count);
+            var participantVerified = await DatabaseValidationHelper.VerifyRecordCountAsync(_connectionString, "PARTICIPANT_MANAGEMENT", originalParticipantCount + _nhsNumbers.Count, Logger);
+            var demographicVerified = await DatabaseValidationHelper.VerifyRecordCountAsync(_connectionString, "PARTICIPANT_DEMOGRAPHIC", originalDemographicCount + _nhsNumbers.Count, Logger);
 
             Assert.IsTrue(participantVerified, $"The expected number of participant records ({originalParticipantCount + _nhsNumbers.Count}) was not found in the database.");
             Assert.IsTrue(demographicVerified, $"The expected number of demographic records ({originalDemographicCount + _nhsNumbers.Count}) was not found in the database.");
 
             Logger.LogInformation("Starting additional data integrity check for NHS Numbers.");
 
-            // Additional check: Verify that specific NHS numbers from the CSV are present in the tables
             await DatabaseValidationHelper.VerifyNhsNumbersAsync(_connectionString, "PARTICIPANT_MANAGEMENT", _nhsNumbers, Logger);
             await DatabaseValidationHelper.VerifyNhsNumbersAsync(_connectionString, "PARTICIPANT_DEMOGRAPHIC", _nhsNumbers, Logger);
 
@@ -79,33 +69,12 @@ namespace Tests.Integration.EndtoEndTests
 
         private async Task UploadFileToBlobStorageAsync()
         {
-            Assert.IsTrue(File.Exists(_localFilePath), $"File not found at {_localFilePath}");
+            Assert.IsTrue(System.IO.File.Exists(_localFilePath), $"File not found at {_localFilePath}");
             Logger.LogInformation("Uploading file {FilePath} to blob storage", _localFilePath);
 
-            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(_blobContainerName);
-            await blobContainerClient.CreateIfNotExistsAsync();
-
-            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(_localFilePath));
-            await blobClient.UploadAsync(File.OpenRead(_localFilePath), true);
+            await _blobStorageHelper.UploadFileToBlobStorageAsync(_localFilePath, _blobContainerName);
 
             Logger.LogInformation("File uploaded successfully");
-        }
-
-        private async Task<bool> VerifyRecordCountAsync(string tableName, int originalCount, int expectedIncrement, int maxRetries = 10, int delay = 1000)
-        {
-            for (int i = 0; i < maxRetries; i++)
-            {
-                var newCount = await DatabaseHelper.GetRecordCountAsync(_connectionString, tableName);
-                if (newCount == originalCount + expectedIncrement)
-                {
-                    Logger.LogInformation("Database record count verified for {TableName}: {NewCount}", tableName, newCount);
-                    return true;
-                }
-
-                Logger.LogInformation("Database record count not yet updated for {TableName}, retrying... ({Retry}/{MaxRetries})", tableName, i + 1, maxRetries);
-                await Task.Delay(delay);
-            }
-            return false;
         }
     }
 }

@@ -34,13 +34,14 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<string?> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode)
+    public async Task<string?> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode, string errorRecord)
     {
         var allocationConfigRequestBody = new AllocationConfigRequestBody
         {
             NhsNumber = nhsNumber,
             Postcode = postCode,
-            ScreeningAcronym = screeningAcronym
+            ScreeningAcronym = screeningAcronym,
+            ErrorRecord = errorRecord
         };
 
         var json = JsonSerializer.Serialize(allocationConfigRequestBody);
@@ -85,11 +86,13 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         var json = JsonSerializer.Serialize(lookupValidationRequestBody);
 
         _logger.LogInformation("Called cohort validation service");
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"), json);
-        if (response.StatusCode == HttpStatusCode.Created)
+        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"));
+        if (!string.IsNullOrEmpty(response))
         {
-            return true;
+            var responseObj = JsonSerializer.Deserialize<ValidationExceptionLog>(response);
+            return responseObj.IsFatal;
         }
+        _logger.LogInformation("The response from the validation for cohort distribution returned null or empty");
         return false;
     }
 

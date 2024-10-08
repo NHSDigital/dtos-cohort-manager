@@ -1,83 +1,93 @@
 [
-    {
-        "WorkflowName": "Common",
-        "Rules": [
-            {
-                "RuleName": "9.NhsNumber",
-                "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")"
-            },
-            {
-                "RuleName": "57.SupersededByNhsNumber",
-                "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
-            },
-            {
-                "RuleName": "8.RecordType",
-                "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
-            },
-            {
-                "RuleName": "58.CurrentPosting",
-                "Expression": "string.IsNullOrEmpty(participant.CurrentPosting) OR participant.CurrentPosting == \"England\" OR participant.CurrentPosting == \"Wales\" OR participant.CurrentPosting == \"IoM\""
-            },
-            {
-                "RuleName": "59.PreviousPosting",
-                "Expression": "string.IsNullOrEmpty(participant.PreviousPosting) OR participant.PreviousPosting == \"England\" OR participant.PreviousPosting == \"Wales\" OR participant.PreviousPosting == \"IoM\""
-            },
-            {
-                "RuleName": "14.ReasonForRemoval",
-                "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
-            },
-            {
-                "RuleName": "30.Postcode",
-                "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)"
-            },
-            {
-                "RuleName": "19.NewParticipantWithNoAddress",
-                "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))"
-            },
-            {
-                "RuleName": "3.PrimaryCareProviderAndReasonForRemoval",
-                "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))"
-            },
-            {
-                "RuleName": "17.DateOfBirth",
-                "Expression": "ValidationHelper.ValidatePastDate(participant.DateOfBirth)"
-            },
-            {
-                "RuleName": "39.FamilyName",
-                "Expression": "!string.IsNullOrEmpty(participant.Surname)"
-            },
-            {
-                "RuleName": "40.FirstName",
-                "Expression": "!string.IsNullOrEmpty(participant.FirstName)"
-            },
-            {
-                "RuleName": "42.GPPracticeCode",
-                "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)"
-            },
-            {
-                "RuleName": "66.DeathStatus",
-                "Expression": "participant.RecordType != Actions.Amended OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
-            },
-            {
-                "RuleName": "19.ReasonForRemovalEffectiveFromDate",
-                "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
-            },
-            {
-                "RuleName": "18.DateOfDeath",
-                "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)"
-            },
-            {
-                "RuleName": "47.NewParticipantWithRemovalOrDeath",
-                "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
-            },
-            {
-                "RuleName": "49.IsInterpreterRequired",
-                "Expression": "participant.IsInterpreterRequired == \"0\" OR participant.IsInterpreterRequired == \"1\""
-            },
-            {
-                "RuleName": "61.InvalidFlag",
-                "Expression": "participant.InvalidFlag.ToLower() == \"true\" OR participant.InvalidFlag.ToLower() == \"false\""
-            }
-        ]
-    }
+  {
+    "WorkflowName": "Common",
+    "Rules": [
+      {
+        "RuleName": "9.NhsNumber.Fatal",
+        "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")"
+      },
+      {
+        "RuleName": "57.SupersededByNhsNumber.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
+      },
+      {
+        "RuleName": "8.RecordType.NonFatal",
+        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
+      },
+      {
+        "RuleName": "14.ReasonForRemoval.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)"
+      },
+      {
+        "RuleName": "30.Postcode.NonFatal",
+        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)"
+      },
+      {
+        "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
+        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))"
+      },
+      {
+        "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NonFatal",
+        "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))"
+      },
+      {
+        "RuleName": "17.DateOfBirth.NonFatal",
+        "Expression": "ValidationHelper.ValidatePastDate(participant.DateOfBirth)"
+      },
+      {
+        "RuleName": "39.FamilyName.NonFatal",
+        "Expression": "!string.IsNullOrEmpty(participant.FamilyName)"
+      },
+      {
+        "RuleName": "40.FirstName.NonFatal",
+        "Expression": "!string.IsNullOrEmpty(participant.FirstName)"
+      },
+      {
+        "RuleName": "42.GPPracticeCode.NonFatal",
+        "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)"
+      },
+      {
+        "RuleName": "66.DeathStatus.NonFatal",
+        "Expression": "participant.RecordType != Actions.Amended OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\""
+      },
+      {
+        "RuleName": "19.ReasonForRemovalEffectiveFromDate.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)"
+      },
+      {
+        "RuleName": "18.DateOfDeath.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)"
+      },
+      {
+        "RuleName": "47.NewParticipantWithRemovalOrDeath.NonFatal",
+        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))"
+      },
+      {
+        "RuleName": "49.InterpreterCheck.NonFatal",
+        "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1"
+      },
+      {
+        "RuleName": "61.InvalidFlag.NonFatal",
+        "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\""
+      },
+      {
+        "RuleName": "62.ValidateReasonForRemoval.NonFatal",
+        "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))"
+      },
+      {
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "currentPosting",
+            "Expression": "participant.CurrentPosting"
+          },
+          {
+            "Name": "primaryCareProvider",
+            "Expression": "participant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))"
+      }
+    ]
+  }
 ]

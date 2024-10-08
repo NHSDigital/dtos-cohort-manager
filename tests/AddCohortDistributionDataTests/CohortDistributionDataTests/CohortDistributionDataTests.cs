@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.Tests.CohortDistributionDataTests;
+namespace NHS.CohortManager.Tests.CohortDistributionDataTests;
 
 using Common;
 using Data.Database;
@@ -34,7 +34,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnRowCountFilteredParticipants_WhenFileExists()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 10;
 
         // Act`
@@ -48,7 +48,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnFilteredParticipants1000Records_WhenFileExists()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 1000;
         var expectedRows = 900;
 
@@ -63,7 +63,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnMax1000Records_WhenFileExists()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 2000;
         var expectedRows = 900;
 
@@ -78,7 +78,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnEmptyList_WhenFileIsEmpty()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 5;
 
         // Act
@@ -93,7 +93,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnEmptyList_WhenFileDoesNotExist()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 5;
 
         // Act
@@ -108,7 +108,7 @@ public class CohortDistributionDataTests
     public void GetCohortDistributionParticipantsMock_ShouldReturnEmptyList_WhenJsonDeserializationFails()
     {
         // Arrange
-        var serviceProviderId = (int)ServiceProvider.BsSelect;
+        var serviceProviderId = (int)ServiceProvider.BSS;
         var rowCount = 5;
         var incorrectJson = "{ invalid json }";
 

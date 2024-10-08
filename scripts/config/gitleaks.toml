@@ -28,5 +28,12 @@ paths = [
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/template.json''',
   '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
   '''tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj''',
+  '''tests/IntegrationTests/integration.csproj''',
   '''application/CohortManager/src/Functions/Shared/Model/Model.csproj'''
 ]
+
+
+[[rules]]
+description = "Slack Webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]{12}/[A-Z0-9]{12}/[A-Za-z0-9]{25}'''
+tags = ["webhook", "slack"]

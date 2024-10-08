@@ -43,12 +43,46 @@ public class ProcessCaasFileFunction
 
         foreach (var participant in input.Participants)
         {
+            // Check the NHS number is a number
+            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            {
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"), participant, input.FileName);
+                err++;
+                continue;
+            }
+
+
+            // Convert string properties to DateTime? for validation
+            DateTime? primaryCareDate = TryParseDate(participant.PrimaryCareProviderEffectiveFromDate);
+            DateTime? addressDate = TryParseDate(participant.UsualAddressEffectiveFromDate);
+            DateTime? reasonForRemovalDate = TryParseDate(participant.ReasonForRemovalEffectiveFromDate);
+            DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
+            DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
+            DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+            DateTime? dateOfBirth = TryParseDate(participant.DateOfBirth);
+
+            // Validate the date fields
+            if (!IsValidDate(primaryCareDate) ||
+                !IsValidDate(addressDate) ||
+                !IsValidDate(reasonForRemovalDate) ||
+                !IsValidDate(homeTelephoneDate) ||
+                !IsValidDate(mobileTelephoneDate) ||
+                !IsValidDate(emailAddressDate) ||
+                !IsValidDate(dateOfBirth))
+            {
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
+                err++;
+                continue; // Skip this participant
+            }
+
             row++;
             var basicParticipantCsvRecord = new BasicParticipantCsvRecord
             {
                 Participant = _createBasicParticipantData.BasicParticipantData(participant),
                 FileName = input.FileName
             };
+
+
 
             switch (participant.RecordType?.Trim())
             {
@@ -77,8 +111,13 @@ public class ProcessCaasFileFunction
                     try
                     {
                         var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-                        _logger.LogInformation("Called update participant");
+                        var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+                        if (demographicDataAdded)
+                        {
+                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                            _logger.LogInformation("Called update participant");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -107,26 +146,8 @@ public class ProcessCaasFileFunction
 
                         _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
-                        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
-                        {
-                            RuleId = 1,
-                            Cohort = "N/A",
-                            NhsNumber = string.IsNullOrEmpty(participant.NhsNumber) ? "" : participant.NhsNumber,
-                            DateCreated = DateTime.Now,
-                            FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
-                            DateResolved = DateTime.MaxValue,
-                            RuleDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type",
-                            Category = 1,
-                            ScreeningName = "N/A",
-                            Fatal = 1,
-                            ErrorRecord = "N/A",
-                            ExceptionDate = DateTime.Now,
-                            RuleContent = "N/A",
-                            ScreeningService = 0
-
-                        });
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-
+                        var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
+                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participant));
                     }
                     catch (Exception ex)
                     {
@@ -141,7 +162,7 @@ public class ProcessCaasFileFunction
 
         if (err > 0)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -153,6 +174,24 @@ public class ProcessCaasFileFunction
         if (!demographicDataInserted)
         {
             _logger.LogError("Demographic function failed");
+            return false;
+        }
+        return true;
+    }
+
+    private static DateTime? TryParseDate(string? dateString)
+    {
+        if (DateTime.TryParse(dateString, out var date))
+        {
+            return date;
+        }
+        return null;
+    }
+
+    public bool IsValidDate(DateTime? date)
+    {
+        if (date.HasValue && date.Value > DateTime.UtcNow)
+        {
             return false;
         }
         return true;

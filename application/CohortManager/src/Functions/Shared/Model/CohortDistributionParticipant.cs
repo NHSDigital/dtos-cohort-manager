@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 
 public class CohortDistributionParticipant
 {
+    public string RecordType { get; set; }
+
     [JsonPropertyName("ParticipantId")]
     public string? ParticipantId { get; set; }
 
@@ -30,10 +32,10 @@ public class CohortDistributionParticipant
     public string? OtherGivenNames { get; set; }
 
     [JsonPropertyName("Family Name")]
-    public string? Surname { get; set; }
+    public string? FamilyName { get; set; }
 
     [JsonPropertyName("Previous Family Name")]
-    public string? PreviousSurname { get; set; }
+    public string? PreviousFamilyName { get; set; }
 
     [JsonPropertyName("Date of Birth")]
     public string? DateOfBirth { get; set; }
@@ -103,6 +105,13 @@ public class CohortDistributionParticipant
     public string? Extracted { get; set; }
     public int? ServiceProviderId { get; set; }
     public string? ScreeningAcronym { get; set; }
-    public string? ScreeningId { get; set; }
+    public string? ScreeningServiceId { get; set; }
     public string? ScreeningName { get; set; }
+    public string? RequestId { get; set; }
+
+    [JsonPropertyName("Current Posting")]
+    public string? CurrentPosting { get; set; }
+
+    [JsonPropertyName("Current Posting Business Effective From Date")]
+    public string? CurrentPostingEffectiveFromDate { get; set; }
 }
