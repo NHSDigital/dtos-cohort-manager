@@ -219,6 +219,7 @@ variable "key_vault" {
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
+    law_deploy_enabled       = bool
     name_suffix              = optional(string, "cohman")
     resource_group_key       = optional(string, "cohman")
     law_sku                  = optional(string, "PerGB2018")

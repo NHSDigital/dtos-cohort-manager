@@ -1,3 +1,8 @@
+variable "law_deploy_enabled" {
+  type        = bool
+  description = "A boolean value controlling the resource deployment"
+}
+
 variable "resource_group_name" {
   type        = string
   description = "The name of the resource group in which to create the LAW. Changing this forces a new resource to be created."
@@ -37,3 +42,5 @@ variable "audit_resource_group_name" {
   type        = string
   description = "The name of the resource group in which to create (audit sub). Changing this forces a new resource to be created."
 }
+
+
