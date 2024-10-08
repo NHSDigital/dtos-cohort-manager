@@ -1,8 +1,9 @@
 module "app_insights" {
+  count = var.features["app_insighte_enabled"] ? 1 : 0
+
   source = ".//modules/app-insights"
 
   providers = {
-    azurerm       = azurerm
     azurerm.audit = azurerm.audit
   }
 

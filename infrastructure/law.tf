@@ -1,8 +1,9 @@
 module "log_analytics_workspace" {
+  count = var.features["law_enabled"] ? 1 : 0
+
   source = ".//modules/log-analytics-workspace"
 
   providers = {
-    azurerm       = azurerm
     azurerm.audit = azurerm.audit
   }
 
