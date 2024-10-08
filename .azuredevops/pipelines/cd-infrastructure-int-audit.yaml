@@ -29,7 +29,7 @@ stages:
     condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
 
     variables:
-      - group: integration_variable_group
+      - group: integration_audit_variable_group
 
     jobs:
 
@@ -46,7 +46,7 @@ stages:
     dependsOn: [terraform_plan]
     condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
     variables:
-      - group: integration_variable_group
+      - group: integration_audit_variable_group
 
     jobs:
       - deployment: terraform_apply
