@@ -7,6 +7,8 @@ module "app_insights" {
     azurerm.audit = azurerm.audit
   }
 
+  app_insights_enabled = var.features.app_insights_enabled
+
   names = module.config.names
 
   name_suffix         = var.app_insights.name_suffix

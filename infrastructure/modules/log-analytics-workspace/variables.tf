@@ -1,4 +1,4 @@
-variable "law_deploy_enabled" {
+variable "law_enabled" {
   type        = bool
   description = "A boolean value controlling the resource deployment"
 }

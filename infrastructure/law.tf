@@ -7,7 +7,7 @@ module "log_analytics_workspace" {
     azurerm.audit = azurerm.audit
   }
 
-  law_deploy_enabled = var.features.law_enabled
+  law_enabled = var.features.law_enabled
 
   names = module.config.names
 

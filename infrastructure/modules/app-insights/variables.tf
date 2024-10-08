@@ -1,3 +1,8 @@
+variable "app_insights_enabled" {
+  type        = bool
+  description = "A boolean value controlling the resource deployment"
+}
+
 variable "resource_group_name" {
   type        = string
   description = "The name of the resource group in which to create. Changing this forces a new resource to be created."
