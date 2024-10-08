@@ -492,26 +492,38 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
-    public List<CohortAuditHistory> GetCohortAuditHistory(string requestId, string statusCode, string? dateFrom)
+    public List<CohortAuditHistory> GetCohortAuditHistory(string? requestId, string? statusCode, string? dateFrom)
     {
         var SQL = "SELECT" +
             " [REQUEST_ID], " +
             " [STATUS_CODE], " +
             " [CREATED_DATETIME] " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE REQUEST_ID = @RequestId " +
-            " AND STATUS_CODE = @StatusCode ";
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
 
-        var parameters = new Dictionary<string, object>
-        {
-            {"@RequestId", requestId },
-            {"@StatusCode", statusCode }
-        };
+        var parameters = new Dictionary<string, object>();
+        var conditions = new List<string>();
 
-        if (!string.IsNullOrEmpty(dateFrom))
+        if (dateFrom != null && ValidationHelper.ValidatePastDate(dateFrom))
         {
-            SQL += "AND CREATED_DATETIME >= @DateFrom ";
+            conditions.Add("CREATED_DATETIME >= @DateFrom");
             parameters.Add("@DateFrom", dateFrom);
+        }
+
+        if (!string.IsNullOrEmpty(statusCode))
+        {
+            conditions.Add("STATUS_CODE = @StatusCode");
+            parameters.Add("@StatusCode", statusCode);
+        }
+
+        if (!string.IsNullOrEmpty(requestId))
+        {
+            conditions.Add("REQUEST_ID = @RequestId");
+            parameters.Add("@RequestId", requestId);
+        }
+
+        if (conditions.Count > 0)
+        {
+            SQL += " WHERE " + string.Join(" AND ", conditions);
         }
 
         using var command = CreateCommand(parameters);

@@ -12,9 +12,9 @@ using Microsoft.Extensions.Logging;
 /// Azure Function for retrieving cohort audit history data based on RequestId, Status Code and Date.
 /// </summary>
 /// <param name="req">The HTTP request data containing query parameters and request details.</param>
-/// <param name="requestId">The HTTP request data containing query parameters and request details.</param>
-/// <param name="statusCode">Http Status Code. Most likely 200 or 500</param>
-/// <param name="date"> Optional? If empty will return all records.</param>
+/// <param name="requestId">Optional. If unknown will use other query params. The HTTP request data containing query parameters and request details.</param>
+/// <param name="statusCode">Optional. Http Status Code. 200, 500 or null. If null will be ignored as a query param.</param>
+/// <param name="dateFrom"> Optional. If empty will return all records for all dates.</param>
 /// <returns>
 /// HTTP response with:
 /// - 400 Bad Request if parameters are invalid or missing.
@@ -47,11 +47,10 @@ public class RetrieveCohortAuditHistory
         var dateFrom = req.Query["dateFrom"];
         var acceptedStatusCodes = new string[] { ((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString() };
 
-        if (string.IsNullOrEmpty(requestId)) return _httpParserHelper.LogErrorResponse(req, "No request Id provided.");
-        if (!acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200 and 500 are accepted.");
-
         try
         {
+            if (!string.IsNullOrEmpty(statusCode) && !acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200 and 500 are accepted.");
+            if (!string.IsNullOrEmpty(dateFrom) /*&& dateFrom != "yyyyMMdd"*/) return _httpParserHelper.LogErrorResponse(req, "Invalid date format. Please use yyyyMMdd.");
             var cohortAuditHistoryList = _createCohortDistributionData.GetCohortAuditHistory(requestId, statusCode, dateFrom);
             if (cohortAuditHistoryList.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
