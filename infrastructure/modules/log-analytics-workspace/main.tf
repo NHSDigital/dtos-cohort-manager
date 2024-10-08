@@ -1,8 +1,6 @@
 resource "azurerm_log_analytics_workspace" "law_audit" {
   #provider = azurerm.audit
 
-  law_deploy_enabled = var.law_deploy_enabled
-
   name                = "${var.names.log-analytics-workspace}-${upper(var.name_suffix)}"
   location            = var.location
   resource_group_name = var.audit_resource_group_name
