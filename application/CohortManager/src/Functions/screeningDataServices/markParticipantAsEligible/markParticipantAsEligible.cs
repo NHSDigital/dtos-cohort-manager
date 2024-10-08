@@ -41,7 +41,7 @@ public class MarkParticipantAsEligible
             var updated = false;
             if (participant != null)
             {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participant, 1);
+                updated = _participantManagerData.UpdateParticipantAsEligible(participant);
 
             }
             if (updated)

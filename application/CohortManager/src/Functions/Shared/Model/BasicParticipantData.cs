@@ -8,4 +8,5 @@ public class BasicParticipantData
     public string? RemovalEffectiveFromDate { get; set; }
     public string? ScreeningId { get; set; }
     public string? ScreeningName { get; set; }
+    public string? EligibilityFlag { get; set; }
 }
