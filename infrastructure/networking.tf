@@ -16,7 +16,7 @@ resource "azurerm_resource_group" "rg_private_endpoints" {
 }
 
 module "vnet" {
-  count = var.features["networking_enabled"] ? 1 : 0
+  #count = var.features["networking_enabled"] ? 1 : 0
 
   for_each = var.regions
 
@@ -36,7 +36,7 @@ module "vnet" {
 --------------------------------------------------------------------------------------------------*/
 
 module "subnets" {
-  count = var.features["networking_enabled"] ? 1 : 0
+  #count = var.features["networking_enabled"] ? 1 : 0
 
   for_each = local.subnets_map
 
@@ -83,7 +83,7 @@ locals {
 --------------------------------------------------------------------------------------------------*/
 
 module "peering_spoke_hub" {
-  count = var.features["networking_enabled"] ? 1 : 0
+  #count = var.features["networking_enabled"] ? 1 : 0
   # loop through regions and only create peering if connect_peering is set to true
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
@@ -103,7 +103,7 @@ module "peering_spoke_hub" {
 }
 
 module "peering_hub_spoke" {
-  count = var.features["networking _enabled"] ? 1 : 0
+  #count = var.features["networking _enabled"] ? 1 : 0
 
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
