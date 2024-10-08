@@ -38,8 +38,9 @@ public class ParticipantManagerData : IParticipantManagerData
             {
                 {"@participantId", Participant.ParticipantId },
                 {"@recordEndDateOldRecords", recordUpdateTime },
-                {"@eligibilityFlag", participant.EligibilityFlag }
+                {"@eligibilityFlag", _databaseHelper.CheckIfNumberNull(participant.EligibilityFlag) ? DBNull.Value : participant.EligibilityFlag }
             };
+
 
             return ExecuteCommand(SQL, Parameters);
         }

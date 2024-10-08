@@ -43,28 +43,11 @@ public class CreateParticipant : ICreateParticipant
             InvalidFlag = demographic.InvalidFlag,
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
-            EligibilityFlag = GetEligibilityFlag(participant)
+            //Accepting null for eligibility flag is a temporary behavior until eligibility flag is included in the test files.
+            EligibilityFlag = participant.EligibilityFlag
         };
     }
 
-
-    /// <summary>
-    ///  sets the flag to 1 or 0 even if the value of the flag is null
-    /// </summary>
-    /// <param name="basicParticipantData"></param>
-    /// <returns>a string of 1 or 0</returns>
-    private static string GetEligibilityFlag(BasicParticipantData basicParticipantData)
-    {
-        if (basicParticipantData.EligibilityFlag == null)
-        {
-            if (basicParticipantData.RecordType == Actions.Removed)
-            {
-                return EligibilityFlag.Ineligible;
-            }
-            return EligibilityFlag.Eligible;
-        }
-        return basicParticipantData.EligibilityFlag;
-    }
 
     public CohortDistributionParticipant CreateCohortDistributionParticipantModel(Participant participant, Demographic demographic)
     {
