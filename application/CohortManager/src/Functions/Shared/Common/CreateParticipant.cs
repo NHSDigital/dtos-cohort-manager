@@ -43,7 +43,6 @@ public class CreateParticipant : ICreateParticipant
             InvalidFlag = demographic.InvalidFlag,
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
-            //Accepting null for eligibility flag is a temporary behavior until eligibility flag is included in the test files.
             EligibilityFlag = participant.EligibilityFlag
         };
     }
