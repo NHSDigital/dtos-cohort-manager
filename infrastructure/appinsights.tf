@@ -16,8 +16,8 @@ module "app_insights" {
   location            = module.baseline.resource_group_locations[var.app_insights.resource_group_key]
   appinsights_type    = var.app_insights.appinsights_type
 
-  law_id       = module.log_analytics_workspace.id[0]
-  audit_law_id = module.log_analytics_workspace.audit_id[0]
+  law_id       = module.log_analytics_workspace[0].id
+  audit_law_id = module.log_analytics_workspace[0].audit_id
 
   audit_resource_group_name = module.baseline.resource_group_names_audit[var.app_insights.audit_resource_group_key]
   tags                      = var.tags
