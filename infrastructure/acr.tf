@@ -1,4 +1,5 @@
 module "acr" {
+  count = var.features["acr_enabled"] ? 1 : 0
 
   # Cannot do this until we are ready to remove ACR from current Dev environment
   # as using the count will cause the ACR to be destroyed and recreated

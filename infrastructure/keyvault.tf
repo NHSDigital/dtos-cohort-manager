@@ -1,4 +1,6 @@
 module "key_vault" {
+  count = var.features["key_vault_enabled"] ? 1 : 0
+
   source = ".//modules/key-vault"
 
   names                    = module.config.names

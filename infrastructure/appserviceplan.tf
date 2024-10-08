@@ -1,4 +1,6 @@
 module "app-service-plan" {
+  count = var.features["app_service_plan_enabled"] ? 1 : 0
+
   for_each = var.regions
 
   source = ".//modules/app-service-plan"

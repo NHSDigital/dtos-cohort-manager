@@ -1,4 +1,6 @@
 module "storage" {
+  count = var.features["azure_sql_enabled"] ? 1 : 0
+
   for_each = local.storage_accounts_map
 
   source = ".//modules/storage"

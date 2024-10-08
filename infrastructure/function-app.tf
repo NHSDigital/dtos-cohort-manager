@@ -1,4 +1,6 @@
 module "functionapp" {
+  count = var.features["function_app_enabled"] ? 1 : 0
+
   for_each = local.function_app_map
 
   #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"

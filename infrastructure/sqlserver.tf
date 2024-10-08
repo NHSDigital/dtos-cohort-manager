@@ -1,4 +1,6 @@
 module "azuresql" {
+  count = var.features["azure_sql_enabled"] ? 1 : 0
+
   source = ".//modules/azure-sql-server"
 
   # Azure SQL Server
