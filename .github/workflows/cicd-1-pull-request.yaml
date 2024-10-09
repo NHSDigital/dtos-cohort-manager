@@ -12,7 +12,7 @@ on:
 jobs:
   metadata:
     name: "Set CI/CD metadata"
-    runs-on: ubuntu-latest
+    runs-on: ent-dtos-azure-small-ubuntu-latest
     timeout-minutes: 1
     outputs:
       build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
