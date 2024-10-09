@@ -450,9 +450,10 @@ public class LookupValidationTests
         _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var result = await _sut.RunAsync(_request.Object);
 
         // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
@@ -476,11 +477,13 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
+        var expectedStatusCode = recordType == Actions.New ? HttpStatusCode.Created : HttpStatusCode.OK;
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var result = await _sut.RunAsync(_request.Object);
 
         // Assert
+        Assert.AreEqual(expectedStatusCode, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
