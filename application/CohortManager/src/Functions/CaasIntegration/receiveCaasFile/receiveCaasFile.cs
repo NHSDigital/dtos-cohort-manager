@@ -30,7 +30,7 @@ public partial class ReceiveCaasFile
         var downloadFilePath = string.Empty;
         try
         {
-           if (!await _receiveCaasFileHelper.InitialChecks(blobStream, name))
+            if (!await _receiveCaasFileHelper.InitialChecks(blobStream, name))
             {
                 _logger.LogError("Invalid File.");
                 return;
