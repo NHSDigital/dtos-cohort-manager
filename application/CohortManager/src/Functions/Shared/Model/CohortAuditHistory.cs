@@ -1,5 +1,5 @@
 namespace Model;
-    public class CohortAuditHistory
+    public class CohortRequestAudit
     {
         public string? RequestId { get; set; }
         public string? StatusCode { get; set; }

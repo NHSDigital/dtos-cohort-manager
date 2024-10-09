@@ -492,7 +492,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
-    public List<CohortAuditHistory> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
+    public List<CohortRequestAudit> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var sql = BuildCohortRequestAuditQuery(requestId, statusCode, dateFrom);
         var parameters = GetParameters(requestId, statusCode, dateFrom);
@@ -544,13 +544,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return parameters;
     }
 
-    private List<CohortAuditHistory> ReadCohortRequestAudit(IDataReader reader)
+    private List<CohortRequestAudit> ReadCohortRequestAudit(IDataReader reader)
     {
-        var cohortAuditHistoryList = new List<CohortAuditHistory>();
+        var cohortRequestAuditList = new List<CohortRequestAudit>();
 
         while (reader.Read())
         {
-            cohortAuditHistoryList.Add(new CohortAuditHistory
+            cohortRequestAuditList.Add(new CohortRequestAudit
             {
                 RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
                 StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
@@ -558,7 +558,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             });
         }
 
-        return cohortAuditHistoryList;
+        return cohortRequestAuditList;
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
