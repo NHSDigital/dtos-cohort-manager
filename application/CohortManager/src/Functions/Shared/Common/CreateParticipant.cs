@@ -42,9 +42,12 @@ public class CreateParticipant : ICreateParticipant
             IsInterpreterRequired = demographic.IsInterpreterRequired,
             InvalidFlag = demographic.InvalidFlag,
             ScreeningId = participant.ScreeningId,
-            ScreeningName = participant.ScreeningName
+            ScreeningName = participant.ScreeningName,
+            //Accepting null for eligibility flag is a temporary behavior until eligibility flag is included in the test files.
+            EligibilityFlag = participant.EligibilityFlag
         };
     }
+
 
     public CohortDistributionParticipant CreateCohortDistributionParticipantModel(Participant participant, Demographic demographic)
     {

@@ -23,6 +23,7 @@ public class DemographicDataServiceTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly Participant _participant;
     private readonly Mock<ICreateDemographicData> _createDemographicData = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
 
     public DemographicDataServiceTests()
     {
@@ -42,11 +43,11 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataSaved_OK()
+    public async Task Run_DemographicDataSaved_OK()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
 
@@ -68,11 +69,11 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_return_POST_DemographicNotSaved_InternalServerError()
+    public async Task Run_DemographicNotSaved_InternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
 
@@ -95,11 +96,11 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicNotSavedThrows_InternalServerError()
+    public async Task Run_DemographicNotSavedThrows_InternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
 
@@ -122,11 +123,11 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Get_return_DemographicData_OK()
+    public async Task Run_ReturnDemographicData_OK()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
 
@@ -154,10 +155,10 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Get_return_DemographicData_NotFound()
+    public async Task Run_ReturnDemographicData_NotFound()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
@@ -183,10 +184,10 @@ public class DemographicDataServiceTests
     }
 
     [TestMethod]
-    public async Task Get_return_DemographicData_InternalServerError()
+    public async Task Run_DemographicData_InternalServerError()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 

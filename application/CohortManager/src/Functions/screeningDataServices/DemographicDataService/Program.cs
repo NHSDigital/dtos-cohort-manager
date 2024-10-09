@@ -13,6 +13,7 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
     })
+    .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
 

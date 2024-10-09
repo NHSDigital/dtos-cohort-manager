@@ -13,7 +13,7 @@ variable "ACR_SUBSCRIPTION_ID" {
   type        = string
 }
 
-variable "DEVOPS_SUBSCRIPTION_ID" {
+variable "DEVHUB_SUBSCRIPTION_ID" {
   description = "ID of the subscription hosting the DevOps resources"
   type        = string
 }
@@ -65,7 +65,7 @@ variable "regions" {
   type = map(object({
     address_space     = optional(string)
     is_primary_region = bool
-    create_peering    = optional(bool)
+    create_peering    = optional(bool, false)
     subnets = optional(map(object({
       cidr_newbits = string
       cidr_offset  = string
@@ -167,21 +167,36 @@ variable "event_grid" {
   })
 }
 
-variable "function_app" {
-  description = "Configuration for the function app"
+variable "function_apps" {
+  description = "Configuration for function apps"
   type = object({
-    resource_group_key       = optional(string, "baseline")
-    gl_worker_32bit          = optional(bool, false)
-    gl_docker_env_tag        = optional(string, "development")
-    gl_docker_CI_enable      = optional(string, "cohort-manager")
-    gl_docker_img_prefix     = optional(string, "false")
-    gl_cont_registry_use_mi  = optional(bool, true)
-    gl_enable_appsrv_storage = optional(string, "false")
-    acr_name                 = optional(string, "acrukscohmandev")
-    acr_rg_name              = optional(string, "rg-cohort-manager-dev-uks")
-    acr_mi_name              = optional(string, "dtos-cohort-manager-acr-push")
+    resource_group_key       = string
+    acr_mi_name              = string
+    acr_name                 = string
+    acr_rg_name              = string
+    cont_registry_use_mi     = bool
+    docker_CI_enable         = string
+    docker_env_tag           = string
+    docker_img_prefix        = string
+    enable_appsrv_storage    = bool
+    ftps_state               = string
+    https_only               = bool
+    remote_debugging_enabled = bool
+    worker_32bit             = bool
     fa_config = map(object({
-      name_suffix = string
+      name_suffix                  = string
+      function_endpoint_name       = string
+      storage_account_env_var_name = optional(string, "")
+      storage_containers = optional(list(object
+        ({
+          env_var_name   = string
+          container_name = string
+      })), [])
+      db_connection_string = optional(string, "")
+      app_urls = optional(list(object({
+        env_var_name     = string
+        function_app_key = string
+      })), [])
     }))
   })
 }
