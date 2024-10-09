@@ -11,7 +11,7 @@ using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
 
-public partial class ReceiveCaasFile
+public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
