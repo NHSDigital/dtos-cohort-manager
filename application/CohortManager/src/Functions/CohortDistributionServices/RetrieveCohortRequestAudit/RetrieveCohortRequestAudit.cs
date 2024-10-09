@@ -22,15 +22,15 @@ using Microsoft.Extensions.Logging;
 /// - 200 OK - List<RequestAudit> in JSON format.  // BS_SELECT_REQUEST_AUDIT
 /// - 500 Internal Server Error if an exception occurs.
 /// </returns>
-public class RetrieveCohortAuditHistory
+public class RetrieveCohortRequestAudit
 {
-    private readonly ILogger<RetrieveCohortAuditHistory> _logger;
+    private readonly ILogger<RetrieveCohortRequestAudit> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IHttpParserHelper _httpParserHelper;
 
-    public RetrieveCohortAuditHistory(ILogger<RetrieveCohortAuditHistory> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
+    public RetrieveCohortRequestAudit(ILogger<RetrieveCohortRequestAudit> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
@@ -39,19 +39,20 @@ public class RetrieveCohortAuditHistory
         _httpParserHelper = httpParserHelper;
     }
 
-    [Function("RetrieveCohortAuditHistory")]
+    [Function("RetrieveCohortRequestAudit")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
         var statusCode = req.Query["statusCode"];
         var dateFrom = req.Query["dateFrom"];
-        var acceptedStatusCodes = new string[] { ((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString() };
+        var acceptedStatusCodes = new string[] {((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString()};
+        var isValidDateFormat = DateTimeHelper.IsValidDateFormat(dateFrom);
 
         try
         {
             if (!string.IsNullOrEmpty(statusCode) && !acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200 and 500 are accepted.");
-            if (!string.IsNullOrEmpty(dateFrom) /*&& dateFrom != "yyyyMMdd"*/) return _httpParserHelper.LogErrorResponse(req, "Invalid date format. Please use yyyyMMdd.");
-            var cohortAuditHistoryList = _createCohortDistributionData.GetCohortAuditHistory(requestId, statusCode, dateFrom);
+            if (!string.IsNullOrEmpty(dateFrom) && !isValidDateFormat.isValidDateFormat) return _httpParserHelper.LogErrorResponse(req, "Invalid date format. Please use yyyyMMdd.");
+            var cohortAuditHistoryList = _createCohortDistributionData.GetCohortRequestAudit(requestId, statusCode, isValidDateFormat.date);
             if (cohortAuditHistoryList.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
             var cohortAuditHistoryJson = JsonSerializer.Serialize(cohortAuditHistoryList);

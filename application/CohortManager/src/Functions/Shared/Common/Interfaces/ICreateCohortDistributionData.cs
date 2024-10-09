@@ -11,5 +11,5 @@ public interface ICreateCohortDistributionData
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
     List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson);
     List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId);
-    List<CohortAuditHistory> GetCohortAuditHistory(string? requestId, string? statusCode, string? dateFrom);
+    List<CohortAuditHistory> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
 }

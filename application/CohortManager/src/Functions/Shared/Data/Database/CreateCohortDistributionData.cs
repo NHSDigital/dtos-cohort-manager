@@ -492,7 +492,18 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
-    public List<CohortAuditHistory> GetCohortAuditHistory(string? requestId, string? statusCode, string? dateFrom)
+    public List<CohortAuditHistory> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
+    {
+        var sql = BuildCohortRequestAuditQuery(requestId, statusCode, dateFrom);
+        var parameters = GetParameters(requestId, statusCode, dateFrom);
+
+        using var command = CreateCommand(parameters);
+        command.CommandText = sql;
+
+        return ExecuteQuery(command, ReadCohortRequestAudit);
+    }
+
+    private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var SQL = "SELECT" +
             " [REQUEST_ID], " +
@@ -500,51 +511,55 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
 
-        var parameters = new Dictionary<string, object>();
         var conditions = new List<string>();
 
-        if (dateFrom != null && ValidationHelper.ValidatePastDate(dateFrom))
-        {
+        if (dateFrom.HasValue)
             conditions.Add("CREATED_DATETIME >= @DateFrom");
-            parameters.Add("@DateFrom", dateFrom);
-        }
 
         if (!string.IsNullOrEmpty(statusCode))
-        {
             conditions.Add("STATUS_CODE = @StatusCode");
-            parameters.Add("@StatusCode", statusCode);
-        }
 
         if (!string.IsNullOrEmpty(requestId))
-        {
             conditions.Add("REQUEST_ID = @RequestId");
-            parameters.Add("@RequestId", requestId);
-        }
 
         if (conditions.Count > 0)
-        {
             SQL += " WHERE " + string.Join(" AND ", conditions);
-        }
 
-        using var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        return ExecuteQuery(command, reader =>
-        {
-            var cohortAuditHistoryList = new List<CohortAuditHistory>();
-            while (reader.Read())
-            {
-                cohortAuditHistoryList.Add(new CohortAuditHistory
-                {
-                    RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
-                    StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
-                    CreatedDateTime = DatabaseHelper.GetStringValue(reader, "CREATED_DATETIME"),
-                });
-            }
-            return cohortAuditHistoryList;
-        });
+        return SQL;
     }
 
+    private static Dictionary<string, object> GetParameters(string? requestId, string? statusCode, DateTime? dateFrom)
+    {
+        var parameters = new Dictionary<string, object>();
+
+        if (dateFrom.HasValue)
+            parameters.Add("@DateFrom", dateFrom.Value);
+
+        if (!string.IsNullOrEmpty(statusCode))
+            parameters.Add("@StatusCode", statusCode);
+
+        if (!string.IsNullOrEmpty(requestId))
+            parameters.Add("@RequestId", requestId);
+
+        return parameters;
+    }
+
+    private List<CohortAuditHistory> ReadCohortRequestAudit(IDataReader reader)
+    {
+        var cohortAuditHistoryList = new List<CohortAuditHistory>();
+
+        while (reader.Read())
+        {
+            cohortAuditHistoryList.Add(new CohortAuditHistory
+            {
+                RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
+                StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
+                CreatedDateTime = DatabaseHelper.GetStringValue(reader, "CREATED_DATETIME"),
+            });
+        }
+
+        return cohortAuditHistoryList;
+    }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {

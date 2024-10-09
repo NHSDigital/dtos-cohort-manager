@@ -126,7 +126,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "Coh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticTests", "..\..\..\..\tests\StaticTests\StaticTests.csproj", "{1E99A3AD-6BCE-4772-AED2-CF895F945D31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortAuditHistory", "CohortDistributionServices\RetrieveCohortAuditHistory\RetrieveCohortAuditHistory.csproj", "{ED74B67B-5F06-48D9-A2A4-1320E0EAB658}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAudit", "CohortDistributionServices\RetrieveCohortRequestAudit\RetrieveCohortRequestAudit.csproj", "{ED74B67B-5F06-48D9-A2A4-1320E0EAB658}"
 EndProject
 Global
     GlobalSection(ProjectConfigurationPlatforms) = postSolution
