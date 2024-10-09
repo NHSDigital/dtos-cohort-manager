@@ -91,4 +91,16 @@ public static class MeshResponseTestHelper
             }
         };
     }
+
+    public static MeshResponse<HandshakeResponse> CreateSuccessfulHandshakeResponse(string mailboxId)
+    {
+        return new MeshResponse<HandshakeResponse>{
+            IsSuccessful = true,
+            Response = new HandshakeResponse
+            {
+                MailboxId = mailboxId
+            }
+        };
+    }
+
 }
