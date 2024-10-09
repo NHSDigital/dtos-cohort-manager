@@ -3,6 +3,6 @@ namespace Model;
 public class Actions
 {
     public const string New = "ADD";
-    public const string Amended = "AMENDED";
-    public const string Removed = "REMOVED";
+    public const string Amended = "AMEND";
+    public const string Removed = "DEL";
 }

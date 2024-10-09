@@ -193,8 +193,8 @@ public class StaticValidationTests
     #region Record Type (Rule 8)
     [TestMethod]
     [DataRow("ADD")]
-    [DataRow("AMENDED")]
-    [DataRow("REMOVED")]
+    [DataRow("AMEND")]
+    [DataRow("DEL")]
     public async Task Run_Should_Not_Create_Exception_When_RecordType_Rule_Passes(string recordType)
     {
         // Arrange
@@ -607,9 +607,9 @@ public class StaticValidationTests
 
     #region GP Practice Code (Rule 42)
     [TestMethod]
-    [DataRow("New", "ABC")]
-    [DataRow("Amended", null)]
-    [DataRow("Removed", null)]
+    [DataRow("ADD", "ABC")]
+    [DataRow("AMEND", null)]
+    [DataRow("DEL", null)]
     public async Task Run_Should_Not_Create_Exception_When_GPPracticeCode_Rule_Passes(string recordType, string gpPracticeCode)
     {
         // Arrange
@@ -653,7 +653,7 @@ public class StaticValidationTests
 
     #region Death Status (Rule 66)
     [TestMethod]
-    [DataRow("AMENDED", Status.Formal, "DEA")]
+    [DataRow("AMEND", Status.Formal, "DEA")]
     public async Task Run_Should_Not_Create_Exception_When_DeathStatus_Rule_Passes(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -674,9 +674,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("AMENDED", Status.Formal, null)]
-    [DataRow("AMENDED", Status.Formal, "")]
-    [DataRow("AMENDED", Status.Formal, "AFL")]
+    [DataRow("AMEND", Status.Formal, null)]
+    [DataRow("AMEND", Status.Formal, "")]
+    [DataRow("AMEND", Status.Formal, "AFL")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -798,8 +798,8 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("ADD", null, null, null)]
     [DataRow("ADD", "", "", "")]
-    [DataRow("AMENDED", "DEA", "20240101", "20240101")]
-    [DataRow("REMOVED", "DEA", "20240101", "20240101")]
+    [DataRow("AMEND", "DEA", "20240101", "20240101")]
+    [DataRow("DEL", "DEA", "20240101", "20240101")]
     public async Task Run_Should_Not_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Passes(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {

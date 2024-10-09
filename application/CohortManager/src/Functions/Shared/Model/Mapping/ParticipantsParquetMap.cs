@@ -16,7 +16,7 @@ public struct ParticipantsParquetMap
     public Int64? NhsNumber;
 
     [MapToColumn("superseded_by_nhs_number")]
-    public Int32? SupersededByNhsNumber;
+    public Int64? SupersededByNhsNumber;
 
     [MapToColumn("primary_care_provider")]
     public string? PrimaryCareProvider;
@@ -105,12 +105,15 @@ public struct ParticipantsParquetMap
     [MapToColumn("email_address_effective_from_date")]
     public string? EmailAddressEffectiveFromDate;
 
-    [MapToColumn("is_interpreter_required")]
-    public string? IsInterpreterRequired;
-
     [MapToColumn("preferred_language")]
     public string? PreferredLanguage;
 
+    [MapToColumn("is_interpreter_required")]
+    public bool? IsInterpreterRequired;
+
     [MapToColumn("invalid_flag")]
-    public Boolean? InvalidFlag;
+    public bool? InvalidFlag;
+
+    [MapToColumn("eligibility")]
+    public bool? EligibilityFlag;
 }

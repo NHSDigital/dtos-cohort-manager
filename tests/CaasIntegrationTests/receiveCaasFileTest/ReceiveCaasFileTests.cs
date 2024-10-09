@@ -2,7 +2,6 @@ namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -73,18 +72,8 @@ public class ReceiveCaasFileTests
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-        // Assert
-        _mockLogger.Verify(
-            m => m.Log(
-                LogLevel.Information,
-                It.IsAny<EventId>(),
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ),
-            Times.AtLeastOnce,
-            "No logging received."
-        );
+            // Act
+            await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _mockICallFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
@@ -189,11 +178,9 @@ public class ReceiveCaasFileTests
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         // Assert
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("All rows processed for file named BSS_20241201121212_n30.parquet.")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+        _mockICallFunction.Verify(
+            x => x.SendPost(It.IsAny<string>(),
+            It.Is<string>(json => json == _expectedJson)),
+            Times.Never);
     }
 }

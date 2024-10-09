@@ -62,7 +62,7 @@
     ]
   },
   {
-    "WorkflowName": "AMENDED",
+    "WorkflowName": "AMEND",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
@@ -71,7 +71,7 @@
     ]
   },
   {
-    "WorkflowName": "REMOVED",
+    "WorkflowName": "DEL",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",

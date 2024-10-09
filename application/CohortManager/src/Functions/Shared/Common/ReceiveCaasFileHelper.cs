@@ -110,9 +110,10 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             participant.EmailAddress = Convert.ToString(rec.EmailAddress);
             participant.EmailAddressEffectiveFromDate =
                 Convert.ToString(rec.EmailAddressEffectiveFromDate);
-            participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired);
+            participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(true) ? "1" : "0");
             participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
-            participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(false) ? "1" : "0");
+            participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(true) ? "1" : "0");
+            participant.EligibilityFlag = Convert.ToString(rec.EligibilityFlag.GetValueOrDefault(true) ? "1" : "0");
 
             return participant;
         }
