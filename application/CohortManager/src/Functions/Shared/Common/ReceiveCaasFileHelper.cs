@@ -53,7 +53,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         '_n' Matches the literal _n
         '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
         '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase);
+        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(2000));
         return match.Success;
     }
 
