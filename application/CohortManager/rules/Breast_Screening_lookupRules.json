@@ -51,7 +51,7 @@
     ]
   },
   {
-    "WorkflowName": "New",
+    "WorkflowName": "ADD",
     "Rules": [
       {
         "RuleName": "47.ParticipantMustNotExist.Fatal",
@@ -60,7 +60,7 @@
     ]
   },
   {
-    "WorkflowName": "Amended",
+    "WorkflowName": "AMENDED",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
@@ -69,7 +69,7 @@
     ]
   },
   {
-    "WorkflowName": "Removed",
+    "WorkflowName": "REMOVED",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
