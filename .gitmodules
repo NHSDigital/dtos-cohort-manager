@@ -1,4 +1,4 @@
-[submodule "application/CohortManager/src/dotnet-mesh-client"]
+[submodule "application/CohortManager/src/Functions/Shared/dotnet-mesh-client"]
 	path = application/CohortManager/src/Functions/Shared/dotnet-mesh-client
 	url = https://github.com/NHSDigital/dotnet-mesh-client
 	branch = main
