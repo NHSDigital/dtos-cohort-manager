@@ -4,5 +4,5 @@ using NHS.MESH.Client.Models;
 
 public interface IMeshToBlobTransferHandler
 {
-    Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, string mailboxId, string blobConnectionString, string destinationContainer);
+    Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, string mailboxId, string blobConnectionString, string destinationContainer, bool executeHandshake = false);
 }

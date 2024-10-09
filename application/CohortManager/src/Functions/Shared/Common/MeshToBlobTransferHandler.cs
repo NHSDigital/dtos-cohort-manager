@@ -29,21 +29,22 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
     }
 
-    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, string mailboxId, string blobConnectionString, string destinationContainer)
+    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, string mailboxId, string blobConnectionString, string destinationContainer, bool executeHandshake = false)
     {
         _blobConnectionString = blobConnectionString;
         _mailboxId = mailboxId;
         _destinationContainer = destinationContainer;
 
         int messageCount;
+        if(executeHandshake){
+            var meshValidationResponse = await _meshOperationService.MeshHandshakeAsync(mailboxId);
 
-        var meshValidationResponse = await _meshOperationService.MeshHandshakeAsync(mailboxId);
-
-        if(!meshValidationResponse.IsSuccessful)
-        {
-            _logger.LogError("Error While handshaking with MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",meshValidationResponse.Error?.ErrorCode,meshValidationResponse.Error?.ErrorDescription);
-            return false;
-        }
+            if(!meshValidationResponse.IsSuccessful)
+            {
+                _logger.LogError("Error While handshaking with MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",meshValidationResponse.Error?.ErrorCode,meshValidationResponse.Error?.ErrorDescription);
+                return false;
+            }
+            }
 
         do
         {

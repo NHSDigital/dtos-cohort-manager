@@ -1,25 +1,32 @@
 namespace NHS.Screening.RetrieveMeshFile;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Model;
 using NHS.MESH.Client.Models;
 
 
 public class RetrieveMeshFile
 {
-    private readonly ILogger _logger;
+    private readonly ILogger<RetrieveMeshFile> _logger;
 
     private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly string _mailboxId;
     private readonly string _blobConnectionString;
 
-    public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshToBlobTransferHandler meshToBlobTransferHandler)
+    private readonly IBlobStorageHelper _blobStorageHelper;
+
+    public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshToBlobTransferHandler meshToBlobTransferHandler, IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
+        _blobStorageHelper = blobStorageHelper;
 
         _mailboxId = Environment.GetEnvironmentVariable("BSSMailBox");
         _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
@@ -37,7 +44,8 @@ public class RetrieveMeshFile
 
         try
         {
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, _mailboxId,_blobConnectionString,"inbound");
+            var shouldExecuteHandShake = await ShouldExecuteHandShake();
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
 
             if(!result)
             {
@@ -53,5 +61,95 @@ public class RetrieveMeshFile
         {
             _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
         }
+    }
+
+    private async Task<bool> ShouldExecuteHandShake()
+    {
+
+        Dictionary<string,string> configValues;
+        TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString,"config","MeshState.json");
+        if(meshState == null)
+        {
+
+            _logger.LogInformation("MeshState File did not exist, Creating new MeshState File in blob Storage");
+            configValues = new Dictionary<string, string>
+            {
+                { "NextHandShakeTime", DateTime.UtcNow.Add(handShakeInterval).ToString() }
+            };
+            await SetConfigState(configValues);
+
+            return true;
+
+        }
+        using(StreamReader reader = new StreamReader(meshState.Data)){
+            meshState.Data.Seek(0,SeekOrigin.Begin);
+            string jsonData = await reader.ReadToEndAsync();
+            configValues = JsonSerializer.Deserialize<Dictionary<string,string>>(jsonData);
+        }
+
+        string nextHandShakeDateString;
+
+        if(!configValues.TryGetValue("NextHandShakeTime", out nextHandShakeDateString))
+        {
+            _logger.LogInformation("NextHandShakeTime config item does not exist, creating new config item");
+            configValues.Add("NextHandShakeTime", DateTime.UtcNow.Add(handShakeInterval).ToString());
+            await SetConfigState(configValues);
+            return true;
+
+
+        }
+        DateTime nextHandShakeDateTime;
+        if(!DateTime.TryParse(nextHandShakeDateString, out nextHandShakeDateTime))
+        {
+            _logger.LogInformation("Unable to Parse NextHandShakeTime, Updating config value");
+            configValues["NextHandShakeTime"] = DateTime.UtcNow.Add(handShakeInterval).ToString();
+            SetConfigState(configValues);
+            return true;
+        }
+
+        if(DateTime.Compare(nextHandShakeDateTime,DateTime.UtcNow) <= 0){
+            _logger.LogInformation("Next HandShakeTime was in the past, will execute handshake");
+            var NextHandShakeTimeConfig = DateTime.UtcNow.Add(handShakeInterval).ToString();
+
+            configValues["NextHandShakeTime"] = NextHandShakeTimeConfig;
+            _logger.LogInformation($"Next Handshake scheduled for {NextHandShakeTimeConfig}");
+
+            return true;
+
+        }
+        _logger.LogInformation($"Next handshake scheduled for {nextHandShakeDateTime}");
+        return false;
+    }
+
+
+    private async Task<bool> SetConfigState(Dictionary<string,string> state)
+    {
+        try{
+            string jsonString = JsonSerializer.Serialize(state);
+            using(var stream = GenerateStreamFromString(jsonString))
+            {
+                var blobFile = new BlobFile(stream,"MeshState.json");
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,"config",blobFile,true);
+                return result;
+            }
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex,"Unable To set Config State");
+            return false;
+        }
+    }
+
+
+
+    public static Stream GenerateStreamFromString(string s)
+    {
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(s);
+        writer.Flush();
+        stream.Position = 0;
+        return stream;
     }
 }

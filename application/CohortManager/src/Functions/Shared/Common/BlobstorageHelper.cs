@@ -49,7 +49,7 @@ public class BlobStorageHelper : IBlobStorageHelper
         return true;
     }
 
-    public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile)
+    public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile, bool overwrite = false)
     {
         var sourceBlobServiceClient = new BlobServiceClient(connectionString);
         var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
@@ -57,7 +57,7 @@ public class BlobStorageHelper : IBlobStorageHelper
 
         try
         {
-            var result = await sourceBlobClient.UploadAsync(blobFile.Data);
+            var result = await sourceBlobClient.UploadAsync(blobFile.Data, overwrite: overwrite);
         }
         catch (Exception ex)
         {
@@ -66,6 +66,27 @@ public class BlobStorageHelper : IBlobStorageHelper
         }
 
         return true;
+    }
+
+    public async Task<BlobFile> GetFileFromBlobStorage(string connectionString, string containerName, string fileName)
+    {
+
+        _logger.LogInformation($"Downloading File: {fileName} From blobStorage Container: {containerName}");
+
+        var blobServiceClient = new BlobServiceClient(connectionString);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(fileName);
+
+        await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
+
+        if(blobClient.Exists()){
+            var stream = new MemoryStream();
+            await blobClient.DownloadToAsync(stream);
+            return new BlobFile(stream,fileName);
+        }
+        _logger.LogWarning($"File {fileName} does not exist in blobStorageContainer: {containerName}");
+        return null;
+
     }
 
 
