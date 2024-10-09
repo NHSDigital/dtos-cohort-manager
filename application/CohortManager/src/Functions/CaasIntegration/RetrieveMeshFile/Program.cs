@@ -23,7 +23,7 @@ try
     {
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
         var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
-        var certificate = client.DownloadCertificate(Environment.GetEnvironmentVariable("MeshKeyName"));
+        var certificate = await client.DownloadCertificateAsync(Environment.GetEnvironmentVariable("MeshKeyName"));
         cert = certificate.Value;
     }
     else
@@ -54,7 +54,7 @@ try
         .AddExceptionHandler()
         .Build();
 
-    host.Run();
+    await host.RunAsync();
 }
 catch(Exception ex)
 {

@@ -22,6 +22,9 @@ public class RetrieveMeshFile
 
     private readonly IBlobStorageHelper _blobStorageHelper;
 
+    private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
+    private const string ConfigFileName = "MeshState.json";
+
     public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshToBlobTransferHandler meshToBlobTransferHandler, IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
@@ -38,7 +41,7 @@ public class RetrieveMeshFile
     [Function("RetrieveMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}",DateTime.Now);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
@@ -59,7 +62,7 @@ public class RetrieveMeshFile
 
         if (myTimer.ScheduleStatus is not null)
         {
-            _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
+            _logger.LogInformation("Next timer schedule at: {scheduleStatus}",myTimer.ScheduleStatus.Next);
         }
     }
 
@@ -68,14 +71,14 @@ public class RetrieveMeshFile
 
         Dictionary<string,string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString,"config","MeshState.json");
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString,"config",ConfigFileName);
         if(meshState == null)
         {
 
             _logger.LogInformation("MeshState File did not exist, Creating new MeshState File in blob Storage");
             configValues = new Dictionary<string, string>
             {
-                { "NextHandShakeTime", DateTime.UtcNow.Add(handShakeInterval).ToString() }
+                { NextHandShakeTimeConfigKey, DateTime.UtcNow.Add(handShakeInterval).ToString() }
             };
             await SetConfigState(configValues);
 
@@ -89,21 +92,22 @@ public class RetrieveMeshFile
         }
 
         string nextHandShakeDateString;
-
-        if(!configValues.TryGetValue("NextHandShakeTime", out nextHandShakeDateString))
+        //config value doenst exist
+        if(!configValues.TryGetValue(NextHandShakeTimeConfigKey, out nextHandShakeDateString))
         {
             _logger.LogInformation("NextHandShakeTime config item does not exist, creating new config item");
-            configValues.Add("NextHandShakeTime", DateTime.UtcNow.Add(handShakeInterval).ToString());
+            configValues.Add(NextHandShakeTimeConfigKey, DateTime.UtcNow.Add(handShakeInterval).ToString());
             await SetConfigState(configValues);
             return true;
 
 
         }
         DateTime nextHandShakeDateTime;
+        //date cannot be parsed
         if(!DateTime.TryParse(nextHandShakeDateString, out nextHandShakeDateTime))
         {
             _logger.LogInformation("Unable to Parse NextHandShakeTime, Updating config value");
-            configValues["NextHandShakeTime"] = DateTime.UtcNow.Add(handShakeInterval).ToString();
+            configValues[NextHandShakeTimeConfigKey] = DateTime.UtcNow.Add(handShakeInterval).ToString();
             SetConfigState(configValues);
             return true;
         }
@@ -112,7 +116,7 @@ public class RetrieveMeshFile
             _logger.LogInformation("Next HandShakeTime was in the past, will execute handshake");
             var NextHandShakeTimeConfig = DateTime.UtcNow.Add(handShakeInterval).ToString();
 
-            configValues["NextHandShakeTime"] = NextHandShakeTimeConfig;
+            configValues[NextHandShakeTimeConfigKey] = NextHandShakeTimeConfig;
             _logger.LogInformation($"Next Handshake scheduled for {NextHandShakeTimeConfig}");
 
             return true;
@@ -129,7 +133,7 @@ public class RetrieveMeshFile
             string jsonString = JsonSerializer.Serialize(state);
             using(var stream = GenerateStreamFromString(jsonString))
             {
-                var blobFile = new BlobFile(stream,"MeshState.json");
+                var blobFile = new BlobFile(stream,ConfigFileName);
                 var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,"config",blobFile,true);
                 return result;
             }

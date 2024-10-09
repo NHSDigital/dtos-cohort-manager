@@ -79,7 +79,7 @@ public class BlobStorageHelper : IBlobStorageHelper
 
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
-        if(blobClient.Exists()){
+        if(await blobClient.ExistsAsync()){
             var stream = new MemoryStream();
             await blobClient.DownloadToAsync(stream);
             return new BlobFile(stream,fileName);
