@@ -14,7 +14,6 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         string statusCode = "testStatusCode";
         DateTime dateFrom = DateTime.Now.AddDays(-1);
 
-        _mockDataReader.Setup(reader => reader.Read()).Returns(true);
         SetUpReader();
 
         // Act
@@ -24,8 +23,9 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("testRequestId", result[0].RequestId);
-        Assert.AreEqual("testStatusCode", result[0].StatusCode);
+        Assert.AreEqual("200", result[0].StatusCode);
         Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
+        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
     }
 
     [TestMethod]
@@ -48,7 +48,6 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
     private void SetUpReader()
     {
-        _mockDataReader.Setup(reader => reader.Read()).Returns(true);
         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("testRequestId");
         _mockDataReader.Setup(reader => reader["STATUS_CODE"]).Returns("200");
         _mockDataReader.Setup(reader => reader["CREATED_DATETIME"]).Returns(DateTime.Now.ToString());
