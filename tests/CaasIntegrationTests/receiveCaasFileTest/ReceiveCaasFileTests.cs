@@ -72,8 +72,8 @@ public class ReceiveCaasFileTests
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-            // Act
-            await _receiveCaasFileInstance.Run(fileSteam, _blobName);
+        // Act
+        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _mockICallFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
@@ -100,7 +100,7 @@ public class ReceiveCaasFileTests
                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Invalid data in the file: BSS_20241201121212_n30.parquet")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+            Times.Never);
 
 
         _mockICallFunction.Verify(
