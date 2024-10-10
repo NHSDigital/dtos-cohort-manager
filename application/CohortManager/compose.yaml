@@ -47,6 +47,24 @@ services:
       - DB_NAME=${DB_NAME}
 
   # CaaS Integration Service
+  retrieve-mesh-file:
+    container_name: retrieve-mesh-file
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CaasIntegration/RetrieveMeshFile/Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - caasfolder_STORAGE=UseDevelopmentStorage=true
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - BSSMailBox="X26ABC1"
+      - MeshPassword = ${MESHPASSWORD}
+      - MeshSharedKey = ${MESHSHAREDKEY}
+      - MeshKeyPassphrase = ${MESHKEYPASSPHRASE}
+      - ASPNETCORE_URLS=http://*:7060
+    depends_on:
+      - azurite
+
   receive-caas-file:
     container_name: receive-caas-file
     network_mode: host

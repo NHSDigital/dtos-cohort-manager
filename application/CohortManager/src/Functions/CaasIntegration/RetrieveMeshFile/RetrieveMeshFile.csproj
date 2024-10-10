@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -7,22 +7,20 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <None Remove="CohortMockData.json" />
-    </ItemGroup>
-    <ItemGroup>
-        <Content Include="CohortMockData.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-    <ItemGroup>
+        <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.6.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.20.1" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.1.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.16.4" />
         <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.21.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http"
-            Version="3.0.13" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0" />
     </ItemGroup>
     <ItemGroup>
         <None Update="host.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="meshpfx.pfx">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="local.settings.json">
@@ -34,8 +32,6 @@
         <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\Shared\Model\Model.csproj" />
         <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
-        <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
     </ItemGroup>
 </Project>
