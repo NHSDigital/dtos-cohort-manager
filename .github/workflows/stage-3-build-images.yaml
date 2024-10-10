@@ -86,6 +86,12 @@ jobs:
       - name: build docker images
         working-directory: ./application/CohortManager
         run: |
+
+          echo "Current directory is:"
+          echo $PWD
+          echo "How much disk space is left before docker image creation:"
+          df -H
+
           if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
           else
@@ -97,6 +103,9 @@ jobs:
             # Build the docker images via the compose file.
             docker compose build ${{steps.get-function-names.outputs.FUNC_NAMES}}
           fi
+
+          echo "How much disk space is left after docker image creation:"
+          df -H
 
       - name: push docker images
         if: github.ref == 'refs/heads/main'
