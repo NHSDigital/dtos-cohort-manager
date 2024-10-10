@@ -68,6 +68,6 @@ fi
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
 
-changed_functions="process-caas-file"
+changed_functions="process-caas-file receive-caas-file"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"

@@ -89,6 +89,9 @@ jobs:
 
           echo "Current directory is:"
           echo $PWD
+
+          echo "The ls -l:"
+          ls -l
           echo "How much disk space is left before docker image creation:"
           df -H
 
