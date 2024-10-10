@@ -61,7 +61,7 @@ fi
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-# create-cohort-distribution remove-cohort-distribution-data retrieve-distribution-data \
+# create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
 # retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
 # demographic-data-management devops-testing-service remove-participant add-participant update-participant \
 # create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
@@ -69,7 +69,7 @@ fi
 # remove-validation-exception-data retrieve-cohort-replay"
 
 changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-create-cohort-distribution remove-cohort-distribution-data retrieve-distribution-data \
+create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
 retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
 demographic-data-management devops-testing-service remove-participant add-participant update-participant"
 
