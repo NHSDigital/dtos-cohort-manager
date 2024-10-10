@@ -310,7 +310,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
-        _requestBody.NewParticipant.RecordType = "New";
+        _requestBody.NewParticipant.RecordType = "ADD";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 

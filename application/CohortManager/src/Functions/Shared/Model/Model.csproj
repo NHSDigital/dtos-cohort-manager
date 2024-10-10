@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="32.0.3" />
+    <PackageReference Include="ParquetSharp" Version="17.0.0-beta1" />
   </ItemGroup>
 
 </Project>
