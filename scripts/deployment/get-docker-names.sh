@@ -5,8 +5,8 @@
 echo "How much disk space is left:"
 df -H
 
-# echo "Running the agent disk verification:"
-# du -h $GITHUB_WORKSPACE | sort -hr
+echo "Running the agent disk verification in /dev/root:"
+du -h /dev/root | sort -hr
 ###################################
 
 declare -A docker_functions_map=(
