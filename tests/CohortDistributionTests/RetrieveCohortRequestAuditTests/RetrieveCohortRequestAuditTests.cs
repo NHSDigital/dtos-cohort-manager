@@ -7,7 +7,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
 {
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithValidParameters_ReturnsExpectedResult()
+    public void GetCohortRequestAudit_WithAllParameters_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string requestId = "testRequestId";
@@ -26,15 +26,100 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         Assert.AreEqual("200", result[0].StatusCode);
         Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
         Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
+
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithNullParameters_ReturnsExpectedResult()
+    public void GetCohortRequestAudit_WithNullParameters_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string? requestId = null;
         string? statusCode = null;
         DateTime? dateFrom = null;
+
+        SetUpReader();
+
+        // Act
+        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
+        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
+
+    }
+
+    [TestMethod]
+    public void GetCohortRequestAudit_WithEmptyRequestId_ReturnsValidCohortRequestAudit()
+    {
+        // Arrange
+        string requestId = "";
+        string statusCode = "testStatusCode";
+        DateTime dateFrom = DateTime.Now.AddDays(-1);
+
+        SetUpReader();
+
+        // Act
+        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("testRequestId", result[0].RequestId);
+        Assert.AreEqual("200", result[0].StatusCode);
+        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
+        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
+    }
+
+    [TestMethod]
+    public void GetCohortRequestAudit_WithEmptyStatusCode_ReturnsValidCohortRequestAudit()
+    {
+        // Arrange
+        string requestId = "testRequestId";
+        string statusCode = "";
+        DateTime dateFrom = DateTime.Now.AddDays(-1);
+
+        SetUpReader();
+
+        // Act
+        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("testRequestId", result[0].RequestId);
+        Assert.AreEqual("200", result[0].StatusCode);
+        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
+        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
+    }
+
+    [TestMethod]
+    public void GetCohortRequestAudit_WithFutureDateFrom_ReturnsEmptyList()
+    {
+        // Arrange
+        string requestId = "testRequestId";
+        string statusCode = "testStatusCode";
+        DateTime dateFrom = DateTime.Now.AddDays(1);
+
+        _mockDataReader.Setup(reader => reader.Read()).Returns(false);
+
+        // Act
+        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
+    }
+
+    [TestMethod]
+    public void GetCohortRequestAudit_WithNoMatchingRecords_ReturnsEmptyList()
+    {
+        // Arrange
+        string requestId = "nonExistentRequestId";
+        string statusCode = "nonExistentStatusCode";
+        DateTime dateFrom = DateTime.Now.AddDays(-1);
 
         _mockDataReader.Setup(reader => reader.Read()).Returns(false);
 
