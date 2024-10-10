@@ -9,7 +9,7 @@ module "vnet" {
   for_each = var.regions
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet?ref=2296f761f4edc3b413e2629c98309df9c6fa0849"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -26,7 +26,7 @@ module "vnet" {
 module "hub-subnets" {
   for_each = local.subnets
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/subnet?ref=2296f761f4edc3b413e2629c98309df9c6fa0849"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/subnet?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
   name                              = each.value.subnet_name
   location                          = module.vnet[each.value.vnet_key].vnet.location
@@ -68,7 +68,7 @@ module "peering_spoke_hub" {
   for_each = { for key, val in var.regions : key => val if val.create_peering == true }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=2296f761f4edc3b413e2629c98309df9c6fa0849"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
   name                = "${module.regions_config[each.key].names.virtual-network}-to-hub-peering"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -83,14 +83,14 @@ module "peering_spoke_hub" {
 }
 
 module "peering_hub_spoke" {
-  for_each = var.regions
+  for_each = { for key, val in var.regions : key => val if val.create_peering == true }
 
   providers = {
-    azurerm = azurerm.devops
+    azurerm = azurerm.dev-hub
   }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=2296f761f4edc3b413e2629c98309df9c6fa0849"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
   name                = "hub-to-${module.regions_config[each.key].names.virtual-network}-peering"
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name

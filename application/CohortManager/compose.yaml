@@ -118,6 +118,8 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DSmarkParticipantAsEligible= http://localhost:7067/api/markParticipantAsEligible
+      - markParticipantAsIneligible= http://localhost:7068/api/markParticipantAsIneligible
 
   # Screening Data Service
   create-participant:
@@ -382,4 +384,3 @@ services:
       - ASPNETCORE_URLS=http://*:7085
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-

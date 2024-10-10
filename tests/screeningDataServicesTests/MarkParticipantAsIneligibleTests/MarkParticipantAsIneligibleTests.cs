@@ -45,7 +45,7 @@ public class MarkParticipantAsIneligibleTests
 
         _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object, _handleException.Object);
 
-        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>(),It.IsAny<string>())).Returns(new Participant());
+        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant());
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
             {
@@ -107,7 +107,7 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<int>())).Returns(true);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(true);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -160,7 +160,7 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>(), It.IsAny<char>())).Returns(false);
+        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(false);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
