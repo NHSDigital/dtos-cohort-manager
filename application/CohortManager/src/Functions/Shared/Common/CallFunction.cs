@@ -22,7 +22,6 @@ public class CallFunction : ICallFunction
         return await GetAsync(url);
     }
 
-
     private async Task<string> GetAsync(string uri)
     {
         var request = (HttpWebRequest)WebRequest.Create(uri);
