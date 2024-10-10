@@ -17,10 +17,6 @@ public class ReceiveCaasFile
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IScreeningServiceData _screeningServiceData;
 
-
-
-
-
     public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, IReceiveCaasFileHelper receiveCaasFileHelper, IScreeningServiceData screeningServiceData)
     {
         _logger = logger;
@@ -39,15 +35,18 @@ public class ReceiveCaasFile
             FileNameParser fileNameParser = new FileNameParser(name);
             if (!fileNameParser.IsValid)
             {
-                _logger.LogError("Invalid File.");
+                string errorMessage = "File name is invalid. File name: " + name;
+                _logger.LogError(errorMessage);
+                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
                 return;
             }
 
             var numberOfRecords = fileNameParser.FileCount();
-            if (numberOfRecords == null)
+            if (numberOfRecords == null || numberOfRecords == 0)
             {
-                _logger.LogError("File name is invalid. File name: " + name);
-                await InsertValidationErrorIntoDatabase(name, "N/A");
+                string errorMessage = "File name is invalid. File name: " + name;
+                _logger.LogError(errorMessage);
+                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
                 return;
             }
             _logger.LogInformation($"Number of records expected {numberOfRecords}");
@@ -69,7 +68,7 @@ public class ReceiveCaasFile
             {
                 await blobStream.CopyToAsync(fileStream);
             }
-            var screeningService = await GetScreeningService(name);
+            var screeningService = GetScreeningService(fileNameParser);
 
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
@@ -131,11 +130,11 @@ public class ReceiveCaasFile
         }
     }
 
-    private Task<ScreeningService> GetScreeningService(string name)
+    private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
-        var screeningAcronym = name.Split('_')[0];
-        _logger.LogInformation("screening Acronym {ScreeningAcronym}", screeningAcronym);
-        return Task.FromResult(_screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym));
+        var screeningAcronym = fileNameParser.GetScreeningService();
+        _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
+        return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
     }
 
 }

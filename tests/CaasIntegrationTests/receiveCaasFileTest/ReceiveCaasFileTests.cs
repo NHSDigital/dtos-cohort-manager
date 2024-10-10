@@ -137,7 +137,7 @@ public class ReceiveCaasFileTests
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Invalid File.")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("ile name is invalid.")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
