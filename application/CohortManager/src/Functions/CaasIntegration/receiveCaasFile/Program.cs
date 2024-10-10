@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Data.Database;
+using Common.Interfaces;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -12,6 +13,7 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<IScreeningServiceData, ScreeningServiceData>();
+        services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
     })
     .AddDatabaseConnection()
     .Build();
