@@ -1,5 +1,11 @@
 #!/bin/bash
 
+###################################
+## check the VM free space buildup:
+
+du -h $GITHUB_WORKSPACE | sort -hr
+###################################
+
 declare -A docker_functions_map=(
     ["CaasIntegration/processCaasFile"]="process-caas-file"
     ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
@@ -58,5 +64,7 @@ fi
 # create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
+
+changed_functions="process-caas-file"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
