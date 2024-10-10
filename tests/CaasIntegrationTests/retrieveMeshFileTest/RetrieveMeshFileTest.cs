@@ -19,6 +19,7 @@ using NHS.MESH.Client.Helpers.ContentHelpers;
 using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities;
 using System.Collections;
 using Azure;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class RetrieveMeshFileTest
@@ -34,14 +35,21 @@ public class RetrieveMeshFileTest
     private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly RetrieveMeshFile _retrieveMeshFile;
 
+    private readonly Mock<IOptions<RetrieveMeshFileConfig>> _mockOptions = new();
+
     private const string mailboxId = "TestMailBox";
 
     public RetrieveMeshFileTest()
     {
         Environment.SetEnvironmentVariable("BSSMailBox", mailboxId);
         Environment.SetEnvironmentVariable("caasfolder_STORAGE", "BlobStorage_ConnectionString");
+
+        _mockOptions.Setup(i => i.Value).Returns(new RetrieveMeshFileConfig{
+            BSSMailBox = mailboxId
+        });
+
         _meshToBlobTransferHandler = new MeshToBlobTransferHandler(_mockMeshTransferLogger.Object,_mockBlobStorageHelper.Object,_mockMeshInboxService.Object, _mockMeshOperationService.Object);
-        _retrieveMeshFile = new RetrieveMeshFile(_mockLogger.Object,_meshToBlobTransferHandler, _mockBlobStorageHelper.Object);
+        _retrieveMeshFile = new RetrieveMeshFile(_mockLogger.Object,_meshToBlobTransferHandler, _mockBlobStorageHelper.Object,_mockOptions.Object);
 
     }
     [TestMethod]

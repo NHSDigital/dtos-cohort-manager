@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using NHS.MESH.Client.Models;
 
@@ -22,16 +23,20 @@ public class RetrieveMeshFile
 
     private readonly IBlobStorageHelper _blobStorageHelper;
 
+    private readonly IOptions<RetrieveMeshFileConfig> _options;
+
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
     private const string ConfigFileName = "MeshState.json";
 
-    public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshToBlobTransferHandler meshToBlobTransferHandler, IBlobStorageHelper blobStorageHelper)
+    public RetrieveMeshFile(ILogger<RetrieveMeshFile> logger, IMeshToBlobTransferHandler meshToBlobTransferHandler, IBlobStorageHelper blobStorageHelper, IOptions<RetrieveMeshFileConfig> options)
     {
         _logger = logger;
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
 
-        _mailboxId = Environment.GetEnvironmentVariable("BSSMailBox");
+        _options = options;
+
+        _mailboxId = options.Value.BSSMailBox;
         _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
     }
     /// <summary>

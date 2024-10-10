@@ -7,54 +7,58 @@ using System.Security.Cryptography.X509Certificates;
 using Azure.Security.KeyVault.Certificates;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
+using NHS.Screening.RetrieveMeshFile;
+using System.Text.Json;
 
 
-var logFactory = new LoggerFactory();
-
-var logger = logFactory.CreateLogger<Type>();
+var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = loggerFactory.CreateLogger("program.cs");
 
 try
 {
-
+    var host = new HostBuilder();
 
     X509Certificate2 cert;
+
+    host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
     if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
     {
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
         var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
-        var certificate = await client.DownloadCertificateAsync(Environment.GetEnvironmentVariable("MeshKeyName"));
+        var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
     else
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
-        cert = new X509Certificate2(Environment.GetEnvironmentVariable("MeshKeyName"),Environment.GetEnvironmentVariable("MeshKeyPassphrase"));
+        cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);
     }
 
+    //var jsonstring = JsonSerializer.Serialize(config);
+    logger.LogInformation(config.BSSMailBox);
 
+    host.ConfigureFunctionsWebApplication();
+    host.ConfigureServices(services => {
+        services.AddApplicationInsightsTelemetryWorkerService();
+        services.ConfigureFunctionsApplicationInsights();
+        services
+            .AddMeshClient(_ => _.MeshApiBaseUrl = config.MeshApiBaseUrl)
+            .AddMailbox(config.BSSMailBox,new NHS.MESH.Client.Configuration.MailboxConfiguration
+            {
+                Password = config.MeshPassword,
+                SharedKey = config.MeshSharedKey,
+                Cert = cert
+            })
+            .Build();
+        services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
+        services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
+    })
+    .AddExceptionHandler();
 
-    var host = new HostBuilder()
-        .ConfigureFunctionsWebApplication()
-        .ConfigureServices(services => {
-            services.AddApplicationInsightsTelemetryWorkerService();
-            services.ConfigureFunctionsApplicationInsights();
-            services
-                .AddMeshClient(_ => _.MeshApiBaseUrl = Environment.GetEnvironmentVariable("MeshApiBaseUrl"))
-                .AddMailbox(Environment.GetEnvironmentVariable("BSSMailBox")!,new NHS.MESH.Client.Configuration.MailboxConfiguration
-                {
-                    Password = Environment.GetEnvironmentVariable("MeshPassword"),
-                    SharedKey = Environment.GetEnvironmentVariable("MeshSharedKey"),
-                    Cert = cert
-                })
-                .Build();
-            services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
-            services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
-        })
-        .AddExceptionHandler()
-        .Build();
+    var app = host.Build();
 
-    await host.RunAsync();
+    await app.RunAsync();
 }
 catch(Exception ex)
 {
