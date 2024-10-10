@@ -292,6 +292,17 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
+  retrieve-cohort-request-audit:
+    container_name: retrieve-cohort-request-audit
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7086
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
   remove-cohort-distribution-data:
     container_name: remove-cohort-distribution-data
     network_mode: host
