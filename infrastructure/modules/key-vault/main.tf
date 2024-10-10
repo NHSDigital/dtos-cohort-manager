@@ -30,3 +30,32 @@ resource "azurerm_key_vault" "keyvault" {
   }
 }
 
+/* --------------------------------------------------------------------------------------------------
+  Private Endpoint Configuration for Azure Keyvault
+-------------------------------------------------------------------------------------------------- */
+
+module "private_endpoint_keyvault" {
+  count = var.private_endpoint_properties.private_endpoint_enabled ? 1 : 0
+
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-endpoint?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
+
+  name                = "${var.name}-azure-keyvault-private-endpoint"
+  resource_group_name = var.private_endpoint_properties.private_endpoint_resource_group_name
+  location            = var.location
+  subnet_id           = var.private_endpoint_properties.private_endpoint_subnet_id
+
+  private_dns_zone_group = {
+    name                 = "${var.name}-azure-keyvault-private-endpoint-zone-group"
+    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids_keyvault
+  }
+
+  private_service_connection = {
+    name                           = "${var.name}-keyvault-private-endpoint-connection"
+    private_connection_resource_id = azurerm_key_vault.keyvault.id
+    subresource_names              = ["vault"]
+    is_manual_connection           = var.private_endpoint_properties.private_service_connection_is_manual
+  }
+
+  tags = var.tags
+}
+
