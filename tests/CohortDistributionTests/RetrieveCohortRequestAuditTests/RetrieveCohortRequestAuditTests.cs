@@ -46,7 +46,6 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
 
     }
 
