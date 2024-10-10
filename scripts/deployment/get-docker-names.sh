@@ -63,7 +63,7 @@ fi
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
 # create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
 # retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
-# demographic-data-management devops-testing-service remove-participant add-participant update-participant \
+# demographic-data-management remove-participant add-participant update-participant \
 # create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
@@ -71,6 +71,6 @@ fi
 changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
 create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
 retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
-demographic-data-management devops-testing-service remove-participant add-participant update-participant"
+demographic-data-management remove-participant add-participant update-participant"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
