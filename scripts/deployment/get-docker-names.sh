@@ -2,7 +2,7 @@
 
 ###################################
 ## check the VM free space buildup:
-
+echo "Running the agent disk verification:"
 du -h $GITHUB_WORKSPACE | sort -hr
 ###################################
 
