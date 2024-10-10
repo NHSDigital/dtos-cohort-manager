@@ -23,7 +23,6 @@ public class RetrieveMeshFile
 
     private readonly IBlobStorageHelper _blobStorageHelper;
 
-    private readonly IOptions<RetrieveMeshFileConfig> _options;
 
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
     private const string ConfigFileName = "MeshState.json";
@@ -33,9 +32,6 @@ public class RetrieveMeshFile
         _logger = logger;
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
-
-        _options = options;
-
         _mailboxId = options.Value.BSSMailBox;
         _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
     }

@@ -7,15 +7,12 @@ using Microsoft.IdentityModel.Tokens;
 
 public class FileNameParser
 {
-    public string FileName;
+    private const string _fileNameRegex = @"^.*_-_(\w{1,})_\d{14}_n([1-9]\d*|0)\.csv$";
 
-    private readonly string _fileNameRegex = @"^.*_-_(\w{1,})_\d{14}_n([1-9]\d*|0)\.csv$";
-
-    private Match match;
+    private readonly Match match;
 
     public FileNameParser(string fileName)
     {
-        FileName = fileName;
         match = Regex.Match(fileName,_fileNameRegex,RegexOptions.IgnoreCase,matchTimeout: new TimeSpan(0,0,30));
     }
 

@@ -12,7 +12,7 @@ public static class ConfigurationExtension
 {
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, string? keyVaultUrl = null) where T: class
     {
-        var configuration = CreateConfiguration<T>(keyVaultUrl);
+        var configuration = CreateConfiguration(keyVaultUrl);
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, out T config, string? keyVaultUrl = null) where T: class
@@ -21,13 +21,13 @@ public static class ConfigurationExtension
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
         var logger = loggerFactory.CreateLogger(nameof(ConfigurationExtension));
 
-        var configuration = CreateConfiguration<T>(keyVaultUrl);
+        var configuration = CreateConfiguration(keyVaultUrl);
 
         config = configuration.Get<T>();
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
 
-    private static IConfiguration CreateConfiguration<T>(string? keyVaultUrl = null) where T: class
+    private static IConfiguration CreateConfiguration(string? keyVaultUrl = null)
     {
 
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

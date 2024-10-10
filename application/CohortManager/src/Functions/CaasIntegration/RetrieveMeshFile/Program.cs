@@ -35,9 +35,6 @@ try
         cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);
     }
 
-    //var jsonstring = JsonSerializer.Serialize(config);
-    logger.LogInformation(config.BSSMailBox);
-
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services => {
         services.AddApplicationInsightsTelemetryWorkerService();
