@@ -2,8 +2,11 @@
 
 ###################################
 ## check the VM free space buildup:
-echo "Running the agent disk verification:"
-du -h $GITHUB_WORKSPACE | sort -hr
+echo "How much disk space is left:"
+df -H
+
+# echo "Running the agent disk verification:"
+# du -h $GITHUB_WORKSPACE | sort -hr
 ###################################
 
 declare -A docker_functions_map=(
