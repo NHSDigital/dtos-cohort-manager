@@ -130,6 +130,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         Assert.AreEqual(0, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
     }
+
     private void SetUpReader()
     {
         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("testRequestId");
