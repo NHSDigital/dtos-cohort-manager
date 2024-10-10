@@ -44,7 +44,7 @@ jobs:
           echo "The branch is: " ${{ github.ref }}
 
       - name: Az CLI login
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/fix/DTOSS-0000-verify-gh-runner-diskspace'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -52,7 +52,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Azure Container Registry login
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/fix/DTOSS-0000-verify-gh-runner-diskspace'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
@@ -112,7 +112,7 @@ jobs:
           df -H
 
       - name: push docker images
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/fix/DTOSS-0000-verify-gh-runner-diskspace'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         working-directory: ./application/CohortManager
         run: |
           set -x
