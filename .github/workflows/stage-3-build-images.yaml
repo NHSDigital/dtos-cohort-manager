@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/DTOSS-0000-verify-gh-runner-diskspace
 
   workflow_call:
     inputs:
