@@ -32,7 +32,7 @@ jobs:
       - name: get docker compose function name(s)
         id: get-function-names
         env:
-          CHANGED_FOLDERS: ${{ steps.changed-files.outputs.all_changed_files }}
+          CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
           echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
@@ -43,9 +43,9 @@ jobs:
           echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
           echo "FUNC_NAMES after setting output: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
 
-      - name: Print function names
+      - name: print function names
         run: |
-          echo "The function in this job is: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
+          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "The branch is: " ${{ github.ref }}
 
   build-and-push:
