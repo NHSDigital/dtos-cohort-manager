@@ -33,7 +33,7 @@ jobs:
           path: application/CohortManager/src/Functions
           dir_names: "true"
 
-      - name: get docker compose function name(s)
+      - name: Get docker compose function name(s)
         id: get-function-names
         env:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
