@@ -33,19 +33,15 @@ jobs:
           path: application/CohortManager/src/Functions
           dir_names: "true"
 
-      - name: get docker compose function name(s)
+      - name: Get docker compose function name(s)
         id: get-function-names
         env:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
-
-      - name: Debug FUNC_NAMES
-        run: |
-          echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "FUNC_NAMES=$FUNC_NAMES" >> $GITHUB_OUTPUT
 
-      - name: print function names
+      - name: Print function names
         run: |
           echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "The branch is: " ${{ github.ref }}
