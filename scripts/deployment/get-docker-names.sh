@@ -50,7 +50,6 @@ else
     done
 fi
 
-# Prepare a proper format for the github matrix to work:
 changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
@@ -63,5 +62,8 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 # "remove-validation-exception-data","retrieve-cohort-replay"]'
 
 # changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
+
+echo "Final list of functions to rebuild:"
+echo "$changed_functions_json"
 
 echo "FUNC_NAMES=$changed_functions_json" >> "$GITHUB_OUTPUT"
