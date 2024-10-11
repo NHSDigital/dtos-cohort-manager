@@ -121,7 +121,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
                     {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FamilyName)},
                     {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousFamilyName)},
-                    {"@DATE_OF_BIRTH", _databaseHelper.ParseDates(demographic.DateOfBirth)},
+                    {"@DATE_OF_BIRTH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfBirth) },
                     {"@GENDER", demographic.Gender.HasValue ? demographic.Gender : DBNull.Value},
                     {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
                     {"@ADDRESS_LINE_2", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine2)},
@@ -131,7 +131,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
                     {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
                     {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
-                    {"@DATE_OF_DEATH", _databaseHelper.ParseDates(demographic.DateOfDeath)},
+                    {"@DATE_OF_DEATH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfDeath)},
                     {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
                     {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
                     {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
@@ -314,13 +314,12 @@ public class CreateDemographicData : ICreateDemographicData
             _dbConnection.Close();
             return true;
         }
-        catch (Exception ex)
+        catch
         {
             transaction.Rollback();
             _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
-            return false;
-
+            // we need to rethrow the exception here if there is an error we need to roll back the transaction.
+            throw;
         }
     }
 
@@ -344,12 +343,6 @@ public class CreateDemographicData : ICreateDemographicData
                 return true;
             }
             _logger.LogError($"an error happened: {sqlEx.Message}");
-            return false;
-        }
-        catch (Exception ex)
-        {
-
-            _logger.LogError($"an error happened: {ex.Message}");
             return false;
         }
 
