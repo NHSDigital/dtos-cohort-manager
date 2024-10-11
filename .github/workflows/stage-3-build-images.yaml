@@ -122,3 +122,4 @@ jobs:
               docker push "$repo_name:$ENVIRONMENT_TAG"
             done
           fi
+

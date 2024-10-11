@@ -492,6 +492,83 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
+    public async Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
+    {
+        var sql = BuildCohortRequestAuditQuery(requestId, statusCode, dateFrom);
+        var parameters = GetCohortRequestAuditParameters(requestId, statusCode, dateFrom);
+
+        using var command = CreateCommand(parameters);
+        command.CommandText = sql;
+
+        return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
+    }
+
+    private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
+    {
+        var SQL = "SELECT" +
+            " [REQUEST_ID], " +
+            " [STATUS_CODE], " +
+            " [CREATED_DATETIME] " +
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
+
+        var conditions = new List<string>();
+
+        if (dateFrom.HasValue)
+        {
+            conditions.Add("CREATED_DATETIME >= @DateFrom");
+        }
+
+        if (!string.IsNullOrEmpty(statusCode))
+        {
+            conditions.Add("STATUS_CODE = @StatusCode");
+        }
+
+        if (!string.IsNullOrEmpty(requestId))
+        {
+            conditions.Add("REQUEST_ID = @RequestId");
+        }
+
+        if (conditions.Count > 0)
+        {
+            SQL += " WHERE " + string.Join(" AND ", conditions);
+        }
+
+        return SQL;
+    }
+
+    private static Dictionary<string, object> GetCohortRequestAuditParameters(string? requestId, string? statusCode, DateTime? dateFrom)
+    {
+        var parameters = new Dictionary<string, object>();
+
+        if (dateFrom.HasValue)
+            parameters.Add("@DateFrom", dateFrom.Value);
+
+        if (!string.IsNullOrEmpty(statusCode))
+            parameters.Add("@StatusCode", statusCode);
+
+        if (!string.IsNullOrEmpty(requestId))
+            parameters.Add("@RequestId", requestId);
+
+        return parameters;
+    }
+
+    private List<CohortRequestAudit> ReadCohortRequestAudit(IDataReader reader)
+    {
+        var cohortRequestAuditList = new List<CohortRequestAudit>();
+
+        while (reader.Read())
+        {
+            cohortRequestAuditList.Add(new CohortRequestAudit
+            {
+                RequestId = DatabaseHelper.GetStringValue(reader, "REQUEST_ID"),
+                StatusCode = DatabaseHelper.GetStringValue(reader, "STATUS_CODE"),
+                CreatedDateTime = DatabaseHelper.GetStringValue(reader, "CREATED_DATETIME"),
+            });
+        }
+
+        return cohortRequestAuditList;
+    }
+
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
         var command = CreateCommand(sqlToExecute[0].Parameters);
@@ -554,7 +631,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         foreach (var param in parameters)
         {

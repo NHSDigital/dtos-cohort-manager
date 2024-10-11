@@ -4,7 +4,21 @@
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "validPrimaryCareProvider",
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+          },
+          {
+            "Name": "validReasonForRemovalFields",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.ReasonForRemoval) OR !string.IsNullOrEmpty(newParticipant.ReasonForRemovalEffectiveFromDate)"
+          }
+        ],
+        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (!newRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
