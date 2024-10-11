@@ -225,7 +225,7 @@
             }
           }
         }
-      }, 
+      },
       {
         "RuleName": "01.TransformDate.DateOfBirth",
         "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
