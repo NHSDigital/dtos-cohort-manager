@@ -35,6 +35,7 @@ jobs:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
+          echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}"
           echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
 
       - name: Debug FUNC_NAMES

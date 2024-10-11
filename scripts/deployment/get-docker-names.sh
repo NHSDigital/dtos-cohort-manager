@@ -1,14 +1,5 @@
 #!/bin/bash
 
-###################################
-## check the VM free space buildup:
-echo "How much disk space is left:"
-df -H
-
-echo "Running the agent disk verification in /dev/root:"
-sudo du -h /dev/root | sort -hr
-###################################
-
 declare -A docker_functions_map=(
     ["CaasIntegration/processCaasFile"]="process-caas-file"
     ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
