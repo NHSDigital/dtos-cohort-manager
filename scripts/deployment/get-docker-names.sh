@@ -50,7 +50,7 @@ else
     done
 fi
 
-changed_functions="process-caas-file receive-caas-file create-exception"
+#changed_functions="process-caas-file receive-caas-file create-exception"
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
