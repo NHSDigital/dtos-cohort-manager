@@ -30,7 +30,7 @@ declare -A docker_functions_map=(
     ["ScreeningValidationService/RemoveValidationException"]="remove-validation-exception-data"
 )
 
-changed_functions=""
+changed_functions=()
 
 if [ -z "$CHANGED_FOLDERS" ]; then
     changed_functions="null"
@@ -38,7 +38,7 @@ if [ -z "$CHANGED_FOLDERS" ]; then
 elif [[ "$CHANGED_FOLDERS" == *Shared* ]]; then
     echo "Shared folder changed, returning all functions"
     for key in "${!docker_functions_map[@]}"; do
-        changed_functions+=", ${docker_functions_map[$key]}"
+        changed_functions+=("${docker_functions_map[$key]}")
         echo "Adding in: ${docker_functions_map[$key]}"
     done
 else
@@ -46,15 +46,11 @@ else
     for folder in $CHANGED_FOLDERS; do
       echo "Add this function in: ${folder} "
       echo "Add this which maps to: ${docker_functions_map[$folder]} "
-      changed_functions+=", ${docker_functions_map[$folder]}"
+      changed_functions+=("${docker_functions_map[$folder]}")
     done
 fi
 
 changed_functions="process-caas-file receive-caas-file create-exception"
-
-changed_functions_str=$(printf '"%s", ' "${changed_functions[@]}")
-changed_functions_str="[${changed_functions_str%, }]"
-echo "changed_functions=$changed_functions_str"
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
