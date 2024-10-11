@@ -40,15 +40,11 @@ jobs:
         run: |
           bash ./scripts/deployment/get-docker-names.sh
 
-      - name: Debug FUNC_NAMES
+      - name: Print function names
         run: |
+          echo "The branch is: " ${{ github.ref }}
           echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "FUNC_NAMES=$FUNC_NAMES" >> $GITHUB_OUTPUT
-
-      - name: print function names
-        run: |
-          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
-          echo "The branch is: " ${{ github.ref }}
 
   build-and-push:
     runs-on: ubuntu-latest

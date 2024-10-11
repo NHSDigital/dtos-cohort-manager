@@ -50,6 +50,7 @@ else
     done
 fi
 
+# Format the output for the github matrix:
 changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
