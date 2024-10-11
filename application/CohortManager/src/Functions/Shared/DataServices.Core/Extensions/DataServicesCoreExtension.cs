@@ -10,12 +10,12 @@ using Microsoft.Extensions.Hosting;
 
 public static class DataServicesCoreExtension
 {
-    public static IHostBuilder AddDataServicesHandler(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddDataServicesHandler(this IHostBuilder hostBuilder, string? connectionString = null)
     {
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddDbContext<DataServicesContext>(
-                options => options.UseSqlServer(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"))
+                options => options.UseSqlServer(connectionString ?? Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"))
 
             );
             _.TryAdd(ServiceDescriptor.Scoped(typeof(IRequestHandler<>),typeof(RequestHandler<>)));
