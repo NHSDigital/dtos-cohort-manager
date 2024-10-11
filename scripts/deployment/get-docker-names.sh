@@ -50,6 +50,12 @@ else
     done
 fi
 
+changed_functions="process-caas-file receive-caas-file create-exception"
+
+changed_functions_str=$(printf '"%s", ' "${changed_functions[@]}")
+changed_functions_str="[${changed_functions_str%, }]"
+echo "changed_functions=$changed_functions_str"
+
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
 # changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
 # create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
@@ -59,6 +65,6 @@ fi
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
 
-changed_functions='["process-caas-file","receive-caas-file","create-exception"]'
+# changed_functions='["process-caas-file","receive-caas-file","create-exception"]'
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
