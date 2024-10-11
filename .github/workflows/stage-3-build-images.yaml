@@ -83,18 +83,11 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
 
-      - name: build docker images
+      - name: build anb push docker images
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         working-directory: ./application/CohortManager
         run: |
-
-          echo "Current directory is:"
-          echo $PWD
-
-          echo "The ls -l:"
-          ls -l
-
-          echo "How much disk space is left before docker image creation:"
-          df -H
+          set -x
 
           if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
             echo "No functions changed"
@@ -104,35 +97,28 @@ jobs:
             echo "PR_NUM_TAG:$PR_NUM_TAG"
             echo "ENVIRONMENT_TAG:$ENVIRONMENT_TAG"
 
-            # Build the docker images via the compose file.
-            docker compose build ${{steps.get-function-names.outputs.FUNC_NAMES}}
-          fi
-
-          echo "How much disk space is left after docker image creation:"
-          df -H
-
-      - name: push docker images
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
-        working-directory: ./application/CohortManager
-        run: |
-          set -x
-
-          if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
-            echo "No functions changed"
-          else
-
             for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
+              # Build the image
+              docker compose build $function
+
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
+              # Tag the image
               docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
               docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
               docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
-              # Push the images to the repository
+              # Push the image to the repository
               docker push "$repo_name:$COMMIT_HASH_TAG"
               if [ "$PR_NUM_TAG" != 'pr' ]; then
                 docker push "$repo_name:$PR_NUM_TAG"
               fi
               docker push "$repo_name:$ENVIRONMENT_TAG"
+
+              # Remove the image
+              docker rmi "$repo_name:$COMMIT_HASH_TAG"
+              docker rmi "$repo_name:$PR_NUM_TAG"
+              docker rmi "$repo_name:$ENVIRONMENT_TAG"
+              docker rmi cohort-manager-$function:latest
             done
           fi

@@ -68,8 +68,6 @@ fi
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
 
-changed_functions="create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
-mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
-remove-validation-exception-data retrieve-cohort-replay"
+changed_functions="create-participant demographic-data-service get-validation-exceptions"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
