@@ -15,7 +15,7 @@ public static class DateTimeHelper
 /// and the second item is the parsed DateTime or the
 /// default value if parsing fails.
 /// </returns>
-    public static (bool isValidDateFormat, DateTime date) IsValidDateFormat (string value)
+    public static (bool isValidDateFormat, DateTime? date) IsValidDateFormat (string value)
     {
         bool isValidDateFormat = DateTime.TryParseExact(value, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 

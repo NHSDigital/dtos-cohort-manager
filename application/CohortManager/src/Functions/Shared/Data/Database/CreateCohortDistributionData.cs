@@ -492,15 +492,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(sqlToExecute);
     }
 
-    public List<CohortRequestAudit> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
+    public async Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var sql = BuildCohortRequestAuditQuery(requestId, statusCode, dateFrom);
-        var parameters = GetParameters(requestId, statusCode, dateFrom);
+        var parameters = GetCohortRequestAuditParameters(requestId, statusCode, dateFrom);
 
         using var command = CreateCommand(parameters);
         command.CommandText = sql;
 
-        return ExecuteQuery(command, ReadCohortRequestAudit);
+        return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
     }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
@@ -528,7 +528,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return SQL;
     }
 
-    private static Dictionary<string, object> GetParameters(string? requestId, string? statusCode, DateTime? dateFrom)
+    private static Dictionary<string, object> GetCohortRequestAuditParameters(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var parameters = new Dictionary<string, object>();
 
@@ -623,7 +623,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         foreach (var param in parameters)
         {

@@ -7,7 +7,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
 {
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithAllParameters_ReturnsValidCohortRequestAudit()
+    public async Task GetCohortRequestAudit_WithAllParameters_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string requestId = "testRequestId";
@@ -17,7 +17,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         SetUpReader();
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
@@ -30,7 +30,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithNullParameters_ReturnsValidCohortRequestAudit()
+    public async Task GetCohortRequestAudit_WithNullParameters_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string? requestId = null;
@@ -40,7 +40,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         SetUpReader();
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
@@ -50,7 +50,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithEmptyRequestId_ReturnsValidCohortRequestAudit()
+    public async Task GetCohortRequestAudit_WithEmptyRequestId_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string requestId = "";
@@ -60,7 +60,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         SetUpReader();
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
@@ -72,7 +72,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithEmptyStatusCode_ReturnsValidCohortRequestAudit()
+    public async Task GetCohortRequestAudit_WithEmptyStatusCode_ReturnsValidCohortRequestAudit()
     {
         // Arrange
         string requestId = "testRequestId";
@@ -82,7 +82,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         SetUpReader();
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
@@ -94,7 +94,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithFutureDateFrom_ReturnsEmptyList()
+    public async Task GetCohortRequestAudit_WithFutureDateFrom_ReturnsEmptyList()
     {
         // Arrange
         string requestId = "testRequestId";
@@ -104,7 +104,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         _mockDataReader.Setup(reader => reader.Read()).Returns(false);
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
@@ -113,7 +113,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
     }
 
     [TestMethod]
-    public void GetCohortRequestAudit_WithNoMatchingRecords_ReturnsEmptyList()
+    public async Task GetCohortRequestAudit_WithNoMatchingRecords_ReturnsEmptyList()
     {
         // Arrange
         string requestId = "nonExistentRequestId";
@@ -123,7 +123,7 @@ public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
         _mockDataReader.Setup(reader => reader.Read()).Returns(false);
 
         // Act
-        var result = _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
 
         // Assert
         Assert.IsNotNull(result);
