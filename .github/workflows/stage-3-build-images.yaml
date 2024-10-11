@@ -55,7 +55,7 @@ jobs:
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
-    if: needs.get-functions.outputs.FUNC_NAMES != 'null'
+    if: needs.get-functions.outputs.FUNC_NAMES != '["null"]'
     steps:
       - uses: actions/checkout@v4
         with:
