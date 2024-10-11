@@ -60,14 +60,14 @@ else
 fi
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
-retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
-demographic-data-management remove-participant add-participant update-participant \
-create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
-mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
-remove-validation-exception-data retrieve-cohort-replay"
+# changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
+# create-cohort-distribution remove-cohort-distribution-data retrieve-cohort-distribution-data \
+# retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
+# demographic-data-management remove-participant add-participant update-participant \
+# create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
+# mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
+# remove-validation-exception-data retrieve-cohort-replay"
 
-#changed_functions="create-participant demographic-data-service get-validation-exceptions"
+changed_functions="create-participant demographic-data-service get-validation-exceptions"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
