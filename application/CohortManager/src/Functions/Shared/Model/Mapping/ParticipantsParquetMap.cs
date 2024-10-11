@@ -16,7 +16,7 @@ public struct ParticipantsParquetMap
     public Int64? NhsNumber;
 
     [MapToColumn("superseded_by_nhs_number")]
-    public Int64? SupersededByNhsNumber;
+    public Int32? SupersededByNhsNumber;
 
     [MapToColumn("primary_care_provider")]
     public string? PrimaryCareProvider;
