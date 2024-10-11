@@ -2,7 +2,6 @@ namespace Data.Database;
 
 using System.Data;
 using System.Globalization;
-using System.Net;
 using Microsoft.Extensions.Logging;
 using Model.Enums;
 

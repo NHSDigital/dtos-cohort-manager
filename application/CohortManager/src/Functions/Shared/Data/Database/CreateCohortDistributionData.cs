@@ -514,16 +514,24 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var conditions = new List<string>();
 
         if (dateFrom.HasValue)
+        {
             conditions.Add("CREATED_DATETIME >= @DateFrom");
+        }
 
         if (!string.IsNullOrEmpty(statusCode))
+        {
             conditions.Add("STATUS_CODE = @StatusCode");
+        }
 
         if (!string.IsNullOrEmpty(requestId))
+        {
             conditions.Add("REQUEST_ID = @RequestId");
+        }
 
         if (conditions.Count > 0)
+        {
             SQL += " WHERE " + string.Join(" AND ", conditions);
+        }
 
         return SQL;
     }
