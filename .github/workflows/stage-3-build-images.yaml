@@ -16,8 +16,12 @@ on:
 jobs:
   get-functions:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     outputs:
-      FUNC_NAMES: ${{ steps.get-function-names.outputs.FUNC_NAMES }}
+      FUNC_NAMES: ${{steps.get-function-names.outputs.FUNC_NAMES}}
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,8 +39,6 @@ jobs:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
-          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
-          echo "FUNC_NAMES=${{steps.get-function-names.outputs.FUNC_NAMES}}" >> $GITHUB_OUTPUT
 
       - name: Debug FUNC_NAMES
         run: |
@@ -54,7 +56,7 @@ jobs:
     needs: get-functions
     strategy:
       matrix:
-        function: ${{ needs.get-functions.outputs.FUNC_NAMES }}
+        function: ${{needs.get-functions.outputs.FUNC_NAMES}}
     steps:
       - uses: actions/checkout@v4
         with:
