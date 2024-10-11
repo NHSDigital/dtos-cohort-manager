@@ -56,7 +56,7 @@ jobs:
     needs: get-functions
     strategy:
       matrix:
-        function: ${{needs.get-functions.outputs.FUNC_NAMES}}
+        function: [ ${{needs.get-functions.outputs.FUNC_NAMES}} ]
     steps:
       - uses: actions/checkout@v4
         with:
