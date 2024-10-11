@@ -34,16 +34,48 @@
       },
       {
         "RuleName": "00.ValidateLanguageCode.NonFatal",
-        "LocalParams": [{
-          "Name": "languageCode",
-          "Expression": "newParticipant.PreferredLanguage"
-        }],
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
         "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid preferred language code\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "36.DeceasedParticipant.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "amendedRecordType",
+            "Expression": "newParticipant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "existingReasonForRemovalIsDOrDEA",
+            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
+          },
+          {
+            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
+            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
+          },
+          {
+            "Name": "validPrimaryCareProvider",
+            "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider) AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND validPrimaryCareProvider)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid deceased participant\""
             }
           }
         }
