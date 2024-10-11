@@ -55,6 +55,7 @@ jobs:
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
+    if: needs.get-functions.outputs.FUNC_NAMES != '[]'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -100,7 +101,7 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: Build and Push Image
-        if: matrix.function != null && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         working-directory: ./application/CohortManager
         run: |
           set -x
