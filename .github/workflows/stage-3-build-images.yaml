@@ -31,14 +31,14 @@ jobs:
           path: application/CohortManager/src/Functions
           dir_names: "true"
 
-      - name: get docker compose function name(s)
+      - name: Get docker compose function name(s)
         id: get-function-names
         env:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
 
-      - name: print function names
+      - name: Print function names
         run: |
           echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "The branch is: " ${{ github.ref }}
@@ -55,7 +55,7 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
-      - name: Create Tags
+      - name: Create tags
         env:
           GH_TOKEN: ${{ github.token }}
         continue-on-error: true
@@ -83,7 +83,7 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
 
-      - name: build anb push docker images
+      - name: Build, tag anb push docker images
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
         working-directory: ./application/CohortManager
         run: |
