@@ -37,6 +37,12 @@ jobs:
           bash ./scripts/deployment/get-docker-names.sh
           echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
 
+      - name: Debug FUNC_NAMES
+        run: |
+          echo "FUNC_NAMES before setting output: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
+          echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
+          echo "FUNC_NAMES after setting output: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
+
       - name: Print function names
         run: |
           echo "The function in this job is: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
@@ -47,7 +53,7 @@ jobs:
     needs: get-functions
     strategy:
       matrix:
-        function: [ ${{ needs.get-functions.outputs.FUNC_NAMES }} ]
+        function: ${{ needs.get-functions.outputs.FUNC_NAMES }}
     steps:
       - uses: actions/checkout@v4
         with:
