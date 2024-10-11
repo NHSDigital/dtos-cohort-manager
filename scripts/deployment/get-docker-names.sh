@@ -64,6 +64,6 @@ echo "changed_functions=$changed_functions_json"
 # changed_functions='["process-caas-file","receive-caas-file","create-exception"]'
 
 echo "Final list of functions to rebuild:"
-echo "$changed_functions"
+echo "$changed_functions_json"
 
-echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
+echo "FUNC_NAMES=$changed_functions_json" >> "$GITHUB_OUTPUT"
