@@ -44,7 +44,6 @@ jobs:
         run: |
           echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "FUNC_NAMES=$(echo $FUNC_NAMES | tr ' ' ',')" >> $GITHUB_OUTPUT # Output comma-separated list
-          echo "FUNC_NAMES after setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
 
       - name: print function names
         run: |
