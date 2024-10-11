@@ -35,14 +35,14 @@ jobs:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
-          echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}"
-          echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
+          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
+          echo "FUNC_NAMES=${{steps.get-function-names.outputs.FUNC_NAMES}}" >> $GITHUB_OUTPUT
 
       - name: Debug FUNC_NAMES
         run: |
-          echo "FUNC_NAMES before setting output: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
-          echo "FUNC_NAMES=${{ steps.get-function-names.outputs.FUNC_NAMES }}" >> $GITHUB_OUTPUT
-          echo "FUNC_NAMES after setting output: ${{ steps.get-function-names.outputs.FUNC_NAMES }}"
+          echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
+          echo "FUNC_NAMES=${{steps.get-function-names.outputs.FUNC_NAMES}}" >> $GITHUB_OUTPUT
+          echo "FUNC_NAMES after setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
 
       - name: print function names
         run: |
