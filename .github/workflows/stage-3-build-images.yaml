@@ -43,7 +43,7 @@ jobs:
       - name: Debug FUNC_NAMES
         run: |
           echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
-          echo "FUNC_NAMES=$(echo $FUNC_NAMES | tr ' ' ',')" >> $GITHUB_OUTPUT # Output comma-separated list
+          echo "FUNC_NAMES=$FUNC_NAMES" >> $GITHUB_OUTPUT  # Output comma-separated list
 
       - name: print function names
         run: |
