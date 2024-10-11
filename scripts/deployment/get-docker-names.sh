@@ -63,4 +63,4 @@ fi
 
 # changed_functions='["process-caas-file","receive-caas-file","create-exception"]'
 
-echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
+echo "FUNC_NAMES=($changed_functions)" >> "$GITHUB_OUTPUT"
