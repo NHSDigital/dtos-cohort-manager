@@ -131,7 +131,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
                     {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
                     {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
-                    {"@DATE_OF_DEATH", _databaseHelper.ParseDates(demographic.DateOfDeath)},
+                    {"@DATE_OF_DEATH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfDeath)},
                     {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
                     {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
                     {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
