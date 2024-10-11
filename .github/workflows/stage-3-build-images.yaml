@@ -100,7 +100,7 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: Build and Push Image
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-verify-gh-runner-diskspace' && matrix.function != ''
         working-directory: ./application/CohortManager
         run: |
           set -x
