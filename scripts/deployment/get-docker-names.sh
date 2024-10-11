@@ -44,7 +44,7 @@ elif [[ "$CHANGED_FOLDERS" == *Shared* ]]; then
 else
     echo "files changed $CHANGED_FOLDERS "
     for folder in $CHANGED_FOLDERS; do
-      echo "Add this function in: ${folder} "
+      echo "Add this function in: ${folder},"
       echo "Add this which maps to: ${docker_functions_map[$folder]} "
       changed_functions+=" ${docker_functions_map[$folder]}"
     done
@@ -59,6 +59,6 @@ fi
 # mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
 # remove-validation-exception-data retrieve-cohort-replay"
 
-changed_functions="process-caas-file receive-caas-file create-exception"
+changed_functions="process-caas-file,receive-caas-file,create-exception"
 
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
