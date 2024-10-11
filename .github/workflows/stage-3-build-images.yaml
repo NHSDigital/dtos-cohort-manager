@@ -101,6 +101,11 @@ jobs:
               # Build the image
               docker compose build $function
 
+              echo "Current function being built is:"
+              echo $function
+              echo "How much disk space is left before docker image creation:"
+              df -H
+
               repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
               # Tag the image
@@ -120,5 +125,8 @@ jobs:
               docker rmi "$repo_name:$PR_NUM_TAG"
               docker rmi "$repo_name:$ENVIRONMENT_TAG"
               docker rmi cohort-manager-$function:latest
+
+              echo "How much disk space is left after docker image creation:"
+              df -H
             done
           fi
