@@ -63,4 +63,7 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 echo "changed_functions=$changed_functions_json"
 # changed_functions='["process-caas-file","receive-caas-file","create-exception"]'
 
+echo "Final list of functions to rebuild:"
+echo "$changed_functions"
+
 echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
