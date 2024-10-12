@@ -62,7 +62,7 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 # "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
 # "remove-validation-exception-data","retrieve-cohort-replay"]'
 
-# changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
+# changed_functions_json='["process-caas-file","receive-caas-file"]'
 
 echo "Final list of functions to rebuild:"
 echo "$changed_functions_json"
