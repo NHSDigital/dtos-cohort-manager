@@ -55,6 +55,9 @@ public class LookupValidation
         {
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
+            System.Console.WriteLine("record type: " + newParticipant.RecordType);
+            System.Console.WriteLine(existingParticipant.ParticipantId == null);
+            System.Console.WriteLine("Existing participant ID: " + existingParticipant.ParticipantId);
 
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
