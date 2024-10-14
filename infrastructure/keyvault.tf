@@ -4,7 +4,7 @@ module "key_vault" {
     if var.key_vault != {}
   }
 
-  source = ".//modules/key-vault"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/key-vault?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
 
   name                = module.regions_config[each.key].names.key-vault
   resource_group_name = module.baseline.resource_group_names[var.key_vault.resource_group_key]

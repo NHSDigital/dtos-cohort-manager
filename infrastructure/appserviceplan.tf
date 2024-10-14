@@ -1,7 +1,7 @@
 module "app-service-plan" {
   for_each = var.regions
 
-  source = ".//modules/app-service-plan"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/app-service-plan?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
 
   name                = module.regions_config[each.key].names.app-service-plan
   resource_group_name = module.baseline.resource_group_names[var.app_service_plan.resource_group_key]
