@@ -571,13 +571,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
-        var command = CreateCommand(sqlToExecute[0].Parameters);
         var transaction = BeginTransaction();
         try
         {
-            command.Transaction = transaction;
             foreach (var sqlCommand in sqlToExecute)
             {
+                var command = CreateCommand(sqlCommand.Parameters);
+                command.Transaction = transaction;
                 command.CommandText = sqlCommand.SQL;
                 if (!Execute(command))
                 {
