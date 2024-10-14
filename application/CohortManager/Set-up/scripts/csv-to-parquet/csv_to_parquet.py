@@ -4,8 +4,8 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-csv_file = 'BSS_21241009115300_n1.csv'
-parquet_file = 'BSS_21241009115300_n1.parquet'
+csv_file = 'template.csv'
+parquet_file = 'BSS_21241009115301_n1.parquet'
 parquet_schema = 'cohort_dtos_no_index.parquet'
 chunksize = 100_000
 
@@ -54,7 +54,7 @@ for i, chunk in enumerate(csv_stream):
     print("Chunk", i)
     if i == 0:
         schema = pa.parquet.read_schema(parquet_schema, memory_map=True)
-        schema = schema.set(4,pa.field('superseded_by_nhs_number',pa.int32()))
+        schema = schema.set(4,pa.field('superseded_by_nhs_number',pa.int64()))
         schema = schema.set(27,pa.field('death_status',pa.int32()))
 
         pdschema = pd.DataFrame(({"column": name, "pa_dtype": str(pa_dtype)} for name, pa_dtype in zip(schema.names, schema.types)))
