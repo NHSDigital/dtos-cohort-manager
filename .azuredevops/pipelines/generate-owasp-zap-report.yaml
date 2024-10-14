@@ -5,6 +5,7 @@ pool:
   vmImage: ubuntu-latest
 
 trigger: none
+pr: none
 
 # https://crontab.guru/#0_0_*_*_*
 schedules:
@@ -17,8 +18,6 @@ schedules:
 
 variables:
   - group: global_variable_group
-  - name: function_subscription
-    value: 67aab2fa-fcc7-49da-9dc6-cb90f0fa0628
   - name: dev_rg
     value: rg-cohort-manager-dev-uks
 
@@ -36,7 +35,7 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           echo "generating report"
-          az account set --subscription $(function_subscription)
+          az account set --subscription $(DEV_SUBSCRIPTION_ID)
 
           function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
           for function in $function_list; do

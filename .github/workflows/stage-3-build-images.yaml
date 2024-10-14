@@ -13,11 +13,13 @@ on:
         type: string
 
 jobs:
-  get-changed-files:
+  get-functions:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+    outputs:
+      FUNC_NAMES: ${{steps.get-function-names.outputs.FUNC_NAMES}}
 
     steps:
       - uses: actions/checkout@v4
@@ -30,17 +32,33 @@ jobs:
           path: application/CohortManager/src/Functions
           dir_names: "true"
 
-      - name: get docker compose function name(s)
+      - name: Get docker compose function name(s)
         id: get-function-names
         env:
           CHANGED_FOLDERS: ${{steps.changed-files.outputs.all_changed_files}}
         run: |
           bash ./scripts/deployment/get-docker-names.sh
 
-      - name: print function names
+      - name: Print function names
         run: |
-          echo "${{steps.get-function-names.outputs.FUNC_NAMES}}"
           echo "The branch is: " ${{ github.ref }}
+          echo "FUNC_NAMES before setting output: ${{steps.get-function-names.outputs.FUNC_NAMES}}"
+          echo "FUNC_NAMES=$FUNC_NAMES" >> $GITHUB_OUTPUT
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    needs: get-functions
+    strategy:
+      matrix:
+        function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
+    if: needs.get-functions.outputs.FUNC_NAMES != '["null"]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Az CLI login
         if: github.ref == 'refs/heads/main'
@@ -81,44 +99,33 @@ jobs:
 
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
-
-      - name: build docker images
-        working-directory: ./application/CohortManager
-        run: |
-          if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
-            echo "No functions changed"
-          else
-            echo "These functions will be rebuilt: " ${{steps.get-function-names.outputs.FUNC_NAMES}}
-            echo "COMMIT_HASH_TAG:$COMMIT_HASH_TAG"
-            echo "PR_NUM_TAG:$PR_NUM_TAG"
-            echo "ENVIRONMENT_TAG:$ENVIRONMENT_TAG"
-
-            # Build the docker images via the compose file.
-            docker compose build ${{steps.get-function-names.outputs.FUNC_NAMES}}
-          fi
-
-      - name: push docker images
+      - name: Build and Push Image
         if: github.ref == 'refs/heads/main'
         working-directory: ./application/CohortManager
         run: |
           set -x
 
-          if [ -z "${{steps.get-function-names.outputs.FUNC_NAMES}}" ] || [ "${{steps.get-function-names.outputs.FUNC_NAMES}}" == "null" ]; then
-            echo "No functions changed"
-          else
+          function=${{ matrix.function }}
 
-            for function in ${{steps.get-function-names.outputs.FUNC_NAMES}}; do
-              repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
+          # Build the image
+          docker compose build $function
 
-              docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
-              docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
-              docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
+          repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
-              # Push the images to the repository
-              docker push "$repo_name:$COMMIT_HASH_TAG"
-              if [ "$PR_NUM_TAG" != 'pr' ]; then
-                docker push "$repo_name:$PR_NUM_TAG"
-              fi
-              docker push "$repo_name:$ENVIRONMENT_TAG"
-            done
+          # Tag the image
+          docker tag cohort-manager-$function:latest "$repo_name:$COMMIT_HASH_TAG"
+          docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
+          docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
+
+          # Push the image to the repository
+          docker push "$repo_name:$COMMIT_HASH_TAG"
+          if [ "$PR_NUM_TAG" != 'pr' ]; then
+            docker push "$repo_name:$PR_NUM_TAG"
           fi
+          docker push "$repo_name:$ENVIRONMENT_TAG"
+
+          # Remove the image
+          docker rmi "$repo_name:$COMMIT_HASH_TAG"
+          docker rmi "$repo_name:$PR_NUM_TAG"
+          docker rmi "$repo_name:$ENVIRONMENT_TAG"
+          docker rmi cohort-manager-$function:latest

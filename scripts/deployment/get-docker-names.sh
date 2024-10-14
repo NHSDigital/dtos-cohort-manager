@@ -10,6 +10,7 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
+    ["CohortDistributionServices/RetrieveCohortRequestAudit"]="retrieve-cohort-request-audit"
     ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
     ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
@@ -50,13 +51,21 @@ else
     done
 fi
 
-# The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-# changed_functions="process-caas-file receive-caas-file create-exception add-cohort-distribution-data \
-# create-cohort-distribution remove-cohort-distribution-data retrieve-distribution-data \
-# retrieve-participant-data allocate-service-provider transform-data-service validate-cohort-distribution-record \
-# demographic-data-management devops-testing-service remove-participant add-participant update-participant \
-# create-participant demographic-data-service get-validation-exceptions mark-participant-as-eligible \
-# mark-participant-as-ineligible update-participant-details file-validation lookup-validation static-validation \
-# remove-validation-exception-data retrieve-cohort-replay"
+# Format the output for the github matrix:
+changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
-echo "FUNC_NAMES=$changed_functions" >> "$GITHUB_OUTPUT"
+# The full list of functions. Uncomment the next block when you want to redeploy all the functions.
+# changed_functions_json='["process-caas-file","receive-caas-file","create-exception","add-cohort-distribution-data",\
+# "create-cohort-distribution","remove-cohort-distribution-data","retrieve-cohort-distribution-data",\
+# "retrieve-participant-data","allocate-service-provider","transform-data-service","validate-cohort-distribution-record",\
+# "demographic-data-management","remove-participant","add-participant","update-participant",\
+# "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
+# "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
+# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
+
+# changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
+
+echo "Final list of functions to rebuild:"
+echo "$changed_functions_json"
+
+echo "FUNC_NAMES=$changed_functions_json" >> "$GITHUB_OUTPUT"
