@@ -96,4 +96,3 @@ df.to_parquet(path=file_name, engine='fastparquet', index=False)
 
 if args.s:
     send_sample_file(file_name)
-    
