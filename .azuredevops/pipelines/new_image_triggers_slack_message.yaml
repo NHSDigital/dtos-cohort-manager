@@ -95,7 +95,7 @@ parameters:
         tag:
           - development
       - name: retrieve-cohort-request-audit
-        repository: cohort-manager-retrieve-request-audit
+        repository: cohort-manager-retrieve-cohort-request-audit
         tag:
           - development
       - name: remove-cohort-distribution-data
