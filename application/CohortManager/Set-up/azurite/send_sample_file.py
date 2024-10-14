@@ -34,7 +34,7 @@ def send_sample_file(sample_file):
 
     print("Sample file uploaded")
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("""Description:
         A script to send sample files to azurite

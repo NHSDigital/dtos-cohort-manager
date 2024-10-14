@@ -4,8 +4,8 @@ from send_sample_file import send_sample_file
 import pandas as pd
 
 parser = argparse.ArgumentParser(description='An script that allows you to edit parquet files',
-                                 formatter_class=argparse.RawTextHelpFormatter,
-                                 epilog="""Examples:
+                                formatter_class=argparse.RawTextHelpFormatter,
+                                epilog="""Examples:
     python parquet-editor.py -f BSS_20241201121212_n1.parquet -c nhs_number given_name -v 9442788159 bob -s
     python parquet-editor.py -f BSS_20241201121212_n1.parquet -c family_name -r 0 -v booble""")
 
@@ -57,8 +57,8 @@ schema = {
     "home_telephone_effective_from_date": "string",
     "mobile_telephone_number": "string",
     "mobile_telephone_effective_from_date": "string",
-    "email_address": "string", 
-    "email_address_effective_from_date": "string", 
+    "email_address": "string",
+    "email_address_effective_from_date": "string",
     "preferred_language": "string",
     "is_interpreter_required": "boolean",
     "invalid_flag": "boolean",
@@ -80,7 +80,7 @@ for i in range(len(args.c)):
             value = int(value)
         case "boolean":
             value = bool(value)
-    
+
     if args.r:
         df.at[args.r[0], column_name] = value
     else:
