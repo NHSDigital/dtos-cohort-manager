@@ -10,6 +10,7 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
+    ["CohortDistributionServices/RetrieveCohortRequestAudit"]="retrieve-cohort-request-audit"
     ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
     ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
     ["CohortDistributionServices/TransformDataService"]="transform-data-service"
@@ -60,7 +61,7 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 # "demographic-data-management","remove-participant","add-participant","update-participant",\
 # "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
 # "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
-# "remove-validation-exception-data","retrieve-cohort-replay"]'
+# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
 
 # changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
 
