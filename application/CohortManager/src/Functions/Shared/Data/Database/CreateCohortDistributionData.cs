@@ -651,16 +651,17 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         try
         {
             var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
+            _logger.LogInformation("ExecuteNonQuery result: {Result}", result);
 
             if (result == 0)
             {
+                _logger.LogError("No rows affected by ExecuteNonQuery.");
                 return false;
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "an error happened, {Exception}", ex.Message);
+            _logger.LogError(ex, "An error occurred in Execute method: {ExceptionMessage}", ex.Message);
             return false;
         }
 
