@@ -574,9 +574,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var transaction = BeginTransaction();
         try
         {
-            var command = CreateCommand(sqlToExecute[0].Parameters);
+            var command = CreateCommand([]);
+            command.Transaction = transaction;
+
             foreach (var sqlCommand in sqlToExecute)
             {
+                command = CreateCommand(sqlCommand.Parameters);
                 command.Transaction = transaction;
                 command.CommandText = sqlCommand.SQL;
                 if (!Execute(command))
@@ -586,6 +589,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     return false;
                 }
             }
+
             transaction.Commit();
             _dbConnection.Close();
             return true;
