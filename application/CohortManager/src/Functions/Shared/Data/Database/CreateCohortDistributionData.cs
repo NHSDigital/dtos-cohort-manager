@@ -574,9 +574,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var transaction = BeginTransaction();
         try
         {
+            var command = CreateCommand(sqlToExecute[0].Parameters);
             foreach (var sqlCommand in sqlToExecute)
             {
-                var command = CreateCommand(sqlCommand.Parameters);
                 command.Transaction = transaction;
                 command.CommandText = sqlCommand.SQL;
                 if (!Execute(command))
@@ -658,9 +658,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 return false;
             }
         }
-        catch (Exception EX)
+        catch (Exception ex)
         {
-            _logger.LogError("an error happened, {EX}", EX);
+            _logger.LogError(ex, "an error happened, {Exception}", ex.Message);
             return false;
         }
 
