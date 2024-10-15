@@ -13,7 +13,8 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
             RemovalReason = participant.ReasonForRemoval,
             RemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate,
             ScreeningId = participant.ScreeningId,
-            ScreeningName = participant.ScreeningName
+            ScreeningName = participant.ScreeningName,
+            EligibilityFlag = participant.EligibilityFlag
         };
     }
 }

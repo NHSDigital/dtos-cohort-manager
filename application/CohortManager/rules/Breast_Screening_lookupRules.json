@@ -85,7 +85,7 @@
     ]
   },
   {
-    "WorkflowName": "REMOVED",
+    "WorkflowName": "DEL",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",

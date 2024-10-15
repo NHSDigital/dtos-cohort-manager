@@ -4,9 +4,9 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-csv_file = 'BSS_20240601121212_n10.csv'
-parquet_file = 'BSS_20240718150245_n3.parquet'
-parquet_schema = "cohort_dtos_no_index.parquet"
+csv_file = 'template.csv'
+parquet_file = 'BSS_21241009115301_n1.parquet'
+parquet_schema = 'cohort_dtos_no_index.parquet'
 chunksize = 100_000
 
 csv_stream = pd.read_csv(csv_file, sep=',', chunksize=chunksize, low_memory=False, dtype ={
@@ -44,8 +44,9 @@ csv_stream = pd.read_csv(csv_file, sep=',', chunksize=chunksize, low_memory=Fals
 'E-mail address (Home)': 'string',
 'E-mail address (Home) Business Effective From Date': 'string',
 'Preferred Language': 'string',
-'Interpreter required': 'string',
+'Interpreter required': 'bool',
 'Invalid Flag': 'bool',
+'Eligibility' : 'bool',
 })
 
 
@@ -53,7 +54,7 @@ for i, chunk in enumerate(csv_stream):
     print("Chunk", i)
     if i == 0:
         schema = pa.parquet.read_schema(parquet_schema, memory_map=True)
-        schema = schema.set(4,pa.field('superseded_by_nhs_number',pa.int32()))
+        schema = schema.set(4,pa.field('superseded_by_nhs_number',pa.int64()))
         schema = schema.set(27,pa.field('death_status',pa.int32()))
 
         pdschema = pd.DataFrame(({"column": name, "pa_dtype": str(pa_dtype)} for name, pa_dtype in zip(schema.names, schema.types)))
@@ -100,15 +101,14 @@ for i, chunk in enumerate(csv_stream):
     'E-mail address (Home) Business Effective From Date': 'email_address_effective_from_date',
     'Preferred Language': 'preferred_language',
     'Interpreter required': 'is_interpreter_required',
-    'Invalid Flag': 'invalid_flag'})
+    'Invalid Flag': 'invalid_flag',
+    'Eligibility':'eligibility'})
 
     print(chunk.head())
     chunk['primary_care_effective_from_date'] = chunk['primary_care_effective_from_date'].astype('str')
     chunk['current_posting_effective_from_date'] = chunk['current_posting_effective_from_date'].astype('str')
     chunk['date_of_birth'] = chunk['date_of_birth'].astype('str')
     chunk['paf_key'] = chunk['paf_key'].astype('str')
-    chunk['is_interpreter_required'] = chunk['is_interpreter_required'].astype('str')
-
     table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
     parquet_writer.write_table(table)
 
