@@ -240,7 +240,7 @@ public class LookupValidationTests
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_Demographics_Rule_Fails(
+    public async Task Run_MultipleDemographicsFieldsChanged_DemographicsRuleFails(
     string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
     Gender newGender, string newDateOfBirth)
     {
@@ -248,6 +248,7 @@ public class LookupValidationTests
         SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = "1234567";
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
         _requestBody.NewParticipant.FamilyName = newFamilyName;
@@ -262,7 +263,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -274,7 +275,7 @@ public class LookupValidationTests
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
     [DataRow(Actions.New, "", new Gender(), "", "Smith", Gender.Female, "19700101")]                    // New Record Type
-    public async Task Run_Should_Not_Create_Exception_When_Demographics_Rule_Passes(string recordType,
+    public async Task Run_OneFieldChanged_DemographicsRulePasses(string recordType,
         string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
         Gender newGender, string newDateOfBirth)
     {
@@ -282,6 +283,7 @@ public class LookupValidationTests
         SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = "1234567";
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
         _requestBody.NewParticipant.FamilyName = newFamilyName;
@@ -295,7 +297,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
