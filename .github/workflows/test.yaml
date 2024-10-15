@@ -1,0 +1,13 @@
+name: Hello World Workflow
+
+on:
+  push:
+    branches:
+      - runner-test
+
+jobs:
+  say-hello:
+    runs-on: ent-dtos-azure-small-ubuntu-latest
+    steps:
+      - name: Print Hello World
+        run: echo "Hello, World!"
