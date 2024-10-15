@@ -59,7 +59,6 @@ public class DemographicDataService
                 }
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
-
         }
         catch (Exception ex)
         {
