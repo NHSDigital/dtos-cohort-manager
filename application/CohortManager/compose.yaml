@@ -118,8 +118,9 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - DSmarkParticipantAsEligible= http://localhost:7067/api/markParticipantAsEligible
-      - markParticipantAsIneligible= http://localhost:7068/api/markParticipantAsIneligible
+      - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
+      - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
+      - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
 
   # Screening Data Service
   create-participant:
@@ -218,6 +219,7 @@ services:
       - inboundBlobName=inbound
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - fileExceptions=file-exceptions
 
   static-validation:
     container_name: static-validation
