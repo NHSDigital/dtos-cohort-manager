@@ -574,14 +574,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var transaction = BeginTransaction();
         try
         {
-            var command = CreateCommand([]);
-            command.Transaction = transaction;
-
             foreach (var sqlCommand in sqlToExecute)
             {
-                command = CreateCommand(sqlCommand.Parameters);
-                command.Transaction = transaction;
+                var command = CreateCommand(sqlCommand.Parameters);
                 command.CommandText = sqlCommand.SQL;
+                command.Transaction = transaction;
+
                 if (!Execute(command))
                 {
                     transaction.Rollback();
