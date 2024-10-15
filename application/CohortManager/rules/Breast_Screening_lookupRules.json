@@ -67,6 +67,20 @@
         }
       },
       {
+        "RuleName": "11.ValidateReasonForRemoval.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "reasonForRemovalIsLDNOrRC",
+            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
+          }
+        ],
+        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
+      },
+      {
         "RuleName": "36.DeceasedParticipant.NonFatal",
         "LocalParams": [
           {
