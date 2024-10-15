@@ -25,6 +25,7 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+    private BsTransformationLookups _transformationLookups;
     public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
     {
         _createResponse = createResponse;
@@ -75,8 +76,7 @@ public class TransformDataService
                 string.IsNullOrEmpty(participant.AddressLine4) &&
                 string.IsNullOrEmpty(participant.AddressLine5))
             {
-                GetMissingAddress getMissingAddress = new(participant, new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString")));
-                participant = getMissingAddress.GetAddress();
+                participant = _transformationLookups.GetAddress(participant);
             }
 
             var response = JsonSerializer.Serialize(participant);
@@ -101,6 +101,7 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
+            new RuleParameter("transformationLookups", _transformationLookups)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);

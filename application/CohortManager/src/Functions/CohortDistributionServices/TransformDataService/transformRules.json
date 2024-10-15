@@ -227,6 +227,34 @@
         }
       },
       {
+        "RuleName": "13.Other.FamilyName.DoesNotExist",
+        "Expression": "participant.RecordType == 'AMENDED' && string.IsNullOrEmpty(participant.FamilyName)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "FamilyName",
+              "transformedValue": "transformationLookups.GetName(participant.ParticipantId, 'FAMILY_NAME')"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "14.Other.GivenName.DoesNotExist",
+        "Expression": "participant.RecordType == 'AMENDED' && string.IsNullOrEmpty(participant.GivenName)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "GivenName",
+              "transformedValue": "transformationLookups.GetName(participant.ParticipantId, 'GIVEN_NAME')"
+            }
+          }
+        }
+      },
+      {
         "RuleName": "01.TransformDate.DateOfBirth",
         "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
         "Actions": {

@@ -28,7 +28,7 @@ class TransformAction : ActionBase
         if (isExpression)
             {
                 var expression = context.GetContext<string>("transformedValue");
-                return EvaluateExpression(property, expression, participant);
+                return EvaluateExpression(property, expression, ruleParameters);
             }
 
         dynamic value;
@@ -53,11 +53,12 @@ class TransformAction : ActionBase
     }
 
     public CohortDistributionParticipant EvaluateExpression(PropertyInfo property, string expresison,
-                                                            CohortDistributionParticipant participant)
+                                                            RuleParameter[] ruleParameters)
     {
         var reParser = new RuleExpressionParser(new ReSettings());
-        var ruleParameters = new RuleParameter[] {new RuleParameter("participant", participant)};
         var result = reParser.Evaluate<string>(expresison, ruleParameters);
+
+        CohortDistributionParticipant participant = (CohortDistributionParticipant)ruleParameters[0].Value;
 
         property.SetValue(participant, result);
 

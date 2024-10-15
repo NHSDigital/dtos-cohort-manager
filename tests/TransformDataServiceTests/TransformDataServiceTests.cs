@@ -296,7 +296,7 @@ public class TransformDataServiceTests
         mockConnection.Setup(c => c.Open()).Verifiable();
 
         // Act
-        var sut = new GetMissingAddress(participant, mockConnection.Object);
+        var sut = new BsTransformationLookups(participant, mockConnection.Object);
         var result = sut.GetAddress();
 
         // Assert
