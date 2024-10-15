@@ -94,6 +94,10 @@ parameters:
         repository: cohort-manager-retrieve-cohort-replay
         tag:
           - development
+      - name: retrieve-cohort-request-audit
+        repository: cohort-manager-retrieve-cohort-request-audit
+        tag:
+          - development
       - name: remove-cohort-distribution-data
         repository: cohort-manager-remove-cohort-distribution-data
         tag:

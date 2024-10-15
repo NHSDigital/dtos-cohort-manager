@@ -435,6 +435,63 @@ public class LookupValidationTests
     }
 
     [TestMethod]
+    [DataRow(Actions.New, "InvalidPCP", "LDN", "20241101")]
+    [DataRow(Actions.Amended, "ValidPCP", null, null)]
+    public async Task Run_ValidatePrimaryCareProvider_CreatesException(string recordType, string primaryCareProvider, string reasonForRemoval, string reasonForRemovalDate)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+
+        // Act
+        var result = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "LDN", "20241101")]
+    [DataRow(Actions.Amended, "LDN", "20241101")]
+    [DataRow(Actions.Removed, "LDN", "20241101")]
+    [DataRow(Actions.Amended, null, "20241101")]
+    [DataRow(Actions.Amended, "LDN", null)]
+    public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string recordType, string reasonForRemoval, string reasonForRemovalDate)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ValidPCP";
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
+        var expectedStatusCode = recordType == Actions.New ? HttpStatusCode.Created : HttpStatusCode.OK;
+
+        // Act
+        var result = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(expectedStatusCode, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+
+    [TestMethod]
     [DataRow(Actions.Amended, "LDN")]
     [DataRow(Actions.Amended, "R/C")]
     [DataRow(Actions.Removed, "LDN")]
@@ -482,6 +539,7 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+
 
     private void SetUpRequestBody(string json)
     {

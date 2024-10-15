@@ -1,0 +1,59 @@
+---
+name: $(TeamProject)_$(Build.DefinitionName)_$(SourceBranchName)_$(Date:yyyyMMdd)
+
+pool:
+  vmImage: ubuntu-latest
+
+trigger: none
+pr: none
+
+# https://crontab.guru/#0_0_*_*_*
+schedules:
+  - cron: "0 0 * * Sun"
+    displayName: Run every Sunday at 0:00
+    branches:
+      include:
+        - main
+    always: true
+
+variables:
+  - group: global_variable_group
+  - name: dev_rg
+    value: rg-cohort-manager-dev-uks
+
+jobs:
+  - job: owasp_zap_report
+    displayName: Generate OWASP ZAP report
+    steps:
+    - checkout: self
+    - task: AzureCLI@2
+      name: owasp_zap_report_create
+      displayName: owasp zap report create
+      inputs:
+        azureSubscription: sc-cohort-manager-dev
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "generating report"
+          az account set --subscription $(DEV_SUBSCRIPTION_ID)
+
+          function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
+          for function in $function_list; do
+
+            function_url=$(az functionapp show --resource-group $(dev_rg) --name $function --query "defaultHostName" --output tsv  )
+            echo https://$function_url
+
+            docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url > zap_report_$function
+
+            pip install python-hcl2
+            export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
+            chmod 755 scripts/azure/GetImageTagsByManifest.sh
+            python3 scripts/azure/SlackWebhookController.py -v -f $function -r zap_report_$function
+
+          done
+
+          for function in $function_list; do
+            cat zap_report_$function
+          done
+
+
