@@ -1,7 +1,7 @@
 module "storage" {
   for_each = local.storage_accounts_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=08100f7db2da6c0f64f327d15477a217a7ed4cd9"
 
   name                = substr("${module.regions_config[each.value.region_key].names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
   resource_group_name = module.baseline.resource_group_names[each.value.resource_group_key]

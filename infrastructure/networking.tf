@@ -19,12 +19,14 @@ module "vnet" {
   for_each = var.regions
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet?ref=08100f7db2da6c0f64f327d15477a217a7ed4cd9"
 
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
   location            = each.key
   vnet_address_space  = each.value.address_space
+
+  dns_servers = [data.terraform_remote_state.hub.outputs.private_dns_resolver_inbound_ips[each.key].private_dns_resolver_ip]
 
   tags = var.tags
 }
