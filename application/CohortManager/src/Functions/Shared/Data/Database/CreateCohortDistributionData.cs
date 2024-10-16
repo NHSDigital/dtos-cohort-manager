@@ -571,14 +571,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
-        var command = CreateCommand(sqlToExecute[0].Parameters);
         var transaction = BeginTransaction();
         try
         {
-            command.Transaction = transaction;
             foreach (var sqlCommand in sqlToExecute)
             {
+                var command = CreateCommand(sqlCommand.Parameters);
                 command.CommandText = sqlCommand.SQL;
+                command.Transaction = transaction;
+
                 if (!Execute(command))
                 {
                     transaction.Rollback();
@@ -586,6 +587,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     return false;
                 }
             }
+
             transaction.Commit();
             _dbConnection.Close();
             return true;
@@ -651,16 +653,17 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         try
         {
             var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
+            _logger.LogInformation("ExecuteNonQuery result: {Result}", result);
 
             if (result == 0)
             {
+                _logger.LogError("No rows affected by ExecuteNonQuery.");
                 return false;
             }
         }
-        catch (Exception EX)
+        catch (Exception ex)
         {
-            _logger.LogError("an error happened, {EX}", EX);
+            _logger.LogError(ex, "An error occurred in Execute method: {ExceptionMessage}", ex.Message);
             return false;
         }
 
