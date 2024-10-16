@@ -12,9 +12,9 @@ module "azure_sql_server" {
   resource_group_name = module.baseline.resource_group_names[var.sqlserver.server.resource_group_key]
   location            = module.baseline.resource_group_locations[var.sqlserver.server.resource_group_key]
 
-  sqlversion          = var.sqlserver.server.sqlversion
-  tlsver              = var.sqlserver.server.tlsversion
-  kv_id               = module.key_vault[each.key].key_vault_id
+  sqlversion = var.sqlserver.server.sqlversion
+  tlsver     = var.sqlserver.server.tlsversion
+  kv_id      = module.key_vault[each.key].key_vault_id
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name
