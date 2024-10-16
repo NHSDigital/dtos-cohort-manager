@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -24,25 +25,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
-        //var type = typeof(TEntity).GetProperties().CustomAttributes.SingleOrDefault(attr => attr.AttributeType == typeof(KeyAttribute));
-        _keyInfo = typeof(TEntity).GetProperties().FirstOrDefault(p =>
-            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
-        // foreach(var t in type)
-        // {
-        //     _logger.LogError(t.Name);
-        //     _logger.LogError("Normal Attributes:");
-
-        //     foreach(var attr in t.CustomAttributes)
-        //     {
-        //         logger.LogError(attr.AttributeType.Name);
-        //     }
-
-
-        // }
-       // _logger.LogError(type.Name);
-
-
-
     }
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
@@ -56,7 +38,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 if(key != null)
                 {
 
-                    return CreateHttpResponse(req, await getById(req, keyPredicate));
+                    return CreateHttpResponse(req, await getById(req, key));
                 }
                 else
                 {
@@ -64,10 +46,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 }
             case "DELETE":
                 if(key != null)
-                if (keyPredicate != null)
                 {
-                    return await DeleteById(req,key);
-                    return CreateHttpResponse(req, await DeleteById(req, keyPredicate));
+                    return CreateHttpResponse(req, await DeleteById(req, key));
                 }
                 else
                 {
@@ -76,10 +56,9 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             case "POST":
                 return CreateHttpResponse(req, await Post(req));
             case "PUT":
-                if (keyPredicate != null)
+                if (key != null)
                 {
-                    return await UpdateById(req,key);
-                    return CreateHttpResponse(req, await DeleteById(req, keyPredicate));
+                    return CreateHttpResponse(req, await DeleteById(req, key));
                 }
                 else
                 {
@@ -266,9 +245,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     private bool PropertyExists(Type type,string property) =>
         Array.Exists(type.GetProperties(),p => p.Name == property);
 
-    }
-
-
     private HttpResponseData createErrorResponse(HttpRequestData req)
     {
         var errorResponse = new DataServiceResponse<string> { ErrorMessage = "No Key was Provided for deletion" };
@@ -303,22 +279,5 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return response;
     }
 
-    // private Func<TEntity,bool> predicate(TEntity entity,string key)
-    // {
 
-    //     var datatype = Convert<typeof(_keyInfo)>(key);
-
-    //     return Expression.Equal(Expression.)
-    // }
-
-    // public static T Convert<T>(string input)
-    // {
-    //     var converter = TypeDescriptor.GetConverter(typeof(T));
-    //     if(converter != null)
-    //     {
-    //         //Cast ConvertFromString(string text) : object to (T)
-    //         return (T)converter.ConvertFromString(input);
-    //     }
-    //     return default(T);
-    // }
 }
