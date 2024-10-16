@@ -53,21 +53,16 @@ fi
 
 # Format the output for the github matrix:
 
-for key in "${!docker_functions_map[@]}"; do
-    changed_functions+=" ${docker_functions_map[$key]}"
-    echo "Adding in: ${docker_functions_map[$key]}"
-done
-
 changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-# changed_functions_json='["process-caas-file","receive-caas-file","create-exception","add-cohort-distribution-data",\
-# "create-cohort-distribution","remove-cohort-distribution-data","retrieve-cohort-distribution-data",\
-# "retrieve-participant-data","allocate-service-provider","transform-data-service","validate-cohort-distribution-record",\
-# "demographic-data-management","remove-participant","add-participant","update-participant",\
-# "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
-# "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
-# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
+changed_functions_json='["process-caas-file","receive-caas-file","create-exception","add-cohort-distribution-data",\
+"create-cohort-distribution","remove-cohort-distribution-data","retrieve-cohort-distribution-data",\
+"retrieve-participant-data","allocate-service-provider","transform-data-service","validate-cohort-distribution-record",\
+"demographic-data-management","remove-participant","add-participant","update-participant",\
+"create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
+"mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
+"remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
 
 # changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
 
