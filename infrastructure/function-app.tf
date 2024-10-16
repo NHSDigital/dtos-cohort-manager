@@ -10,11 +10,9 @@ module "functionapp" {
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
   public_network_access_enabled = var.features.public_network_access_enabled
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
   rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
-
-  # Do VNet integration at App Service level instead
-  # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
   asp_id                        = module.app-service-plan[each.value.region_key].app_service_plan_id
   storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
@@ -23,8 +21,6 @@ module "functionapp" {
   ai_connstring                 = module.app_insights.ai_connection_string_audit
   worker_32bit                  = var.function_apps.worker_32bit
   cont_registry_use_mi          = var.function_apps.cont_registry_use_mi
-
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
   acr_login_server = data.azurerm_container_registry.acr.login_server
@@ -77,48 +73,56 @@ locals {
     sql_contributor = "Contributor"
   }
 
-  # It's tempting to loop round the storage accounts map here but we need to be able to assign different roles to different scopes
   rbac_role_assignments_storage_fnapp = {
     for region_key, region_value in module.regions_config :
-    region_key => {
-      for role_key, role_value in local.rbac_roles_storage :
-      role_key => {
+    region_key => [
+      for role_key, role_value in local.rbac_roles_storage : {
         role_definition_name = role_value
         scope                = module.storage["fnapp-${region_key}"].storage_account_id
       }
-    }
+    ]
   }
 
   rbac_role_assignments_storage_file_exceptions = {
     for region_key, region_value in module.regions_config :
-    region_key => {
-      for role_key, role_value in local.rbac_roles_storage :
-      role_key => {
+    region_key => [
+      for role_key, role_value in local.rbac_roles_storage : {
         role_definition_name = role_value
         scope                = module.storage["file_exceptions-${region_key}"].storage_account_id
       }
-    }
+    ]
   }
 
   rbac_role_assignments_database = {
     for region_key, region_value in module.regions_config :
-    region_key => {
-      for role_key, role_value in local.rbac_roles_database :
-      role_key => {
+    region_key => [
+      for role_key, role_value in local.rbac_roles_database : {
         role_definition_name = role_value
         scope                = module.azure_sql_server[region_key].sql_server_id
       }
-    }
+    ]
   }
 
   rbac_role_assignments = {
     for region_key in keys(module.regions_config) :
-    region_key => merge(
-      local.rbac_role_assignments_storage_fnapp[region_key] != null ? local.rbac_role_assignments_storage_fnapp[region_key] : {},
-      local.rbac_role_assignments_storage_file_exceptions[region_key] != null ? local.rbac_role_assignments_storage_file_exceptions[region_key] : {},
-      local.rbac_role_assignments_database[region_key] != null ? local.rbac_role_assignments_database[region_key] : {}
+    region_key => concat(
+      local.rbac_role_assignments_storage_fnapp[region_key] != null ? local.rbac_role_assignments_storage_fnapp[region_key] : [],
+      local.rbac_role_assignments_storage_file_exceptions[region_key] != null ? local.rbac_role_assignments_storage_file_exceptions[region_key] : [],
+      local.rbac_role_assignments_database[region_key] != null ? local.rbac_role_assignments_database[region_key] : []
     )
   }
+}
+
+output "rbac_role_assignments" {
+  value = local.rbac_role_assignments
+}
+
+output "rbac_role_assignments_storage_fnapp" {
+  value = local.rbac_role_assignments_storage_fnapp
+}
+
+output "rbac_role_assignments_storage_file_exceptions" {
+  value = local.rbac_role_assignments_storage_file_exceptions
 }
 
 /* --------------------------------------------------------------------------------------------------
