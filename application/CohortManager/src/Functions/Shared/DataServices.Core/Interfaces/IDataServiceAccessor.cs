@@ -1,8 +1,10 @@
+using System.Linq.Expressions;
+
 public interface IDataServiceAccessor<TEntity>
 {
-    Task<TEntity> GetSingle(Func<TEntity,bool> predicate);
-    Task<List<TEntity>> GetRange(Func<TEntity,bool> predicates);
+    Task<TEntity> GetSingle(Expression<Func<TEntity,bool>> predicate);
+    Task<List<TEntity>> GetRange(Expression<Func<TEntity,bool>> predicates);
     Task<bool> InsertSingle(TEntity entity);
-    Task<bool> Remove(Func<TEntity,bool> predicate);
+    Task<bool> Remove(Expression<Func<TEntity,bool>> predicate);
     Task<bool> Update(TEntity entity);
 }
