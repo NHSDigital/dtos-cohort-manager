@@ -7,39 +7,41 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using System.Text;
+using Common;
 
 public class BsSelectGpPracticeDataService
 {
     private readonly ILogger<BsSelectGpPracticeDataService> _logger;
     private readonly IRequestHandler<BsSelectGpPractice> _requestHandler;
+    private readonly ICreateResponse _createResponse;
 
-    public BsSelectGpPracticeDataService(ILogger<BsSelectGpPracticeDataService> logger, IRequestHandler<BsSelectGpPractice> requestHandler)
+    public BsSelectGpPracticeDataService(ILogger<BsSelectGpPracticeDataService> logger, IRequestHandler<BsSelectGpPractice> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
+        _createResponse = createResponse;
     }
 
     [Function("BsSelectGpPracticeDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
     {
-        _logger.LogInformation("C# HTTP trigger function processed a request.");
-        _logger.LogInformation($"Key Recieved: {key}");
-        Func<BsSelectGpPractice,bool> predicate = null;
-        if(key != null){
-            predicate = i => i.GpPracticeCode == key;
+        try
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation($"Key Recieved: {key}");
+            Func<BsSelectGpPractice, bool> predicate = null;
+            if (key != null)
+            {
+                predicate = i => i.GpPracticeCode == key;
+            }
+            var result = await _requestHandler.HandleRequest(req, predicate);
+            return result;
         }
-        var result = await _requestHandler.HandleRequest(req, predicate);
-        return CreateHttpResponse(HttpStatusCode.OK,req,result.JsonData);
-    }
-
-    private HttpResponseData CreateHttpResponse(HttpStatusCode statusCode, HttpRequestData req, string responseBody = "")
-    {
-        var response = req.CreateResponse(statusCode);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-        byte[] data = Encoding.UTF8.GetBytes(responseBody);
-
-        response.Body = new MemoryStream(data);
-        return response;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error has occurred ");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"An error has occurred {ex.Message}");
+        }
     }
 
 }

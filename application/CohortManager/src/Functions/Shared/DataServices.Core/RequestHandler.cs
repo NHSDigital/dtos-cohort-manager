@@ -1,26 +1,18 @@
-using System.ComponentModel;
+
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Formats.Tar;
-using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
-using DataServices.Database;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Json;
+
 using Microsoft.Extensions.Logging;
 
 public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
 {
 
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
-
     private ILogger<RequestHandler<TEntity>> _logger;
-
-
     private PropertyInfo _keyInfo;
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger)
@@ -42,50 +34,51 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
 
         // }
-       // _logger.LogError(type.Name);
+        // _logger.LogError(type.Name);
 
 
 
     }
 
-    public async Task<DataServiceResponse<string>> HandleRequest(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    public async Task<HttpResponseData> HandleRequest(HttpRequestData req, Func<TEntity, bool> keyPredicate)
     {
+        //DataServiceResponse<string>
+        _logger.LogInformation("Http Request Method of type {method} has been received", req.Method);
 
-        _logger.LogInformation("Http Request Method of type {method} has been received",req.Method);
-
-        switch(req.Method)
+        switch (req.Method)
         {
             case "GET":
-                if(keyPredicate != null)
+                if (keyPredicate != null)
                 {
-                    return await getById(req,keyPredicate);
+
+                    return CreateHttpResponse(req, await getById(req, keyPredicate));
                 }
                 else
                 {
-                    return await Get(req);
+                    return CreateHttpResponse(req, await Get(req));
                 }
             case "DELETE":
-                if(keyPredicate != null)
+                if (keyPredicate != null)
                 {
-                    return await DeleteById(req,keyPredicate);
+                    return CreateHttpResponse(req, await DeleteById(req, keyPredicate));
                 }
                 else
                 {
-                    return new DataServiceResponse<string>{ErrorMessage = "No Key was Provided for deletion"};
+                    return createErrorResponse(req);
                 }
             case "POST":
-                return await Post(req);
+                return CreateHttpResponse(req, await Post(req));
             case "PUT":
-                if(keyPredicate != null)
+                if (keyPredicate != null)
                 {
-                    return await DeleteById(req,keyPredicate);
+                    return CreateHttpResponse(req, await DeleteById(req, keyPredicate));
                 }
                 else
                 {
-                    return new DataServiceResponse<string>{ErrorMessage = "No Key was Provided for Update"};
+                    return createErrorResponse(req);
                 }
-            default :
-                throw new NotImplementedException();
+            default:
+                return CreateHttpResponse(req, null, HttpStatusCode.MethodNotAllowed);
         }
 
 
@@ -96,17 +89,20 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         var result = await _dataServiceAccessor.GetRange(i => true);
 
-        return new DataServiceResponse<string>{
+        return new DataServiceResponse<string>
+        {
             JsonData = JsonSerializer.Serialize(result)
         };
     }
 
-    private async Task<DataServiceResponse<string>> getById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> getById(HttpRequestData req, Func<TEntity, bool> keyPredicate)
     {
         var result = await _dataServiceAccessor.GetSingle(keyPredicate);
 
-        return new DataServiceResponse<string>{
-            JsonData = JsonSerializer.Serialize(result)
+        return new DataServiceResponse<string>
+        {
+            JsonData = JsonSerializer.Serialize(result),
+            ErrorMessage = "your mum"
         };
 
     }
@@ -118,7 +114,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             var entityData = await getBodyFromRequest(req);
 
             var result = await _dataServiceAccessor.InsertSingle(entityData);
-            if(!result)
+            if (!result)
             {
                 return new DataServiceResponse<string>
                 {
@@ -130,10 +126,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 JsonData = "Success"
             };
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex,"Failed to get request Data, This is due to a badly formed request");
-            return new DataServiceResponse<string>{
+            _logger.LogError(ex, "Failed to get request Data, This is due to a badly formed request");
+            return new DataServiceResponse<string>
+            {
                 ErrorMessage = "Bad Request"
             };
         }
@@ -141,14 +138,14 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private async Task<DataServiceResponse<string>> UpdateById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> UpdateById(HttpRequestData req, Func<TEntity, bool> keyPredicate)
     {
         try
         {
             var entityData = await getBodyFromRequest(req);
 
             var result = await _dataServiceAccessor.Update(entityData);
-            if(!result)
+            if (!result)
             {
                 return new DataServiceResponse<string>
                 {
@@ -160,20 +157,22 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 JsonData = "Success"
             };
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex,"Error Updating Record ");
-            return new DataServiceResponse<string>{
+            _logger.LogError(ex, "Error Updating Record ");
+            return new DataServiceResponse<string>
+            {
                 ErrorMessage = "Bad Request"
             };
         }
     }
 
-    private async Task<DataServiceResponse<string>> DeleteById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> DeleteById(HttpRequestData req, Func<TEntity, bool> keyPredicate)
     {
         var result = await _dataServiceAccessor.Remove(keyPredicate);
 
-        return new DataServiceResponse<string>{
+        return new DataServiceResponse<string>
+        {
             JsonData = JsonSerializer.Serialize(result)
         };
 
@@ -188,6 +187,41 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
 
         return JsonSerializer.Deserialize<TEntity>(jsonData);
+    }
+
+
+    private HttpResponseData createErrorResponse(HttpRequestData req)
+    {
+        var errorResponse = new DataServiceResponse<string> { ErrorMessage = "No Key was Provided for deletion" };
+        return CreateHttpResponse(req, errorResponse);
+    }
+
+    private HttpResponseData CreateHttpResponse(HttpRequestData req, DataServiceResponse<string> dataServiceResponse, HttpStatusCode httpStatusCode = HttpStatusCode.InternalServerError)
+    {
+        HttpStatusCode statusCode;
+        byte[] responseBody = null!;
+        if (dataServiceResponse.ErrorMessage == null)
+        {
+            statusCode = HttpStatusCode.OK;
+            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.JsonData);
+        }
+        else if (string.IsNullOrWhiteSpace(dataServiceResponse.JsonData))
+        {
+            responseBody = Encoding.UTF8.GetBytes("");
+            statusCode = HttpStatusCode.NoContent;
+        }
+        else
+        {
+            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.ErrorMessage);
+            statusCode = httpStatusCode;
+        }
+
+        var response = req.CreateResponse(statusCode);
+        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+
+
+        response.Body = new MemoryStream(responseBody);
+        return response;
     }
 
     // private Func<TEntity,bool> predicate(TEntity entity,string key)
