@@ -23,7 +23,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private ILogger<RequestHandler<TEntity>> _logger;
 
-
     private PropertyInfo _keyInfo;
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger)
@@ -79,9 +78,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private async Task<DataServiceResponse<string>> Get(HttpRequestData req)
     {
-
-        //var query = req.Query;
-
         var predicate = CreateFilterExpression(req);
         var result = await _dataServiceAccessor.GetRange(predicate);
 
@@ -193,7 +189,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         string keyName = GetKeyName(typeof(TEntity));
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter,keyName);
-        var filterConstant = Expression.Constant(filter);
+        var filterConstant = Expression.Constant(Convert.ChangeType(filter,GetPropertyType(typeof(TEntity),keyName)));
 
         var expr = Expression.Equal(entityKey,filterConstant);
 
@@ -219,7 +215,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 continue;
             }
             var entityKey = Expression.Property(entityParameter,item);
-            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item],getPropertyType(typeof(TEntity),item)));
+            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item],GetPropertyType(typeof(TEntity),item)));
             var comparison  = Expression.Equal(entityKey,filterConstant);
             if(expr == null){
                 expr = comparison;
@@ -240,13 +236,12 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return _keyInfo.Name;
     }
 
-    private Type getPropertyType(Type type, string property)
+    private Type GetPropertyType(Type type, string property)
     {
         return type.GetProperty(property).PropertyType;
     }
 
-    private bool PropertyExists(Type type,string property)
-    {
-        return type.GetProperties().Count(p => p.Name == property) == 1;
-    }
+    private bool PropertyExists(Type type,string property) =>
+        Array.Exists(type.GetProperties(),p => p.Name == property);
+
 }
