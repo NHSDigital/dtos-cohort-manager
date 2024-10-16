@@ -6,7 +6,6 @@ using DataServices.Database;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
-using System.Text;
 using Common;
 
 public class BsSelectGpPracticeDataService

@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataServices.Database\DataServices.Database.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,6 @@
 namespace DataServices.Core;
 
-using System.Security.Cryptography;
-using Azure.Core;
+using Common;
 using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +17,9 @@ public static class DataServicesCoreExtension
                 options => options.UseSqlServer(connectionString ?? Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"))
 
             );
-            _.TryAdd(ServiceDescriptor.Scoped(typeof(IRequestHandler<>),typeof(RequestHandler<>)));
-            _.TryAdd(ServiceDescriptor.Scoped(typeof(IDataServiceAccessor<>),typeof(DataServiceAccessor<>)));
+            _.AddSingleton<ICreateResponse, CreateResponse>();
+            _.TryAdd(ServiceDescriptor.Scoped(typeof(IRequestHandler<>), typeof(RequestHandler<>)));
+            _.TryAdd(ServiceDescriptor.Scoped(typeof(IDataServiceAccessor<>), typeof(DataServiceAccessor<>)));
 
         });
     }

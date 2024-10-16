@@ -101,8 +101,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
         return new DataServiceResponse<string>
         {
-            JsonData = JsonSerializer.Serialize(result),
-            ErrorMessage = "your mum"
+            JsonData = JsonSerializer.Serialize(result)
         };
 
     }
