@@ -52,6 +52,12 @@ else
 fi
 
 # Format the output for the github matrix:
+
+for key in "${!docker_functions_map[@]}"; do
+    changed_functions+=" ${docker_functions_map[$key]}"
+    echo "Adding in: ${docker_functions_map[$key]}"
+done
+
 changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
@@ -64,6 +70,8 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 # "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
 
 # changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
+
+
 
 echo "Final list of functions to rebuild:"
 echo "$changed_functions_json"

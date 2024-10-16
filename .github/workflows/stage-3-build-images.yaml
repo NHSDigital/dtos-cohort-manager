@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/DTOSS-0000-rebuild-images
 
   workflow_call:
     inputs:
@@ -61,7 +62,7 @@ jobs:
           fetch-depth: 0
 
       - name: Az CLI login
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-rebuild-images'
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -69,7 +70,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Azure Container Registry login
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-rebuild-images'
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
@@ -100,7 +101,7 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: Build and Push Image
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/DTOSS-0000-rebuild-images'
         working-directory: ./application/CohortManager
         run: |
           set -x
@@ -124,8 +125,6 @@ jobs:
           fi
           docker push "$repo_name:$ENVIRONMENT_TAG"
 
-          # Remove the image
-          docker rmi "$repo_name:$COMMIT_HASH_TAG"
-          docker rmi "$repo_name:$PR_NUM_TAG"
-          docker rmi "$repo_name:$ENVIRONMENT_TAG"
-          docker rmi cohort-manager-$function:latest
+          # Restart the Function App
+
+
