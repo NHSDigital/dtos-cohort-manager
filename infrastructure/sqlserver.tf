@@ -4,7 +4,8 @@ module "azure_sql_server" {
     if var.sqlserver != {}
   }
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/azure-sql-server?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/azure-sql-server?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=feat/DTOSS-0000-Minor-module-updates"
 
   # Azure SQL Server
   name                = module.regions_config[each.key].names.sql-server

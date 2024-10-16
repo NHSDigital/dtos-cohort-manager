@@ -1,7 +1,7 @@
 module "functionapp" {
   for_each = local.function_app_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/DTOSS-0000-Minor-module-updates"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
   resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
@@ -11,15 +11,18 @@ module "functionapp" {
 
   public_network_access_enabled = var.features.public_network_access_enabled
 
+  rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
+
   # Do VNet integration at App Service level instead
   # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
-  asp_id               = module.app-service-plan[each.value.region_key].app_service_plan_id
-  sa_name              = module.storage["fnapp-${each.value.region_key}"].storage_account_name
-  sa_prm_key           = module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
-  ai_connstring        = module.app_insights.ai_connection_string_audit
-  worker_32bit         = var.function_apps.worker_32bit
-  cont_registry_use_mi = var.function_apps.cont_registry_use_mi
+  asp_id                        = module.app-service-plan[each.value.region_key].app_service_plan_id
+  storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
+  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
+  storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
+  ai_connstring                 = module.app_insights.ai_connection_string_audit
+  worker_32bit                  = var.function_apps.worker_32bit
+  cont_registry_use_mi          = var.function_apps.cont_registry_use_mi
 
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
@@ -61,6 +64,64 @@ data "azurerm_user_assigned_identity" "acr_mi" {
 }
 
 /* --------------------------------------------------------------------------------------------------
+  RBAC roles to assign to the Function Apps
+-------------------------------------------------------------------------------------------------- */
+locals {
+  rbac_roles_storage = {
+    storage_account_contributor    = "Storage Account Contributor",
+    storage_blob_data_owner        = "Storage Blob Data Owner",
+    storage_queue_data_contributor = "Storage Queue Data Contributor"
+  }
+
+  rbac_roles_database = {
+    sql_contributor = "Contributor"
+  }
+
+  # It's tempting to loop round the storage accounts map here but we need to be able to assign different roles to different scopes
+  rbac_role_assignments_storage_fnapp = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for role_key, role_value in local.rbac_roles_storage :
+      role_key => {
+        role_definition_name = role_value
+        scope                = module.storage["fnapp-${region_key}"].storage_account_id
+      }
+    }
+  }
+
+  rbac_role_assignments_storage_file_exceptions = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for role_key, role_value in local.rbac_roles_storage :
+      role_key => {
+        role_definition_name = role_value
+        scope                = module.storage["file_exceptions-${region_key}"].storage_account_id
+      }
+    }
+  }
+
+  rbac_role_assignments_database = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for role_key, role_value in local.rbac_roles_database :
+      role_key => {
+        role_definition_name = role_value
+        scope                = module.azure_sql_server[region_key].sql_server_id
+      }
+    }
+  }
+
+  rbac_role_assignments = {
+    for region_key in keys(module.regions_config) :
+    region_key => merge(
+      local.rbac_role_assignments_storage_fnapp[region_key] != null ? local.rbac_role_assignments_storage_fnapp[region_key] : {},
+      local.rbac_role_assignments_storage_file_exceptions[region_key] != null ? local.rbac_role_assignments_storage_file_exceptions[region_key] : {},
+      local.rbac_role_assignments_database[region_key] != null ? local.rbac_role_assignments_database[region_key] : {}
+    )
+  }
+}
+
+/* --------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
 -------------------------------------------------------------------------------------------------- */
 locals {
@@ -75,10 +136,12 @@ locals {
   }
 
   # To Do - move these directly into the tfvars file as a map as this way limits adding extra values
+  # WEBSITE_PULL_IMAGE_OVER_VNET reuses the private_endpoints_enabled variable as these settings are implicitly coupled.
   global_app_settings = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
+    WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
   }
 
   # Create a map of the function app urls for each function app
