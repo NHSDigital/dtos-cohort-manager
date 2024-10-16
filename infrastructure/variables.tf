@@ -193,6 +193,7 @@ variable "function_apps" {
           container_name = string
       })), [])
       db_connection_string = optional(string, "")
+      key_vault_url        = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string

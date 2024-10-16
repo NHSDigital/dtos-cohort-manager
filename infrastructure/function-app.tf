@@ -115,6 +115,17 @@ locals {
     }
   }
 
+  # Create a map of the key vault urls for each function app that requires one
+  env_vars_key_vault_urls = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => length(value.key_vault_url) > 0 ? {
+      "${value.key_vault_url}" = module.key_vault.key_vault_url }
+      : null
+    }
+  }
+
   # Merge the local maps into a single map taking care to remove any null values and to loop round each region and each function app where necessary:
   app_settings = {
     for region_key, region_value in module.regions_config :
@@ -125,7 +136,8 @@ locals {
         local.env_vars_app_urls[region_key][app_key],
         local.env_vars_storage_accounts[app_key],
         local.env_vars_storage_containers[app_key],
-        local.env_vars_database_connection_strings[region_key][app_key]
+        local.env_vars_database_connection_strings[region_key][app_key],
+        local.env_vars_key_vault_urls[region_key][app_key]
       )
     }
   }
