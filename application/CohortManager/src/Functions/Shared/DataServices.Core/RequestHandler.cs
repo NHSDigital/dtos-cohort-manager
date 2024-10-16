@@ -9,9 +9,12 @@ using System.Text;
 using System.Text.Json;
 using DataServices.Database;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client.Kerberos;
+using Microsoft.IdentityModel.Tokens;
 
 public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
 {
@@ -27,28 +30,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
-        //var type = typeof(TEntity).GetProperties().CustomAttributes.SingleOrDefault(attr => attr.AttributeType == typeof(KeyAttribute));
-        _keyInfo = typeof(TEntity).GetProperties().FirstOrDefault(p =>
-            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
-        // foreach(var t in type)
-        // {
-        //     _logger.LogError(t.Name);
-        //     _logger.LogError("Normal Attributes:");
-
-        //     foreach(var attr in t.CustomAttributes)
-        //     {
-        //         logger.LogError(attr.AttributeType.Name);
-        //     }
-
-
-        // }
-       // _logger.LogError(type.Name);
-
-
 
     }
 
-    public async Task<DataServiceResponse<string>> HandleRequest(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    public async Task<DataServiceResponse<string>> HandleRequest(HttpRequestData req, string? key = null)
     {
 
         _logger.LogInformation("Http Request Method of type {method} has been received",req.Method);
@@ -56,18 +41,18 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         switch(req.Method)
         {
             case "GET":
-                if(keyPredicate != null)
+                if(key != null)
                 {
-                    return await getById(req,keyPredicate);
+                    return await getById(req,key);
                 }
                 else
                 {
                     return await Get(req);
                 }
             case "DELETE":
-                if(keyPredicate != null)
+                if(key != null)
                 {
-                    return await DeleteById(req,keyPredicate);
+                    return await DeleteById(req,key);
                 }
                 else
                 {
@@ -76,9 +61,9 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             case "POST":
                 return await Post(req);
             case "PUT":
-                if(keyPredicate != null)
+                if(key != null)
                 {
-                    return await DeleteById(req,keyPredicate);
+                    return await UpdateById(req,key);
                 }
                 else
                 {
@@ -94,16 +79,27 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private async Task<DataServiceResponse<string>> Get(HttpRequestData req)
     {
-        var result = await _dataServiceAccessor.GetRange(i => true);
+
+        //var query = req.Query;
+
+        var predicate = CreateFilterExpression(req);
+        var result = await _dataServiceAccessor.GetRange(predicate);
 
         return new DataServiceResponse<string>{
             JsonData = JsonSerializer.Serialize(result)
         };
     }
 
-    private async Task<DataServiceResponse<string>> getById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> getById(HttpRequestData req, string keyValue)
     {
+
+
+        var keyPredicate = CreateGetByKeyExpression(keyValue);
+
+        _logger.LogError(keyPredicate.ToString());
         var result = await _dataServiceAccessor.GetSingle(keyPredicate);
+
+
 
         return new DataServiceResponse<string>{
             JsonData = JsonSerializer.Serialize(result)
@@ -141,7 +137,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private async Task<DataServiceResponse<string>> UpdateById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> UpdateById(HttpRequestData req, string key)
     {
         try
         {
@@ -169,8 +165,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
     }
 
-    private async Task<DataServiceResponse<string>> DeleteById(HttpRequestData req, Func<TEntity,bool> keyPredicate)
+    private async Task<DataServiceResponse<string>> DeleteById(HttpRequestData req, string key)
     {
+
+        var keyPredicate = CreateGetByKeyExpression(key);
         var result = await _dataServiceAccessor.Remove(keyPredicate);
 
         return new DataServiceResponse<string>{
@@ -186,26 +184,69 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         {
             jsonData = await reader.ReadToEndAsync();
         }
-
         return JsonSerializer.Deserialize<TEntity>(jsonData);
+
     }
 
-    // private Func<TEntity,bool> predicate(TEntity entity,string key)
-    // {
+    private Expression<Func<TEntity,bool>> CreateGetByKeyExpression(string filter)
+    {
+        string keyName = GetKeyName(typeof(TEntity));
+        var entityParameter = Expression.Parameter(typeof(TEntity));
+        var entityKey = Expression.Property(entityParameter,keyName);
+        var filterConstant = Expression.Constant(filter);
 
-    //     var datatype = Convert<typeof(_keyInfo)>(key);
+        var expr = Expression.Equal(entityKey,filterConstant);
 
-    //     return Expression.Equal(Expression.)
-    // }
+        _logger.LogError(expr.Print());
+       return Expression.Lambda<Func<TEntity,bool>>(expr,entityParameter);
+    }
 
-    // public static T Convert<T>(string input)
-    // {
-    //     var converter = TypeDescriptor.GetConverter(typeof(T));
-    //     if(converter != null)
-    //     {
-    //         //Cast ConvertFromString(string text) : object to (T)
-    //         return (T)converter.ConvertFromString(input);
-    //     }
-    //     return default(T);
-    // }
+    private Expression<Func<TEntity,bool>> CreateFilterExpression(HttpRequestData req)
+    {
+        var entityParameter = Expression.Parameter(typeof(TEntity));
+        BinaryExpression expr = null;
+        if(req.Query.AllKeys.IsNullOrEmpty())
+        {
+            Expression<Func<TEntity, bool>> expression = i => true;
+            return expression;
+        }
+        foreach(var item in req.Query.AllKeys){
+            _logger.LogInformation($"item {item} data: {req.Query[item]}");
+
+            if(!PropertyExists(typeof(TEntity),item))
+            {
+                _logger.LogWarning("Query Item: '{item}' does not exist in TEntity: '{entityName}'",item,typeof(TEntity).Name);
+                continue;
+            }
+            var entityKey = Expression.Property(entityParameter,item);
+            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item],getPropertyType(typeof(TEntity),item)));
+            var comparison  = Expression.Equal(entityKey,filterConstant);
+            if(expr == null){
+                expr = comparison;
+                continue;
+            }
+            expr = Expression.AndAlso(expr,comparison);
+        }
+        _logger.LogError(expr.Print());
+        return Expression.Lambda<Func<TEntity,bool>>(expr,entityParameter);;
+    }
+
+
+    private string GetKeyName(Type type)
+    {
+        _keyInfo = type.GetProperties().FirstOrDefault(p =>
+            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
+
+        return _keyInfo.Name;
+    }
+
+    private Type getPropertyType(Type type, string property)
+    {
+        return type.GetProperty(property).PropertyType;
+    }
+
+    private bool PropertyExists(Type type,string property)
+    {
+        return type.GetProperties().Count(p => p.Name == property) == 1;
+    }
 }

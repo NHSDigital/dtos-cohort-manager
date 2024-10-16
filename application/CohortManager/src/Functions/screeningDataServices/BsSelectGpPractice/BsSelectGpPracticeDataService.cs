@@ -24,11 +24,8 @@ public class BsSelectGpPracticeDataService
     {
         _logger.LogInformation("C# HTTP trigger function processed a request.");
         _logger.LogInformation($"Key Recieved: {key}");
-        Func<BsSelectGpPractice,bool> predicate = null;
-        if(key != null){
-            predicate = i => i.GpPracticeCode == key;
-        }
-        var result = await _requestHandler.HandleRequest(req, predicate);
+
+        var result = await _requestHandler.HandleRequest(req, key);
         return CreateHttpResponse(HttpStatusCode.OK,req,result.JsonData);
     }
 
