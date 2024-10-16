@@ -71,15 +71,18 @@ for i in range(len(args.c)):
     column_name = args.c[i]
     value = args.v[i]
     column_type = df[column_name].dtype
-
+        
     if column_name not in df.columns:
         sys.exit(f"Column {column_name} not in schema, exiting")
 
-    match schema[column_name]:
-        case "Int64":
-            value = int(value)
-        case "boolean":
-            value = bool(value)
+    if value == "null":
+        value = ""
+    else:
+        match schema[column_name]:
+            case "Int64":
+                value = int(value)
+            case "boolean":
+                value = bool(value)
 
     if args.r:
         df.at[args.r[0], column_name] = value

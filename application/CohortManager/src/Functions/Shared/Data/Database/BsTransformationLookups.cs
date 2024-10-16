@@ -31,6 +31,7 @@ public class BsTransformationLookups : IBsTransformationLookups
             _connection.Open();
             using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
             {
+                command.Parameters.AddWithValue("@ParticipantId", participantId);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())

@@ -25,7 +25,8 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    private BsTransformationLookups _transformationLookups;
+    // TODO: Make this be an interface so can be tested properly. use program.cs?
+    private IBsTransformationLookups _transformationLookups = new ();
     public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
     {
         _createResponse = createResponse;
@@ -62,6 +63,10 @@ public class TransformDataService
             var transformString = new TransformString();
             participant = await transformString.TransformStringFields(participant);
 
+            System.Console.WriteLine("record type: " + participant.RecordType);
+            System.Console.WriteLine("given name is null: " + string.IsNullOrEmpty(participant.FirstName));
+            System.Console.WriteLine("record type is amended " + participant.RecordType == "AMENDED");
+            System.Console.WriteLine("Participant name: " + _transformationLookups.GetName(participant.ParticipantId, "FAMILY_NAME"));
             // Other transformation rules
             participant = await TransformParticipantAsync(participant);
 
@@ -95,7 +100,11 @@ public class TransformDataService
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
         var action = new Dictionary<string, Func<ActionBase>>{{"TransformAction", () => new TransformAction()}};
-        var reSettings = new ReSettings {CustomActions = action};
+        var reSettings = new ReSettings
+        {
+            CustomActions = action,
+            CustomTypes = [typeof(Actions)]
+        };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
