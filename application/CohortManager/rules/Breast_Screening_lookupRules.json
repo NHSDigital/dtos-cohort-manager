@@ -1,10 +1,26 @@
 [
   {
     "WorkflowName": "Common",
+    "GlobalParams": [
+      {
+        "Name": "validPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "validReasonForRemovalFields",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.ReasonForRemoval) OR !string.IsNullOrEmpty(newParticipant.ReasonForRemovalEffectiveFromDate)"
+          }
+        ],
+        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (!newRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -34,16 +50,62 @@
       },
       {
         "RuleName": "00.ValidateLanguageCode.NonFatal",
-        "LocalParams": [{
-          "Name": "languageCode",
-          "Expression": "newParticipant.PreferredLanguage"
-        }],
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
         "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid preferred language code\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "11.ValidateReasonForRemoval.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "reasonForRemovalIsLDNOrRC",
+            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
+          }
+        ],
+        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
+      },
+      {
+        "RuleName": "36.DeceasedParticipant.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "amendedRecordType",
+            "Expression": "newParticipant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "existingReasonForRemovalIsDOrDEA",
+            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
+          },
+          {
+            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
+            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
+          },
+          {
+            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
+            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid deceased participant\""
             }
           }
         }
@@ -69,7 +131,7 @@
     ]
   },
   {
-    "WorkflowName": "REMOVED",
+    "WorkflowName": "DEL",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
