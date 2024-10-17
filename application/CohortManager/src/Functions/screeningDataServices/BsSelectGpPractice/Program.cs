@@ -3,19 +3,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using DataServices.Core;
+using DataServices.Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-    .ConfigureServices(services =>
-    {
-        // services.AddApplicationInsightsTelemetryWorkerService();
-        // services.ConfigureFunctionsApplicationInsights();
-
-        // services.AddDbContext<DataServicesContext>(
-        //     options => options.UseSqlServer(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"))
-        // );
-    })
-    .AddDataServicesHandler()
+    .AddDataServicesHandler<DataServicesContext>()
     .Build();
 
 host.Run();
