@@ -3,6 +3,7 @@
 declare -A docker_functions_map=(
     ["CaasIntegration/processCaasFile"]="process-caas-file"
     ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
+    ["CaasIntegration/RetrieveMeshFile"]="retrieve-mesh-file"
     ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
@@ -61,7 +62,7 @@ changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /"
 # "demographic-data-management","remove-participant","add-participant","update-participant",\
 # "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
 # "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
-# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit"]'
+# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit","retrieve-mesh-file"]'
 
 # changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
 
