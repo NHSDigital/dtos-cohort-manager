@@ -42,7 +42,7 @@ resource "azurerm_key_vault_access_policy" "function_app_key_vault_access_policy
     region_key => {
       for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
       "${region_key}-${function_key}" => function_key
-      if length(function_value.key_vault_url) > 0
+      if function_value.key_vault_url != null
     }
   }
 
