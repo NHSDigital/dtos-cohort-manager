@@ -1,6 +1,5 @@
 
 resource "azurerm_log_analytics_workspace" "law_audit" {
-  provider = azurerm.audit
 
   name                = "${var.names.log-analytics-workspace}-${upper(var.name_suffix)}"
   location            = var.location

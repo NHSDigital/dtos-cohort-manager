@@ -1,6 +1,5 @@
 
 resource "azurerm_application_insights" "appins_audit" {
-  provider = azurerm.audit
 
   name                = "${var.names.app-insights}-${upper(var.name_suffix)}-${upper(var.appinsights_type)}"
   location            = var.location

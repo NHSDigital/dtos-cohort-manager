@@ -16,7 +16,6 @@ terraform {
 }
 
 provider "azurerm" {
-  alias           = "audit"
   subscription_id = var.AUDIT_SUBSCRIPTION_ID
   # Configuration options
 
