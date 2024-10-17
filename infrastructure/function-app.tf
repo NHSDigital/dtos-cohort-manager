@@ -143,7 +143,7 @@ locals {
   keyvault_function_app_object_ids = {
     for region_key, region_value in module.regions_config :
     region_key => {
-      for function_key, function_value in locals.env_vars_key_vault_urls[region_key] :
+      for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
       function_key => module.functionapp["${function_key}-${region_key}"].function_app_sami_id
       if function_value != null
     }
