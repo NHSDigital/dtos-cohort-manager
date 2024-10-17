@@ -6,10 +6,9 @@ module "baseline" {
     azurerm.audit = azurerm.audit
   }
 
-  location        = var.location
-  names           = module.config.names
-  tags            = var.tags
-  resource_groups = var.resource_groups
+  location = var.location
+  names    = module.config.names
+  tags     = var.tags
 
   resource_groups_audit = var.resource_groups_audit
 

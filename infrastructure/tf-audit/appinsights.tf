@@ -7,8 +7,7 @@ module "app_insights" {
 
   names = module.config.names
 
-  name_suffix = var.app_insights.name_suffix
-  # resource_group_name = module.baseline.resource_group_names[var.app_insights.resource_group_key]
+  name_suffix      = var.app_insights.name_suffix
   location         = module.baseline.resource_group_locations_audit[var.app_insights.resource_group_key]
   appinsights_type = var.app_insights.appinsights_type
 
