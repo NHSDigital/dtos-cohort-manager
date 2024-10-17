@@ -1,5 +1,5 @@
 module "baseline" {
-  source = "/modules/baseline"
+  source = "modules/baseline"
 
   providers = {
     azurerm       = azurerm

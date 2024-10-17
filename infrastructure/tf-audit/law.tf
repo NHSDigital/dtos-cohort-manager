@@ -1,5 +1,5 @@
 module "log_analytics_workspace" {
-  source = "/modules/log-analytics-workspace"
+  source = "modules/log-analytics-workspace"
 
   providers = {
     azurerm       = azurerm

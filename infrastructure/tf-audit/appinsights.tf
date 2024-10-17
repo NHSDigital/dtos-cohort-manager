@@ -1,5 +1,5 @@
 module "app_insights" {
-  source = "/modules/app-insights"
+  source = "modules/app-insights"
 
   providers = {
     azurerm       = azurerm
