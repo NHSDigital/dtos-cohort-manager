@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where TEntity : class
 {
-    private readonly DataServicesContext _context;
+    private readonly DbContext _context;
     private readonly ILogger<DataServiceAccessor<TEntity>> _logger;
     public DataServiceAccessor(DataServicesContext context, ILogger<DataServiceAccessor<TEntity>> logger)
     {
