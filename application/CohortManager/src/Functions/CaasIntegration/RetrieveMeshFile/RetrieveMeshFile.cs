@@ -37,7 +37,7 @@ public class RetrieveMeshFile
     /// If there is a file in there will move the file to the Cohort Manager Blob Storage where it will be picked up by the ReceiveCaasFile Function.
     /// </summary>
     [Function("RetrieveMeshFile")]
-    public async Task RunAsync([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
+    public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}",DateTime.Now);
 
