@@ -6,13 +6,6 @@ variable "tags" {
   default = {}
 }
 
-variable "resource_groups" {
-  type = map(object({
-    name     = string
-    location = string
-  }))
-}
-
 variable "resource_groups_audit" {
   type = map(object({
     name     = string
