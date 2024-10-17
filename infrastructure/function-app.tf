@@ -36,22 +36,13 @@ module "functionapp" {
 }
 
 # Loop through the Key Vault URLs and create the Key Vault Access Policies for each Function App:
-resource "azurerm_key_vault_access_policy" "function_app_key_vault_access_policy" {
-  for_each = {
-    for region_key, region_value in module.regions_config :
-    region_key => {
-      for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
-      "${region_key}-${function_key}" => {
-        region_key   = region_key
-        function_key = function_key
-      }
-      if function_value != null
-    }
-  }
+resource "azurerm_key_vault_access_policy" "functionapp" {
+  for_each = local.keyvault_function_app_object_ids
 
   key_vault_id = module.key_vault.key_vault_id
+  object_id    = each.value
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = module.functionapp["${region_key}-${function_key}"].function_app_sami_id
+
   secret_permissions = [
     "Get",
     "List"
@@ -149,6 +140,15 @@ locals {
     }
   }
 
+  keyvault_function_app_object_ids = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for function_key, function_value in locals.env_vars_key_vault_urls[region_key] :
+      function_key => module.functionapp["${function_key}-${region_key}"].function_app_sami_id
+      if function_value != null
+    }
+  }
+
   # Merge the local maps into a single map taking care to remove any null values and to loop round each region and each function app where necessary:
   app_settings = {
     for region_key, region_value in module.regions_config :
@@ -166,6 +166,6 @@ locals {
   }
 }
 
-output "env_vars_key_vault_urls" {
-  value = local.env_vars_key_vault_urls
+output "keyvault_function_app_object_ids" {
+  value = local.keyvault_function_app_object_ids
 }
