@@ -1,8 +1,4 @@
 
-output "ai_connection_string" {
-  value = azurerm_application_insights.appins.connection_string
-}
-
 ### audit sub
 
 output "ai_connection_string_audit" {
