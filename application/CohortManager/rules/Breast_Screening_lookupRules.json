@@ -1,6 +1,12 @@
 [
   {
     "WorkflowName": "Common",
+    "GlobalParams": [
+      {
+        "Name": "validPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
@@ -8,10 +14,6 @@
           {
             "Name": "newRecordType",
             "Expression": "newParticipant.RecordType == Actions.New"
-          },
-          {
-            "Name": "validPrimaryCareProvider",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
           },
           {
             "Name": "validReasonForRemovalFields",
@@ -63,6 +65,50 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "11.ValidateReasonForRemoval.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "reasonForRemovalIsLDNOrRC",
+            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
+          }
+        ],
+        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
+      },
+      {
+        "RuleName": "36.DeceasedParticipant.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "amendedRecordType",
+            "Expression": "newParticipant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "existingReasonForRemovalIsDOrDEA",
+            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
+          },
+          {
+            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
+            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
+          },
+          {
+            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
+            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid deceased participant\""
+            }
+          }
+        }
       }
     ]
   },
@@ -85,7 +131,7 @@
     ]
   },
   {
-    "WorkflowName": "REMOVED",
+    "WorkflowName": "DEL",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",

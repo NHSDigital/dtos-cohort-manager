@@ -186,14 +186,14 @@
       },
       {
         "RuleName": "16.Truncate.EmailAddress.ExceedsMaximumLength",
-        "Expression": "participant.EmailAddress.Length > 32",
+        "Expression": "participant.EmailAddress.Length > 90",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
               "isExpression": "true",
               "participantField": "EmailAddress",
-              "transformedValue": "participant.EmailAddress.Substring(0, 32)"
+              "transformedValue": "participant.EmailAddress.Substring(0, 90)"
             }
           }
         }
@@ -230,111 +230,111 @@
         "RuleName": "01.TransformDate.DateOfBirth",
         "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "DateOfBirth",
-                    "transformedValue": "(participant.DateOfBirth.Length == 4 ? participant.DateOfBirth + \"01\" + \"01\" : participant.DateOfBirth + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "DateOfBirth",
+              "transformedValue": "(participant.DateOfBirth.Length == 4 ? participant.DateOfBirth + \"01\" + \"01\" : participant.DateOfBirth + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.DateOfDeath",
         "Expression": "participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "DateOfDeath",
-                    "transformedValue": "(participant.DateOfDeath.Length == 4 ? participant.DateOfDeath + \"01\" + \"01\" : participant.DateOfDeath + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "DateOfDeath",
+              "transformedValue": "(participant.DateOfDeath.Length == 4 ? participant.DateOfDeath + \"01\" + \"01\" : participant.DateOfDeath + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.CurrentPostingEffectiveFromDate",
         "Expression": "participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "CurrentPostingEffectiveFromDate",
-                    "transformedValue": "(participant.CurrentPostingEffectiveFromDate.Length == 4 ? participant.CurrentPostingEffectiveFromDate + \"01\" + \"01\" : participant.CurrentPostingEffectiveFromDate + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "CurrentPostingEffectiveFromDate",
+              "transformedValue": "(participant.CurrentPostingEffectiveFromDate.Length == 4 ? participant.CurrentPostingEffectiveFromDate + \"01\" + \"01\" : participant.CurrentPostingEffectiveFromDate + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.UsualAddressEffectiveFromDate",
         "Expression": "participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "UsualAddressEffectiveFromDate",
-                    "transformedValue": "(participant.UsualAddressEffectiveFromDate.Length == 4 ? participant.UsualAddressEffectiveFromDate + \"01\" + \"01\" : participant.UsualAddressEffectiveFromDate + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "UsualAddressEffectiveFromDate",
+              "transformedValue": "(participant.UsualAddressEffectiveFromDate.Length == 4 ? participant.UsualAddressEffectiveFromDate + \"01\" + \"01\" : participant.UsualAddressEffectiveFromDate + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.ReasonForRemovalEffectiveFromDate",
         "Expression": "participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "ReasonForRemovalEffectiveFromDate",
-                    "transformedValue": "(participant.ReasonForRemovalEffectiveFromDate.Length == 4 ? participant.ReasonForRemovalEffectiveFromDate + \"01\" + \"01\" : participant.ReasonForRemovalEffectiveFromDate + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "ReasonForRemovalEffectiveFromDate",
+              "transformedValue": "(participant.ReasonForRemovalEffectiveFromDate.Length == 4 ? participant.ReasonForRemovalEffectiveFromDate + \"01\" + \"01\" : participant.ReasonForRemovalEffectiveFromDate + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.TelephoneNumberEffectiveFromDate",
         "Expression": "participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "TelephoneNumberEffectiveFromDate",
-                    "transformedValue": "(participant.TelephoneNumberEffectiveFromDate.Length == 4 ? participant.TelephoneNumberEffectiveFromDate + \"01\" + \"01\" : participant.TelephoneNumberEffectiveFromDate + \"01\")"
-                }
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "TelephoneNumberEffectiveFromDate",
+              "transformedValue": "(participant.TelephoneNumberEffectiveFromDate.Length == 4 ? participant.TelephoneNumberEffectiveFromDate + \"01\" + \"01\" : participant.TelephoneNumberEffectiveFromDate + \"01\")"
             }
+          }
         }
-    },
-    {
+      },
+      {
         "RuleName": "01.TransformDate.MobileNumberEffectiveFromDate",
         "Expression": "participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6)",
         "Actions": {
-            "OnSuccess": {
-                "Name": "TransformAction",
-                "Context": {
-                    "isExpression": "true",
-                    "participantField": "MobileNumberEffectiveFromDate",
-                    "transformedValue": "(participant.MobileNumberEffectiveFromDate.Length == 4 ? participant.MobileNumberEffectiveFromDate + \"01\" + \"01\" : participant.MobileNumberEffectiveFromDate + \"01\")"
-                }
-            }
-        }
-    },
-    {
-      "RuleName": "01.TransformDate.EmailAddressEffectiveFromDate",
-      "Expression": "participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6)",
-      "Actions": {
           "OnSuccess": {
-              "Name": "TransformAction",
-              "Context": {
-                  "isExpression": "true",
-                  "participantField": "EmailAddressEffectiveFromDate",
-                  "transformedValue": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
-              }
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "MobileNumberEffectiveFromDate",
+              "transformedValue": "(participant.MobileNumberEffectiveFromDate.Length == 4 ? participant.MobileNumberEffectiveFromDate + \"01\" + \"01\" : participant.MobileNumberEffectiveFromDate + \"01\")"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.EmailAddressEffectiveFromDate",
+        "Expression": "participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "isExpression": "true",
+              "participantField": "EmailAddressEffectiveFromDate",
+              "transformedValue": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
+            }
           }
         }
       }
