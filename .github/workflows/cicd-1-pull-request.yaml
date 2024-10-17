@@ -123,7 +123,7 @@ jobs:
     name: Validate PR title
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: read
+      pull-requests: write
     env:
       GITHUB_TOKEN: ${{ github.token }}
     if: github.event_name == 'pull_request'
