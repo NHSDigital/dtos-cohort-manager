@@ -41,14 +41,17 @@ resource "azurerm_key_vault_access_policy" "function_app_key_vault_access_policy
     for region_key, region_value in module.regions_config :
     region_key => {
       for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
-      "${region_key}-${function_key}" => function_key
+      "${region_key}-${function_key}" => {
+        region_key   = region_key
+        function_key = function_key
+      }
       if function_value != null
     }
   }
 
   key_vault_id = module.key_vault.key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = module.functionapp[function_key].function_app_sami_id
+  object_id    = module.functionapp["${region_key}-${function_key}"].function_app_sami_id
   secret_permissions = [
     "Get",
     "List"
