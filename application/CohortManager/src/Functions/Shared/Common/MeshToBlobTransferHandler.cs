@@ -44,7 +44,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
                 _logger.LogError("Error While handshaking with MESH. ErrorCode: {ErrorCode}, ErrorDescription: {ErrorDescription}",meshValidationResponse.Error?.ErrorCode,meshValidationResponse.Error?.ErrorDescription);
                 return false;
             }
-            }
+        }
 
         do
         {

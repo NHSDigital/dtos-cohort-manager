@@ -20,10 +20,7 @@ public class RetrieveMeshFile
     private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly string _mailboxId;
     private readonly string _blobConnectionString;
-
     private readonly IBlobStorageHelper _blobStorageHelper;
-
-
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
     private const string ConfigFileName = "MeshState.json";
 
@@ -145,8 +142,6 @@ public class RetrieveMeshFile
             return false;
         }
     }
-
-
 
     public static Stream GenerateStreamFromString(string s)
     {
