@@ -1,5 +1,6 @@
 ﻿namespace DataServices.Core;
 
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
@@ -15,14 +16,14 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         _logger = logger;
     }
 
-    public async Task<TEntity> GetSingle(Expression<Func<TEntity,bool>> predicate)
+    public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
-       var result = _context.Set<TEntity>().SingleOrDefault(predicate);
-       await Task.CompletedTask;
-       return result;
+        var result = _context.Set<TEntity>().SingleOrDefault(predicate);
+        await Task.CompletedTask;
+        return result;
     }
 
-    public async Task<List<TEntity>> GetRange(Expression<Func<TEntity,bool>> predicates)
+    public async Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates)
     {
         var result = _context.Set<TEntity>().Where(predicates).ToList();
         await Task.CompletedTask;
@@ -36,11 +37,11 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
-    public async Task<bool> Remove(Expression<Func<TEntity,bool>> predicate)
+    public async Task<bool> Remove(Expression<Func<TEntity, bool>> predicate)
     {
         var result = _context.Set<TEntity>().SingleOrDefault(predicate);
         await Task.CompletedTask;
-        if(result == null)
+        if (result == null)
         {
             return false;
         }
@@ -49,13 +50,20 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
-    public async Task<bool> Update(TEntity entity)
+    public async Task<bool> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
-        var result = _context.Update(entity);
-        await _context.SaveChangesAsync();
-        return true;
-    }
+        var existingEntity = _context.Set<TEntity>().SingleOrDefault(predicate);
+        await Task.CompletedTask;
 
+        if (existingEntity == null)
+        {
+            await _context.AddAsync(entity);
+        }
+
+        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+
+        return await _context.SaveChangesAsync() > 0;
+    }
 
 }
 

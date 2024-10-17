@@ -35,7 +35,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         switch (req.Method)
         {
             case "GET":
-                if(key != null)
+                if (key != null)
                 {
 
                     return CreateHttpResponse(req, await getById(req, key));
@@ -45,7 +45,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                     return CreateHttpResponse(req, await Get(req));
                 }
             case "DELETE":
-                if(key != null)
+                if (key != null)
                 {
                     return CreateHttpResponse(req, await DeleteById(req, key));
                 }
@@ -58,7 +58,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             case "PUT":
                 if (key != null)
                 {
-                    return CreateHttpResponse(req, await DeleteById(req, key));
+                    return CreateHttpResponse(req, await UpdateById(req, key));
                 }
                 else
                 {
@@ -137,8 +137,9 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         try
         {
             var entityData = await getBodyFromRequest(req);
+            var keyPredicate = CreateGetByKeyExpression(key);
 
-            var result = await _dataServiceAccessor.Update(entityData);
+            var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
             if (!result)
             {
                 return new DataServiceResponse<string>
@@ -185,47 +186,49 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private Expression<Func<TEntity,bool>> CreateGetByKeyExpression(string filter)
+    private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
     {
         string keyName = GetKeyName(typeof(TEntity));
         var entityParameter = Expression.Parameter(typeof(TEntity));
-        var entityKey = Expression.Property(entityParameter,keyName);
-        var filterConstant = Expression.Constant(Convert.ChangeType(filter,GetPropertyType(typeof(TEntity),keyName)));
+        var entityKey = Expression.Property(entityParameter, keyName);
+        var filterConstant = Expression.Constant(Convert.ChangeType(filter, GetPropertyType(typeof(TEntity), keyName)));
 
-        var expr = Expression.Equal(entityKey,filterConstant);
+        var expr = Expression.Equal(entityKey, filterConstant);
 
         _logger.LogError(expr.Print());
-       return Expression.Lambda<Func<TEntity,bool>>(expr,entityParameter);
+        return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
     }
 
-    private Expression<Func<TEntity,bool>> CreateFilterExpression(HttpRequestData req)
+    private Expression<Func<TEntity, bool>> CreateFilterExpression(HttpRequestData req)
     {
         var entityParameter = Expression.Parameter(typeof(TEntity));
         BinaryExpression expr = null;
-        if(req.Query.AllKeys.IsNullOrEmpty())
+        if (req.Query.AllKeys.IsNullOrEmpty())
         {
             Expression<Func<TEntity, bool>> expression = i => true;
             return expression;
         }
-        foreach(var item in req.Query.AllKeys){
+        foreach (var item in req.Query.AllKeys)
+        {
             _logger.LogInformation($"item {item} data: {req.Query[item]}");
 
-            if(!PropertyExists(typeof(TEntity),item))
+            if (!PropertyExists(typeof(TEntity), item))
             {
-                _logger.LogWarning("Query Item: '{item}' does not exist in TEntity: '{entityName}'",item,typeof(TEntity).Name);
+                _logger.LogWarning("Query Item: '{item}' does not exist in TEntity: '{entityName}'", item, typeof(TEntity).Name);
                 continue;
             }
-            var entityKey = Expression.Property(entityParameter,item);
-            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item],GetPropertyType(typeof(TEntity),item)));
-            var comparison  = Expression.Equal(entityKey,filterConstant);
-            if(expr == null){
+            var entityKey = Expression.Property(entityParameter, item);
+            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item], GetPropertyType(typeof(TEntity), item)));
+            var comparison = Expression.Equal(entityKey, filterConstant);
+            if (expr == null)
+            {
                 expr = comparison;
                 continue;
             }
-            expr = Expression.AndAlso(expr,comparison);
+            expr = Expression.AndAlso(expr, comparison);
         }
         _logger.LogError(expr.Print());
-        return Expression.Lambda<Func<TEntity,bool>>(expr,entityParameter);;
+        return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter); ;
     }
 
 
@@ -242,8 +245,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return type.GetProperty(property).PropertyType;
     }
 
-    private bool PropertyExists(Type type,string property) =>
-        Array.Exists(type.GetProperties(),p => p.Name == property);
+    private bool PropertyExists(Type type, string property) =>
+        Array.Exists(type.GetProperties(), p => p.Name == property);
 
     private HttpResponseData createErrorResponse(HttpRequestData req)
     {
