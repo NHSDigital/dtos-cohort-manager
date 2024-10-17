@@ -48,7 +48,7 @@ resource "azurerm_key_vault_access_policy" "function_app_key_vault_access_policy
 
   key_vault_id = module.key_vault.key_vault_id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = module.functionapp[each.key].function_app_sami_id
+  object_id    = module.functionapp[function_key].function_app_sami_id
   secret_permissions = [
     "Get",
     "List"
