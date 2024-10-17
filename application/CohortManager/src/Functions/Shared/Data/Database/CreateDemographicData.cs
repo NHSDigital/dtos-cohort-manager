@@ -267,8 +267,8 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.PreferredLanguage = reader["PREFERRED_LANGUAGE"] == DBNull.Value ? null : reader["PREFERRED_LANGUAGE"].ToString();
                 demographic.IsInterpreterRequired = reader["INTERPRETER_REQUIRED"] == DBNull.Value ? null : reader["INTERPRETER_REQUIRED"].ToString();
                 demographic.InvalidFlag = reader["INVALID_FLAG"] == DBNull.Value ? null : reader["INVALID_FLAG"].ToString();
-                demographic.RecordInsertDateTime = reader["RECORD_INSERT_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATE_TIME"].ToString();
-                demographic.RecordUpdateDateTime = reader["RECORD_UPDATE_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATE_TIME"].ToString();
+                demographic.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
+                demographic.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
             }
             return demographic;
         });
