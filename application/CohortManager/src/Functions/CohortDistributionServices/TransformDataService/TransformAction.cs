@@ -20,44 +20,45 @@ class TransformAction : ActionBase
 {
     public override async ValueTask<object> Run(ActionContext context, RuleParameter[] ruleParameters)
     {
-        bool isExpression = context.GetContext<bool>("isExpression");
-        var field = context.GetContext<string>("participantField");
+        var transformFields = context.GetContext<List<TransformFields>>("transformFields");
         CohortDistributionParticipant participant = (CohortDistributionParticipant)ruleParameters[0].Value;
-        PropertyInfo property = typeof(CohortDistributionParticipant).GetProperty(field);
 
-        if (isExpression)
+        foreach (var transformField in transformFields)
+        {
+            var property = typeof(CohortDistributionParticipant).GetProperty(transformField.field);
+
+            if (transformField.isExpression)
             {
-                var expression = context.GetContext<string>("transformedValue");
-                return EvaluateExpression(property, expression, participant);
+                return EvaluateExpression(property!, transformField.value, participant);
             }
 
-        dynamic value;
+            dynamic value;
 
-        switch (property.PropertyType.Name)
-        {
-            case "string":
-                value = context.GetContext<string>("transformedValue");
-                break;
-            case "int":
-                value = context.GetContext<int>("transformedValue");
-                break;
-            case "Nullable`1":
-                value = context.GetContext<Gender>("transformedValue");
-                break;
-            default:
-                value = context.GetContext<string>("transformedValue");
-                break;
+            switch (property!.PropertyType.Name)
+            {
+                case "string":
+                    value = transformField.value;
+                    break;
+                case "int":
+                    value = int.Parse(transformField.value);
+                    break;
+                case "Nullable`1":
+                    value = Enum.Parse<Gender>(transformField.value);
+                    break;
+                default:
+                    value = transformField.value;
+                    break;
+            }
+            property.SetValue(participant, value);
         }
-        property.SetValue(participant, value);
         return participant;
     }
 
-    public CohortDistributionParticipant EvaluateExpression(PropertyInfo property, string expresison,
-                                                            CohortDistributionParticipant participant)
+    private static CohortDistributionParticipant EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant)
     {
         var reParser = new RuleExpressionParser(new ReSettings());
-        var ruleParameters = new RuleParameter[] {new RuleParameter("participant", participant)};
-        var result = reParser.Evaluate<string>(expresison, ruleParameters);
+        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant) };
+        var result = reParser.Evaluate<string>(expression, ruleParameters);
 
         property.SetValue(participant, result);
 
