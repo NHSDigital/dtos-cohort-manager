@@ -35,6 +35,26 @@ module "functionapp" {
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.function_config.name_suffix)}"
 }
 
+# Loop through the Key Vault URLs and create the Key Vault Access Policies for each Function App:
+resource "azurerm_key_vault_access_policy" "function_app_key_vault_access_policy" {
+  for_each = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
+      "${region_key}-${function_key}" => function_key
+      if length(function_value.key_vault_url) > 0
+    }
+  }
+
+  key_vault_id = module.key_vault.key_vault_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = module.functionapp[each.key].function_app_sami_id
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+}
+
 
 /* --------------------------------------------------------------------------------------------------
   Data lookups used to create the Function Apps
@@ -141,4 +161,8 @@ locals {
       )
     }
   }
+}
+
+output "env_vars_key_vault_urls" {
+  value = local.env_vars_key_vault_urls
 }
