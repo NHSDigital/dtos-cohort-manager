@@ -11,14 +11,29 @@ module "azure_sql_server" {
   resource_group_name = module.baseline.resource_group_names[var.sqlserver.server.resource_group_key]
   location            = module.baseline.resource_group_locations[var.sqlserver.server.resource_group_key]
 
-  sqlversion          = var.sqlserver.server.sqlversion
-  tlsver              = var.sqlserver.server.tlsversion
-  kv_id               = module.key_vault[each.key].key_vault_id
+  sqlversion = var.sqlserver.server.sqlversion
+  tlsver     = var.sqlserver.server.tlsversion
+  kv_id      = module.key_vault[each.key].key_vault_id
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name
   sql_admin_object_id  = data.azuread_group.sql_admin_group.object_id
   ad_auth_only         = var.sqlserver.ad_auth_only
+
+  # Diagnostic Setting Configuration if enabled
+  diagnostic_setting_properties = var.features.diagnostic_settings_enabled ? {
+    log_analytics_workspace_id = module.log_analytics_workspace.audit_id
+    log_categories             = ["SQLSecurityAuditEvents"]
+    logs_retention_policy      = var.diagnostic_settings.logs_retention_policy
+    logs_retention_days        = var.diagnostic_settings.logs_retention_days
+    metric_categories          = ["AllMetrics"]
+    metrics_retention_policy   = var.diagnostic_settings.metrics_retention_policy
+    metrics_retention_days     = var.diagnostic_settings.metrics_retention_days
+    enable_security_audit_logs = var.diagnostic_settings.enable_security_audit_logs
+  } : null
+
+  #SQLServer logging enablement
+  log_monitoring_enabled = var.diagnostic_settings.log_monitoring_enabled
 
   # Default database
   db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
@@ -45,6 +60,7 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
+
 
 data "azuread_group" "sql_admin_group" {
   display_name = var.sqlserver.sql_admin_group_name
