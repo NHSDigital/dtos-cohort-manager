@@ -26,7 +26,7 @@ For connecting to an Integration environment Mailbox you will require the follow
 * Mesh Mailbox Password
 * A Mesh Key in the .pfx format
 * the passphrase for the key
-* url for the integation environment
+* url for the integration environment
 
 We recommend naming the Mesh Key File as `meshpfx.pfx` and sorting it in to root folder of the function as this will prevent additional changes to have to be made to the project file to copy on build.
 
