@@ -1057,5 +1057,26 @@ public class StaticValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
+
+    [TestMethod]
+    [DataRow(Actions.New, "true")]
+    [DataRow(Actions.Removed, "false")]
+    public async Task Run_Should_Not_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordtype;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityflag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
     #endregion
 }
