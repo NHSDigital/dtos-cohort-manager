@@ -1038,8 +1038,8 @@ public class StaticValidationTests
 
     #region Validate Eligibility Flag as per Record Type (Rule 94)
     [TestMethod]
-    [DataRow(Actions.New, "false")]
-    [DataRow(Actions.Removed, "true")]
+    [DataRow(Actions.New, "0")]
+    [DataRow(Actions.Removed, "1")]
     public async Task Run_Should_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
     {
         // Arrange
@@ -1059,8 +1059,8 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.New, "true")]
-    [DataRow(Actions.Removed, "false")]
+    [DataRow(Actions.New, "1")]
+    [DataRow(Actions.Removed, "0")]
     public async Task Run_Should_Not_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
     {
         // Arrange

@@ -97,7 +97,7 @@
           },
           {
             "Name": "validNewEligibilityFlag",
-            "Expression": "participant.EligibilityFlag == false"
+            "Expression": "participant.EligibilityFlag == \"0\""
           },
           {
             "Name": "delRecordType",
@@ -105,7 +105,7 @@
           },
           {
             "Name": "validDelEligibilityFlag",
-            "Expression": "participant.EligibilityFlag == true"
+            "Expression": "participant.EligibilityFlag == \"1\""
           }
         ],
         "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag)",
