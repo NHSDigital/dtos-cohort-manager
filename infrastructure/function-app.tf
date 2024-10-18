@@ -52,6 +52,11 @@ resource "azurerm_key_vault_access_policy" "functionapp" {
     "Get",
     "List"
   ]
+
+  certificate_permissions = [
+    "Get",
+    "List"
+  ]
 }
 
 
