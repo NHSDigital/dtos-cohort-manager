@@ -30,6 +30,8 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: "Set CI/CD variables"
         id: variables
         run: |
