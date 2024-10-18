@@ -87,6 +87,36 @@
           }
         ],
         "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))"
+      },
+      {
+        "RuleName": "94.EligibilityFlag.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "participant.RecordType == Actions.New"
+          },
+          {
+            "Name": "validNewEligibilityFlag",
+            "Expression": "participant.EligibilityFlag == false"
+          },
+          {
+            "Name": "delRecordType",
+            "Expression": "participant.RecordType == Actions.Removed"
+          },
+          {
+            "Name": "validDelEligibilityFlag",
+            "Expression": "participant.EligibilityFlag == true"
+          }
+        ],
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (newRecordType AND validDelEligibilityFlag)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid eligibility flag.\""
+            }
+          }
+        }
       }
     ]
   }
