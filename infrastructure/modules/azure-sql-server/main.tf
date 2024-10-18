@@ -70,7 +70,7 @@ resource "azurerm_mssql_server_extended_auditing_policy" "sqlserver_extended_aud
 module "diagnostic-setting" {
   count = var.private_endpoint_properties.diagnostic_setting ? 1 : 0
 
-  source = "./diagnostic-setting"
+  source = "../diagnostic-setting"
 
   # Diagnostics setting parameters
   name                       = "${var.name}-diagnostic_setting"
