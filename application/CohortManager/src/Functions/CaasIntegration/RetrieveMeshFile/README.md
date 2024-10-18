@@ -1,5 +1,4 @@
 # Retrieve Mesh File Function
----
 
 ## About
 
@@ -9,7 +8,7 @@ This function depends on an external class library [dotnet-mesh-client](https://
 
 ## Build requirements
 
-when initially cloned or pulled from the repo please run `git submodule update --init --recursive` this will download the dotnet-mesh-client code.
+when initially cloned or pulled from the repository please run `git submodule update --init --recursive` this will download the dotnet-mesh-client code.
 This should incrementally be run to keep that code up to date.
 
 Azurite or a connection to a hosted Azure Storage Account to be installed and running.
@@ -26,7 +25,7 @@ For connecting to an Integration environment Mailbox you will require the follow
 * Mesh Mailbox Password
 * A Mesh Key in the .pfx format
 * the passphrase for the key
-* url for the integration environment
+* URL for the integration environment
 
 We recommend naming the Mesh Key File as `meshpfx.pfx` and sorting it in to root folder of the function as this will prevent additional changes to have to be made to the project file to copy on build.
 
