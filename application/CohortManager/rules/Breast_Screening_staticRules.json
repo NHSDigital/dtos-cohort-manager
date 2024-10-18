@@ -108,7 +108,7 @@
             "Expression": "participant.EligibilityFlag == true"
           }
         ],
-        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (newRecordType AND validDelEligibilityFlag)",
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag)",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
