@@ -150,9 +150,11 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
             return null;
         }
+
+        string fileName = string.Concat(messageId,"_-_",result.Response.FileAttachments);
         var meshFile = await FileHelpers.ReassembleChunkedFile(result.Response.FileAttachments);
 
-        return new BlobFile(meshFile.Content,meshFile.FileName);
+        return new BlobFile(meshFile.Content,fileName);
     }
 
     private async Task<BlobFile?> DownloadFile(string messageId)
