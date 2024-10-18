@@ -396,8 +396,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
             ReasonForRemoval = "NOTDEA",
-            DateOfDeath = null, // Expect DateOfDeath set to null
-            //DeathStatus = null  // Expect DeathStatus set to null
+            DateOfDeath = null,
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -428,7 +427,6 @@ public class TransformDataServiceTests
             Gender = Gender.Male,
             ReasonForRemoval = "DEA",
             DateOfDeath = "2024-01-01",
-            //DeathStatus = 1
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
