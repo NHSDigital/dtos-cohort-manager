@@ -194,7 +194,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("ADD")]
     [DataRow("AMENDED")]
-    [DataRow("REMOVED")]
+    [DataRow("DEL")]
     public async Task Run_Should_Not_Create_Exception_When_RecordType_Rule_Passes(string recordType)
     {
         // Arrange
@@ -1035,4 +1035,26 @@ public class StaticValidationTests
             Times.Never());
     }
     #endregion
+
+    #region Validate Eligibility Flag as per Record Type (Rule 94)
+    [TestMethod]
+    [DataRow(Actions.New, "false")]
+    [DataRow(Actions.Removed, "true")]
+    public async Task Run_Should_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordtype;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityflag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
 }
