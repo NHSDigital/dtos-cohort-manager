@@ -21,7 +21,7 @@ module "functionapp" {
   sa_name    = module.storage.storage_account_names["fnapp"]
   sa_prm_key = module.storage.storage_account_primary_access_keys["fnapp"]
 
-  ai_connstring        = module.app_insights.ai_connection_string_audit
+  ai_connstring        = data.azurerm_application_insights.ai.connection_string
   worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
@@ -53,6 +53,12 @@ data "azurerm_user_assigned_identity" "acr_mi" {
   resource_group_name = var.function_apps.acr_rg_name
 }
 
+data "azurerm_application_insights" "ai" {
+  provider = azurerm.audit_subscription
+
+  name                = var.function_apps.app_insights_name
+  resource_group_name = var.function_apps.app_insights_rg_name
+}
 /* --------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
 -------------------------------------------------------------------------------------------------- */
