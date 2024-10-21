@@ -18,7 +18,7 @@
                         "Expression": "newParticipant.Postcode"
                     }
                 ],
-                "Expression": "!((reasonForRemoval == \"RDI\" || reasonForRemoval == \"RDR\" || reasonForRemoval == \"RPR\") && !primaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(postcode) || !dbLookup.ValidateOutcode(postcode)) && (string.IsNullOrEmpty(primaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(primaryCareProvider)))",
+                "Expression": "!((reasonForRemoval == \"RDI\" || reasonForRemoval == \"RDR\" || reasonForRemoval == \"RPR\") && !primaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(postcode) || !dbLookup.ValidateOutcode(postcode)) && (string.IsNullOrEmpty(primaryCareProvider) || dbLookup.PrimaryCareProviderExists(primaryCareProvider)))",
                 "Actions": {
                     "OnFailure": {
                         "Name": "OutputExpression",

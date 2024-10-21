@@ -3,8 +3,8 @@ namespace Data.Database;
 
 public interface IDbLookupValidationBreastScreening
 {
-    public bool ValidatePrimaryCareProvider(string primaryCareProvider);
-    public bool ValidateOutcode(string postcode);
-    public bool ValidateLanguageCode(string languageCode);
-    public bool ValidateCurrentPosting(string currentPosting);
+    bool PrimaryCareProviderExists(string primaryCareProvider);
+    bool ValidateOutcode(string postcode);
+    bool ValidateLanguageCode(string languageCode);
+    bool ValidateCurrentPosting(string currentPosting, string primaryCareProvider);
 }
