@@ -24,26 +24,8 @@ pool:
 # integration environment
 
 jobs:
-  - job: GetTriggeringAlias
-    displayName: Get triggering alias
-    steps:
-    - checkout: none
-    - task: AzureCLI@2
-      name: GetTriggeringAlias
-      displayName: Get triggering alias
-      inputs:
-        azureSubscription: sc-cohort-manager-dev
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          echo "Image name: $RESOURCES_TRIGGERINGALIAS"
-          functionAppName="$(echo $RESOURCES_TRIGGERINGALIAS)"
-          echo $functionAppName
-          echo "##vso[task.setvariable variable=functionAppName;isoutput=true]$functionAppName"
-
   - job: SendSlackAlert
-    displayName: Send Slack alert
-    dependsOn: GetTriggeringAlias
+    displayName: get function App SHA code
     variables:
       functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
     steps:
@@ -60,7 +42,7 @@ jobs:
           pip install python-hcl2
           set -x
           chmod 755 scripts/azure/GetImageTagsByManifest.sh
-          list_image_tags=$(scripts/azure/GetImageTagsByManifest.sh -g $(acr_int_rg) -s $(ACR_DEV_SUBSCRIPTION_ID) -c $(acr_int_name) -f $(functionAppName) )
+          list_image_tags=$(scripts/azure/GetImageTagsByManifest.sh -g $(acr_int_rg) -s $(ACR_INT_SUBSCRIPTION_ID) -c $(acr_int_name) -f $(functionAppName) )
           echo new list: "${list_image_tags}"
           export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
           python3 scripts/azure/SlackWebhookController.py -v -f $(functionAppName) -c "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)" -t "${list_image_tags}"
