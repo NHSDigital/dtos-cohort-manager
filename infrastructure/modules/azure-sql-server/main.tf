@@ -78,6 +78,4 @@ module "diagnostic-setting" {
   location                      = var.location
   target_resource_id            = azurerm_sql_server.azure_sql_server.id
   diagnostic_setting_properties = var.diagnostic_setting_properties
-
-  tags = var.tags
 }
