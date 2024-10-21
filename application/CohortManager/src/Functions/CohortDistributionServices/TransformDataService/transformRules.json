@@ -9,9 +9,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "NamePrefix",
-              "transformedValue": "participant.NamePrefix.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "NamePrefix",
+                  "value": "participant.NamePrefix.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -23,9 +27,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "FirstName",
-              "transformedValue": "participant.FirstName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "FirstName",
+                  "value": "participant.FirstName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -37,9 +45,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "OtherGivenNames",
-              "transformedValue": "participant.OtherGivenNames.Substring(0, 100)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "OtherGivenNames",
+                  "value": "participant.OtherGivenNames.Substring(0, 100)"
+                }
+              ]
             }
           }
         }
@@ -51,9 +63,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "FamilyName",
-              "transformedValue": "participant.FamilyName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "FamilyName",
+                  "value": "participant.FamilyName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -65,9 +81,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "PreviousFamilyName",
-              "transformedValue": "participant.PreviousFamilyName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PreviousFamilyName",
+                  "value": "participant.PreviousFamilyName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -79,9 +99,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "AddressLine1",
-              "transformedValue": "participant.AddressLine1.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine1",
+                  "value": "participant.AddressLine1.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -93,9 +117,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "AddressLine2",
-              "transformedValue": "participant.AddressLine2.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine2",
+                  "value": "participant.AddressLine2.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -107,9 +135,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "AddressLine3",
-              "transformedValue": "participant.AddressLine3.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine3",
+                  "value": "participant.AddressLine3.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -121,9 +153,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "AddressLine4",
-              "transformedValue": "participant.AddressLine4.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine4",
+                  "value": "participant.AddressLine4.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -135,9 +171,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "AddressLine5",
-              "transformedValue": "participant.AddressLine5.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine5",
+                  "value": "participant.AddressLine5.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -149,9 +189,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "Postcode",
-              "transformedValue": "participant.Postcode.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "Postcode",
+                  "value": "participant.Postcode.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
@@ -163,9 +207,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "TelephoneNumber",
-              "transformedValue": "participant.TelephoneNumber.Substring(0, 32)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "TelephoneNumber",
+                  "value": "participant.TelephoneNumber.Substring(0, 32)"
+                }
+              ]
             }
           }
         }
@@ -177,9 +225,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "MobileNumber",
-              "transformedValue": "participant.MobileNumber.Substring(0, 32)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "MobileNumber",
+                  "value": "participant.MobileNumber.Substring(0, 32)"
+                }
+              ]
             }
           }
         }
@@ -191,9 +243,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "EmailAddress",
-              "transformedValue": "participant.EmailAddress.Substring(0, 90)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "EmailAddress",
+                  "value": "participant.EmailAddress.Substring(0, 90)"
+                }
+              ]
             }
           }
         }
@@ -205,9 +261,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "false",
-              "participantField": "Gender",
-              "transformedValue": "9"
+              "transformFields": [
+                {
+                  "field": "Gender",
+                  "value": "9",
+                  "isExpression": false
+                }
+              ]
             }
           }
         }
@@ -219,9 +279,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "DateOfDeath",
-              "transformedValue": "participant.ReasonForRemovalEffectiveFromDate"
+              "transformFields": [
+                {
+                  "field": "DateOfDeath",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate",
+                  "isExpression": true
+                }
+              ]
             }
           }
         }
@@ -233,9 +297,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "DateOfBirth",
-              "transformedValue": "(participant.DateOfBirth.Length == 4 ? participant.DateOfBirth + \"01\" + \"01\" : participant.DateOfBirth + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "DateOfBirth",
+                  "value": "(participant.DateOfBirth.Length == 4 ? participant.DateOfBirth + \"01\" + \"01\" : participant.DateOfBirth + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -247,9 +315,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "DateOfDeath",
-              "transformedValue": "(participant.DateOfDeath.Length == 4 ? participant.DateOfDeath + \"01\" + \"01\" : participant.DateOfDeath + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "DateOfDeath",
+                  "value": "(participant.DateOfDeath.Length == 4 ? participant.DateOfDeath + \"01\" + \"01\" : participant.DateOfDeath + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -261,9 +333,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "CurrentPostingEffectiveFromDate",
-              "transformedValue": "(participant.CurrentPostingEffectiveFromDate.Length == 4 ? participant.CurrentPostingEffectiveFromDate + \"01\" + \"01\" : participant.CurrentPostingEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "CurrentPostingEffectiveFromDate",
+                  "value": "(participant.CurrentPostingEffectiveFromDate.Length == 4 ? participant.CurrentPostingEffectiveFromDate + \"01\" + \"01\" : participant.CurrentPostingEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -275,9 +351,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "UsualAddressEffectiveFromDate",
-              "transformedValue": "(participant.UsualAddressEffectiveFromDate.Length == 4 ? participant.UsualAddressEffectiveFromDate + \"01\" + \"01\" : participant.UsualAddressEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "UsualAddressEffectiveFromDate",
+                  "value": "(participant.UsualAddressEffectiveFromDate.Length == 4 ? participant.UsualAddressEffectiveFromDate + \"01\" + \"01\" : participant.UsualAddressEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -289,9 +369,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "ReasonForRemovalEffectiveFromDate",
-              "transformedValue": "(participant.ReasonForRemovalEffectiveFromDate.Length == 4 ? participant.ReasonForRemovalEffectiveFromDate + \"01\" + \"01\" : participant.ReasonForRemovalEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "(participant.ReasonForRemovalEffectiveFromDate.Length == 4 ? participant.ReasonForRemovalEffectiveFromDate + \"01\" + \"01\" : participant.ReasonForRemovalEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -303,9 +387,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "TelephoneNumberEffectiveFromDate",
-              "transformedValue": "(participant.TelephoneNumberEffectiveFromDate.Length == 4 ? participant.TelephoneNumberEffectiveFromDate + \"01\" + \"01\" : participant.TelephoneNumberEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "TelephoneNumberEffectiveFromDate",
+                  "value": "(participant.TelephoneNumberEffectiveFromDate.Length == 4 ? participant.TelephoneNumberEffectiveFromDate + \"01\" + \"01\" : participant.TelephoneNumberEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -317,9 +405,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "MobileNumberEffectiveFromDate",
-              "transformedValue": "(participant.MobileNumberEffectiveFromDate.Length == 4 ? participant.MobileNumberEffectiveFromDate + \"01\" + \"01\" : participant.MobileNumberEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "MobileNumberEffectiveFromDate",
+                  "value": "(participant.MobileNumberEffectiveFromDate.Length == 4 ? participant.MobileNumberEffectiveFromDate + \"01\" + \"01\" : participant.MobileNumberEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
@@ -331,9 +423,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "EmailAddressEffectiveFromDate",
-              "transformedValue": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "EmailAddressEffectiveFromDate",
+                  "value": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }
