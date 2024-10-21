@@ -58,7 +58,7 @@ output "names" {
   description = "Return list of calculated standard names for the deployment."
   value = {
     api-management              = local.names.api-management
-    app-insights-web            = local.names.app-insights
+    app-insights-web            = local.names.app-insights-web
     app-service-plan            = local.names.app-service-plan
     app-service                 = local.names.app-service
     availability-set            = local.names.availability-set
