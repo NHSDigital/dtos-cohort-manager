@@ -49,7 +49,6 @@ jobs:
 
   - job: waitForValidation
     displayName: Wait for external validation
-    dependsOn: GetTriggeringAlias
     variables:
       functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
     pool: server
