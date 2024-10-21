@@ -12,6 +12,11 @@ variable "location" {
   description = "The region where the Diagnostic Setting is created."
 }
 
+variable "target_resource_id" {
+  type        = string
+  description = "The resource where the Diagnostic Setting is created."
+}
+
 variable "diagnostic_setting_properties" {
   description = "Consolidated properties for the Diagnostic Setting."
   type = object({
