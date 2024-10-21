@@ -68,7 +68,6 @@ jobs:
     displayName: Update Function App
     dependsOn:
       - waitForValidation
-      - GetTriggeringAlias
     variables:
       functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
     steps:
