@@ -20,16 +20,22 @@ variable "location" {
 variable "diagnostic_setting_properties" {
   description = "Consolidated properties for the Diagnostic Setting."
   type = object({
-    log_analytics_workspace_id = optional(list(string), [])
-    enable_security_audit_logs = optional(bool, false)
-    logs_retention_policy      = optional(bool, false)
-    logs_retention_days        = optional(number, 0)
-    metrics_retention_policy   = optional(bool, false)
-    metrics_retention_days     = optional(string, "")
+    diagnostic_settings_globally_enabled = optional(bool, false),
+    log_analytics_workspace_id           = optional(string, ""),
+    sql_security_audit_logs_enabled      = optional(bool, false),
+    log_categories                       = optional(string, ""),
+    # log_categories = map(object({
+    #   catergory = optional(string, "")
+    # })),
+    metrics_categories = optional(list(string), []) #(string, ""),
+    # logs_retention_policy      = optional(bool, false)
+    # logs_retention_days        = optional(number, 0)
+    # metrics_retention_policy   = optional(bool, false)
+    # metrics_retention_days     = optional(string, "")
   })
 }
 
-variable "log_monitoring_enabled" {
+variable "sql_security_audit_logs_enabled" {
   type        = bool
   description = "The location/region where the SQL Server is created."
   default     = false

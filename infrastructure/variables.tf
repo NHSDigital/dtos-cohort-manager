@@ -161,6 +161,14 @@ variable "app_service_plan" {
   })
 }
 
+variable "diagnostic_setting_properties" {
+  description = "Consolidated properties for the Diagnostic Setting."
+  type = object({
+    diagnostic_settings_globally_enabled = optional(bool, false),
+    sql_security_audit_logs_enabled      = optional(bool, false)
+  })
+}
+
 variable "event_grid" {
   description = "Configuration for the event grid"
   type = object({

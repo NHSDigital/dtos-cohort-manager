@@ -64,27 +64,19 @@ module "private_endpoint_sql_server" {
 -------------------------------------------------------------------------------------------------- */
 resource "azurerm_mssql_server_extended_auditing_policy" "sqlserver_extended_auditing_policy" {
   server_id              = azurerm_mssql_server.azure_sql_server.id
-  log_monitoring_enabled = var.log_monitoring_enabled
+  log_monitoring_enabled = var.sql_security_audit_logs_enabled
 }
 
 module "diagnostic-setting" {
-  count = var.private_endpoint_properties.diagnostic_setting ? 1 : 0
+  count = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled ? 1 : 0
 
   source = "../diagnostic-setting"
 
   # Diagnostics setting parameters
-  name                       = "${var.name}-diagnostic_setting"
-  resource_group_name        = var.resource_group_name
-  location                   = var.location
-  target_resource_id         = azurerm_sql_server.azure_sql_server.id
-  log_analytics_workspace_id = var.diagnostic_setting_properties.log_analytics_workspace_id
-  log_categories             = ["SQLSecurityAuditEvents"]
-  metric_categories          = var.diagnostic_setting_properties.metric_categories
-  logs_retention_policy      = var.diagnostic_setting_properties.logs_retention_policy
-  logs_retention_days        = var.diagnostic_setting_properties.logs_retention_days
-  metrics_retention_policy   = var.diagnostic_setting_properties.metrics_retention_policy
-  metrics_retention_days     = var.diagnostic_setting_properties.metrics_retention_days
-  enable_security_audit_logs = var.diagnostic_setting_properties.enable_security_audit_logs
-
-  tags = var.tags
+  log_categories                = var.log_categories
+  name                          = "${var.name}-diagnostic_setting"
+  resource_group_name           = var.resource_group_name
+  location                      = var.location
+  target_resource_id            = azurerm_mssql_server.azure_sql_server.id
+  diagnostic_setting_properties = var.diagnostic_setting_properties
 }
