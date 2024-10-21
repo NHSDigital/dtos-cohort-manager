@@ -14,7 +14,7 @@ variables:
   - group: global_variable_group
   - group: hub_variable_group
   - name: TF_DIRECTORY
-    value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-audit'
+    value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-core'
 
 pool:
   vmImage: ubuntu-latest
@@ -32,7 +32,7 @@ stages:
 
     jobs:
 
-      - template: ../jobs/init_and_plan.yaml
+      - template: ../jobs/init_and_plan-audit.yaml
         parameters:
           ENVIRONMENT: $(ENVIRONMENT)
           SERVICE_CONNECTION: $(SERVICE_CONNECTION)
