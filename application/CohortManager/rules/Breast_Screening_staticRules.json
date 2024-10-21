@@ -106,9 +106,17 @@
           {
             "Name": "validDelEligibilityFlag",
             "Expression": "participant.EligibilityFlag != \"1\""
+          },
+          {
+            "Name": "amendRecordType",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "validAmendEligibilityFlag",
+            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
           }
         ],
-        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag)",
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
