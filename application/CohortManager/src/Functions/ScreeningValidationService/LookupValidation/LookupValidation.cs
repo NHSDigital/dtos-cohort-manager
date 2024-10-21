@@ -20,7 +20,7 @@ public class LookupValidation
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
     private IDbLookupValidationBreastScreening _dbLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException,ILogger<LookupValidation> logger,
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger,
                             IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
@@ -77,7 +77,7 @@ public class LookupValidation
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-            if(re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);

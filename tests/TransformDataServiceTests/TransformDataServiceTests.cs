@@ -190,7 +190,7 @@ public class TransformDataServiceTests
             Postcode = new string('A', 36),
             TelephoneNumber = new string('A', 33),
             MobileNumber = new string('A', 33),
-            EmailAddress = new string('A', 33)
+            EmailAddress = new string('A', 91)
         };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -214,7 +214,7 @@ public class TransformDataServiceTests
             Postcode = new string('A', 35),
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
-            EmailAddress = new string('A', 32),
+            EmailAddress = new string('A', 90),
             Gender = Gender.NotSpecified
         };
 

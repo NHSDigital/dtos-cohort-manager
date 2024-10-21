@@ -113,9 +113,9 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NhsNumber) ? DBNull.Value : long.Parse(demographic.NhsNumber)},
                     {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
                     {"@PRIMARY_CARE_PROVIDER", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProvider)},
-                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
+                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProviderEffectiveFromDate)},
                     {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
-                    {"@CURRENT_POSTING_FROM_DT", _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
+                    {"@CURRENT_POSTING_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPostingEffectiveFromDate)},
                     {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
                     {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
@@ -130,15 +130,15 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@ADDRESS_LINE_5", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine5)},
                     {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
                     {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
-                    {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
+                    {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.UsualAddressEffectiveFromDate)},
                     {"@DATE_OF_DEATH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfDeath)},
                     {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
                     {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
-                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumberEffectiveFromDate)},
                     {"@TELEPHONE_NUMBER_MOB", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumber)},
-                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", _databaseHelper.ParseDates(demographic.MobileNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumberEffectiveFromDate)},
                     {"@EMAIL_ADDRESS_HOME", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddress)},
-                    {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ParseDates(demographic.EmailAddressEffectiveFromDate)},
+                    {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddressEffectiveFromDate)},
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
@@ -325,24 +325,12 @@ public class CreateDemographicData : ICreateDemographicData
 
     private bool Execute(IDbCommand command)
     {
-        try
-        {
-            var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
 
-            if (result == 0)
-            {
-                return false;
-            }
-        }
-        catch (SqlException sqlEx)
+        var result = command.ExecuteNonQuery();
+        _logger.LogInformation(result.ToString());
+
+        if (result == 0)
         {
-            if (sqlEx.Number == 2627)
-            {
-                _logger.LogInformation($"Sql message: {sqlEx.Message}");
-                return true;
-            }
-            _logger.LogError($"an error happened: {sqlEx.Message}");
             return false;
         }
 
