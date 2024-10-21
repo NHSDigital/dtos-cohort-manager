@@ -4,8 +4,8 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-csv_file = 'template.csv'
-parquet_file = 'BSS_21241009115301_n1.parquet'
+csv_file = 'BSS_20240601121212_n10.csv'
+parquet_file = 'BSS_20240601121212_n10.parquet'
 parquet_schema = 'cohort_dtos_no_index.parquet'
 chunksize = 100_000
 
