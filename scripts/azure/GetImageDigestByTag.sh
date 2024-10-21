@@ -94,9 +94,5 @@ if [ -z "$digest" ]; then
 fi
 
 # echo the digest
-if [[ "$verbose" -eq 1 ]]; then
-  echo "digest: " $digest
-fi
+echo $digest
 
-# get tags of all images in the repository that match this digest
-az acr manifest list-metadata --registry $containerRegistry --name $functionAppName --query "[?digest=='$digest'].tags | [0] | [? @ != '$tag' && @ != 'latest'] | join(', ', @) " --output json 2> /dev/null | sed 's/,//g'
