@@ -1,7 +1,7 @@
 locals {
   names = {
     api-management              = lower("APIM-${var.env}-${var.application}-${var.location_map[var.location]}")
-    app-insights                = lower("APPI-${var.env}-${var.location_map[var.location]}-${var.application}")
+    app-insights-web            = lower("APPI-${var.env}-${var.location_map[var.location]}-${var.application}-web")
     app-service-plan            = lower("ASP-${var.application}-${var.env}-${var.location_map[var.location]}")
     app-service                 = lower("AS-${var.env}-${var.location_map[var.location]}-${var.application}")
     availability-set            = lower("AVS-${var.env}-${var.location_map[var.location]}-${var.application}")
@@ -58,7 +58,7 @@ output "names" {
   description = "Return list of calculated standard names for the deployment."
   value = {
     api-management              = local.names.api-management
-    app-insights                = local.names.app-insights
+    app-insights-web            = local.names.app-insights
     app-service-plan            = local.names.app-service-plan
     app-service                 = local.names.app-service
     availability-set            = local.names.availability-set

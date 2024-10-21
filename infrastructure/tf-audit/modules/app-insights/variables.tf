@@ -8,7 +8,7 @@ variable "location" {
   description = "The location/region where the AI is created."
 }
 
-variable "name_suffix" {
+variable "name" {
   type        = string
   description = "Is the App Insights workspace name."
 }
@@ -17,10 +17,6 @@ variable "tags" {
   type        = map(string)
   default     = {}
   description = "A mapping of tags to assign to the resource."
-}
-
-variable "names" {
-  description = "Standard naming configuration object for sub-resources."
 }
 
 variable "appinsights_type" {

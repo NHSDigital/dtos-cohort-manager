@@ -1,9 +1,7 @@
 module "app_insights" {
   source = ".//modules/app-insights"
 
-  names = module.config.names
-
-  name_suffix      = var.app_insights.name_suffix
+  name             = module.config.names.app-insights-web
   location         = module.baseline.resource_group_locations_audit[var.app_insights.resource_group_key]
   appinsights_type = var.app_insights.appinsights_type
 

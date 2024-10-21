@@ -74,7 +74,7 @@ variable "resource_groups_audit" {
 variable "app_insights" {
   description = "Configuration of the App Insights"
   type = object({
-    name_suffix              = optional(string, "cohman")
+    name                     = optional(string, "cohman")
     resource_group_key       = optional(string, "cohman")
     appinsights_type         = optional(string, "web")
     audit_resource_group_key = optional(string, "audit")
