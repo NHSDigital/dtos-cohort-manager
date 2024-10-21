@@ -1,7 +1,7 @@
 locals {
   names = {
     api-management              = lower("APIM-${var.env}-${var.application}-${var.location_map[var.location]}")
-    app-insights                = upper("${var.env}-${var.location_map[var.location]}")
+    app-insights                = lower("APPI-${var.env}-${var.location_map[var.location]}-${var.application}")
     app-service-plan            = lower("ASP-${var.application}-${var.env}-${var.location_map[var.location]}")
     app-service                 = lower("AS-${var.env}-${var.location_map[var.location]}-${var.application}")
     availability-set            = lower("AVS-${var.env}-${var.location_map[var.location]}-${var.application}")
@@ -22,7 +22,7 @@ locals {
     kubernetes-service          = lower("AKS-${var.env}-${var.location_map[var.location]}-${var.application}")
     load-balancer               = upper("LB-${var.env}-${var.location_map[var.location]}-${var.application}")
     local-network-gateway       = upper("LNG-${var.env}-${var.location_map[var.location]}-${var.application}")
-    log-analytics-workspace     = upper("${var.env}-${var.location_map[var.location]}")
+    log-analytics-workspace     = lower("LOG-${var.env}-${var.location_map[var.location]}-${var.application}")
     logic-app                   = lower("LA-${var.env}-${var.location_map[var.location]}-${var.application}")
     network-interface           = upper("${var.env}-${var.location_map[var.location]}-${var.application}")
     network-security-group      = upper("NSG-${var.env}-${var.location_map[var.location]}-${var.application}")
