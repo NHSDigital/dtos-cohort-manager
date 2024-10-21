@@ -44,6 +44,7 @@ public class Participant
         ScreeningName = cohortDistributionParticipant.ScreeningName;
         ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
+        EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
     }
 
     public string? RecordType { get; set; }
