@@ -59,6 +59,7 @@ data "azurerm_application_insights" "ai" {
   name                = var.function_apps.app_insights_name
   resource_group_name = var.function_apps.app_insights_rg_name
 }
+
 /* --------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
 -------------------------------------------------------------------------------------------------- */
