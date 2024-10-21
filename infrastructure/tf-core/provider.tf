@@ -22,7 +22,7 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "audit_subscription"
+  alias           = "audit"
   subscription_id = var.AUDIT_SUBSCRIPTION_ID
   # Configuration options
 

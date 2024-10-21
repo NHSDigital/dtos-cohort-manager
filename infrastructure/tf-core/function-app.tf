@@ -54,7 +54,7 @@ data "azurerm_user_assigned_identity" "acr_mi" {
 }
 
 data "azurerm_application_insights" "ai" {
-  provider = azurerm.audit_subscription
+  provider = azurerm.audit
 
   name                = var.function_apps.app_insights_name
   resource_group_name = var.function_apps.app_insights_rg_name
