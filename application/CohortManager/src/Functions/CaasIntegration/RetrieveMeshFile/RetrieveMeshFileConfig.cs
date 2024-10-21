@@ -12,7 +12,6 @@ public class RetrieveMeshFileConfig
     [Required]
     public string MeshSharedKey {get; set;}
     public string MeshKeyPassphrase {get; set;}
-    [Required]
     public string MeshKeyName {get; set;}
 
 }
