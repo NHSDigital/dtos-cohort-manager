@@ -4,7 +4,7 @@ variable "location" {
   description = "The location/region where the LAW is created."
 }
 
-variable "name_suffix" {
+variable "name" {
   type        = string
   description = "Is the LAW name suffix."
 }

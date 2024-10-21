@@ -3,8 +3,8 @@ module "log_analytics_workspace" {
 
   names = module.config.names
 
-  name_suffix = var.law.name_suffix
-  location    = module.baseline.resource_group_locations_audit[var.law.resource_group_key]
+  name     = "${module.config.names.log_analytics_workspace}-${"var.law.name_suffix"}"
+  location = module.baseline.resource_group_locations_audit[var.law.resource_group_key]
 
   law_sku        = var.law.law_sku
   retention_days = var.law.retention_days

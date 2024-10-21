@@ -84,7 +84,7 @@ variable "app_insights" {
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
-    name_suffix              = optional(string, "cohman")
+    name                     = optional(string, "cohman")
     resource_group_key       = optional(string, "cohman")
     law_sku                  = optional(string, "PerGB2018")
     retention_days           = optional(number, 30)
