@@ -31,7 +31,7 @@ variable "diagnostic_setting_properties" {
   })
 }
 
-variable "log_monitoring_enabled" {
+variable "sql_security_audit_logs_enabled" {
   type        = bool
   description = "The location/region where the SQL Server is created."
   default     = false
