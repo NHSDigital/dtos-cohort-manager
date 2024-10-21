@@ -1040,7 +1040,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(Actions.New, "0")]
     [DataRow(Actions.Removed, "1")]
-    public async Task Run_Should_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
+    public async Task Run_InvalidEligibilityFlag_ShouldThrowException(string recordtype, string eligibilityflag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordtype;
@@ -1061,7 +1061,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(Actions.New, "1")]
     [DataRow(Actions.Removed, "0")]
-    public async Task Run_Should_Not_Create_Exception_When_EligibilityFlag_Is_Invalid_For_RecordType(string recordtype, string eligibilityflag)
+    public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordtype, string eligibilityflag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordtype;
