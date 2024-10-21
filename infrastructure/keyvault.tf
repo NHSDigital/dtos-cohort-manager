@@ -4,7 +4,7 @@ module "key_vault" {
     if var.key_vault != {}
   }
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/key-vault?ref=feat/DTOSS-0000-Function-App-Security-Updates"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/key-vault?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
 
   name                = module.regions_config[each.key].names.key-vault
   resource_group_name = module.baseline.resource_group_names[var.key_vault.resource_group_key]
