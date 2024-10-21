@@ -13,52 +13,92 @@ trigger:
 variables:
   - group: global_variable_group
   - group: hub_variable_group
-  - name: TF_DIRECTORY
-    value: '$(System.DefaultWorkingDirectory)/infrastructure'
 
 pool:
   vmImage: ubuntu-latest
 
 # integration environment
 
-stages:
-  - stage: terraform_plan
-    displayName: Terraform Plan
-    dependsOn: []
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+jobs:
+  - job: GetTriggeringAlias
+    displayName: Get triggering alias
+    steps:
+    - checkout: none
+    - task: AzureCLI@2
+      name: GetTriggeringAlias
+      displayName: Get triggering alias
+      inputs:
+        azureSubscription: sc-cohort-manager-dev
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Image name: $RESOURCES_TRIGGERINGALIAS"
+          functionAppName="$(echo $RESOURCES_TRIGGERINGALIAS)"
+          echo $functionAppName
+          echo "##vso[task.setvariable variable=functionAppName;isoutput=true]$functionAppName"
 
+  - job: SendSlackAlert
+    displayName: Send Slack alert
+    dependsOn: GetTriggeringAlias
     variables:
-      - group: integration_variable_group
+      functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
+    steps:
+    - checkout: self
+    - task: AzureCLI@2
+      name: SendSlackAlert
+      displayName: Send Slack Alert
+      inputs:
+        azureSubscription: sc-cohort-manager-dev
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "the function name is: $(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+          pip install python-hcl2
+          set -x
+          chmod 755 scripts/azure/GetImageTagsByManifest.sh
+          list_image_tags=$(scripts/azure/GetImageTagsByManifest.sh -g $(acr_dev_rg) -s $(ACR_DEV_SUBSCRIPTION_ID) -c $(acr_dev_name) -f $(functionAppName) )
+          echo new list: "${list_image_tags}"
+          export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
+          python3 scripts/azure/SlackWebhookController.py -v -f $(functionAppName) -c "$(System.TeamFoundationCollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)" -t "${list_image_tags}"
 
-    jobs:
-
-      - template: ../jobs/init_and_plan.yaml
-        parameters:
-          ENVIRONMENT: $(ENVIRONMENT)
-          SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-          TF_DIRECTORY: $(TF_DIRECTORY)
-          TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
-          TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
-
-  - stage: terraform_apply
-    displayName: Terraform Apply
-    dependsOn: [terraform_plan]
-    condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+  - job: waitForValidation
+    displayName: Wait for external validation
+    dependsOn: GetTriggeringAlias
     variables:
-      - group: integration_variable_group
+      functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
+    pool: server
+    timeoutInMinutes: 1440 # task times out in 1 day
+    steps:
+      - task: ManualValidation@0
+        timeoutInMinutes: 1440 # task times out in 1 day
+        inputs:
+          notifyUsers: |
+            richard.kingston2@nhs.net
+            alastair.lock1@nhs.net
+          instructions: "Please validate the build configuration for: $(functionAppName)"
+          onTimeout: "resume"
 
-    jobs:
-      - deployment: terraform_apply
-        displayName: Terraform Apply
-        environment: $(ENVIRONMENT)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - template: ../jobs/init_and_apply.yaml
-                  parameters:
-                    ENVIRONMENT: $(ENVIRONMENT)
-                    SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-                    TF_DIRECTORY: $(TF_DIRECTORY)
-                    TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
-                    TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+  - job: UpdateFunctionApp
+    displayName: Update Function App
+    dependsOn:
+      - waitForValidation
+      - GetTriggeringAlias
+    variables:
+      functionAppName: $[ dependencies.GetTriggeringAlias.outputs['GetTriggeringAlias.functionAppName'] ]
+    steps:
+    - task: AzureCLI@2
+      name: UpdateFunctionApp
+      displayName: Update Function App
+      inputs:
+        azureSubscription: sc-cohort-manager-dev
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Restarting Function App: $(functionAppName)"
+          az functionapp restart --name $(functionAppName) --resource-group $(acr_dev_rg)
+
+          pip install python-hcl2
+          export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
+          chmod 755 scripts/azure/GetImageTagsByManifest.sh
+          list_image_tags=$(scripts/azure/GetImageTagsByManifest.sh -g $(acr_dev_rg) -s $(ACR_DEV_SUBSCRIPTION_ID) -c $(acr_dev_name) -f $(functionAppName) )
+          python3 scripts/azure/SlackWebhookController.py -v -f $(functionAppName) -t "${list_image_tags}"
