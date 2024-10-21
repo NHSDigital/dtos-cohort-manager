@@ -20,12 +20,14 @@ variable "location" {
 variable "diagnostic_setting_properties" {
   description = "Consolidated properties for the Diagnostic Setting."
   type = object({
-    log_analytics_workspace_id = optional(list(string), [])
-    enable_security_audit_logs = optional(bool, false)
-    logs_retention_policy      = optional(bool, false)
-    logs_retention_days        = optional(number, 0)
-    metrics_retention_policy   = optional(bool, false)
-    metrics_retention_days     = optional(string, "")
+    log_analytics_workspace_id      = optional(list(string), [])
+    sql_security_audit_logs_enabled = optional(bool, false)
+    log_categories                  = optional(string, ""),
+    metrics_categories              = optional(string, ""),
+    # logs_retention_policy      = optional(bool, false)
+    # logs_retention_days        = optional(number, 0)
+    # metrics_retention_policy   = optional(bool, false)
+    # metrics_retention_days     = optional(string, "")
   })
 }
 
