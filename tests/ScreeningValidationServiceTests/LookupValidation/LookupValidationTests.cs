@@ -45,7 +45,6 @@ public class LookupValidationTests
             }));
 
         _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(true);
 
@@ -602,6 +601,8 @@ public class LookupValidationTests
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
+    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
+
     public async Task Run_ValidateBsoCodeRuleFails_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
@@ -624,10 +625,11 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("RDI", "A81001", "AL1 1BB", Actions.Amended)]
-    [DataRow("RDR", "A81002", "AL3 0AX", Actions.Amended)]
+    [DataRow("RDI", "ValidPCP", "AL1 1BB", Actions.Amended)]
     [DataRow("RDR", "", "AL3 0AX", Actions.Amended)]
-    [DataRow("RDR", "A81001", "", Actions.Amended)]
+    [DataRow("ABC", "ZZZPCP", "", Actions.Amended)]
+    [DataRow("RPR", "", "", Actions.New)]
+
     public async Task Run_ValidateBsoCodeRulePasses_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
@@ -640,6 +642,7 @@ public class LookupValidationTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);

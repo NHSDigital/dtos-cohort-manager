@@ -13,25 +13,25 @@
             {
               "RuleName": "54.ValidateBsoCode.NonFatal",
               "LocalParams": [
-                {
-                  "Name": "reasonForRemoval",
-                  "Expression": "newParticipant.ReasonForRemoval == \"RPR\" OR newParticipant.ReasonForRemoval == \"RDR\" OR newParticipant.ReasonForRemoval == \"RPR\""
-                },
-                {
-                  "Name": "recordType",
-                  "Expression": "newParticipant.RecordType == Actions.Amended"
-                },
-                {
-                  "Name": "postcode",
-                  "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR (!string.IsNullOrEmpty(newParticipant.Postcode) AND !dbLookup.ValidateOutcode(newParticipant.Postcode))"
-                },
-                {
-                  "Name": "primaryCareProvider",
-                  "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR (!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND !dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider) AND !newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\"))"
-                }
+                  {
+                      "Name": "reasonForRemoval",
+                      "Expression": "newParticipant.ReasonForRemoval == \"RDI\" OR newParticipant.ReasonForRemoval == \"RDR\" OR newParticipant.ReasonForRemoval == \"RPR\""
+                  },
+                  {
+                      "Name": "recordType",
+                      "Expression": "newParticipant.RecordType == Actions.Amended"
+                  },
+                  {
+                      "Name": "postcode",
+                      "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR dbLookup.ValidateOutcode(newParticipant.Postcode)"
+                  },
+                  {
+                      "Name": "primaryCareProvider",
+                      "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+                  }
               ],
-              "Expression": "!(reasonForRemoval AND recordType AND postcode AND primaryCareProvider)"
-            }
-        ]
-    }
+              "Expression": "!(recordType AND reasonForRemoval AND postcode AND primaryCareProvider)"
+          }
+      ]
+  }
 ]
