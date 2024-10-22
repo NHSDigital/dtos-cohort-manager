@@ -43,6 +43,8 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           az upgrade
+          export PYTHONWARNINGS="ignore::CryptographyDeprecationWarning"
+
           az group list --output table
           pip install --upgrade paramiko cryptography
 
