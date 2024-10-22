@@ -30,7 +30,7 @@ resource "azurerm_storage_container" "container" {
 module "private_endpoint_blob_storage" {
   count = var.private_endpoint_properties.private_endpoint_enabled ? 1 : 0
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-endpoint?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-endpoint?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
 
   name                = "${var.name}-blob-private-endpoint"
   resource_group_name = var.private_endpoint_properties.private_endpoint_resource_group_name
@@ -55,7 +55,7 @@ module "private_endpoint_blob_storage" {
 module "private_endpoint_queue_storage" {
   count = var.private_endpoint_properties.private_endpoint_enabled ? 1 : 0
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-endpoint?ref=feat/DTOSS-3386-Private-Endpoint-Updates"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-endpoint?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
 
   name                = "${var.name}-queue-private-endpoint"
   resource_group_name = var.private_endpoint_properties.private_endpoint_resource_group_name
