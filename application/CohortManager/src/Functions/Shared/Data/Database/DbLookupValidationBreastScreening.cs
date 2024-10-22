@@ -1,7 +1,4 @@
 namespace Data.Database;
-
-using Microsoft.Identity.Client;
-using Model;
 using System.Data;
 using Microsoft.Data.SqlClient;
 
@@ -11,14 +8,13 @@ using Microsoft.Data.SqlClient;
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
     private IDbConnection _connection;
-    private string _connectionString;
+    private readonly string _connectionString;
 
     public DbLookupValidationBreastScreening(IDbConnection IdbConnection)
     {
         _connection = IdbConnection;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
-
 
     /// <summary>
     /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.

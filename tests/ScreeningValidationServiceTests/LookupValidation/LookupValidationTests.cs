@@ -308,7 +308,7 @@ public class LookupValidationTests
                                                                     string primaryCareProvider)
     {
         // Arrange
-        SetupRules("CohortRules");
+        SetupRules("LookupRules");
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
@@ -598,6 +598,59 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+
+    #region Validate BSO Code (Rule 54)
+    [TestMethod]
+    [DataRow("RPR", "", "", Actions.Amended)]
+    public async Task Run_ValidateBsoCodeRuleFails_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("RDI", "A81001", "AL1 1BB", Actions.Amended)]
+    [DataRow("RDR", "A81002", "AL3 0AX", Actions.Amended)]
+    [DataRow("RDR", "", "AL3 0AX", Actions.Amended)]
+    [DataRow("RDR", "A81001", "", Actions.Amended)]
+    public async Task Run_ValidateBsoCodeRulePasses_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
 
     private void SetUpRequestBody(string json)
     {

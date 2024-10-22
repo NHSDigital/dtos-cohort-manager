@@ -3,38 +3,34 @@
         "WorkflowName": "Common",
         "Rules": [
             {
-                "RuleName": "54.ValidateBsoCode.NonFatal",
-                "LocalParams": [
-                    {
-                        "Name": "reasonForRemoval",
-                        "Expression": "newParticipant.ReasonForRemoval"
-                    },
-                    {
-                        "Name": "primaryCareProvider",
-                        "Expression": "newParticipant.PrimaryCareProvider"
-                    },
-                    {
-                        "Name": "postcode",
-                        "Expression": "newParticipant.Postcode"
-                    }
-                ],
-                "Expression": "!((reasonForRemoval == \"RDI\" || reasonForRemoval == \"RDR\" || reasonForRemoval == \"RPR\") && !primaryCareProvider.StartsWith(\"ZZZ\") && (string.IsNullOrEmpty(postcode) || !dbLookup.ValidateOutcode(postcode)) && (string.IsNullOrEmpty(primaryCareProvider) || dbLookup.ValidatePrimaryCareProvider(primaryCareProvider)))",
-                "Actions": {
-                    "OnFailure": {
-                        "Name": "OutputExpression",
-                        "Context": {
-                            "Expression": "\"It was not possible to determine the BSO dummy practice code for this participant\""
-                        }
-                    }
-                }
-            },
-            {
               "RuleName": "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal",
               "Expression": "newParticipant.RecordType == Actions.New OR !new string[] { \"HMP\", \"MHI\" }.Contains(newParticipant.CurrentPosting) OR newParticipant.CurrentPosting == existingParticipant.CurrentPosting"
             },
             {
               "RuleName": "35.TooManyDemographicsFieldsChanged.NonFatal",
               "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender== existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth))"
+            },
+            {
+              "RuleName": "54.ValidateBsoCode.NonFatal",
+              "LocalParams": [
+                {
+                  "Name": "reasonForRemoval",
+                  "Expression": "newParticipant.ReasonForRemoval == \"RPR\" OR newParticipant.ReasonForRemoval == \"RDR\" OR newParticipant.ReasonForRemoval == \"RPR\""
+                },
+                {
+                  "Name": "recordType",
+                  "Expression": "newParticipant.RecordType == Actions.Amended"
+                },
+                {
+                  "Name": "postcode",
+                  "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR (!string.IsNullOrEmpty(newParticipant.Postcode) AND !dbLookup.ValidateOutcode(newParticipant.Postcode))"
+                },
+                {
+                  "Name": "primaryCareProvider",
+                  "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR (!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND !dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider) AND !newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\"))"
+                }
+              ],
+              "Expression": "!(reasonForRemoval AND recordType AND postcode AND primaryCareProvider)"
             }
         ]
     }
