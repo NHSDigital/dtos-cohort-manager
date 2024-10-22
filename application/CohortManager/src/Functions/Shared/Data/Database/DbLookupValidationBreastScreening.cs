@@ -72,7 +72,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 }
             }
         }
-        }
+    }
 
     /// <summary>
     /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
