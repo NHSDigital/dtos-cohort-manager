@@ -43,6 +43,8 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           az group list --output table
+          pip install --upgrade paramiko cryptography
+
           az account set --subscription $(SUBSCRIPTION_ID)
 
           echo SERVICE_CONNECTION: $(SERVICE_CONNECTION)
@@ -54,6 +56,7 @@ jobs:
 
           az webapp show --name int-uks-create-participant --resource-group rg-cohman-int-uks --query "containerSettings"
 
+          az webapp show --name int-uks-create-participant --resource-group rg-mi-int-uks --query "containerSettings"
 
 # steps:
 # # Step 1: Get the AAD token from Managed Identity
