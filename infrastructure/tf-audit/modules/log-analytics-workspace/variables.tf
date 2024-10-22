@@ -1,16 +1,12 @@
-variable "resource_group_name" {
-  type        = string
-  description = "The name of the resource group in which to create the LAW. Changing this forces a new resource to be created."
-}
 
 variable "location" {
   type        = string
   description = "The location/region where the LAW is created."
 }
 
-variable "name_suffix" {
+variable "name" {
   type        = string
-  description = "Is the LAW name suffix."
+  description = "Is the LAW name."
 }
 
 variable "law_sku" {
@@ -27,10 +23,6 @@ variable "tags" {
   type        = map(string)
   default     = {}
   description = "A mapping of tags to assign to the resource."
-}
-
-variable "names" {
-  description = "Standard naming configuration object for sub-resources."
 }
 
 variable "audit_resource_group_name" {
