@@ -43,6 +43,7 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           az group list --output table
+          az account set --subscription $(SUBSCRIPTION_ID)
 
           echo SERVICE_CONNECTION: $(SERVICE_CONNECTION)
           functionAppName=int-uks-create-participant
