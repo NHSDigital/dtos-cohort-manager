@@ -11,7 +11,7 @@ trigger:
     - Infrastructure/*
 
 variables:
-  - group: global_variable_group
+  # - group: global_variable_group
   - group: int_variable_group
   - name: acr_hub_dev_name
     value: acrukshubdev
