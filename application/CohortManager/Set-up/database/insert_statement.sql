@@ -10723,8 +10723,3 @@ INSERT INTO [dbo].[LANGUAGE_CODES] VALUES
     ('za', 'Zhuang, Chuang'),
     ('zh', 'Chinese'),
     ('zu', 'Zulu');
-
-INSERT INTO [dbo].[POSTING_CATEGORIES] VALUES
-    ('ENGLAND'),
-    ('IOM'),
-    ('DMS'),
