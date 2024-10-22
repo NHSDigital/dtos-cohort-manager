@@ -86,14 +86,6 @@ variable "resource_groups" {
   }))
 }
 
-variable "resource_groups_audit" {
-  description = "Map of resource groups in Audit subscription"
-  type = map(object({
-    name     = optional(string, "rg-audit-cohort-manager-dev-uks")
-    location = optional(string, "uksouth")
-  }))
-}
-
 ### Cohort Manager specific variables ###
 
 variable "acr" {
@@ -113,16 +105,6 @@ variable "api_management" {
     sku                = optional(string, "Basic_1")
     publisher_name     = optional(string, "NHS_DToS_CohortManager")
     publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
-  })
-}
-
-variable "app_insights" {
-  description = "Configuration of the App Insights"
-  type = object({
-    name_suffix              = optional(string, "cohman")
-    resource_group_key       = optional(string, "cohman")
-    appinsights_type         = optional(string, "web")
-    audit_resource_group_key = optional(string, "audit")
   })
 }
 
@@ -178,6 +160,8 @@ variable "function_apps" {
     acr_mi_name              = string
     acr_name                 = string
     acr_rg_name              = string
+    app_insights_name        = string
+    app_insights_rg_name     = string
     cont_registry_use_mi     = bool
     docker_CI_enable         = string
     docker_env_tag           = string
@@ -213,17 +197,6 @@ variable "key_vault" {
     soft_del_ret_days  = optional(number, 7)
     purge_prot         = optional(bool, false)
     sku_name           = optional(string, "standard")
-  })
-}
-
-variable "law" {
-  description = "Configuration of the Log Analytics Workspace"
-  type = object({
-    name_suffix              = optional(string, "cohman")
-    resource_group_key       = optional(string, "cohman")
-    law_sku                  = optional(string, "PerGB2018")
-    retention_days           = optional(number, 30)
-    audit_resource_group_key = optional(string, "audit")
   })
 }
 

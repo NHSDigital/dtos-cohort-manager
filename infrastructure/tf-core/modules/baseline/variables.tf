@@ -12,10 +12,3 @@ variable "resource_groups" {
     location = string
   }))
 }
-
-variable "resource_groups_audit" {
-  type = map(object({
-    name     = string
-    location = string
-  }))
-}

@@ -19,7 +19,7 @@ module "functionapp" {
   asp_id               = module.app-service-plan[each.value.region_key].app_service_plan_id
   sa_name              = module.storage["fnapp-${each.value.region_key}"].storage_account_name
   sa_prm_key           = module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
-  ai_connstring        = module.app_insights.ai_connection_string_audit
+  ai_connstring        = data.azurerm_application_insights.ai.connection_string
   worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
@@ -58,6 +58,13 @@ data "azurerm_user_assigned_identity" "acr_mi" {
 
   name                = var.function_apps.acr_mi_name
   resource_group_name = var.function_apps.acr_rg_name
+}
+
+data "azurerm_application_insights" "ai" {
+  provider = azurerm.audit
+
+  name                = var.function_apps.app_insights_name
+  resource_group_name = var.function_apps.app_insights_rg_name
 }
 
 /* --------------------------------------------------------------------------------------------------
