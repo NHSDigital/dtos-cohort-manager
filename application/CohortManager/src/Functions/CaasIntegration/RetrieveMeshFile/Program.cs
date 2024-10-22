@@ -18,7 +18,7 @@ try
 {
     var host = new HostBuilder();
 
-    X509Certificate2 cert;
+    X509Certificate2 cert = null;
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
@@ -29,7 +29,7 @@ try
         var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
-    else
+    else if(!string.IsNullOrEmpty(config.MeshKeyName))
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
         cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);

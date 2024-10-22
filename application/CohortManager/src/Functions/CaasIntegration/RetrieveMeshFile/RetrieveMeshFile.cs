@@ -37,16 +37,18 @@ public class RetrieveMeshFile
     /// If there is a file in there will move the file to the Cohort Manager Blob Storage where it will be picked up by the ReceiveCaasFile Function.
     /// </summary>
     [Function("RetrieveMeshFile")]
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+    public async Task RunAsync([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}",DateTime.Now);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
+        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID,".parquet");
+
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
 
             if(!result)
             {

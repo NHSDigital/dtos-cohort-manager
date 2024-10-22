@@ -20,6 +20,8 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
     private string _mailboxId;
     private string _destinationContainer;
 
+    private Func<MessageMetaData,string> _fileNameFunction;
+
     public MeshToBlobTransferHandler(ILogger<MeshToBlobTransferHandler> logger, IBlobStorageHelper blobStorageHelper, IMeshInboxService meshInboxService, IMeshOperationService meshOperationService)
     {
         _logger = logger;
@@ -29,11 +31,12 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
     }
 
-    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, string mailboxId, string blobConnectionString, string destinationContainer, bool executeHandshake = false)
+    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, Func<MessageMetaData,string> fileNameFunction, string mailboxId, string blobConnectionString, string destinationContainer, bool executeHandshake = false)
     {
         _blobConnectionString = blobConnectionString;
         _mailboxId = mailboxId;
         _destinationContainer = destinationContainer;
+        _fileNameFunction = fileNameFunction;
 
         int messageCount;
         if(executeHandshake){
@@ -96,7 +99,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
                 continue;
             }
             if(!predicate(messageHead.Response.MessageMetaData)){
-                _logger.LogInformation("Message: {MessageId} was did not meet the predicate for transferring to BlobStoreage",messageHead.Response.MessageMetaData.MessageId);
+                _logger.LogInformation("Message: {MessageId} was did not meet the predicate for transferring to BlobStorage",messageHead.Response.MessageMetaData.MessageId);
                 continue;
             }
             bool wasMessageDownloaded = await TransferMessageToBlobStorage(messageHead.Response.MessageMetaData);
@@ -108,7 +111,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             var acknowledgeResponse = await _meshInboxService.AcknowledgeMessageByIdAsync(_mailboxId,messageHead.Response.MessageMetaData.MessageId);
             if(!acknowledgeResponse.IsSuccessful)
             {
-                _logger.LogCritical("Message: {MessageId} was not able to be transferred to be acknowledged, Message will be removed from blob storage",messageHead.Response.MessageMetaData.MessageId);
+                _logger.LogCritical("Message: {MessageId} was not able to be acknowledged, Message will be removed from blob storage",messageHead.Response.MessageMetaData.MessageId);
             }
             messagesMovedToBlobStorage++;
         }
@@ -166,14 +169,13 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             return null;
         }
 
-        string fileName = string.Concat(messageId,"_-_",result.Response.FileAttachment.FileName);
+        string fileName = _fileNameFunction(result.Response.MessageMetaData);
 
         if(result.Response.MessageMetaData.ContentEncoding == "GZIP")
         {
             var decompressedFileContent = GZIPHelpers.DeCompressBuffer(result.Response.FileAttachment.Content);
             return new BlobFile(decompressedFileContent,fileName);
         }
-
 
         return new BlobFile(result.Response.FileAttachment.Content, fileName);
     }
