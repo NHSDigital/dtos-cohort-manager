@@ -27,6 +27,18 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
+              "Expression": "\"Missing or invalid Posting and primary care provider missing or invalid \""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "58.CurrentPosting.NonFatal",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR !dbLookup.PrimaryCareProviderExists(newParticipant.CurrentPosting)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
               "Expression": "\"Missing or invalid Posting\""
             }
           }

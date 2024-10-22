@@ -116,7 +116,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
         using (_connection = new SqlConnection(_connectionString))
         {
-            // string[] possiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
             using (IDbCommand command = _connection.CreateCommand())
             {
                 _connection.Open();
@@ -137,14 +136,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                     }
                 }
 
-                var possiblePostingCategories = GetAllPossiblePostingCategories();
-                if (possiblePostingCategories.Count == 0)
-                {
-                    _logger.LogError("The possible catagories returned nothing form the database.");
-                    return false;
-                }
-
-                if (currentPosting != null && !isCurrentPostingInDB && !possiblePostingCategories.Contains(postingCategory)
+                if (currentPosting != null && !isCurrentPostingInDB && !validatePostingCategories(currentPosting)
                     && primaryCareProvider != null && !PrimaryCareProviderExists(primaryCareProvider))
                 {
                     return false;
@@ -154,27 +146,15 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
         }
     }
 
-    private List<string> GetAllPossiblePostingCategories()
+    private bool validatePostingCategories(string postingCategory)
     {
-        var allPossiblePostingCategories = new List<string>();
-        using (_connection = new SqlConnection(_connectionString))
+        string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
+
+        if (allPossiblePostingCategories.Contains(postingCategory))
         {
-            using (IDbCommand command = _connection.CreateCommand())
-            {
-                _connection.Open();
-                command.CommandText = $"SELECT POSTING_CATEGORY FROM POSTING_CATEGORIES";
-
-                using (IDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var category = reader.GetString(0);
-                        allPossiblePostingCategories.Add(category);
-                    }
-                }
-
-                return allPossiblePostingCategories;
-            }
+            return true;
         }
+        return false;
     }
 }
+
