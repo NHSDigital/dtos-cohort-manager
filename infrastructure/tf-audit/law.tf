@@ -1,8 +1,6 @@
 module "log_analytics_workspace" {
   source = ".//modules/log-analytics-workspace"
 
-  names = module.config.names
-
   name     = module.config.names.log-analytics-workspace
   location = module.baseline.resource_group_locations_audit[var.law.resource_group_key]
 
