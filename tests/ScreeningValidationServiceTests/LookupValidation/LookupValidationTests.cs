@@ -425,7 +425,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
 
         // Act
         await _sut.RunAsync(_request.Object);
