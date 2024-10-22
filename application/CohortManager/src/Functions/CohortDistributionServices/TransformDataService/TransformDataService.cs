@@ -1,5 +1,5 @@
 /// <summary>
-/// Takes a CohortDistributionParticipant, does a number of individual transformations, and retuns a transformed CohortDistributionParticipant
+/// Takes a CohortDistributionParticipant, does a number of individual transformations, and returns a transformed CohortDistributionParticipant
 /// </summary>
 /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
 /// <returns>The transformed participant</returns>
@@ -53,8 +53,7 @@ public class TransformDataService
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
-        // This function is currently not using the screeningService, but it will do in the future
-        // var screeningService = requestBody.ScreeningService;
+
         try
         {
             // Character transformation
@@ -94,8 +93,8 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var action = new Dictionary<string, Func<ActionBase>>{{"TransformAction", () => new TransformAction()}};
-        var reSettings = new ReSettings {CustomActions = action};
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, { "TransformError", () => new TransformError() } };
+        var reSettings = new ReSettings { CustomActions = actions };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
@@ -105,15 +104,31 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        var transformedParticipant = (CohortDistributionParticipant)resultList.Where(result => result.IsSuccess)
-                                                    .Select(result => result.ActionResult.Output)
-                                                    .FirstOrDefault()
-                                                    ?? participant;
+        var result = resultList.Where(result => result.IsSuccess)
+            .Select(result => result.ActionResult.Output)
+            .FirstOrDefault();
 
-        return transformedParticipant;
+        if (result is Exception exception)
+        {
+            try
+            {
+                _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
+                await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", exception.Message, "", JsonSerializer.Serialize(participant));
+                // need to use / create a CreateValidationExceptionLog that accepts CohortDistributionParticipant
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Handling the exception failed. Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
+                // add system exception log
+            }
+
+            return participant;
+        }
+
+        return participant;
     }
 
-    public async Task<string> TransformNamePrefixAsync(string namePrefix)
+    private static async Task<string> TransformNamePrefixAsync(string namePrefix)
     {
 
         // Set up rules engine

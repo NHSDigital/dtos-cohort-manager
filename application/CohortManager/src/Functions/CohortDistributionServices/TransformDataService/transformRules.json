@@ -1,6 +1,12 @@
 [
   {
     "WorkflowName": "TransformData",
+    "GlobalParams": [
+      {
+        "Name": "participantNotRegisteredToGP",
+        "Expression": "new string[] {\"RDR\",\"RDI\",\"RPR\"}.Contains(participant.ReasonForRemoval)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
@@ -430,6 +436,87 @@
                   "value": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
                 }
               ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "1.ReasonForRemoval",
+        "Expression": "participant.ReasonForRemoval == \"A\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemoval",
+                  "value": "RULE_A_SUCCESS"
+                }
+              ]
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "2.ReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "2.ReasonForRemoval",
+        "Expression": "participant.ReasonForRemoval == \"B\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemoval",
+                  "value": "RULE_B_SUCCESS"
+                }
+              ]
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "3.ReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "3.ReasonForRemoval",
+        "Expression": "participant.FamilyName == \"surname\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformError",
+            "Context": {
+              "exceptionMessage": "RULE_C_EXCEPTION_RAISED"
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "4.ReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "4.ReasonForRemoval",
+        "Expression": "participant.ReasonForRemoval == \"D\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformError",
+            "Context": {
+              "exceptionMessage": "\"RULE_D_EXCEPTION_RAISED\""
             }
           }
         }

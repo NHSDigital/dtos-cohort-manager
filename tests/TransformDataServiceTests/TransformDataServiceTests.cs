@@ -366,6 +366,131 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_ReasonForRemovalRuleA_SetReasonForRemovalAsA()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "A";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "RULE_A_SUCCESS"
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ReasonForRemovalRuleB_SetReasonForRemovalAsB()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "B";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "RULE_B_SUCCESS"
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ReasonForRemovalRuleC_RaisesExceptionAndNoTransformation()
+    {
+        // Arrange
+        _requestBody.Participant.FamilyName = "surname";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "surname",
+            NamePrefix = "MR",
+            Gender = Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    public async Task Run_ReasonForRemovalRuleD_RaisesExceptionAndNoTransformation()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "D";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "D"
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once());
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
