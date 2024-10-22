@@ -51,12 +51,17 @@ jobs:
           az account set --subscription $(SUBSCRIPTION_ID)
 
           echo SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-          functionAppName=int-uks-create-participant
-          echo "Restarting Function App: $functionAppName"
-          az functionapp restart --name $functionAppName --resource-group $(int_rg)
 
-          az functionapp show --name $functionAppName  --resource-group $(int_rg) --query "state"
+          for files in $(cat scripts/config/int-environment-function-list.txt); do
+            echo $files
+            functionAppName=$files
 
+
+            echo "Restarting Function App: $functionAppName"
+            az functionapp restart --name $functionAppName --resource-group $(int_rg)
+
+            az functionapp show --name $functionAppName  --resource-group $(int_rg) --query "state"
+          done
 
 # steps:
 # # Step 1: Get the AAD token from Managed Identity
