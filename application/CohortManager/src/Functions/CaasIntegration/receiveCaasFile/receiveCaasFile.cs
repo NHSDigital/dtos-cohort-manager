@@ -59,7 +59,7 @@ public class ReceiveCaasFile
                 await blobStream.CopyToAsync(fileStream);
             }
             var screeningService = GetScreeningService(fileNameParser);
-            if(string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningId))
+            if(string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
             {
                 string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
                 _logger.LogError(errorMessage);
