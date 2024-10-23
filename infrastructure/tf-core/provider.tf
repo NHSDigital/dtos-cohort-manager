@@ -46,11 +46,3 @@ provider "azurerm" {
 provider "azuread" {
   # Configuration options
 }
-
-module "config" {
-  source      = ".//modules/shared-config"
-  location    = var.location
-  application = var.application
-  env         = var.environment
-  tags        = var.tags
-}
