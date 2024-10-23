@@ -29,39 +29,39 @@ class TransformAction : ActionBase
 
             if (transformField.isExpression)
             {
-                return EvaluateExpression(property!, transformField.value, participant);
+                EvaluateExpression(property!, transformField.value, participant);
             }
-
-            dynamic value;
-
-            switch (property!.PropertyType.Name)
+            else
             {
-                case "string":
-                    value = transformField.value;
-                    break;
-                case "int":
-                    value = int.Parse(transformField.value);
-                    break;
-                case "Nullable`1":
-                    value = Enum.Parse<Gender>(transformField.value);
-                    break;
-                default:
-                    value = transformField.value;
-                    break;
+                dynamic value;
+
+                switch (property!.PropertyType.Name)
+                {
+                    case "string":
+                        value = transformField.value;
+                        break;
+                    case "int":
+                        value = int.Parse(transformField.value);
+                        break;
+                    case "Nullable`1":
+                        value = Enum.Parse<Gender>(transformField.value);
+                        break;
+                    default:
+                        value = transformField.value;
+                        break;
+                }
+                property.SetValue(participant, value);
             }
-            property.SetValue(participant, value);
         }
         return participant;
     }
 
-    private static CohortDistributionParticipant EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant)
+    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant)
     {
         var reParser = new RuleExpressionParser(new ReSettings());
         var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant) };
         var result = reParser.Evaluate<string>(expression, ruleParameters);
 
         property.SetValue(participant, result);
-
-        return participant;
     }
 }
