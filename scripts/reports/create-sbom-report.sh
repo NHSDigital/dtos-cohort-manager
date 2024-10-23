@@ -44,6 +44,8 @@ function create-report() {
 function run-syft-natively() {
 
   echo "alastair here"
+  CHECK_IMAGE=${CHECK_IMAGE:-"")}
+
   syft scan docker:$CHECK_IMAGE \
     --config "$PWD/scripts/config/syft.yaml" \
     --output spdx-json="$PWD/sbom-repository-report.tmp.json"
