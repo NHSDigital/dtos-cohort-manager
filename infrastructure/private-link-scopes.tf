@@ -16,7 +16,6 @@ module "private_link_scoped_service" {
 
   linked_resource_id = module.log_analytics_workspace.id
   scope_name         = module.private_link_scope[each.key].scope_name
-  #scope_name         = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls"
 }
 
 # Create the private link scope in the spoke subscription
