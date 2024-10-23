@@ -1,8 +1,9 @@
 namespace Common;
 
 using Azure.Storage.Queues;
+using Model;
 
 public interface IAzureQueueStorageHelper
 {
-    Task<QueueClient> AddItemsToQueueAsync(string queueName, string storageAccountName);
+    Task AddItemsToQueueAsync(string queueName, string storageAccountName, List<ParticipantCsvRecord> participantCsvRecords);
 }

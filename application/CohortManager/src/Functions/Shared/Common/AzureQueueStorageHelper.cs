@@ -16,7 +16,6 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
         return queueClient;
     }
 
-
     public async Task AddItemsToQueueAsync(string queueName, string storageAccountName, List<ParticipantCsvRecord> participantCsvRecords)
     {
         var queueClient = await CreateQueueClientAsync(queueName, storageAccountName);
@@ -38,5 +37,4 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 
         });
     }
-
 }
