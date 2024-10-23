@@ -2,7 +2,7 @@
 module "private_link_scoped_service" {
   for_each = {
     for key, region in var.regions :
-    key => region if region.is_primary_region && var.features.private_endpoints_enabled
+    key => region if var.features.private_endpoints_enabled
   }
 
   source = ".//modules/private-link-scoped-service"
@@ -15,17 +15,15 @@ module "private_link_scoped_service" {
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
 
   linked_resource_id = module.log_analytics_workspace.id
-  #scope_name         = module.private_link_scope[each.key].name
-  scope_name         = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls"
-
-  depends_on = [ private_link_scope[each.key] ]
+  scope_name         = module.private_link_scope[each.key].name
+  #scope_name         = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls"
 }
 
 # Create the private link scope in the spoke subscription
 module "private_link_scope" {
   for_each = {
     for key, region in var.regions :
-    key => region if region.is_primary_region && var.features.private_endpoints_enabled
+    key => region if var.features.private_endpoints_enabled
   }
 
   source = ".//modules/private-link-scope"
