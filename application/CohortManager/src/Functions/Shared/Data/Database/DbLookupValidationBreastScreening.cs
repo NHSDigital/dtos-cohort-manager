@@ -47,11 +47,14 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
+
                     return reader.Read();
                 }
             }
         }
     }
+
+
 
     /// <summary>
     /// Used in rule 54 in the cohort rules. Validates the participants outcode (1st part of the postcode)
@@ -102,6 +105,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
                 using (IDataReader reader = command.ExecuteReader())
                 {
+
                     return reader.Read();
                 }
             }
@@ -113,7 +117,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// </summary>
     /// <param name="currentPosting">The participant's current posting (area code).</param>
     /// <returns>bool, whether or not the current posting is valid.<returns>
-    public bool ValidateCurrentPosting(string currentPosting, string primaryCareProvider)
+    public bool CheckIfCurrentPostingExists(string currentPosting)
     {
 
         using (_connection = new SqlConnection(_connectionString))
@@ -121,42 +125,57 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             using (IDbCommand command = _connection.CreateCommand())
             {
                 _connection.Open();
-                command.CommandText = $"SELECT POSTING_CATEGORY, CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting";
+                command.CommandText = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
                 var parameter = command.CreateParameter();
                 parameter.ParameterName = "@currentPosting";
                 parameter.Value = currentPosting ?? string.Empty;
                 command.Parameters.Add(parameter);
 
                 var isCurrentPostingInDB = false;
+                using (IDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        isCurrentPostingInDB = reader.GetInt32(0) == 1;
+                    }
+                }
+
+                return isCurrentPostingInDB;
+            }
+        }
+    }
+
+    /// <summary>
+    /// takes in posting and returns if that posting has a valid posting category in the database
+    /// </summary>
+    /// <param name="postingCategory"></param>
+    /// <returns></returns>
+    public bool ValidatePostingCategories(string currentPosting)
+    {
+
+        using (_connection = new SqlConnection(_connectionString))
+        {
+            using (IDbCommand command = _connection.CreateCommand())
+            {
+                _connection.Open();
+                command.CommandText = $"SELECT POSTING_CATEGORY FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
+                var parameter = command.CreateParameter();
+                parameter.ParameterName = "@currentPosting";
+                parameter.Value = currentPosting ?? string.Empty;
+                command.Parameters.Add(parameter);
+
                 var postingCategory = "";
                 using (IDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         postingCategory = reader["POSTING_CATEGORY"].ToString();
-                        isCurrentPostingInDB = reader.GetInt32(1) == 1;
                     }
                 }
+                return allPossiblePostingCategories.Contains(postingCategory);
 
-                var CurrentPostingDoesNotExistInDB = currentPosting != null && !isCurrentPostingInDB && !validatePostingCategories(currentPosting);
-                var PrimaryCareProviderDoesNotExistOnDB = primaryCareProvider != null && !CheckIfPrimaryCareProviderExists(primaryCareProvider);
-
-                if (CurrentPostingDoesNotExistInDB && PrimaryCareProviderDoesNotExistOnDB)
-                {
-                    return false;
-                }
-                return true;
             }
         }
-    }
-
-    private bool validatePostingCategories(string postingCategory)
-    {
-        if (allPossiblePostingCategories.Contains(postingCategory))
-        {
-            return true;
-        }
-        return false;
     }
 }
 

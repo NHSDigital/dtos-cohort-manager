@@ -47,7 +47,7 @@ public class LookupValidationTests
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
         // Test data setup
         var existingParticipant = new Participant
@@ -403,14 +403,15 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>(), It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
 
         // Act
         await _sut.RunAsync(_request.Object);
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPosting.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -425,7 +426,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(false);
 
         // Act
         await _sut.RunAsync(_request.Object);
