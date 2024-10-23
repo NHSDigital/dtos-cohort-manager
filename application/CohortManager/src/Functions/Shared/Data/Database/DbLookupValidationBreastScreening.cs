@@ -16,6 +16,8 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
     private readonly ILogger<DbLookupValidationBreastScreening> _logger;
 
+    private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
+
     public DbLookupValidationBreastScreening(IDbConnection IdbConnection, ILogger<DbLookupValidationBreastScreening> logger)
     {
         _connection = IdbConnection;
@@ -136,8 +138,10 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                     }
                 }
 
-                if (currentPosting != null && !isCurrentPostingInDB && !validatePostingCategories(currentPosting)
-                    && primaryCareProvider != null && !PrimaryCareProviderExists(primaryCareProvider))
+                var CurrentPostingDoesNotExistInDB = currentPosting != null && !isCurrentPostingInDB && !validatePostingCategories(currentPosting);
+                var PrimaryCareProviderDoesNotExistOnDB = primaryCareProvider != null && !PrimaryCareProviderExists(primaryCareProvider);
+
+                if (CurrentPostingDoesNotExistInDB && PrimaryCareProviderDoesNotExistOnDB)
                 {
                     return false;
                 }
@@ -148,8 +152,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
     private bool validatePostingCategories(string postingCategory)
     {
-        string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
-
         if (allPossiblePostingCategories.Contains(postingCategory))
         {
             return true;

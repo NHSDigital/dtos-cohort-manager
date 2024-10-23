@@ -466,7 +466,6 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow(Actions.New, "LDN", "20241101")]
     [DataRow(Actions.New, "LDN", "20241101")]
-    [DataRow(Actions.New, "LDN", "20241101")]
     [DataRow(Actions.New, null, "20241101")]
     [DataRow(Actions.New, "LDN", null)]
     public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string recordType, string reasonForRemoval, string reasonForRemovalDate)
