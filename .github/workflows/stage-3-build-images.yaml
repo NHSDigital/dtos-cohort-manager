@@ -122,7 +122,6 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
 
           export CHECK_IMAGE=cohort-manager-$function:$PR_NUM_TAG
-          export BUILD_DATETIME=`date +"%Y-%m-%d"`
           ./scripts/reports/create-sbom-report.sh
 
           # Push the image to the repository
