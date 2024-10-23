@@ -88,8 +88,6 @@ data "azurerm_application_insights" "ai" {
   resource_group_name = var.function_apps.app_insights_rg_name
 }
 
-data "azurerm_client_config" "current" {}
-
 /* --------------------------------------------------------------------------------------------------
   RBAC roles to assign to the Function Apps
 -------------------------------------------------------------------------------------------------- */
