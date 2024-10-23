@@ -69,8 +69,8 @@ public class CreateDemographicData : ICreateDemographicData
                     ", [PREFERRED_LANGUAGE] " +
                     ", [INTERPRETER_REQUIRED] " +
                     ", [INVALID_FLAG] " +
-                    ", [RECORD_INSERT_DATE_TIME] " +
-                    ", [RECORD_UPDATE_DATE_TIME] ) " +
+                    ", [RECORD_INSERT_DATETIME] " +
+                    ", [RECORD_UPDATE_DATETIME] ) " +
                 "VALUES " +
                 "(" +
                     " @NHS_NUMBER, " +
@@ -105,8 +105,8 @@ public class CreateDemographicData : ICreateDemographicData
                     " @PREFERRED_LANGUAGE," +
                     " @INTERPRETER_REQUIRED," +
                     " @INVALID_FLAG," +
-                    " @RECORD_INSERT_DATE_TIME," +
-                    " @RECORD_UPDATE_DATE_TIME" +
+                    " @RECORD_INSERT_DATETIME," +
+                    " @RECORD_UPDATE_DATETIME" +
                 ")",
                 Parameters = new Dictionary<string, object>
                 {
@@ -142,8 +142,8 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
-                    {"@RECORD_INSERT_DATE_TIME", DateTime.Now},
-                    {"@RECORD_UPDATE_DATE_TIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
+                    {"@RECORD_INSERT_DATETIME", DateTime.Now},
+                    {"@RECORD_UPDATE_DATETIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
                 },
             }
         };
@@ -186,8 +186,8 @@ public class CreateDemographicData : ICreateDemographicData
                     ,[PREFERRED_LANGUAGE]
                     ,[INTERPRETER_REQUIRED]
                     ,[INVALID_FLAG]
-                    ,[RECORD_INSERT_DATE_TIME]
-                    ,[RECORD_UPDATE_DATE_TIME]
+                    ,[RECORD_INSERT_DATETIME]
+                    ,[RECORD_UPDATE_DATETIME]
                 FROM [dbo].[PARTICIPANT_DEMOGRAPHIC]
                 WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
