@@ -94,16 +94,6 @@ variable "resource_groups" {
 
 ### Cohort Manager specific variables ###
 
-variable "acr" {
-  description = "Configuration of the Azure Container Registry"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sku                = optional(string, "Premium")
-    admin_enabled      = optional(bool, false)
-    uai_name           = optional(string, "dtos-cohort-manager-acr-push")
-  })
-}
-
 variable "api_management" {
   description = "Configuration of the API Management Service"
   type = object({
