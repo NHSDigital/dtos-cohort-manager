@@ -61,7 +61,7 @@ public class ReceiveCaasFile
             var rowNumber = 0;
             var batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BatchSize"));
 
-            downloadFilePath = Path.Combine(Path.GetTempPath(), name);
+            downloadFilePath = Path.Combine(Path.GetRandomFileName(), name);
 
             _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
             await using (var fileStream = File.Create(downloadFilePath))

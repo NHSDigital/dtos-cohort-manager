@@ -69,8 +69,7 @@ public class ReceiveCaasFileTests
         _mockIReceiveCaasFileHelper.Setup(x => x.GetNumberOfRecordsFromFileName(_blobName)).Returns(Task.FromResult<int?>(1));
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, _participant, _blobName, It.IsAny<int>())).Returns(Task.FromResult<Participant?>(_participant));
         _mockIReceiveCaasFileHelper.Setup(x => x.SerializeParquetFile(It.IsAny<List<Cohort>>(), _cohort, _blobName, 1));
-        // Act
-        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
+
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
