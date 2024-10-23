@@ -8,3 +8,5 @@ data "terraform_remote_state" "hub" {
     resource_group_name  = var.HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
   }
 }
+
+data "azurerm_client_config" "current" {}
