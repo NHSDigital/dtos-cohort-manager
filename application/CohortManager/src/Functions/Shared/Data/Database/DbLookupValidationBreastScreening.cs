@@ -32,7 +32,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// </summary>
     /// <param name="primaryCareProvider">The participant's primary care provider.</param>
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
-    public bool PrimaryCareProviderExists(string primaryCareProvider)
+    public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
         using (_connection = new SqlConnection(_connectionString))
         {
@@ -139,7 +139,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 }
 
                 var CurrentPostingDoesNotExistInDB = currentPosting != null && !isCurrentPostingInDB && !validatePostingCategories(currentPosting);
-                var PrimaryCareProviderDoesNotExistOnDB = primaryCareProvider != null && !PrimaryCareProviderExists(primaryCareProvider);
+                var PrimaryCareProviderDoesNotExistOnDB = primaryCareProvider != null && !CheckIfPrimaryCareProviderExists(primaryCareProvider);
 
                 if (CurrentPostingDoesNotExistInDB && PrimaryCareProviderDoesNotExistOnDB)
                 {

@@ -4,13 +4,13 @@
     "GlobalParams": [
       {
         "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.PrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
       }
     ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "newParticipant.primaryCareProvider != null && !dbLookup.PrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "Expression": "newParticipant.primaryCareProvider != null && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -34,7 +34,7 @@
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR !dbLookup.PrimaryCareProviderExists(newParticipant.CurrentPosting)",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.CurrentPosting)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",

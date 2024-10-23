@@ -44,7 +44,7 @@ public class LookupValidationTests
                 CreatedException = true
             }));
 
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
@@ -425,7 +425,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
 
         // Act
         await _sut.RunAsync(_request.Object);
@@ -450,7 +450,7 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "InvalidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "InvalidPCP");
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
@@ -479,7 +479,7 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
         var expectedStatusCode = recordType == Actions.New ? HttpStatusCode.Created : HttpStatusCode.OK;
 
         // Act
@@ -557,7 +557,7 @@ public class LookupValidationTests
         _requestBody.ExistingParticipant.PrimaryCareProvider = "ABCDE";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);
@@ -588,7 +588,7 @@ public class LookupValidationTests
         _requestBody.ExistingParticipant.PrimaryCareProvider = "ValidPCP";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.PrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);
