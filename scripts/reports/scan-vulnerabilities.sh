@@ -14,6 +14,8 @@ set -euo pipefail
 # Options:
 #   BUILD_DATETIME=%Y-%m-%dT%H:%M:%S%z  # Build datetime, default is `date -u +'%Y-%m-%dT%H:%M:%S%z'`
 #   FORCE_USE_DOCKER=true               # If set to true the command is run in a Docker container, default is 'false'
+#   SBOM_REPOSITORY_REPORT              # Set the name of the sbom-repository-report, default is 'sbom-repository-report'
+#   VULNERABILITIES_REPOSITORY_REPORT   # Set the name of the vulnerabilities-repository-report, default is 'vulnerabilities-repository-report'
 #   VERBOSE=true                        # Show all the executed commands, default is `false`
 #
 # Depends on:
@@ -24,6 +26,12 @@ set -euo pipefail
 function main() {
 
   cd "$(git rev-parse --show-toplevel)"
+
+  SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-repository-report}
+  VULNERABILITIES_REPOSITORY_REPORT=${VULNERABILITIES_REPOSITORY_REPORT:-vulnerabilities-repository-report}
+
+  echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+  echo VULNERABILITIES_REPOSITORY_REPORT: $VULNERABILITIES_REPOSITORY_REPORT
 
   create-report
   enrich-report
@@ -41,7 +49,7 @@ function create-report() {
 function run-grype-natively() {
 
   grype \
-    sbom:"$PWD/sbom-repository-report.json" \
+    sbom:"$PWD/${SBOM_REPOSITORY_REPORT}.json" \
     --config "$PWD/scripts/config/grype.yaml" \
     --output json \
     --file "$PWD/vulnerabilities-repository-report.tmp.json"
@@ -58,10 +66,10 @@ function run-grype-in-docker() {
     --volume "$PWD":/workdir \
     --volume /tmp/grype/db:/.cache/grype/db \
     "$image" \
-      sbom:/workdir/sbom-repository-report.json \
+      sbom:/workdir/${SBOM_REPOSITORY_REPORT}.json \
       --config /workdir/scripts/config/grype.yaml \
       --output json \
-      --file /workdir/vulnerabilities-repository-report.tmp.json
+      --file /workdir/$VULNERABILITIES_REPOSITORY_REPORT.tmp.json
 }
 
 function enrich-report() {
@@ -78,9 +86,10 @@ function enrich-report() {
   # shellcheck disable=SC2086
   jq \
     '.creationInfo |= . + {"created":"'${build_datetime}'","repository":{"url":"'${git_url}'","branch":"'${git_branch}'","tags":['${git_tags}'],"commitHash":"'${git_commit_hash}'"},"pipeline":{"id":'${pipeline_run_id}',"number":'${pipeline_run_number}',"attempt":'${pipeline_run_attempt}'}}' \
-    vulnerabilities-repository-report.tmp.json \
-      > vulnerabilities-repository-report.json
-  rm -f vulnerabilities-repository-report.tmp.json
+    $VULNERABILITIES_REPOSITORY_REPORT.tmp.json \
+      > $VULNERABILITIES_REPOSITORY_REPORT.json
+
+  rm -f $VULNERABILITIES_REPOSITORY_REPORT.tmp.json
 }
 
 # ==============================================================================
