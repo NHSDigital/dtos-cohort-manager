@@ -127,7 +127,7 @@ locals {
     region_key => [
       for role_key, role_value in local.rbac_roles_database : {
         role_definition_name = role_value
-        scope                = module.azuresql[region_key].sql_server_id
+        scope                = module.azure_sql_server[region_key].sql_server_id
       }
     ]
   }

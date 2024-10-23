@@ -221,34 +221,34 @@ variable "sqlserver" {
   description = "Configuration for the Azure MSSQL server instance and a default database "
   type = object({
 
-    sql_uai_name       = optional(string, "dtos-cohort-manager-sql-adm")
-    sql_adm_group_name = optional(string, "sqlsvr_cohman_dev_uks_admin")
-    ad_auth_only       = optional(bool, true)
+    sql_uai_name         = optional(string)
+    sql_admin_group_name = optional(string)
+    ad_auth_only         = optional(bool)
 
     # Server Instance
-    server = object({
+    server = optional(object({
       resource_group_key            = optional(string, "cohman")
       sqlversion                    = optional(string, "12.0")
       tlsversion                    = optional(number, 1.2)
       azure_services_access_enabled = optional(bool, true)
-    })
+    }), {})
 
     # Database
-    dbs = map(object({
+    dbs = optional(map(object({
       db_name_suffix = optional(string, "cohman")
       collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
       licence_type   = optional(string, "LicenseIncluded")
       max_gb         = optional(number, 5)
       read_scale     = optional(bool, false)
       sku            = optional(string, "S0")
-    }))
+    })), {})
 
     # FW Rules
-    fw_rules = map(object({
-      fw_rule_name = optional(string, "AllowAccessFromAzure")
-      start_ip     = optional(string, "0.0.0.0")
-      end_ip       = optional(string, "0.0.0.0")
-    }))
+    fw_rules = optional(map(object({
+      fw_rule_name = string
+      start_ip     = string
+      end_ip       = string
+    })), {})
   })
 }
 
