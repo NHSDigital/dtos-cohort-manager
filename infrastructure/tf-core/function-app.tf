@@ -1,8 +1,6 @@
 module "functionapp" {
   for_each = local.function_app_map
 
-  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=fa87791b4a7e8ec145c3c85926765e0d5160db29"
-  # test version
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
@@ -12,16 +10,18 @@ module "functionapp" {
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
   public_network_access_enabled = var.features.public_network_access_enabled
+  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
-  # Do VNet integration at App Service level instead
-  # vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+  rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
 
-  asp_id               = module.app-service-plan[each.value.region_key].app_service_plan_id
-  sa_name              = module.storage["fnapp-${each.value.region_key}"].storage_account_name
-  sa_prm_key           = module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
+  asp_id                        = module.app-service-plan[each.value.region_key].app_service_plan_id
+  storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
+  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
+  storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
+
   ai_connstring        = data.azurerm_application_insights.ai.connection_string
-  worker_32bit         = var.function_apps.worker_32bit
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
+  worker_32bit         = var.function_apps.worker_32bit
 
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
   acr_login_server = data.azurerm_container_registry.acr.login_server
@@ -40,6 +40,27 @@ module "functionapp" {
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
+
+  tags = var.tags
+}
+
+# Loop through the Key Vault URLs for each region and create the Key Vault Access Policies for each Function App:
+resource "azurerm_key_vault_access_policy" "functionapp" {
+  for_each = local.keyvault_function_app_object_ids_map
+
+  key_vault_id = each.value.key_vault_id
+  object_id    = each.value.function_app_sami_id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+
+  secret_permissions = [
+    "Get",
+    "List"
+  ]
+
+  certificate_permissions = [
+    "Get",
+    "List"
+  ]
 }
 
 
@@ -68,6 +89,60 @@ data "azurerm_application_insights" "ai" {
 }
 
 /* --------------------------------------------------------------------------------------------------
+  RBAC roles to assign to the Function Apps
+-------------------------------------------------------------------------------------------------- */
+locals {
+  rbac_roles_storage = {
+    storage_account_contributor    = "Storage Account Contributor",
+    storage_blob_data_owner        = "Storage Blob Data Owner",
+    storage_queue_data_contributor = "Storage Queue Data Contributor"
+  }
+
+  rbac_roles_database = {
+    sql_contributor = "Contributor"
+  }
+
+  rbac_role_assignments_storage_fnapp = {
+    for region_key, region_value in module.regions_config :
+    region_key => [
+      for role_key, role_value in local.rbac_roles_storage : {
+        role_definition_name = role_value
+        scope                = module.storage["fnapp-${region_key}"].storage_account_id
+      }
+    ]
+  }
+
+  rbac_role_assignments_storage_file_exceptions = {
+    for region_key, region_value in module.regions_config :
+    region_key => [
+      for role_key, role_value in local.rbac_roles_storage : {
+        role_definition_name = role_value
+        scope                = module.storage["file_exceptions-${region_key}"].storage_account_id
+      }
+    ]
+  }
+
+  rbac_role_assignments_database = {
+    for region_key, region_value in module.regions_config :
+    region_key => [
+      for role_key, role_value in local.rbac_roles_database : {
+        role_definition_name = role_value
+        scope                = module.azure_sql_server[region_key].sql_server_id
+      }
+    ]
+  }
+
+  rbac_role_assignments = {
+    for region_key in keys(module.regions_config) :
+    region_key => concat(
+      local.rbac_role_assignments_storage_fnapp[region_key] != null ? local.rbac_role_assignments_storage_fnapp[region_key] : [],
+      local.rbac_role_assignments_storage_file_exceptions[region_key] != null ? local.rbac_role_assignments_storage_file_exceptions[region_key] : [],
+      local.rbac_role_assignments_database[region_key] != null ? local.rbac_role_assignments_database[region_key] : []
+    )
+  }
+}
+
+/* --------------------------------------------------------------------------------------------------
   Local variables used to create the Environment Variables for the Function Apps
 -------------------------------------------------------------------------------------------------- */
 locals {
@@ -82,10 +157,12 @@ locals {
   }
 
   # To Do - move these directly into the tfvars file as a map as this way limits adding extra values
+  # WEBSITE_PULL_IMAGE_OVER_VNET reuses the private_endpoints_enabled variable as these settings are implicitly coupled.
   global_app_settings = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
+    WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
   }
 
   # Create a map of the function app urls for each function app
@@ -102,6 +179,8 @@ locals {
   }
 
   # Create a map of the storage accounts for each function app as defined in the storage_account_env_var_name attribute
+  # Should not need the following entry if we are using managed identity for storage access, but the C# code is not yet
+  # ready to support this so we are using the storage account key for now.
   env_vars_storage_accounts = {
     for region_key, region_value in module.regions_config :
     region_key => {
@@ -110,6 +189,28 @@ locals {
         "${value.storage_account_env_var_name}" = module.storage["file_exceptions-${region_key}"].storage_account_primary_connection_string
       } : null
     }
+  }
+
+  env_vars_storage_accounts_private_blob = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => length(value.storage_account_env_var_name) > 0 ? {
+        "${value.storage_account_env_var_name}__blobServiceUri" = "https://${module.storage["file_exceptions-${region_key}"].storage_account_name}.blob.core.windows.net"
+      } : null
+    }
+    if var.features.private_endpoints_enabled == true
+  }
+
+  env_vars_storage_accounts_private_queue = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => length(value.storage_account_env_var_name) > 0 ? {
+        "${value.storage_account_env_var_name}__queueServiceUri" = "https://${module.storage["file_exceptions-${region_key}"].storage_account_name}.queue.core.windows.net"
+      } : null
+    }
+    if var.features.private_endpoints_enabled == true
   }
 
   # Create a map of the storage containers for each function app as defined in the storage_containers attribute
@@ -132,6 +233,17 @@ locals {
     }
   }
 
+  # Create a map of the key vault urls for each function app that requires one
+  env_vars_key_vault_urls = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => length(value.key_vault_url) > 0 ? {
+      "${value.key_vault_url}" = module.key_vault[region_key].key_vault_url }
+      : null
+    }
+  }
+
   # Merge the local maps into a single map taking care to remove any null values and to loop round each region and each function app where necessary:
   app_settings = {
     for region_key, region_value in module.regions_config :
@@ -139,10 +251,13 @@ locals {
       for app_key, app_value in var.function_apps.fa_config :
       app_key => merge(
         local.global_app_settings,
-        local.env_vars_app_urls[region_key][app_key],
-        local.env_vars_storage_accounts[region_key][app_key],
-        local.env_vars_storage_containers[app_key],
-        local.env_vars_database_connection_strings[region_key][app_key]
+        try(local.env_vars_app_urls[region_key][app_key], {}),
+        try(local.env_vars_storage_accounts[region_key][app_key], {}),
+        try(local.env_vars_storage_accounts_private_blob[region_key][app_key], {}),
+        try(local.env_vars_storage_accounts_private_queue[region_key][app_key], {}),
+        try(local.env_vars_storage_containers[app_key], {}),
+        try(local.env_vars_database_connection_strings[region_key][app_key], {}),
+        try(local.env_vars_key_vault_urls[region_key][app_key], {})
       )
     }
   }
@@ -158,5 +273,26 @@ locals {
         }
       ]
     ]) : "${value.function_key}-${value.region_key}" => value
+  }
+
+  # Create a flat list for the key vault access policy resource contianing just the details
+  # for functions that have key vault urls
+  keyvault_function_app_object_ids = flatten([
+    for region_key, region_value in module.regions_config :
+    [
+      for function_key, function_value in local.env_vars_key_vault_urls[region_key] :
+      {
+        region_key           = region_key
+        function_key         = function_key
+        key_vault_id         = module.key_vault[region_key].key_vault_id
+        function_app_sami_id = module.functionapp["${function_key}-${region_key}"].function_app_sami_id
+      }
+      if function_value != null
+    ]
+  ])
+  # Project the above list into a map with unique keys for consumption in a for_each meta argument
+  # (although in this case we don't actually need the key as we will create everything from the list as-is)
+  keyvault_function_app_object_ids_map = {
+    for value in local.keyvault_function_app_object_ids : "${value.function_key}-${value.region_key}" => value
   }
 }
