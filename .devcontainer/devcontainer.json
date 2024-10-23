@@ -12,6 +12,7 @@
     "ghcr.io/devcontainers-contrib/features/curl-apt-get:1": {},
     "ghcr.io/devcontainers-contrib/features/npm-package:1": {},
     "ghcr.io/devcontainers/features/dotnet:2": {},
+    "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/azure/azure-dev/azd:0": {}
   },
   "postCreateCommand": "bash -i scripts/config/devcontainer/post-build-cfg.sh",
