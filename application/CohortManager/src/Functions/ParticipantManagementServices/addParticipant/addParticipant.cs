@@ -30,8 +30,8 @@ public class AddParticipantFunction
         _cohortDistributionHandler = cohortDistributionHandler;
     }
 
-    [Function("addParticipant")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    [Function(nameof(AddParticipantFunction))]
+    public async Task<HttpResponseData> Run([QueueTrigger("input-queue")] HttpRequestData req)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
