@@ -24,15 +24,9 @@ module "azure_sql_server" {
   diagnostic_setting_properties = var.features.diagnostic_settings_enabled ? {
     diagnostic_settings_globally_enabled = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled
     log_analytics_workspace_id           = module.log_analytics_workspace.audit_id
-    log_categories                       = "SQLSecurityAuditEvents",
-    # log_categories = {
-    #   category = "SQLSecurityAuditEvents"
-    # }
-    # logs_retention_policy      = var.diagnostic_setting_properties.logs_retention_policy
-    # logs_retention_days        = var.diagnostic_setting_properties.logs_retention_days
-    metrics_categories = "AllMetrics"
-    # metrics_retention_policy   = var.diagnostic_setting_properties.metrics_retention_policy
-    # metrics_retention_days     = var.diagnostic_setting_properties.metrics_retention_days
+    log_categories                       { 
+      log_categories: "SQLSecurityAuditEvents"
+    } ,
     sql_security_audit_logs_enabled = var.diagnostic_setting_properties.diagnostic_setting_audit_logs_enabled
   } : null
 

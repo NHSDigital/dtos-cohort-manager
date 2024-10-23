@@ -23,15 +23,12 @@ variable "diagnostic_setting_properties" {
     diagnostic_settings_globally_enabled = optional(bool, false),
     log_analytics_workspace_id           = optional(string, ""),
     sql_security_audit_logs_enabled      = optional(bool, false),
-    log_categories                       = optional(string, ""),
-    # log_categories = map(object({
-    #   catergory = optional(string, "")
-    # })),
-    metrics_categories = optional(string,"") #(string, ""),
-    # logs_retention_policy      = optional(bool, false)
-    # logs_retention_days        = optional(number, 0)
-    # metrics_retention_policy   = optional(bool, false)
-    # metrics_retention_days     = optional(string, "")
+    metrics_categories = optional(string,"") #(string, "")
+    log_categories                       = optional(map(object({
+        log_categories = optional(string, "")
+    })), {})
+
+
   })
 }
 
