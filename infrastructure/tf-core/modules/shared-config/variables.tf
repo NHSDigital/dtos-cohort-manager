@@ -89,6 +89,11 @@ variable "application" {
   description = "Unique identifier for the deployment"
 }
 
+
+variable "application_full_name" {
+  description = "Unique full identifier for the deployment"
+}
+
 variable "tags" {
   type        = map(string)
   description = "Default tags for the deployment"
