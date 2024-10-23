@@ -31,7 +31,7 @@ locals {
     public-ip-dns               = lower("${var.env}${var.location_map[var.location]}${var.application}")
     public-ssh-key              = lower("ssh-pub-${var.env}${var.location_map[var.location]}${var.application}")
     redis-cache                 = lower("RC-${var.location_map[var.location]}-${var.env}-${var.application}")
-    resource-group              = lower("RG-${var.application}-${var.env}-${var.location_map[var.location]}")
+    resource-group              = lower("RG-${var.application_full_name}-${var.env}-${var.location_map[var.location]}")
     resource-application        = upper("${var.env}-${var.location_map[var.location]}-${var.application}")
     route-table                 = upper("RT-${var.env}-${var.location_map[var.location]}-${var.application}")
     service-bus                 = lower("SB-${var.location_map[var.location]}-${var.env}-${var.application}")

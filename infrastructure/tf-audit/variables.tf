@@ -44,6 +44,13 @@ variable "application" {
   default     = "DToS"
 }
 
+variable "application_full_name" {
+  description = "Full name of the Project/Application code for deployment"
+  type        = string
+  default     = "DToS"
+}
+
+
 variable "environment" {
   description = "Environment code for deployments"
   type        = string
