@@ -17,7 +17,8 @@ variables:
     value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-audit'
 
 pool:
-  vmImage: ubuntu-latest
+  #vmImage: ubuntu-latest
+  name: 'private-pool-dev-uks'
 
 # integration environment
 
