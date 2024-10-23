@@ -41,7 +41,9 @@ public class DatabaseHelper : IDatabaseHelper
     public object ParseDateTime(string dateTimeString)
     {
         if (string.IsNullOrEmpty(dateTimeString)) return DBNull.Value;
-        if (DateTime.TryParse(dateTimeString, CultureInfo.InvariantCulture, out DateTime datetime)) return datetime;
+
+        string[] formats = { "dd/MM/yyyy HH:mm:ss" };
+        if (DateTime.TryParseExact(dateTimeString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime datetime)) return datetime;
 
         return DBNull.Value;
     }
