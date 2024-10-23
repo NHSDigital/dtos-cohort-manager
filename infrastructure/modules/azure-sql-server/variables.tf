@@ -27,7 +27,7 @@ variable "diagnostic_setting_properties" {
     # log_categories = map(object({
     #   catergory = optional(string, "")
     # })),
-    metrics_categories = optional(list(string), []) #(string, ""),
+    metrics_categories = optional(string,"") #(string, ""),
     # logs_retention_policy      = optional(bool, false)
     # logs_retention_days        = optional(number, 0)
     # metrics_retention_policy   = optional(bool, false)

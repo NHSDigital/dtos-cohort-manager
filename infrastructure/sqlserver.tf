@@ -30,7 +30,7 @@ module "azure_sql_server" {
     # }
     # logs_retention_policy      = var.diagnostic_setting_properties.logs_retention_policy
     # logs_retention_days        = var.diagnostic_setting_properties.logs_retention_days
-    metrics_categories = ["AllMetrics"]
+    metrics_categories = "AllMetrics"
     # metrics_retention_policy   = var.diagnostic_setting_properties.metrics_retention_policy
     # metrics_retention_days     = var.diagnostic_setting_properties.metrics_retention_days
     sql_security_audit_logs_enabled = var.diagnostic_setting_properties.diagnostic_setting_audit_logs_enabled

@@ -73,7 +73,8 @@ module "diagnostic-setting" {
   source = "../diagnostic-setting"
 
   # Diagnostics setting parameters
-  log_categories                = var.log_categories
+  # log_categories                = var.diagnostic_setting_properties.log_categories
+  
   name                          = "${var.name}-diagnostic_setting"
   resource_group_name           = var.resource_group_name
   location                      = var.location
