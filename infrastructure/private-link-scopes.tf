@@ -8,7 +8,7 @@ module "private_link_scoped_service" {
   source = ".//modules/private-link-scoped-service"
 
   providers = {
-    azurerm.audit = azurerm.dev-hub
+    azurerm = azurerm.hub
   }
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls-service"

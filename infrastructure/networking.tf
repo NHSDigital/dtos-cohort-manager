@@ -103,7 +103,7 @@ module "peering_hub_spoke" {
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
   providers = {
-    azurerm = azurerm.dev-hub
+    azurerm = azurerm.hub
   }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
