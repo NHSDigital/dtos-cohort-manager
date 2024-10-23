@@ -21,6 +21,8 @@ set -euo pipefail
 
 function main() {
 
+  echo "in main"
+
   cd "$(git rev-parse --show-toplevel)"
 
   create-report
@@ -31,16 +33,24 @@ function create-report() {
 
   if command -v syft > /dev/null 2>&1 && ! is-arg-true "${FORCE_USE_DOCKER:-false}"; then
     run-syft-natively
+
   else
-    run-syft-in-docker
+    echo "run in docker"
+    run-syft-natively
+    # run-syft-in-docker
   fi
 }
 
 function run-syft-natively() {
 
-  syft packages dir:"$PWD" \
+  echo "alastair here"
+  syft scan docker:$CHECK_IMAGE \
     --config "$PWD/scripts/config/syft.yaml" \
     --output spdx-json="$PWD/sbom-repository-report.tmp.json"
+
+  # syft packages dir:"$PWD" \
+  #   --config "$PWD/scripts/config/syft.yaml" \
+  #   --output spdx-json="$PWD/sbom-repository-report.tmp.json"
 }
 
 function run-syft-in-docker() {

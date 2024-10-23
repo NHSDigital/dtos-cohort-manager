@@ -32,6 +32,7 @@ function main() {
 function create-report() {
 
   if command -v grype > /dev/null 2>&1 && ! is-arg-true "${FORCE_USE_DOCKER:-false}"; then
+    echo " running grype natively"
     run-grype-natively
   else
     run-grype-in-docker
