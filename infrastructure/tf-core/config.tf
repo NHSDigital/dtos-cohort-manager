@@ -9,3 +9,12 @@ module "regions_config" {
   env         = var.environment
   tags        = var.tags
 }
+
+module "config" {
+  source                = ".//modules/shared-config"
+  location              = var.location
+  application           = var.application
+  application_full_name = var.application_full_name
+  env                   = var.environment
+  tags                  = var.tags
+}
