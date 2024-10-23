@@ -39,7 +39,7 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "dev-hub"
-  subscription_id = var.DEVHUB_SUBSCRIPTION_ID
+  subscription_id = var.HUB_SUBSCRIPTION_ID
   features {}
 }
 

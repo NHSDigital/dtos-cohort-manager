@@ -13,7 +13,7 @@ variable "ACR_SUBSCRIPTION_ID" {
   type        = string
 }
 
-variable "DEVHUB_SUBSCRIPTION_ID" {
+variable "HUB_SUBSCRIPTION_ID" {
   description = "ID of the subscription hosting the DevOps resources"
   type        = string
 }
