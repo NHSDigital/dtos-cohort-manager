@@ -29,7 +29,7 @@ try
         var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
-    else if(config.MeshKeyName != null)
+    else if(!string.IsNullOrEmpty(config.MeshKeyName))
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
         cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);

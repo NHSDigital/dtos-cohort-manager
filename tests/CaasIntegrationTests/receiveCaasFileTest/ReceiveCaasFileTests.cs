@@ -66,7 +66,7 @@ public class ReceiveCaasFileTests
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
         _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _blobName)).Returns(Task.FromResult(true));
-        _mockIReceiveCaasFileHelper.Setup(x => x.GetNumberOfRecordsFromFileName(_blobName)).Returns(Task.FromResult<int?>(1));
+
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, _participant, _blobName, It.IsAny<int>())).Returns(Task.FromResult<Participant?>(_participant));
         _mockIReceiveCaasFileHelper.Setup(x => x.SerializeParquetFile(It.IsAny<List<Cohort>>(), _cohort, _blobName, 1));
         // Act
@@ -88,7 +88,7 @@ public class ReceiveCaasFileTests
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
         _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _invalidfile)).Returns(Task.FromResult(true));
-        _mockIReceiveCaasFileHelper.Setup(x => x.GetNumberOfRecordsFromFileName(_invalidfile)).Returns(Task.FromResult<int?>(30));
+
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, _participant, _invalidfile, It.IsAny<int>())).Returns(Task.FromResult(It.IsAny<Participant?>()));
         _mockIReceiveCaasFileHelper.Setup(x => x.SerializeParquetFile(It.IsAny<List<Cohort>>(), _cohort, It.IsAny<string>(), It.IsAny<int>()));
         // Act
@@ -171,7 +171,7 @@ public class ReceiveCaasFileTests
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
         _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
         _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _blobName)).Returns(Task.FromResult(true));
-        _mockIReceiveCaasFileHelper.Setup(x => x.GetNumberOfRecordsFromFileName(_blobName)).Returns(Task.FromResult<int?>(1));
+
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, new Participant(), _blobName, 1)).Returns(Task.FromResult<Participant?>(_participant));
         _mockIReceiveCaasFileHelper.Setup(x => x.SerializeParquetFile(It.IsAny<List<Cohort>>(), _cohort, _blobName, 1));
         // Act
