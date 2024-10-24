@@ -44,9 +44,10 @@ public class LookupValidationTests
                 CreatedException = true
             }));
 
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
         // Test data setup
         var existingParticipant = new Participant
@@ -401,14 +402,16 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(false);
+
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
 
         // Act
         await _sut.RunAsync(_request.Object);
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -423,7 +426,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateCurrentPosting(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
         // Act
         await _sut.RunAsync(_request.Object);
@@ -437,7 +440,6 @@ public class LookupValidationTests
 
     [TestMethod]
     [DataRow(Actions.New, "InvalidPCP", "LDN", "20241101")]
-    [DataRow(Actions.Amended, "ValidPCP", null, null)]
     public async Task Run_ValidatePrimaryCareProvider_CreatesException(string recordType, string primaryCareProvider, string reasonForRemoval, string reasonForRemovalDate)
     {
         // Arrange
@@ -448,7 +450,8 @@ public class LookupValidationTests
         _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "InvalidPCP");
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
@@ -456,17 +459,16 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
     [TestMethod]
     [DataRow(Actions.New, "LDN", "20241101")]
-    [DataRow(Actions.Amended, "LDN", "20241101")]
-    [DataRow(Actions.Removed, "LDN", "20241101")]
-    [DataRow(Actions.Amended, null, "20241101")]
-    [DataRow(Actions.Amended, "LDN", null)]
+    [DataRow(Actions.New, "LDN", "20241101")]
+    [DataRow(Actions.New, null, "20241101")]
+    [DataRow(Actions.New, "LDN", null)]
     public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string recordType, string reasonForRemoval, string reasonForRemovalDate)
     {
         // Arrange
@@ -477,7 +479,8 @@ public class LookupValidationTests
         _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
         var expectedStatusCode = recordType == Actions.New ? HttpStatusCode.Created : HttpStatusCode.OK;
 
         // Act
@@ -555,7 +558,7 @@ public class LookupValidationTests
         _requestBody.ExistingParticipant.PrimaryCareProvider = "ABCDE";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);
@@ -586,7 +589,7 @@ public class LookupValidationTests
         _requestBody.ExistingParticipant.PrimaryCareProvider = "ValidPCP";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);

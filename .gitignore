@@ -58,3 +58,4 @@ application/CohortManager/SampleData/
 recreate_local_settings.sh
 
 .history
+application/CohortManager/Set-up/SampleData/CaaSSchema02.json
