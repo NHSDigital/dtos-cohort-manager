@@ -53,6 +53,9 @@ function run-grype-in-docker() {
   # shellcheck disable=SC1091
   source ./scripts/docker/docker.lib.sh
 
+
+ # /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
+
   # shellcheck disable=SC2155
   local image=$(name=ghcr.io/anchore/grype docker-get-image-version-and-pull)
   docker run --rm --platform linux/amd64 \

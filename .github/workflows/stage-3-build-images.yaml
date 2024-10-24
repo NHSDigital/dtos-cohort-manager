@@ -130,8 +130,10 @@ jobs:
           find /home/runner/ -type f | grep sbom-repository
 
           ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
+          ls -lh /workdir/sbom-repository-report.json
 
-          cat /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
+          ../../scripts/reports/scan-vulnerabilities.sh
+          # cat /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
