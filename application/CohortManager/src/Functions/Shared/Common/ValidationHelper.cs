@@ -1,6 +1,7 @@
 namespace Common;
 
 using System.Globalization;
+using Model;
 
 public static class ValidationHelper
 {
@@ -61,6 +62,15 @@ public static class ValidationHelper
         if (integerValue < 0 || integerValue > 9)
         {
             integerValue = -1;
+            return false;
+        }
+        return true;
+    }
+
+    public static bool ValidateEligibilityFlag(string recordType, string eligibilityFlag)
+    {
+        if ((recordType == Actions.New && eligibilityFlag == "0") || (recordType == Actions.Removed && eligibilityFlag == "1"))
+        {
             return false;
         }
         return true;

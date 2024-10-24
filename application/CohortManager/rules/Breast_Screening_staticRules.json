@@ -87,6 +87,18 @@
           }
         ],
         "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))"
+      },
+      {
+        "RuleName": "94.EligibilityFlag.NonFatal",
+        "Expression": "ValidationHelper.ValidateEligibilityFlag(participant.RecordType, participant.EligibilityFlag)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid eligibility flag.\""
+            }
+          }
+        }
       }
     ]
   }
