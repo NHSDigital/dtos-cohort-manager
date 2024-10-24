@@ -13,10 +13,12 @@ variables:
   - group: prod_global_variable_group
   - group: prod_hub_variable_group
   - name: TF_DIRECTORY
-    value: '$(System.DefaultWorkingDirectory)/infrastructure'
+    value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-audit'
+
 pool:
-  vmImage: ubuntu-latest
-  #name: 'private-pool-dev-uks'
+  #vmImage: ubuntu-latest
+  name: 'private-pool-dev-uks'
+
 # Pre-Production environment
 stages:
   - stage: terraform_plan
@@ -26,7 +28,7 @@ stages:
     variables:
       - group: preprod_variable_group
     jobs:
-      - template: ../jobs/init_and_plan.yaml
+      - template: ../jobs/init_and_plan-audit.yaml
         parameters:
           ENVIRONMENT: $(ENVIRONMENT)
           SERVICE_CONNECTION: $(SERVICE_CONNECTION)
