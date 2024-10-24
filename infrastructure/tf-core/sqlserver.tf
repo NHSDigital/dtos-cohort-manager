@@ -4,7 +4,7 @@ module "azure_sql_server" {
     if var.sqlserver != {}
   }
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=feat/DTOSS-0000-Fix-SQL-Firewall-Rules"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=2ade749bb128a116db85bf0439cb77c7c205ebcb"
 
   # Azure SQL Server
   name                = module.regions_config[each.key].names.sql-server
