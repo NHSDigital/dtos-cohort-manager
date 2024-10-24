@@ -4,23 +4,13 @@
     "GlobalParams": [
       {
         "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)"
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
       }
     ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "newRecordType",
-            "Expression": "newParticipant.RecordType == Actions.New"
-          },
-          {
-            "Name": "validReasonForRemovalFields",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.ReasonForRemoval) OR !string.IsNullOrEmpty(newParticipant.ReasonForRemovalEffectiveFromDate)"
-          }
-        ],
-        "Expression": "(newRecordType AND validPrimaryCareProvider) OR (!newRecordType AND validPrimaryCareProvider AND validReasonForRemovalFields)",
+        "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -31,14 +21,26 @@
         }
       },
       {
-        "RuleName": "58.CurrentPosting.NonFatal",
+        "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "currentPosting",
-            "Expression": "newParticipant.CurrentPosting"
+            "Name": "CurrentPostingDoesNotExistInDB",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+          },
+          {
+            "Name": "ValidatePostingCategories",
+            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+          },
+          {
+            "Name": "PrimaryCareProviderDoesNotExistOnDB",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "string.IsNullOrEmpty(currentPosting) OR dbLookup.ValidateCurrentPosting(currentPosting)",
+        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderDoesNotExistOnDB AND ValidatePostingCategories"
+      },
+      {
+        "RuleName": "58.CurrentPosting.NonFatal",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
