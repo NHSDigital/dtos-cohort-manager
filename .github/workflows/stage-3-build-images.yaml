@@ -124,6 +124,9 @@ jobs:
           docker images
           ../../scripts/reports/create-sbom-report.sh
 
+          pwd
+          find .
+
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
             docker push "$repo_name:$COMMIT_HASH_TAG"
