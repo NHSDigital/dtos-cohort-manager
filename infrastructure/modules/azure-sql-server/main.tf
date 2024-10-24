@@ -71,7 +71,7 @@ module "diagnostic-setting" {
   count = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled ? 1 : 0
 
   source = "../diagnostic-setting"
-  
+
   name                          = "${var.name}-diagnostic_setting"
   resource_group_name           = var.resource_group_name
   location                      = var.location

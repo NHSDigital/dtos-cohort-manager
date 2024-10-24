@@ -14,6 +14,14 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_setting" {
   #   }
   # } May have to configure at resource level
 
+  dynamic "log" {
+    for_each = var.diagnostic_setting_properties.log_categories
+    content {
+      category = log.key
+      enabled  = log.value.enabled
+    }
+  }
+
   metric {
     category = var.diagnostic_setting_properties.metrics_categories
 

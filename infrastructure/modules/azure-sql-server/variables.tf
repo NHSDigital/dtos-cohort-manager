@@ -23,10 +23,20 @@ variable "diagnostic_setting_properties" {
     diagnostic_settings_globally_enabled = optional(bool, false),
     log_analytics_workspace_id           = optional(string, ""),
     sql_security_audit_logs_enabled      = optional(bool, false),
-    metrics_categories = optional(string,"") #(string, "")
-    log_categories                       = optional(map(object({
-        log_categories = optional(string, "")
-    })), {})
+    metrics_categories                   = optional(string, "") #(string, "")
+    log_categories = optional(map(object({
+      enabled = optional(bool, false) # Specify whether the log is enabled
+      })), {
+      Administrative = { enabled = true },
+      Security       = { enabled = true },
+      ServiceHealth  = { enabled = true },
+      Alert          = { enabled = true },
+      Recommendation = { enabled = false },
+      Policy         = { enabled = false },
+      Autoscale      = { enabled = false },
+      ResourceHealth = { enabled = true },
+
+    })
 
 
   })

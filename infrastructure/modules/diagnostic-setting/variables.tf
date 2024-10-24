@@ -15,7 +15,7 @@ variable "location" {
 variable "target_resource_id" {
   type        = string
   description = "The resource where the Diagnostic Setting is created."
-} 
+}
 
 
 variable "diagnostic_setting_properties" {
@@ -25,9 +25,18 @@ variable "diagnostic_setting_properties" {
     diagnostic_setting_audit_logs_enabled = optional(bool, false),
     log_analytics_workspace_id            = optional(string, ""),
     metrics_categories                    = optional(string, "") #(string, "")
-    log_categories                        = optional(map(object({
-        log_categories = optional(string, "")
-    })), {})
+    log_categories = optional(map(object({
+      enabled = optional(bool, false)
+      })), {
+      Administrative = { enabled = true },
+      Security       = { enabled = true },
+      ServiceHealth  = { enabled = true },
+      Alert          = { enabled = true },
+      Recommendation = { enabled = false },
+      Policy         = { enabled = false },
+      Autoscale      = { enabled = false },
+      ResourceHealth = { enabled = true },
+    })
   })
 }
 
