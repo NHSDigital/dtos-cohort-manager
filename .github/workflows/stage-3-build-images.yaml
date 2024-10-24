@@ -126,17 +126,17 @@ jobs:
 
           pwd
           find /home/runner/work/ -type f | grep sbom-repository
-
           find /home/runner/ -type f | grep sbom-repository
-
           ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
-          # ls -lh /workdir/
-          # env
-          # find /workdir/
-          # ls -lh /workdir/sbom-repository-report.json
+
+          export SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-${function}-repository-report}
+          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV  # This ensures it is persisted across steps
+
+
+          export SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-${function}-repository-report}
+
 
           bash -x ../../scripts/reports/scan-vulnerabilities.sh
-          # cat /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
@@ -157,14 +157,15 @@ jobs:
         shell: bash
         run: |
           pwd
-          find /home/runner/ -type f | grep sbom-repository
-          zip sbom-repository-report.json.zip sbom-repository-report.json
+          find /home/runner/ -type f | grep $SBOM_REPOSITORY_REPORT
+          zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
+
       - name: "Upload SBOM report as an artefact"
         if: ${{ !env.ACT }}
         uses: actions/upload-artifact@v3
         with:
-          name: sbom-repository-report.json.zip
-          path: ./sbom-repository-report.json.zip
+          name: $SBOM_REPOSITORY_REPORT.json.zip
+          path: ./$SBOM_REPOSITORY_REPORT.json.zip
           retention-days: 21
       - name: "Compress vulnerabilities report"
         shell: bash
