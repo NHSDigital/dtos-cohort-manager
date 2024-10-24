@@ -152,3 +152,17 @@ jobs:
           docker rmi "$repo_name:$PR_NUM_TAG"
           docker rmi "$repo_name:$ENVIRONMENT_TAG"
           docker rmi cohort-manager-$function:latest
+
+      - name: "Compress SBOM report"
+        shell: bash
+        run: |
+          pwd
+          find /home/runner/ -type f | grep sbom-repository
+          zip sbom-repository-report.json.zip sbom-repository-report.json
+
+      - name: "Compress vulnerabilities report"
+        shell: bash
+        run: |
+          pwd
+          find /home/runner/ -type f
+          zip vulnerabilities-repository-report.json.zip vulnerabilities-repository-report.json
