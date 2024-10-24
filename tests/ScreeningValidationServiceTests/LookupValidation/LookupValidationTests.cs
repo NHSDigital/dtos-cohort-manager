@@ -45,7 +45,6 @@ public class LookupValidationTests
             }));
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
@@ -606,7 +605,7 @@ public class LookupValidationTests
     [DataRow("RPR", "", "", Actions.Amended)]
     [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
 
-    public async Task Run_ValidateBsoCodeRuleFails_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
         SetupRules("CohortRules");
@@ -633,7 +632,7 @@ public class LookupValidationTests
     [DataRow("ABC", "ZZZPCP", "", Actions.Amended)]
     [DataRow("RPR", "", "", Actions.New)]
 
-    public async Task Run_ValidateBsoCodeRulePasses_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    public async Task Run_AmendedParticipantHasValidBSO_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
         SetupRules("CohortRules");
@@ -645,7 +644,7 @@ public class LookupValidationTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
 
         // Act
         await _sut.RunAsync(_request.Object);

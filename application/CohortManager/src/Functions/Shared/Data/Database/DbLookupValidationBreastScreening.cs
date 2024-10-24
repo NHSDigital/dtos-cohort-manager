@@ -30,8 +30,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
     public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
-        if (string.IsNullOrWhiteSpace(primaryCareProvider)) return false;
-
         using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
@@ -61,7 +59,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
-        if (string.IsNullOrWhiteSpace(postcode)) return false;
         var outcode = postcode.Substring(0, postcode.IndexOf(" "));
 
         using (_connection = new SqlConnection(_connectionString))
