@@ -25,7 +25,7 @@ module "azure_sql_server" {
     diagnostic_settings_globally_enabled = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled
     log_analytics_workspace_id           = module.log_analytics_workspace.audit_id
     log_categories = optional(map(object({
-      enabled = optional(bool, false)
+      enabled = bool
       })), {
       Administrative = { enabled = true },
       Security       = { enabled = true },

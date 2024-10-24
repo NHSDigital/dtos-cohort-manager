@@ -25,7 +25,7 @@ variable "diagnostic_setting_properties" {
     sql_security_audit_logs_enabled      = optional(bool, false),
     metrics_categories                   = optional(string, "") #(string, "")
     log_categories = optional(map(object({
-      enabled = optional(bool, false)
+      enabled = bool
       })), {
       Administrative = { enabled = true },
       Security       = { enabled = true },

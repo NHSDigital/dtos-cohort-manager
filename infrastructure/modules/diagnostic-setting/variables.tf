@@ -26,7 +26,7 @@ variable "diagnostic_setting_properties" {
     log_analytics_workspace_id            = optional(string, ""),
     metrics_categories                    = optional(string, "") #(string, "")
     log_categories = optional(map(object({
-      enabled = optional(bool, false)
+      enabled = bool
       })), {
       Administrative = { enabled = true },
       Security       = { enabled = true },
