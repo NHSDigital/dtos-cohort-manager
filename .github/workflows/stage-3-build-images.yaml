@@ -152,8 +152,10 @@ jobs:
       - name: "Compress SBOM report"
         shell: bash
         run: |
+          set -x
           pwd
           echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+          zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
           find /home/runner/ -type f | grep $SBOM_REPOSITORY_REPORT
           zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
 
