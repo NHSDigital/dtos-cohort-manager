@@ -47,6 +47,7 @@ function run-syft-natively() {
   CHECK_IMAGE=${CHECK_IMAGE:-"")}
   echo $CHECK_IMAGE
   which syft
+  echo "alastair here 2"
 
   syft scan docker:$CHECK_IMAGE \
     --config "$PWD/scripts/config/syft.yaml" \
