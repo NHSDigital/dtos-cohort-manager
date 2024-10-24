@@ -36,7 +36,6 @@ function create-report() {
 
   else
     echo "run in docker"
-    #run-syft-natively
     run-syft-in-docker
   fi
 }
@@ -68,7 +67,7 @@ function run-syft-in-docker() {
   docker run --rm --platform linux/amd64 \
     --volume "$PWD":/workdir \
     "$image" \
-      packages dir:/workdir \
+      docker:$CHECK_IMAGE \
       --config /workdir/scripts/config/syft.yaml \
       --output spdx-json=/workdir/sbom-repository-report.tmp.json
 }
