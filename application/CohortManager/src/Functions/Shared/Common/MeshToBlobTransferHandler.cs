@@ -99,7 +99,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
                 continue;
             }
             if(!predicate(messageHead.Response.MessageMetaData)){
-                _logger.LogInformation("Message: {MessageId} was did not meet the predicate for transferring to BlobStorage",messageHead.Response.MessageMetaData.MessageId);
+                _logger.LogInformation("Message: {MessageId} did not meet the predicate for transferring to BlobStorage",messageHead.Response.MessageMetaData.MessageId);
                 continue;
             }
             bool wasMessageDownloaded = await TransferMessageToBlobStorage(messageHead.Response.MessageMetaData);
