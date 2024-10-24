@@ -68,6 +68,7 @@ function run-syft-in-docker() {
   local image=$(name=ghcr.io/anchore/syft docker-get-image-version-and-pull)
   docker run --rm --platform linux/amd64 \
     --volume "$PWD":/workdir \
+    --volume /var/run/docker.sock:/var/run/docker.sock  \
     "$image" \
       docker:$CHECK_IMAGE \
       --config /workdir/scripts/config/syft.yaml \
