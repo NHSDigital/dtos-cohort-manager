@@ -130,11 +130,7 @@ jobs:
           ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
           export SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-${function}-repository-report}
-          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV  # This ensures it is persisted across steps
-
-
-          export SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-${function}-repository-report}
-
+          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
 
           bash -x ../../scripts/reports/scan-vulnerabilities.sh
 
@@ -157,6 +153,7 @@ jobs:
         shell: bash
         run: |
           pwd
+          echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
           find /home/runner/ -type f | grep $SBOM_REPOSITORY_REPORT
           zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
 
