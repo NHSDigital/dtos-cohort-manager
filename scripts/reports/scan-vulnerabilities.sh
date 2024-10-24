@@ -86,6 +86,8 @@ function enrich-report() {
     '.creationInfo |= . + {"created":"'${build_datetime}'","repository":{"url":"'${git_url}'","branch":"'${git_branch}'","tags":['${git_tags}'],"commitHash":"'${git_commit_hash}'"},"pipeline":{"id":'${pipeline_run_id}',"number":'${pipeline_run_number}',"attempt":'${pipeline_run_attempt}'}}' \
     vulnerabilities-repository-report.tmp.json \
       > vulnerabilities-repository-report.json
+
+  ls -l vulnerabilities-repository-report.json
   rm -f vulnerabilities-repository-report.tmp.json
 }
 
