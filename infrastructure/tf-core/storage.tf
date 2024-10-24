@@ -13,7 +13,7 @@ module "storage" {
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
 
-  rbac_role_assignments = local.rbac_role_assignments_storage[each.value.region_key]
+  rbac_roles = local.rbac_roles_storage
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
@@ -46,20 +46,4 @@ locals {
 
   # Project the above list into a map with unique keys for consumption in a for_each meta argument
   storage_accounts_map = { for storage in local.storage_accounts_flatlist : storage.name => storage }
-}
-
-/* --------------------------------------------------------------------------------------------------
-  RBAC roles to assign to the Storage Accounts
--------------------------------------------------------------------------------------------------- */
-locals {
-
-  rbac_role_assignments_storage = {
-    for storage_key, storage_val in local.storage_accounts_map :
-    storage_key => [
-      for role_key, role_value in local.rbac_roles_storage : {
-        role_definition_name = role_value
-        scope                = module.storage["${storage_key}-${storage_key.value.region_key}"].id
-      }
-    ]
-  }
 }
