@@ -122,7 +122,7 @@ jobs:
           export CHECK_IMAGE=cohort-manager-$function:
           pwd
           find .
-          ./scripts/reports/create-sbom-report.sh run-syft-natively
+          ../../scripts/reports/create-sbom-report.sh run-syft-natively
 
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
