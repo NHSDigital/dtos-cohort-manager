@@ -71,6 +71,8 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - name: "Run security test"
         run: |
           make test-security

@@ -5,6 +5,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class BlobStorageHelper : IBlobStorageHelper
 {
@@ -47,4 +48,46 @@ public class BlobStorageHelper : IBlobStorageHelper
 
         return true;
     }
+
+    public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile, bool overwrite = false)
+    {
+        var sourceBlobServiceClient = new BlobServiceClient(connectionString);
+        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
+        var sourceBlobClient = sourceContainerClient.GetBlobClient(blobFile.FileName);
+
+        try
+        {
+            var result = await sourceBlobClient.UploadAsync(blobFile.Data, overwrite: overwrite);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,$"there has been a problem while uploading the file: {ex.Message}");
+            return false;
+        }
+
+        return true;
+    }
+
+    public async Task<BlobFile> GetFileFromBlobStorage(string connectionString, string containerName, string fileName)
+    {
+
+        _logger.LogInformation($"Downloading File: {fileName} From blobStorage Container: {containerName}");
+
+        var blobServiceClient = new BlobServiceClient(connectionString);
+        var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = containerClient.GetBlobClient(fileName);
+
+        await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
+
+        if(await blobClient.ExistsAsync()){
+            var stream = new MemoryStream();
+            await blobClient.DownloadToAsync(stream);
+            return new BlobFile(stream,fileName);
+        }
+        _logger.LogWarning($"File {fileName} does not exist in blobStorageContainer: {containerName}");
+        return null;
+
+    }
+
+
 }

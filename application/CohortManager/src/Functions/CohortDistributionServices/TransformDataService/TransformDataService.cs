@@ -25,13 +25,14 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    // TODO: Make this be an interface so can be tested properly. use program.cs?
-    private IBsTransformationLookups _transformationLookups = new ();
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger)
+    private IBsTransformationLookups _transformationLookups;
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,
+                                ILogger<TransformDataService> logger, IBsTransformationLookups transformationLookups)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
+        _transformationLookups = transformationLookups;
     }
 
     [Function("TransformDataService")]
@@ -65,24 +66,16 @@ public class TransformDataService
 
             System.Console.WriteLine("record type: " + participant.RecordType);
             System.Console.WriteLine("given name is null: " + string.IsNullOrEmpty(participant.FirstName));
-            System.Console.WriteLine("record type is amended " + participant.RecordType == "AMENDED");
-            System.Console.WriteLine("Participant name: " + _transformationLookups.GetName(participant.ParticipantId, "FAMILY_NAME"));
+            System.Console.WriteLine("record type is amended " + participant.RecordType == Actions.Amended);
+            System.Console.WriteLine("Participant name: " + _transformationLookups.GetName(participant.ParticipantId, "GIVEN_NAME"));
+            // Database lookup transformations
+            participant = await LookupTransformations(participant);
             // Other transformation rules
             participant = await TransformParticipantAsync(participant);
+            System.Console.WriteLine("given name is null after transformation: " + string.IsNullOrEmpty(participant.FirstName));
 
             // Name prefix transformation
             participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
-
-            // address transformation
-            if (!string.IsNullOrEmpty(participant.Postcode) &&
-                string.IsNullOrEmpty(participant.AddressLine1) &&
-                string.IsNullOrEmpty(participant.AddressLine2) &&
-                string.IsNullOrEmpty(participant.AddressLine3) &&
-                string.IsNullOrEmpty(participant.AddressLine4) &&
-                string.IsNullOrEmpty(participant.AddressLine5))
-            {
-                participant = _transformationLookups.GetAddress(participant);
-            }
 
             var response = JsonSerializer.Serialize(participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -109,8 +102,7 @@ public class TransformDataService
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", participant),
-            new RuleParameter("transformationLookups", _transformationLookups)
+            new RuleParameter("participant", participant)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -147,5 +139,45 @@ public class TransformDataService
                                                     ?? null;
 
         return namePrefix;
+    }
+
+    /// <summary>
+    /// Performs transformations that require database lookups using the BsTransformationLookups class
+    /// </summary>
+    /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
+    /// <returns>The transformed participant</returns>
+    public async Task<CohortDistributionParticipant> LookupTransformations(CohortDistributionParticipant participant) {
+        // Set up rules engine
+        string json = await File.ReadAllTextAsync("lookupTransformationRules.json");
+        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+        var action = new Dictionary<string, Func<ActionBase>>{{"TransformAction", () => new LookupAction()}};
+        var reSettings = new ReSettings {CustomActions = action};
+        var re = new RulesEngine.RulesEngine(rules);
+
+        var ruleParameters = new[] {
+            new RuleParameter("participant", participant),
+            new RuleParameter("transformationLookups", _transformationLookups)
+        };
+
+        // Execute rules
+        var rulesList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
+
+        participant = (CohortDistributionParticipant?)rulesList.Where(result => result.IsSuccess)
+                                            .Select(result => result.ActionResult.Output)
+                                            .FirstOrDefault()
+                                            ?? null;
+
+        // address transformation
+        if (!string.IsNullOrEmpty(participant.Postcode) &&
+            string.IsNullOrEmpty(participant.AddressLine1) &&
+            string.IsNullOrEmpty(participant.AddressLine2) &&
+            string.IsNullOrEmpty(participant.AddressLine3) &&
+            string.IsNullOrEmpty(participant.AddressLine4) &&
+            string.IsNullOrEmpty(participant.AddressLine5))
+        {
+            participant = _transformationLookups.GetAddress(participant);
+        }
+
+        return participant;
     }
 }

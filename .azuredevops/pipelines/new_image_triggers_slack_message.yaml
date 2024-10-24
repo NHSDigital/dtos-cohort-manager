@@ -126,6 +126,10 @@ parameters:
         repository: cohort-manager-remove-validation-exception-data
         tag:
           - development
+      - name: retrieve-mesh-file
+        repository: cohort-manager-retrieve-mesh-file
+        tag:
+          - development
 
 
 resources:
