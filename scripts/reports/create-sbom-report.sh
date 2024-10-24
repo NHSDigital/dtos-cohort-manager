@@ -36,8 +36,8 @@ function create-report() {
 
   else
     echo "run in docker"
-    run-syft-natively
-    # run-syft-in-docker
+    #run-syft-natively
+    run-syft-in-docker
   fi
 }
 
