@@ -13,6 +13,8 @@ module "storage" {
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
 
+  rbac_role_assignments = local.rbac_role_assignments_storage[each.value.region_key]
+
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids_blob            = [data.terraform_remote_state.hub.outputs.private_dns_zone_storage_blob[each.value.region_key].private_dns_zone.id]
