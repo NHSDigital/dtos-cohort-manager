@@ -24,6 +24,7 @@ module "azure_sql_server" {
   diagnostic_setting_properties = var.features.diagnostic_settings_enabled ? {
     diagnostic_settings_globally_enabled = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled
     log_analytics_workspace_id           = module.log_analytics_workspace.audit_id
+    sql_security_audit_logs_enabled = var.diagnostic_setting_properties.diagnostic_setting_audit_logs_enabled
     log_categories = optional(map(object({
       enabled = bool
       })), {
@@ -36,7 +37,6 @@ module "azure_sql_server" {
       Autoscale      = { enabled = false },
       ResourceHealth = { enabled = true },
     })
-    sql_security_audit_logs_enabled = var.diagnostic_setting_properties.diagnostic_setting_audit_logs_enabled
   } : null
 
   # Default database

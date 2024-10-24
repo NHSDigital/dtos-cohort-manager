@@ -51,7 +51,7 @@ resource "azurerm_key_vault_access_policy" "functionapp" {
   #     function_key => function_value
   # } }
 
-  key_vault_id = module.key_vault.key_vault_id
+  key_vault_id = "" #module.key_vault.key_vault_id
   object_id    = each.value
   tenant_id    = data.azurerm_client_config.current.tenant_id
 
