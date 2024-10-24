@@ -54,6 +54,8 @@ function run-grype-in-docker() {
   source ./scripts/docker/docker.lib.sh
 
 
+  echo " Alastair testing"
+  set -x
  # /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
   # shellcheck disable=SC2155

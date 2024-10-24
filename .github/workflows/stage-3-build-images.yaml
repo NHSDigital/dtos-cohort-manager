@@ -135,7 +135,7 @@ jobs:
           # find /workdir/
           # ls -lh /workdir/sbom-repository-report.json
 
-          ../../scripts/reports/scan-vulnerabilities.sh
+          bash -x ../../scripts/reports/scan-vulnerabilities.sh
           # cat /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
           # Push the image to the repository
