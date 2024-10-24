@@ -125,7 +125,9 @@ jobs:
           ../../scripts/reports/create-sbom-report.sh
 
           pwd
-          find .
+          find /home/runner/work/ -type f | grep sbom-repository
+
+          find /home/runner/ -type f | grep sbom-repository
 
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
