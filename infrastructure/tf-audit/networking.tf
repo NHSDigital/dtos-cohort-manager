@@ -102,7 +102,9 @@ module "peering_spoke_hub" {
 module "peering_hub_spoke" {
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
-  providers = azurerm.hub
+  providers = {
+    azurerm = azurerm.hub
+  }
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
