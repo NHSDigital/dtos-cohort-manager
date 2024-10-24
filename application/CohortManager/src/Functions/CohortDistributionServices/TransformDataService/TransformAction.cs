@@ -22,6 +22,7 @@ class TransformAction : ActionBase
     {
         var transformFields = context.GetContext<List<TransformFields>>("transformFields");
         var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
+        var bsoCode = ruleParameters.Where(rule => rule.Name == "bsoCode").Select(result => result.Value).FirstOrDefault();
 
         foreach (var transformField in transformFields)
         {
@@ -29,7 +30,7 @@ class TransformAction : ActionBase
 
             if (transformField.isExpression)
             {
-                EvaluateExpression(property!, transformField.value, participant);
+                EvaluateExpression(property!, transformField.value, participant, bsoCode);
             }
             else
             {
@@ -56,10 +57,10 @@ class TransformAction : ActionBase
         return participant;
     }
 
-    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant)
+    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, object bsoCode)
     {
         var reParser = new RuleExpressionParser(new ReSettings());
-        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant) };
+        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant), new RuleParameter("bsoCode", bsoCode) };
         var result = reParser.Evaluate<string>(expression, ruleParameters);
 
         property.SetValue(participant, result);

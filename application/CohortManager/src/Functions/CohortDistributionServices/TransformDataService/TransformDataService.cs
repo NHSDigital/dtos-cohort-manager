@@ -102,7 +102,8 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
-            new RuleParameter("dbLookup", _dbLookup)
+            new RuleParameter("dbLookup", _dbLookup),
+            new RuleParameter("bsoCode", _dbLookup.GetBSOCode(participant.Postcode))
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);

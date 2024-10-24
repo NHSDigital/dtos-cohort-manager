@@ -77,6 +77,16 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     }
 
     /// <summary>
+    /// Retrieves the participant's BSO code (using the participant's outcode)
+    /// </summary>
+    /// <param name="postcode">The participant's postcode.</param>
+    /// <returns>string, BSO code<returns>
+    public string GetBSOCode(string postcode)
+    {
+        return "ELD";
+    }
+
+    /// <summary>
     /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
     /// </summary>
     /// <param name="languageCode">The participant's preferred language code.</param>

@@ -370,13 +370,31 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ReasonForRemovalRuleA_SetReasonForRemovalAsA()
+    [DataRow("RDR")]
+    [DataRow("RDI")]
+    [DataRow("RPR")]
+    public async Task Run_ReasonForRemovalRule1_TransformsMultipleFields(string reasonForRemoval)
     {
         // Arrange
-        _requestBody.Participant.ReasonForRemoval = "A";
+        var reasonForRemovalEffectiveFromDate = "2/10/2024";
+        var postcode = "AL1 1BB";
+        var addressLine = "address";
+        var bsoCode = "ELD";
+
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate;
+        _requestBody.Participant.Postcode = postcode;
+        _requestBody.Participant.AddressLine1 = addressLine;
+        _requestBody.Participant.AddressLine2 = addressLine;
+        _requestBody.Participant.AddressLine3 = addressLine;
+        _requestBody.Participant.AddressLine4 = addressLine;
+        _requestBody.Participant.AddressLine5 = addressLine;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.GetBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -389,7 +407,66 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
-            ReasonForRemoval = "RULE_A_SUCCESS"
+            AddressLine1 = addressLine,
+            AddressLine2 = addressLine,
+            AddressLine3 = addressLine,
+            AddressLine4 = addressLine,
+            AddressLine5 = addressLine,
+            Postcode = postcode,
+            PrimaryCareProvider = $"ZZZ{bsoCode}",
+            PrimaryCareProviderEffectiveFromDate = reasonForRemovalEffectiveFromDate,
+            ReasonForRemoval = null,
+            ReasonForRemovalEffectiveFromDate = null,
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("AFL", "AL1 1BB")]
+    [DataRow("RDR", "")]
+    [DataRow("RDR", null)]
+    [DataRow("RDR", "INVALID_POSTCODE")]
+    public async Task Run_ReasonForRemovalRule1_DoesNotTransformMultipleFields(string reasonForRemoval, string postcode)
+    {
+        // Arrange
+        var reasonForRemovalEffectiveFromDate = "2/10/2024";
+        var addressLine = "address";
+
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate;
+        _requestBody.Participant.Postcode = postcode;
+        _requestBody.Participant.AddressLine1 = addressLine;
+        _requestBody.Participant.AddressLine2 = addressLine;
+        _requestBody.Participant.AddressLine3 = addressLine;
+        _requestBody.Participant.AddressLine4 = addressLine;
+        _requestBody.Participant.AddressLine5 = addressLine;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            AddressLine1 = addressLine,
+            AddressLine2 = addressLine,
+            AddressLine3 = addressLine,
+            AddressLine4 = addressLine,
+            AddressLine5 = addressLine,
+            Postcode = postcode,
+            ReasonForRemoval = reasonForRemoval,
+            ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
