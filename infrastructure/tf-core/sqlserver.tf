@@ -4,8 +4,7 @@ module "azure_sql_server" {
     if var.sqlserver != {}
   }
 
-  #source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/azure-sql-server?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=3ff9a88bed4d9506e516809bdb9c5757b362ac2d"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=feat/DTOSS-0000-Fix-SQL-Firewall-Rules"
 
   # Azure SQL Server
   name                = module.regions_config[each.key].names.sql-server
@@ -30,10 +29,7 @@ module "azure_sql_server" {
   sku            = var.sqlserver.dbs.cohman.sku
 
   # FW Rules
-  azurepassthrough = var.sqlserver.server.azure_services_access_enabled
-  fw_rule_name     = var.sqlserver.fw_rules.passthrough.fw_rule_name
-  start_ip         = var.sqlserver.fw_rules.passthrough.start_ip
-  end_ip           = var.sqlserver.fw_rules.passthrough.end_ip
+  firewall_rules = var.sqlserver.fw_rules
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
