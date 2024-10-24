@@ -92,15 +92,6 @@ data "azurerm_application_insights" "ai" {
   RBAC roles to assign to the Function Apps
 -------------------------------------------------------------------------------------------------- */
 locals {
-  rbac_roles_storage = {
-    storage_account_contributor    = "Storage Account Contributor",
-    storage_blob_data_owner        = "Storage Blob Data Owner",
-    storage_queue_data_contributor = "Storage Queue Data Contributor"
-  }
-
-  rbac_roles_database = {
-    sql_contributor = "Contributor"
-  }
 
   rbac_role_assignments_storage_fnapp = {
     for region_key, region_value in module.regions_config :
