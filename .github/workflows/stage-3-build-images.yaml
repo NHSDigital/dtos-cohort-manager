@@ -119,7 +119,7 @@ jobs:
           docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
           docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
-          export CHECK_IMAGE=cohort-manager-$function:$ENVIRONMENT_TAG
+          export CHECK_IMAGE=acrukscohmandev.azurecr.io/cohort-manager-$function:$ENVIRONMENT_TAG
           pwd
           find .
           export FORCE_USE_DOCKER=true
