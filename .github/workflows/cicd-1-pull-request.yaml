@@ -14,6 +14,8 @@ jobs:
     name: "Set CI/CD metadata"
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      pull-requests: read
     outputs:
       build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
       build_datetime: ${{ steps.variables.outputs.build_datetime }}
@@ -47,7 +49,7 @@ jobs:
       - name: "Check if pull request exists for this branch"
         id: pr_exists
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           branch_name=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
           echo "Current branch is '$branch_name'"
@@ -122,12 +124,14 @@ jobs:
   validate-title-stage:
     name: Validate PR title
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     if: github.event_name == 'pull_request'
     steps:
       - uses: amannn/action-semantic-pull-request@v5
         id: validate
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: thollander/actions-comment-pull-request@v2
         if: ${{ failure() && steps.validate.conclusion == 'failure' }}
