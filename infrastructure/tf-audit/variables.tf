@@ -68,6 +68,23 @@ variable "location" {
   default     = "uksouth"
 }
 
+variable "regions" {
+  type = map(object({
+    address_space     = optional(string)
+    is_primary_region = bool
+    connect_peering   = optional(bool, false)
+    subnets = optional(map(object({
+      cidr_newbits               = string
+      cidr_offset                = string
+      create_nsg                 = optional(bool, true) # defaults to true
+      name                       = optional(string)     # Optional name override
+      delegation_name            = optional(string)
+      service_delegation_name    = optional(string)
+      service_delegation_actions = optional(list(string))
+    })))
+  }))
+}
+
 variable "resource_groups_audit" {
   description = "Map of resource groups in Audit subscription"
   type = map(object({
@@ -95,6 +112,22 @@ variable "law" {
     retention_days           = optional(number, 30)
     audit_resource_group_key = optional(string, "audit")
   })
+}
+
+variable "network_security_group_rules" {
+  description = "The network security group rules."
+  default     = {}
+  type = map(list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  })))
 }
 
 variable "tags" {
