@@ -21,7 +21,7 @@ class TransformAction : ActionBase
     public override async ValueTask<object> Run(ActionContext context, RuleParameter[] ruleParameters)
     {
         var transformFields = context.GetContext<List<TransformFields>>("transformFields");
-        CohortDistributionParticipant participant = (CohortDistributionParticipant)ruleParameters[0].Value;
+        var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
 
         foreach (var transformField in transformFields)
         {

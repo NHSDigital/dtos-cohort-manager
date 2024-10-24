@@ -26,6 +26,7 @@ public class TransformDataServiceTests
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
 
     public TransformDataServiceTests()
     {
@@ -44,7 +45,7 @@ public class TransformDataServiceTests
             ServiceProvider = "1"
         };
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _lookupValidation.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -63,6 +64,8 @@ public class TransformDataServiceTests
                 response.WriteString(ResponseBody);
                 return response;
             });
+
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
     }
 
     [TestMethod]

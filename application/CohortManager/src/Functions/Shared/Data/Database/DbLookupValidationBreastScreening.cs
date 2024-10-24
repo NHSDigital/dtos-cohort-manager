@@ -54,6 +54,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
+        if (string.IsNullOrWhiteSpace(postcode)) return false;
         var outcode = postcode.Substring(0, postcode.IndexOf(" "));
 
         using (_connection = new SqlConnection(_connectionString))
@@ -63,7 +64,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             {
                 command.CommandText = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
                 var parameter = command.CreateParameter();
-                parameter.ParameterName = "@primaryCareProvider";
+                parameter.ParameterName = "@outcode";
                 parameter.Value = outcode ?? string.Empty;
                 command.Parameters.Add(parameter);
 
@@ -80,7 +81,8 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// </summary>
     /// <param name="languageCode">The participant's preferred language code.</param>
     /// <returns>bool, whether or not the language code exists in the DB.<returns>
-    public bool ValidateLanguageCode(string languageCode) {
+    public bool ValidateLanguageCode(string languageCode)
+    {
 
         using (_connection = new SqlConnection(_connectionString))
         {
