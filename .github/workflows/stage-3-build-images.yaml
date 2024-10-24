@@ -126,12 +126,10 @@ jobs:
           echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
           ../../scripts/reports/create-sbom-report.sh
 
-          pwd
-          find /home/runner/work/ -type f | grep sbom-repository
-          find /home/runner/ -type f | grep sbom-repository
-          ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
-
-
+          # pwd
+          # find /home/runner/work/ -type f | grep sbom-repository
+          # find /home/runner/ -type f | grep sbom-repository
+          # ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
           bash -x ../../scripts/reports/scan-vulnerabilities.sh
 
