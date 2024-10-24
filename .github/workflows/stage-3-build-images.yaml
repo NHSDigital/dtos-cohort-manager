@@ -159,10 +159,23 @@ jobs:
           pwd
           find /home/runner/ -type f | grep sbom-repository
           zip sbom-repository-report.json.zip sbom-repository-report.json
-
+      - name: "Upload SBOM report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-repository-report.json.zip
+          path: ./sbom-repository-report.json.zip
+          retention-days: 21
       - name: "Compress vulnerabilities report"
         shell: bash
         run: |
           pwd
           find /home/runner/ -type f
           zip vulnerabilities-repository-report.json.zip vulnerabilities-repository-report.json
+      - name: "Upload vulnerabilities report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: vulnerabilities-repository-report.json.zip
+          path: ./vulnerabilities-repository-report.json.zip
+          retention-days: 21
