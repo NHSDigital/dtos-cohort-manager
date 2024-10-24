@@ -90,7 +90,33 @@
       },
       {
         "RuleName": "94.EligibilityFlag.NonFatal",
-        "Expression": "ValidationHelper.ValidateEligibilityFlag(participant.RecordType, participant.EligibilityFlag)",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "participant.RecordType == Actions.New"
+          },
+          {
+            "Name": "validNewEligibilityFlag",
+            "Expression": "participant.EligibilityFlag != \"0\""
+          },
+          {
+            "Name": "delRecordType",
+            "Expression": "participant.RecordType == Actions.Removed"
+          },
+          {
+            "Name": "validDelEligibilityFlag",
+            "Expression": "participant.EligibilityFlag != \"1\""
+          },
+          {
+            "Name": "amendRecordType",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "validAmendEligibilityFlag",
+            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
+          }
+        ],
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",

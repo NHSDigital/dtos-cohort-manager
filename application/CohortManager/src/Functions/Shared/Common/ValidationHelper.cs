@@ -66,13 +66,4 @@ public static class ValidationHelper
         }
         return true;
     }
-
-    public static bool ValidateEligibilityFlag(string recordType, string eligibilityFlag)
-    {
-        if ((recordType == Actions.New && eligibilityFlag == "0") || (recordType == Actions.Removed && eligibilityFlag == "1"))
-        {
-            return false;
-        }
-        return true;
-    }
 }
