@@ -48,7 +48,7 @@ function run-syft-natively() {
 
   syft scan docker:$CHECK_IMAGE \
     --config "$PWD/scripts/config/syft.yaml" \
-    --output spdx-json="$PWD/sbom-repository-report.tmp.json"
+    --output spdx-json="$PWD/$SBOM_REPOSITORY_REPORT.tmp.json"
 
   # syft packages dir:"$PWD" \
   #   --config "$PWD/scripts/config/syft.yaml" \

@@ -122,6 +122,8 @@ jobs:
           export CHECK_IMAGE=cohort-manager-$function:latest
           export FORCE_USE_DOCKER=true
           docker images
+          export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
+          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
           ../../scripts/reports/create-sbom-report.sh
 
           pwd
@@ -129,8 +131,7 @@ jobs:
           find /home/runner/ -type f | grep sbom-repository
           ls -lh /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/sbom-repository-report.json
 
-          export SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-${function}-repository-report}
-          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
+
 
           bash -x ../../scripts/reports/scan-vulnerabilities.sh
 
