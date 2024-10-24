@@ -1,0 +1,14 @@
+curl -k \
+--request 'POST' \
+--cert 'meshcertnew.crt' \
+--key 'meshnewkey.pem' \
+--header 'accept: application/vnd.mesh.v2+json' \
+--header 'authorization: <AuthToken>>' \
+--header 'content-type: application/octet-stream' \
+--header 'mex-from: X26OT286' \
+--header 'mex-to: X26OT288' \
+--header 'mex-workflowid: CAAS_BREAST_SCREENING_COHORT' \
+--header 'mex-filename: BSS_20240601121212_n10.parquet' \
+--header 'mex-localid: testing123' \
+--data '@BSS_20240601121212_n10.parquet' \
+https://msg.intspineservices.nhs.uk/messageexchange/X26OT286/outbox
