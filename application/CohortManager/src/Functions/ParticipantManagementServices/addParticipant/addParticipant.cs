@@ -31,23 +31,20 @@ public class AddParticipantFunction
     }
 
     [Function(nameof(AddParticipantFunction))]
-    public async Task<HttpResponseData> Run([QueueTrigger("add-participant-queue")] string participantRecordInput, FunctionContext context)
+    public async Task Run([QueueTrigger("add-participant-queue")] BasicParticipantCsvRecord basicParticipantCsvRecord, FunctionContext context)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
 
         Participant participant = new Participant();
-        BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
+
         try
         {
-            basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(participantRecordInput);
-
-
             var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             }
 
             participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
@@ -61,7 +58,7 @@ public class AddParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             }
 
             if (response.CreatedException)
@@ -75,7 +72,9 @@ public class AddParticipantFunction
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                _logger.LogError("There was problem posting the participant to the database");
+                await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+
             }
             _logger.LogInformation("participant created");
 
@@ -84,25 +83,25 @@ public class AddParticipantFunction
 
             if (eligibleResponse.StatusCode != HttpStatusCode.OK)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                _logger.LogError($"There was an error while marking participant as eligible {eligibleResponse}");
+                await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             }
             _logger.LogInformation("participant created, marked as eligible");
 
 
             if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, JsonSerializer.Serialize(participant)))
             {
-                _logger.LogInformation("participant failed to send to Cohort Distribution Service");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                _logger.LogError("participant failed to send to Cohort Distribution Service");
+                await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+
             }
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
         catch (Exception ex)
         {
             _logger.LogInformation(ex, $"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 

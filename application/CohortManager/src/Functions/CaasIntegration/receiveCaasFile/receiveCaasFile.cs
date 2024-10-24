@@ -82,7 +82,6 @@ public class ReceiveCaasFile
 
                         var participant = new Participant
                         {
-                            ParticipantUUID = Guid.NewGuid(),
                             ScreeningId = screeningService.ScreeningId,
                             ScreeningName = screeningService.ScreeningName
 
