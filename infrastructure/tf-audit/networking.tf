@@ -1,7 +1,7 @@
 resource "azurerm_resource_group" "rg_vnet" {
   for_each = var.regions
 
-  name     = "${module.regions_config[each.key].names.resource-group}-networking"
+  name     = "${module.regions_config[each.key].names.resource-group}-audit-networking"
   location = each.key
 }
 
@@ -11,7 +11,7 @@ resource "azurerm_resource_group" "rg_private_endpoints" {
     key => val if var.features.private_endpoints_enabled
   }
 
-  name     = "${module.regions_config[each.key].names.resource-group}-private-endpoints"
+  name     = "${module.regions_config[each.key].names.resource-group}-audit-private-endpoints"
   location = each.key
 }
 
@@ -87,7 +87,7 @@ module "peering_spoke_hub" {
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
-  name                = "${module.regions_config[each.key].names.virtual-network}-to-hub-peering"
+  name                = "${module.regions_config[each.key].names.virtual-network}-audit-to-hub-peering"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
   vnet_name           = module.vnet[each.key].vnet.name
   remote_vnet_id      = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.id
@@ -102,14 +102,12 @@ module "peering_spoke_hub" {
 module "peering_hub_spoke" {
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
-  providers = {
-    azurerm = azurerm.hub
-  }
+  providers = azurerm.hub
 
   # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
 
-  name                = "hub-to-${module.regions_config[each.key].names.virtual-network}-peering"
+  name                = "hub-to-${module.regions_config[each.key].names.virtual-network}-audit-peering"
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
   vnet_name           = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].name
   remote_vnet_id      = module.vnet[each.key].vnet.id
