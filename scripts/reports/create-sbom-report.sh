@@ -23,6 +23,10 @@ function main() {
 
   echo "in main"
 
+  SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-repository-report}
+
+  echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+
   cd "$(git rev-parse --show-toplevel)"
 
   create-report
@@ -42,12 +46,6 @@ function create-report() {
 
 function run-syft-natively() {
 
-  echo "alastair here"
-  CHECK_IMAGE=${CHECK_IMAGE:-"")}
-  echo $CHECK_IMAGE
-  which syft
-  echo "alastair here 2"
-
   syft scan docker:$CHECK_IMAGE \
     --config "$PWD/scripts/config/syft.yaml" \
     --output spdx-json="$PWD/sbom-repository-report.tmp.json"
@@ -64,6 +62,8 @@ function run-syft-in-docker() {
 
   set -x
 
+  echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+
   # shellcheck disable=SC2155
   local image=$(name=ghcr.io/anchore/syft docker-get-image-version-and-pull)
   docker run --rm --platform linux/amd64 \
@@ -72,7 +72,7 @@ function run-syft-in-docker() {
     "$image" \
       docker:$CHECK_IMAGE \
       --config /workdir/scripts/config/syft.yaml \
-      --output spdx-json=/workdir/sbom-repository-report.tmp.json
+      --output spdx-json=/workdir/$SBOM_REPOSITORY_REPORT.tmp.json
 }
 
 function enrich-report() {
@@ -89,9 +89,9 @@ function enrich-report() {
   # shellcheck disable=SC2086
   jq \
     '.creationInfo |= . + {"created":"'${build_datetime}'","repository":{"url":"'${git_url}'","branch":"'${git_branch}'","tags":['${git_tags}'],"commitHash":"'${git_commit_hash}'"},"pipeline":{"id":'${pipeline_run_id}',"number":'${pipeline_run_number}',"attempt":'${pipeline_run_attempt}'}}' \
-    sbom-repository-report.tmp.json \
-      > sbom-repository-report.json
-  rm -f sbom-repository-report.tmp.json
+    $SBOM_REPOSITORY_REPORT.tmp.json \
+      > $SBOM_REPOSITORY_REPORT.json
+  rm -f $SBOM_REPOSITORY_REPORT.tmp.json
 }
 
 # ==============================================================================
