@@ -2,6 +2,7 @@ namespace Model;
 
 public class BasicParticipantData
 {
+    public Guid ParticipantUUID { get; set; }
     public string? RecordType { get; set; }
     public string? NhsNumber { get; set; }
     public string? RemovalReason { get; set; }

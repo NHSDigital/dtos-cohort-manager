@@ -46,6 +46,7 @@ public class Participant
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
     }
 
+    public Guid ParticipantUUID { get; set; }
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }

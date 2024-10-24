@@ -8,6 +8,7 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
     {
         return new BasicParticipantData
         {
+            ParticipantUUID = participant.ParticipantUUID,
             RecordType = participant.RecordType,
             NhsNumber = participant.NhsNumber,
             RemovalReason = participant.ReasonForRemoval,
@@ -15,6 +16,7 @@ public class CreateBasicParticipantData : ICreateBasicParticipantData
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
             EligibilityFlag = participant.EligibilityFlag
+
         };
     }
 }

@@ -31,21 +31,16 @@ public class AddParticipantFunction
     }
 
     [Function(nameof(AddParticipantFunction))]
-    public async Task<HttpResponseData> Run([QueueTrigger("input-queue")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([QueueTrigger("add-participant-queue")] string participantRecordInput, FunctionContext context)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
 
-        string postData = "";
         Participant participant = new Participant();
         BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
         try
         {
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                postData = reader.ReadToEnd();
-            }
-            basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
+            basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(participantRecordInput);
 
 
             var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));

@@ -30,6 +30,7 @@ public class ProcessCaasFileFunction
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _handleException = handleException;
+        _azureQueueStorageHelper = azureQueueStorageHelper;
     }
 
     [Function("processCaasFile")]
@@ -40,7 +41,7 @@ public class ProcessCaasFileFunction
         {
             postData = reader.ReadToEnd();
         }
-        Cohort input = JsonSerializer.Deserialize<Cohort>(postData);
+        var input = JsonSerializer.Deserialize<Cohort>(postData);
 
         _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
         int add = 0, upd = 0, del = 0, err = 0, row = 0;
@@ -99,6 +100,7 @@ public class ProcessCaasFileFunction
 
                         if (demographicDataAdded)
                         {
+                            _azureQueueStorageHelper.AddItemsToQueueAsync("add-participant-queue", Environment.GetEnvironmentVariable("FUNCTIONS_WORKER_RUNTIME"), new List<BasicParticipantCsvRecord>() { basicParticipantCsvRecord });
                             //await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                             _logger.LogInformation("Called add participant");
                         }
