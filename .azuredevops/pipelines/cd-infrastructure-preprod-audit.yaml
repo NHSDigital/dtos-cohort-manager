@@ -26,7 +26,7 @@ stages:
     dependsOn: []
     condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
     variables:
-      - group: preprod_variable_group
+      - group: preprod_audit_variable_group
     jobs:
       - template: ../jobs/init_and_plan-audit.yaml
         parameters:
@@ -40,7 +40,7 @@ stages:
     dependsOn: [terraform_plan]
     condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
     variables:
-      - group: preprod_variable_group
+      - group: preprod_audit_variable_group
     jobs:
       - deployment: terraform_apply
         displayName: Terraform Apply
