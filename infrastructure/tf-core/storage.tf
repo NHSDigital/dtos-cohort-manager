@@ -1,7 +1,7 @@
 module "storage" {
   for_each = local.storage_accounts_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=3ff9a88bed4d9506e516809bdb9c5757b362ac2d"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=feat/DTOSS-0000-Add-Storage-RBAC"
 
   name                = substr("${module.regions_config[each.value.region_key].names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
   resource_group_name = module.baseline.resource_group_names[each.value.resource_group_key]
