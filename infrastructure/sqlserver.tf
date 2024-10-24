@@ -24,9 +24,18 @@ module "azure_sql_server" {
   diagnostic_setting_properties = var.features.diagnostic_settings_enabled ? {
     diagnostic_settings_globally_enabled = var.diagnostic_setting_properties.diagnostic_settings_globally_enabled
     log_analytics_workspace_id           = module.log_analytics_workspace.audit_id
-    log_categories = {
-      log_categories = ["SQLSecurityAuditEvents"]
-    },
+    log_categories = optional(map(object({
+      enabled = optional(bool, false)
+      })), {
+      Administrative = { enabled = true },
+      Security       = { enabled = true },
+      ServiceHealth  = { enabled = true },
+      Alert          = { enabled = true },
+      Recommendation = { enabled = false },
+      Policy         = { enabled = false },
+      Autoscale      = { enabled = false },
+      ResourceHealth = { enabled = true },
+    })
     sql_security_audit_logs_enabled = var.diagnostic_setting_properties.diagnostic_setting_audit_logs_enabled
   } : null
 
