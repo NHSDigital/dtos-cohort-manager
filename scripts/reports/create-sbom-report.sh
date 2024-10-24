@@ -62,6 +62,8 @@ function run-syft-in-docker() {
   # shellcheck disable=SC1091
   source ./scripts/docker/docker.lib.sh
 
+  set -x
+
   # shellcheck disable=SC2155
   local image=$(name=ghcr.io/anchore/syft docker-get-image-version-and-pull)
   docker run --rm --platform linux/amd64 \

@@ -120,8 +120,6 @@ jobs:
           docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
           export CHECK_IMAGE=cohort-manager-$function:latest
-          pwd
-          find .
           export FORCE_USE_DOCKER=true
           docker images
           ../../scripts/reports/create-sbom-report.sh
