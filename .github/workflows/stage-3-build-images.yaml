@@ -103,7 +103,6 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: Build and Push Image
-        if: github.ref == 'refs/heads/main'
         working-directory: ./application/CohortManager
         run: |
           set -x
@@ -120,17 +119,17 @@ jobs:
           docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
           docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
-          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
-
-          export CHECK_IMAGE=cohort-manager-$function:$PR_NUM_TAG
-          ./scripts/reports/create-sbom-report.sh
+          export CHECK_IMAGE=cohort-manager-$function:
+          ./scripts/reports/create-sbom-report.sh run-syft-natively
 
           # Push the image to the repository
-          docker push "$repo_name:$COMMIT_HASH_TAG"
-          if [ "$PR_NUM_TAG" != 'pr' ]; then
-            docker push "$repo_name:$PR_NUM_TAG"
+          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+            docker push "$repo_name:$COMMIT_HASH_TAG"
+            if [ "$PR_NUM_TAG" != 'pr' ]; then
+              docker push "$repo_name:$PR_NUM_TAG"
+            fi
+            docker push "$repo_name:$ENVIRONMENT_TAG"
           fi
-          docker push "$repo_name:$ENVIRONMENT_TAG"
 
           # Remove the image
           docker rmi "$repo_name:$COMMIT_HASH_TAG"
