@@ -1036,7 +1036,7 @@ public class StaticValidationTests
     }
     #endregion
 
-       #region Validate Eligibility Flag as per Record Type (Rule 94)
+    #region Validate Eligibility Flag as per Record Type (Rule 94)
     [TestMethod]
     [DataRow(Actions.New, "0")]
     [DataRow(Actions.Removed, "1")]
