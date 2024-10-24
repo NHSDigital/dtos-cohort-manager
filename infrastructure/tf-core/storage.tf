@@ -53,10 +53,10 @@ locals {
 
   rbac_role_assignments_storage = {
     for storage_key, storage_val in local.storage_accounts_map :
-    region_key => [
+    storage_key => [
       for role_key, role_value in local.rbac_roles_storage : {
         role_definition_name = role_value
-        scope                = module.storage["${storage_key}-${region_key}"].id
+        scope                = module.storage["${storage_key}-${each.value.region_key}"].id
       }
     ]
   }
