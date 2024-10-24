@@ -425,15 +425,15 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("AFL", "AL1 1BB")]
-    [DataRow("RDR", "")]
     [DataRow("RDR", null)]
-    [DataRow("RDR", "INVALID_POSTCODE")]
-    public async Task Run_ReasonForRemovalRule1_DoesNotTransformMultipleFields(string reasonForRemoval, string postcode)
+    [DataRow("RDI", "")]
+    [DataRow("RPR", "INVALID_POSTCODE")]
+    public async Task Run_ReasonForRemovalRule2_TransformsMultipleFields(string reasonForRemoval, string postcode)
     {
         // Arrange
         var reasonForRemovalEffectiveFromDate = "2/10/2024";
         var addressLine = "address";
+        var bsoCode = "ELD";
 
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
         _requestBody.Participant.ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate;
@@ -447,6 +447,8 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+        _lookupValidation.Setup(x => x.CheckCurrentPrimaryCareProviderExistsAndIsNotDummy()).Returns(true);
+        _lookupValidation.Setup(x => x.GetBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -465,36 +467,10 @@ public class TransformDataServiceTests
             AddressLine4 = addressLine,
             AddressLine5 = addressLine,
             Postcode = postcode,
-            ReasonForRemoval = reasonForRemoval,
-            ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate
-        };
-
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_ReasonForRemovalRuleB_SetReasonForRemovalAsB()
-    {
-        // Arrange
-        _requestBody.Participant.ReasonForRemoval = "B";
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.Male,
-            ReasonForRemoval = "RULE_B_SUCCESS"
+            PrimaryCareProvider = $"ZZZ{bsoCode}",
+            PrimaryCareProviderEffectiveFromDate = reasonForRemovalEffectiveFromDate,
+            ReasonForRemoval = null,
+            ReasonForRemovalEffectiveFromDate = null,
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);

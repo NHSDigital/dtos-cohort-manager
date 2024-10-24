@@ -8,4 +8,5 @@ public interface IDbLookupValidationBreastScreening
     public string GetBSOCode(string postcode);
     public bool ValidateLanguageCode(string languageCode);
     public bool ValidateCurrentPosting(string currentPosting);
+    public bool CheckCurrentPrimaryCareProviderExistsAndIsNotDummy();
 }

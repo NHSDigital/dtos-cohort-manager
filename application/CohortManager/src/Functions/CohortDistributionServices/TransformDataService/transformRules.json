@@ -482,16 +482,31 @@
       },
       {
         "RuleName": "2.ReasonForRemoval",
-        "Expression": "participant.ReasonForRemoval == \"B\"",
+        "Expression": "participantNotRegisteredToGP AND (string.IsNullOrEmpty(participant.Postcode) OR !dbLookup.ValidateOutcode(participant.Postcode)) AND dbLookup.CheckCurrentPrimaryCareProviderExistsAndIsNotDummy()",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
+                  "isExpression": true,
+                  "field": "PrimaryCareProviderEffectiveFromDate",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate"
+                },
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": null
+                },
+                {
                   "isExpression": false,
                   "field": "ReasonForRemoval",
-                  "value": "RULE_B_SUCCESS"
+                  "value": null
+                },
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProvider",
+                  "value": "\"ZZZ\" + bsoCode"
                 }
               ]
             }
