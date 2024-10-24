@@ -1,7 +1,4 @@
 namespace Data.Database;
-
-using Microsoft.Identity.Client;
-using Model;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -12,7 +9,7 @@ using Microsoft.Extensions.Logging;
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
     private IDbConnection _connection;
-    private string _connectionString;
+    private readonly string _connectionString;
 
     private readonly ILogger<DbLookupValidationBreastScreening> _logger;
 
@@ -24,7 +21,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
         _logger = logger;
     }
-
 
     /// <summary>
     /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.
@@ -42,7 +38,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
                 var parameter = command.CreateParameter();
                 parameter.ParameterName = "@primaryCareProvider";
-                parameter.Value = primaryCareProvider ?? string.Empty;
+                parameter.Value = primaryCareProvider;
                 command.Parameters.Add(parameter);
 
                 using (IDataReader reader = command.ExecuteReader())
@@ -72,7 +68,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             {
                 command.CommandText = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
                 var parameter = command.CreateParameter();
-                parameter.ParameterName = "@primaryCareProvider";
+                parameter.ParameterName = "@outcode";
                 parameter.Value = outcode ?? string.Empty;
                 command.Parameters.Add(parameter);
 
