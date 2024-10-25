@@ -45,7 +45,6 @@ public class LookupValidationTests
             }));
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
@@ -308,7 +307,7 @@ public class LookupValidationTests
                                                                     string primaryCareProvider)
     {
         // Arrange
-        SetupRules("CohortRules");
+        SetupRules("LookupRules");
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
@@ -600,6 +599,63 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+
+    #region Validate BSO Code (Rule 54)
+    [TestMethod]
+    [DataRow("RPR", "", "", Actions.Amended)]
+    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
+
+    public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("RDI", "ValidPCP", "AL1 1BB", Actions.Amended)]
+    [DataRow("RDR", "", "AL3 0AX", Actions.Amended)]
+    [DataRow("ABC", "ZZZPCP", "", Actions.Amended)]
+    [DataRow("RPR", "", "", Actions.New)]
+
+    public async Task Run_AmendedParticipantHasValidBSO_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
 
     private void SetUpRequestBody(string json)
     {
