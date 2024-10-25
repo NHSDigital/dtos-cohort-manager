@@ -479,13 +479,27 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ReasonForRemovalRuleC_RaisesExceptionAndNoTransformation()
+    [DataRow("RDR", null)]
+    [DataRow("RDI", "")]
+    [DataRow("RPR", "INVALID_POSTCODE")]
+    public async Task Run_ReasonForRemovalRule3_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
     {
         // Arrange
-        _requestBody.Participant.FamilyName = "surname";
+        var addressLine = "address";
+        var primaryCareProvider = "ZZZABC";
+
+        _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.Participant.Postcode = postcode;
+        _requestBody.Participant.AddressLine1 = addressLine;
+        _requestBody.Participant.AddressLine2 = addressLine;
+        _requestBody.Participant.AddressLine3 = addressLine;
+        _requestBody.Participant.AddressLine4 = addressLine;
+        _requestBody.Participant.AddressLine5 = addressLine;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -495,9 +509,17 @@ public class TransformDataServiceTests
         {
             NhsNumber = "1",
             FirstName = "John",
-            FamilyName = "surname",
+            FamilyName = "Smith",
             NamePrefix = "MR",
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            AddressLine1 = addressLine,
+            AddressLine2 = addressLine,
+            AddressLine3 = addressLine,
+            AddressLine4 = addressLine,
+            AddressLine5 = addressLine,
+            Postcode = postcode,
+            PrimaryCareProvider = primaryCareProvider,
+            ReasonForRemoval = reasonForRemoval,
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);

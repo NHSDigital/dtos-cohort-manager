@@ -9,6 +9,10 @@
       {
         "Name": "dummyPrimaryCareProvider",
         "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND participant.PrimaryCareProvider.StartsWith(\"ZZZ\")"
+      },
+      {
+        "Name": "validPostcode",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) AND dbLookup.ValidateOutcode(participant.Postcode)"
       }
     ],
     "Rules": [
@@ -446,7 +450,7 @@
       },
       {
         "RuleName": "1.ReasonForRemoval",
-        "Expression": "participantNotRegisteredToGP AND !string.IsNullOrEmpty(participant.Postcode) AND dbLookup.ValidateOutcode(participant.Postcode)",
+        "Expression": "participantNotRegisteredToGP AND validPostcode",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -486,7 +490,7 @@
       },
       {
         "RuleName": "2.ReasonForRemoval",
-        "Expression": "participantNotRegisteredToGP AND (string.IsNullOrEmpty(participant.Postcode) OR !dbLookup.ValidateOutcode(participant.Postcode)) AND !dummyPrimaryCareProvider",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND !dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -526,7 +530,7 @@
       },
       {
         "RuleName": "3.ReasonForRemoval",
-        "Expression": "participant.FamilyName == \"surname\"",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformError",
