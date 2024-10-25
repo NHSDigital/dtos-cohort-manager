@@ -58,7 +58,7 @@ public class ProcessCaasFileTests
 
         // Assert
         _azureQueueStorageHelper.Verify(
-            x => x.AddItemsToQueueAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicParticipantCsvRecord>()),
+            x => x.AddItemToQueueAsync<BasicParticipantCsvRecord>(It.IsAny<BasicParticipantCsvRecord>()),
             Times.Exactly(2));
         _callFunction.VerifyNoOtherCalls();
     }
@@ -170,7 +170,7 @@ public class ProcessCaasFileTests
 
         _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
-        _azureQueueStorageHelper.Setup(call => call.AddItemsToQueueAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BasicParticipantCsvRecord>()))
+        _azureQueueStorageHelper.Setup(call => call.AddItemToQueueAsync<BasicParticipantCsvRecord>(It.IsAny<BasicParticipantCsvRecord>()))
             .ThrowsAsync(new Exception());
 
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
