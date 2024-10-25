@@ -114,16 +114,21 @@ public class TransformDataService
 
         if (result is Exception exception)
         {
+            var participantCsvRecord = new ParticipantCsvRecord
+            {
+                Participant = new Participant(participant),
+                FileName = "",
+            };
+
             try
             {
                 _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
-                await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", exception.Message, "", JsonSerializer.Serialize(participant));
-                // need to use / create a CreateValidationExceptionLog that accepts CohortDistributionParticipant
+                await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Handling the exception failed. Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-                // add system exception log
+                await _exceptionHandler.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             }
 
             return participant;

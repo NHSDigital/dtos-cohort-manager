@@ -15,6 +15,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
+using RulesEngine.Models;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -525,12 +526,9 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
@@ -579,12 +577,9 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "4.ReasonForRemoval")),
+            It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
