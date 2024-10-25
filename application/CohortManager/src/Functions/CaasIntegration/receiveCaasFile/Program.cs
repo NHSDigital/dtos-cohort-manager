@@ -12,7 +12,7 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddScoped<ICallFunction, CallFunction>();
-        services.AddSingleton<IScreeningServiceData, ScreeningServiceData>();
+        services.AddTransient<IScreeningServiceData, ScreeningServiceData>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
     })
     .AddDatabaseConnection()

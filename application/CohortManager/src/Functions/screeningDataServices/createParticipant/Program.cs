@@ -19,7 +19,7 @@ var host = new HostBuilder()
             conn.ConnectionString = databaseConnectionString;
             return conn;
         });
-        services.AddSingleton<ICreateParticipantData, CreateParticipantData>();
+        services.AddTransient<ICreateParticipantData, CreateParticipantData>();
         services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
