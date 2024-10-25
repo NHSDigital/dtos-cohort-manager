@@ -490,7 +490,7 @@
       },
       {
         "RuleName": "2.ReasonForRemoval",
-        "Expression": "participantNotRegisteredToGP AND !validPostcode AND !dummyPrimaryCareProvider",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -549,7 +549,7 @@
       },
       {
         "RuleName": "4.ReasonForRemoval",
-        "Expression": "participant.ReasonForRemoval == \"D\"",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformError",
