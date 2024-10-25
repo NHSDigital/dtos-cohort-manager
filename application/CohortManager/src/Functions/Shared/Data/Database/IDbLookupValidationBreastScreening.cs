@@ -3,10 +3,11 @@ namespace Data.Database;
 
 public interface IDbLookupValidationBreastScreening
 {
-    public bool ValidatePrimaryCareProvider(string primaryCareProvider);
-    public bool ValidateOutcode(string postcode);
-    public string GetBSOCode(string postcode);
-    public bool ValidateLanguageCode(string languageCode);
-    public bool ValidateCurrentPosting(string currentPosting);
-    public bool CheckCurrentPrimaryCareProviderExistsAndIsNotDummy();
+    bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);
+    bool ValidateOutcode(string postcode);
+    bool ValidateLanguageCode(string languageCode);
+    bool CheckIfCurrentPostingExists(string currentPosting);
+    bool ValidatePostingCategories(string currentPosting);
+    string GetBSOCode(string postcode);
+    bool CheckCurrentPrimaryCareProviderExistsAndIsNotDummy();
 }
