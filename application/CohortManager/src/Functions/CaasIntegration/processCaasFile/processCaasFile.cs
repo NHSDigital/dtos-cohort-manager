@@ -17,8 +17,9 @@ public class ProcessCaasFileFunction
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
+    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
 
-    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException)
+    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -26,6 +27,7 @@ public class ProcessCaasFileFunction
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _handleException = handleException;
+        _azureQueueStorageHelper = azureQueueStorageHelper;
     }
 
     [Function("processCaasFile")]
@@ -36,7 +38,7 @@ public class ProcessCaasFileFunction
         {
             postData = reader.ReadToEnd();
         }
-        Cohort input = JsonSerializer.Deserialize<Cohort>(postData);
+        var input = JsonSerializer.Deserialize<Cohort>(postData);
 
         _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
         int add = 0, upd = 0, del = 0, err = 0, row = 0;
@@ -95,7 +97,8 @@ public class ProcessCaasFileFunction
 
                         if (demographicDataAdded)
                         {
-                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord);
+                            //await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
                             _logger.LogInformation("Called add participant");
                         }
 
