@@ -108,7 +108,7 @@ public class AddNewParticipantTestClass
 
 
         // Act
-        var result = await sut.Run(mockRequest);
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _loggerMock.Verify(log =>
@@ -150,7 +150,15 @@ public class AddNewParticipantTestClass
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _loggerMock.Verify(log =>
@@ -189,7 +197,15 @@ public class AddNewParticipantTestClass
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         //_callFunctionMock.Verify(x => x.SendPost("DemographicURIGet", It.IsAny<string>()),Times.Once);
@@ -220,7 +236,15 @@ public class AddNewParticipantTestClass
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _checkDemographic.Verify(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"), Times.Once);
@@ -241,7 +265,15 @@ public class AddNewParticipantTestClass
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _loggerMock.Verify(log =>
@@ -269,7 +301,15 @@ public class AddNewParticipantTestClass
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _loggerMock.Verify(log =>
@@ -301,7 +341,15 @@ public class AddNewParticipantTestClass
                 CreatedException = false
             })));
         // Act
-        var result = await sut.Run(_request.Object);
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        await sut.Run(basicParticipantCsvRecord);
 
         // Assert
         _callFunctionMock.Verify(call => call.SendPost("DSaddParticipant", It.IsAny<string>()), Times.Once());

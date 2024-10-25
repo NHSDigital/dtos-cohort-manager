@@ -1,6 +1,7 @@
 namespace Common;
 
 using System.Globalization;
+using Model;
 
 public static class ValidationHelper
 {

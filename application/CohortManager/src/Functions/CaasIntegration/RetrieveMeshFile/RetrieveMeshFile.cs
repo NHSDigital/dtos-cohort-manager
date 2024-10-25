@@ -43,10 +43,12 @@ public class RetrieveMeshFile
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
+        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID,".parquet");
+
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
 
             if(!result)
             {

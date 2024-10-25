@@ -1,11 +1,13 @@
 INSERT INTO [dbo].[SCREENING_LKP]
         ([SCREENING_NAME]
         ,[SCREENING_TYPE]
-        ,[SCREENING_ACRONYM])
+        ,[SCREENING_ACRONYM]
+        ,[SCREENING_WORKFLOW_ID])
     VALUES
         ('Breast Screening'
         ,'Breast Screening Program'
-        ,'BSS');
+        ,'BSS'
+        ,'CAAS_BREAST_SCREENING_COHORT');
 
 INSERT INTO [dbo].[GENDER_MASTER]
         ([GENDER_CD]

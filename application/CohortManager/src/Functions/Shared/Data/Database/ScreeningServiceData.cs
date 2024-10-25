@@ -22,12 +22,33 @@ public class ScreeningServiceData : IScreeningServiceData
         var SQL = " SELECT " +
             " [SCREENING_ID], " +
             " [SCREENING_NAME] " +
+            " [SCREENING_WORKFLOW_ID] " +
             " FROM [DBO].[SCREENING_LKP] " +
             " WHERE [SCREENING_ACRONYM] = @ScreeningAcronym ";
 
         var parameters = new Dictionary<string, object>
         {
             {"@ScreeningAcronym", screeningAcronym }
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetScreeningService(command);
+    }
+
+    public ScreeningService GetScreeningServiceByWorkflowId(string WorkflowID)
+    {
+        var SQL = " SELECT " +
+            " [SCREENING_ID], " +
+            " [SCREENING_NAME], " +
+            " [SCREENING_WORKFLOW_ID] " +
+            " FROM [DBO].[SCREENING_LKP] " +
+            " WHERE [SCREENING_WORKFLOW_ID] = @ScreeningWorkflowId ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@ScreeningWorkflowId", WorkflowID }
         };
 
         var command = CreateCommand(parameters);
@@ -45,6 +66,7 @@ public class ScreeningServiceData : IScreeningServiceData
             {
                 screeningService.ScreeningId = DatabaseHelper.GetStringValue(reader, "SCREENING_ID");
                 screeningService.ScreeningName = DatabaseHelper.GetStringValue(reader, "SCREENING_NAME");
+                screeningService.ScreeningWorkflowId = DatabaseHelper.GetStringValue(reader, "SCREENING_WORKFLOW_ID");
             }
             return screeningService;
         });

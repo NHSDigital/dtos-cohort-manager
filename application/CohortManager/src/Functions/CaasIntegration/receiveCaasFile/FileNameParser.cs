@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 
 public class FileNameParser
 {
-    private const string _fileNameRegex = @"^.*_-_(\w{1,})_\d{14}_n([1-9]\d*|0)\.parquet$";
+    private const string _fileNameRegex = @"^(.+)_-_(\w+)\.parquet$";
 
     private readonly Match match;
 
@@ -18,20 +18,8 @@ public class FileNameParser
 
     public bool IsValid =>  match.Success;
 
-    public int? FileCount(){
-        Group g = match.Groups[2];
-
-
-        if(int.TryParse(g.Captures[0].ToString(), out var numberOfRecords))
-        {
-            return numberOfRecords;
-        }
-
-        return null;
-    }
-
     public string GetScreeningService(){
-        Group g = match.Groups[1];
+        Group g = match.Groups[2];
         return g.Captures[0].ToString();
     }
 
