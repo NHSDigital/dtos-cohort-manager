@@ -10,7 +10,7 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 {
     private async Task<QueueClient> CreateQueueClientAsync(string queueName, string storageAccountName)
     {
-        var queueClient = new QueueClient("UseDevelopmentStorage=true", queueName);
+        var queueClient = new QueueClient(storageAccountName, queueName);
         await queueClient.CreateIfNotExistsAsync();
         return queueClient;
     }
