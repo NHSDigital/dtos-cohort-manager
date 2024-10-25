@@ -1,13 +1,8 @@
 namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
-
-using System.IO.Compression;
-using System.Linq.Expressions;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +24,8 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
-    private Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
-
-    private Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     public StaticValidationTests()
     {

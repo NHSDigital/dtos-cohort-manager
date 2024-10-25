@@ -15,13 +15,9 @@ using RulesEngine.Models;
 public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
-
     private readonly ICreateResponse _createResponse;
-
     private readonly IExceptionHandler _handleException;
-
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-
     private readonly ICallFunction _callFunction;
 
     public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
@@ -65,7 +61,7 @@ public class StaticValidation
                 new RuleParameter("participant", participantCsvRecord.Participant),
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-            var validationErrors = resultList.Where(x => x.IsSuccess == false);
+            var validationErrors = resultList.Where(x => !x.IsSuccess);
 
             await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
