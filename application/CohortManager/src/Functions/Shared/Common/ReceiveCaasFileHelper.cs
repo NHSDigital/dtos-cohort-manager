@@ -172,23 +172,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
     }
 
-    public async Task<int?> GetNumberOfRecordsFromFileName(string name)
-    {
-        _logger.LogInformation("fetch number of records from file name: {Name}", name);
-        var str = name.Remove(name.IndexOf('.'));
-        var numberOfRecords = str.Split('_')[2].Substring(1);
-
-        if (int.TryParse(numberOfRecords, out var n))
-        {
-            return n;
-        }
-        else
-        {
-            _logger.LogError("File name is invalid. File name: {Name}", name);
-            await InsertValidationErrorIntoDatabase(name, "N/A");
-            return null;
-        }
-    }
     public string GetUrlFromEnvironment(string key)
     {
         var url = Environment.GetEnvironmentVariable(key);
