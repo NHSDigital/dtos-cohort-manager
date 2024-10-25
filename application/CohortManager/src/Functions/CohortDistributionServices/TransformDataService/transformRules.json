@@ -535,7 +535,7 @@
           "OnSuccess": {
             "Name": "TransformError",
             "Context": {
-              "exceptionMessage": "RULE_C_EXCEPTION_RAISED"
+              "exceptionMessage": "ReasonForRemoval transformation rule failed."
             }
           },
           "OnFailure": {
@@ -554,7 +554,7 @@
           "OnSuccess": {
             "Name": "TransformError",
             "Context": {
-              "exceptionMessage": "\"RULE_D_EXCEPTION_RAISED\""
+              "exceptionMessage": "ReasonForRemoval transformation rule failed."
             }
           }
         }
