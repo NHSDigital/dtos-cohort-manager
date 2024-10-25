@@ -17,12 +17,10 @@ public class ProcessCaasFileFunction
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
-
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
 
     public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse,
-                                   ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException,
-                                   IAzureQueueStorageHelper azureQueueStorageHelper)
+                                   ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;

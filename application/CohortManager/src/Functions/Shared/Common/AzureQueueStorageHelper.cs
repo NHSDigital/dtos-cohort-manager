@@ -22,7 +22,7 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
         {
             var json = JsonSerializer.Serialize(participantCsvRecord);
             var bytes = Encoding.UTF8.GetBytes(json);
-            var receipt = await queueClient.SendMessageAsync(Convert.ToBase64String(bytes));
+            await queueClient.SendMessageAsync(Convert.ToBase64String(bytes));
         }
 
     }
