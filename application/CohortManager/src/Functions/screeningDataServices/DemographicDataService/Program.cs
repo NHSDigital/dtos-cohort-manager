@@ -3,6 +3,7 @@ using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Data.Database;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -10,8 +11,8 @@ var host = new HostBuilder()
     {
 
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
+        services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
+        services.TryAddTransient<ICreateDemographicData, CreateDemographicData>();
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
