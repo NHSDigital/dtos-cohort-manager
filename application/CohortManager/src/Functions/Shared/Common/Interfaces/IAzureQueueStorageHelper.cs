@@ -5,5 +5,5 @@ using Model;
 
 public interface IAzureQueueStorageHelper
 {
-    Task AddItemsToQueueAsync<T>(T participantCsvRecord);
+    Task AddItemToQueueAsync<T>(T participantCsvRecord);
 }

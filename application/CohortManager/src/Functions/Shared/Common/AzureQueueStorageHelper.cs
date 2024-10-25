@@ -16,7 +16,7 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
         _queueClient = new QueueClient(storageConnectionString, "add-participant-queue");
     }
 
-    public async Task AddItemsToQueueAsync<T>(T participantCsvRecord)
+    public async Task AddItemToQueueAsync<T>(T participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var bytes = Encoding.UTF8.GetBytes(json);
