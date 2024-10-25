@@ -5,6 +5,10 @@
       {
         "Name": "participantNotRegisteredToGP",
         "Expression": "new string[] {\"RDR\",\"RDI\",\"RPR\"}.Contains(participant.ReasonForRemoval)"
+      },
+      {
+        "Name": "dummyPrimaryCareProvider",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND participant.PrimaryCareProvider.StartsWith(\"ZZZ\")"
       }
     ],
     "Rules": [
@@ -482,7 +486,7 @@
       },
       {
         "RuleName": "2.ReasonForRemoval",
-        "Expression": "participantNotRegisteredToGP AND (string.IsNullOrEmpty(participant.Postcode) OR !dbLookup.ValidateOutcode(participant.Postcode)) AND dbLookup.CheckCurrentPrimaryCareProviderExistsAndIsNotDummy()",
+        "Expression": "participantNotRegisteredToGP AND (string.IsNullOrEmpty(participant.Postcode) OR !dbLookup.ValidateOutcode(participant.Postcode)) AND !dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",

@@ -96,16 +96,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     }
 
     /// <summary>
-    /// Retrieves the participant's PrimaryCareProvider code and check it exists and is not a dummy code
-    /// </summary>
-    /// <returns>bool<returns>
-    public bool CheckCurrentPrimaryCareProviderExistsAndIsNotDummy()
-    {
-        var primaryCareProvider = "ZZZABC";
-        return !string.IsNullOrEmpty(primaryCareProvider) && !primaryCareProvider.StartsWith("ZZZ");
-    }
-
-    /// <summary>
     /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
     /// </summary>
     /// <param name="languageCode">The participant's preferred language code.</param>

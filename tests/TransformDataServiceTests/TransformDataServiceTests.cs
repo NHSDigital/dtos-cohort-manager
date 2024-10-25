@@ -435,6 +435,7 @@ public class TransformDataServiceTests
         var addressLine = "address";
         var bsoCode = "ELD";
 
+        _requestBody.Participant.PrimaryCareProvider = "Y00090";
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
         _requestBody.Participant.ReasonForRemovalEffectiveFromDate = reasonForRemovalEffectiveFromDate;
         _requestBody.Participant.Postcode = postcode;
@@ -447,7 +448,6 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
-        _lookupValidation.Setup(x => x.CheckCurrentPrimaryCareProviderExistsAndIsNotDummy()).Returns(true);
         _lookupValidation.Setup(x => x.GetBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act

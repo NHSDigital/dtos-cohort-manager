@@ -9,5 +9,4 @@ public interface IDbLookupValidationBreastScreening
     bool CheckIfCurrentPostingExists(string currentPosting);
     bool ValidatePostingCategories(string currentPosting);
     string GetBSOCode(string postcode);
-    bool CheckCurrentPrimaryCareProviderExistsAndIsNotDummy();
 }
