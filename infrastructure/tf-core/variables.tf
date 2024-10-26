@@ -240,7 +240,7 @@ variable "network_security_group_rules" {
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({
-    application_rule_collections = list(object({
+    application_rules = list(object({
       name      = optional(string)
       priority  = optional(number)
       action    = optional(string)
