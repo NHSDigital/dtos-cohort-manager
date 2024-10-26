@@ -25,7 +25,7 @@ module "route_table" {
       name                   = route_val.name
       address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_audit_pep[each.key].address_prefixes[0] : route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
-      next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall[each.key].ip_configuration[0].private_ip_address : route_val.next_hop_in_ip_address
+      next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall_private_ip_addresses[each.key] : route_val.next_hop_in_ip_address
     }
   ]
 

@@ -240,6 +240,7 @@ variable "network_security_group_rules" {
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({
+    bgp_route_propagation_enabled = optional(bool, false)
     application_rules = list(object({
       name      = optional(string)
       priority  = optional(number)
@@ -276,7 +277,6 @@ variable "routes" {
       address_prefix                = optional(string)
       next_hop_type                 = optional(string)
       next_hop_in_ip_address        = optional(string)
-      bgp_route_propagation_enabled = optional(bool, false)
     }))
   }))
   default = {}
