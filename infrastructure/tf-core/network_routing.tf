@@ -9,32 +9,32 @@
 
 # }
 
-# module "route_table" {
-#   for_each = local.route_table_routes
+module "route_table" {
+  for_each = local.route_table_routes_map
 
-#   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/route-table?ref=feat/DTOSS-3407-Network-Routing-Config"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/route-table?ref=feat/DTOSS-3407-Network-Routing-Config"
 
-#   name                = module.regions_config[each.key].names.route-table
-#   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
-#   location            = each.value.region
+  name                = module.regions_config[each.value.region].names.route-table
+  resource_group_name = azurerm_resource_group.rg_vnet[each.value.region].name
+  location            = each.value.region
 
-#   bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
+  bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
 
-#   routes = [
-#     for route_key, route_val in each.value : {
-#       name                   = route_val.name
-#       address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_audit_pep[each.key].address_prefixes[0] : route_val.address_prefix
-#       next_hop_type          = route_val.next_hop_type
-#       next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall[each.key].ip_configuration[0].private_ip_address : route_val.next_hop_in_ip_address
-#     }
-#   ]
+  routes = [
+    for route_key, route_val in each.value : {
+      name                   = route_val.name
+      address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_audit_pep[each.value.region].address_prefixes[0] : route_val.address_prefix
+      next_hop_type          = route_val.next_hop_type
+      next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall[each.value.region].ip_configuration[0].private_ip_address : route_val.next_hop_in_ip_address
+    }
+  ]
 
-#   subnet_ids = [
-#     module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
-#   ]
+  subnet_ids = [
+    module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
+  ]
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
 
 /* --------------------------------------------------------------------------------------------------
   Data lookups required to query other resource attributes
