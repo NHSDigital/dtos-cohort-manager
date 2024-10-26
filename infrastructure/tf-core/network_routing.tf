@@ -72,15 +72,14 @@ locals {
   # }
 
   route_table_routes = flatten([
-    for region_key, region_val in var.regions : [
-      for route_key, route in routes[region_key] : {
-        route_table_key               = "${route.name}-${region_key}"
-        name                          = route.name
-        address_prefix                = route.address_prefix
-        next_hop_type                 = route.next_hop_type
-        next_hop_in_ip_address        = route.next_hop_in_ip_address
-        bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
-        region                        = region_key
+    for region_key, region_val in var.routes : [
+      for route in region_val.route_table_routes : {
+        route_key              = "${route.name}-${region_key}"
+        region                 = region_key
+        name                   = route.name
+        address_prefix         = route.address_prefix
+        next_hop_type          = route.next_hop_type
+        next_hop_in_ip_address = route.next_hop_in_ip_address
       }
     ]
   ])
