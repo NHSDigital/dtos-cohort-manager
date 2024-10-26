@@ -1,13 +1,29 @@
-# module "firewall_policy_rule_collection_group" {
-#   for_each = var.regions
+module "firewall_policy_rule_collection_group" {
+  for_each = var.routes
 
-#   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=feat/DTOSS-3407-Network-Routing-Config"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=feat/DTOSS-3407-Network-Routing-Config"
 
-#   name               = module.config[each.key].names.firewall
-#   firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy[each.key].firewall_policy.id
-#   priority           = var.priority
+  name               = module.config[each.key].names.firewall
+  firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy[each.key].firewall_policy.id
+  priority           = var.priority
 
-# }
+  network_rule_collection = [
+    for rule_key, rule_val in each.value.firewall_policy_rules : {
+      name                        = rule_val.name
+      rule_type                   = rule_val.rule_type
+      rule_action                 = rule_val.rule_action
+      rule_description            = rule_val.rule_description
+      rule_protocol               = rule_val.rule_protocol
+      rule_source                 = rule_val.rule_source
+      rule_destination            = rule_val.rule_destination
+      rule_destination_ip         = rule_val.rule_destination_ip
+      rule_destination_port_range = rule_val.rule_destination_port_range
+      rule_source_ip              = rule_val.rule_source_ip
+      rule_source_port_range      = rule_val.rule_source_port_range
+    }
+  ]
+
+}
 
 module "route_table" {
   for_each = var.routes
@@ -50,32 +66,3 @@ data "azurerm_subnet" "subnet_audit_pep" {
   virtual_network_name = module.regions_config[each.key].names.virtual-network
 }
 
-/* --------------------------------------------------------------------------------------------------
-  Local variables used to create the routes and rules for the route table and firewall
--------------------------------------------------------------------------------------------------- */
-
-locals {
-  # Expand a flattened list of objects for all routes (allows nested for loops)
-  route_table_routes = flatten([
-    for region_key, region_val in var.routes : [
-      for route in region_val.route_table_routes : {
-        route_key              = "${route.name}-${region_key}"
-        region                 = region_key
-        name                   = route.name
-        address_prefix         = route.address_prefix
-        next_hop_type          = route.next_hop_type
-        next_hop_in_ip_address = route.next_hop_in_ip_address
-      }
-    ]
-  ])
-  # Project the above list into a map with unique keys for consumption in a for_each meta argument
-  route_table_routes_map = { for route in local.route_table_routes : route.route_key => route }
-}
-
-output "route_table" {
-  value = local.route_table_routes
-}
-
-output "route_table_map" {
-  value = local.route_table_routes_map
-}
