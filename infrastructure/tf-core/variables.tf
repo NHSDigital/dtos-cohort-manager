@@ -214,6 +214,74 @@ variable "network_security_group_rules" {
   })))
 }
 
+/*
+  application_rule_collection = [
+    {
+      name      = "example-application-rule-collection-1"
+      priority  = 600
+      action    = "Allow"
+      rule_name = "example-rule-1"
+      protocols = [
+        {
+          type = "Http"
+          port = 80
+        },
+        {
+          type = "Https"
+          port = 443
+        }
+      ]
+      source_addresses  = ["0.0.0.0/0"]
+      destination_fqdns = ["example.com"]
+    },
+*/
+
+
+variable "routes" {
+  description = "Routes configuration for different regions"
+  type = map(object({
+    application_rule_collections = list(object({
+      name      = optional(string)
+      priority  = optional(number)
+      action    = optional(string)
+      rule_name = optional(string)
+      protocols = list(object({
+        type = optional(string)
+        port = optional(number)
+      }))
+      source_addresses  = optional(list(string))
+      destination_fqdns = list(string)
+    }))
+    nat_rules = list(object({
+      name                = optional(string)
+      priority            = optional(number)
+      action              = optional(string)
+      rule_name           = optional(string)
+      protocols           = list(string)
+      source_addresses    = list(string)
+      destination_address = optional(string)
+      destination_ports   = list(string)
+      translated_address  = optional(string)
+      translated_port     = optional(string)
+    }))
+    network_rules = list(object({
+      name                  = optional(string)
+      protocols             = optional(list(string))
+      source_addresses      = optional(list(string))
+      destination_addresses = optional(list(string))
+      destination_ports     = optional(list(string))
+    }))
+    route_table_routes = list(object({
+      name                          = optional(string)
+      address_prefix                = optional(string)
+      next_hop_type                 = optional(string)
+      next_hop_in_ip_address        = optional(string)
+      bgp_route_propagation_enabled = optional(bool, false)
+    }))
+  }))
+  default = {}
+}
+
 variable "sqlserver" {
   description = "Configuration for the Azure MSSQL server instance and a default database "
   type = object({
