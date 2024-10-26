@@ -1,7 +1,7 @@
 # module "firewall_policy_rule_collection_group" {
 #   for_each = var.regions
 
-#   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=36101b5776ad52fb0909a6e17fd3fb9b6c6db540"
+#   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=feat/DTOSS-3407-Network-Routing-Config"
 
 #   name               = module.config[each.key].names.firewall
 #   firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy[each.key].firewall_policy.id
@@ -23,7 +23,7 @@ module "route_table" {
   routes = [
     for route_key, route_val in each.value : {
       name                   = route_val.name
-      address_prefix         = route_val.address_prefix == data.azurerm_subnet.subnet_audit_pep[each.key].address_prefixes[0] ? "" : route_val.address_prefix
+      address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_audit_pep[each.key].address_prefixes[0] : route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
       next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall[each.key].ip_configuration[0].private_ip_address : route_val.next_hop_in_ip_address
     }
@@ -69,4 +69,8 @@ locals {
         region                        = region_key
     } }
   }
+}
+
+output "route_table" {
+  value = module.route_table
 }
