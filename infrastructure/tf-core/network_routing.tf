@@ -13,8 +13,8 @@ module "firewall_policy_rule_collection_group" {
       priority              = rule_val.priority
       action                = rule_val.action
       rule_name             = rule_val.rule_name
-      source_addresses      = rule_val.source_addresses
-      destination_addresses = rule_val.destination_addresses
+      source_addresses      = rule_val.source_addresses == [] ? azurerm_virtual_network.vnet[each.key].address_space : rule_val.source_addresses
+      destination_addresses = rule_val.destination_addresses == [] ? data.azurerm_virtual_network.vnet_audit[each.key].address_space : rule_val.destination_addresses
       protocols             = rule_val.protocols
       destination_ports     = rule_val.destination_ports
     }
@@ -52,6 +52,15 @@ module "route_table" {
 /* --------------------------------------------------------------------------------------------------
   Data lookups required to query other resource attributes
 -------------------------------------------------------------------------------------------------- */
+
+data "azurerm_virtual_network" "vnet_audit" {
+  for_each = var.regions
+
+  provider = azurerm.audit
+
+  name                = module.regions_config[each.key].names.virtual-network
+  resource_group_name = module.regions_config[each.key].names.resource-group
+}
 
 data "azurerm_subnet" "subnet_audit_pep" {
   for_each = var.regions
