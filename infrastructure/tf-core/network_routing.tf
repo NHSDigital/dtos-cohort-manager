@@ -3,8 +3,8 @@ module "firewall_policy_rule_collection_group" {
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=feat/DTOSS-3407-Network-Routing-Config"
 
-  name               = "${module.config[each.key].names.firewall}-policy-rule-collection-group"
-  firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy[each.key].firewall_policy.id
+  name               = "${module.regions_config[each.key].names.firewall}-policy-rule-collection-group"
+  firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy[each.key].firewall_policy_id
   priority           = each.value.network_rules[0].priority
 
   network_rule_collection = [
