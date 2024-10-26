@@ -56,33 +56,32 @@ data "azurerm_subnet" "subnet_audit_pep" {
 
 locals {
 
-#   route_table_routes = {
-#     for region_key, region_val in var.regions :
-#     region_key => {
-#       for route in var.routes[region_key].route_table_routes :
-#       "${route.name}-${region_key}" => {
-#         name                          = route.name
-#         address_prefix                = route.address_prefix
-#         next_hop_type                 = route.next_hop_type
-#         next_hop_in_ip_address        = route.next_hop_in_ip_address
-#         bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
-#         region                        = region_key
-#     } }
-#   }
-# }
+  #   route_table_routes = {
+  #     for region_key, region_val in var.regions :
+  #     region_key => {
+  #       for route in var.routes[region_key].route_table_routes :
+  #       "${route.name}-${region_key}" => {
+  #         name                          = route.name
+  #         address_prefix                = route.address_prefix
+  #         next_hop_type                 = route.next_hop_type
+  #         next_hop_in_ip_address        = route.next_hop_in_ip_address
+  #         bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
+  #         region                        = region_key
+  #     } }
+  #   }
+  # }
 
   route_table_routes = flatten([
     for region_key, region_val in var.regions : [
-      for route_table_key, route_table in region_val.route_tables : [
-        for route_key, route in route_table.routes : {
-          name                          = route.name
-          address_prefix                = route.address_prefix
-          next_hop_type                 = route.next_hop_type
-          next_hop_in_ip_address        = route.next_hop_in_ip_address
-          bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
-          region                        = region_key
-        }
-      ]
+      for route_key, route in routes[region_key] : {
+        route_table_key               = "${route.name}-${region_key}"
+        name                          = route.name
+        address_prefix                = route.address_prefix
+        next_hop_type                 = route.next_hop_type
+        next_hop_in_ip_address        = route.next_hop_in_ip_address
+        bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
+        region                        = region_key
+      }
     ]
   ])
 }
