@@ -55,22 +55,7 @@ data "azurerm_subnet" "subnet_audit_pep" {
 -------------------------------------------------------------------------------------------------- */
 
 locals {
-
-  #   route_table_routes = {
-  #     for region_key, region_val in var.regions :
-  #     region_key => {
-  #       for route in var.routes[region_key].route_table_routes :
-  #       "${route.name}-${region_key}" => {
-  #         name                          = route.name
-  #         address_prefix                = route.address_prefix
-  #         next_hop_type                 = route.next_hop_type
-  #         next_hop_in_ip_address        = route.next_hop_in_ip_address
-  #         bgp_route_propagation_enabled = route.bgp_route_propagation_enabled
-  #         region                        = region_key
-  #     } }
-  #   }
-  # }
-
+  # Expand a flattened list of objects for all routes (allows nested for loops)
   route_table_routes = flatten([
     for region_key, region_val in var.routes : [
       for route in region_val.route_table_routes : {
@@ -83,8 +68,14 @@ locals {
       }
     ]
   ])
+  # Project the above list into a map with unique keys for consumption in a for_each meta argument
+  route_table_routes_map = { for route in local.route_table_routes : route.route_key => route }
 }
 
 output "route_table" {
   value = local.route_table_routes
+}
+
+output "route_table_map" {
+  value = local.route_table_routes_map
 }
