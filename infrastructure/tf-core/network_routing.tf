@@ -88,5 +88,5 @@ locals {
 }
 
 output "route_table" {
-  value = module.route_table
+  value = local.route_table_routes
 }
