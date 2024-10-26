@@ -13,7 +13,7 @@ module "firewall_policy_rule_collection_group" {
       priority              = rule_val.priority
       action                = rule_val.action
       rule_name             = rule_val.rule_name
-      source_addresses      = rule_val.source_addresses == [] ? azurerm_virtual_network.vnet[each.key].address_space : rule_val.source_addresses
+      source_addresses      = rule_val.source_addresses == [] ? module.vnet[each.key].address_space : rule_val.source_addresses
       destination_addresses = rule_val.destination_addresses == [] ? data.azurerm_virtual_network.vnet_audit[each.key].address_space : rule_val.destination_addresses
       protocols             = rule_val.protocols
       destination_ports     = rule_val.destination_ports
