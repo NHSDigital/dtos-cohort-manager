@@ -1,5 +1,5 @@
-# Create the private link service in the hub subscription
-module "private_link_scoped_service" {
+# Create the private link service for Application Insights and Log Analytics
+module "private_link_scoped_service_app_insights" {
   for_each = {
     for key, region in var.regions :
     key => region if var.features.private_endpoints_enabled
@@ -7,14 +7,25 @@ module "private_link_scoped_service" {
 
   source = ".//modules/private-link-scoped-service"
 
-  providers = {
-    azurerm = azurerm.hub
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-app-insights"
+  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+
+  linked_resource_id = module.app_insights_audit.id
+  scope_name         = module.private_link_scope[each.key].scope_name
+}
+
+module "private_link_scoped_service_law" {
+  for_each = {
+    for key, region in var.regions :
+    key => region if var.features.private_endpoints_enabled
   }
 
-  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service"
-  resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
+  source = ".//modules/private-link-scoped-service"
 
-  linked_resource_id = module.log_analytics_workspace.id
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
+  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+
+  linked_resource_id = module.log_analytics_workspace_audit.id
   scope_name         = module.private_link_scope[each.key].scope_name
 }
 
@@ -28,11 +39,29 @@ module "private_link_scope" {
   source = ".//modules/private-link-scope"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls"
-  resource_group_name = module.baseline.resource_group_names_audit[var.law.audit_resource_group_key]
+  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  location            = each.key
 
   ingestion_access_mode = "PrivateOnly"
   query_access_mode     = "Open"
 
+  # Private Endpoint Configuration if enabled
+  private_endpoint_properties = var.features.private_endpoints_enabled ? {
+    private_dns_zone_ids = [
+      data.terraform_remote_state.hub.outputs.private_dns_zone_app_insight[each.key].private_dns_zone.id,
+      data.terraform_remote_state.hub.outputs.private_dns_zone_azure_automation[each.key].private_dns_zone.id,
+      data.terraform_remote_state.hub.outputs.private_dns_zone_od_insights[each.key].private_dns_zone.id,
+      data.terraform_remote_state.hub.outputs.private_dns_zone_op_insights[each.key].private_dns_zone.id,
+      data.terraform_remote_state.hub.outputs.private_dns_zone_storage_blob[each.key].private_dns_zone.id
+    ]
+    private_endpoint_enabled             = var.features.private_endpoints_enabled
+    private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.key].names.subnet}-pep"].id
+    private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.key].name
+    private_service_connection_is_manual = var.features.private_service_connection_is_manual
+  } : null
+
   tags = var.tags
 
 }
+
+

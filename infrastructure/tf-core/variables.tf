@@ -156,6 +156,7 @@ variable "function_apps" {
     acr_mi_name                   = string
     acr_name                      = string
     acr_rg_name                   = string
+    always_on                     = bool
     app_insights_name             = string
     app_insights_rg_name          = string
     cont_registry_use_mi          = bool
