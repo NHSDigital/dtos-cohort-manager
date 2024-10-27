@@ -11,7 +11,7 @@ module "private_link_scoped_service" {
     azurerm = azurerm.hub
   }
 
-  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls-service"
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service"
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
 
   linked_resource_id = module.log_analytics_workspace.id
@@ -27,8 +27,8 @@ module "private_link_scope" {
 
   source = ".//modules/private-link-scope"
 
-  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-${var.law.name_suffix}-ampls"
-  resource_group_name = module.baseline.resource_group_names[var.law.resource_group_key]
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls"
+  resource_group_name = module.baseline.resource_group_names_audit[var.law.audit_resource_group_key]
 
   ingestion_access_mode = "PrivateOnly"
   query_access_mode     = "Open"
