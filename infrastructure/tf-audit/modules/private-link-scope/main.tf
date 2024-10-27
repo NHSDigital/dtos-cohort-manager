@@ -24,12 +24,12 @@ module "private_endpoint_ampls" {
 
   private_dns_zone_group = {
     name                 = "${var.name}-ampls-private-endpoint-zone-group"
-    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids_ampls
+    private_dns_zone_ids = var.private_endpoint_properties.private_dns_zone_ids
   }
 
   private_service_connection = {
     name                           = "${var.name}-ampls-private-endpoint-connection"
-    private_connection_resource_id = azurerm_monitor_private_link_scope.private_link_scope.id
+    private_connection_resource_id = azurerm_monitor_private_link_scope.ampls.id
     subresource_names              = ["azuremonitor"]
     is_manual_connection           = var.private_endpoint_properties.private_service_connection_is_manual
   }

@@ -8,6 +8,11 @@ variable "resource_group_name" {
   description = "The name of the resource group in which to create the zone. Changing this forces a new resource to be created."
 }
 
+variable "location" {
+  type        = string
+  description = "The location/region where the LAW is created."
+}
+
 variable "ingestion_access_mode" {
   type        = string
   description = "The access mode for the ingestion endpoint. Possible values are Private and Public."

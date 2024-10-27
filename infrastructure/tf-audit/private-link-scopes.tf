@@ -40,6 +40,7 @@ module "private_link_scope" {
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+  location            = module.regions_config[each.key].location
 
   ingestion_access_mode = "PrivateOnly"
   query_access_mode     = "Open"
