@@ -1,5 +1,5 @@
-# Create the private link service in the hub subscription
-module "private_link_scoped_service" {
+# Create the private link service for Application Insights and Log Analytics
+module "private_link_scoped_service_app_insights" {
   for_each = {
     for key, region in var.regions :
     key => region if var.features.private_endpoints_enabled
@@ -7,11 +7,22 @@ module "private_link_scoped_service" {
 
   source = ".//modules/private-link-scoped-service"
 
-  providers = {
-    azurerm = azurerm.hub
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-app-insights"
+  resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
+
+  linked_resource_id = module.app_insights_audit.id
+  scope_name         = module.private_link_scope[each.key].scope_name
+}
+
+module "private_link_scoped_service_law" {
+  for_each = {
+    for key, region in var.regions :
+    key => region if var.features.private_endpoints_enabled
   }
 
-  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service"
+  source = ".//modules/private-link-scoped-service"
+
+  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
 
   linked_resource_id = module.log_analytics_workspace_audit.id
