@@ -20,12 +20,12 @@ variable "appinsights_type" {
   description = "Type of Application Insigts (default: web)."
 }
 
-variable "audit_law_id" {
+variable "log_analytics_workspace_id" {
   type        = string
   description = "Is the LAW workspace ID in Audit subscription."
 }
 
-variable "audit_resource_group_name" {
+variable "resource_group_name" {
   type        = string
-  description = "The name of the resource group in which to create (audit sub). Changing this forces a new resource to be created."
+  description = "The name of the resource group in which the App Insights is created. Changing this forces a new resource to be created."
 }

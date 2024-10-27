@@ -25,7 +25,7 @@ variable "tags" {
   description = "A mapping of tags to assign to the resource."
 }
 
-variable "audit_resource_group_name" {
+variable "resource_group_name" {
   type        = string
-  description = "The name of the resource group in which to create (audit sub). Changing this forces a new resource to be created."
+  description = "The name of the resource group in which the Log Analytics Workspace is created. Changing this forces a new resource to be created."
 }

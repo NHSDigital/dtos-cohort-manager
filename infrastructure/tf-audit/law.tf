@@ -1,4 +1,4 @@
-module "log_analytics_workspace" {
+module "log_analytics_workspace_audit" {
   source = ".//modules/log-analytics-workspace"
 
   name     = module.config.names.log-analytics-workspace

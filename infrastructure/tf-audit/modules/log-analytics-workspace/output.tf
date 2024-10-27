@@ -1,9 +1,9 @@
 
 ### audit sub
-output "audit_id" {
-  value = azurerm_log_analytics_workspace.law_audit.id
+output "id" {
+  value = azurerm_log_analytics_workspace.log_analytics_workspace.id
 }
 
-output "audit_name" {
-  value = azurerm_log_analytics_workspace.law_audit.name
+output "name" {
+  value = azurerm_log_analytics_workspace.log_analytics_workspace.name
 }
