@@ -18,6 +18,17 @@ variable "query_access_mode" {
   description = "The access mode for the query endpoint. Possible values are Private and Public."
 }
 
+variable "private_endpoint_properties" {
+  description = "Consolidated properties for the Function App Private Endpoint."
+  type = object({
+    private_dns_zone_ids                 = optional(list(string), [])
+    private_endpoint_enabled             = optional(bool, false)
+    private_endpoint_subnet_id           = optional(string, "")
+    private_endpoint_resource_group_name = optional(string, "")
+    private_service_connection_is_manual = optional(bool, false)
+  })
+}
+
 variable "tags" {
   description = "A mapping of tags to assign to the resource."
   type        = map(string)
