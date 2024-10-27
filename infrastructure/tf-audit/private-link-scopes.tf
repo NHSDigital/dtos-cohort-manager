@@ -14,7 +14,7 @@ module "private_link_scoped_service" {
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service"
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name
 
-  linked_resource_id = module.log_analytics_workspace.id
+  linked_resource_id = module.log_analytics_workspace_audit.id
   scope_name         = module.private_link_scope[each.key].scope_name
 }
 
