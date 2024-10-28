@@ -169,25 +169,33 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            if (_dbConnection.ConnectionString != _connectionString)
+            var result = default(T);
+            using (_dbConnection)
             {
-                _dbConnection.ConnectionString = _connectionString;
-            }
-            _dbConnection.Open();
-            using (command)
-            {
-                using (IDataReader reader = command.ExecuteReader())
+                if (_dbConnection.ConnectionString != _connectionString)
                 {
-                    result = mapFunction(reader);
+                    _dbConnection.ConnectionString = _connectionString;
                 }
-                _dbConnection.Close();
-            }
+                _dbConnection.Open();
+                using (command)
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
+                }
 
-            return result;
+                return result;
+            }
         }
+        finally
+        {
+            _dbConnection.Close();
+        }
+
+
     }
 
     private bool ExecuteCommand(string sqlCommandText, Dictionary<string, object> commonParams)

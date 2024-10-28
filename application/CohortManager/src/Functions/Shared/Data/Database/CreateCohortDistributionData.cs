@@ -583,40 +583,48 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                 if (!Execute(command))
                 {
                     transaction.Rollback();
-                    _dbConnection.Close();
                     return false;
                 }
             }
 
             transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch (Exception ex)
         {
             transaction.Rollback();
-            _dbConnection.Close();
             _logger.LogError(ex, "An error occurred while inserting new Cohort Distribution records: {ExceptionMessage}", ex.Message);
             return false;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
         var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
                 {
-                    result = mapFunction(reader);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
+                    _dbConnection.Close();
                 }
-                _dbConnection.Close();
+                return result;
             }
-            return result;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 

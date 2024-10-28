@@ -276,21 +276,28 @@ public class CreateDemographicData : ICreateDemographicData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
                 {
-                    result = mapFunction(reader);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
                 }
-                _dbConnection.Close();
+                return result;
             }
-            return result;
         }
+        finally
+        {
+            _dbConnection.Close();
+        }
+
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
