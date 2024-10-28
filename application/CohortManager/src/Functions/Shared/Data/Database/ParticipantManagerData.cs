@@ -192,7 +192,7 @@ public class ParticipantManagerData : IParticipantManagerData
         }
         finally
         {
-            if (_connectionString != null)
+            if (_dbConnection != null)
             {
                 _dbConnection.Close();
             }
