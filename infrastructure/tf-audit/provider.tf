@@ -23,6 +23,12 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
+  alias           = "application"
+  subscription_id = var.TARGET_SUBSCRIPTION_ID
+  features {}
+}
+
+provider "azurerm" {
   alias           = "acr_subscription"
   subscription_id = var.ACR_SUBSCRIPTION_ID
   # Configuration options
