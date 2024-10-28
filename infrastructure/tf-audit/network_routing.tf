@@ -14,7 +14,7 @@ module "firewall_policy_rule_collection_group" {
       action                = rule_val.action
       rule_name             = rule_val.rule_name
       source_addresses      = rule_val.source_addresses == [] ? module.vnet[each.key].vnet.address_space : rule_val.source_addresses
-      destination_addresses = rule_val.destination_addresses == [] ? data.azurerm_virtual_network.vnet_applicationt[each.key].address_space : rule_val.destination_addresses
+      destination_addresses = rule_val.destination_addresses == [] ? data.azurerm_virtual_network.vnet_application[each.key].address_space : rule_val.destination_addresses
       protocols             = rule_val.protocols
       destination_ports     = rule_val.destination_ports
     }
@@ -36,7 +36,7 @@ module "route_table" {
   routes = [
     for route_key, route_val in each.value.route_table_routes : {
       name                   = route_val.name
-      address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_applicationt_pep[each.key].address_prefixes[0] : route_val.address_prefix
+      address_prefix         = route_val.address_prefix == "" ? data.azurerm_subnet.subnet_application_pep[each.key].address_prefixes[0] : route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
       next_hop_in_ip_address = route_val.next_hop_in_ip_address == "" ? data.terraform_remote_state.hub.outputs.firewall_private_ip_addresses[each.key] : route_val.next_hop_in_ip_address
     }
