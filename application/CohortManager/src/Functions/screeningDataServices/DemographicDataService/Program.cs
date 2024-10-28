@@ -9,10 +9,9 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
-        services.TryAddTransient<ICreateDemographicData, CreateDemographicData>();
+        services.AddTransient<IDatabaseHelper, DatabaseHelper>();
+        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()

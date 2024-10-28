@@ -10,21 +10,13 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
-        var databaseConnectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
-        services.AddTransient<IDbConnection>(provider =>
-        {
-            var providerFactory = DbProviderFactories.GetFactory("Microsoft.Data.SqlClient");
-            var conn = providerFactory.CreateConnection();
-            conn.ConnectionString = databaseConnectionString;
-            return conn;
-        });
         services.AddTransient<ICreateParticipantData, CreateParticipantData>();
-        services.AddSingleton<IParticipantManagerData, ParticipantManagerData>();
+        services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddTransient<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
+    .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();
 

@@ -306,20 +306,21 @@ public class CreateDemographicData : ICreateDemographicData
                 if (!Execute(command))
                 {
                     transaction.Rollback();
-                    _dbConnection.Close();
                     return false;
                 }
             }
             transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch
         {
             transaction.Rollback();
-            _dbConnection.Close();
             // we need to rethrow the exception here if there is an error we need to roll back the transaction.
             throw;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 
