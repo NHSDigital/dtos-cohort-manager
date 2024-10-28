@@ -1,6 +1,7 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.CohortDistribution;
@@ -191,7 +192,10 @@ public class ParticipantManagerData : IParticipantManagerData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_connectionString != null)
+            {
+                _dbConnection.Close();
+            }
         }
 
 

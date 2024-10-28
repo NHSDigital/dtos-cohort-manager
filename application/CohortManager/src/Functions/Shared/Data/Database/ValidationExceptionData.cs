@@ -197,10 +197,11 @@ public class ValidationExceptionData : IValidationExceptionData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
-
-
     }
 
 
@@ -260,7 +261,10 @@ public class ValidationExceptionData : IValidationExceptionData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
     }
 

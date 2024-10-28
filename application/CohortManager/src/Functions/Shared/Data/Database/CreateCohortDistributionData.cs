@@ -598,7 +598,10 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
     }
 
@@ -617,14 +620,16 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
                     {
                         result = mapFunction(reader);
                     }
-                    _dbConnection.Close();
                 }
                 return result;
             }
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
     }
 

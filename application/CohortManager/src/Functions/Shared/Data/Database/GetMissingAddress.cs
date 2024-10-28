@@ -49,7 +49,10 @@ public class GetMissingAddress
         }
         finally
         {
-            _connection.Close();
+            if (_connection != null)
+            {
+                _connection.Close();
+            }
         }
 
     }

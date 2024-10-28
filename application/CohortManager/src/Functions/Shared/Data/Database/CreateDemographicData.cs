@@ -295,7 +295,10 @@ public class CreateDemographicData : ICreateDemographicData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
 
     }

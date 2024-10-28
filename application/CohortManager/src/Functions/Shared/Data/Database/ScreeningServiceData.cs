@@ -116,7 +116,10 @@ public class ScreeningServiceData : IScreeningServiceData
         }
         finally
         {
-            _dbConnection.Close();
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
         }
 
     }
