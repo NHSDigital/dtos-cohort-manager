@@ -53,22 +53,22 @@ module "route_table" {
   Data lookups required to query other resource attributes
 -------------------------------------------------------------------------------------------------- */
 
-data "azurerm_virtual_network" "vnet_application" {
+data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
 
-  provider = azurerm.application
+  provider = azurerm.audit
 
   name                = module.regions_config[each.key].names.virtual-network
-  resource_group_name = "${module.regions_config[each.key].names.resource-group}-networking"
+  resource_group_name  = "${module.regions_config[each.key].names.resource-group}-audit-networking"
 }
 
-data "azurerm_subnet" "subnet_application_pep" {
+data "azurerm_subnet" "subnet_audit_pep" {
   for_each = var.regions
 
-  provider = azurerm.application
+  provider = azurerm.audit
 
   name                 = "${module.regions_config[each.key].names.subnet}-pep"
-  resource_group_name  = "${module.regions_config[each.key].names.resource-group}-networking"
+  resource_group_name  = "${module.regions_config[each.key].names.resource-group}-audit-networking"
   virtual_network_name = module.regions_config[each.key].names.virtual-network
 }
 
