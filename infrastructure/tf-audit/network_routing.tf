@@ -43,7 +43,7 @@ module "route_table" {
   ]
 
   subnet_ids = [
-    module.subnets["${module.regions_config[each.key].names.subnet}-apps"].id
+    module.subnets["${module.regions_config[each.key].names.subnet}-pep"].id
   ]
 
   tags = var.tags
