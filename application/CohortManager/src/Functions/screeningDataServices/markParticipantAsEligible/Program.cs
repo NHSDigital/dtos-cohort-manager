@@ -10,9 +10,9 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
-        services.TryAddTransient<IGetParticipantData, GetParticipantData>();
-        services.TryAddTransient<IParticipantManagerData, ParticipantManagerData>();
+        services.AddTransient<IDatabaseHelper, DatabaseHelper>();
+        services.AddTransient<IGetParticipantData, GetParticipantData>();
+        services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })
     .AddDatabaseConnection()

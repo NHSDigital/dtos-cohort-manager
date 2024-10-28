@@ -1,6 +1,7 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.CohortDistribution;
@@ -171,7 +172,10 @@ public class ParticipantManagerData : IParticipantManagerData
         var result = default(T);
         using (_dbConnection)
         {
-            _dbConnection.ConnectionString = _connectionString;
+            if (_dbConnection.ConnectionString != _connectionString)
+            {
+                _dbConnection.ConnectionString = _connectionString;
+            }
             _dbConnection.Open();
             using (command)
             {
@@ -200,20 +204,21 @@ public class ParticipantManagerData : IParticipantManagerData
             if (result == 0)
             {
                 command.Transaction.Rollback();
-                _dbConnection.Close();
                 return false;
             }
 
             command.Transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch (Exception ex)
         {
             command.Transaction.Rollback();
-            _dbConnection.Close();
             _logger.LogError("{MessageType} ExecuteCommand failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 
