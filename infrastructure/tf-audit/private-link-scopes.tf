@@ -5,7 +5,8 @@ module "private_link_scoped_service_app_insights" {
     key => region if var.features.private_endpoints_enabled
   }
 
-  source = ".//modules/private-link-scoped-service"
+  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scoped-service?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-app-insights"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -20,7 +21,8 @@ module "private_link_scoped_service_law" {
     key => region if var.features.private_endpoints_enabled
   }
 
-  source = ".//modules/private-link-scoped-service"
+  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scoped-service?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -36,7 +38,8 @@ module "private_link_scope" {
     key => region if var.features.private_endpoints_enabled
   }
 
-  source = ".//modules/private-link-scope"
+  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scope?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name

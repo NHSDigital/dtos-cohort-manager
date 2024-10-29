@@ -1,7 +1,7 @@
 ### audit subscription
 
 output "resource_groupsrg_audit" {
-  value = length(var.resource_groups_audit) > 0 ? azurerm_resource_group.rg-audit : {}
+  value = length(var.resource_groups) > 0 ? azurerm_resource_group.rg-audit : {}
 }
 
 output "resource_group_names_audit" {

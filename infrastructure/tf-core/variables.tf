@@ -61,12 +61,6 @@ variable "features" {
   type        = map(bool)
 }
 
-variable "location" {
-  description = "Location code for deployments"
-  type        = string
-  default     = "uksouth"
-}
-
 variable "regions" {
   type = map(object({
     address_space     = optional(string)
@@ -87,23 +81,11 @@ variable "regions" {
 variable "resource_groups" {
   description = "Map of resource groups"
   type = map(object({
-    name     = optional(string, "rg-cohort-manager-dev-suk")
-    location = optional(string, "uksouth")
+    name_suffix = optional(string)
   }))
 }
 
 ### Cohort Manager specific variables ###
-
-variable "api_management" {
-  description = "Configuration of the API Management Service"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sku                = optional(string, "Basic_1")
-    publisher_name     = optional(string, "NHS_DToS_CohortManager")
-    publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
-  })
-}
-
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -114,38 +96,55 @@ variable "app_service_plan" {
 
     autoscale = object({
       memory_percentage = object({
-        metric              = optional(string, "MemoryPercentage")
-        capacity_min        = optional(string, "1")
-        capacity_max        = optional(string, "5")
-        capacity_def        = optional(string, "1")
-        time_grain          = optional(string, "PT1M")
-        statistic           = optional(string, "Average")
-        time_window         = optional(string, "PT10M")
-        time_aggregation    = optional(string, "Average")
-        inc_operator        = optional(string, "GreaterThan")
-        inc_threshold       = optional(number, 70)
-        inc_scale_direction = optional(string, "Increase")
-        inc_scale_type      = optional(string, "ChangeCount")
-        inc_scale_value     = optional(number, 1)
-        inc_scale_cooldown  = optional(string, "PT5M")
-        dec_operator        = optional(string, "LessThan")
-        dec_threshold       = optional(number, 25)
-        dec_scale_direction = optional(string, "Decrease")
-        dec_scale_type      = optional(string, "ChangeCount")
-        dec_scale_value     = optional(number, 1)
-        dec_scale_cooldown  = optional(string, "PT5M")
+        metric              = optional(string)
+        capacity_min        = optional(string)
+        capacity_max        = optional(string)
+        capacity_def        = optional(string)
+        time_grain          = optional(string)
+        statistic           = optional(string)
+        time_window         = optional(string)
+        time_aggregation    = optional(string)
+        inc_operator        = optional(string)
+        inc_threshold       = optional(number)
+        inc_scale_direction = optional(string)
+        inc_scale_type      = optional(string)
+        inc_scale_value     = optional(number)
+        inc_scale_cooldown  = optional(string)
+        dec_operator        = optional(string)
+        dec_threshold       = optional(number)
+        dec_scale_direction = optional(string)
+        dec_scale_type      = optional(string)
+        dec_scale_value     = optional(number)
+        dec_scale_cooldown  = optional(string)
       })
     })
-  })
-}
 
-variable "event_grid" {
-  description = "Configuration for the event grid"
-  type = object({
-    topic = object({
-      resource_group_key = optional(string, "cohman")
-      name_suffix        = optional(string, "cohman")
-    })
+    instances = map(object({
+      autoscale_override = optional(object({
+        memory_percentage = object({
+          metric              = optional(string)
+          capacity_min        = optional(string)
+          capacity_max        = optional(string)
+          capacity_def        = optional(string)
+          time_grain          = optional(string)
+          statistic           = optional(string)
+          time_window         = optional(string)
+          time_aggregation    = optional(string)
+          inc_operator        = optional(string)
+          inc_threshold       = optional(number)
+          inc_scale_direction = optional(string)
+          inc_scale_type      = optional(string)
+          inc_scale_value     = optional(number)
+          inc_scale_cooldown  = optional(string)
+          dec_operator        = optional(string)
+          dec_threshold       = optional(number)
+          dec_scale_direction = optional(string)
+          dec_scale_type      = optional(string)
+          dec_scale_value     = optional(number)
+          dec_scale_cooldown  = optional(string)
+        })
+      }))
+    }))
   })
 }
 
@@ -169,9 +168,14 @@ variable "function_apps" {
     remote_debugging_enabled      = bool
     storage_uses_managed_identity = bool
     worker_32bit                  = bool
+    slots = optional(map(object({
+      name         = string
+      slot_enabled = optional(bool, false)
+    })))
     fa_config = map(object({
       name_suffix                  = string
       function_endpoint_name       = string
+      app_service_plan_key         = string
       storage_account_env_var_name = optional(string, "")
       storage_containers = optional(list(object
         ({

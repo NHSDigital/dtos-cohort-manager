@@ -1,7 +1,7 @@
 module "firewall_policy_rule_collection_group" {
   for_each = var.routes
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=feat/DTOSS-3407-Network-Routing-Config"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/firewall-rule-collection-group?ref=31bd01eeda1e4ae7fb7d6c6b4b111f9a6d922844"
 
   name               = "${module.regions_config[each.key].names.firewall}-audit-policy-rule-collection-group"
   firewall_policy_id = data.terraform_remote_state.hub.outputs.firewall_policy_id[each.key]
@@ -25,7 +25,7 @@ module "firewall_policy_rule_collection_group" {
 module "route_table" {
   for_each = var.routes
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/route-table?ref=feat/DTOSS-3407-Network-Routing-Config"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/route-table?ref=31bd01eeda1e4ae7fb7d6c6b4b111f9a6d922844"
 
   name                = module.regions_config[each.key].names.route-table
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -55,7 +55,7 @@ module "route_table" {
 
 
 data "azurerm_virtual_network" "vnet_application" {
-  for_each = var.regions
+  for_each = length(var.routes) > 0 ? var.regions : {}
 
   provider = azurerm.application
 
@@ -64,7 +64,7 @@ data "azurerm_virtual_network" "vnet_application" {
 }
 
 data "azurerm_subnet" "subnet_application_pep" {
-  for_each = var.regions
+  for_each = length(var.routes) > 0 ? var.regions : {}
 
   provider = azurerm.application
 
