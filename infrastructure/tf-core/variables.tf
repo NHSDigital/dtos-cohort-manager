@@ -136,6 +136,7 @@ variable "app_service_plan" {
         dec_scale_cooldown  = optional(string)
       })
     })
+    default = {}
 
     instances = map(object({
       autoscale_override = object({
@@ -163,6 +164,7 @@ variable "app_service_plan" {
         })
       })
     }))
+    default = {}
   })
   default = {}
 }
