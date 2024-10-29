@@ -13,6 +13,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICohortDistributionHelper, CohortDistributionHelper>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
         services.TryAddTransient<IParticipantManagerData, ParticipantManagerData>();
+        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
