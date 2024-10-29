@@ -41,3 +41,26 @@ module "app-service-plan" {
   dec_scale_value     = var.app_service_plan.autoscale.memory_percentage.dec_scale_value
   dec_scale_cooldown  = var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown
 }
+
+locals {
+
+  # Create a flat list of projects with region keys for consumption in a for_each meta argument
+  app_service_plans_flatlist = flatten([
+    for region_key, region_val in var.regions : [
+      for asp_key, asp_val in var.app_service_plan.instances : {
+        key                 = "${asp_key}-${region_key}"
+        region_key          = region_key
+        is_primary_region   = region_val.is_primary_region
+        asp_key             = asp_key
+        autoscale_override  = asp_val.autoscale_override
+      }
+    ]
+  ])
+
+  # Project the above list into a map with unique keys for consumption in a for_each meta argument
+  app_service_plans_map = { for asp in local.app_service_plans_flatlist : asp.key => asp }
+}
+
+output "app_service_plans" {
+  value = local.app_service_plans_map
+}
