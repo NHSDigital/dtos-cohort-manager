@@ -1,5 +1,5 @@
 module "app-service-plan" {
-  for_each = local.app_service_plans_flatlist
+  for_each = local.app_service_plans_map
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/app-service-plan?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
 
@@ -16,7 +16,8 @@ module "app-service-plan" {
 
   ## autoscale rule
 
-  metric = var.app_service_plan.autoscale.memory_percentage.metric
+  # metric = var.app_service_plan.autoscale.memory_percentage.metric
+  metric = each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
 
   capacity_min = var.app_service_plan.autoscale.memory_percentage.capacity_min
   capacity_max = var.app_service_plan.autoscale.memory_percentage.capacity_max
