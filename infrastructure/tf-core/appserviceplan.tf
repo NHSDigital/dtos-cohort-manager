@@ -17,19 +17,18 @@ module "app-service-plan" {
   ## autoscale rule
 
   # metric = var.app_service_plan.autoscale.memory_percentage.metric
-  metric = each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
+  metric       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
+  capacity_min = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_min != "" ? each.value.autoscale_override.memory_percentage.capacity_min : var.app_service_plan.autoscale.memory_percentage.capacity_min
+  capacity_max = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_max != "" ? each.value.autoscale_override.memory_percentage.capacity_max : var.app_service_plan.autoscale.memory_percentage.capacity_max
+  capacity_def = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_def != "" ? each.value.autoscale_override.memory_percentage.capacity_def : var.app_service_plan.autoscale.memory_percentage.capacity_def
 
-  capacity_min = var.app_service_plan.autoscale.memory_percentage.capacity_min
-  capacity_max = var.app_service_plan.autoscale.memory_percentage.capacity_max
-  capacity_def = var.app_service_plan.autoscale.memory_percentage.capacity_def
+  time_grain       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.time_grain != "" ? each.value.autoscale_override.memory_percentage.time_grain : var.app_service_plan.autoscale.memory_percentage.time_grain
+  statistic        = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.statistic != "" ? each.value.autoscale_override.memory_percentage.statistic : var.app_service_plan.autoscale.memory_percentage.statistic
+  time_window      = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.time_window != "" ? each.value.autoscale_override.memory_percentage.time_window : var.app_service_plan.autoscale.memory_percentage.time_window
+  time_aggregation = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.time_aggregation != "" ? each.value.autoscale_override.memory_percentage.time_aggregation : var.app_service_plan.autoscale.memory_percentage.time_aggregation
 
-  time_grain       = var.app_service_plan.autoscale.memory_percentage.time_grain
-  statistic        = var.app_service_plan.autoscale.memory_percentage.statistic
-  time_window      = var.app_service_plan.autoscale.memory_percentage.time_window
-  time_aggregation = var.app_service_plan.autoscale.memory_percentage.time_aggregation
-
-  inc_operator        = var.app_service_plan.autoscale.memory_percentage.inc_operator
-  inc_threshold       = var.app_service_plan.autoscale.memory_percentage.inc_threshold
+  inc_operator        = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_operator != "" ? each.value.autoscale_override.memory_percentage.inc_operator : var.app_service_plan.autoscale.memory_percentage.inc_operator
+  inc_threshold       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_threshold != null ? each.value.autoscale_override.memory_percentage.inc_threshold : var.app_service_plan.autoscale.memory_percentage.inc_threshold
   inc_scale_direction = var.app_service_plan.autoscale.memory_percentage.inc_scale_direction
   inc_scale_type      = var.app_service_plan.autoscale.memory_percentage.inc_scale_type
   inc_scale_value     = var.app_service_plan.autoscale.memory_percentage.inc_scale_value
@@ -49,11 +48,11 @@ locals {
   app_service_plans_flatlist = flatten([
     for region_key, region_val in var.regions : [
       for asp_key, asp_val in var.app_service_plan.instances : {
-        key                 = "${asp_key}-${region_key}"
-        asp_key             = asp_key
-        asp_val             = asp_val
-        region_key          = region_key
-        autoscale_override  = asp_val.autoscale_override
+        key                = "${asp_key}-${region_key}"
+        asp_key            = asp_key
+        asp_val            = asp_val
+        region_key         = region_key
+        autoscale_override = asp_val.autoscale_override
       }
     ]
   ])
