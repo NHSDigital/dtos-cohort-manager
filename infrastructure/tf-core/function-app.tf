@@ -1,7 +1,7 @@
 module "functionapp" {
   for_each = local.function_app_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
+  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=feat/dtoss-0000-function-apps-always-on"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
   resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
@@ -15,12 +15,20 @@ module "functionapp" {
   rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
 
   asp_id                        = module.app-service-plan[each.value.region_key].app_service_plan_id
+
+  # Use the storage account assigned identity for the Function Apps:
   storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
   storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region_key}"].storage_account_primary_access_key
   storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
 
+  # Connection string for Application Insights:
   ai_connstring        = data.azurerm_application_insights.ai.connection_string
+
+  # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
+
+  # Other Function App configuration settings:
+  always_on            = var.function_apps.always_on
   worker_32bit         = var.function_apps.worker_32bit
 
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
