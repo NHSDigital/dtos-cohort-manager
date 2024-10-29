@@ -15,9 +15,8 @@ module "app-service-plan" {
   tags = var.tags
 
   ## autoscale rule
+  metric = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.memory_percentage.metric, var.app_service_plan.autoscale.memory_percentage.metric) : var.app_service_plan.autoscale.memory_percentage.metric
 
-  metric = coalesce(each.value.autoscale_override.memory_percentage.metric, var.app_service_plan.autoscale.memory_percentage.metric)
-  # metric       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
   capacity_min = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_min != "" ? each.value.autoscale_override.memory_percentage.capacity_min : var.app_service_plan.autoscale.memory_percentage.capacity_min
   capacity_max = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_max != "" ? each.value.autoscale_override.memory_percentage.capacity_max : var.app_service_plan.autoscale.memory_percentage.capacity_max
   capacity_def = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_def != "" ? each.value.autoscale_override.memory_percentage.capacity_def : var.app_service_plan.autoscale.memory_percentage.capacity_def
