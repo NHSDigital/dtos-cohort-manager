@@ -1,6 +1,7 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.CohortDistribution;
@@ -168,22 +169,36 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                if (_dbConnection.ConnectionString != _connectionString)
                 {
-                    result = mapFunction(reader);
+                    _dbConnection.ConnectionString = _connectionString;
                 }
+                _dbConnection.Open();
+                using (command)
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
+                }
+
+                return result;
+            }
+        }
+        finally
+        {
+            if (_dbConnection != null)
+            {
                 _dbConnection.Close();
             }
-
-            return result;
         }
+
+
     }
 
     private bool ExecuteCommand(string sqlCommandText, Dictionary<string, object> commonParams)
@@ -200,20 +215,21 @@ public class ParticipantManagerData : IParticipantManagerData
             if (result == 0)
             {
                 command.Transaction.Rollback();
-                _dbConnection.Close();
                 return false;
             }
 
             command.Transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch (Exception ex)
         {
             command.Transaction.Rollback();
-            _dbConnection.Close();
             _logger.LogError("{MessageType} ExecuteCommand failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 
