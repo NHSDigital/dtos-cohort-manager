@@ -16,8 +16,8 @@ module "app-service-plan" {
 
   ## autoscale rule
 
-  # metric = var.app_service_plan.autoscale.memory_percentage.metric
-  metric       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
+  metric = coalesce(each.value.autoscale_override.memory_percentage.metric, var.app_service_plan.autoscale.memory_percentage.metric)
+  # metric       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.metric != "" ? each.value.autoscale_override.memory_percentage.metric : var.app_service_plan.autoscale.memory_percentage.metric
   capacity_min = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_min != "" ? each.value.autoscale_override.memory_percentage.capacity_min : var.app_service_plan.autoscale.memory_percentage.capacity_min
   capacity_max = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_max != "" ? each.value.autoscale_override.memory_percentage.capacity_max : var.app_service_plan.autoscale.memory_percentage.capacity_max
   capacity_def = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.capacity_def != "" ? each.value.autoscale_override.memory_percentage.capacity_def : var.app_service_plan.autoscale.memory_percentage.capacity_def
@@ -29,17 +29,17 @@ module "app-service-plan" {
 
   inc_operator        = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_operator != "" ? each.value.autoscale_override.memory_percentage.inc_operator : var.app_service_plan.autoscale.memory_percentage.inc_operator
   inc_threshold       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_threshold != null ? each.value.autoscale_override.memory_percentage.inc_threshold : var.app_service_plan.autoscale.memory_percentage.inc_threshold
-  inc_scale_direction = var.app_service_plan.autoscale.memory_percentage.inc_scale_direction
-  inc_scale_type      = var.app_service_plan.autoscale.memory_percentage.inc_scale_type
-  inc_scale_value     = var.app_service_plan.autoscale.memory_percentage.inc_scale_value
-  inc_scale_cooldown  = var.app_service_plan.autoscale.memory_percentage.inc_scale_cooldown
+  inc_scale_direction = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_scale_direction != "" ? each.value.autoscale_override.memory_percentage.inc_scale_direction : var.app_service_plan.autoscale.memory_percentage.inc_scale_direction
+  inc_scale_type      = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_scale_type != "" ? each.value.autoscale_override.memory_percentage.inc_scale_type : var.app_service_plan.autoscale.memory_percentage.inc_scale_type
+  inc_scale_value     = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_scale_value != null ? each.value.autoscale_override.memory_percentage.inc_scale_value : var.app_service_plan.autoscale.memory_percentage.inc_scale_value
+  inc_scale_cooldown  = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.inc_scale_cooldown != "" ? each.value.autoscale_override.memory_percentage.inc_scale_cooldown : var.app_service_plan.autoscale.memory_percentage.inc_scale_cooldown
 
-  dec_operator        = var.app_service_plan.autoscale.memory_percentage.dec_operator
-  dec_threshold       = var.app_service_plan.autoscale.memory_percentage.dec_threshold
-  dec_scale_direction = var.app_service_plan.autoscale.memory_percentage.dec_scale_direction
-  dec_scale_type      = var.app_service_plan.autoscale.memory_percentage.dec_scale_type
-  dec_scale_value     = var.app_service_plan.autoscale.memory_percentage.dec_scale_value
-  dec_scale_cooldown  = var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown
+  dec_operator        = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_operator != "" ? each.value.autoscale_override.memory_percentage.dec_operator : var.app_service_plan.autoscale.memory_percentage.dec_operator
+  dec_threshold       = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_threshold != null ? each.value.autoscale_override.memory_percentage.dec_threshold : var.app_service_plan.autoscale.memory_percentage.dec_threshold
+  dec_scale_direction = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_scale_direction != "" ? each.value.autoscale_override.memory_percentage.dec_scale_direction : var.app_service_plan.autoscale.memory_percentage.dec_scale_direction
+  dec_scale_type      = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_scale_type != "" ? each.value.autoscale_override.memory_percentage.dec_scale_type : var.app_service_plan.autoscale.memory_percentage.dec_scale_type
+  dec_scale_value     = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_scale_value != null ? each.value.autoscale_override.memory_percentage.dec_scale_value : var.app_service_plan.autoscale.memory_percentage.dec_scale_value
+  dec_scale_cooldown  = each.value.autoscale_override != null && each.value.autoscale_override.memory_percentage.dec_scale_cooldown != "" ? each.value.autoscale_override.memory_percentage.dec_scale_cooldown : var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown
 }
 
 locals {
