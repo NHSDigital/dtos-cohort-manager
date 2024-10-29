@@ -14,12 +14,20 @@ set -euo pipefail
 #
 # Options:
 #   BUILD_DATETIME=%Y-%m-%dT%H:%M:%S%z  # Build datetime, default is `date -u +'%Y-%m-%dT%H:%M:%S%z'`
+#   CHECK_DOCKER_IMAGE=<image name>     # If variable is set it then will scan the specified docker image instead, default is ''
 #   FORCE_USE_DOCKER=true               # If set to true the command is run in a Docker container, default is 'false'
+#   SBOM_REPOSITORY_REPORT              # Set the name of the sbom-repository-report, default is 'sbom-repository-report'
 #   VERBOSE=true                        # Show all the executed commands, default is `false`
 
 # ==============================================================================
 
 function main() {
+
+  SBOM_REPOSITORY_REPORT=${SBOM_REPOSITORY_REPORT:-sbom-repository-report}
+  CHECK_DOCKER_IMAGE=${CHECK_DOCKER_IMAGE:-""}
+
+  echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+  echo CHECK_DOCKER_IMAGE: $CHECK_DOCKER_IMAGE
 
   cd "$(git rev-parse --show-toplevel)"
 
@@ -32,15 +40,24 @@ function create-report() {
   if command -v syft > /dev/null 2>&1 && ! is-arg-true "${FORCE_USE_DOCKER:-false}"; then
     run-syft-natively
   else
+    echo "run in docker"
     run-syft-in-docker
   fi
 }
 
 function run-syft-natively() {
 
-  syft packages dir:"$PWD" \
-    --config "$PWD/scripts/config/syft.yaml" \
-    --output spdx-json="$PWD/sbom-repository-report.tmp.json"
+
+if [ -z "$CHECK_DOCKER_IMAGE" ]; then
+    syft scan docker:$CHECK_DOCKER_IMAGE \
+      --config "$PWD/scripts/config/syft.yaml" \
+      --output spdx-json="$PWD/$SBOM_REPOSITORY_REPORT.tmp.json"
+  else
+    syft packages dir:"$PWD" \
+      --config "$PWD/scripts/config/syft.yaml" \
+      --output spdx-json="$PWD/$SBOM_REPOSITORY_REPORT.tmp.json"
+  fi
+
 }
 
 function run-syft-in-docker() {
@@ -50,12 +67,23 @@ function run-syft-in-docker() {
 
   # shellcheck disable=SC2155
   local image=$(name=ghcr.io/anchore/syft docker-get-image-version-and-pull)
-  docker run --rm --platform linux/amd64 \
-    --volume "$PWD":/workdir \
-    "$image" \
-      packages dir:/workdir \
-      --config /workdir/scripts/config/syft.yaml \
-      --output spdx-json=/workdir/sbom-repository-report.tmp.json
+
+  if [ -z "$CHECK_DOCKER_IMAGE" ]; then
+    docker run --rm --platform linux/amd64 \
+      --volume "$PWD":/workdir \
+      --volume /var/run/docker.sock:/var/run/docker.sock  \
+      "$image" \
+        docker:$CHECK_DOCKER_IMAGE \
+        --config /workdir/scripts/config/syft.yaml \
+        --output spdx-json=/workdir/$SBOM_REPOSITORY_REPORT.tmp.json
+  else
+    docker run --rm --platform linux/amd64 \
+      --volume "$PWD":/workdir \
+      "$image" \
+        packages dir:/workdir \
+        --config /workdir/scripts/config/syft.yaml \
+        --output spdx-json=/workdir/$SBOM_REPOSITORY_REPORT.tmp.json
+  fi
 }
 
 function enrich-report() {
@@ -72,9 +100,9 @@ function enrich-report() {
   # shellcheck disable=SC2086
   jq \
     '.creationInfo |= . + {"created":"'${build_datetime}'","repository":{"url":"'${git_url}'","branch":"'${git_branch}'","tags":['${git_tags}'],"commitHash":"'${git_commit_hash}'"},"pipeline":{"id":'${pipeline_run_id}',"number":'${pipeline_run_number}',"attempt":'${pipeline_run_attempt}'}}' \
-    sbom-repository-report.tmp.json \
-      > sbom-repository-report.json
-  rm -f sbom-repository-report.tmp.json
+    $SBOM_REPOSITORY_REPORT.tmp.json \
+      > $SBOM_REPOSITORY_REPORT.json
+  rm -f $SBOM_REPOSITORY_REPORT.tmp.json
 }
 
 # ==============================================================================
