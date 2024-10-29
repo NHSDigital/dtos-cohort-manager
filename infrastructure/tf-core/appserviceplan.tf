@@ -1,16 +1,16 @@
 module "app-service-plan" {
-  for_each = var.regions
+  for_each = local.app_service_plans_flatlist
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/app-service-plan?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
 
-  name                = module.regions_config[each.key].names.app-service-plan
+  name                = "${module.regions_config[each.value.region_key].names.app-service-plan}-${lower(each.value.asp_key)}"
   resource_group_name = module.baseline.resource_group_names[var.app_service_plan.resource_group_key]
   location            = module.baseline.resource_group_locations[var.app_service_plan.resource_group_key]
 
   os_type  = var.app_service_plan.os_type
   sku_name = var.app_service_plan.sku_name
 
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.key].names.subnet}-apps"].id
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
 
   tags = var.tags
 
@@ -49,9 +49,9 @@ locals {
     for region_key, region_val in var.regions : [
       for asp_key, asp_val in var.app_service_plan.instances : {
         key                 = "${asp_key}-${region_key}"
-        region_key          = region_key
-        is_primary_region   = region_val.is_primary_region
         asp_key             = asp_key
+        asp_val             = asp_val
+        region_key          = region_key
         autoscale_override  = asp_val.autoscale_override
       }
     ]
