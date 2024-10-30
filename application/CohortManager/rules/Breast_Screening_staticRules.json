@@ -52,11 +52,27 @@
       },
       {
         "RuleName": "30.Postcode.NonFatal",
-        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)"
+        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "Postcode invalid"
+            }
+          }
+        }
       },
       {
         "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
-        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))"
+        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "Address is missing"
+            }
+          }
+        }
       },
       {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NonFatal",
