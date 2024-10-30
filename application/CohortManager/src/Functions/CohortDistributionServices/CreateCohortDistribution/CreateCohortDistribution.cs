@@ -55,13 +55,13 @@ public class CreateCohortDistribution
         {
             // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(basicParticipantCsvRecord);
-            _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
             if (participantData == null)
             {
                 _logger.LogInformation("participant data in cohort distribution was null");
                 await HandleErrorResponseIfNullAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
+            _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
 
             // Allocate service provider
             var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);

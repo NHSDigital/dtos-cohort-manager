@@ -16,9 +16,6 @@ dotnet_style_readonly_field = true
 csharp_using_directive_placement = inside_namespace
 dotnet_diagnostic.IDE0065.severity = error
 
-# CA1848: Use the LoggerMessage delegates
-dotnet_diagnostic.CA1848.severity = none
-
 [*.csproj]
 indent_size = 2
 
