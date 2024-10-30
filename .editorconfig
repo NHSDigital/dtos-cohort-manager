@@ -23,15 +23,11 @@ indent_style = tab
 [*.cs]
 indent_size = 4
 
-[*.sln]
-indent_size = 1
-indent_style = tab
-
 [*.json]
 indent_size = 2
 
 # Ignore paths
-[*.parquet]
+[{*.parquet, *.sln}]
 charset = unset
 end_of_line = unset
 insert_final_newline = unset
