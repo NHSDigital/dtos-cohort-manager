@@ -75,7 +75,6 @@ public class CreateCohortDistributionTests
     [DataRow(" ")]
     public async Task RunAsync_BadRequestBody_ReturnsBadRequest(string screeningService)
     {
-        //SetUpRequestBody(requestBody);
         // Act
         _requestBody.ScreeningService = screeningService;
         await _function.RunAsync(_requestBody);
@@ -104,15 +103,13 @@ public class CreateCohortDistributionTests
         // Act
         _function.RunAsync(_requestBody);
 
+        // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
               It.IsAny<EventId>(),
               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
               It.IsAny<Exception>(),
               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
           Times.Once);
-
-        // Assert
-        //Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     [TestMethod]
@@ -136,7 +133,6 @@ public class CreateCohortDistributionTests
         }
 
         // Assert
-        //One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
                       It.IsAny<EventId>(),
                       It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
@@ -186,7 +182,6 @@ public class CreateCohortDistributionTests
         }
 
         // Assert
-        //One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
                       It.IsAny<EventId>(),
                       It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
@@ -263,7 +258,6 @@ public class CreateCohortDistributionTests
         }
 
         // Assert
-        //One of the functions failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
                       It.IsAny<EventId>(),
                       It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
