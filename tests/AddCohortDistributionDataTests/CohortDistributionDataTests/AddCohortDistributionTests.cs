@@ -18,7 +18,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
     private const int serviceProviderId = (int)ServiceProvider.BSS;
-    private string _requestId = new Guid().ToString();
+    private readonly string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
     {
@@ -183,6 +183,110 @@ public class AddCohortDistributionTests
     }
 
 
+    // [TestMethod]
+    // public void GetLastCohortRequest_NewerErrorRequestId_ReturnsParticipants()
+    // {
+    //     // Arrange
+    //     var lastRequestId = "lastRequestId";
+
+    //     var cohortRequestAuditList = new List<CohortRequestAudit>
+    // {
+    //     new CohortRequestAudit { RequestId = "lastRequestId", StatusCode = "200", CreatedDateTime = DateTime.Now.AddDays(-1).ToString() },
+    //     new CohortRequestAudit { RequestId = "NewRequestId", StatusCode = "500", CreatedDateTime = DateTime.Now.ToString() }
+    // };
+
+    //     var expectedParticipants = new List<CohortDistributionParticipant>
+    // {
+    //     new CohortDistributionParticipant { ParticipantId = "1", RequestId = "NewRequestId" }
+    // };
+
+    //     _mockDataReader.SetupSequence(reader => reader.Read())
+    //         .Returns(true)
+    //         .Returns(true)
+    //         .Returns(false);
+
+    //     _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("NewRequestId");
+
+
+    //         //wp issue is here calling 2 different database commands and trying to mock them
+    //         //this may not possible as the mock is not able to differentiate between the two commands
+    //      _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns(expectedParticipants[0].ParticipantId);
+    //      _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(expectedParticipants[0].RequestId);
+
+
+    //     // Act
+    //     var result = _createCohortDistributionData.GetLastCohortRequest(lastRequestId);
+
+    //     // Assert
+    //     Assert.AreEqual(1, result.Count);
+    //     Assert.AreEqual(expectedParticipants[0].ParticipantId, result[0].ParticipantId);
+    //     Assert.AreEqual(expectedParticipants[0].RequestId, result[0].RequestId);
+    //     Assert.IsInstanceOfType(result, typeof(List<CohortDistributionParticipant>));
+    // }
+
+
+//     [TestMethod]
+//     public void GetLastCohortRequest_NewerErrorRequestId_ReturnsParticipants_Test2()
+//     {
+//         // Arrange
+//         // Arrange
+//         var lastRequestId = "lastRequestId";
+//         var expectedRequestId = _requestId;
+//         var expectedParticipants = new List<CohortDistributionParticipant>
+// {
+//     new CohortDistributionParticipant { ParticipantId = "1", RequestId = expectedRequestId }
+// };
+
+//         var cohortRequestAuditList = new List<CohortRequestAudit>
+//     {
+//         new CohortRequestAudit { RequestId = "lastRequestId", StatusCode = "200", CreatedDateTime = DateTime.Now.AddDays(-1).ToString() },
+//         new CohortRequestAudit { RequestId = "NewRequestId", StatusCode = "500", CreatedDateTime = DateTime.Now.ToString() }
+//     };
+
+
+//         _mockDataReader.SetupSequence(reader => reader.Read())
+//             .Returns(true)
+//             .Returns(false);
+
+//         // audit
+//         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(expectedRequestId);
+
+//         //GetParticipant
+//         _mockDataReader.SetupSequence(reader => reader.Read())
+//             .Returns(true)
+//             .Returns(false);
+
+//         _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns(expectedParticipants[0].ParticipantId);
+//         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(expectedParticipants[0].RequestId);
+
+//         // Act
+//         var result = _createCohortDistributionData.GetLastCohortRequest(lastRequestId);
+
+//         // Assert
+//         Assert.AreEqual(1, result.Count);
+//         Assert.AreEqual(expectedParticipants[0].ParticipantId, result[0].ParticipantId);
+//         Assert.AreEqual(expectedParticipants[0].RequestId, result[0].RequestId);
+
+//     }
+
+
+//wp - look at making 2 seperate calls in the same test and compare results
+
+
+
+    [TestMethod]
+    public void GetLastCohortRequest_NoParticipants_ReturnsEmptyList()
+    {
+        // Arrange
+        var lastRequestId = "lastRequestId";
+        _mockDataReader.Setup(r => r.Read()).Returns(false);
+
+        // Act
+        var result = _createCohortDistributionData.GetLastCohortRequest(lastRequestId);
+
+        // Assert
+        Assert.AreEqual(0, result.Result.Count);
+    }
 
     private void SetUpReader()
     {

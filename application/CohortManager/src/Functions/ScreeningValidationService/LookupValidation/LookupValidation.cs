@@ -56,6 +56,13 @@ public class LookupValidation
             var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
+
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
+
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
 

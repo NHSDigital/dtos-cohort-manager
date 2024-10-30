@@ -42,6 +42,12 @@ public class StaticValidation
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
 
+                   return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
+
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
@@ -70,11 +76,7 @@ public class StaticValidation
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+
         }
         catch (Exception ex)
         {
