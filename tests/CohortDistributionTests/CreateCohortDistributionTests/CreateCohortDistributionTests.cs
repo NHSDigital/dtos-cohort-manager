@@ -109,7 +109,7 @@ public class CreateCohortDistributionTests
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-          Times.Once);
+        Times.Once);
     }
 
     [TestMethod]
