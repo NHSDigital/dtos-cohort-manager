@@ -183,7 +183,7 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
-    public void GetLastCohortRequest_NoOutstandingParticipants_ReturnsEmptyList()
+    public void GetOutstandingCohortRequestAudits_NoOutstandingParticipants_ReturnsEmptyList()
     {
         // Arrange
         var lastRequestId = "lastRequestId";
@@ -194,6 +194,77 @@ public class AddCohortDistributionTests
 
         // Assert
         Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void GetOutstandingCohortRequestAudits_ValidRequestId_ReturnsAuditList()
+    {
+        // Arrange
+        var lastRequestId = "lastRequestId";
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(true)
+            .Returns(false);
+        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("moreRecentRequestId");
+        _mockDataReader.Setup(reader => reader["STATUS_CODE"]).Returns("500");
+        _mockDataReader.Setup(reader => reader["CREATED_DATETIME"]).Returns(DateTime.Now);
+
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var result = _createCohortDistributionData.GetOutstandingCohortRequestAudits(lastRequestId);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("moreRecentRequestId", result[0].RequestId);
+    }
+
+    [TestMethod]
+    public void GetParticipantsByRequestIds_ValidRequestIds_ReturnsParticipants()
+    {
+        // Arrange
+        var requestIdsList = new List<string> { "requestId1", "requestId2" };
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(true)
+            .Returns(false);
+
+        SetUpReader();
+
+        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(_requestId);
+        _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns("participantId");
+        // Act
+        var result = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("participantId", result[0].ParticipantId);
+        Assert.AreEqual(_requestId, result[0].RequestId);
+    }
+
+    [TestMethod]
+    public void GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
+    {
+        // Arrange
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(true)
+            .Returns(false);
+
+        SetUpReader();
+
+        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(_requestId);
+        _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns("participantId");
+
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("participantId", result[0].ParticipantId);
+        Assert.AreEqual(_requestId, result[0].RequestId);
     }
 
     private void SetUpReader()
