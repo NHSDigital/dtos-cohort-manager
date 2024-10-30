@@ -40,7 +40,7 @@ public class RetrieveLastCohortRequest
         _httpParserHelper = httpParserHelper;
     }
         [Function("RetrieveLastCohortRequest")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+        public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
         {
             var lastRequestId = req.Query["lastRequestId"];
             if (string.IsNullOrEmpty(lastRequestId)) return _httpParserHelper.LogErrorResponse(req, "No RequestId has been provided.");
