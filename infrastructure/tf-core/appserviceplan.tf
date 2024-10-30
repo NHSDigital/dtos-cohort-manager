@@ -51,7 +51,6 @@ locals {
         asp_key            = asp_key
         asp_val            = asp_val
         region_key         = region_key
-        autoscale_override = asp_val.autoscale_override
       }
     ]
   ])

@@ -199,6 +199,7 @@ variable "function_apps" {
     fa_config = map(object({
       name_suffix                  = string
       function_endpoint_name       = string
+      app_service_plan_key         = string
       storage_account_env_var_name = optional(string, "")
       storage_containers = optional(list(object
         ({

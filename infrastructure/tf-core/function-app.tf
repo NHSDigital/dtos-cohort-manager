@@ -14,7 +14,7 @@ module "functionapp" {
 
   rbac_role_assignments = local.rbac_role_assignments[each.value.region_key]
 
-  asp_id                        = module.app-service-plan[each.value.region_key].app_service_plan_id
+  asp_id = module.app-service-plan["${each.value.function_config.app_service_plan_key}-${each.value.region_key}"].app_service_plan_id
 
   # Use the storage account assigned identity for the Function Apps:
   storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
@@ -22,14 +22,14 @@ module "functionapp" {
   storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
 
   # Connection string for Application Insights:
-  ai_connstring        = data.azurerm_application_insights.ai.connection_string
+  ai_connstring = data.azurerm_application_insights.ai.connection_string
 
   # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
   # Other Function App configuration settings:
-  always_on            = var.function_apps.always_on
-  worker_32bit         = var.function_apps.worker_32bit
+  always_on    = var.function_apps.always_on
+  worker_32bit = var.function_apps.worker_32bit
 
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
   acr_login_server = data.azurerm_container_registry.acr.login_server
