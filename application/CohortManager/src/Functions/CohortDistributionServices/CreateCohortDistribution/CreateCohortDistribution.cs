@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.CohortDistributionService;
 
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Common;
 using System.Net;
 using System.Text.Json;
@@ -11,7 +10,6 @@ using System.Text;
 using Model;
 using Model.Enums;
 using Data.Database;
-using System.Security.Cryptography.X509Certificates;
 
 public class CreateCohortDistribution
 {
@@ -45,9 +43,9 @@ public class CreateCohortDistribution
 
         if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
-            string logMessage = $"One or more of the required parameters is missing. NhsNumber: {basicParticipantCsvRecord.NhsNumber} ScreeningService: {basicParticipantCsvRecord.ScreeningService}";
+            string logMessage = $"One or more of the required parameters is missing.";
             _logger.LogError(logMessage);
-            await HandleErrorResponseIfNullAsync(logMessage, null, basicParticipantCsvRecord.FileName);
+            await HandleErrorResponseAsync(logMessage, null, basicParticipantCsvRecord.FileName);
             return;
         }
 
@@ -58,7 +56,7 @@ public class CreateCohortDistribution
             if (participantData == null)
             {
                 _logger.LogInformation("participant data in cohort distribution was null");
-                await HandleErrorResponseIfNullAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                await HandleErrorResponseAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
             _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
@@ -70,7 +68,7 @@ public class CreateCohortDistribution
                 serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
                 if (serviceProvider == null)
                 {
-                    await HandleErrorResponseIfNullAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                    await HandleErrorResponseAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName);
                     return;
                 }
             }
@@ -78,7 +76,7 @@ public class CreateCohortDistribution
             if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId))
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
-                await HandleErrorResponseIfNullAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
+                await HandleErrorResponseAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
                                                 participantData, basicParticipantCsvRecord.FileName);
 
                 return;
@@ -96,20 +94,20 @@ public class CreateCohortDistribution
                 if (transformedParticipant == null)
                 {
                     _logger.LogError("The transform participant returned null in cohort distribution");
-                    await HandleErrorResponseIfNullAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
+                    await HandleErrorResponseAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                     return;
                 }
 
                 var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
                 if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    await HandleErrorResponseIfNullAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
+                    await HandleErrorResponseAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                     return;
                 }
                 _logger.LogInformation("participant has been successfully put on the cohort distribution table");
                 return;
             }
-            var errorMessage = $"Validation error: A rule triggered a fatal error, preventing the cohort distribution record with NHS number {participantData.NhsNumber} from being added to the database";
+            var errorMessage = $"Validation error: A rule triggered a fatal error, preventing the cohort distribution record with participant Id {participantData.ParticipantId} from being added to the database";
             _logger.LogInformation(errorMessage);
             await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, serviceProvider, JsonSerializer.Serialize(participantData));
 
@@ -123,7 +121,7 @@ public class CreateCohortDistribution
         }
     }
 
-    private async Task HandleErrorResponseIfNullAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
+    private async Task HandleErrorResponseAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
     {
         var participant = new Participant();
         if (cohortDistributionParticipant != null)
