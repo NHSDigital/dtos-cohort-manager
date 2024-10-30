@@ -506,9 +506,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     public List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId)
     {
         var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID],[STATUS_CODE],[CREATED_DATETIME] " +
-                  " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-                  " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) " +
-                  " AND STATUS_CODE = @InvalidStatusCode";
+        " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+        " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) " +
+        " AND STATUS_CODE = @InvalidStatusCode";
 
         var parameters = new Dictionary<string, object>
         {
