@@ -60,6 +60,10 @@ locals {
   app_service_plans_map = { for asp in local.app_service_plans_flatlist : asp.key => asp }
 }
 
+output "app_service_plans_flatlist" {
+  value = local.app_service_plans_flatlist
+}
+
 output "app_service_plans" {
   value = local.app_service_plans_map
 }
