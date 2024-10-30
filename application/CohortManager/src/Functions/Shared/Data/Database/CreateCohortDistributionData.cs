@@ -503,6 +503,50 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
     }
 
+    public async Task<List<CohortDistributionParticipant>> GetLastCohortRequest(string lastRequestId)
+    {
+        var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID] " +
+                  " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+                  " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) " +
+                  " AND STATUS_CODE = @InvalidStatusCode" +
+                  " ORDER BY CREATED_DATETIME ASC";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@LastRequestId", lastRequestId},
+            {"@MaxRequests", 100},
+            {"@InvalidStatusCode", "500"},
+        };
+
+        using var command = CreateCommand(parameters);
+        command.CommandText = sql;
+
+        var requestIds = await Task.Run(() => ExecuteQuery(command, reader =>
+        {
+            var requestIds = new List<string>();
+            while (reader.Read())
+            {
+                requestIds.Add(DatabaseHelper.GetStringValue(reader, "REQUEST_ID"));
+            }
+            return requestIds;
+        }));
+
+        if (requestIds.Count == 0) return [];
+
+        return GetBulkCohortDistributionParticipantsByRequestIds(requestIds);
+    }
+
+    private List<CohortDistributionParticipant> GetBulkCohortDistributionParticipantsByRequestIds(IEnumerable<string> requestIds)
+    {
+        var participants = new List<CohortDistributionParticipant>();
+        foreach (var requestId in requestIds)
+        {
+            participants.AddRange(GetCohortDistributionParticipantsByRequestId(requestId));
+        }
+
+        return participants;
+    }
+
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var SQL = "SELECT" +

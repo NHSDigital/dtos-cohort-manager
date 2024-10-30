@@ -12,4 +12,5 @@ public interface ICreateCohortDistributionData
     List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson);
     List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
+    Task<List<CohortDistributionParticipant>> GetLastCohortRequest(string lastRequestId);
 }
