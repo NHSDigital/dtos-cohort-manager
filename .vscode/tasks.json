@@ -19,18 +19,16 @@
         "screeningDataServices/updateParticipantDetails",
         "ScreeningValidationService/FileValidation",
         "ScreeningValidationService/LookupValidation",
-        "ScreeningValidationService/StaticValidation",
         "ScreeningValidationService/RemoveValidationException",
+        "ScreeningValidationService/StaticValidation",
         "CohortDistributionServices/CreateCohortDistribution",
         "CohortDistributionServices/RetrieveParticipantData",
         "CohortDistributionServices/ServiceProviderAllocationService",
         "CohortDistributionServices/ValidateCohortDistributionRecord",
         "CohortDistributionServices/TransformDataService",
         "CohortDistributionServices/AddCohortDistributionData",
-        "CohortDistributionServices/RemoveCohortDistributionData",
-        "CohortDistributionServices/RetrieveCohortRequestAudit"
-      ],
-      "problemMatcher": []
+        "CohortDistributionServices/RemoveCohortDistributionData"
+      ]
     },
     {
       "label": "CaasIntegration/receiveCaasFile",
@@ -43,8 +41,16 @@
     {
       "label": "CaasIntegration/processCaasFile",
       "type": "shell",
+      "osx": {
+        "command": "sleep 1 && func start"
+      },
       "windows": {
-        "command": "timeout 1; func start"
+        "command": "timeout 1 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CaasIntegration/processCaasFile"
@@ -53,8 +59,16 @@
     {
       "label": "DemographicServices/DemographicDataManagementFunction",
       "type": "shell",
+      "osx": {
+        "command": "sleep 1.5 && func start"
+      },
       "windows": {
-        "command": "timeout 2; func start"
+        "command": "timeout 2 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDataManagementFunction"
@@ -63,8 +77,16 @@
     {
       "label": "ParticipantManagementServices/addParticipant",
       "type": "shell",
+      "osx": {
+        "command": "sleep 2 && func start"
+      },
       "windows": {
-        "command": "timeout 3; func start"
+        "command": "timeout 3 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/addParticipant"
@@ -73,8 +95,16 @@
     {
       "label": "ParticipantManagementServices/updateParticipant",
       "type": "shell",
+      "osx": {
+        "command": "sleep 2.5 && func start"
+      },
       "windows": {
-        "command": "timeout 4; func start"
+        "command": "timeout 4 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/updateParticipant"
@@ -83,8 +113,16 @@
     {
       "label": "ParticipantManagementServices/RemoveParticipant",
       "type": "shell",
+      "osx": {
+        "command": "sleep 3 && func start"
+      },
       "windows": {
-        "command": "timeout 5; func start"
+        "command": "timeout 5 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/RemoveParticipant"
@@ -93,8 +131,16 @@
     {
       "label": "ExceptionHandling/CreateException",
       "type": "shell",
+      "osx": {
+        "command": "sleep 4 && func start"
+      },
       "windows": {
-        "command": "timeout 7; func start"
+        "command": "timeout 7 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ExceptionHandling/CreateException"
@@ -103,8 +149,16 @@
     {
       "label": "screeningDataServices/createParticipant",
       "type": "shell",
+      "osx": {
+        "command": "sleep 3.5 && func start"
+      },
       "windows": {
-        "command": "timeout 6; func start"
+        "command": "timeout 6 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant"
@@ -113,8 +167,16 @@
     {
       "label": "screeningDataServices/DemographicDataService",
       "type": "shell",
+      "osx": {
+        "command": "sleep 4.5 && func start"
+      },
       "windows": {
-        "command": "timeout 8; func start"
+        "command": "timeout 8 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/DemographicDataService"
@@ -123,8 +185,16 @@
     {
       "label": "screeningDataServices/markParticipantAsEligible",
       "type": "shell",
+      "osx": {
+        "command": "sleep 5 && func start"
+      },
       "windows": {
-        "command": "timeout 9; func start"
+        "command": "timeout 9 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsEligible"
@@ -133,8 +203,16 @@
     {
       "label": "screeningDataServices/markParticipantAsIneligible",
       "type": "shell",
+      "osx": {
+        "command": "sleep 5.5 && func start"
+      },
       "windows": {
-        "command": "timeout 10; func start"
+        "command": "timeout 10 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsIneligible"
@@ -143,8 +221,16 @@
     {
       "label": "screeningDataServices/updateParticipantDetails",
       "type": "shell",
+      "osx": {
+        "command": "sleep 6 && func start"
+      },
       "windows": {
-        "command": "timeout 11; func start"
+        "command": "timeout 11 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/updateParticipantDetails"
@@ -153,8 +239,16 @@
     {
       "label": "ScreeningValidationService/FileValidation",
       "type": "shell",
+      "osx": {
+        "command": "sleep 6.5 && func start"
+      },
       "windows": {
-        "command": "timeout 12; func start"
+        "command": "timeout 12 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/FileValidation"
@@ -163,18 +257,52 @@
     {
       "label": "ScreeningValidationService/LookupValidation",
       "type": "shell",
+      "osx": {
+        "command": "sleep 7 && func start"
+      },
       "windows": {
-        "command": "timeout 13; func start"
+        "command": "timeout 13 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation"
       }
     },
     {
+      "label": "ScreeningValidationService/RemoveValidationException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 7.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 14 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException"
+      }
+    },
+    {
       "label": "ScreeningValidationService/StaticValidation",
       "type": "shell",
+      "osx": {
+        "command": "sleep 8 && func start"
+      },
       "windows": {
-        "command": "timeout 14; func start"
+        "command": "timeout 15 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation"
@@ -183,8 +311,16 @@
     {
       "label": "CohortDistributionServices/CreateCohortDistribution",
       "type": "shell",
+      "osx": {
+        "command": "sleep 8.5 && func start"
+      },
       "windows": {
-        "command": "timeout 15; func start"
+        "command": "timeout 16 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/CreateCohortDistribution"
@@ -193,8 +329,16 @@
     {
       "label": "CohortDistributionServices/RetrieveParticipantData",
       "type": "shell",
+      "osx": {
+        "command": "sleep 9 && func start"
+      },
       "windows": {
-        "command": "timeout 16; func start"
+        "command": "timeout 17 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveParticipantData"
@@ -203,8 +347,16 @@
     {
       "label": "CohortDistributionServices/ServiceProviderAllocationService",
       "type": "shell",
+      "osx": {
+        "command": "sleep 9.5 && func start"
+      },
       "windows": {
-        "command": "timeout 17; func start"
+        "command": "timeout 18 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ServiceProviderAllocationService"
@@ -213,8 +365,16 @@
     {
       "label": "CohortDistributionServices/ValidateCohortDistributionRecord",
       "type": "shell",
+      "osx": {
+        "command": "sleep 10 && func start"
+      },
       "windows": {
-        "command": "timeout 18; func start"
+        "command": "timeout 19 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ValidateCohortDistributionRecord"
@@ -223,8 +383,16 @@
     {
       "label": "CohortDistributionServices/TransformDataService",
       "type": "shell",
+      "osx": {
+        "command": "sleep 10.5 && func start"
+      },
       "windows": {
-        "command": "timeout 19; func start"
+        "command": "timeout 20 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/TransformDataService"
@@ -233,8 +401,16 @@
     {
       "label": "CohortDistributionServices/AddCohortDistributionData",
       "type": "shell",
+      "osx": {
+        "command": "sleep 11 && func start"
+      },
       "windows": {
-        "command": "timeout 20; func start"
+        "command": "timeout 21 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
@@ -243,118 +419,20 @@
     {
       "label": "CohortDistributionServices/RemoveCohortDistributionData",
       "type": "shell",
+      "osx": {
+        "command": "sleep 11.5 && func start"
+      },
       "windows": {
-        "command": "timeout 21; func start"
+        "command": "timeout 22 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RemoveCohortDistributionData"
       }
-    },
-    {
-      "label": "CohortDistributionServices/RetrieveCohortDistribution",
-      "type": "shell",
-      "windows": {
-        "command": "timeout 22; func start"
-      },
-      "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortDistribution"
-      }
-    },
-    {
-      "label": "ScreeningValidationService/RemoveValidationException",
-      "type": "shell",
-      "windows": {
-        "command": "timeout 23; func start"
-      },
-      "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException"
-      }
-    },
-    {
-      "label": "CohortDistributionServices/RetrieveCohortRequestAudit",
-      "type": "shell",
-      "windows": {
-        "command": "timeout 24; func start"
-      },
-      "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortRequestAudit"
-      }
-    },
-    {
-      "label": "clean (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application\\CohortManager\\src\\Functions\\CohortDistributionServices\\RetrieveRequestAudit\\obj"
-      }
-    },
-    {
-      "label": "build (functions)",
-      "command": "dotnet",
-      "args": [
-        "build",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean (functions)",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application\\CohortManager\\src\\Functions\\CohortDistributionServices\\RetrieveRequestAudit\\obj"
-      }
-    },
-    {
-      "label": "clean release (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application\\CohortManager\\src\\Functions\\CohortDistributionServices\\RetrieveRequestAudit\\obj"
-      }
-    },
-    {
-      "label": "publish (functions)",
-      "command": "dotnet",
-      "args": [
-        "publish",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean release (functions)",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application\\CohortManager\\src\\Functions\\CohortDistributionServices\\RetrieveRequestAudit\\obj"
-      }
-    },
-    {
-      "type": "func",
-      "dependsOn": "build (functions)",
-      "options": {
-        "cwd": "${workspaceFolder}/application\\CohortManager\\src\\Functions\\CohortDistributionServices\\RetrieveRequestAudit\\obj/bin/Debug/net8.0"
-      },
-      "command": "host start",
-      "isBackground": true,
-      "problemMatcher": "$func-dotnet-watch"
     }
   ]
 }
