@@ -36,14 +36,14 @@ public class CreateCohortDistribution
     }
 
     [Function(nameof(CreateCohortDistribution))]
-    public async Task RunAsync([QueueTrigger("create-cohort-distribution-queue")] CreateCohortDistributionRequestBody basicParticipantCsvRecord, FunctionContext context)
+    public async Task RunAsync([QueueTrigger("create-cohort-distribution-queue")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
     {
         //HttpRequestData req;
 
 
 
 
-        if (string.IsNullOrEmpty(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrEmpty(basicParticipantCsvRecord.NhsNumber))
+        if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
             string logMessage = $"One or more of the required parameters is missing. NhsNumber: {basicParticipantCsvRecord.NhsNumber} ScreeningService: {basicParticipantCsvRecord.ScreeningService}";
             _logger.LogError(logMessage);
@@ -58,6 +58,7 @@ public class CreateCohortDistribution
             _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
             if (participantData == null)
             {
+                _logger.LogInformation("participant data in cohort distribution was null");
                 await HandleErrorResponseIfNullAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
@@ -94,6 +95,7 @@ public class CreateCohortDistribution
 
                 if (transformedParticipant == null)
                 {
+                    _logger.LogError("The transform participant returned null in cohort distribution");
                     await HandleErrorResponseIfNullAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                     return;
                 }
@@ -123,8 +125,12 @@ public class CreateCohortDistribution
 
     private async Task HandleErrorResponseIfNullAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
     {
+        var participant = new Participant();
+        if (cohortDistributionParticipant != null)
+        {
+            participant = new Participant(cohortDistributionParticipant);
+        }
 
-        var participant = new Participant(cohortDistributionParticipant);
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
         await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, "Create-cohort-distribution-queue-poison");
 
