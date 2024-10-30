@@ -523,12 +523,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
-{
-    if (requestIdsList.Count == 0) return [];
+    public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
+    {
+        if (requestIdsList.Count == 0) return [];
 
-    return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
-}
+        return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
+    }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {
