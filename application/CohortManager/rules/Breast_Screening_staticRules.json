@@ -7,16 +7,24 @@
         "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
-          "Name": "OutputExpression",
-          "Context": {
-            "Expression": "NHS ID Invalid"
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "NHS ID Invalid"
+            }
           }
         }
-      }
       },
       {
         "RuleName": "57.SupersededByNhsNumber.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")"
+        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "Superseded by NHS ID invalid"
+            }
+          }
+        }
       },
       {
         "RuleName": "8.RecordType.NonFatal",
