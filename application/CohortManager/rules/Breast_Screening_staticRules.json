@@ -28,7 +28,15 @@
       },
       {
         "RuleName": "8.RecordType.NonFatal",
-        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed"
+        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "Incorrect record type"
+            }
+          }
+        }
       },
       {
         "RuleName": "14.ReasonForRemoval.NonFatal",
