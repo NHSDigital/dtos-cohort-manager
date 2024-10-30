@@ -81,11 +81,11 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-              It.IsAny<EventId>(),
-              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
-              It.IsAny<Exception>(),
-              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-          Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
     }
 
@@ -105,10 +105,10 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-              It.IsAny<EventId>(),
-              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
-              It.IsAny<Exception>(),
-              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One or more of the required parameters is missing. NhsNumber")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
           Times.Once);
     }
 
@@ -134,11 +134,11 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                      It.IsAny<EventId>(),
-                      It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
-                      It.IsAny<Exception>(),
-                      It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                  Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
         Assert.IsNotNull(caughtException);
         Assert.AreEqual(caughtException.Message, "some error");
@@ -183,11 +183,11 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                      It.IsAny<EventId>(),
-                      It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
-                      It.IsAny<Exception>(),
-                      It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                  Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
         Assert.IsNotNull(caughtException);
         Assert.AreEqual(caughtException.Message, "some error");
@@ -216,11 +216,11 @@ public class CreateCohortDistributionTests
         await _function.RunAsync(_requestBody);
 
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                      It.IsAny<EventId>(),
-                      It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transform participant returned null in cohort distribution")),
-                      It.IsAny<Exception>(),
-                      It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                  Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transform participant returned null in cohort distribution")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
     }
 
     [TestMethod]
@@ -259,11 +259,11 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                      It.IsAny<EventId>(),
-                      It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
-                      It.IsAny<Exception>(),
-                      It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                  Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
         Assert.IsNotNull(caughtException);
         Assert.AreEqual(caughtException.Message, "an error happened");
@@ -301,11 +301,11 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
-                      It.IsAny<EventId>(),
-                      It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("participant has been successfully put on the cohort distribution table")),
-                      It.IsAny<Exception>(),
-                      It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-                  Times.Once);
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("participant has been successfully put on the cohort distribution table")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
 
     }
 
