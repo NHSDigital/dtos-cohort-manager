@@ -503,13 +503,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
     }
 
-    public async Task<List<CohortDistributionParticipant>> GetLastCohortRequest(string lastRequestId)
+    public List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId)
     {
-        var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID] " +
+        var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID],[STATUS_CODE],[CREATED_DATETIME] " +
                   " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
                   " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) " +
-                  " AND STATUS_CODE = @InvalidStatusCode" +
-                  " ORDER BY CREATED_DATETIME ASC";
+                  " AND STATUS_CODE = @InvalidStatusCode";
 
         var parameters = new Dictionary<string, object>
         {
@@ -521,31 +520,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         using var command = CreateCommand(parameters);
         command.CommandText = sql;
 
-        var requestIds = await Task.Run(() => ExecuteQuery(command, reader =>
-        {
-            var requestIds = new List<string>();
-            while (reader.Read())
-            {
-                requestIds.Add(DatabaseHelper.GetStringValue(reader, "REQUEST_ID"));
-            }
-            return requestIds;
-        }));
-
-        if (requestIds.Count == 0) return [];
-
-        return GetBulkCohortDistributionParticipantsByRequestIds(requestIds);
+        return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-    private List<CohortDistributionParticipant> GetBulkCohortDistributionParticipantsByRequestIds(IEnumerable<string> requestIds)
-    {
-        var participants = new List<CohortDistributionParticipant>();
-        foreach (var requestId in requestIds)
-        {
-            participants.AddRange(GetCohortDistributionParticipantsByRequestId(requestId));
-        }
+public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
+{
+    if (requestIdsList.Count == 0) return [];
 
-        return participants;
-    }
+    return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
+}
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {

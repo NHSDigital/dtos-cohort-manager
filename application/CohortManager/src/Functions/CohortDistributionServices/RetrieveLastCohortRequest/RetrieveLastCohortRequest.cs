@@ -36,11 +36,13 @@ public class RetrieveLastCohortRequest
 
             try
             {
-                var nextRecords = _createCohortDistributionData.GetLastCohortRequest(lastRequestId);
-                if (nextRecords.Result.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                var requestIdsList = _createCohortDistributionData.GetOutstandingCohortRequestAudits(lastRequestId).Select(s => s.RequestId).ToList();
+                if (requestIdsList.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
-                var nextRecordsJson = JsonSerializer.Serialize(nextRecords);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, nextRecordsJson);
+                var cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+
+                var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
             }
             catch (Exception ex)
             {
