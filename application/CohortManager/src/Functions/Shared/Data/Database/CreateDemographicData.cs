@@ -276,21 +276,31 @@ public class CreateDemographicData : ICreateDemographicData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
                 {
-                    result = mapFunction(reader);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
                 }
+                return result;
+            }
+        }
+        finally
+        {
+            if (_dbConnection != null)
+            {
                 _dbConnection.Close();
             }
-            return result;
         }
+
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
@@ -306,20 +316,21 @@ public class CreateDemographicData : ICreateDemographicData
                 if (!Execute(command))
                 {
                     transaction.Rollback();
-                    _dbConnection.Close();
                     return false;
                 }
             }
             transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch
         {
             transaction.Rollback();
-            _dbConnection.Close();
             // we need to rethrow the exception here if there is an error we need to roll back the transaction.
             throw;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 

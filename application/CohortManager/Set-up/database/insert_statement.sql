@@ -1,11 +1,13 @@
 INSERT INTO [dbo].[SCREENING_LKP]
         ([SCREENING_NAME]
         ,[SCREENING_TYPE]
-        ,[SCREENING_ACRONYM])
+        ,[SCREENING_ACRONYM]
+        ,[SCREENING_WORKFLOW_ID])
     VALUES
         ('Breast Screening'
         ,'Breast Screening Program'
-        ,'BSS');
+        ,'BSS'
+        ,'CAAS_BREAST_SCREENING_COHORT');
 
 INSERT INTO [dbo].[GENDER_MASTER]
         ([GENDER_CD]
@@ -66,8 +68,6 @@ INSERT INTO [dbo].[EXCLUDED_SMU_LKP] VALUES
     ('A91211'),
     ('A91212'),
     ('A91214'),
-    ('A91215'),
-    ('A91216'),
     ('A91217');
 
 INSERT INTO [dbo].[CURRENT_POSTING_LKP] ([POSTING], [IN_USE], [INCLUDED_IN_COHORT], [POSTING_CATEGORY]) VALUES

@@ -41,16 +41,6 @@ public class ReceiveCaasFile
                 return;
             }
 
-            var numberOfRecords = fileNameParser.FileCount();
-            if (numberOfRecords == null || numberOfRecords == 0)
-            {
-                string errorMessage = "File name is invalid. File name: " + name;
-                _logger.LogError(errorMessage);
-                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
-                return;
-            }
-            _logger.LogInformation($"Number of records expected {numberOfRecords}");
-
             var badRecords = new Dictionary<int, string>();
             Cohort cohort = new()
             {
@@ -69,7 +59,14 @@ public class ReceiveCaasFile
                 await blobStream.CopyToAsync(fileStream);
             }
             var screeningService = GetScreeningService(fileNameParser);
-
+            if(string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
+            {
+                string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
+                _logger.LogError(errorMessage);
+                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
+                return;
+            }
+            _logger.LogInformation($"Screening Name: {screeningService.ScreeningName}");
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
@@ -84,6 +81,7 @@ public class ReceiveCaasFile
                         {
                             ScreeningId = screeningService.ScreeningId,
                             ScreeningName = screeningService.ScreeningName
+
                         };
                         participant = await _receiveCaasFileHelper.MapParticipant(rec, participant, name, rowNumber);
 
@@ -107,13 +105,6 @@ public class ReceiveCaasFile
 
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
 
-            if (rowNumber != numberOfRecords)
-            {
-                _logger.LogError("File name record count not equal to actual record count. File name count: {NumberOfRecords} | Actual count: {RowNumber}", numberOfRecords, rowNumber);
-                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
-                return;
-            }
-
             await _receiveCaasFileHelper.SerializeParquetFile(chunks, cohort, name, rowNumber);
             _logger.LogInformation("All rows processed for file named {Name}.", name);
 
@@ -132,9 +123,9 @@ public class ReceiveCaasFile
 
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
-        var screeningAcronym = fileNameParser.GetScreeningService();
-        _logger.LogInformation("screening Acronym {screeningAcronym}", screeningAcronym);
-        return _screeningServiceData.GetScreeningServiceByAcronym(screeningAcronym);
+        var ScreeningWorkflow = fileNameParser.GetScreeningService();
+        _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
+        return _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
     }
 
 }

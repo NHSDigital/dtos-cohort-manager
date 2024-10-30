@@ -102,18 +102,3 @@ jobs:
         with:
           build_datetime: "${{ inputs.build_datetime }}"
           build_timestamp: "${{ inputs.build_timestamp }}"
-  scan-dependencies:
-    name: "Scan dependencies"
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    timeout-minutes: 2
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Scan dependencies"
-        uses: ./.github/actions/scan-dependencies
-        with:
-          build_datetime: "${{ inputs.build_datetime }}"
-          build_timestamp: "${{ inputs.build_timestamp }}"
