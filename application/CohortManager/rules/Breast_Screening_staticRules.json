@@ -7,9 +7,9 @@
         "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
-          "Name": "RaiseSystemException",
+          "Name": "OutputExpression",
           "Context": {
-            "exceptionMessage": "NHS ID Invalid"
+            "Expression": "NHS ID Invalid"
           }
         }
       }
