@@ -4,17 +4,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using updateParticipant;
 using RulesEngine.Models;
-
-
 
 [TestClass]
 public class UpdateParticipantTests
@@ -34,6 +30,7 @@ public class UpdateParticipantTests
     private readonly SetupRequest _setupRequest = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
+    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
 
     public UpdateParticipantTests()
     {
@@ -45,7 +42,7 @@ public class UpdateParticipantTests
         Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
 
 
-        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunction.Object);
+        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _azureQueueStorageHelper.Object);
 
         _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
             .Returns(Task.FromResult(new ValidationExceptionLog()
