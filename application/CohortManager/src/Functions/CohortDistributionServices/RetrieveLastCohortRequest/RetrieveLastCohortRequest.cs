@@ -8,10 +8,21 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-/// <summary>
-/// Azure Function for retrieving the last cohort request after a given RequestId.
-/// todo: Add more details.
+/// /// <summary>
+/// Azure Function for retrieving cohort audit history data based on LastRequestId.
 /// </summary>
+/// <param name="req">The HTTP request data containing query parameters and request details.</param>
+/// Takes a requestId and checks if there are any new requests by date that have a 500 status
+/// if there is all cohort participants for that request are returned.
+/// if there is not a 204 no content is returned.
+/// <param name="lastRequestId">Required.</param>
+/// <returns>
+/// HTTP response with:
+/// - 400 Bad Request if lastRequestId is missing.
+/// - 204 No Content if no data is found.
+/// - 200 OK - List<CohortDistributionParticipant> in JSON format.
+/// - 500 Internal Server Error if an exception occurs.
+/// </returns>
 public class RetrieveLastCohortRequest
 {
     private readonly ILogger<RetrieveLastCohortRequest> _logger;
