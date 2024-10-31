@@ -150,7 +150,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int screeningServiceId, int rowCount)
+    public List<CohortDistributionParticipant> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -523,7 +523,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
     {
-        if (requestIdsList.Count == 0) return [];
+        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, 1000);
 
         return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
     }

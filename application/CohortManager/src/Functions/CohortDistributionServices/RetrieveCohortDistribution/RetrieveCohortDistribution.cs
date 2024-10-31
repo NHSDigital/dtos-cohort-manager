@@ -7,6 +7,8 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
+using Model.Enums;
 
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
@@ -38,18 +40,24 @@ public class RetrieveCohortDistributionData
     }
 
     [Function("RetrieveCohortDistributionData")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
-        int rowCount = _httpParserHelper.GetRowCount(req);
-
-        if (rowCount == 0) return _httpParserHelper.LogErrorResponse(req, "User has requested 0 rows, which is not possible.");
-        if (screeningServiceId == 0) return _httpParserHelper.LogErrorResponse(req, "Screening Service ID cannot be 0.");
-        if (rowCount > 1000) return _httpParserHelper.LogErrorResponse(req, "User cannot request more than 1000 rows at a time.");
+        var requestId = req.Query["requestId"];
+        var rowCount = 1000;
+        var screeningServiceId = (int)ServiceProvider.BSS;
+        List<CohortDistributionParticipant> cohortDistributionParticipants;
 
         try
         {
-            var cohortDistributionParticipants = _createCohortDistributionData.ExtractCohortDistributionParticipants(screeningServiceId, rowCount);
+            if (string.IsNullOrEmpty(requestId))
+            {
+                cohortDistributionParticipants = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+                if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
+            var requestIdsList = _createCohortDistributionData.GetOutstandingCohortRequestAudits(requestId).Select(s => s.RequestId).ToList();
+            cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+
             if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
             var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);

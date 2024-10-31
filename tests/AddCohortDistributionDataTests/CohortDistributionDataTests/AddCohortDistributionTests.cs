@@ -94,7 +94,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -115,7 +115,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
@@ -135,7 +135,7 @@ public class AddCohortDistributionTests
         var rowCount = 0;
 
         // Act
-        var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
 
         // Assert
         Assert.IsNotNull(result);
