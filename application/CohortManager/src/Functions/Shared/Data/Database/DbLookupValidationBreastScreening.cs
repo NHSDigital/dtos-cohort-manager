@@ -106,7 +106,6 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
         try
         {
             var outcode = postcode.Substring(0, postcode.IndexOf(" "));
-            var bso = "";
 
             using (_connection = new SqlConnection(_connectionString))
             {
@@ -121,12 +120,12 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
                     using (IDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        if (reader.Read())
                         {
-                            bso = reader["BSO"] == DBNull.Value ? null : reader["BSO"].ToString();
+                            return reader["BSO"].ToString() ?? string.Empty;
                         }
-                        return bso!;
                     }
+                    return string.Empty;
                 }
             }
         }
