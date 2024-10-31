@@ -62,12 +62,6 @@ variable "features" {
   type        = map(bool)
 }
 
-variable "location" {
-  description = "Location code for deployments"
-  type        = string
-  default     = "uksouth"
-}
-
 variable "regions" {
   type = map(object({
     address_space     = optional(string)
@@ -85,11 +79,10 @@ variable "regions" {
   }))
 }
 
-variable "resource_groups_audit" {
+variable "resource_groups" {
   description = "Map of resource groups in Audit subscription"
   type = map(object({
-    name     = optional(string, "rg-cohort-manager-int-uks-audit")
-    location = optional(string, "uksouth")
+    name_suffix = optional(string)
   }))
 }
 

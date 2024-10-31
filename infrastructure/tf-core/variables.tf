@@ -61,12 +61,6 @@ variable "features" {
   type        = map(bool)
 }
 
-variable "location" {
-  description = "Location code for deployments"
-  type        = string
-  default     = "uksouth"
-}
-
 variable "regions" {
   type = map(object({
     address_space     = optional(string)
@@ -87,23 +81,11 @@ variable "regions" {
 variable "resource_groups" {
   description = "Map of resource groups"
   type = map(object({
-    name     = optional(string, "rg-cohort-manager-dev-suk")
-    location = optional(string, "uksouth")
+    name_suffix = optional(string)
   }))
 }
 
 ### Cohort Manager specific variables ###
-
-variable "api_management" {
-  description = "Configuration of the API Management Service"
-  type = object({
-    resource_group_key = optional(string, "cohman")
-    sku                = optional(string, "Basic_1")
-    publisher_name     = optional(string, "NHS_DToS_CohortManager")
-    publisher_email    = optional(string, "maciej.murawski@nordcloud.com")
-  })
-}
-
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -163,16 +145,6 @@ variable "app_service_plan" {
         })
       }))
     }))
-  })
-}
-
-variable "event_grid" {
-  description = "Configuration for the event grid"
-  type = object({
-    topic = object({
-      resource_group_key = optional(string, "cohman")
-      name_suffix        = optional(string, "cohman")
-    })
   })
 }
 

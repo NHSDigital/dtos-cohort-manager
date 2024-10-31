@@ -47,10 +47,10 @@ locals {
   app_service_plans_flatlist = flatten([
     for region_key, region_val in var.regions : [
       for asp_key, asp_val in var.app_service_plan.instances : {
-        key                = "${asp_key}-${region_key}"
-        asp_key            = asp_key
-        asp_val            = asp_val
-        region_key         = region_key
+        key        = "${asp_key}-${region_key}"
+        asp_key    = asp_key
+        asp_val    = asp_val
+        region_key = region_key
       }
     ]
   ])
