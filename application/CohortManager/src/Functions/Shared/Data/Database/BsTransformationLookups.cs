@@ -44,9 +44,8 @@ public class BsTransformationLookups : IBsTransformationLookups
                 command.Parameters.AddWithValue("@ParticipantId", participantId);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
+                    if (reader.Read())
                     {
-                        System.Console.WriteLine("first name in database: " + reader.GetString(0));
                         return reader.GetString(0) ?? string.Empty;
                     }
                 }
