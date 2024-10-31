@@ -168,6 +168,9 @@ variable "function_apps" {
     remote_debugging_enabled      = bool
     storage_uses_managed_identity = bool
     worker_32bit                  = bool
+    slots = map(object({
+      name                        = string
+    }))
     fa_config = map(object({
       name_suffix                  = string
       function_endpoint_name       = string
