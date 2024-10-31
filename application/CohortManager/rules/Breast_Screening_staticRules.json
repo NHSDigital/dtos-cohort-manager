@@ -101,7 +101,7 @@
       {
         "RuleName": "39.FamilyName.NonFatal",
         "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.FamilyName)",
-         "Actions": {
+        "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
