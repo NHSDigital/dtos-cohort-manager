@@ -174,7 +174,7 @@ public class TransformDataService
 
         return participant;
     }
-    
+
     /// <summary>
     /// Gets the result of the transformation from the rule output and assigns it to the relevant field.
     /// Only being used for the rules that require database lookup as the other assignment method does not work.
