@@ -25,6 +25,8 @@ public class AddNewParticipantTestClass
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
+
+    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
     private Mock<HttpRequestData> _request;
 
     public AddNewParticipantTestClass()
@@ -50,7 +52,7 @@ public class AddNewParticipantTestClass
         var json = JsonSerializer.Serialize(participantCsvRecord);
         _request = _setupRequest.Setup(json);
 
-        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _callFunctionMock.Object);
+        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _azureQueueStorageHelper.Object);
 
         _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_sendToCohortDistributionResponse.Object));
