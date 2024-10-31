@@ -57,6 +57,7 @@ public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymou
                 .GetOutstandingCohortRequestAudits(requestId)
                 .Select(s => s.RequestId)
                 .ToList();
+
             cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
         }
 
