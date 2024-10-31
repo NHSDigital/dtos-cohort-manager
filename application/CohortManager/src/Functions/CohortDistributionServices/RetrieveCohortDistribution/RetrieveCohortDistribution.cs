@@ -14,8 +14,7 @@ using Model.Enums;
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
 /// </summary>
 /// <param name="req">The HTTP request data containing query parameters and request details.</param>
-/// <param name="rowCount">query parameter.</param>
-/// <param name="screeningServiceId">query parameter.</param>
+/// <param name="requestId">query parameter.</param>
 /// <returns>
 /// HTTP response with:
 /// - 400 Bad Request if parameters are invalid or missing.
@@ -29,13 +28,12 @@ public class RetrieveCohortDistributionData
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
-    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
+    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
-        _httpParserHelper = httpParserHelper;
     }
 
     [Function("RetrieveCohortDistributionData")]
