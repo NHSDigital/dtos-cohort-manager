@@ -1,4 +1,5 @@
 using Common;
+using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -7,7 +8,9 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
     })
+    .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();
 

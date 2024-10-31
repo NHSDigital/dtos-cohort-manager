@@ -36,11 +36,11 @@
       },
       {
         "RuleName": "39.FamilyName.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(participant.FamilyName)"
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.FamilyName)"
       },
       {
         "RuleName": "40.FirstName.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(participant.FirstName)"
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.FirstName)"
       },
       {
         "RuleName": "42.GPPracticeCode.NonFatal",
