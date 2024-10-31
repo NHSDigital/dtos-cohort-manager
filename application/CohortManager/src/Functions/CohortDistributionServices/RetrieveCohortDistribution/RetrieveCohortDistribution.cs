@@ -36,35 +36,44 @@ public class RetrieveCohortDistributionData
         _exceptionHandler = exceptionHandler;
     }
 
-    [Function("RetrieveCohortDistributionData")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+[Function("RetrieveCohortDistributionData")]
+public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+{
+    var requestId = req.Query["requestId"];
+    var rowCount = 1000;
+    var screeningServiceId = (int)ServiceProvider.BSS;
+    List<CohortDistributionParticipant> cohortDistributionParticipants;
+
+    try
     {
-        var requestId = req.Query["requestId"];
-        var rowCount = 1000;
-        var screeningServiceId = (int)ServiceProvider.BSS;
-        List<CohortDistributionParticipant> cohortDistributionParticipants;
-
-        try
+        if (string.IsNullOrEmpty(requestId))
         {
-            if (string.IsNullOrEmpty(requestId))
-            {
-                cohortDistributionParticipants = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
-                if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
-
-            var requestIdsList = _createCohortDistributionData.GetOutstandingCohortRequestAudits(requestId).Select(s => s.RequestId).ToList();
+            cohortDistributionParticipants = _createCohortDistributionData
+                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+        }
+        else
+        {
+            var requestIdsList = _createCohortDistributionData
+                .GetOutstandingCohortRequestAudits(requestId)
+                .Select(s => s.RequestId)
+                .ToList();
             cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
-
-            if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-
-            var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
         }
-        catch (Exception ex)
+
+        if (cohortDistributionParticipants.Count == 0)
         {
-            _logger.LogError(ex, ex.Message);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
+
+        var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, ex.Message);
+        await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+}
+
 }
