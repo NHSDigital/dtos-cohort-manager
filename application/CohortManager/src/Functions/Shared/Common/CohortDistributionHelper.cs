@@ -15,7 +15,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         _logger = logger;
     }
 
-    public async Task<CohortDistributionParticipant> RetrieveParticipantDataAsync(CreateCohortDistributionRequestBody cohortDistributionRequestBody)
+    public async Task<CohortDistributionParticipant?> RetrieveParticipantDataAsync(CreateCohortDistributionRequestBody cohortDistributionRequestBody)
     {
         var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
         {

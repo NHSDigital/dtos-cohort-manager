@@ -97,11 +97,9 @@ public class ProcessCaasFileFunction
 
                         if (demographicDataAdded)
                         {
-                            await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord);
-                            //await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
                             _logger.LogInformation("Called add participant");
                         }
-
                     }
                     catch (Exception ex)
                     {
