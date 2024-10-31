@@ -60,10 +60,7 @@ public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymou
             cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
         }
 
-        if (cohortDistributionParticipants.Count == 0)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-        }
+        if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
         var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
