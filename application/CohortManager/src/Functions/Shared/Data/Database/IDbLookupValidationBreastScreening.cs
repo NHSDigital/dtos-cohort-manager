@@ -8,5 +8,5 @@ public interface IDbLookupValidationBreastScreening
     bool ValidateLanguageCode(string languageCode);
     bool CheckIfCurrentPostingExists(string currentPosting);
     bool ValidatePostingCategories(string currentPosting);
-    string GetBSOCode(string postcode);
+    string RetrieveBSOCode(string postcode);
 }
