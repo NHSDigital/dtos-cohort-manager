@@ -34,7 +34,7 @@ public class BsTransformationLookups : IBsTransformationLookups
     public string GetName(string participantId, string nameType)
     {
         string sql = $"SELECT TOP 1 {nameType} FROM [dbo].[BS_COHORT_DISTRIBUTION] WHERE PARTICIPANT_ID = @participantId AND" +
-                     $" {nameType} IS NOT NULL ORDER BY BS_COHORT_DISTRIBUTION_ID DESC";
+                    $" {nameType} IS NOT NULL ORDER BY BS_COHORT_DISTRIBUTION_ID DESC";
 
         using (_connection = new SqlConnection(_connectionString))
         {

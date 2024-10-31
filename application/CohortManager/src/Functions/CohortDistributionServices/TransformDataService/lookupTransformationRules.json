@@ -5,7 +5,7 @@
       "Name": "IsAmendRecord",
       "Expression": "participant.RecordType == \"AMENDED\""
     }],
-    "Rules": [    
+    "Rules": [
       {
         "RuleName": "13.Other.FamilyName.DoesNotExist",
         "Expression": "IsAmendRecord && string.IsNullOrEmpty(participant.FamilyName)",
