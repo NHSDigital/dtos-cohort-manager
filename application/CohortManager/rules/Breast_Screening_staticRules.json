@@ -45,7 +45,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Check reason for removal"
+              "Expression": "Reason for removal is invalid"
             }
           }
         }
