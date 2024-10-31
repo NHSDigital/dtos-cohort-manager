@@ -395,7 +395,7 @@ public class TransformDataServiceTests
         SetUpRequestBody(json);
 
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.GetBSOCode(It.IsAny<string>())).Returns(bsoCode);
+        _lookupValidation.Setup(x => x.RetrieveBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -449,7 +449,7 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
-        _lookupValidation.Setup(x => x.GetBSOCode(It.IsAny<string>())).Returns(bsoCode);
+        _lookupValidation.Setup(x => x.RetrieveBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
