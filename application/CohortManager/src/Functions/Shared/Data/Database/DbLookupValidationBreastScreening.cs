@@ -101,9 +101,39 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// </summary>
     /// <param name="postcode">The participant's postcode.</param>
     /// <returns>string, BSO code<returns>
-    public string GetBSOCode(string postcode)
+    public string RetrieveBSOCode(string postcode)
     {
-        return "ELD";
+        try
+        {
+            var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+            var bso = "";
+
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                _connection.Open();
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    command.CommandText = $"SELECT BSO FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@outcode";
+                    parameter.Value = outcode;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            bso = reader["BSO"] == DBNull.Value ? null : reader["BSO"].ToString();
+                        }
+                        return bso!;
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
     }
 
     /// <summary>
