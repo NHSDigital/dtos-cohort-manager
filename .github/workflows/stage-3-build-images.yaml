@@ -79,7 +79,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         continue-on-error: true
         run: |
-          set -x
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
@@ -102,11 +101,8 @@ jobs:
           echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
 
       - name: Build and Push Image
-        if: github.ref == 'refs/heads/main'
         working-directory: ./application/CohortManager
         run: |
-          set -x
-
           function=${{ matrix.function }}
 
           # Build the image
@@ -119,15 +115,88 @@ jobs:
           docker tag cohort-manager-$function:latest "$repo_name:$PR_NUM_TAG"
           docker tag cohort-manager-$function:latest "$repo_name:$ENVIRONMENT_TAG"
 
+          export CHECK_DOCKER_IMAGE=cohort-manager-$function:latest   # If this is set it will scan this docker image instead.
+          export FORCE_USE_DOCKER=true
+
+          export PR_NUM_TAG=$PR_NUM_TAG
+          echo "PR_NUM_TAG=$PR_NUM_TAG" >> $GITHUB_ENV
+
+          export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
+          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
+          ../../scripts/reports/create-sbom-report.sh
+
+          export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
+          echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
+          ../../scripts/reports/scan-vulnerabilities.sh
+
           # Push the image to the repository
-          docker push "$repo_name:$COMMIT_HASH_TAG"
-          if [ "$PR_NUM_TAG" != 'pr' ]; then
-            docker push "$repo_name:$PR_NUM_TAG"
+          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+            docker push "$repo_name:$COMMIT_HASH_TAG"
+            if [ "$PR_NUM_TAG" != 'pr' ]; then
+              docker push "$repo_name:$PR_NUM_TAG"
+            fi
+            docker push "$repo_name:$ENVIRONMENT_TAG"
           fi
-          docker push "$repo_name:$ENVIRONMENT_TAG"
 
           # Remove the image
           docker rmi "$repo_name:$COMMIT_HASH_TAG"
           docker rmi "$repo_name:$PR_NUM_TAG"
           docker rmi "$repo_name:$ENVIRONMENT_TAG"
           docker rmi cohort-manager-$function:latest
+
+      - name: "Compress SBOM report"
+        shell: bash
+        run: |
+          echo SBOM_REPOSITORY_REPORT: $SBOM_REPOSITORY_REPORT
+          zip "$SBOM_REPOSITORY_REPORT.json.zip" "$SBOM_REPOSITORY_REPORT.json"
+
+      - name: "Upload SBOM report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.SBOM_REPOSITORY_REPORT }}.json.zip
+          path: ./${{ env.SBOM_REPOSITORY_REPORT }}.json.zip
+          retention-days: 21
+      - name: "Compress vulnerabilities report"
+        shell: bash
+        run: |
+          echo VULNERABILITIES_REPOSITORY_REPORT: $VULNERABILITIES_REPOSITORY_REPORT
+          zip $VULNERABILITIES_REPOSITORY_REPORT.json.zip $VULNERABILITIES_REPOSITORY_REPORT.json
+      - name: "Upload vulnerabilities report as an artefact"
+        if: ${{ !env.ACT }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.VULNERABILITIES_REPOSITORY_REPORT }}.json.zip
+          path: ./${{ env.VULNERABILITIES_REPOSITORY_REPORT }}.json.zip
+          retention-days: 21
+    outputs:
+      pr_num_tag: ${{ env.PR_NUM_TAG }}
+
+  aggregate-json:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+      - name: Download SBOM JSON artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded-artifacts
+
+      - name: Combine sbom report JSON files
+        run: |
+          zip sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip downloaded-artifacts/**/sbom*.json.zip
+
+      - name: Combine vulnerabilities report JSON files
+        run: |
+          zip vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip downloaded-artifacts/**/vulnerabilities*.json.zip
+
+      - name: Upload sbom zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+          path: sbom-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+
+      - name: Upload repository zip file
+        uses: actions/upload-artifact@v4
+        with:
+          name: aggregated-vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip
+          path: vulnerabilities-repository-report-${{needs.build-and-push.outputs.PR_NUM_TAG}}.zip

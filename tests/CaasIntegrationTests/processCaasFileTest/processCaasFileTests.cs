@@ -24,6 +24,8 @@ public class ProcessCaasFileTests
     private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantData = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
 
+    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+
     public ProcessCaasFileTests()
     {
         Environment.SetEnvironmentVariable("PMSAddParticipant", "PMSAddParticipant");
@@ -49,14 +51,14 @@ public class ProcessCaasFileTests
 
         _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
 
         // Assert
-        _callFunction.Verify(
-            x => x.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()),
+        _azureQueueStorageHelper.Verify(
+            x => x.AddItemToQueueAsync<BasicParticipantCsvRecord>(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()),
             Times.Exactly(2));
         _callFunction.VerifyNoOtherCalls();
     }
@@ -77,7 +79,7 @@ public class ProcessCaasFileTests
         _request = _setupRequest.Setup(json);
 
         _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -105,7 +107,7 @@ public class ProcessCaasFileTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -134,7 +136,7 @@ public class ProcessCaasFileTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -168,10 +170,10 @@ public class ProcessCaasFileTests
 
         _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSAddParticipant")), It.IsAny<string>()))
+        _azureQueueStorageHelper.Setup(call => call.AddItemToQueueAsync<BasicParticipantCsvRecord>(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -206,7 +208,7 @@ public class ProcessCaasFileTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -239,7 +241,7 @@ public class ProcessCaasFileTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
 
-        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object);
+        var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
         await sut.Run(_request.Object);
@@ -266,7 +268,7 @@ public class ProcessCaasFileTests
         var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
         var handleException = Mock.Of<IExceptionHandler>();
 
-        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException, _azureQueueStorageHelper.Object);
         var futureDate = DateTime.UtcNow.AddDays(1);
 
         // Act: Call IsValidDate with a future date
@@ -287,7 +289,7 @@ public class ProcessCaasFileTests
         var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
         var handleException = Mock.Of<IExceptionHandler>();
 
-        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException, _azureQueueStorageHelper.Object);
         var pastDate = DateTime.UtcNow.AddDays(-1);
         var currentDate = DateTime.UtcNow;
 
@@ -307,7 +309,7 @@ public class ProcessCaasFileTests
         var createBasicParticipantData = Mock.Of<ICreateBasicParticipantData>();
         var handleException = Mock.Of<IExceptionHandler>();
 
-        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException);
+        var validator = new ProcessCaasFileFunction(logger, callFunction, createResponse, checkDemographic, createBasicParticipantData, handleException, _azureQueueStorageHelper.Object);
         DateTime? nullDate = null;
 
         // Act: Call IsValidDate with a null date

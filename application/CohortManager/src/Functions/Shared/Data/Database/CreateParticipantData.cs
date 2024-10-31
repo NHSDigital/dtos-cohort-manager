@@ -102,14 +102,12 @@ public class CreateParticipantData : ICreateParticipantData
                     if (!Execute(command))
                     {
                         transaction.Rollback();
-                        _dbConnection.Close();
                         return false;
                     }
                 }
             }
 
             transaction.Commit();
-            _dbConnection.Close();
 
             return true;
 
@@ -117,9 +115,12 @@ public class CreateParticipantData : ICreateParticipantData
         catch (Exception ex)
         {
             transaction.Rollback();
-            _dbConnection.Close();
             _logger.LogError("An error occurred while updating records: {Message}", ex.Message);
             return false;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 

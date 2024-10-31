@@ -81,6 +81,7 @@ public class ReceiveCaasFile
                         {
                             ScreeningId = screeningService.ScreeningId,
                             ScreeningName = screeningService.ScreeningName
+
                         };
                         participant = await _receiveCaasFileHelper.MapParticipant(rec, participant, name, rowNumber);
 
