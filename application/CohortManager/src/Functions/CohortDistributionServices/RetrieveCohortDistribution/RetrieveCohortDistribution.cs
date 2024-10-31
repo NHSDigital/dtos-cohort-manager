@@ -28,6 +28,7 @@ public class RetrieveCohortDistributionData
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
+    private const int rowCount = 100;
     public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
@@ -40,7 +41,6 @@ public class RetrieveCohortDistributionData
 public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
 {
     var requestId = req.Query["requestId"];
-    var rowCount = 1000;
     var screeningServiceId = (int)ServiceProvider.BSS;
     List<CohortDistributionParticipant> cohortDistributionParticipants;
 
