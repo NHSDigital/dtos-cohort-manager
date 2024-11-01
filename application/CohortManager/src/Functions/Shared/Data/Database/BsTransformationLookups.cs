@@ -4,6 +4,9 @@ using System.Data;
 using Model;
 using Microsoft.Data.SqlClient;
 
+/// <summary>
+/// Various methods used for transformations the require looking up data from the database.
+/// </summary>
 public class BsTransformationLookups : IBsTransformationLookups
 {
     private IDbConnection _connection;
@@ -12,16 +15,9 @@ public class BsTransformationLookups : IBsTransformationLookups
     public BsTransformationLookups(IDbConnection IdbConnection)
     {
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
-        _connection = IdbConnection; //new SqlConnection(_connectionString);
+        _connection = IdbConnection;
     }
 
-    /// <summary>
-    /// Used in rules 13 & 14 in the "Other" transformations.
-    /// Gets the participant's previous family/ given name if an Amend record comes in without one.
-    /// </summary>
-    /// <param name="participantId">The participant's ID.</param>
-    /// <param name="nameType">which name to retrieve, acceptable values are "FAMILY_NAME" and "GIVEN_NAME".</param>
-    /// <returns>string, the participant's family/ given name.<returns>
     public string GetGivenName(string participantId)
     {
         return GetName(participantId, "GIVEN_NAME");
@@ -31,7 +27,16 @@ public class BsTransformationLookups : IBsTransformationLookups
     {
         return GetName(participantId, "FAMILY_NAME");
     }
-    public string GetName(string participantId, string nameType)
+
+    /// <summary>
+    /// Used in rules 13 & 14 in the "Other" transformations.
+    /// Gets the participant's previous family/ given name if an Amend record comes in without one.
+    /// Will get the family or given name depending on which method it is called from.
+    /// </summary>
+    /// <param name="participantId">The participant's ID.</param>
+    /// <param name="nameType">which name to retrieve, acceptable values are "FAMILY_NAME" and "GIVEN_NAME".</param>
+    /// <returns>string, the participant's family/ given name.<returns>
+    private string GetName(string participantId, string nameType)
     {
         string sql = $"SELECT TOP 1 {nameType} FROM [dbo].[BS_COHORT_DISTRIBUTION] WHERE PARTICIPANT_ID = @participantId AND" +
                     $" {nameType} IS NOT NULL ORDER BY BS_COHORT_DISTRIBUTION_ID DESC";
