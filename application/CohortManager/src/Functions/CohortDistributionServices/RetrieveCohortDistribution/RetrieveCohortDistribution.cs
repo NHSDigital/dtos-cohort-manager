@@ -15,6 +15,8 @@ using Model.Enums;
 /// </summary>
 /// <param name="req">The HTTP request data containing query parameters and request details.</param>
 /// <param name="requestId">query parameter.</param>
+/// <param name="rowCount">query parameter.</param>
+/// <param name="screeningServiceId">query parameter.</param>
 /// <returns>
 /// HTTP response with:
 /// - 400 Bad Request if parameters are invalid or missing.
@@ -28,50 +30,52 @@ public class RetrieveCohortDistributionData
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
-    private const int rowCount = 1000;
-    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
+    private readonly IHttpParserHelper _httpParserHelper;
+    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
+        _httpParserHelper = httpParserHelper;
     }
 
-[Function("RetrieveCohortDistributionData")]
-public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
-{
-    var requestId = req.Query["requestId"];
-    var screeningServiceId = (int)ServiceProvider.BSS;
-    List<CohortDistributionParticipant> cohortDistributionParticipants;
-
-    try
+    [Function("RetrieveCohortDistributionData")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        if (string.IsNullOrEmpty(requestId))
+        var requestId = req.Query["requestId"];
+        int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
+        int rowCount = _httpParserHelper.GetRowCount(req);
+        List<CohortDistributionParticipant> cohortDistributionParticipants;
+
+        try
         {
-            cohortDistributionParticipants = _createCohortDistributionData
-                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+            if (string.IsNullOrEmpty(requestId))
+            {
+                cohortDistributionParticipants = _createCohortDistributionData
+                    .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+            }
+            else
+            {
+                var requestIdsList = _createCohortDistributionData
+                    .GetOutstandingCohortRequestAudits(requestId)
+                    .Select(s => s.RequestId)
+                    .ToList();
+
+                cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+            }
+
+            if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+
+            var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
         }
-        else
+        catch (Exception ex)
         {
-            var requestIdsList = _createCohortDistributionData
-                .GetOutstandingCohortRequestAudits(requestId)
-                .Select(s => s.RequestId)
-                .ToList();
-
-            cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+            _logger.LogError(ex, ex.Message);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-        if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-
-        var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
     }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, ex.Message);
-        await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
-        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-    }
-}
 
 }
