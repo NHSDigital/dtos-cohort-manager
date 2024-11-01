@@ -29,7 +29,7 @@ public class GetValidationExceptions
 
     }
 
-    [Function("GetValidationExceptions")]
+    [Function(nameof(GetValidationExceptions))]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
 
@@ -61,6 +61,5 @@ public class GetValidationExceptions
             _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
     }
 }
