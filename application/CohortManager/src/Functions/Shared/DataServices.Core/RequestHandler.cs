@@ -5,6 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using DataServices.Core;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -19,12 +20,15 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
     private ILogger<RequestHandler<TEntity>> _logger;
 
+    private readonly AuthenticationConfiguration _authConfig;
+
     private PropertyInfo _keyInfo;
 
-    public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger)
+    public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
     {
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
+        _authConfig = authenticationConfiguration;
     }
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
@@ -37,32 +41,31 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             case "GET":
                 if (key != null)
                 {
-
-                    return CreateHttpResponse(req, await getById(req, key));
+                    return await GetById(req, key);
                 }
                 else
                 {
-                    return CreateHttpResponse(req, await Get(req));
+                    return await Get(req);
                 }
             case "DELETE":
                 if (key != null)
                 {
-                    return CreateHttpResponse(req, await DeleteById(req, key));
+                    return await DeleteById(req, key);
                 }
                 else
                 {
-                    return createErrorResponse(req);
+                    return CreateErrorResponse(req,"No Key Provided for Deletion",HttpStatusCode.BadRequest);
                 }
             case "POST":
-                return CreateHttpResponse(req, await Post(req));
+                return await Post(req);
             case "PUT":
                 if (key != null)
                 {
-                    return CreateHttpResponse(req, await UpdateById(req, key));
+                    return await UpdateById(req, key);
                 }
                 else
                 {
-                    return createErrorResponse(req);
+                    return CreateErrorResponse(req,"No Key Provided for Put",HttpStatusCode.BadRequest);
                 }
             default:
                 return CreateHttpResponse(req, null, HttpStatusCode.MethodNotAllowed);
@@ -72,37 +75,48 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private async Task<DataServiceResponse<string>> Get(HttpRequestData req)
+    private async Task<HttpResponseData> Get(HttpRequestData req)
     {
+
+        if(!_authConfig.CanGet(req))
+        {
+            _logger.LogWarning("Unauthorized Method was called");
+            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+        }
         var predicate = CreateFilterExpression(req);
         var result = await _dataServiceAccessor.GetRange(predicate);
 
-        return new DataServiceResponse<string>
+        return CreateHttpResponse(req,new DataServiceResponse<string>
         {
             JsonData = JsonSerializer.Serialize(result)
-        };
+        });
     }
 
-    private async Task<DataServiceResponse<string>> getById(HttpRequestData req, string keyValue)
+    private async Task<HttpResponseData> GetById(HttpRequestData req, string keyValue)
     {
-
+        if(!_authConfig.CanGetById(req))
+        {
+            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+        }
 
         var keyPredicate = CreateGetByKeyExpression(keyValue);
 
         _logger.LogError(keyPredicate.ToString());
         var result = await _dataServiceAccessor.GetSingle(keyPredicate);
 
-
-
-        return new DataServiceResponse<string>
+        return CreateHttpResponse(req,new DataServiceResponse<string>
         {
             JsonData = JsonSerializer.Serialize(result)
-        };
+        });
 
     }
 
-    private async Task<DataServiceResponse<string>> Post(HttpRequestData req)
+    private async Task<HttpResponseData> Post(HttpRequestData req)
     {
+        if(!_authConfig.CanPost(req))
+        {
+            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+        }
         try
         {
             var entityData = await getBodyFromRequest(req);
@@ -110,30 +124,29 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             var result = await _dataServiceAccessor.InsertSingle(entityData);
             if (!result)
             {
-                return new DataServiceResponse<string>
-                {
-                    ErrorMessage = "Failed to Insert Record"
-                };
+
+                return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
             }
-            return new DataServiceResponse<string>
+            return CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = "Success"
-            };
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to get request Data, This is due to a badly formed request");
-            return new DataServiceResponse<string>
-            {
-                ErrorMessage = "Bad Request"
-            };
+            return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.BadRequest);
         }
 
 
     }
 
-    private async Task<DataServiceResponse<string>> UpdateById(HttpRequestData req, string key)
+    private async Task<HttpResponseData> UpdateById(HttpRequestData req, string key)
     {
+        if(!_authConfig.CanPut(req))
+        {
+            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+        }
         try
         {
             var entityData = await getBodyFromRequest(req);
@@ -142,36 +155,36 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
             if (!result)
             {
-                return new DataServiceResponse<string>
-                {
-                    ErrorMessage = "Failed to Insert Record"
-                };
+                return CreateErrorResponse(req,"Failed to update Record",HttpStatusCode.InternalServerError);
             }
-            return new DataServiceResponse<string>
+            return CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = "Success"
-            };
+            });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error Updating Record ");
-            return new DataServiceResponse<string>
-            {
-                ErrorMessage = "Bad Request"
-            };
+            _logger.LogError(ex, "Failed to get request Data, This is due to a badly formed request");
+            return CreateErrorResponse(req,"Failed to Update Record",HttpStatusCode.BadRequest);
         }
     }
 
-    private async Task<DataServiceResponse<string>> DeleteById(HttpRequestData req, string key)
+    private async Task<HttpResponseData> DeleteById(HttpRequestData req, string key)
     {
-
+        if(!_authConfig.CanDelete(req))
+        {
+            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+        }
         var keyPredicate = CreateGetByKeyExpression(key);
         var result = await _dataServiceAccessor.Remove(keyPredicate);
-
-        return new DataServiceResponse<string>
+        if(!result)
         {
-            JsonData = JsonSerializer.Serialize(result)
-        };
+            return CreateErrorResponse(req,"Failed to delete Record",HttpStatusCode.InternalServerError);
+        }
+        return CreateHttpResponse(req,new DataServiceResponse<string>
+        {
+            JsonData = "Success"
+        });
 
     }
 
@@ -248,10 +261,14 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     private bool PropertyExists(Type type, string property) =>
         Array.Exists(type.GetProperties(), p => p.Name == property);
 
-    private HttpResponseData createErrorResponse(HttpRequestData req)
+
+
+
+
+    private HttpResponseData CreateErrorResponse(HttpRequestData req, string message, HttpStatusCode statusCode)
     {
-        var errorResponse = new DataServiceResponse<string> { ErrorMessage = "No Key was Provided for deletion" };
-        return CreateHttpResponse(req, errorResponse);
+        var errorResponse = new DataServiceResponse<string> { ErrorMessage = message };
+        return CreateHttpResponse(req, errorResponse, statusCode);
     }
 
     private HttpResponseData CreateHttpResponse(HttpRequestData req, DataServiceResponse<string> dataServiceResponse, HttpStatusCode httpStatusCode = HttpStatusCode.InternalServerError)
@@ -262,6 +279,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         {
             statusCode = HttpStatusCode.OK;
             responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.JsonData);
+        }
+        else if (dataServiceResponse.ErrorMessage != null)
+        {
+            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.ErrorMessage);
+            statusCode = httpStatusCode;
         }
         else if (string.IsNullOrWhiteSpace(dataServiceResponse.JsonData))
         {

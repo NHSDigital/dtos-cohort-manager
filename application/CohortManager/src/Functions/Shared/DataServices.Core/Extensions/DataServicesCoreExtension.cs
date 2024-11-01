@@ -8,7 +8,19 @@ using Microsoft.Extensions.Hosting;
 
 public static class DataServicesCoreExtension
 {
-    public static IHostBuilder AddDataServicesHandler<DBContextType>(this IHostBuilder hostBuilder, string? connectionString = null, Action<DbContextOptionsBuilder> dbContextOptionsBuilder = null) where DBContextType : DbContext
+
+    public static IHostBuilder AddDataServicesHandler<DBContextType>(this IHostBuilder hostBuilder, AuthenticationConfiguration authenticationConfiguration) where DBContextType : DbContext
+    {
+        return AddDataServicesHandler<DBContextType>(hostBuilder,null,null,authenticationConfiguration);
+    }
+
+    public static IHostBuilder AddDataServicesHandler<DBContextType>(
+        this IHostBuilder hostBuilder,
+        string? connectionString = null,
+        Action<DbContextOptionsBuilder> dbContextOptionsBuilder = null,
+        AuthenticationConfiguration authenticationConfiguration = null
+
+    ) where DBContextType : DbContext
     {
         return hostBuilder.ConfigureServices(_ =>
         {
@@ -23,6 +35,14 @@ public static class DataServicesCoreExtension
             {
                 _.AddDbContext<DBContextType>(dbContextOptionsBuilder);
             }
+
+            if(authenticationConfiguration == null)
+            {
+                AccessRule alwaysTrueRule = i => true;
+                authenticationConfiguration = new AuthenticationConfiguration(alwaysTrueRule,alwaysTrueRule,alwaysTrueRule,alwaysTrueRule,alwaysTrueRule);
+            }
+
+            _.AddSingleton(authenticationConfiguration);
             _.AddSingleton<ICreateResponse, CreateResponse>();
             _.TryAdd(ServiceDescriptor.Scoped(typeof(IRequestHandler<>), typeof(RequestHandler<>)));
             _.TryAdd(ServiceDescriptor.Scoped(typeof(IDataServiceAccessor<>), typeof(DataServiceAccessor<>)));
