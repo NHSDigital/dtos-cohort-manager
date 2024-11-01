@@ -3,9 +3,16 @@ namespace Common;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 
 public class CallFunction : ICallFunction
 {
+
+    private readonly ILogger<CallFunction> _logger;
+    public CallFunction(ILogger<CallFunction> logger)
+    {
+        _logger = logger;
+    }
     public async Task<HttpWebResponse> SendPost(string url, string postData)
     {
         return await GetHttpWebRequest(url, postData, "POST");
@@ -50,9 +57,18 @@ public class CallFunction : ICallFunction
             stream.Write(data, 0, data.Length);
         }
 
-        var response = (HttpWebResponse)await request.GetResponseAsync();
+        try
+        {
+            var response = (HttpWebResponse)await request.GetResponseAsync();
+            return response;
+        }
+        catch(WebException ex)
+        {
+            _logger.LogError(ex,"Failed to execute webrequest");
+            return (HttpWebResponse)ex.Response;
 
-        return response;
+        }
+
     }
 
     public async Task<string> GetResponseText(HttpWebResponse httpResponseData)
