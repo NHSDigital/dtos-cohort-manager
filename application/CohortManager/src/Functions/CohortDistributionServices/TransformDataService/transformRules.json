@@ -449,7 +449,7 @@
         }
       },
       {
-        "RuleName": "1.ReasonForRemoval",
+        "RuleName": "1.ReasonForRemoval.NonFatal",
         "Expression": "participantNotRegisteredToGP AND validPostcode",
         "Actions": {
           "OnSuccess": {
@@ -489,7 +489,7 @@
         }
       },
       {
-        "RuleName": "2.ReasonForRemoval",
+        "RuleName": "2.ReasonForRemoval.NonFatal",
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
@@ -529,7 +529,7 @@
         }
       },
       {
-        "RuleName": "3.ReasonForRemoval",
+        "RuleName": "3.ReasonForRemoval.NonFatal",
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
@@ -548,7 +548,7 @@
         }
       },
       {
-        "RuleName": "4.ReasonForRemoval",
+        "RuleName": "4.ReasonForRemoval.NonFatal",
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnSuccess": {
