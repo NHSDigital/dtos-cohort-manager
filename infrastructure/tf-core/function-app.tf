@@ -55,18 +55,18 @@ module "functionapp" {
 locals {
 
   function_app_slots_object_list = flatten([
-      for func_key, func_functions in local.function_app_map : [
-        for slot_key, slot_config in var.function_apps.slots : merge({
-          func_key        = func_key
-          slot_key        = slot_key
-          slot_config     = slot_config
-        }, func_functions)
-      ]
-    ])
-    function_app_slots_map = {
-      for item in local.function_app_slots_object_list :
-      "${item.slot_key}-${item.func_key}" => item
-    }
+    for func_key, func_functions in local.function_app_map : [
+      for slot_key, slot_config in var.function_apps.slots : merge({
+        func_key    = func_key
+        slot_key    = slot_key
+        slot_config = slot_config
+      }, func_functions)
+    ]
+  ])
+  function_app_slots_map = {
+    for item in local.function_app_slots_object_list :
+    "${item.slot_key}-${item.func_key}" => item
+  }
 
 }
 
@@ -77,10 +77,10 @@ module "function_app_slots" {
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app-slots?ref=93929dbffff36cc74ff0a358a92625285df5b284"
 
-  name                          = each.value.slot_key
-  function_app_id               = module.functionapp[each.value.func_key].id
-  storage_account_name          = module.storage["fnapp-${each.value.region_key}"].storage_account_name
-  function_app_slot_enabled     = true
+  name                      = each.value.slot_key
+  function_app_id           = module.functionapp[each.value.func_key].id
+  storage_account_name      = module.storage["fnapp-${each.value.region_key}"].storage_account_name
+  function_app_slot_enabled = true
 
   tags = var.tags
 
