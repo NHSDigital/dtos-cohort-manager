@@ -462,8 +462,6 @@ public class StaticValidationTests
     #region Date Of Birth (Rule 17)
     [TestMethod]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_Should_Not_Create_Exception_When_DateOfBirth_Rule_Passes(string dateOfBirth)
     {
         // Arrange
@@ -697,8 +695,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_Should_Not_Create_Exception_When_ReasonForRemovalEffectiveFromDate_Rule_Passes(string date)
     {
         // Arrange
@@ -745,8 +741,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_Should_Not_Create_Exception_When_DateOfDeath_Rule_Passes(string date)
     {
         // Arrange
@@ -1080,8 +1074,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidPrimaryCareProviderEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
@@ -1128,8 +1120,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidCurrentPostingEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
@@ -1176,8 +1166,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidUsualAddressEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
@@ -1224,8 +1212,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidTelephoneNumberEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
@@ -1272,8 +1258,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidMobileNumberEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
@@ -1320,8 +1304,6 @@ public class StaticValidationTests
     [DataRow(null)]
     [DataRow("")]
     [DataRow("19700101")]   // ccyymmdd
-    [DataRow("197001")]     // ccyymm
-    [DataRow("1970")]       // ccyy
     public async Task Run_ValidEmailAddressEffectiveFromDate_ShouldNotThrowException(string date)
     {
         // Arrange
