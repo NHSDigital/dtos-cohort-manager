@@ -38,11 +38,7 @@ public class GetValidationExceptions
 
         try
         {
-            if (ExceptionId != 0)
-            {
-                validationException = _validationData.GetAllExceptions();
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
+            if (ExceptionId == 0) validationException = _validationData.GetAllExceptions();
 
             validationException.Add(_validationData.GetExceptionById(ExceptionId));
 
