@@ -44,8 +44,9 @@ public class LookupValidationTests
                 CreatedException = true
             }));
 
-        _lookupValidation.Setup(x => x.ValidatePrimaryCareProvider(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
         // Test data setup
         var existingParticipant = new Participant
@@ -238,7 +239,7 @@ public class LookupValidationTests
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_Demographics_Rule_Fails(
+    public async Task Run_MultipleDemographicsFieldsChanged_DemographicsRuleFails(
     string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
     Gender newGender, string newDateOfBirth)
     {
@@ -246,6 +247,7 @@ public class LookupValidationTests
         SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = "1234567";
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
         _requestBody.NewParticipant.FamilyName = newFamilyName;
@@ -260,7 +262,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -272,7 +274,7 @@ public class LookupValidationTests
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
     [DataRow(Actions.New, "", new Gender(), "", "Smith", Gender.Female, "19700101")]                    // New Record Type
-    public async Task Run_Should_Not_Create_Exception_When_Demographics_Rule_Passes(string recordType,
+    public async Task Run_OneFieldChanged_DemographicsRulePasses(string recordType,
         string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
         Gender newGender, string newDateOfBirth)
     {
@@ -280,6 +282,7 @@ public class LookupValidationTests
         SetupRules("CohortRules");
         _requestBody.NewParticipant.RecordType = recordType;
         _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = "1234567";
         _requestBody.ExistingParticipant.Gender = existingGender;
         _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
         _requestBody.NewParticipant.FamilyName = newFamilyName;
@@ -293,7 +296,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.Demographics")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
@@ -304,11 +307,11 @@ public class LookupValidationTests
                                                                     string primaryCareProvider)
     {
         // Arrange
-        SetupRules("CohortRules");
+        SetupRules("LookupRules");
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
-        _requestBody.NewParticipant.RecordType = "New";
+        _requestBody.NewParticipant.RecordType = "ADD";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -389,6 +392,270 @@ public class LookupValidationTests
             Times.Never());
     }
 
+    [TestMethod]
+    [DataRow("ABC")] // Invalid CurrentPosting
+    public async Task Run_CurrentPosting_CreatesException(string currentPosting)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("BAA")] // valid CurrentPosting
+    public async Task Run_CurrentPosting_DoesNotCreateException(string currentPosting)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "InvalidPCP", "LDN", "20241101")]
+    public async Task Run_ValidatePrimaryCareProvider_CreatesException(string recordType, string primaryCareProvider, string reasonForRemoval, string reasonForRemovalDate)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "InvalidPCP");
+
+        // Act
+        var result = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "LDN", "20241101")]
+    [DataRow(Actions.New, "LDN", "20241101")]
+    [DataRow(Actions.New, null, "20241101")]
+    [DataRow(Actions.New, "LDN", null)]
+    public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string recordType, string reasonForRemoval, string reasonForRemovalDate)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ValidPCP";
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemovalEffectiveFromDate = reasonForRemovalDate;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
+        var expectedStatusCode = recordType == Actions.New ? HttpStatusCode.Created : HttpStatusCode.OK;
+
+        // Act
+        var result = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(expectedStatusCode, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.ValidatePrimaryCareProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "LDN")]
+    [DataRow(Actions.Amended, "R/C")]
+    [DataRow(Actions.Removed, "LDN")]
+    [DataRow(Actions.Removed, "R/C")]
+    public async Task Run_ValidateReasonForRemoval_CreatesException(string recordType, string reasonForRemoval)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "XXX")]
+    [DataRow(Actions.Removed, "XXX")]
+    [DataRow(Actions.New, "LDN")]
+    [DataRow(Actions.New, "R/C")]
+    [DataRow(Actions.New, "")]
+    public async Task Run_ValidateReasonForRemoval_DoesNotCreateException(string recordType, string reasonForRemoval)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.Amended, "D", "AFL", "ValidPCP")]
+    [DataRow(Actions.Amended, "DEA", "AFL", "ValidPCP")]
+    [DataRow(Actions.Amended, "D", null, "ValidPCP")]
+    public async Task Run_DeceasedParticipant_CreatesException(string recordType, string existingReasonForRemoval, string newReasonForRemoval, string primaryCareProvider)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = existingReasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemoval = newReasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.ExistingParticipant.PrimaryCareProvider = "ABCDE";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.DeceasedParticipant.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "D", "AFL", "ValidPCP")] // new record
+    [DataRow(Actions.Amended, "AFL", "AFL", "ValidPCP")] // existing reason for removal is not "D" or "DEA"
+    [DataRow(Actions.Amended, "AFL", "D", "ValidPCP")] // new reason for removal is "D"
+    [DataRow(Actions.Amended, "AFL", "DEA", "ValidPCP")] // new reason for removal is "DEA"
+    [DataRow(Actions.Amended, "AFL", null, "ValidPCP")] // new reason for removal is empty
+    [DataRow(Actions.Amended, "D", "AFL", "InvalidPCP")] // invalid new primary care provider
+    [DataRow(Actions.Amended, "D", "AFL", "ValidPCP")] // new and existing primary care provider match
+    public async Task Run_DeceasedParticipant_DoesNotCreateException(string recordType, string existingReasonForRemoval, string newReasonForRemoval, string primaryCareProvider)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.ReasonForRemoval = existingReasonForRemoval;
+        _requestBody.NewParticipant.ReasonForRemoval = newReasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.ExistingParticipant.PrimaryCareProvider = "ValidPCP";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.DeceasedParticipant.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    #region Validate BSO Code (Rule 54)
+    [TestMethod]
+    [DataRow("RPR", "", "", Actions.Amended)]
+    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
+
+    public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("RDI", "ValidPCP", "AL1 1BB", Actions.Amended)]
+    [DataRow("RDR", "", "AL3 0AX", Actions.Amended)]
+    [DataRow("ABC", "ZZZPCP", "", Actions.Amended)]
+    [DataRow("RPR", "", "", Actions.New)]
+
+    public async Task Run_AmendedParticipantHasValidBSO_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    {
+        // Arrange
+        SetupRules("CohortRules");
+
+        _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.Postcode = postcode;
+        _requestBody.NewParticipant.RecordType = recordType;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
 
     private void SetUpRequestBody(string json)
     {

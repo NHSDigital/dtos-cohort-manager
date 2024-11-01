@@ -122,7 +122,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant);
 
         // Assert
         Assert.IsTrue(result);
@@ -141,7 +141,7 @@ public class UpdateParticipantDetailsTests
         var sut = new ParticipantManagerData(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object);
 
         // Act
-        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant, 'Y');
+        var result = sut.UpdateParticipantAsEligible(_participantCsvRecord.Participant);
 
         // Assert
         Assert.IsFalse(result);

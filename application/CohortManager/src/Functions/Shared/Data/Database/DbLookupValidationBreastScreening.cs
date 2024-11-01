@@ -1,15 +1,26 @@
 namespace Data.Database;
-
-using Model;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Various validation methods for use in the breast screening lookup/ cohort rules
 /// </summary>
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
-    private SqlConnection _connection = new SqlConnection(Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"));
+    private IDbConnection _connection;
+    private readonly string _connectionString;
+
+    private readonly ILogger<DbLookupValidationBreastScreening> _logger;
+
+    private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
+
+    public DbLookupValidationBreastScreening(IDbConnection IdbConnection, ILogger<DbLookupValidationBreastScreening> logger)
+    {
+        _connection = IdbConnection;
+        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _logger = logger;
+    }
 
     /// <summary>
     /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.
@@ -17,22 +28,37 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// </summary>
     /// <param name="primaryCareProvider">The participant's primary care provider.</param>
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
-    public bool ValidatePrimaryCareProvider(string primaryCareProvider)
+    public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
-        string sql = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
-        using (_connection)
+        try
         {
-            _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, _connection))
+            using (_connection = new SqlConnection(_connectionString))
             {
-                command.Parameters.AddWithValue("@primaryCareProvider", primaryCareProvider);
-                using (SqlDataReader reader = command.ExecuteReader())
+                _connection.Open();
+                using (IDbCommand command = _connection.CreateCommand())
                 {
-                    return reader.Read();
+                    command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@primaryCareProvider";
+                    parameter.Value = primaryCareProvider;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+
+                        return reader.Read();
+                    }
                 }
             }
         }
+        finally
+        {
+            _connection.Close();
+        }
+
     }
+
+
 
     /// <summary>
     /// Used in rule 54 in the cohort rules. Validates the participants outcode (1st part of the postcode)
@@ -41,20 +67,148 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
-        string sql = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
-
-        using (_connection)
+        try
         {
-            _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, _connection))
+            var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+
+            using (_connection = new SqlConnection(_connectionString))
             {
-                command.Parameters.AddWithValue("@outcode", outcode);
-                using (SqlDataReader reader = command.ExecuteReader())
+                _connection.Open();
+                using (IDbCommand command = _connection.CreateCommand())
                 {
-                    return reader.Read();
+                    command.CommandText = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@outcode";
+                    parameter.Value = outcode ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        return reader.Read();
+                    }
                 }
             }
         }
+        finally
+        {
+            _connection.Close();
+        }
+
+    }
+
+    /// <summary>
+    /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
+    /// </summary>
+    /// <param name="languageCode">The participant's preferred language code.</param>
+    /// <returns>bool, whether or not the language code exists in the DB.<returns>
+    public bool ValidateLanguageCode(string languageCode)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                _connection.Open();
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    command.CommandText = $"SELECT LANGUAGE_CODE FROM [dbo].[LANGUAGE_CODES] WHERE LANGUAGE_CODE = @languageCode";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@languageCode";
+                    parameter.Value = languageCode ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+
+                        return reader.Read();
+                    }
+                }
+            }
+        }
+
+        finally
+        {
+            _connection.Close();
+        }
+
+    }
+
+    /// Used in rule 58 of the lookup rules.
+    /// Validates that the current posting exists, and that it is in the cohort and in use.
+    /// </summary>
+    /// <param name="currentPosting">The participant's current posting (area code).</param>
+    /// <returns>bool, whether or not the current posting is valid.<returns>
+    public bool CheckIfCurrentPostingExists(string currentPosting)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT CASE WHEN IN_USE = 'Y' AND INCLUDED_IN_COHORT = 'Y' THEN 1 ELSE 0 END AS result FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@currentPosting";
+                    parameter.Value = currentPosting ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    var isCurrentPostingInDB = false;
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            isCurrentPostingInDB = reader.GetInt32(0) == 1;
+                        }
+                    }
+
+                    return isCurrentPostingInDB;
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+
+    }
+
+    /// <summary>
+    /// takes in posting and returns if that posting has a valid posting category in the database
+    /// </summary>
+    /// <param name="postingCategory"></param>
+    /// <returns></returns>
+    public bool ValidatePostingCategories(string currentPosting)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT POSTING_CATEGORY FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@currentPosting";
+                    parameter.Value = currentPosting ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    var postingCategory = "";
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            postingCategory = reader["POSTING_CATEGORY"].ToString();
+                        }
+                    }
+                    return allPossiblePostingCategories.Contains(postingCategory);
+
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
     }
 }
+

@@ -17,8 +17,9 @@ public class ProcessCaasFileFunction
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
+    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
 
-    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException)
+    public ProcessCaasFileFunction(ILogger<ProcessCaasFileFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -26,6 +27,7 @@ public class ProcessCaasFileFunction
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _handleException = handleException;
+        _azureQueueStorageHelper = azureQueueStorageHelper;
     }
 
     [Function("processCaasFile")]
@@ -36,7 +38,7 @@ public class ProcessCaasFileFunction
         {
             postData = reader.ReadToEnd();
         }
-        Cohort input = JsonSerializer.Deserialize<Cohort>(postData);
+        var input = JsonSerializer.Deserialize<Cohort>(postData);
 
         _logger.LogInformation("Records received: {RecordsReceived}", input?.Participants.Count ?? 0);
         int add = 0, upd = 0, del = 0, err = 0, row = 0;
@@ -44,9 +46,9 @@ public class ProcessCaasFileFunction
         foreach (var participant in input.Participants)
         {
             // Check the NHS number is a number
-            if(!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"),participant,input.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {row}"), participant, input.FileName);
                 err++;
                 continue;
             }
@@ -59,6 +61,7 @@ public class ProcessCaasFileFunction
             DateTime? homeTelephoneDate = TryParseDate(participant.TelephoneNumberEffectiveFromDate);
             DateTime? mobileTelephoneDate = TryParseDate(participant.MobileNumberEffectiveFromDate);
             DateTime? emailAddressDate = TryParseDate(participant.EmailAddressEffectiveFromDate);
+            DateTime? dateOfBirth = TryParseDate(participant.DateOfBirth);
 
             // Validate the date fields
             if (!IsValidDate(primaryCareDate) ||
@@ -66,7 +69,8 @@ public class ProcessCaasFileFunction
                 !IsValidDate(reasonForRemovalDate) ||
                 !IsValidDate(homeTelephoneDate) ||
                 !IsValidDate(mobileTelephoneDate) ||
-                !IsValidDate(emailAddressDate))
+                !IsValidDate(emailAddressDate) ||
+                !IsValidDate(dateOfBirth))
             {
                 await _handleException.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {row}."), participant, input.FileName);
                 err++;
@@ -93,10 +97,9 @@ public class ProcessCaasFileFunction
 
                         if (demographicDataAdded)
                         {
-                            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSAddParticipant"), json);
+                            await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
                             _logger.LogInformation("Called add participant");
                         }
-
                     }
                     catch (Exception ex)
                     {
@@ -144,24 +147,8 @@ public class ProcessCaasFileFunction
 
                         _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
 
-                        await _handleException.CreateRecordValidationExceptionLog(new ValidationException()
-                        {
-                            RuleId = 1,
-                            Cohort = "N/A",
-                            NhsNumber = string.IsNullOrEmpty(participant.NhsNumber) ? "" : participant.NhsNumber,
-                            DateCreated = DateTime.Now,
-                            FileName = string.IsNullOrEmpty(basicParticipantCsvRecord.FileName) ? "" : basicParticipantCsvRecord.FileName,
-                            DateResolved = DateTime.MaxValue,
-                            RuleDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type",
-                            Category = 1,
-                            ScreeningName = "N/A",
-                            Fatal = 1,
-                            ErrorRecord = "N/A",
-                            ExceptionDate = DateTime.Now,
-                            RuleContent = "N/A",
-                            ScreeningService = 0
-
-                        });
+                        var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
+                        await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participant));
                     }
                     catch (Exception ex)
                     {
@@ -193,7 +180,7 @@ public class ProcessCaasFileFunction
         return true;
     }
 
-    private DateTime? TryParseDate(string? dateString)
+    private static DateTime? TryParseDate(string? dateString)
     {
         if (DateTime.TryParse(dateString, out var date))
         {

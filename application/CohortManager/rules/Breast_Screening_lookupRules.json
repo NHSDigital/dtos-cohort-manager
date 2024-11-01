@@ -1,10 +1,16 @@
 [
   {
     "WorkflowName": "Common",
+    "GlobalParams": [
+      {
+        "Name": "validPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "dbLookup.ValidatePrimaryCareProvider(newParticipant.PrimaryCareProvider)",
+        "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -13,11 +19,103 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "CurrentPostingDoesNotExistInDB",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+          },
+          {
+            "Name": "ValidatePostingCategories",
+            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+          },
+          {
+            "Name": "PrimaryCareProviderDoesNotExistOnDB",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+          }
+        ],
+        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderDoesNotExistOnDB AND ValidatePostingCategories"
+      },
+      {
+        "RuleName": "58.CurrentPosting.NonFatal",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Missing or invalid Posting\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "00.ValidateLanguageCode.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
+        "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid preferred language code\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "11.ValidateReasonForRemoval.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "newParticipant.RecordType == Actions.New"
+          },
+          {
+            "Name": "reasonForRemovalIsLDNOrRC",
+            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
+          }
+        ],
+        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
+      },
+      {
+        "RuleName": "36.DeceasedParticipant.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "amendedRecordType",
+            "Expression": "newParticipant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "existingReasonForRemovalIsDOrDEA",
+            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
+          },
+          {
+            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
+            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
+          },
+          {
+            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
+            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid deceased participant\""
+            }
+          }
+        }
       }
     ]
   },
   {
-    "WorkflowName": "New",
+    "WorkflowName": "ADD",
     "Rules": [
       {
         "RuleName": "47.ParticipantMustNotExist.Fatal",
@@ -26,7 +124,7 @@
     ]
   },
   {
-    "WorkflowName": "Amended",
+    "WorkflowName": "AMENDED",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
@@ -35,7 +133,7 @@
     ]
   },
   {
-    "WorkflowName": "Removed",
+    "WorkflowName": "DEL",
     "Rules": [
       {
         "RuleName": "22.ParticipantMustExist.Fatal",

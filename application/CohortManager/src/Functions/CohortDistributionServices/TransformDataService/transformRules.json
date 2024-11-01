@@ -3,181 +3,433 @@
     "WorkflowName": "TransformData",
     "Rules": [
       {
-        "RuleName": "1.NamePrefix.ExceedsMaximumLength",
-        "Expression": "participant.NamePrefix.Length <= 35",
+        "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
+        "Expression": "participant.NamePrefix.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.NamePrefix.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "NamePrefix",
+                  "value": "participant.NamePrefix.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "2.Gender.Not-0-1-2-or-9",
-        "Expression": "participant.Gender == 0 || participant.Gender == 1 || participant.Gender == 2 || participant.Gender == 9",
+        "RuleName": "2.Truncate.FirstName.ExceedsMaximumLength",
+        "Expression": "participant.FirstName.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "9"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "FirstName",
+                  "value": "participant.FirstName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "3.FirstName.ExceedsMaximumLength",
-        "Expression": "participant.FirstName.Length <= 35",
+        "RuleName": "3.Truncate.OtherGivenNames.ExceedsMaximumLength",
+        "Expression": "participant.OtherGivenNames.Length > 100",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.FirstName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "OtherGivenNames",
+                  "value": "participant.OtherGivenNames.Substring(0, 100)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "4.OtherGivenNames.ExceedsMaximumLength",
-        "Expression": "participant.OtherGivenNames.Length <= 100",
+        "RuleName": "4.Truncate.FamilyName.ExceedsMaximumLength",
+        "Expression": "participant.FamilyName.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.OtherGivenNames.Substring(0, 100)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "FamilyName",
+                  "value": "participant.FamilyName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "5.FamilyName.ExceedsMaximumLength",
-        "Expression": "participant.FamilyName.Length <= 35",
+        "RuleName": "5.Truncate.PreviousFamilyName.ExceedsMaximumLength",
+        "Expression": "participant.PreviousFamilyName.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.FamilyName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PreviousFamilyName",
+                  "value": "participant.PreviousFamilyName.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "6.PreviousFamilyName.ExceedsMaximumLength",
-        "Expression": "participant.PreviousFamilyName.Length <= 35",
+        "RuleName": "6.Truncate.AddressLine1.ExceedsMaximumLength",
+        "Expression": "participant.AddressLine1.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.PreviousFamilyName.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine1",
+                  "value": "participant.AddressLine1.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "7.AddressLine1.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine1.Length <= 35",
+        "RuleName": "7.Truncate.AddressLine2.ExceedsMaximumLength",
+        "Expression": "participant.AddressLine2.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.AddressLine1.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine2",
+                  "value": "participant.AddressLine2.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "8.AddressLine2.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine2.Length <= 35",
+        "RuleName": "8.Truncate.AddressLine3.ExceedsMaximumLength",
+        "Expression": "participant.AddressLine3.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.AddressLine2.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine3",
+                  "value": "participant.AddressLine3.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "9.AddressLine3.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine3.Length <= 35",
+        "RuleName": "9.Truncate.AddressLine4.ExceedsMaximumLength",
+        "Expression": "participant.AddressLine4.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.AddressLine3.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine4",
+                  "value": "participant.AddressLine4.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "10.AddressLine4.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine4.Length <= 35",
+        "RuleName": "10.Truncate.AddressLine5.ExceedsMaximumLength",
+        "Expression": "participant.AddressLine5.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.AddressLine4.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine5",
+                  "value": "participant.AddressLine5.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "11.AddressLine5.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine5.Length <= 35",
+        "RuleName": "13.Truncate.Postcode.ExceedsMaximumLength",
+        "Expression": "participant.Postcode.Length > 35",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.AddressLine5.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "Postcode",
+                  "value": "participant.Postcode.Substring(0, 35)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "12.Postcode.ExceedsMaximumLength",
-        "Expression": "participant.Postcode.Length <= 35",
+        "RuleName": "14.Truncate.TelephoneNumber.ExceedsMaximumLength",
+        "Expression": "participant.TelephoneNumber.Length > 32",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.Postcode.Substring(0, 35)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "TelephoneNumber",
+                  "value": "participant.TelephoneNumber.Substring(0, 32)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "13.TelephoneNumber.ExceedsMaximumLength",
-        "Expression": "participant.TelephoneNumber.Length <= 32",
+        "RuleName": "15.Truncate.MobileNumber.ExceedsMaximumLength",
+        "Expression": "participant.MobileNumber.Length > 32",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.TelephoneNumber.Substring(0, 32)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "MobileNumber",
+                  "value": "participant.MobileNumber.Substring(0, 32)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "14.MobileNumber.ExceedsMaximumLength",
-        "Expression": "participant.MobileNumber.Length <= 32",
+        "RuleName": "16.Truncate.EmailAddress.ExceedsMaximumLength",
+        "Expression": "participant.EmailAddress.Length > 90",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.MobileNumber.Substring(0, 32)"
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "EmailAddress",
+                  "value": "participant.EmailAddress.Substring(0, 90)"
+                }
+              ]
             }
           }
         }
       },
       {
-        "RuleName": "15.EmailAddress.ExceedsMaximumLength",
-        "Expression": "participant.EmailAddress.Length <= 32",
+        "RuleName": "00.Other.Gender.Not-0-1-2-or-9",
+        "Expression": "participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9",
         "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
+          "OnSuccess": {
+            "Name": "TransformAction",
             "Context": {
-              "Expression": "participant.EmailAddress.Substring(0, 32)"
+              "transformFields": [
+                {
+                  "field": "Gender",
+                  "value": "9",
+                  "isExpression": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "3.Other.DateOfDeath.DoesNotExist",
+        "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "DateOfDeath",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.DateOfBirth",
+        "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "DateOfBirth",
+                  "value": "(participant.DateOfBirth.Length == 4 ? participant.DateOfBirth + \"01\" + \"01\" : participant.DateOfBirth + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.DateOfDeath",
+        "Expression": "participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "DateOfDeath",
+                  "value": "(participant.DateOfDeath.Length == 4 ? participant.DateOfDeath + \"01\" + \"01\" : participant.DateOfDeath + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.CurrentPostingEffectiveFromDate",
+        "Expression": "participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "CurrentPostingEffectiveFromDate",
+                  "value": "(participant.CurrentPostingEffectiveFromDate.Length == 4 ? participant.CurrentPostingEffectiveFromDate + \"01\" + \"01\" : participant.CurrentPostingEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.UsualAddressEffectiveFromDate",
+        "Expression": "participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "UsualAddressEffectiveFromDate",
+                  "value": "(participant.UsualAddressEffectiveFromDate.Length == 4 ? participant.UsualAddressEffectiveFromDate + \"01\" + \"01\" : participant.UsualAddressEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.ReasonForRemovalEffectiveFromDate",
+        "Expression": "participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "(participant.ReasonForRemovalEffectiveFromDate.Length == 4 ? participant.ReasonForRemovalEffectiveFromDate + \"01\" + \"01\" : participant.ReasonForRemovalEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.TelephoneNumberEffectiveFromDate",
+        "Expression": "participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "TelephoneNumberEffectiveFromDate",
+                  "value": "(participant.TelephoneNumberEffectiveFromDate.Length == 4 ? participant.TelephoneNumberEffectiveFromDate + \"01\" + \"01\" : participant.TelephoneNumberEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.MobileNumberEffectiveFromDate",
+        "Expression": "participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "MobileNumberEffectiveFromDate",
+                  "value": "(participant.MobileNumberEffectiveFromDate.Length == 4 ? participant.MobileNumberEffectiveFromDate + \"01\" + \"01\" : participant.MobileNumberEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.EmailAddressEffectiveFromDate",
+        "Expression": "participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "EmailAddressEffectiveFromDate",
+                  "value": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
+                }
+              ]
             }
           }
         }

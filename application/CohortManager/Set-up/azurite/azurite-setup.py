@@ -13,6 +13,7 @@ def setup_azurite():
     try:
         blob_service_client.create_container("inbound")
         blob_service_client.create_container("rules")
+        blob_service_client.create_container("file-exceptions")
         print("Blob containers created")
     except ResourceExistsError:
         print("Blob containers already exist")

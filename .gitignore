@@ -49,8 +49,13 @@ local.settings.json
 # sample data
 application/CohortManager/SampleData/
 *.csv
+*.parquet
+
+# Python
+*.pyc
 
 
 recreate_local_settings.sh
 
 .history
+application/CohortManager/Set-up/SampleData/CaaSSchema02.json

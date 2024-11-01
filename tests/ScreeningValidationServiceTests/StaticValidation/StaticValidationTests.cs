@@ -1,13 +1,8 @@
 namespace NHS.CohortManager.Tests.ScreeningValidationServiceTests;
-
-using System.IO.Compression;
-using System.Linq.Expressions;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +24,8 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
-    private Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
-
-    private Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     public StaticValidationTests()
     {
@@ -192,9 +186,9 @@ public class StaticValidationTests
 
     #region Record Type (Rule 8)
     [TestMethod]
-    [DataRow("New")]
-    [DataRow("Amended")]
-    [DataRow("Removed")]
+    [DataRow("ADD")]
+    [DataRow("AMENDED")]
+    [DataRow("REMOVED")]
     public async Task Run_Should_Not_Create_Exception_When_RecordType_Rule_Passes(string recordType)
     {
         // Arrange
@@ -607,9 +601,9 @@ public class StaticValidationTests
 
     #region GP Practice Code (Rule 42)
     [TestMethod]
-    [DataRow("New", "ABC")]
-    [DataRow("Amended", null)]
-    [DataRow("Removed", null)]
+    [DataRow("ADD", "ABC")]
+    [DataRow("AMENDED", null)]
+    [DataRow("REMOVED", null)]
     public async Task Run_Should_Not_Create_Exception_When_GPPracticeCode_Rule_Passes(string recordType, string gpPracticeCode)
     {
         // Arrange
@@ -629,8 +623,8 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("New", null)]
-    [DataRow("New", "")]
+    [DataRow("ADD", null)]
+    [DataRow("ADD", "")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_GPPracticeCode_Rule_Fails(string recordType, string practiceCode)
     {
         // Arrange
@@ -653,7 +647,7 @@ public class StaticValidationTests
 
     #region Death Status (Rule 66)
     [TestMethod]
-    [DataRow("Amended", Status.Formal, "DEA")]
+    [DataRow("AMENDED", Status.Formal, "DEA")]
     public async Task Run_Should_Not_Create_Exception_When_DeathStatus_Rule_Passes(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -674,9 +668,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("Amended", Status.Formal, null)]
-    [DataRow("Amended", Status.Formal, "")]
-    [DataRow("Amended", Status.Formal, "AFL")]
+    [DataRow("AMENDED", Status.Formal, null)]
+    [DataRow("AMENDED", Status.Formal, "")]
+    [DataRow("AMENDED", Status.Formal, "AFL")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
@@ -717,7 +711,7 @@ public class StaticValidationTests
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "19.ReasonForRemovalEffectiveFromDate.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
@@ -796,10 +790,10 @@ public class StaticValidationTests
 
     #region New Participant with Reason For Removal, Removal Date or Date Of Death (Rule 47)
     [TestMethod]
-    [DataRow("New", null, null, null)]
-    [DataRow("New", "", "", "")]
-    [DataRow("Amended", "DEA", "20240101", "20240101")]
-    [DataRow("Removed", "DEA", "20240101", "20240101")]
+    [DataRow("ADD", null, null, null)]
+    [DataRow("ADD", "", "", "")]
+    [DataRow("AMENDED", "DEA", "20240101", "20240101")]
+    [DataRow("REMOVED", "DEA", "20240101", "20240101")]
     public async Task Run_Should_Not_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Passes(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
@@ -822,9 +816,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow("New", "DEA", null, null)]
-    [DataRow("New", null, "20240101", null)]
-    [DataRow("New", null, null, "20240101")]
+    [DataRow("ADD", "DEA", null, null)]
+    [DataRow("ADD", null, "20240101", null)]
+    [DataRow("ADD", null, null, "20240101")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
@@ -992,4 +986,380 @@ public class StaticValidationTests
         _request.Setup(r => r.Body).Returns(bodyStream);
     }
 
+    #region Supplied Posting is Null Validation (Rule 53)
+    [TestMethod]
+    [DataRow(null, "E85121")]
+    public async Task Run_CurrentPostingAndPrimaryCareProvider_CreatesException(string? currentPosting, string? primaryCareProvider)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
+        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("BAA", "E85121")]
+    [DataRow("BAA", null)]
+    [DataRow(null, null)]
+    public async Task Run_CurrentPostingAndPrimaryCareProvider_DoesNotCreateException(string? currentPosting, string? primaryCareProvider)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
+        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
+
+    #region Validate Eligibility Flag as per Record Type (Rule 94)
+    [TestMethod]
+    [DataRow(Actions.New, "0")]
+    [DataRow(Actions.Removed, "1")]
+    public async Task Run_InvalidEligibilityFlag_ShouldThrowException(string recordType, string eligibilityFlag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow(Actions.New, "1")]
+    [DataRow(Actions.Removed, "0")]
+    [DataRow(Actions.Amended, "1")]
+    public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordType, string eligibilityFlag)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
+
+    #region  Primary Care Provider Business Effective From Date (Rule 100)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidPrimaryCareProviderEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.PrimaryCareProviderEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "100.PrimaryCareProviderEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidPrimaryCareProviderEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.PrimaryCareProviderEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "100.PrimaryCareProviderEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
+
+    #region Current Posting Business Effective From Date (Rule 101)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidCurrentPostingEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPostingEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "101.CurrentPostingEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidCurrentPostingEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPostingEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "101.CurrentPostingEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
+
+    #region Usual Address Business Effective From Date (Rule 102)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidUsualAddressEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.UsualAddressEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "102.UsualAddressEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidUsualAddressEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.UsualAddressEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "102.UsualAddressEffectiveFromDate.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
+
+    #region Telephone Number (Home) Business Effective From Date (Rule 103)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidTelephoneNumberEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.TelephoneNumberEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "103.TelephoneNumberEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidTelephoneNumberEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.TelephoneNumberEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "103.TelephoneNumberEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
+
+    #region Telephone Number (Mobile) Business Effective From Date (Rule 104)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidMobileNumberEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.MobileNumberEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "104.MobileNumberEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidMobileNumberEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.MobileNumberEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "104.MobileNumberEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
+
+    #region E-mail address (Home)  Business Effective From Date (Rule 105)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("19700101")]   // ccyymmdd
+    [DataRow("197001")]     // ccyymm
+    [DataRow("1970")]       // ccyy
+    public async Task Run_ValidEmailAddressEffectiveFromDate_ShouldNotThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.EmailAddressEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "105.EmailAddressEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+
+    [TestMethod]
+    [DataRow("20700101")]   // In the future
+    [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
+    [DataRow("1970023")]    // Incorrect format
+    [DataRow("197013")]     // Not a real date or incorrect format
+    public async Task Run_InvalidEmailAddressEffectiveFromDate_ShouldThrowException(string date)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.EmailAddressEffectiveFromDate = date;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "105.EmailAddressEffectiveFromDate.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+    #endregion
 }

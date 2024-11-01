@@ -11,7 +11,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
@@ -190,7 +190,7 @@ public class TransformDataServiceTests
             Postcode = new string('A', 36),
             TelephoneNumber = new string('A', 33),
             MobileNumber = new string('A', 33),
-            EmailAddress = new string('A', 33)
+            EmailAddress = new string('A', 91)
         };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -214,7 +214,7 @@ public class TransformDataServiceTests
             Postcode = new string('A', 35),
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
-            EmailAddress = new string('A', 32),
+            EmailAddress = new string('A', 90),
             Gender = Gender.NotSpecified
         };
 
@@ -276,7 +276,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    public async Task GetAddress_InvalidCharsInParticipant_ReturnTransformedFields()
+    public async Task GetAddress_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         var participant = new CohortDistributionParticipant()
@@ -309,7 +309,7 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-    public async Task Run_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
     {
         // Arrange
         _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
@@ -328,6 +328,37 @@ public class TransformDataServiceTests
             FamilyName = "((Smith   '   -:/))",
             NamePrefix = "DR",
             Gender = Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_RfrIsDeaAndDateOfDeathIsNull_SetDateOfDeathToRfrDate()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "DEA";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = "2/10/2024";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "DEA",
+            ReasonForRemovalEffectiveFromDate = "2/10/2024",
+            DateOfDeath = "2/10/2024"
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);

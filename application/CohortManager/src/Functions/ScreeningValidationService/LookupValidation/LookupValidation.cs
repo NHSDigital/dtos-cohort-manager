@@ -18,9 +18,9 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-    private readonly IDbLookupValidationBreastScreening _dbLookup;
+    private IDbLookupValidationBreastScreening _dbLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException,ILogger<LookupValidation> logger,
+    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger,
                             IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
@@ -66,11 +66,9 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions), typeof(DbLookupValidationBreastScreening)]
+                CustomTypes = [typeof(Actions)]
             };
-
             var re = new RulesEngine.RulesEngine(rules, reSettings);
-
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -79,14 +77,14 @@ public class LookupValidation
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-            if(re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
             }
 
             // Validation rules are logically reversed
-            var validationErrors = resultList.Where(x => x.IsSuccess == false);
+            var validationErrors = resultList.Where(x => !x.IsSuccess);
 
             if (validationErrors.Any())
             {

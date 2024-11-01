@@ -1,4 +1,6 @@
 module "api_management" {
+  count = var.features["api_management_enabled"] ? 1 : 0
+
   source = ".//modules/api-management"
 
   names = module.config.names
@@ -11,5 +13,4 @@ module "api_management" {
   sku             = var.api_management.sku
 
   tags = var.tags
-
 }

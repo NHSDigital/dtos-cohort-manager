@@ -69,8 +69,8 @@ public class CreateDemographicData : ICreateDemographicData
                     ", [PREFERRED_LANGUAGE] " +
                     ", [INTERPRETER_REQUIRED] " +
                     ", [INVALID_FLAG] " +
-                    ", [RECORD_INSERT_DATE_TIME] " +
-                    ", [RECORD_UPDATE_DATE_TIME] ) " +
+                    ", [RECORD_INSERT_DATETIME] " +
+                    ", [RECORD_UPDATE_DATETIME] ) " +
                 "VALUES " +
                 "(" +
                     " @NHS_NUMBER, " +
@@ -105,23 +105,23 @@ public class CreateDemographicData : ICreateDemographicData
                     " @PREFERRED_LANGUAGE," +
                     " @INTERPRETER_REQUIRED," +
                     " @INVALID_FLAG," +
-                    " @RECORD_INSERT_DATE_TIME," +
-                    " @RECORD_UPDATE_DATE_TIME" +
+                    " @RECORD_INSERT_DATETIME," +
+                    " @RECORD_UPDATE_DATETIME" +
                 ")",
                 Parameters = new Dictionary<string, object>
                 {
                     {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NhsNumber) ? DBNull.Value : long.Parse(demographic.NhsNumber)},
                     {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
                     {"@PRIMARY_CARE_PROVIDER", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProvider)},
-                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", string.IsNullOrEmpty(demographic.PrimaryCareProvider) ? DBNull.Value : _databaseHelper.ParseDates(demographic.PrimaryCareProviderEffectiveFromDate)},
+                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProviderEffectiveFromDate)},
                     {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
-                    {"@CURRENT_POSTING_FROM_DT", string.IsNullOrEmpty(demographic.CurrentPostingEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.CurrentPostingEffectiveFromDate)},
+                    {"@CURRENT_POSTING_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPostingEffectiveFromDate)},
                     {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
                     {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
                     {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
                     {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FamilyName)},
                     {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousFamilyName)},
-                    {"@DATE_OF_BIRTH", string.IsNullOrEmpty(demographic.DateOfBirth) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfBirth)},
+                    {"@DATE_OF_BIRTH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfBirth) },
                     {"@GENDER", demographic.Gender.HasValue ? demographic.Gender : DBNull.Value},
                     {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
                     {"@ADDRESS_LINE_2", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine2)},
@@ -130,20 +130,20 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@ADDRESS_LINE_5", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine5)},
                     {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
                     {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
-                    {"@USUAL_ADDRESS_FROM_DT", string.IsNullOrEmpty(demographic.UsualAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.UsualAddressEffectiveFromDate)},
-                    {"@DATE_OF_DEATH", string.IsNullOrEmpty(demographic.DateOfDeath) ? DBNull.Value : _databaseHelper.ParseDates(demographic.DateOfDeath)},
+                    {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.UsualAddressEffectiveFromDate)},
+                    {"@DATE_OF_DEATH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfDeath)},
                     {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
                     {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
-                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", string.IsNullOrEmpty(demographic.TelephoneNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.TelephoneNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumberEffectiveFromDate)},
                     {"@TELEPHONE_NUMBER_MOB", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumber)},
-                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", string.IsNullOrEmpty(demographic.MobileNumberEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.MobileNumberEffectiveFromDate)},
+                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumberEffectiveFromDate)},
                     {"@EMAIL_ADDRESS_HOME", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddress)},
-                    {"@EMAIL_ADDRESS_HOME_FROM_DT", string.IsNullOrEmpty(demographic.EmailAddressEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(demographic.EmailAddressEffectiveFromDate)},
+                    {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddressEffectiveFromDate)},
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
-                    {"@RECORD_INSERT_DATE_TIME", string.IsNullOrEmpty(demographic.RecordInsertDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordInsertDateTime)},
-                    {"@RECORD_UPDATE_DATE_TIME", string.IsNullOrEmpty(demographic.RecordUpdateDateTime) ? DBNull.Value : _databaseHelper.ParseDates(demographic.RecordUpdateDateTime)}
+                    {"@RECORD_INSERT_DATETIME", DateTime.Now},
+                    {"@RECORD_UPDATE_DATETIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
                 },
             }
         };
@@ -186,8 +186,8 @@ public class CreateDemographicData : ICreateDemographicData
                     ,[PREFERRED_LANGUAGE]
                     ,[INTERPRETER_REQUIRED]
                     ,[INVALID_FLAG]
-                    ,[RECORD_INSERT_DATE_TIME]
-                    ,[RECORD_UPDATE_DATE_TIME]
+                    ,[RECORD_INSERT_DATETIME]
+                    ,[RECORD_UPDATE_DATETIME]
                 FROM [dbo].[PARTICIPANT_DEMOGRAPHIC]
                 WHERE NHS_NUMBER = @NhsNumber ORDER BY PARTICIPANT_ID DESC ";
         var parameters = new Dictionary<string, object>()
@@ -246,7 +246,7 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.OtherGivenNames = reader["OTHER_GIVEN_NAME"] == DBNull.Value ? null : reader["OTHER_GIVEN_NAME"].ToString();
                 demographic.FamilyName = reader["FAMILY_NAME"] == DBNull.Value ? null : reader["FAMILY_NAME"].ToString();
                 demographic.PreviousFamilyName = reader["PREVIOUS_FAMILY_NAME"] == DBNull.Value ? null : reader["PREVIOUS_FAMILY_NAME"].ToString();
-                demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_BIRTH"].ToString()).ToString("yyyyMMdd");
+                demographic.DateOfBirth = reader["DATE_OF_BIRTH"] == DBNull.Value ? null : reader["DATE_OF_BIRTH"].ToString();
                 demographic.Gender = reader["GENDER"] == DBNull.Value ? null : (Gender)reader["GENDER"];
                 demographic.AddressLine1 = reader["ADDRESS_LINE_1"] == DBNull.Value ? null : reader["ADDRESS_LINE_1"].ToString();
                 demographic.AddressLine2 = reader["ADDRESS_LINE_2"] == DBNull.Value ? null : reader["ADDRESS_LINE_2"].ToString();
@@ -256,7 +256,7 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.Postcode = reader["POST_CODE"] == DBNull.Value ? null : reader["POST_CODE"].ToString();
                 demographic.PafKey = reader["PAF_KEY"] == DBNull.Value ? null : reader["PAF_KEY"].ToString();
                 demographic.UsualAddressEffectiveFromDate = reader["USUAL_ADDRESS_FROM_DT"] == DBNull.Value ? null : reader["USUAL_ADDRESS_FROM_DT"].ToString();
-                demographic.DateOfDeath = reader["DATE_OF_DEATH"] == DBNull.Value ? null : DateTime.Parse(reader["DATE_OF_DEATH"].ToString()).ToString("yyyyMMdd");
+                demographic.DateOfDeath = reader["DATE_OF_DEATH"] == DBNull.Value ? null : reader["DATE_OF_DEATH"].ToString();
                 demographic.DeathStatus = reader["DEATH_STATUS"] == DBNull.Value ? null : (Status)reader["DEATH_STATUS"];
                 demographic.TelephoneNumber = reader["TELEPHONE_NUMBER_HOME"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME"].ToString();
                 demographic.TelephoneNumberEffectiveFromDate = reader["TELEPHONE_NUMBER_HOME_FROM_DT"] == DBNull.Value ? null : reader["TELEPHONE_NUMBER_HOME_FROM_DT"].ToString();
@@ -267,8 +267,8 @@ public class CreateDemographicData : ICreateDemographicData
                 demographic.PreferredLanguage = reader["PREFERRED_LANGUAGE"] == DBNull.Value ? null : reader["PREFERRED_LANGUAGE"].ToString();
                 demographic.IsInterpreterRequired = reader["INTERPRETER_REQUIRED"] == DBNull.Value ? null : reader["INTERPRETER_REQUIRED"].ToString();
                 demographic.InvalidFlag = reader["INVALID_FLAG"] == DBNull.Value ? null : reader["INVALID_FLAG"].ToString();
-                demographic.RecordInsertDateTime = reader["RECORD_INSERT_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATE_TIME"].ToString();
-                demographic.RecordUpdateDateTime = reader["RECORD_UPDATE_DATE_TIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATE_TIME"].ToString();
+                demographic.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
+                demographic.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
             }
             return demographic;
         });
@@ -276,21 +276,31 @@ public class CreateDemographicData : ICreateDemographicData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
                 {
-                    result = mapFunction(reader);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
                 }
+                return result;
+            }
+        }
+        finally
+        {
+            if (_dbConnection != null)
+            {
                 _dbConnection.Close();
             }
-            return result;
         }
+
     }
 
     private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
@@ -306,50 +316,32 @@ public class CreateDemographicData : ICreateDemographicData
                 if (!Execute(command))
                 {
                     transaction.Rollback();
-                    _dbConnection.Close();
                     return false;
                 }
             }
             transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
-        catch (Exception ex)
+        catch
         {
             transaction.Rollback();
+            // we need to rethrow the exception here if there is an error we need to roll back the transaction.
+            throw;
+        }
+        finally
+        {
             _dbConnection.Close();
-            _logger.LogError($"An error occurred while updating records: {ex.Message}");
-            return false;
-
         }
     }
 
     private bool Execute(IDbCommand command)
     {
-        try
-        {
-            var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
 
-            if (result == 0)
-            {
-                return false;
-            }
-        }
-        catch (SqlException sqlEx)
-        {
-            if (sqlEx.Number == 2627)
-            {
-                _logger.LogInformation($"Sql message: {sqlEx.Message}");
-                return true;
-            }
-            _logger.LogError($"an error happened: {sqlEx.Message}");
-            return false;
-        }
-        catch (Exception ex)
-        {
+        var result = command.ExecuteNonQuery();
+        _logger.LogInformation(result.ToString());
 
-            _logger.LogError($"an error happened: {ex.Message}");
+        if (result == 0)
+        {
             return false;
         }
 

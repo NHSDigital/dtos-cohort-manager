@@ -9,32 +9,28 @@ public class CohortDistributionHandler : ICohortDistributionHandler
 {
 
     private readonly ILogger<CohortDistributionHandler> _logger;
-    private readonly ICallFunction _callFunction;
-    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, ICallFunction callFunction)
+    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+
+    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
-        _callFunction = callFunction;
+        _azureQueueStorageHelper = azureQueueStorageHelper;
     }
 
-    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService, string recordType, string fileName)
+    public async Task<bool> SendToCohortDistributionService(string nhsNumber, string screeningService, string recordType, string fileName, Participant errorRecord)
     {
         CreateCohortDistributionRequestBody requestBody = new CreateCohortDistributionRequestBody
         {
             NhsNumber = nhsNumber,
             ScreeningService = screeningService,
             FileName = fileName,
-            RecordType = recordType
+            RecordType = recordType,
+            ErrorRecord = errorRecord
         };
-        string json = JsonSerializer.Serialize(requestBody);
 
-        var result = await _callFunction.SendPost(Environment.GetEnvironmentVariable("CohortDistributionServiceURL"), json);
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, "create-cohort-distribution-queue");
 
-        if (result.StatusCode == HttpStatusCode.OK)
-        {
-            _logger.LogInformation($"Participant sent to Cohort Distribution Service");
-            return true;
-        }
-        _logger.LogWarning("Unable to send participant to Cohort Distribution Service");
-        return false;
+        _logger.LogInformation($"Participant sent to Cohort Distribution Service");
+        return true;
     }
 }

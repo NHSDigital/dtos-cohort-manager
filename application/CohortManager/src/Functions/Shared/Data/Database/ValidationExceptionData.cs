@@ -54,7 +54,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
                     ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
                     ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
-                    Cohort = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
+                    CohortName = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
                     Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
@@ -90,7 +90,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     @category,
                     @screeningName,
                     @exceptionDate,
-                    @cohort,
+                    @cohortName,
                     @fatal
                 );";
 
@@ -106,14 +106,23 @@ public class ValidationExceptionData : IValidationExceptionData
             {"@category", exception.Category},
             {"@screeningName", exception.ScreeningName},
             {"@exceptionDate", exception.ExceptionDate},
-            {"@cohort", exception.Cohort},
+            {"@cohortName", exception.CohortName},
             {"@fatal", exception.Fatal}
         };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return ExecuteCommand(command);
+        try
+        {
+            return ExecuteCommand(command);
+        }
+        finally
+        {
+            _dbConnection.Close();
+        }
+
+
     }
 
     public bool RemoveOldException(string nhsNumber, string screeningName)
@@ -138,38 +147,61 @@ public class ValidationExceptionData : IValidationExceptionData
         });
 
         command.CommandText = SQL;
-        var removed = ExecuteCommand(command);
-        if (removed)
+        try
         {
-            _logger.LogInformation("Removed old exception record successfully");
-            return true;
+            var removed = ExecuteCommand(command);
+            if (removed)
+            {
+                _logger.LogInformation("Removed old exception record successfully");
+                return true;
+            }
+            _logger.LogWarning("An exception record was found but not Removed successfully");
+            return false;
         }
-        _logger.LogWarning("An exception record was found but not Removed successfully");
-        return false;
+        finally
+        {
+            _dbConnection.Close();
+        }
+
+
     }
 
     private bool RecordExists(string nhsNumber, string screeningName)
     {
-        var recordExists = false;
-        var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
+        try
+        {
+            var recordExists = false;
+            var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
 
-        var command = CreateCommand(new Dictionary<string, object>()
+            var command = CreateCommand(new Dictionary<string, object>()
         {
             {"@nhsNumber", nhsNumber},
             {"@screeningName", screeningName}
         });
-        command.CommandText = SQL;
+            command.CommandText = SQL;
+            using (_dbConnection)
+            {
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        // Return true if the reader has at least one row.
+                        recordExists = reader.Read();
+                    }
+                }
+            }
 
-        _dbConnection.ConnectionString = _connectionString;
-        _dbConnection.Open();
-        using (var reader = command.ExecuteReader())
-        {
-            // Return true if the reader has at least one row.
-            recordExists = reader.Read();
+            return recordExists;
         }
-        _dbConnection.Close();
-
-        return recordExists;
+        finally
+        {
+            if (_dbConnection != null)
+            {
+                _dbConnection.Close();
+            }
+        }
     }
 
 
@@ -210,20 +242,29 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                _dbConnection.ConnectionString = _connectionString;
+                _dbConnection.Open();
+                using (command)
                 {
-                    result = mapFunction(reader);
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
                 }
+                return result;
+            }
+        }
+        finally
+        {
+            if (_dbConnection != null)
+            {
                 _dbConnection.Close();
             }
-            return result;
         }
     }
 

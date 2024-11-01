@@ -3,7 +3,6 @@ namespace NHS.CohortManager.ScreeningValidationService;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Common;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;
@@ -51,7 +50,7 @@ public class RemoveValidationExceptionData
         }
         catch (Exception ex)
         {
-            await _handleException.CreateSystemExceptionLogFromNhsNumber(ex, removeOldException.NhsNumber, "");
+            await _handleException.CreateSystemExceptionLogFromNhsNumber(ex, removeOldException.NhsNumber, "", removeOldException.ScreeningName, "N/A");
 
             _logger.LogError("There was exception while removing an old ValidationExceptionRecord for NHS number: {NhsNumber}. StackTrace: {ex}", removeOldException.NhsNumber, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);

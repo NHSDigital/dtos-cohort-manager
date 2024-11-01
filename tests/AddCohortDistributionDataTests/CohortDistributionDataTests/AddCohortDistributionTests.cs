@@ -17,7 +17,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private const int serviceProviderId = (int)ServiceProvider.BsSelect;
+    private const int serviceProviderId = (int)ServiceProvider.BSS;
     private string _requestId = new Guid().ToString();
 
     public AddCohortDistributionTests()
@@ -102,10 +102,11 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
-    public void ExtractCohortDistributionParticipants_AfterExtraction_MarksParticipantsAsExtracted()
+    public void ExtractCohortDistributionParticipants_AfterExtraction_MarksBothParticipantsAsExtracted()
     {
         // Arrange
         _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(true)
             .Returns(true)
             .Returns(false);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
@@ -117,9 +118,11 @@ public class AddCohortDistributionTests
         var result = _createCohortDistributionData.ExtractCohortDistributionParticipants(serviceProviderId, rowCount);
 
         // Assert
-        _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeastOnce());
-        Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
-        Assert.AreEqual("1", result.FirstOrDefault()?.Extracted);
+        _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
+        Assert.AreEqual("1", result[0].ParticipantId);
+        Assert.AreEqual("1", result[0].Extracted);
+        Assert.AreEqual("1", result[1].ParticipantId);
+        Assert.AreEqual("1", result[1].Extracted);
     }
 
     [TestMethod]

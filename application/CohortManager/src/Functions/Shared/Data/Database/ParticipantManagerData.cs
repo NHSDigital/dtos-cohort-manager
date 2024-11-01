@@ -1,11 +1,9 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Security.Cryptography;
 using Microsoft.Extensions.Logging;
 using Model;
-using Common;
-using System.Text.Json;
-using System.Net;
 using NHS.CohortManager.CohortDistribution;
 
 public class ParticipantManagerData : IParticipantManagerData
@@ -24,7 +22,7 @@ public class ParticipantManagerData : IParticipantManagerData
     }
 
     #region Update methods
-    public bool UpdateParticipantAsEligible(Participant participant, int isActive)
+    public bool UpdateParticipantAsEligible(Participant participant)
     {
         try
         {
@@ -34,15 +32,16 @@ public class ParticipantManagerData : IParticipantManagerData
 
             var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
                 " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
-                "     ELIGIBILITY_FLAG = @IsActive " +
+                " ELIGIBILITY_FLAG = @eligibilityFlag " +
                 " WHERE PARTICIPANT_ID = @participantId ";
 
             var Parameters = new Dictionary<string, object>
             {
                 {"@participantId", Participant.ParticipantId },
                 {"@recordEndDateOldRecords", recordUpdateTime },
-                {"@IsActive", isActive }
+                {"@eligibilityFlag", _databaseHelper.CheckIfNumberNull(participant.EligibilityFlag) ? DBNull.Value : participant.EligibilityFlag }
             };
+
 
             return ExecuteCommand(SQL, Parameters);
         }
@@ -76,16 +75,14 @@ public class ParticipantManagerData : IParticipantManagerData
                 { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
                 { "@NHSNumber", _databaseHelper.CheckIfNumberNull(participantData.NhsNumber)  ? DBNull.Value : participantData.NhsNumber},
                 { "@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(participantData.ReasonForRemoval)},
-                { "@reasonForRemovalDate", _databaseHelper.CheckIfDateNull(participantData.ReasonForRemovalEffectiveFromDate) ? DBNull.Value : _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
-                { "@businessRuleVersion", _databaseHelper.CheckIfDateNull(participantData.BusinessRuleVersion) ? DBNull.Value : _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
+                { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
+                { "@businessRuleVersion", _databaseHelper.ConvertNullToDbNull(participantData.BusinessRuleVersion)},
                 { "@exceptionFlag",  _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
                 { "@recordUpdateDateTime", dateToday },
             };
 
             var updatedRecord = ExecuteCommand(insertParticipant, commonParameters);
-            var markedAsAsEligible = UpdateParticipantAsEligible(participantData, 1);
-
-            return updatedRecord && markedAsAsEligible;
+            return updatedRecord;
         }
         catch (Exception ex)
         {
@@ -172,22 +169,36 @@ public class ParticipantManagerData : IParticipantManagerData
 
     private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
-        var result = default(T);
-        using (_dbConnection)
+        try
         {
-            _dbConnection.ConnectionString = _connectionString;
-            _dbConnection.Open();
-            using (command)
+            var result = default(T);
+            using (_dbConnection)
             {
-                using (IDataReader reader = command.ExecuteReader())
+                if (_dbConnection.ConnectionString != _connectionString)
                 {
-                    result = mapFunction(reader);
+                    _dbConnection.ConnectionString = _connectionString;
                 }
+                _dbConnection.Open();
+                using (command)
+                {
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        result = mapFunction(reader);
+                    }
+                }
+
+                return result;
+            }
+        }
+        finally
+        {
+            if (_dbConnection != null)
+            {
                 _dbConnection.Close();
             }
-
-            return result;
         }
+
+
     }
 
     private bool ExecuteCommand(string sqlCommandText, Dictionary<string, object> commonParams)
@@ -204,20 +215,21 @@ public class ParticipantManagerData : IParticipantManagerData
             if (result == 0)
             {
                 command.Transaction.Rollback();
-                _dbConnection.Close();
                 return false;
             }
 
             command.Transaction.Commit();
-            _dbConnection.Close();
             return true;
         }
         catch (Exception ex)
         {
             command.Transaction.Rollback();
-            _dbConnection.Close();
             _logger.LogError("{MessageType} ExecuteCommand failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
+        }
+        finally
+        {
+            _dbConnection.Close();
         }
     }
 

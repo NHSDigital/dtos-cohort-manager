@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -16,13 +15,9 @@ using RulesEngine.Models;
 public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
-
     private readonly ICreateResponse _createResponse;
-
     private readonly IExceptionHandler _handleException;
-
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-
     private readonly ICallFunction _callFunction;
 
     public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
@@ -66,9 +61,9 @@ public class StaticValidation
                 new RuleParameter("participant", participantCsvRecord.Participant),
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-            var validationErrors = resultList.Where(x => x.IsSuccess == false);
+            var validationErrors = resultList.Where(x => !x.IsSuccess);
 
-            await removeOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
+            await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
             {
                 var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -88,7 +83,7 @@ public class StaticValidation
         }
     }
 
-    private async Task removeOldValidationRecord(string nhsNumber, string screeningName)
+    private async Task RemoveOldValidationRecord(string nhsNumber, string screeningName)
     {
         var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
         {

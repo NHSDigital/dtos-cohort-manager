@@ -2,7 +2,6 @@ namespace Data.Database;
 
 using System.Data;
 using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.Extensions.Logging;
 using Model.Enums;
 
@@ -15,15 +14,6 @@ public class DatabaseHelper : IDatabaseHelper
         _logger = logger;
     }
 
-    public bool CheckIfDateNull(string property)
-    {
-        if (string.IsNullOrEmpty(property))
-        {
-            return true;
-        }
-        return !DateTime.TryParse(property, out _);
-    }
-
     public bool CheckIfNumberNull(string property)
     {
         if (string.IsNullOrEmpty(property))
@@ -34,29 +24,33 @@ public class DatabaseHelper : IDatabaseHelper
         return !long.TryParse(property, out _);
     }
 
-    public DateTime ParseDates(string dateString)
+    public object ParseDates(string dateString)
     {
+        if (string.IsNullOrEmpty(dateString)) return DBNull.Value;
+
         dateString = dateString.Split(' ')[0];
         DateTime tempDate = new DateTime();
         string[] formats = { "dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy" };
         bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
 
-        if (!success)
-        {
-            _logger.LogError($"****Failed to parse date: {dateString}");
-        }
+        if (!success) _logger.LogError("Failed to parse date: {DateString}", dateString);
 
         return tempDate;
+    }
+
+    public object ParseDateTime(string dateTimeString)
+    {
+        if (string.IsNullOrEmpty(dateTimeString)) return DBNull.Value;
+
+        string[] formats = { "dd/MM/yyyy HH:mm:ss" };
+        if (DateTime.TryParseExact(dateTimeString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime datetime)) return datetime;
+
+        return DBNull.Value;
     }
 
     public object ConvertNullToDbNull(string value)
     {
         return string.IsNullOrEmpty(value) ? DBNull.Value : value;
-    }
-
-    public string ParseDateToString(string dateToParse)
-    {
-        return (DateTime.ParseExact(dateToParse, "dd/MM/yyyy", CultureInfo.InvariantCulture)).ToString();
     }
 
     public static string GetStringValue(IDataReader reader, string columnName)
@@ -80,5 +74,4 @@ public class DatabaseHelper : IDatabaseHelper
     {
         return exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0;
     }
-
 }

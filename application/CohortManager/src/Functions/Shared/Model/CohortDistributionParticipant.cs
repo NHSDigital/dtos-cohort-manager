@@ -108,8 +108,11 @@ public class CohortDistributionParticipant
     public string? ScreeningServiceId { get; set; }
     public string? ScreeningName { get; set; }
     public string? RequestId { get; set; }
+    public string? EligibilityFlag { get; set; }
 
+    [JsonPropertyName("Current Posting")]
     public string? CurrentPosting { get; set; }
 
+    [JsonPropertyName("Current Posting Business Effective From Date")]
     public string? CurrentPostingEffectiveFromDate { get; set; }
 }

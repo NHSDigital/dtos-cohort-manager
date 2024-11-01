@@ -50,7 +50,7 @@ public class ValidateCohortDistributionRecord
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
             _logger.LogError($"there was an error while deserializing records");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -70,7 +70,7 @@ public class ValidateCohortDistributionRecord
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
             _logger.LogError($"there was an error validating the cohort distribution records {ex.Message}");
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }

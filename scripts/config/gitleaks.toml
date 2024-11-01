@@ -31,3 +31,9 @@ paths = [
   '''tests/IntegrationTests/integration.csproj''',
   '''application/CohortManager/src/Functions/Shared/Model/Model.csproj'''
 ]
+
+
+[[rules]]
+description = "Slack Webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]{12}/[A-Z0-9]{12}/[A-Za-z0-9]{25}'''
+tags = ["webhook", "slack"]

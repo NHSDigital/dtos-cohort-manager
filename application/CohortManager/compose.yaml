@@ -47,6 +47,24 @@ services:
       - DB_NAME=${DB_NAME}
 
   # CaaS Integration Service
+  retrieve-mesh-file:
+    container_name: retrieve-mesh-file
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CaasIntegration/RetrieveMeshFile/Dockerfile
+    environment:
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - caasfolder_STORAGE=UseDevelopmentStorage=true
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - BSSMailBox="X26ABC1"
+      - MeshPassword = ${MESHPASSWORD}
+      - MeshSharedKey = ${MESHSHAREDKEY}
+      - MeshKeyPassphrase = ${MESHKEYPASSPHRASE}
+      - ASPNETCORE_URLS=http://*:7060
+    depends_on:
+      - azurite
+
   receive-caas-file:
     container_name: receive-caas-file
     network_mode: host
@@ -118,6 +136,9 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
+      - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
+      - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
 
   # Screening Data Service
   create-participant:
@@ -216,6 +237,7 @@ services:
       - inboundBlobName=inbound
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - fileExceptions=file-exceptions
 
   static-validation:
     container_name: static-validation
@@ -268,8 +290,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-distribution-data:
-    container_name: retrieve-distribution-data
+  retrieve-cohort-distribution-data:
+    container_name: retrieve-cohort-distribution-data
     network_mode: host
     build:
       context: ./src/Functions/
@@ -279,14 +301,25 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  retrieve-distribution-replay:
-    container_name: retrieve-distribution-replay
+  retrieve-cohort-replay:
+    container_name: retrieve-cohort-replay
     network_mode: host
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortReplay/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8085
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+  retrieve-cohort-request-audit:
+    container_name: retrieve-cohort-request-audit
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7086
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
@@ -320,7 +353,7 @@ services:
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
-      - CreateValidationExceptionURL=http://localhost:7070/api/CreateValidationException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
@@ -371,10 +404,3 @@ services:
       - ASPNETCORE_URLS=http://*:7085
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
-  devops-testing-service:
-    container_name: devops-testing-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: DevOpsTestingService/Dockerfile

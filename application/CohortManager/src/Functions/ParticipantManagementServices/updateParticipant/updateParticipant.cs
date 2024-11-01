@@ -8,9 +8,6 @@ using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
-using System.Data;
-using NHS.CohortManager.CohortDistribution;
-using Microsoft.Identity.Client;
 
 public class UpdateParticipantFunction
 {
@@ -72,22 +69,25 @@ public class UpdateParticipantFunction
 
             var responseDataFromCohort = false;
             var updateResponse = false;
+            var participantEligibleResponse = false;
             if (response.CreatedException)
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
-                updateResponse = await updateParticipant(participantCsvRecord, req);
+                updateResponse = await updateParticipant(participantCsvRecord);
+                participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
+
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
-                return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            updateResponse = await updateParticipant(participantCsvRecord, req);
-
+            updateResponse = await updateParticipant(participantCsvRecord);
+            participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            return updateResponse && responseDataFromCohort ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
 
         }
         catch (Exception ex)
@@ -100,7 +100,7 @@ public class UpdateParticipantFunction
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
     {
-        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName))
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, participant))
         {
             _logger.LogInformation("participant failed to send to Cohort Distribution Service");
             return false;
@@ -108,11 +108,35 @@ public class UpdateParticipantFunction
         return true;
     }
 
-    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord, HttpRequestData req)
+    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
+
         var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
+        {
+            _logger.LogInformation("Participant updated.");
+            return true;
+        }
+        return false;
+    }
+
+    private async Task<bool> markParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
+    {
+        HttpWebResponse eligibilityResponse;
+
+        if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
+        {
+            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
+            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+        }
+        else
+        {
+            var participantJson = JsonSerializer.Serialize(participantCsvRecord);
+            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), participantJson);
+        }
+
+        if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
             return true;
@@ -126,6 +150,18 @@ public class UpdateParticipantFunction
 
         try
         {
+            if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+            {
+                var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
+
+                return new ValidationExceptionLog()
+                {
+                    IsFatal = false,
+                    CreatedException = true
+                };
+            }
+
             var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
@@ -134,7 +170,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
             return null;
         }
     }
