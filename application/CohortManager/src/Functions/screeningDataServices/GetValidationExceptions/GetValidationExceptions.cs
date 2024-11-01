@@ -38,14 +38,18 @@ public class GetValidationExceptions
 
         try
         {
-            if (ExceptionId == 0) validationException = _validationData.GetAllExceptions();
-
-            validationException.Add(_validationData.GetExceptionById(ExceptionId));
-
-            if (_validationData.GetExceptionById(ExceptionId) == null)
+            if (ExceptionId == 0)
             {
-                _logger.LogError("Validation Exception not found with ID: {ExceptionId}", ExceptionId);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                validationException = _validationData.GetAllExceptions();
+            }
+            else
+            {
+                validationException.Add(_validationData.GetExceptionById(ExceptionId));
+                if (_validationData.GetExceptionById(ExceptionId) == null)
+                {
+                    _logger.LogError("Validation Exception not found with ID: {ExceptionId}", ExceptionId);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                }
             }
 
             var validationExceptionJson = JsonSerializer.Serialize(validationException);

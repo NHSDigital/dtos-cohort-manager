@@ -51,7 +51,7 @@ public class ValidationExceptionData : IValidationExceptionData
             {
                 rules.Add(new ValidationException
                 {
-                    ExceptionId = reader.GetInt32(reader.GetOrdinal("EXCEPTION_ID")),
+                    ExceptionId = (int)reader.GetInt64(reader.GetOrdinal("EXCEPTION_ID")),
                     FileName = reader.GetString(reader.GetOrdinal("FILE_NAME")) ?? null,
                     NhsNumber = reader.GetString(reader.GetOrdinal("NHS_NUMBER")) ?? null,
                     DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")),
