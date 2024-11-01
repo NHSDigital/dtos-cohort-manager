@@ -1,4 +1,4 @@
-namespace screeningDataServices;
+namespace NHS.CohortManager.ScreeningDataServices;
 
 using System.Net;
 using System.Text.Json;
