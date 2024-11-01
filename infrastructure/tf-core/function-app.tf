@@ -72,7 +72,7 @@ locals {
 
 
 
-module "function_app_slot" {
+module "function_app_slots" {
   for_each = local.function_app_slots_map
 
   source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app-slots?ref=93929dbffff36cc74ff0a358a92625285df5b284"
