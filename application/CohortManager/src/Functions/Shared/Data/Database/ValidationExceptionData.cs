@@ -18,7 +18,7 @@ public class ValidationExceptionData : IValidationExceptionData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
-    public List<ValidationException> GetAll()
+    public List<ValidationException> GetAllExceptions()
     {
         var SQL = @"SELECT
                  [EXCEPTION_ID]
@@ -38,9 +38,15 @@ public class ValidationExceptionData : IValidationExceptionData
 
         var command = CreateCommand(new Dictionary<string, object>());
         command.CommandText = SQL;
+
+        return GetException(command);
+    }
+
+    private List<ValidationException> GetException(IDbCommand command)
+    {
+        var rules = new List<ValidationException>();
         return ExecuteQuery(command, reader =>
         {
-            var rules = new List<ValidationException>();
             while (reader.Read())
             {
                 rules.Add(new ValidationException
@@ -60,9 +66,38 @@ public class ValidationExceptionData : IValidationExceptionData
                     Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
                 });
             }
-
             return rules;
         });
+    }
+
+    public ValidationException GetExceptionById(int exceptionId)
+    {
+        var SQL = @"SELECT
+                 [EXCEPTION_ID]
+                ,[FILE_NAME]
+                ,[NHS_NUMBER]
+                ,[DATE_CREATED]
+                ,[DATE_RESOLVED]
+                ,[RULE_ID]
+                ,[RULE_DESCRIPTION]
+                ,[ERROR_RECORD]
+                ,[CATEGORY]
+                ,[SCREENING_NAME]
+                ,[EXCEPTION_DATE]
+                ,[COHORT_NAME]
+                ,[IS_FATAL]
+                FROM [dbo].[EXCEPTION_MANAGEMENT]
+                WHERE EXCEPTION_ID = @ExceptionId";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@ExceptionId", exceptionId },
+        };
+
+        var command = CreateCommand(parameters);
+        command.CommandText = SQL;
+
+        return GetException(command).FirstOrDefault();
     }
 
     public bool Create(ValidationException exception)
@@ -123,8 +158,6 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             _dbConnection.Close();
         }
-
-
     }
 
     public bool RemoveOldException(string nhsNumber, string screeningName)
@@ -205,7 +238,6 @@ public class ValidationExceptionData : IValidationExceptionData
             }
         }
     }
-
 
     private bool ExecuteCommand(IDbCommand command)
     {
