@@ -1,15 +1,12 @@
 module "azure_sql_server" {
-  for_each = {
-    for key, value in var.regions : key => value
-    if var.sqlserver != {}
-  }
+  for_each = var.sqlserver != {} ? var.regions : {}
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/sql-server?ref=2ade749bb128a116db85bf0439cb77c7c205ebcb"
+  source = "../../../dtos-devops-templates/infrastructure/modules/sql-server"
 
   # Azure SQL Server
   name                = module.regions_config[each.key].names.sql-server
-  resource_group_name = module.baseline.resource_group_names[var.sqlserver.server.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.sqlserver.server.resource_group_key]
+  resource_group_name = azurerm_resource_group.core[each.key].name
+  location            = each.key
 
   sqlversion = var.sqlserver.server.sqlversion
   tlsver     = var.sqlserver.server.tlsversion
@@ -41,8 +38,4 @@ module "azure_sql_server" {
   } : null
 
   tags = var.tags
-}
-
-data "azuread_group" "sql_admin_group" {
-  display_name = var.sqlserver.sql_admin_group_name
 }

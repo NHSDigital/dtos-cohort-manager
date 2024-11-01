@@ -1,58 +1,62 @@
-# Things to change for further environments:
-# - stage variable group name: ENVIRONMENT_variable_group
-# -
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 
 trigger:
   branches:
     include:
-    - main
+      - main
   paths:
     include:
-    - Infrastructure/*
-variables:
-  - group: prod_global_variable_group
-  - group: prod_hub_variable_group
-  - name: TF_DIRECTORY
-    value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-core'
+      - infrastructure/*
 
 pool:
   #vmImage: ubuntu-latest
-  name: 'private-pool-prod-uks'
+  name: private-pool-prod-uks
 
-# Pre-Production environment
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 46e5d81bf58a7b9324a35e191eac7f6cc3660dfd
+      endpoint: NHSDigital
+
+variables:
+  - group: prod_global_variable_group
+  - group: prod_hub_variable_group
+  - group: preprod_core_variable_group
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  - name: ENVIRONMENT
+    value: preprod
+
 stages:
   - stage: terraform_plan
     displayName: Terraform Plan
-    dependsOn: []
-    condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
+    condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      - group: preprod_core_variable_group
+      tfvars: environments/$(ENVIRONMENT).tfvars
     jobs:
-      - template: ../jobs/init_and_plan-audit.yaml
-        parameters:
-          ENVIRONMENT: $(ENVIRONMENT)
-          SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-          TF_DIRECTORY: $(TF_DIRECTORY)
-          TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
-          TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+      - job: init_and_plan
+        displayName: Init, plan, store artifact
+        steps:
+          - checkout: self
+          - checkout: dtos-devops-templates
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+
   - stage: terraform_apply
     displayName: Terraform Apply
     dependsOn: [terraform_plan]
     condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
-    variables:
-      - group: preprod_core_variable_group
     jobs:
       - deployment: terraform_apply
-        displayName: Terraform Apply
+        displayName: Init, get plan artifact, apply
         environment: $(ENVIRONMENT)
         strategy:
           runOnce:
             deploy:
               steps:
-                - template: ../jobs/init_and_apply.yaml
-                  parameters:
-                    ENVIRONMENT: $(ENVIRONMENT)
-                    SERVICE_CONNECTION: $(SERVICE_CONNECTION)
-                    TF_DIRECTORY: $(TF_DIRECTORY)
-                    TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
-                    TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates

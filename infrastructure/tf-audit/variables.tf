@@ -50,7 +50,6 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
-
 variable "environment" {
   description = "Environment code for deployments"
   type        = string
@@ -79,31 +78,20 @@ variable "regions" {
   }))
 }
 
-variable "resource_groups" {
-  description = "Map of resource groups in Audit subscription"
-  type = map(object({
-    name_suffix = optional(string)
-  }))
-}
-
 variable "app_insights" {
   description = "Configuration of the App Insights"
   type = object({
-    name                     = optional(string, "cohman")
-    resource_group_key       = optional(string, "cohman")
-    appinsights_type         = optional(string, "web")
-    audit_resource_group_key = optional(string, "audit")
+    name             = optional(string, "cohman")
+    appinsights_type = optional(string, "web")
   })
 }
 
 variable "law" {
   description = "Configuration of the Log Analytics Workspace"
   type = object({
-    name                     = optional(string, "cohman")
-    resource_group_key       = optional(string, "cohman")
-    law_sku                  = optional(string, "PerGB2018")
-    retention_days           = optional(number, 30)
-    audit_resource_group_key = optional(string, "audit")
+    name           = optional(string, "cohman")
+    law_sku        = optional(string, "PerGB2018")
+    retention_days = optional(number, 30)
   })
 }
 
@@ -122,6 +110,7 @@ variable "network_security_group_rules" {
     destination_address_prefix = string
   })))
 }
+
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({

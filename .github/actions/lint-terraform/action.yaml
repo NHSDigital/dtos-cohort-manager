@@ -11,10 +11,12 @@ runs:
       shell: bash
       run: |
         check_only=true scripts/githooks/check-terraform-format.sh
-    - name: "Validate Terraform"
-      shell: bash
-      run: |
-        stacks=${{ inputs.root-modules }}
-        for dir in $(find infrastructure/environments -maxdepth 1 -mindepth 1 -type d; echo ${stacks//,/$'\n'}); do
-          dir=$dir make terraform-validate
-        done
+    # impractical since it fails if modules are not installed, but cannot init since the backend is not set up
+    # this functionality is redundant since we do this in the ADO Continuous Deployment pipeline
+    # - name: "Validate Terraform"
+    #   shell: bash
+    #   run: |
+    #     stacks=${{ inputs.root-modules }}
+    #     for dir in $(find infrastructure -maxdepth 2 -type d; echo ${stacks//,/$'\n'}); do
+    #       dir=$dir make terraform-validate
+    #     done

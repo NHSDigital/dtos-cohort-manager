@@ -1,6 +1,6 @@
-application = "cohman"
-environment = "PRE"
-location    = "uksouth"
+application           = "cohman"
+application_full_name = "cohort-manager"
+environment           = "INT"
 
 features = {
   acr_enabled                          = false
@@ -15,17 +15,10 @@ tags = {
   Project = "Cohort-Manager"
 }
 
-resource_groups = {
-  # cohman RG
-  cohman = {
-    name_suffix     = ""
-  }
-}
-
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.2.0.0/16"
+    address_space     = "10.105.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -50,15 +43,15 @@ regions = {
 routes = {
   uksouth = {
     application_rules = []
-    nat_rules = []
+    nat_rules         = []
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
         priority              = 800
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.2.0.0/16"] # will be populated with the cohort manager subnet address space
-        destination_addresses = ["10.3.0.0/16"] # will be populated with the audit subnet address space
+        source_addresses      = ["10.105.0.0/16"] # will be populated with the cohort manager subnet address space
+        destination_addresses = ["10.106.0.0/16"] # will be populated with the audit subnet address space
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -75,8 +68,6 @@ routes = {
 }
 
 app_service_plan = {
-  resource_group_key = "cohman"
-
   os_type                  = "Linux"
   sku_name                 = "P2v3"
   vnet_integration_enabled = true
@@ -131,22 +122,21 @@ app_service_plan = {
   }
 }
 
+
 function_apps = {
-  resource_group_key = "cohman"
-
   acr_mi_name = "dtos-cohort-manager-acr-push"
-  acr_name    = "acrukshubprodcohman"
-  acr_rg_name = "rg-hub-prod-uks-cohman"
+  acr_name    = "acrukshubdevcohman"
+  acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name      = "appi-pre-uks-cohman"
-  app_insights_rg_name   = "rg-cohman-pre-uks-audit"
+  app_insights_name    = "appi-int-uks-cohman"
+  app_insights_rg_name = "rg-cohman-int-uks-audit"
 
   always_on = true
 
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "preprod"
+  docker_env_tag    = "integration"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -414,12 +404,7 @@ function_apps = {
       function_endpoint_name = "DemographicDataService"
       app_service_plan_key   = "screeningDataServices"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = [
-        {
-          env_var_name      = "ExceptionFunctionURL"
-          function_app_key  = "CreateException"
-        }
-      ]
+      app_urls               = []
     }
 
     FileValidation = {
@@ -653,24 +638,49 @@ function_apps = {
         }
       ]
     }
+
+    RetrieveCohortRequestAudit = {
+      name_suffix            = "retrieve-cohort-request-audit"
+      function_endpoint_name = "RetrieveCohortRequestAudit"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    RetrieveCohortRequestAudit = {
+      name_suffix            = "retrieve-cohort-request-audit"
+      function_endpoint_name = "RetrieveCohortRequestAudit"
+      app_service_plan_key   = "CohortDistributionServices"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
   }
 }
 
+function_app_slots = []
+
 key_vault = {
-  resource_group_key = "cohman"
-  disk_encryption    = true
-  soft_del_ret_days  = 7
-  purge_prot         = false
-  sku_name           = "standard"
+  disk_encryption   = true
+  soft_del_ret_days = 7
+  purge_prot        = false
+  sku_name          = "standard"
 }
 
 sqlserver = {
   sql_uai_name         = "dtos-cohort-manager-sql-adm"
-  sql_admin_group_name = "sqlsvr_cohman_preprod_uks_admin"
+  sql_admin_group_name = "sqlsvr_cohman_int_uks_admin"
   ad_auth_only         = true
 
   server = {
-    resource_group_key            = "cohman"
     sqlversion                    = "12.0"
     tlsversion                    = 1.2
     azure_services_access_enabled = true
@@ -694,7 +704,6 @@ sqlserver = {
 storage_accounts = {
   fnapp = {
     name_suffix                   = "fnappstor"
-    resource_group_key            = "cohman"
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false
@@ -702,7 +711,6 @@ storage_accounts = {
   }
   file_exceptions = {
     name_suffix                   = "filexptns"
-    resource_group_key            = "cohman"
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false
