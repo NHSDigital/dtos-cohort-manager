@@ -95,7 +95,7 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, { "TransformError", () => new TransformError() } };
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() } };
         var reSettings = new ReSettings { CustomActions = actions };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -108,11 +108,11 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        var result = resultList.Where(result => result.IsSuccess)
-            .Select(result => result.ActionResult.Output)
+        var exceptionMessage = resultList.Where(result => !result.IsSuccess)
+            .Select(result => result.ExceptionMessage)
             .FirstOrDefault();
 
-        if (result is Exception exception)
+        if (!string.IsNullOrEmpty(exceptionMessage))
         {
             var participantCsvRecord = new ParticipantCsvRecord
             {
@@ -122,8 +122,8 @@ public class TransformDataService
 
             try
             {
-                _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
-                await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
+                _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exceptionMessage);
+                await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => !result.IsSuccess), participantCsvRecord);
             }
             catch (Exception ex)
             {

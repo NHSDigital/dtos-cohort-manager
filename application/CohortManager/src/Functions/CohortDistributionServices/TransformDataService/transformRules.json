@@ -18,16 +18,16 @@
     "Rules": [
       {
         "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
-        "Expression": "participant.NamePrefix.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.NamePrefix) OR !(participant.NamePrefix.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "NamePrefix",
-                  "value": "participant.NamePrefix.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.NamePrefix) ? null : participant.NamePrefix.Substring(0, 35)"
                 }
               ]
             }
@@ -36,16 +36,16 @@
       },
       {
         "RuleName": "2.Truncate.FirstName.ExceedsMaximumLength",
-        "Expression": "participant.FirstName.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.FirstName) OR !(participant.FirstName.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "FirstName",
-                  "value": "participant.FirstName.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.FirstName) ? null : participant.FirstName.Substring(0, 35)"
                 }
               ]
             }
@@ -54,16 +54,16 @@
       },
       {
         "RuleName": "3.Truncate.OtherGivenNames.ExceedsMaximumLength",
-        "Expression": "participant.OtherGivenNames.Length > 100",
+        "Expression": "string.IsNullOrEmpty(participant.OtherGivenNames) OR !(participant.OtherGivenNames.Length > 100)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "OtherGivenNames",
-                  "value": "participant.OtherGivenNames.Substring(0, 100)"
+                  "value": "string.IsNullOrEmpty(participant.OtherGivenNames) ? null : participant.OtherGivenNames.Substring(0, 100)"
                 }
               ]
             }
@@ -72,16 +72,16 @@
       },
       {
         "RuleName": "4.Truncate.FamilyName.ExceedsMaximumLength",
-        "Expression": "participant.FamilyName.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.FamilyName) OR !(participant.FamilyName.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "FamilyName",
-                  "value": "participant.FamilyName.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.FamilyName) ? null : participant.FamilyName.Substring(0, 35)"
                 }
               ]
             }
@@ -90,16 +90,16 @@
       },
       {
         "RuleName": "5.Truncate.PreviousFamilyName.ExceedsMaximumLength",
-        "Expression": "participant.PreviousFamilyName.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.PreviousFamilyName) OR !(participant.PreviousFamilyName.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "PreviousFamilyName",
-                  "value": "participant.PreviousFamilyName.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.PreviousFamilyName) ? null : participant.PreviousFamilyName.Substring(0, 35)"
                 }
               ]
             }
@@ -108,16 +108,16 @@
       },
       {
         "RuleName": "6.Truncate.AddressLine1.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine1.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.AddressLine1) OR !(participant.AddressLine1.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "AddressLine1",
-                  "value": "participant.AddressLine1.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.AddressLine1) ? null : participant.AddressLine1.Substring(0, 35)"
                 }
               ]
             }
@@ -126,16 +126,16 @@
       },
       {
         "RuleName": "7.Truncate.AddressLine2.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine2.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.AddressLine2) OR !(participant.AddressLine2.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "AddressLine2",
-                  "value": "participant.AddressLine2.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.AddressLine2) ? null : participant.AddressLine2.Substring(0, 35)"
                 }
               ]
             }
@@ -144,16 +144,16 @@
       },
       {
         "RuleName": "8.Truncate.AddressLine3.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine3.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.AddressLine3) OR !(participant.AddressLine3.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "AddressLine3",
-                  "value": "participant.AddressLine3.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.AddressLine3) ? null : participant.AddressLine3.Substring(0, 35)"
                 }
               ]
             }
@@ -162,16 +162,16 @@
       },
       {
         "RuleName": "9.Truncate.AddressLine4.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine4.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.AddressLine4) OR !(participant.AddressLine4.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "AddressLine4",
-                  "value": "participant.AddressLine4.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.AddressLine4) ? null : participant.AddressLine4.Substring(0, 35)"
                 }
               ]
             }
@@ -180,16 +180,16 @@
       },
       {
         "RuleName": "10.Truncate.AddressLine5.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine5.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.AddressLine5) OR !(participant.AddressLine5.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "AddressLine5",
-                  "value": "participant.AddressLine5.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.AddressLine5) ? null : participant.AddressLine5.Substring(0, 35)"
                 }
               ]
             }
@@ -198,16 +198,16 @@
       },
       {
         "RuleName": "13.Truncate.Postcode.ExceedsMaximumLength",
-        "Expression": "participant.Postcode.Length > 35",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR !(participant.Postcode.Length > 35)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "Postcode",
-                  "value": "participant.Postcode.Substring(0, 35)"
+                  "value": "string.IsNullOrEmpty(participant.Postcode) ? null : participant.Postcode.Substring(0, 35)"
                 }
               ]
             }
@@ -216,16 +216,16 @@
       },
       {
         "RuleName": "14.Truncate.TelephoneNumber.ExceedsMaximumLength",
-        "Expression": "participant.TelephoneNumber.Length > 32",
+        "Expression": "string.IsNullOrEmpty(participant.TelephoneNumber) OR !(participant.TelephoneNumber.Length > 32)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "TelephoneNumber",
-                  "value": "participant.TelephoneNumber.Substring(0, 32)"
+                  "value": "string.IsNullOrEmpty(participant.TelephoneNumber) ? null : participant.TelephoneNumber.Substring(0, 32)"
                 }
               ]
             }
@@ -234,16 +234,16 @@
       },
       {
         "RuleName": "15.Truncate.MobileNumber.ExceedsMaximumLength",
-        "Expression": "participant.MobileNumber.Length > 32",
+        "Expression": "string.IsNullOrEmpty(participant.MobileNumber) OR !(participant.MobileNumber.Length > 32)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "MobileNumber",
-                  "value": "participant.MobileNumber.Substring(0, 32)"
+                  "value": "string.IsNullOrEmpty(participant.MobileNumber) ? null : participant.MobileNumber.Substring(0, 32)"
                 }
               ]
             }
@@ -252,16 +252,16 @@
       },
       {
         "RuleName": "16.Truncate.EmailAddress.ExceedsMaximumLength",
-        "Expression": "participant.EmailAddress.Length > 90",
+        "Expression": "string.IsNullOrEmpty(participant.EmailAddress) OR !(participant.EmailAddress.Length > 90)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
                   "isExpression": true,
                   "field": "EmailAddress",
-                  "value": "participant.EmailAddress.Substring(0, 90)"
+                  "value": "string.IsNullOrEmpty(participant.EmailAddress) ? null : participant.EmailAddress.Substring(0, 90)"
                 }
               ]
             }
@@ -270,9 +270,9 @@
       },
       {
         "RuleName": "00.Other.Gender.Not-0-1-2-or-9",
-        "Expression": "participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9",
+        "Expression": "!(participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -288,9 +288,9 @@
       },
       {
         "RuleName": "3.Other.DateOfDeath.DoesNotExist",
-        "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
+        "Expression": "!(participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -306,9 +306,9 @@
       },
       {
         "RuleName": "01.TransformDate.DateOfBirth",
-        "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.DateOfBirth) OR !(participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -324,9 +324,9 @@
       },
       {
         "RuleName": "01.TransformDate.DateOfDeath",
-        "Expression": "participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR !(participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -342,9 +342,9 @@
       },
       {
         "RuleName": "01.TransformDate.CurrentPostingEffectiveFromDate",
-        "Expression": "participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.CurrentPostingEffectiveFromDate) OR !(participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -360,9 +360,9 @@
       },
       {
         "RuleName": "01.TransformDate.UsualAddressEffectiveFromDate",
-        "Expression": "participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.UsualAddressEffectiveFromDate) OR !(participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -378,9 +378,9 @@
       },
       {
         "RuleName": "01.TransformDate.ReasonForRemovalEffectiveFromDate",
-        "Expression": "participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR !(participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -396,9 +396,9 @@
       },
       {
         "RuleName": "01.TransformDate.TelephoneNumberEffectiveFromDate",
-        "Expression": "participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.TelephoneNumberEffectiveFromDate) OR !(participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -414,9 +414,9 @@
       },
       {
         "RuleName": "01.TransformDate.MobileNumberEffectiveFromDate",
-        "Expression": "participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.MobileNumberEffectiveFromDate) OR !(participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -432,9 +432,9 @@
       },
       {
         "RuleName": "01.TransformDate.EmailAddressEffectiveFromDate",
-        "Expression": "participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6)",
+        "Expression": "string.IsNullOrEmpty(participant.EmailAddressEffectiveFromDate) OR !(participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6))",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -450,9 +450,9 @@
       },
       {
         "RuleName": "1.ReasonForRemoval.NonFatal",
-        "Expression": "participantNotRegisteredToGP AND validPostcode",
+        "Expression": "!(participantNotRegisteredToGP AND validPostcode)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -479,7 +479,7 @@
               ]
             }
           },
-          "OnFailure": {
+          "OnSuccess": {
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
@@ -490,9 +490,9 @@
       },
       {
         "RuleName": "2.ReasonForRemoval.NonFatal",
-        "Expression": "participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider",
+        "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider)",
         "Actions": {
-          "OnSuccess": {
+          "OnFailure": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
@@ -519,7 +519,7 @@
               ]
             }
           },
-          "OnFailure": {
+          "OnSuccess": {
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
@@ -530,15 +530,10 @@
       },
       {
         "RuleName": "3.ReasonForRemoval.NonFatal",
-        "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
+        "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider)",
+        "ErrorMessage": "ReasonForRemoval transformation rule failed.",
         "Actions": {
           "OnSuccess": {
-            "Name": "TransformError",
-            "Context": {
-              "exceptionMessage": "ReasonForRemoval transformation rule failed."
-            }
-          },
-          "OnFailure": {
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
@@ -549,15 +544,8 @@
       },
       {
         "RuleName": "4.ReasonForRemoval.NonFatal",
-        "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformError",
-            "Context": {
-              "exceptionMessage": "ReasonForRemoval transformation rule failed."
-            }
-          }
-        }
+        "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider))",
+        "ErrorMessage": "ReasonForRemoval transformation rule failed."
       }
     ]
   }
