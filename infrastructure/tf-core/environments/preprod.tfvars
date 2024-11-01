@@ -1,6 +1,5 @@
 application = "cohman"
 environment = "PRE"
-location    = "uksouth"
 
 features = {
   acr_enabled                          = false
@@ -13,13 +12,6 @@ features = {
 
 tags = {
   Project = "Cohort-Manager"
-}
-
-resource_groups = {
-  # cohman RG
-  cohman = {
-    name_suffix     = ""
-  }
 }
 
 regions = {
@@ -50,7 +42,7 @@ regions = {
 routes = {
   uksouth = {
     application_rules = []
-    nat_rules = []
+    nat_rules         = []
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
@@ -75,8 +67,6 @@ routes = {
 }
 
 app_service_plan = {
-  resource_group_key = "cohman"
-
   os_type                  = "Linux"
   sku_name                 = "P2v3"
   vnet_integration_enabled = true
@@ -132,14 +122,12 @@ app_service_plan = {
 }
 
 function_apps = {
-  resource_group_key = "cohman"
-
   acr_mi_name = "dtos-cohort-manager-acr-push"
   acr_name    = "acrukshubprodcohman"
   acr_rg_name = "rg-hub-prod-uks-cohman"
 
-  app_insights_name      = "appi-pre-uks-cohman"
-  app_insights_rg_name   = "rg-cohman-pre-uks-audit"
+  app_insights_name    = "appi-pre-uks-cohman"
+  app_insights_rg_name = "rg-cohman-pre-uks-audit"
 
   always_on = true
 
@@ -656,12 +644,18 @@ function_apps = {
   }
 }
 
+function_app_slots = [
+  {
+    function_app_slots_name     = "staging"
+    function_app_slot_enabled   = true
+  }
+]
+
 key_vault = {
-  resource_group_key = "cohman"
-  disk_encryption    = true
-  soft_del_ret_days  = 7
-  purge_prot         = false
-  sku_name           = "standard"
+  disk_encryption   = true
+  soft_del_ret_days = 7
+  purge_prot        = false
+  sku_name          = "standard"
 }
 
 sqlserver = {
@@ -670,7 +664,6 @@ sqlserver = {
   ad_auth_only         = true
 
   server = {
-    resource_group_key            = "cohman"
     sqlversion                    = "12.0"
     tlsversion                    = 1.2
     azure_services_access_enabled = true
@@ -694,7 +687,6 @@ sqlserver = {
 storage_accounts = {
   fnapp = {
     name_suffix                   = "fnappstor"
-    resource_group_key            = "cohman"
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false
@@ -702,7 +694,6 @@ storage_accounts = {
   }
   file_exceptions = {
     name_suffix                   = "filexptns"
-    resource_group_key            = "cohman"
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false

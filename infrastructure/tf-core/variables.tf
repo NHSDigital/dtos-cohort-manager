@@ -78,18 +78,10 @@ variable "regions" {
   }))
 }
 
-variable "resource_groups" {
-  description = "Map of resource groups"
-  type = map(object({
-    name_suffix = optional(string)
-  }))
-}
-
 ### Cohort Manager specific variables ###
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    resource_group_key       = optional(string, "cohman")
     sku_name                 = optional(string, "P2v3")
     os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
@@ -151,7 +143,6 @@ variable "app_service_plan" {
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
-    resource_group_key            = string
     acr_mi_name                   = string
     acr_name                      = string
     acr_rg_name                   = string
@@ -195,11 +186,10 @@ variable "function_apps" {
 variable "key_vault" {
   description = "Configuration for the key vault"
   type = object({
-    resource_group_key = optional(string, "cohman")
-    disk_encryption    = optional(bool, true)
-    soft_del_ret_days  = optional(number, 7)
-    purge_prot         = optional(bool, false)
-    sku_name           = optional(string, "standard")
+    disk_encryption   = optional(bool, true)
+    soft_del_ret_days = optional(number, 7)
+    purge_prot        = optional(bool, false)
+    sku_name          = optional(string, "standard")
   })
 }
 
@@ -300,7 +290,6 @@ variable "sqlserver" {
 
     # Server Instance
     server = optional(object({
-      resource_group_key            = optional(string, "cohman")
       sqlversion                    = optional(string, "12.0")
       tlsversion                    = optional(number, 1.2)
       azure_services_access_enabled = optional(bool, true)
@@ -329,7 +318,6 @@ variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
   type = map(object({
     name_suffix                   = string
-    resource_group_key            = string
     account_tier                  = optional(string, "Standard")
     replication_type              = optional(string, "LRS")
     public_network_access_enabled = optional(bool, false)
@@ -343,4 +331,12 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
+}
+
+variable "function_app_slots" {
+  description = "function app slots"
+  type = list(object({
+    function_app_slots_name    = optional(string, "staging")
+    function_app_slot_enabled  = optional(bool, false)
+  }))
 }

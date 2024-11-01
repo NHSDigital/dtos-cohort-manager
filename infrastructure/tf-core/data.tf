@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 data "terraform_remote_state" "hub" {
   backend = "azurerm"
   config = {
@@ -9,4 +11,46 @@ data "terraform_remote_state" "hub" {
   }
 }
 
-data "azurerm_client_config" "current" {}
+data "azurerm_virtual_network" "vnet_audit" {
+  for_each = var.regions
+
+  provider = azurerm.audit
+
+  name                = module.regions_config[each.key].names.virtual-network
+  resource_group_name = "${module.regions_config[each.key].names.resource-group}-audit-networking"
+}
+
+data "azurerm_subnet" "subnet_audit_pep" {
+  for_each = var.regions
+
+  provider = azurerm.audit
+
+  name                 = "${module.regions_config[each.key].names.subnet}-pep"
+  resource_group_name  = "${module.regions_config[each.key].names.resource-group}-audit-networking"
+  virtual_network_name = module.regions_config[each.key].names.virtual-network
+}
+
+data "azuread_group" "sql_admin_group" {
+  display_name = var.sqlserver.sql_admin_group_name
+}
+
+data "azurerm_container_registry" "acr" {
+  provider = azurerm.acr_subscription
+
+  name                = var.function_apps.acr_name
+  resource_group_name = var.function_apps.acr_rg_name
+}
+
+data "azurerm_user_assigned_identity" "acr_mi" {
+  provider = azurerm.acr_subscription
+
+  name                = var.function_apps.acr_mi_name
+  resource_group_name = var.function_apps.acr_rg_name
+}
+
+data "azurerm_application_insights" "ai" {
+  provider = azurerm.audit
+
+  name                = var.function_apps.app_insights_name
+  resource_group_name = var.function_apps.app_insights_rg_name
+}
