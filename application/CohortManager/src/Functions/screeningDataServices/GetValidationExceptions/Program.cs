@@ -11,9 +11,9 @@ var host = new HostBuilder()
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
-
     })
     .AddDatabaseConnection()
+    .AddExceptionHandler()
     .Build();
 
 host.Run();
