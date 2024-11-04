@@ -36,8 +36,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[EXCEPTION_DATE]
                 ,[COHORT_NAME]
                 ,[IS_FATAL]
-                FROM [dbo].[EXCEPTION_MANAGEMENT]
-                WHERE CATEGORY != @Category";
+                FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
         var parameters = new Dictionary<string, object>
         {
@@ -52,50 +51,99 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private List<ValidationException> GetException(IDbCommand command)
     {
-        var rules = new List<ValidationException>();
+        var exceptions = new List<ValidationException>();
         return ExecuteQuery(command, reader =>
         {
             while (reader.Read())
             {
-                rules.Add(new ValidationException
+                exceptions.Add(new ValidationException
                 {
-                    ExceptionId = (int)reader.GetInt64(reader.GetOrdinal("EXCEPTION_ID")),
-                    FileName = reader.GetString(reader.GetOrdinal("FILE_NAME")) ?? null,
-                    NhsNumber = reader.GetString(reader.GetOrdinal("NHS_NUMBER")) ?? null,
-                    DateCreated = reader.GetDateTime(reader.GetOrdinal("DATE_CREATED")),
-                    DateResolved = reader.GetDateTime(reader.GetOrdinal("DATE_RESOLVED")),
-                    RuleId = reader.GetInt32(reader.GetOrdinal("RULE_ID")),
-                    RuleDescription = reader.GetString(reader.GetOrdinal("RULE_DESCRIPTION")) ?? null,
-                    ErrorRecord = reader.GetString(reader.GetOrdinal("ERROR_RECORD")) ?? null,
-                    Category = reader.GetInt32(reader.GetOrdinal("CATEGORY")),
-                    ScreeningName = reader.GetString(reader.GetOrdinal("SCREENING_NAME")),
-                    ExceptionDate = reader.GetDateTime(reader.GetOrdinal("EXCEPTION_DATE")),
-                    CohortName = reader.GetString(reader.GetOrdinal("COHORT_NAME")) ?? null,
-                    Fatal = reader.GetInt16(reader.GetOrdinal("IS_FATAL"))
+                    ExceptionId = DatabaseHelper.GetValue<int>(reader, "EXCEPTION_ID"),
+                    FileName = DatabaseHelper.GetValue<string>(reader, "FILE_NAME"),
+                    NhsNumber = DatabaseHelper.GetValue<string>(reader, "NHS_NUMBER"),
+                    DateCreated = DatabaseHelper.GetValue<DateTime>(reader, "DATE_CREATED"),
+                    DateResolved = DatabaseHelper.GetValue<DateTime>(reader, "DATE_RESOLVED"),
+                    RuleId = DatabaseHelper.GetValue<int>(reader, "RULE_ID"),
+                    RuleDescription = DatabaseHelper.GetValue<string>(reader, "RULE_DESCRIPTION"),
+                    ErrorRecord = DatabaseHelper.GetValue<string>(reader, "ERROR_RECORD"),
+                    Category = DatabaseHelper.GetValue<int>(reader, "CATEGORY"),
+                    ScreeningName = DatabaseHelper.GetValue<string>(reader, "SCREENING_NAME"),
+                    ExceptionDate = DatabaseHelper.GetValue<DateTime>(reader, "EXCEPTION_DATE"),
+                    CohortName = DatabaseHelper.GetValue<string>(reader, "COHORT_NAME"),
+                    Fatal = DatabaseHelper.GetValue<int>(reader, "IS_FATAL"),
+                    ExceptionDetails = new ExceptionDetails
+                    {
+                        GivenName = DatabaseHelper.GetValue<string>(reader, "GIVEN_NAME"),
+                        FamilyName = DatabaseHelper.GetValue<string>(reader, "FAMILY_NAME"),
+                        DateOfBirth = DatabaseHelper.GetValue<string>(reader, "DATE_OF_BIRTH"),
+                        ParticipantAddressLine1 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_1"),
+                        ParticipantAddressLine2 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_2"),
+                        ParticipantAddressLine3 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_3"),
+                        ParticipantAddressLine4 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_4"),
+                        ParticipantAddressLine5 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_5"),
+                        ParticipantPostCode = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_POSTCODE"),
+                        TelephoneNumberHome = DatabaseHelper.GetValue<string>(reader, "TELEPHONE_NUMBER_HOME"),
+                        EmailAddressHome = DatabaseHelper.GetValue<string>(reader, "EMAIL_ADDRESS_HOME"),
+                        PrimaryCareProvider = DatabaseHelper.GetValue<string>(reader, "PRIMARY_CARE_PROVIDER"),
+                        GpPracticeCode = DatabaseHelper.GetValue<string>(reader, "GP_PRACTICE_CODE"),
+                        GpAddressLine1 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_1"),
+                        GpAddressLine2 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_2"),
+                        GpAddressLine3 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_3"),
+                        GpAddressLine4 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_4"),
+                        GpAddressLine5 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_5"),
+                        GpPostCode = DatabaseHelper.GetValue<string>(reader, "GP_POSTCODE"),
+                    }
                 });
             }
-            return rules;
+            return exceptions;
         });
     }
 
     public ValidationException GetExceptionById(int exceptionId)
     {
-        var SQL = @"SELECT
-                 [EXCEPTION_ID]
-                ,[FILE_NAME]
-                ,[NHS_NUMBER]
-                ,[DATE_CREATED]
-                ,[DATE_RESOLVED]
-                ,[RULE_ID]
-                ,[RULE_DESCRIPTION]
-                ,[ERROR_RECORD]
-                ,[CATEGORY]
-                ,[SCREENING_NAME]
-                ,[EXCEPTION_DATE]
-                ,[COHORT_NAME]
-                ,[IS_FATAL]
-                FROM [dbo].[EXCEPTION_MANAGEMENT]
-                WHERE EXCEPTION_ID = @ExceptionId";
+        var SQL = @" SELECT
+                    pd.NHS_NUMBER,
+                    pd.GIVEN_NAME,
+                    pd.FAMILY_NAME,
+                    pd.DATE_OF_BIRTH,
+                    pd.ADDRESS_LINE_1 AS PARTICIPANT_ADDRESS_LINE_1,
+                    pd.ADDRESS_LINE_2 AS PARTICIPANT_ADDRESS_LINE_2,
+                    pd.ADDRESS_LINE_3 AS PARTICIPANT_ADDRESS_LINE_3,
+                    pd.ADDRESS_LINE_4 AS PARTICIPANT_ADDRESS_LINE_4,
+                    pd.ADDRESS_LINE_5 AS PARTICIPANT_ADDRESS_LINE_5,
+                    pd.POST_CODE AS PARTICIPANT_POSTCODE,
+                    pd.TELEPHONE_NUMBER_HOME,
+                    pd.EMAIL_ADDRESS_HOME,
+                    pd.PRIMARY_CARE_PROVIDER,
+                    gp.GP_PRACTICE_CODE,
+                    gp.ADDRESS_LINE_1 AS GP_ADDRESS_LINE_1,
+                    gp.ADDRESS_LINE_2 AS GP_ADDRESS_LINE_2,
+                    gp.ADDRESS_LINE_3 AS GP_ADDRESS_LINE_3,
+                    gp.ADDRESS_LINE_4 AS GP_ADDRESS_LINE_4,
+                    gp.ADDRESS_LINE_5 AS GP_ADDRESS_LINE_5,
+                    gp.POSTCODE AS GP_POSTCODE,
+                    em.EXCEPTION_ID,
+                    em.FILE_NAME,
+                    em.DATE_CREATED,
+                    em.DATE_RESOLVED,
+                    em.RULE_ID,
+                    em.RULE_DESCRIPTION,
+                    em.ERROR_RECORD,
+                    em.CATEGORY,
+                    em.SCREENING_NAME,
+                    em.EXCEPTION_DATE,
+                    em.COHORT_NAME,
+                    em.IS_FATAL
+                    FROM
+                    [dbo].[EXCEPTION_MANAGEMENT] em
+                    JOIN
+                    [dbo].[PARTICIPANT_DEMOGRAPHIC] pd
+                    ON CAST(pd.NHS_NUMBER AS VARCHAR(50)) = em.NHS_NUMBER
+                    JOIN
+                    [dbo].[GP_PRACTICES] gp
+                    ON pd.PRIMARY_CARE_PROVIDER = gp.GP_PRACTICE_CODE
+                    WHERE
+                    em.[EXCEPTION_ID] = @ExceptionId";
 
         var parameters = new Dictionary<string, object>
         {

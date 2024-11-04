@@ -2,7 +2,7 @@ namespace Model;
 
 public class ValidationException
 {
-    public int ExceptionId { get; set; }
+    public int? ExceptionId { get; set; }
     public string? FileName { get; set; }
     public string? NhsNumber { get; set; }
     public DateTime? DateCreated { get; set; }
@@ -15,4 +15,5 @@ public class ValidationException
     public DateTime? ExceptionDate { get; set; }
     public string? CohortName { get; set; }
     public int? Fatal { get; set; }
+    public ExceptionDetails ExceptionDetails {get; set;}
 }
