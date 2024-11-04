@@ -83,13 +83,8 @@ public class ReceiveCaasFile
                     //foreach (var rec in values)
                     await Parallel.ForEachAsync(values, async (rec, ct) =>
                     {
-                        var participant = new Participant
-                        {
-                            ScreeningId = screeningService.ScreeningId,
-                            ScreeningName = screeningService.ScreeningName
 
-                        };
-                        participant = await _receiveCaasFileHelper.MapParticipant(rec, participant, name, rowNumber);
+                        var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
 
                         if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
                         {
