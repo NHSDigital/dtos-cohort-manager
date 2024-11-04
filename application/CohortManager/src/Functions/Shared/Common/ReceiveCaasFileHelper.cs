@@ -152,8 +152,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             DateTime.TryParse(participant.MobileNumberEffectiveFromDate, out var mobileNumberEffectiveFromDate) ? mobileNumberEffectiveFromDate : null,
             DateTime.TryParse(participant.EmailAddressEffectiveFromDate, out var emailAddressEffectiveFromDate) ? emailAddressEffectiveFromDate : null,
             DateTime.TryParse(participant.DateOfBirth, out var dateOfBirth) ? dateOfBirth : null
-       };
-
+        };
 
         if (listOfAllDates.Any(date => date.HasValue && date > DateTime.UtcNow))
         {
