@@ -43,75 +43,93 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             case Actions.New:
                 add++;
-                try
-                {
-                    var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                    var demographicDataAdded = await PostDemographicDataAsync(participant);
-
-                    if (demographicDataAdded)
-                    {
-                        await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
-                        _logger.LogInformation("Called add participant");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                    _handleException.CreateSystemExceptionLog(ex, participant, filename);
-                }
+                await AddParticipant(basicParticipantCsvRecord, participant, filename);
                 break;
             case Actions.Amended:
                 upd++;
-                try
-                {
-                    var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                    var demographicDataAdded = await PostDemographicDataAsync(participant);
-
-                    if (demographicDataAdded)
-                    {
-                        await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-                        _logger.LogInformation("Called update participant");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                    _handleException.CreateSystemExceptionLog(ex, participant, filename);
-                }
+                await UpdateParticipant(basicParticipantCsvRecord, participant, filename);
                 break;
             case Actions.Removed:
                 del++;
-                try
-                {
-                    var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
-                    _logger.LogInformation("Called remove participant");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                    _handleException.CreateSystemExceptionLog(ex, participant, filename);
-                }
+                await RemoveParticipant(basicParticipantCsvRecord, participant, filename);
                 break;
             default:
+                await CreateError(participant, filename);
                 err++;
-                try
-                {
-
-                    _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-
-                    var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-                    await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, basicParticipantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participant));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-                    _handleException.CreateSystemExceptionLog(ex, participant, filename);
-                }
                 break;
         }
         _logger.LogInformation("There are {add} Additions. There are {upd} Updates. There are {del} Deletions. There are {err} Errors.", add, upd, del, err);
 
+    }
+
+    private async Task AddParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
+            var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+            if (demographicDataAdded)
+            {
+                await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
+                _logger.LogInformation("Called add participant");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
+    }
+
+    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
+            var demographicDataAdded = await PostDemographicDataAsync(participant);
+
+            if (demographicDataAdded)
+            {
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                _logger.LogInformation("Called update participant");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
+    }
+
+    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
+            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
+            _logger.LogInformation("Called remove participant");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
+    }
+
+    private async Task CreateError(Participant participant, string filename)
+    {
+        try
+        {
+            _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
+            var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
+            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
     }
 
     private async Task<bool> PostDemographicDataAsync(Participant participant)

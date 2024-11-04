@@ -81,7 +81,7 @@ public class ReceiveCaasFile
                 {
                     var values = rowReader.ReadRows(i);
                     //foreach (var rec in values)
-                    await Parallel.ForEachAsync(values, async (rec, ct) =>
+                    await Parallel.ForEachAsync(values, async (rec, cancellationToken) =>
                     {
 
                         var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
