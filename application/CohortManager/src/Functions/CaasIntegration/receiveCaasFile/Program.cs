@@ -32,11 +32,8 @@ try
     .Build();
 
     host.Run();
-
-
 }
 catch (Exception ex)
 {
-    logger.LogCritical(ex, "failed to start up function ");
-
+    logger.LogCritical(ex, "failed to start up function receive caas file function function");
 }
