@@ -109,31 +109,6 @@ resource "azurerm_key_vault_access_policy" "functionapp" {
   ]
 }
 
-# Loop through the Key Vault URLs for each region and create the Key Vault Access Policies for each Function App:
-resource "azurerm_key_vault_access_policy" "functionapp" {
-  for_each = local.keyvault_function_app_object_ids["uksouth"]
-  #   for_each = { for region_key, region_value in module.regions_config :
-  #   region_key => {
-  #     for function_key, function_value in local.keyvault_function_app_object_ids[region_key] :
-  #     function_key => function_value
-  # } }
-
-  key_vault_id = module.key_vault.key_vault_id
-  object_id    = each.value
-  tenant_id    = data.azurerm_client_config.current.tenant_id
-
-  secret_permissions = [
-    "Get",
-    "List"
-  ]
-
-  certificate_permissions = [
-    "Get",
-    "List"
-  ]
-}
-
-
 /* --------------------------------------------------------------------------------------------------
   Data lookups used to create the Function Apps
 -------------------------------------------------------------------------------------------------- */
