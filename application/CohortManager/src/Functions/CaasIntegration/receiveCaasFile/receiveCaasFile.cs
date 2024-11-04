@@ -85,6 +85,15 @@ public class ReceiveCaasFile
                     {
 
                         var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
+                        rowNumber++;
+
+                        if (participant == null)
+                        {
+                            chunks.Clear();
+                            cohort.Participants.Clear();
+                            _logger.LogError("Invalid data in the file: {Name}", name);
+                            return;
+                        }
 
                         if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
                         {
@@ -99,15 +108,6 @@ public class ReceiveCaasFile
                             await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {rowNumber}."), participant, name);
                             err++;
                             return; // Skip current participant
-                        }
-                        rowNumber++;
-
-                        if (participant == null)
-                        {
-                            chunks.Clear();
-                            cohort.Participants.Clear();
-                            _logger.LogError("Invalid data in the file: {Name}", name);
-                            return;
                         }
                         cohort.Participants.Add(participant);
 
