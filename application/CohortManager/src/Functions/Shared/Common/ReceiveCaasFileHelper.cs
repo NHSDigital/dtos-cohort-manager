@@ -113,36 +113,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         }
     }
 
-    public async Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename, int rowNumber)
-    {
-        try
-        {
-            var targetFunctionUrl = GetUrlFromEnvironment("targetFunction");
-            if (chunks.Count > 0)
-            {
-                _logger.LogInformation("Start processing the files in chunks");
-                foreach (var chunk in chunks)
-                {
-                    var json = JsonSerializer.Serialize(chunk);
-                    await _callFunction.SendPost(targetFunctionUrl, json);
-                }
-            }
-
-            if (cohort.Participants.Count > 0)
-            {
-                _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
-                var json = JsonSerializer.Serialize(cohort);
-                await _callFunction.SendPost(targetFunctionUrl, json);
-            }
-            _logger.LogInformation("Created {CohortCount} Objects.", rowNumber);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await InsertValidationErrorIntoDatabase(filename, "N/A");
-        }
-    }
-
     public async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
     {
         var fileValidationURL = GetUrlFromEnvironment("FileValidationURL");
