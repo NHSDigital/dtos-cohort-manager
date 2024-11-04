@@ -179,7 +179,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
     public bool validateDateTimes(Participant participant)
     {
         var listOfAllDates = new List<DateTime?>
-       {
+        {
             DateTime.TryParse(participant.PrimaryCareProviderEffectiveFromDate, out var primaryCareProviderEffectiveFromDate) ? primaryCareProviderEffectiveFromDate : null,
             DateTime.TryParse(participant.UsualAddressEffectiveFromDate, out var usualAddressEffectiveFromDate) ? usualAddressEffectiveFromDate : null,
             DateTime.TryParse(participant.ReasonForRemovalEffectiveFromDate, out var reasonForRemovalEffectiveFromDate) ? reasonForRemovalEffectiveFromDate : null,
