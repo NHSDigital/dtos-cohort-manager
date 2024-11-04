@@ -8,4 +8,6 @@ public interface IReceiveCaasFileHelper
     Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename, int rowNumber);
     Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord);
     string GetUrlFromEnvironment(string key);
+
+    bool validateDateTimes(Participant participant);
 }

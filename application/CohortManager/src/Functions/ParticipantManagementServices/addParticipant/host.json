@@ -11,6 +11,12 @@
         "concurrency": {
             "dynamicConcurrencyEnabled": true,
             "snapshotPersistenceEnabled": true
-        }
+        }, 
+        "queues": {
+            "maxPollingInterval": 1000,
+            "batchSize": 32,
+            "maxDequeueCount": 1,
+            "newBatchThreshold": 8
+          }
     }
 }

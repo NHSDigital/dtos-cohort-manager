@@ -67,11 +67,9 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             participant.NhsNumber = Convert.ToString(rec.NhsNumber);
             participant.SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber);
             participant.PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider);
-            participant.PrimaryCareProviderEffectiveFromDate =
-                Convert.ToString(rec.PrimaryCareEffectiveFromDate);
+            participant.PrimaryCareProviderEffectiveFromDate = Convert.ToString(rec.PrimaryCareEffectiveFromDate);
             participant.CurrentPosting = Convert.ToString(rec.CurrentPosting);
-            participant.CurrentPostingEffectiveFromDate =
-                Convert.ToString(rec.CurrentPostingEffectiveFromDate);
+            participant.CurrentPostingEffectiveFromDate = Convert.ToString(rec.CurrentPostingEffectiveFromDate);
             participant.NamePrefix = Convert.ToString(rec.NamePrefix);
             participant.FirstName = Convert.ToString(rec.FirstName);
             participant.OtherGivenNames = Convert.ToString(rec.OtherGivenNames);
@@ -90,11 +88,9 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             participant.AddressLine5 = Convert.ToString(rec.AddressLine5);
             participant.Postcode = Convert.ToString(rec.Postcode);
             participant.PafKey = Convert.ToString(rec.PafKey);
-            participant.UsualAddressEffectiveFromDate =
-                Convert.ToString(rec.UsualAddressEffectiveFromDate);
+            participant.UsualAddressEffectiveFromDate = rec.UsualAddressEffectiveFromDate;
             participant.ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval);
-            participant.ReasonForRemovalEffectiveFromDate =
-                Convert.ToString(rec.ReasonForRemovalEffectiveFromDate);
+            participant.ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate;
             participant.DateOfDeath = Convert.ToString(rec.DateOfDeath);
             if (Enum.IsDefined(typeof(Status), Convert.ToInt16(rec.DeathStatus)))
             {
@@ -102,14 +98,11 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                     Convert.ToInt16(rec.DeathStatus));
             }
             participant.TelephoneNumber = Convert.ToString(rec.TelephoneNumber);
-            participant.TelephoneNumberEffectiveFromDate =
-                Convert.ToString(rec.TelephoneNumberEffectiveFromDate);
+            participant.TelephoneNumberEffectiveFromDate = rec.TelephoneNumberEffectiveFromDate;
             participant.MobileNumber = Convert.ToString(rec.MobileNumber);
-            participant.MobileNumberEffectiveFromDate =
-                Convert.ToString(rec.MobileNumberEffectiveFromDate);
+            participant.MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate);
             participant.EmailAddress = Convert.ToString(rec.EmailAddress);
-            participant.EmailAddressEffectiveFromDate =
-                Convert.ToString(rec.EmailAddressEffectiveFromDate);
+            participant.EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate;
             participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(true) ? "1" : "0");
             participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
             participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(true) ? "1" : "0");
@@ -181,5 +174,26 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             throw new InvalidOperationException("Environment variable is not set.");
         }
         return url;
+    }
+
+    public bool validateDateTimes(Participant participant)
+    {
+        var listOfAllDates = new List<DateTime?>
+       {
+            DateTime.TryParse(participant.PrimaryCareProviderEffectiveFromDate, out var primaryCareProviderEffectiveFromDate) ? primaryCareProviderEffectiveFromDate : null,
+            DateTime.TryParse(participant.UsualAddressEffectiveFromDate, out var usualAddressEffectiveFromDate) ? usualAddressEffectiveFromDate : null,
+            DateTime.TryParse(participant.ReasonForRemovalEffectiveFromDate, out var reasonForRemovalEffectiveFromDate) ? reasonForRemovalEffectiveFromDate : null,
+            DateTime.TryParse(participant.TelephoneNumberEffectiveFromDate, out var telephoneNumberEffectiveFromDate) ? telephoneNumberEffectiveFromDate : null,
+            DateTime.TryParse(participant.MobileNumberEffectiveFromDate, out var mobileNumberEffectiveFromDate) ? mobileNumberEffectiveFromDate : null,
+            DateTime.TryParse(participant.EmailAddressEffectiveFromDate, out var emailAddressEffectiveFromDate) ? emailAddressEffectiveFromDate : null,
+            DateTime.TryParse(participant.DateOfBirth, out var dateOfBirth) ? dateOfBirth : null
+       };
+
+
+        if (listOfAllDates.Any(date => date.HasValue && date > DateTime.UtcNow))
+        {
+            return false;
+        }
+        return true;
     }
 }
