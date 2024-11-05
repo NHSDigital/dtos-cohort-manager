@@ -84,7 +84,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var errorMessage = error.ExceptionMessage ?? (string)error.ActionResult.Output;
+            var errorMessage = string.IsNullOrEmpty(error.ExceptionMessage) ? (string)error.ActionResult.Output : error.ExceptionMessage;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
