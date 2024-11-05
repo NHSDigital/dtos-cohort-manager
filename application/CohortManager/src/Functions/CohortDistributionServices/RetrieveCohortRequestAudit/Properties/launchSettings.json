@@ -2,7 +2,7 @@
   "profiles": {
     "RetrieveAuditHistory": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7080",
+      "commandLineArgs": "--port 7086",
       "launchBrowser": false
     }
   }

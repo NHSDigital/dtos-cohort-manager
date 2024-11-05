@@ -68,6 +68,7 @@ public class AddParticipantFunction
 
 
             var json = JsonSerializer.Serialize(participantCsvRecord);
+            _logger.LogInformation("ADD: sending record to add at {datetime}", DateTime.UtcNow);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
@@ -79,23 +80,28 @@ public class AddParticipantFunction
             _logger.LogInformation("participant created");
 
             var participantJson = JsonSerializer.Serialize(participant);
+            _logger.LogInformation("Eligible: sending record to add at {datetime}", DateTime.UtcNow);
             eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+            _logger.LogInformation("Response Eligible: sending record to add at {datetime}", DateTime.UtcNow);
 
             if (eligibleResponse.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError($"There was an error while marking participant as eligible {eligibleResponse}");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             }
-            _logger.LogInformation("participant created, marked as eligible");
+            _logger.LogInformation("participant created, marked as eligible at  {datetime}", DateTime.UtcNow);
 
 
+            _logger.LogInformation("adding to cohort tool {datetime}", DateTime.UtcNow);
             if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant))
             {
                 _logger.LogError("participant failed to send to Cohort Distribution Service");
                 await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
 
             }
-            _logger.LogInformation("participant sent to Cohort Distribution Service");
+
+
+            _logger.LogInformation("participant sent to Cohort Distribution Service at {datetime}", DateTime.UtcNow);
 
         }
         catch (Exception ex)

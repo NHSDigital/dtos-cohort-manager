@@ -150,7 +150,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipant> ExtractCohortDistributionParticipants(int screeningServiceId, int rowCount)
+    public List<CohortDistributionParticipant> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -501,6 +501,31 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         command.CommandText = sql;
 
         return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
+    }
+
+    public List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId)
+    {
+        var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID],[STATUS_CODE],[CREATED_DATETIME] " +
+        " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+        " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) ";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@LastRequestId", lastRequestId},
+            {"@MaxRequests", 100},
+        };
+
+        using var command = CreateCommand(parameters);
+        command.CommandText = sql;
+
+        return ExecuteQuery(command, ReadCohortRequestAudit);
+    }
+
+    public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
+    {
+        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, 1000);
+
+        return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
     }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
