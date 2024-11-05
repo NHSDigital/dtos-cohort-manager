@@ -9,45 +9,38 @@ trigger:
   paths:
     include:
     - Infrastructure/*
-
 variables:
-  - group: global_variable_group
-  - group: hub_variable_group
+  - group: prod_global_variable_group
+  - group: prod_hub_variable_group
   - name: TF_DIRECTORY
-    value: '$(System.DefaultWorkingDirectory)/infrastructure'
+    value: '$(System.DefaultWorkingDirectory)/infrastructure/tf-core'
 
 pool:
   #vmImage: ubuntu-latest
-  name: 'private-pool-dev-uks'
+  name: 'private-pool-prod-uks'
 
-# Integration environment
-
+# Pre-Production environment
 stages:
   - stage: terraform_plan
     displayName: Terraform Plan
     dependsOn: []
     condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'))
-
     variables:
-      - group: integration_variable_group
-
+      - group: preprod_core_variable_group
     jobs:
-
-      - template: ../jobs/init_and_plan.yaml
+      - template: ../jobs/init_and_plan-audit.yaml
         parameters:
           ENVIRONMENT: $(ENVIRONMENT)
           SERVICE_CONNECTION: $(SERVICE_CONNECTION)
           TF_DIRECTORY: $(TF_DIRECTORY)
           TF_PLAN_ARTIFACT: $(TF_PLAN_ARTIFACT)
           TARGET_SUBSCRIPTION: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
-
   - stage: terraform_apply
     displayName: Terraform Apply
     dependsOn: [terraform_plan]
     condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
     variables:
-      - group: integration_variable_group
-
+      - group: preprod_core_variable_group
     jobs:
       - deployment: terraform_apply
         displayName: Terraform Apply
