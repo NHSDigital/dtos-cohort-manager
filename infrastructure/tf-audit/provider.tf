@@ -1,4 +1,5 @@
 terraform {
+  backend "azurerm" {}
   required_version = ">= 1.9.2"
   required_providers {
     azurerm = {
@@ -6,19 +7,16 @@ terraform {
       # version = ">= 4.2.0"
       version = "= 3.112.0"
     }
-
-    random = "~> 3.5.1"
     azuread = {
       source  = "hashicorp/azuread"
       version = "2.53.1"
     }
+    random = "~> 3.5.1"
   }
 }
 
 provider "azurerm" {
   subscription_id = var.AUDIT_SUBSCRIPTION_ID
-  # Configuration options
-
   features {}
 }
 
@@ -31,8 +29,6 @@ provider "azurerm" {
 provider "azurerm" {
   alias           = "acr_subscription"
   subscription_id = var.ACR_SUBSCRIPTION_ID
-  # Configuration options
-
   features {}
 }
 
@@ -42,6 +38,4 @@ provider "azurerm" {
   features {}
 }
 
-provider "azuread" {
-  # Configuration options
-}
+provider "azuread" {}

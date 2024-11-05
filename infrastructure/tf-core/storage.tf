@@ -1,10 +1,10 @@
 module "storage" {
   for_each = local.storage_accounts_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/storage?ref=36101b5776ad52fb0909a6e17fd3fb9b6c6db540"
+  source = "../../../dtos-devops-templates/infrastructure/modules/storage"
 
   name                = substr("${module.regions_config[each.value.region_key].names.storage-account}${lower(each.value.name_suffix)}", 0, 24)
-  resource_group_name = module.baseline.resource_group_names[each.value.resource_group_key]
+  resource_group_name = azurerm_resource_group.core[each.value.region_key].name
   location            = each.value.region_key
 
   containers = each.value.containers
@@ -34,7 +34,6 @@ locals {
       for storage_key, storage_val in var.storage_accounts : {
         name                          = "${storage_key}-${region_key}"
         region_key                    = region_key
-        resource_group_key            = storage_val.resource_group_key
         name_suffix                   = storage_val.name_suffix
         replication_type              = storage_val.replication_type
         account_tier                  = storage_val.account_tier
