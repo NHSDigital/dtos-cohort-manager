@@ -4,10 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Data.SqlClient;
 using System.Data;
-
+using DataServices.Client;
+using DataServices.Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler()
+        .AddDataService<BsSelectGpPractice>("http://localhost:7998/api/" )
+        .Build()
     .ConfigureServices(services =>
     {
 

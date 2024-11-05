@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
@@ -224,6 +225,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         foreach (var item in req.Query.AllKeys)
         {
             _logger.LogInformation($"item {item} data: {req.Query[item]}");
+
+            if(item == "query")
+            {
+                return DynamicExpressionParser.ParseLambda<TEntity,bool>(new ParsingConfig(),true, req.Query[item]);
+            }
 
             if (!PropertyExists(typeof(TEntity), item))
             {

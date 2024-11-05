@@ -1,5 +1,7 @@
 namespace Data.Database;
 using System.Data;
+using DataServices.Client;
+using DataServices.Database;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
@@ -13,13 +15,15 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
     private readonly ILogger<DbLookupValidationBreastScreening> _logger;
 
+    private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
 
-    public DbLookupValidationBreastScreening(IDbConnection IdbConnection, ILogger<DbLookupValidationBreastScreening> logger)
+    public DbLookupValidationBreastScreening(IDbConnection IdbConnection, ILogger<DbLookupValidationBreastScreening> logger, IDataServiceClient<BsSelectGpPractice> gpPracticeServiceClient)
     {
         _connection = IdbConnection;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
         _logger = logger;
+        _gpPracticeServiceClient = gpPracticeServiceClient;
     }
 
     /// <summary>
@@ -30,32 +34,8 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
     public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
-        try
-        {
-            using (_connection = new SqlConnection(_connectionString))
-            {
-                _connection.Open();
-                using (IDbCommand command = _connection.CreateCommand())
-                {
-                    command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@primaryCareProvider";
-                    parameter.Value = primaryCareProvider;
-                    command.Parameters.Add(parameter);
-
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-
-                        return reader.Read();
-                    }
-                }
-            }
-        }
-        finally
-        {
-            _connection.Close();
-        }
-
+            var r =  _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
+            return r != null;
     }
 
 

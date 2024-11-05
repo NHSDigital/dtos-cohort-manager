@@ -30,5 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Database\DataServices.Database.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Client\DataServices.Client.csproj" />
   </ItemGroup>
 </Project>
