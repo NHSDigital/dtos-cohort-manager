@@ -130,7 +130,7 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, "Create-cohort-distribution-queue-poison");
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, "create-cohort-distribution-queue-poison");
 
     }
 
