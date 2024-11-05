@@ -32,8 +32,7 @@ public class GetValidationExceptions
     [Function(nameof(GetValidationExceptions))]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-
-        var ExceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "ExceptionId");
+        var ExceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var validationException = new List<ValidationException>();
 
         try
@@ -44,8 +43,13 @@ public class GetValidationExceptions
             }
             else
             {
-                validationException.Add(_validationData.GetExceptionById(ExceptionId));
-                if (_validationData.GetExceptionById(ExceptionId) == null)
+                var result = _validationData.GetExceptionById(ExceptionId);
+                if (result.ExceptionId != null)
+                {
+
+                    validationException.Add(result);
+                }
+                else
                 {
                     _logger.LogError("Validation Exception not found with ID: {ExceptionId}", ExceptionId);
                     return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
