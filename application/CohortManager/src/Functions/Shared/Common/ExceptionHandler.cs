@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 /// <summary>
@@ -15,14 +16,12 @@ public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly ICallFunction _callFunction;
-    private static readonly int DefaultCategory = 5;
     private static readonly int DefaultRuleId = 0;
     private static readonly string DefaultCohortName = "";
     private static readonly string DefaultScreeningName = "";
     private static readonly string DefaultErrorRecord = "N/A";
     private static readonly string DefaultFileName = "";
     private static readonly string DefaultNhsNumber = "";
-    private static readonly int NilReturnFileCategory = 7;
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -104,7 +103,7 @@ public class ExceptionHandler : IExceptionHandler
                 DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.Now,
-                Category = DefaultCategory,
+                Category = (int)ExceptionCategory.File,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
                 Fatal = IsFatal
@@ -151,7 +150,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = errorDescription,
-            Category = DefaultCategory,
+            Category = (int)ExceptionCategory.File,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 0,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
@@ -181,7 +180,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
-            Category = nhsNumber == "0" ? NilReturnFileCategory : DefaultCategory,
+            Category = nhsNumber == "0" ? (int)ExceptionCategory.NilReturnFile : (int)ExceptionCategory.File,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
