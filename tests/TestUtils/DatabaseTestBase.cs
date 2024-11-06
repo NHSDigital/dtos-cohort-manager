@@ -17,7 +17,7 @@ namespace NHS.CohortManager.Tests.TestUtils
     {
         protected readonly Mock<IDbConnection> _mockDBConnection = new();
         protected readonly Mock<IDbCommand> _commandMock = new();
-        protected readonly Mock<IDataReader> _mockDataReader = new();
+        protected Mock<IDataReader> _mockDataReader = new();
         protected readonly Mock<ILogger<TService>> _loggerMock = new();
         protected readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
         protected readonly Mock<IDbDataParameter> _mockParameter = new();
@@ -27,7 +27,7 @@ namespace NHS.CohortManager.Tests.TestUtils
         protected Mock<FunctionContext> _context = new();
         protected Mock<ICreateResponse> _createResponseMock = new();
 
-        protected DatabaseTestBaseSetup(Func<IDbConnection, ILogger<TService>, IDbTransaction, IDbCommand,ICreateResponse, TService> serviceFactory)
+        protected DatabaseTestBaseSetup(Func<IDbConnection, ILogger<TService>, IDbTransaction, IDbCommand, ICreateResponse, TService> serviceFactory)
         {
             _service = serviceFactory(_mockDBConnection.Object, _loggerMock.Object, _mockTransaction.Object, _commandMock.Object, _createResponseMock.Object);
 
@@ -91,5 +91,35 @@ namespace NHS.CohortManager.Tests.TestUtils
             }
             _request.Setup(s => s.Query).Returns(queryCollection);
         }
+
+        public void SetupDataReader<T>(List<T> dataList, Dictionary<string, string> columnToPropertyMapping)
+        {
+            var currentIndex = 0;
+            var propertiesDictionary = typeof(T).GetProperties()
+                .ToDictionary(p => p.Name, p => p);
+
+            var sequenceSetup = _mockDataReader.SetupSequence(r => r.Read());
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                sequenceSetup = sequenceSetup.Returns(true);
+            }
+            sequenceSetup.Returns(false);
+
+            _mockDataReader
+                .Setup(r => r[It.IsAny<string>()])
+                .Returns((string columnName) =>
+                {
+                    if (currentIndex < dataList.Count
+                    && columnToPropertyMapping.TryGetValue(columnName, out string propertyName)
+                    && propertiesDictionary.TryGetValue(propertyName, out var property))
+                    {
+                        var value = property.GetValue(dataList[currentIndex]);
+                        currentIndex++;
+                        return value;
+                    }
+                    return null;
+                });
+        }
     }
 }
+

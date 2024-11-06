@@ -22,8 +22,9 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly Mock<IValidationExceptionData> _validationDataMock = new();
     private readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
+    private readonly Dictionary<string, string> columnToPropertyMapping = [];
 
-    public GetValidationExceptionsTests(): base((conn, logger, transaction, command, response) =>
+    public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) =>
             new GetValidationExceptions(logger, response, null, null, null))
     {
         _exceptionList = new List<ValidationException>
@@ -33,11 +34,15 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             new ValidationException { ExceptionId = 3 }
         };
 
+        columnToPropertyMapping = new Dictionary<string, string>
+    {
+        { "EXCEPTION_ID", "ExceptionId" }
+    };
         var json = JsonSerializer.Serialize(_exceptionList);
-        _request = SetupRequest(json);
-        _createResponseMock = CreateHttpResponseMock();
+        SetupRequest(json);
+        CreateHttpResponseMock();
         _function = new GetValidationExceptions(_loggerMock.Object, _createResponseMock.Object, _validationDataMock.Object, _exceptionHandlerMock.Object, _httpParserHelperMock.Object);
-        _service = new ValidationExceptionData(_mockDBConnection.Object,_serviceLoggerMock.Object);
+        _service = new ValidationExceptionData(_mockDBConnection.Object, _serviceLoggerMock.Object);
     }
 
     [TestMethod]
@@ -90,36 +95,22 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         _validationDataMock.Verify(v => v.GetExceptionById(exceptionId), Times.Once);
     }
 
-[TestMethod]
-public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions2()
-{
-    // Arrange
-    var currentIndex = -1;
+    [TestMethod]
+    public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
+    {
+        // Arrange
+        SetupDataReader(_exceptionList, columnToPropertyMapping);
 
-     _mockDataReader
-        .SetupSequence(r => r.Read())
-        .Returns(true)
-        .Returns(true)
-        .Returns(true)
-        .Returns(false);
+        // Act
+        var result = _service.GetAllExceptions();
 
-       _mockDataReader
-        .Setup(r => r["EXCEPTION_ID"])
-        .Returns(() => {
-            currentIndex = (currentIndex + 1) % _exceptionList.Count;
-            return _exceptionList[currentIndex].ExceptionId;
-        });
-
-    // Act
-    var result = _service.GetAllExceptions();
-
-    // Assert
-    Assert.IsNotNull(result);
-    Assert.IsInstanceOfType(result, typeof(List<ValidationException>));
-    Assert.AreEqual(3, result.Count);
-    Assert.AreEqual(1, result[0].ExceptionId);
-    Assert.AreEqual(2, result[1].ExceptionId);
-    Assert.AreEqual(3, result[2].ExceptionId);
-}
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(List<ValidationException>));
+        Assert.AreEqual(3, result.Count);
+        Assert.AreEqual(1, result[0].ExceptionId);
+        Assert.AreEqual(2, result[1].ExceptionId);
+        Assert.AreEqual(3, result[2].ExceptionId);
+    }
 
 }
