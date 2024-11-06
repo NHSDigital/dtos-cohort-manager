@@ -20,8 +20,12 @@ public class LookupValidation
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
     private IDbLookupValidationBreastScreening _dbLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger,
-                            IReadRulesFromBlobStorage readRulesFromBlobStorage, IDbLookupValidationBreastScreening dbLookup)
+    public LookupValidation(
+        ICreateResponse createResponse,
+        IExceptionHandler handleException, ILogger<LookupValidation> logger,
+        IReadRulesFromBlobStorage readRulesFromBlobStorage,
+        IDbLookupValidationBreastScreening dbLookup
+    )
     {
         _createResponse = createResponse;
         _handleException = handleException;

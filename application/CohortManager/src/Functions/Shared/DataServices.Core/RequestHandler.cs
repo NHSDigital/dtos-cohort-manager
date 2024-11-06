@@ -9,10 +9,7 @@ using System.Text.Json;
 using DataServices.Core;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client.Kerberos;
 using Microsoft.IdentityModel.Tokens;
 
 public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
@@ -36,6 +33,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         //DataServiceResponse<string>
         _logger.LogInformation("Http Request Method of type {method} has been received", req.Method);
+        _logger.LogInformation("DataService of type {type} has been called",typeof(TEntity) );
 
         switch (req.Method)
         {

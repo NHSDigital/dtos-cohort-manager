@@ -11,6 +11,8 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataService<BsSelectGpPractice>("http://localhost:7998/api/" )
+        .AddDataService<BsSelectOutCode>("http://localhost:7881/api/")
+        .AddDataService<LanguageCode>("http://localhost:7997/api/")
         .Build()
     .ConfigureServices(services =>
     {
