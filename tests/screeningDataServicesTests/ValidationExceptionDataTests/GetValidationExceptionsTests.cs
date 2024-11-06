@@ -23,10 +23,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
 
-    public GetValidationExceptionsTests()
-        : base((conn, helper, logger, transaction, command, response) =>
-            new GetValidationExceptions(
-                logger, response, null, null, null))
+    public GetValidationExceptionsTests(): base((conn, logger, transaction, command, response) =>
+            new GetValidationExceptions(logger, response, null, null, null))
     {
         _exceptionList = new List<ValidationException>
         {
@@ -90,4 +88,53 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
         _validationDataMock.Verify(v => v.GetExceptionById(exceptionId), Times.Once);
     }
+
+    [TestMethod]
+    public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
+    {
+        //Arrange
+        // _mockDataReader.SetupSequence(reader => reader.Read()).Returns(true).Returns(false);
+        //Act
+        var result = _service.GetAllExceptions();
+
+        //Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType<List<ValidationException>>(result);
+    }
+
+[TestMethod]
+public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions2() //wp this is not reading
+{
+    // Arrange
+    // Setup the mock IDataReader to return data from _exceptionList
+    _mockDataReader.SetupSequence(reader => reader.Read())
+                   .Returns(true)  // First call to Read, returns true (first row of data)
+                   .Returns(true)  // Second call to Read, returns true (second row of data)
+                   .Returns(false); // Third call to Read, returns false (no more data)
+
+    // Mock the columns returned by the IDataReader for each row.
+    // First row returns the first ExceptionId
+    _mockDataReader.Setup(reader => reader["ExceptionId"]).Returns(() => _exceptionList[0].ExceptionId);
+
+    // Second row returns the second ExceptionId
+    _mockDataReader.Setup(reader => reader["ExceptionId"]).Returns(() => _exceptionList[1].ExceptionId);
+
+    // Setup mock database command to return the mocked reader
+    _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+    // Act
+    var result = _service.GetAllExceptions();
+
+    // Assert
+    Assert.IsNotNull(result);
+    Assert.IsInstanceOfType(result, typeof(List<ValidationException>));
+
+    // Verify that the result contains 2 exceptions
+    Assert.AreEqual(2, result.Count);
+
+    // Verify that the returned exceptions match the ExceptionIds from the _exceptionList
+    Assert.AreEqual(1, result[0].ExceptionId);  // The first ExceptionId should be 1
+    Assert.AreEqual(2, result[1].ExceptionId);  // The second ExceptionId should be 2
+}
+
 }

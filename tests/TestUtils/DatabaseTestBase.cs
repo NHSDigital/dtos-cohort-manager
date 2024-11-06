@@ -23,14 +23,13 @@ namespace NHS.CohortManager.Tests.TestUtils
         protected readonly Mock<IDbDataParameter> _mockParameter = new();
         protected readonly Mock<IDbTransaction> _mockTransaction = new();
         protected TService _service;
-
         protected Mock<HttpRequestData> _request;
         protected Mock<FunctionContext> _context = new();
         protected Mock<ICreateResponse> _createResponseMock = new();
 
-        protected DatabaseTestBaseSetup(Func<IDbConnection, IDatabaseHelper, ILogger<TService>, IDbTransaction, IDbCommand,ICreateResponse, TService> serviceFactory)
+        protected DatabaseTestBaseSetup(Func<IDbConnection, ILogger<TService>, IDbTransaction, IDbCommand,ICreateResponse, TService> serviceFactory)
         {
-            _service = serviceFactory(_mockDBConnection.Object, _databaseHelperMock.Object, _loggerMock.Object, _mockTransaction.Object, _commandMock.Object, _createResponseMock.Object);
+            _service = serviceFactory(_mockDBConnection.Object, _loggerMock.Object, _mockTransaction.Object, _commandMock.Object, _createResponseMock.Object);
 
             Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
             Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
@@ -48,9 +47,6 @@ namespace NHS.CohortManager.Tests.TestUtils
             _commandMock.Setup(s => s.ExecuteReader()).Returns(_mockDataReader.Object);
 
             _mockDataReader.SetupSequence(reader => reader.Read()).Returns(true).Returns(false);
-
-            _databaseHelperMock.Setup(s => s.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-            _databaseHelperMock.Setup(s => s.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
         }
 
         public Mock<HttpRequestData> SetupRequest(string json)
