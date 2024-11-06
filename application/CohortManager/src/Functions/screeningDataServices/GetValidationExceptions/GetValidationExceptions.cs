@@ -26,7 +26,6 @@ public class GetValidationExceptions
         _validationData = validationData;
         _exceptionHandler = exceptionHandler;
         _httpParserHelper = httpParserHelper;
-
     }
 
     [Function(nameof(GetValidationExceptions))]
