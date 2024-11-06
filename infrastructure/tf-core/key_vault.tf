@@ -1,13 +1,10 @@
 module "key_vault" {
-  for_each = {
-    for key, value in var.regions : key => value
-    if var.key_vault != {}
-  }
+  for_each = var.key_vault != {} ? var.regions : {}
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/key-vault?ref=3c65ba1334a4ecce82363b9448dabe375174221e"
+  source = "../../../dtos-devops-templates/infrastructure/modules/key-vault"
 
   name                = module.regions_config[each.key].names.key-vault
-  resource_group_name = module.baseline.resource_group_names[var.key_vault.resource_group_key]
+  resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
   disk_encryption          = var.key_vault.disk_encryption
