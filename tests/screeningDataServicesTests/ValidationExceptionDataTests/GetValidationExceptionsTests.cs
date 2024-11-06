@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
 {
     private readonly Mock<ILogger<ValidationExceptionData>> _serviceLoggerMock = new();
-    private readonly List<ValidationException> _exceptionList;
+    private List<ValidationException> _exceptionList;
     private readonly GetValidationExceptions _function;
     private readonly ValidationExceptionData _service;
     private readonly Mock<IValidationExceptionData> _validationDataMock = new();
@@ -41,6 +41,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         var json = JsonSerializer.Serialize(_exceptionList);
         SetupRequest(json);
         CreateHttpResponseMock();
+        SetupDataReader(_exceptionList, columnToClassPropertyMapping);
+
         _function = new GetValidationExceptions(_loggerMock.Object, _createResponseMock.Object, _validationDataMock.Object, _exceptionHandlerMock.Object, _httpParserHelperMock.Object);
         _service = new ValidationExceptionData(_mockDBConnection.Object, _serviceLoggerMock.Object);
     }
@@ -62,7 +64,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     }
 
     [TestMethod]
-    public void Run_ValidExceptionId_ReturnsSpecificException()
+    public void Run_ValidExceptionId_ReturnsExceptionById()
     {
         // Arrange
         var exceptionId = 1;
@@ -79,7 +81,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     }
 
     [TestMethod]
-    public void Run_InvalidExceptionId_ReturnsNoContent()
+    public void Run_ExceptionIdIsOutOfRange_ReturnsNoContent()
     {
         // Arrange
         var exceptionId = 999;
@@ -98,9 +100,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     [TestMethod]
     public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
     {
-        // Arrange
-        SetupDataReader(_exceptionList, columnToClassPropertyMapping);
-
         // Act
         var result = _service.GetAllExceptions();
 
@@ -113,4 +112,36 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         Assert.AreEqual(3, result[2].ExceptionId);
     }
 
+    [TestMethod]
+    public void GetExceptionById_ValidExceptionId_ReturnsExpectedException()
+    {
+        // Arrange
+        var exceptionId = 1;
+
+        // Act
+        var result = _service.GetExceptionById(exceptionId);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsInstanceOfType(result, typeof(ValidationException));
+        Assert.AreEqual(1, result.ExceptionId);
+    }
+
+    [TestMethod]
+    public void GetExceptionById_InvalidId_ReturnsNull()
+    {
+        // Arrange
+        var exceptionId = 999;
+        _exceptionList = new List<ValidationException>();
+        SetupDataReader(_exceptionList, columnToClassPropertyMapping);
+
+        // Act
+        var result = _service.GetExceptionById(exceptionId);
+
+        // Assert
+         Assert.IsNull(result);
+
+    }
+
 }
+
