@@ -90,5 +90,4 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
         _validationDataMock.Verify(v => v.GetExceptionById(exceptionId), Times.Once);
     }
-
 }
