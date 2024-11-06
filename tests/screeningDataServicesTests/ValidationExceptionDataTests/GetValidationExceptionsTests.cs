@@ -139,9 +139,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         var result = _service.GetExceptionById(exceptionId);
 
         // Assert
-         Assert.IsNull(result);
+        Assert.IsNull(result);
 
     }
-
 }
 
