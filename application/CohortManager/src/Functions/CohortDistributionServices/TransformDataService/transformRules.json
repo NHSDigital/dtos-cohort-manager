@@ -441,9 +441,13 @@
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
-              "isExpression": "true",
-              "participantField": "DateOfDeath",
-              "transformedValue": "null"
+              "transformFields": [
+                {
+                  "isExpression": "true",
+                  "field": "DateOfDeath",
+                  "value": "null"
+                }
+              ]
             }
           }
         }
