@@ -22,6 +22,7 @@ public class ExceptionHandler : IExceptionHandler
     private static readonly string DefaultErrorRecord = "N/A";
     private static readonly string DefaultFileName = "";
     private static readonly string DefaultNhsNumber = "";
+    private static readonly int NilReturnFileCategory = 7;
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -180,7 +181,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
-            Category = DefaultCategory,
+            Category = nhsNumber == "0" ? NilReturnFileCategory : DefaultCategory,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
