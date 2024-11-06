@@ -29,7 +29,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         _exceptionList = new List<ValidationException>
         {
             new ValidationException { ExceptionId = 1 },
-            new ValidationException { ExceptionId = 2 }
+            new ValidationException { ExceptionId = 2 },
+            new ValidationException { ExceptionId = 3 }
         };
 
         var json = JsonSerializer.Serialize(_exceptionList);
@@ -89,38 +90,25 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         _validationDataMock.Verify(v => v.GetExceptionById(exceptionId), Times.Once);
     }
 
-    [TestMethod]
-    public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
-    {
-        //Arrange
-        // _mockDataReader.SetupSequence(reader => reader.Read()).Returns(true).Returns(false);
-        //Act
-        var result = _service.GetAllExceptions();
-
-        //Assert
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType<List<ValidationException>>(result);
-    }
-
 [TestMethod]
-public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions2() //wp this is not reading
+public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions2()
 {
     // Arrange
-    // Setup the mock IDataReader to return data from _exceptionList
-    _mockDataReader.SetupSequence(reader => reader.Read())
-                   .Returns(true)  // First call to Read, returns true (first row of data)
-                   .Returns(true)  // Second call to Read, returns true (second row of data)
-                   .Returns(false); // Third call to Read, returns false (no more data)
+    var currentIndex = -1;
 
-    // Mock the columns returned by the IDataReader for each row.
-    // First row returns the first ExceptionId
-    _mockDataReader.Setup(reader => reader["ExceptionId"]).Returns(() => _exceptionList[0].ExceptionId);
+     _mockDataReader
+        .SetupSequence(r => r.Read())
+        .Returns(true)
+        .Returns(true)
+        .Returns(true)
+        .Returns(false);
 
-    // Second row returns the second ExceptionId
-    _mockDataReader.Setup(reader => reader["ExceptionId"]).Returns(() => _exceptionList[1].ExceptionId);
-
-    // Setup mock database command to return the mocked reader
-    _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+       _mockDataReader
+        .Setup(r => r["EXCEPTION_ID"])
+        .Returns(() => {
+            currentIndex = (currentIndex + 1) % _exceptionList.Count;
+            return _exceptionList[currentIndex].ExceptionId;
+        });
 
     // Act
     var result = _service.GetAllExceptions();
@@ -128,13 +116,10 @@ public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions2() //wp this is 
     // Assert
     Assert.IsNotNull(result);
     Assert.IsInstanceOfType(result, typeof(List<ValidationException>));
-
-    // Verify that the result contains 2 exceptions
-    Assert.AreEqual(2, result.Count);
-
-    // Verify that the returned exceptions match the ExceptionIds from the _exceptionList
-    Assert.AreEqual(1, result[0].ExceptionId);  // The first ExceptionId should be 1
-    Assert.AreEqual(2, result[1].ExceptionId);  // The second ExceptionId should be 2
+    Assert.AreEqual(3, result.Count);
+    Assert.AreEqual(1, result[0].ExceptionId);
+    Assert.AreEqual(2, result[1].ExceptionId);
+    Assert.AreEqual(3, result[2].ExceptionId);
 }
 
 }
