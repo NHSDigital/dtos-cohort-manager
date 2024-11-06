@@ -1,3 +1,5 @@
+data "azurerm_client_config" "current" {}
+
 data "terraform_remote_state" "hub" {
   backend = "azurerm"
   config = {
@@ -9,4 +11,21 @@ data "terraform_remote_state" "hub" {
   }
 }
 
-data "azurerm_client_config" "current" {}
+data "azurerm_virtual_network" "vnet_application" {
+  for_each = length(var.routes) > 0 ? var.regions : {}
+
+  provider = azurerm.application
+
+  name                = module.regions_config[each.key].names.virtual-network
+  resource_group_name = "${module.regions_config[each.key].names.resource-group}-networking"
+}
+
+data "azurerm_subnet" "subnet_application_pep" {
+  for_each = length(var.routes) > 0 ? var.regions : {}
+
+  provider = azurerm.application
+
+  name                 = "${module.regions_config[each.key].names.subnet}-pep"
+  resource_group_name  = "${module.regions_config[each.key].names.resource-group}-networking"
+  virtual_network_name = module.regions_config[each.key].names.virtual-network
+}

@@ -1,10 +1,10 @@
 module "functionapp" {
   for_each = local.function_app_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
+  source = "../../../dtos-devops-templates/infrastructure/modules/function-app"
 
   function_app_name   = "${module.regions_config[each.value.region_key].names.function-app}-${lower(each.value.function_config.name_suffix)}"
-  resource_group_name = module.baseline.resource_group_names[var.function_apps.resource_group_key]
+  resource_group_name = azurerm_resource_group.core[each.value.region_key].name
   location            = each.value.region_key
 
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
@@ -49,42 +49,11 @@ module "functionapp" {
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  tags = var.tags
-}
-
-
-module "function_app_slots" {
-  for_each = local.function_app_slots_map
-
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/function-app-slots?ref=93929dbffff36cc74ff0a358a92625285df5b284"
-
-  name                      = each.value.slot_key
-  function_app_id           = module.functionapp[each.value.func_key].id
-  storage_account_name      = module.storage["fnapp-${each.value.region_key}"].storage_account_name
-  function_app_slot_enabled = each.value.slot_config.slot_enabled
+  function_app_slots = var.function_app_slots
 
   tags = var.tags
-
 }
 
-locals {
-
-  function_app_slots_object_list = flatten([
-    for func_key, func_functions in local.function_app_map : [
-      for slot_key, slot_config in var.function_apps.slots : merge({
-        func_key    = func_key
-        slot_key    = slot_key
-        slot_config = slot_config
-      }, func_functions)
-    ]
-    if var.function_apps.slots != null
-  ])
-  function_app_slots_map = {
-    for item in local.function_app_slots_object_list :
-    "${item.slot_key}-${item.func_key}" => item
-  }
-
-}
 
 /* --------------------------------------------------------------------------------------------------
   Function App Access Policies
@@ -110,70 +79,30 @@ resource "azurerm_key_vault_access_policy" "functionapp" {
 }
 
 /* --------------------------------------------------------------------------------------------------
-  Data lookups used to create the Function Apps
--------------------------------------------------------------------------------------------------- */
-data "azurerm_container_registry" "acr" {
-  provider = azurerm.acr_subscription
-
-  name                = var.function_apps.acr_name
-  resource_group_name = var.function_apps.acr_rg_name
-}
-
-data "azurerm_user_assigned_identity" "acr_mi" {
-  provider = azurerm.acr_subscription
-
-  name                = var.function_apps.acr_mi_name
-  resource_group_name = var.function_apps.acr_rg_name
-}
-
-data "azurerm_application_insights" "ai" {
-  provider = azurerm.audit
-
-  name                = var.function_apps.app_insights_name
-  resource_group_name = var.function_apps.app_insights_rg_name
-}
-
-/* --------------------------------------------------------------------------------------------------
   RBAC roles to assign to the Function Apps
 -------------------------------------------------------------------------------------------------- */
 locals {
-
-  rbac_role_assignments_storage_fnapp = {
-    for region_key, region_value in module.regions_config :
-    region_key => [
-      for role_key, role_value in local.rbac_roles_storage : {
-        role_definition_name = role_value
-        scope                = module.storage["fnapp-${region_key}"].storage_account_id
-      }
-    ]
-  }
-
-  rbac_role_assignments_storage_file_exceptions = {
-    for region_key, region_value in module.regions_config :
-    region_key => [
-      for role_key, role_value in local.rbac_roles_storage : {
-        role_definition_name = role_value
-        scope                = module.storage["file_exceptions-${region_key}"].storage_account_id
-      }
-    ]
-  }
-
-  rbac_role_assignments_database = {
-    for region_key, region_value in module.regions_config :
-    region_key => [
-      for role_key, role_value in local.rbac_roles_database : {
-        role_definition_name = role_value
-        scope                = module.azure_sql_server[region_key].sql_server_id
-      }
-    ]
-  }
-
   rbac_role_assignments = {
     for region_key in keys(module.regions_config) :
     region_key => concat(
-      local.rbac_role_assignments_storage_fnapp[region_key] != null ? local.rbac_role_assignments_storage_fnapp[region_key] : [],
-      local.rbac_role_assignments_storage_file_exceptions[region_key] != null ? local.rbac_role_assignments_storage_file_exceptions[region_key] : [],
-      local.rbac_role_assignments_database[region_key] != null ? local.rbac_role_assignments_database[region_key] : []
+      [
+        for _, role_value in local.rbac_roles_storage : {
+          role_definition_name = role_value
+          scope                = module.storage["fnapp-${region_key}"].storage_account_id
+        }
+      ],
+      [
+        for _, role_value in local.rbac_roles_storage : {
+          role_definition_name = role_value
+          scope                = module.storage["file_exceptions-${region_key}"].storage_account_id
+        }
+      ],
+      [
+        for _, role_value in local.rbac_roles_database : {
+          role_definition_name = role_value
+          scope                = module.azure_sql_server[region_key].sql_server_id
+        }
+      ]
     )
   }
 }
@@ -333,4 +262,3 @@ locals {
     for value in local.keyvault_function_app_object_ids : "${value.function_key}-${value.region_key}" => value
   }
 }
-

@@ -1,7 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "PRE"
-location              = "uksouth"
 
 features = {
   private_endpoints_enabled            = true
@@ -11,12 +10,6 @@ features = {
 
 tags = {
   Project = "Cohort-Manager"
-}
-
-resource_groups = {
-  audit = {
-    name_suffix     = "audit"
-  }
 }
 
 regions = {
@@ -43,7 +36,7 @@ regions = {
 routes = {
   uksouth = {
     application_rules = []
-    nat_rules = []
+    nat_rules         = []
     network_rules = [
       {
         name                  = "AllowAuditToCohman"
@@ -69,18 +62,11 @@ routes = {
 
 app_insights = {
   #name_suffix        = "cohman"
-  resource_group_key = "audit"
-  appinsights_type   = "web"
-
-  audit_resource_group_key = "audit"
+  appinsights_type = "web"
 }
 
 law = {
   #name_suffix        = "cohman"
-  resource_group_key = "audit"
-
   law_sku        = "PerGB2018"
   retention_days = 30
-
-  audit_resource_group_key = "audit"
 }
