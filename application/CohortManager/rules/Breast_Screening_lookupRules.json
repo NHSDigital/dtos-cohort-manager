@@ -1,12 +1,6 @@
 [
   {
     "WorkflowName": "Common",
-    "GlobalParams": [
-      {
-        "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-      }
-    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
