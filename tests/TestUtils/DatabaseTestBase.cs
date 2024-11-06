@@ -12,6 +12,7 @@ namespace NHS.CohortManager.Tests.TestUtils
     using System.Data;
     using Data.Database;
     using Microsoft.Extensions.Logging;
+    using System.Reflection;
 
     public abstract class DatabaseTestBaseSetup<TService> where TService : class
     {
@@ -92,26 +93,34 @@ namespace NHS.CohortManager.Tests.TestUtils
             _request.Setup(s => s.Query).Returns(queryCollection);
         }
 
-        public void SetupDataReader<T>(List<T> dataList, Dictionary<string, string> columnToPropertyMapping)
+        public void SetupDataReader<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping)
         {
-            var currentIndex = 0;
-            var propertiesDictionary = typeof(T).GetProperties()
-                .ToDictionary(p => p.Name, p => p);
+            var classProperties = typeof(T).GetProperties().ToDictionary(p => p.Name, p => p);
+            SetupReadSequence(dataList.Count);
+            SetupColumnMappings(dataList, columnToClassPropertyMapping, classProperties);
+        }
 
+        private void SetupReadSequence(int count)
+        {
             var sequenceSetup = _mockDataReader.SetupSequence(r => r.Read());
-            for (int i = 0; i < dataList.Count; i++)
+            for (int i = 0; i < count; i++)
             {
                 sequenceSetup = sequenceSetup.Returns(true);
             }
             sequenceSetup.Returns(false);
+        }
+
+        private void SetupColumnMappings<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping, Dictionary<string, PropertyInfo> classProperties)
+        {
+            var currentIndex = 0;
 
             _mockDataReader
                 .Setup(r => r[It.IsAny<string>()])
                 .Returns((string columnName) =>
                 {
                     if (currentIndex < dataList.Count
-                    && columnToPropertyMapping.TryGetValue(columnName, out string propertyName)
-                    && propertiesDictionary.TryGetValue(propertyName, out var property))
+                        && columnToClassPropertyMapping.TryGetValue(columnName, out string propertyName)
+                        && classProperties.TryGetValue(propertyName, out var property))
                     {
                         var value = property.GetValue(dataList[currentIndex]);
                         currentIndex++;

@@ -22,7 +22,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly Mock<IValidationExceptionData> _validationDataMock = new();
     private readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
-    private readonly Dictionary<string, string> columnToPropertyMapping = [];
+    private readonly Dictionary<string, string> columnToClassPropertyMapping = [];
 
     public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) =>
             new GetValidationExceptions(logger, response, null, null, null))
@@ -34,7 +34,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             new ValidationException { ExceptionId = 3 }
         };
 
-        columnToPropertyMapping = new Dictionary<string, string>
+        columnToClassPropertyMapping = new Dictionary<string, string>
     {
         { "EXCEPTION_ID", "ExceptionId" }
     };
@@ -99,7 +99,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
     {
         // Arrange
-        SetupDataReader(_exceptionList, columnToPropertyMapping);
+        SetupDataReader(_exceptionList, columnToClassPropertyMapping);
 
         // Act
         var result = _service.GetAllExceptions();
