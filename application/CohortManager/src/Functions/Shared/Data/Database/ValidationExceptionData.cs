@@ -4,14 +4,12 @@ using System;
 using System.Data;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly IDbConnection _dbConnection;
     private readonly string _connectionString;
     private readonly ILogger<ValidationExceptionData> _logger;
-    private const int _category = (int)ExceptionCategory.File;
 
     public ValidationExceptionData(IDbConnection IdbConnection, ILogger<ValidationExceptionData> logger)
     {
@@ -38,10 +36,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[IS_FATAL]
                 FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
-        var parameters = new Dictionary<string, object>
-        {
-            {"@Category", _category },
-        };
+        var parameters = new Dictionary<string, object>{};
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
