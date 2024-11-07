@@ -26,53 +26,45 @@ public class GetValidationExceptions
     private readonly ILogger<GetValidationExceptions> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IValidationExceptionData _validationData;
-    private readonly IExceptionHandler _exceptionHandler;
     private readonly IHttpParserHelper _httpParserHelper;
 
 
-    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
+    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper)
     {
         _logger = logger;
         _createResponse = createResponse;
         _validationData = validationData;
-        _exceptionHandler = exceptionHandler;
         _httpParserHelper = httpParserHelper;
     }
 
     [Function(nameof(GetValidationExceptions))]
     public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var ExceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
-        var validationException = new List<ValidationException>();
+        var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
 
         try
         {
-            if (ExceptionId == 0)
+            if (exceptionId == 0)
             {
-                validationException = _validationData.GetAllExceptions();
-            }
-            else
-            {
-                var result = _validationData.GetExceptionById(ExceptionId);
-                if (result.ExceptionId != null)
-                {
-
-                    validationException.Add(result);
-                }
-                else
-                {
-                    _logger.LogError("Validation Exception not found with ID: {ExceptionId}", ExceptionId);
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-                }
+                var exceptionList = _validationData.GetAllExceptions();
+                var exceptionListJson = JsonSerializer.Serialize(exceptionList);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionListJson));
             }
 
-            var validationExceptionJson = JsonSerializer.Serialize(validationException);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, validationExceptionJson);
+            var exceptionById = _validationData.GetExceptionById(exceptionId);
 
+            if (exceptionById.ExceptionId == null)
+            {
+                _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
+            var exceptionByIdJson = JsonSerializer.Serialize(exceptionById);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionByIdJson);
         }
         catch (Exception ex)
         {
-            _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
+            _logger.LogError(ex, "Error processing: {Function} validation exceptions request", nameof(GetValidationExceptions));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
