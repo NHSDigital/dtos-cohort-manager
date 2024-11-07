@@ -27,7 +27,7 @@ public class LookupValidationTests
     private LookupValidation _sut;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
     private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
-    private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
+    private readonly Mock<IDataLookupFacade> _lookupValidation = new();
 
     [TestInitialize]
     public void IntialiseTests()

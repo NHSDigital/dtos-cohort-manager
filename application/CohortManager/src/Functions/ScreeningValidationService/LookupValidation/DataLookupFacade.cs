@@ -7,6 +7,7 @@ public class DataLookupFacade : IDataLookupFacade
     private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
+    private readonly IDataServiceClient<CurrentPosting> _currentPostingClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
 
 
@@ -15,13 +16,15 @@ public class DataLookupFacade : IDataLookupFacade
         ILogger<DataLookupFacade> logger,
         IDataServiceClient<BsSelectGpPractice> gpPracticeClient,
         IDataServiceClient<BsSelectOutCode> outcodeClient,
-        IDataServiceClient<LanguageCode> languageCodeClient
+        IDataServiceClient<LanguageCode> languageCodeClient,
+        IDataServiceClient<CurrentPosting> currentPostingClient
     )
     {
         _logger = logger;
         _gpPracticeServiceClient = gpPracticeClient;
         _languageCodeClient = languageCodeClient;
         _outcodeClient = outcodeClient;
+        _currentPostingClient = currentPostingClient;
     }
 
     /// <summary>
@@ -62,13 +65,36 @@ public class DataLookupFacade : IDataLookupFacade
         return result != null;
     }
 
+    /// Used in rule 58 of the lookup rules.
+    /// Validates that the current posting exists, and that it is in the cohort and in use.
+    /// </summary>
+    /// <param name="currentPosting">The participant's current posting (area code).</param>
+    /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool CheckIfCurrentPostingExists(string currentPosting)
     {
-        throw new NotImplementedException();
+        var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.IncludedInCohort == "Y" && i.InUse == "Y").Result;
+        if(result == null){
+            return false;
+        }
+        if(result.Any()){
+            return false;
+        }
+        return true;
     }
-
+    /// <summary>
+    /// takes in posting and returns if that posting has a valid posting category in the database
+    /// </summary>
+    /// <param name="postingCategory"></param>
+    /// <returns></returns>
     public bool ValidatePostingCategories(string currentPosting)
     {
-        throw new NotImplementedException();
+        var result = _currentPostingClient.GetSingle(currentPosting).Result;
+        if(result == null){
+            return false;
+        }
+        if(allPossiblePostingCategories.Contains(result.PostingCategory)){
+            return true;
+        }
+        return false;
     }
 }

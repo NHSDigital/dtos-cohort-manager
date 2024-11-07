@@ -14,6 +14,7 @@ var host = new HostBuilder()
         .AddDataService<BsSelectGpPractice>("http://localhost:7998/api/" )
         .AddDataService<BsSelectOutCode>("http://localhost:7881/api/")
         .AddDataService<LanguageCode>("http://localhost:7997/api/")
+        .AddDataService<CurrentPosting>("http://localhost:7996/api/")
         .Build()
     .ConfigureServices(services =>
     {
@@ -21,7 +22,6 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRulesFromBlobStorage, ReadRulesFromBlobStorage>();
-        services.AddTransient<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
         services.AddSingleton<IDataLookupFacade,DataLookupFacade>();
     })
     .AddDatabaseConnection()

@@ -84,7 +84,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         var predicate = CreateFilterExpression(req);
         var result = await _dataServiceAccessor.GetRange(predicate);
-
+        if(result == null || !result.Any())
+        {
+            return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
+        }
         return CreateHttpResponse(req,new DataServiceResponse<string>
         {
             JsonData = JsonSerializer.Serialize(result)
@@ -99,9 +102,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
 
         var keyPredicate = CreateGetByKeyExpression(keyValue);
-
-        _logger.LogError(keyPredicate.ToString());
         var result = await _dataServiceAccessor.GetSingle(keyPredicate);
+
+        if(result == null)
+        {
+            return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NotFound);
+        }
+
 
         return CreateHttpResponse(req,new DataServiceResponse<string>
         {
@@ -279,7 +286,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         HttpStatusCode statusCode;
         byte[] responseBody = null!;
-        if (dataServiceResponse.ErrorMessage == null)
+        if(httpStatusCode == HttpStatusCode.NoContent){
+            statusCode = httpStatusCode;
+        }
+        else if (dataServiceResponse.ErrorMessage == null)
         {
             statusCode = HttpStatusCode.OK;
             responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.JsonData);

@@ -21,13 +21,13 @@ public class LookupValidation
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
     //private IDbLookupValidationBreastScreening _dbLookup;
 
-    private readonly DataLookupFacade _dataLookup;
+    private readonly IDataLookupFacade _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
         IReadRulesFromBlobStorage readRulesFromBlobStorage,
-        DataLookupFacade dataLookupFacade
+        IDataLookupFacade dataLookupFacade
 
     )
     {

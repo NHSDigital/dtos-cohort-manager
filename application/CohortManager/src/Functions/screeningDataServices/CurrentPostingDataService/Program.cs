@@ -12,7 +12,7 @@ AuthenticationConfiguration authenticationConfiguration = new AuthenticationConf
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-    .AddDataServicesHandler<>()
+    .AddDataServicesHandler<DataServicesContext>()
     .Build();
 
 host.Run();

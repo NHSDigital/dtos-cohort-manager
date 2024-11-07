@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 /// Various validation methods for use in the breast screening lookup/ cohort rules
 /// </summary>
+///
+[Obsolete("Deprecated Please use DataLookupFacade Instead",true)]
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
     private IDbConnection _connection;

@@ -13,5 +13,5 @@ public class CurrentPosting
     [Column("INCLUDED_IN_COHORT")]
     public string IncludedInCohort {get;set;}
     [Column("POSTING_CATEGORY")]
-    public string postingCategory {get;set;}
+    public string PostingCategory {get;set;}
 }
