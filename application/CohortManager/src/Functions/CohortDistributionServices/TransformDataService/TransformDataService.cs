@@ -120,16 +120,8 @@ public class TransformDataService
                 FileName = "",
             };
 
-            try
-            {
-                _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exceptionMessage);
-                await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => !result.IsSuccess), participantCsvRecord);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Handling the exception failed. Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-                await _exceptionHandler.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
-            }
+            _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exceptionMessage);
+            await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => !result.IsSuccess), participantCsvRecord);
 
             return participant;
         }
