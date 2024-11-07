@@ -26,6 +26,7 @@ public class TransformDataServiceTests
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
 
     public TransformDataServiceTests()
     {
@@ -44,7 +45,10 @@ public class TransformDataServiceTests
             ServiceProvider = "1"
         };
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object);
+        _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
+        _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
+
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -367,12 +371,39 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_AmendRecordHasNullName_GetPreviousNameFromDb()
+    {
+        // Arrange
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.FirstName = null;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            RecordType = Actions.Amended,
+            NhsNumber = "1",
+            FirstName = "A first name",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+    }
+
+    [TestMethod]
     public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
     {
         // Arrange
         _requestBody.Participant.InvalidFlag = true;
         _requestBody.Participant.PrimaryCareProvider = "G82650";
-
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
