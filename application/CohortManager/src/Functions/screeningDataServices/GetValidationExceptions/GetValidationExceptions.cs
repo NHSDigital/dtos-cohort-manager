@@ -9,7 +9,18 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
-
+/// <summary>
+/// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
+/// </summary>
+/// <param name="req">The HTTP request data containing query parameters and request details.</param>
+/// <param name="exceptionId">query parameter used to search for an exception by Id..</param>
+/// if not exceptionId is passed in the full list of exceptions will be returned
+/// <returns>
+/// HTTP response with:
+/// - 204 No Content if no data is found.
+/// - 200 OK - List<GetValidationExceptions> or single GetValidationExcept in JSON format .
+/// - 500 Internal Server Error if an exception occurs.
+/// </returns>
 public class GetValidationExceptions
 {
     private readonly ILogger<GetValidationExceptions> _logger;
