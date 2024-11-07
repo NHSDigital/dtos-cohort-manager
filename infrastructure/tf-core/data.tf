@@ -11,10 +11,6 @@ data "terraform_remote_state" "hub" {
   }
 }
 
-<<<<<<< HEAD
-# Note the following two Networking data look-ups only work becasue the names for the
-# resources are effectively the same in both subscriptions (with additional name suffix for Audit RG)
-=======
 data "terraform_remote_state" "audit" {
   backend = "azurerm"
   config = {
@@ -26,7 +22,6 @@ data "terraform_remote_state" "audit" {
   }
 }
 
->>>>>>> 82e7602e... feat DTOSS 5205 setting to query audit tfstatefile
 data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
 
