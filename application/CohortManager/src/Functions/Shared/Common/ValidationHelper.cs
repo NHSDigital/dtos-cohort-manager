@@ -1,10 +1,10 @@
 namespace Common;
 
 using System.Globalization;
-using Model;
 
 public static class ValidationHelper
 {
+    private static readonly string NilReturnFileNhsNumber = "0000000000";
     // Validates that the date is not in the future and that it is in one of the expected formats
     public static bool ValidatePastDate(string dateString)
     {
@@ -25,6 +25,12 @@ public static class ValidationHelper
         }
 
         if (nhsNumber.Length != 10)
+        {
+            return false;
+        }
+
+        // Check if NHS number is from a nil return file
+        if (nhsNumber == NilReturnFileNhsNumber)
         {
             return false;
         }

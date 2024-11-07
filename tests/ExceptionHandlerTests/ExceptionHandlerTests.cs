@@ -19,10 +19,11 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_SystemExceptionWithNilReturnFile_IsCalledWithCategory7Exception()
+    [DataRow("0000000000")]
+    [DataRow("0")]
+    public async Task Run_SystemExceptionWithNilReturnFile_IsCalledWithCategory7Exception(string nilReturnFileNhsNumber)
     {
         // Arrange
-        var nilReturnFileNhsNumber = "0";
         var participant = new Participant() { NhsNumber = nilReturnFileNhsNumber };
 
         // Act
