@@ -10,18 +10,23 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
+using Common;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IScreeningServiceData _screeningServiceData;
+    private readonly IProcessCaasFile _processCaasFile;
+    private readonly IExceptionHandler _exceptionHandler;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, IReceiveCaasFileHelper receiveCaasFileHelper, IScreeningServiceData screeningServiceData)
+    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, IReceiveCaasFileHelper receiveCaasFileHelper, IScreeningServiceData screeningServiceData, IExceptionHandler exceptionHandler, IProcessCaasFile processCaasFile)
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _screeningServiceData = screeningServiceData;
+        _exceptionHandler = exceptionHandler;
+        _processCaasFile = processCaasFile;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -49,6 +54,7 @@ public class ReceiveCaasFile
 
             var chunks = new List<Cohort>();
             var rowNumber = 0;
+            int err = 0;
             var batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BatchSize"));
 
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
@@ -59,7 +65,7 @@ public class ReceiveCaasFile
                 await blobStream.CopyToAsync(fileStream);
             }
             var screeningService = GetScreeningService(fileNameParser);
-            if(string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
+            if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
             {
                 string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
                 _logger.LogError(errorMessage);
@@ -67,47 +73,55 @@ public class ReceiveCaasFile
                 return;
             }
             _logger.LogInformation($"Screening Name: {screeningService.ScreeningName}");
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
-                    foreach (var rec in values)
+                    //foreach (var rec in values)
+                    await Parallel.ForEachAsync(values, async (rec, cancellationToken) =>
                     {
+
+                        var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
                         rowNumber++;
 
-                        var participant = new Participant
-                        {
-                            ScreeningId = screeningService.ScreeningId,
-                            ScreeningName = screeningService.ScreeningName
-
-                        };
-                        participant = await _receiveCaasFileHelper.MapParticipant(rec, participant, name, rowNumber);
-
-                        if (participant is null)
+                        if (participant == null)
                         {
                             chunks.Clear();
                             cohort.Participants.Clear();
                             _logger.LogError("Invalid data in the file: {Name}", name);
                             return;
                         }
+
+                        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+                        {
+                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {rowNumber}"), participant, name);
+                            err++;
+                            return; // skip current participant
+                        }
+
+
+                        if (!_receiveCaasFileHelper.validateDateTimes(participant))
+                        {
+                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {rowNumber}."), participant, name);
+                            err++;
+                            return; // Skip current participant
+                        }
                         cohort.Participants.Add(participant);
+
+                        _logger.LogInformation("sending to add now {datetime}", DateTime.Now);
+                        await _processCaasFile.ProcessRecordAsync(participant, name);
 
                         if (cohort.Participants.Count == batchSize)
                         {
                             chunks.Add(cohort);
                             cohort.Participants.Clear();
                         }
-                    }
+                    });
                 }
             }
-
-            if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
-
-            await _receiveCaasFileHelper.SerializeParquetFile(chunks, cohort, name, rowNumber);
-            _logger.LogInformation("All rows processed for file named {Name}.", name);
-
         }
         catch (Exception ex)
         {
@@ -117,12 +131,14 @@ public class ReceiveCaasFile
         }
         finally
         {
+            _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }
 
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
+
         var ScreeningWorkflow = fileNameParser.GetScreeningService();
         _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
         return _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);

@@ -1,0 +1,62 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - infrastructure/*
+
+pool:
+  #vmImage: ubuntu-latest
+  name: private-pool-prod-uks
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 46e5d81bf58a7b9324a35e191eac7f6cc3660dfd
+      endpoint: NHSDigital
+
+variables:
+  - group: prod_global_variable_group
+  - group: prod_hub_variable_group
+  - group: preprod_audit_variable_group
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: ENVIRONMENT
+    value: preprod
+
+stages:
+  - stage: terraform_plan
+    displayName: Terraform Plan
+    condition: eq(variables['Build.Reason'], 'Manual')
+    variables:
+      tfvars: environments/$(ENVIRONMENT).tfvars
+    jobs:
+      - job: init_and_plan
+        displayName: Init, plan, store artifact
+        steps:
+          - checkout: self
+          - checkout: dtos-devops-templates
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+
+  - stage: terraform_apply
+    displayName: Terraform Apply
+    dependsOn: [terraform_plan]
+    condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+    jobs:
+      - deployment: terraform_apply
+        displayName: Init, get plan artifact, apply
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates

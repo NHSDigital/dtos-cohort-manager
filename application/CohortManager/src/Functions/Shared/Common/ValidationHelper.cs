@@ -14,10 +14,8 @@ public static class ValidationHelper
         {
             return date < DateTime.Today;
         }
-
         return false;
     }
-
     public static bool ValidateNHSNumber(string nhsNumber)
     {
         // Check the NHS number is a number
