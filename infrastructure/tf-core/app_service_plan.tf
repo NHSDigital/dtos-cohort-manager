@@ -1,11 +1,28 @@
+locals {
+  # Create a flat list of projects with region keys for consumption in a for_each meta argument
+  app_service_plans_flatlist = flatten([
+    for region_key, region_val in var.regions : [
+      for asp_key, asp_val in var.app_service_plan.instances : {
+        key        = "${asp_key}-${region_key}"
+        asp_key    = asp_key
+        asp_val    = asp_val
+        region_key = region_key
+      }
+    ]
+  ])
+
+  # Project the above list into a map with unique keys for consumption in a for_each meta argument
+  app_service_plans_map = { for asp in local.app_service_plans_flatlist : asp.key => asp }
+}
+
 module "app-service-plan" {
   for_each = local.app_service_plans_map
 
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/app-service-plan?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  source = "../../../dtos-devops-templates/infrastructure/modules/app-service-plan"
 
   name                = "${module.regions_config[each.value.region_key].names.app-service-plan}-${lower(each.value.asp_key)}"
-  resource_group_name = module.baseline.resource_group_names[var.app_service_plan.resource_group_key]
-  location            = module.baseline.resource_group_locations[var.app_service_plan.resource_group_key]
+  resource_group_name = azurerm_resource_group.core[each.value.region_key].name
+  location            = each.value.region_key
 
   os_type  = var.app_service_plan.os_type
   sku_name = var.app_service_plan.sku_name
@@ -39,24 +56,6 @@ module "app-service-plan" {
   dec_scale_type      = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.memory_percentage.dec_scale_type, var.app_service_plan.autoscale.memory_percentage.dec_scale_type) : var.app_service_plan.autoscale.memory_percentage.dec_scale_type
   dec_scale_value     = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.memory_percentage.dec_scale_value, var.app_service_plan.autoscale.memory_percentage.dec_scale_value) : var.app_service_plan.autoscale.memory_percentage.dec_scale_value
   dec_scale_cooldown  = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.memory_percentage.dec_scale_cooldown, var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown) : var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown
-}
-
-locals {
-
-  # Create a flat list of projects with region keys for consumption in a for_each meta argument
-  app_service_plans_flatlist = flatten([
-    for region_key, region_val in var.regions : [
-      for asp_key, asp_val in var.app_service_plan.instances : {
-        key        = "${asp_key}-${region_key}"
-        asp_key    = asp_key
-        asp_val    = asp_val
-        region_key = region_key
-      }
-    ]
-  ])
-
-  # Project the above list into a map with unique keys for consumption in a for_each meta argument
-  app_service_plans_map = { for asp in local.app_service_plans_flatlist : asp.key => asp }
 }
 
 output "app_service_plans_flatlist" {

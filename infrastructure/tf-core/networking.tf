@@ -6,10 +6,7 @@ resource "azurerm_resource_group" "rg_vnet" {
 }
 
 resource "azurerm_resource_group" "rg_private_endpoints" {
-  for_each = {
-    for key, val in var.regions :
-    key => val if var.features.private_endpoints_enabled
-  }
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
   name     = "${module.regions_config[each.key].names.resource-group}-private-endpoints"
   location = each.key
@@ -18,8 +15,7 @@ resource "azurerm_resource_group" "rg_private_endpoints" {
 module "vnet" {
   for_each = var.regions
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet?ref=6dbb0d4f42e3fd1f94d4b8e85ef596b7d01844bc"
+  source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -34,29 +30,6 @@ module "vnet" {
 /*--------------------------------------------------------------------------------------------------
   Create Subnets
 --------------------------------------------------------------------------------------------------*/
-
-module "subnets" {
-  for_each = local.subnets_map
-
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/subnet?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
-
-  name                              = each.value.subnet_name
-  location                          = module.vnet[each.value.vnet_key].vnet.location
-  network_security_group_name       = each.value.nsg_name
-  network_security_group_nsg_rules  = each.value.nsg_rules
-  create_nsg                        = each.value.create_nsg
-  resource_group_name               = module.vnet[each.value.vnet_key].vnet.resource_group_name
-  vnet_name                         = module.vnet[each.value.vnet_key].name
-  address_prefixes                  = [each.value.address_prefixes]
-  default_outbound_access_enabled   = true
-  private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
-
-  delegation_name            = each.value.delegation_name != null ? each.value.delegation_name : ""
-  service_delegation_name    = each.value.service_delegation_name != null ? each.value.service_delegation_name : ""
-  service_delegation_actions = each.value.service_delegation_actions != null ? each.value.service_delegation_actions : []
-
-  tags = var.tags
-}
 
 locals {
   # Expand a flattened list of objects for all subnets (allows nested for loops)
@@ -76,6 +49,31 @@ locals {
   subnets_map = { for subnet in local.subnets_flatlist : subnet.subnet_name => subnet }
 }
 
+module "subnets" {
+  for_each = local.subnets_map
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
+
+  name                              = each.value.subnet_name
+  location                          = module.vnet[each.value.vnet_key].vnet.location
+  network_security_group_name       = each.value.nsg_name
+  network_security_group_nsg_rules  = each.value.nsg_rules
+  create_nsg                        = each.value.create_nsg
+  resource_group_name               = module.vnet[each.value.vnet_key].vnet.resource_group_name
+  vnet_name                         = module.vnet[each.value.vnet_key].name
+  address_prefixes                  = [each.value.address_prefixes]
+  default_outbound_access_enabled   = true
+  private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
+
+  delegation_name            = each.value.delegation_name != null ? each.value.delegation_name : ""
+  service_delegation_name    = each.value.service_delegation_name != null ? each.value.service_delegation_name : ""
+  service_delegation_actions = each.value.service_delegation_actions != null ? each.value.service_delegation_actions : []
+
+  tags = var.tags
+}
+
+
+
 /*--------------------------------------------------------------------------------------------------
   Create peering
 --------------------------------------------------------------------------------------------------*/
@@ -84,8 +82,7 @@ module "peering_spoke_hub" {
   # loop through regions and only create peering if connect_peering is set to true
   for_each = { for key, val in var.regions : key => val if val.connect_peering == true }
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
+  source = "../../../dtos-devops-templates/infrastructure/modules/vnet-peering"
 
   name                = "${module.regions_config[each.key].names.virtual-network}-to-hub-peering"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
@@ -106,8 +103,7 @@ module "peering_hub_spoke" {
     azurerm = azurerm.hub
   }
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/vnet-peering?ref=e125d928afd9546e06d8af9bdb6391cbf6336773"
+  source = "../../../dtos-devops-templates/infrastructure/modules/vnet-peering"
 
   name                = "hub-to-${module.regions_config[each.key].names.virtual-network}-peering"
   resource_group_name = data.terraform_remote_state.hub.outputs.vnets_hub[each.key].vnet.resource_group_name

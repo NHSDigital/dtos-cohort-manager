@@ -1,47 +1,35 @@
 # Create the private link service for Application Insights and Log Analytics
 module "private_link_scoped_service_app_insights" {
-  for_each = {
-    for key, region in var.regions :
-    key => region if var.features.private_endpoints_enabled
-  }
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scoped-service?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
+  source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scoped-service"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-app-insights"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
 
-  linked_resource_id = module.app_insights_audit.id
+  linked_resource_id = module.app_insights_audit[each.key].id
   scope_name         = module.private_link_scope[each.key].scope_name
 }
 
 module "private_link_scoped_service_law" {
-  for_each = {
-    for key, region in var.regions :
-    key => region if var.features.private_endpoints_enabled
-  }
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scoped-service?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
+  source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scoped-service"
 
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
 
-  linked_resource_id = module.log_analytics_workspace_audit.id
+  linked_resource_id = module.log_analytics_workspace_audit[each.key].id
   scope_name         = module.private_link_scope[each.key].scope_name
 }
 
 # Create the private link scope in the spoke subscription
 module "private_link_scope" {
-  for_each = {
-    for key, region in var.regions :
-    key => region if var.features.private_endpoints_enabled
-  }
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
-  # Source location updated to use the git:: prefix to avoid URL encoding issues - note // between the URL and the path is required
-  source = "git::https://github.com/NHSDigital/dtos-devops-templates.git//infrastructure/modules/private-link-scope?ref=06ac7b627f6479f6b59043643fc57fe1d7732c12"
+  source = "../../../dtos-devops-templates/infrastructure/modules/private-link-scope"
 
-  name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls"
+  name                = module.regions_config[each.key].names.log-analytics-workspace
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
   location            = each.key
 
@@ -66,5 +54,3 @@ module "private_link_scope" {
   tags = var.tags
 
 }
-
-
