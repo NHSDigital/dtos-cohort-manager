@@ -13,19 +13,14 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly List<ValidationException> _exceptionList;
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
 
-    public GetValidationExceptionsTests()
-        : base((conn, logger, transaction, command, response) => null)
+    public GetValidationExceptionsTests(): base((conn, logger, transaction, command, response) => null)
     {
+        columnToClassPropertyMapping = new Dictionary<string, string>{{ "EXCEPTION_ID", "ExceptionId" }};
         _exceptionList = new List<ValidationException>
         {
             new ValidationException { ExceptionId = 1 },
             new ValidationException { ExceptionId = 2 },
             new ValidationException { ExceptionId = 3 }
-        };
-
-        columnToClassPropertyMapping = new Dictionary<string, string>
-        {
-            { "EXCEPTION_ID", "ExceptionId" }
         };
 
         _service = new GetValidationExceptions(

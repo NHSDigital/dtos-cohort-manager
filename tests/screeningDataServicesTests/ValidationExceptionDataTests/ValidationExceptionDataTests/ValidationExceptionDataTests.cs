@@ -11,9 +11,9 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
     private List<ValidationException> _exceptionList;
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
 
-    public ValidationExceptionDataTests()
-        : base((conn, logger, transaction, command, response) => new ValidationExceptionData(conn,logger))
+    public ValidationExceptionDataTests(): base((conn, logger, transaction, command, response) => new ValidationExceptionData(conn,logger))
     {
+        columnToClassPropertyMapping = new Dictionary<string, string>{{ "EXCEPTION_ID", "ExceptionId" }};
         _exceptionList = new List<ValidationException>
         {
             new ValidationException { ExceptionId = 1 },
@@ -21,14 +21,6 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
             new ValidationException { ExceptionId = 3 }
         };
 
-        columnToClassPropertyMapping = new Dictionary<string, string>
-        {
-            { "EXCEPTION_ID", "ExceptionId" }
-        };
-
-        var json = JsonSerializer.Serialize(_exceptionList);
-        SetupRequest(json);
-        CreateHttpResponseMock();
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
     }
 
