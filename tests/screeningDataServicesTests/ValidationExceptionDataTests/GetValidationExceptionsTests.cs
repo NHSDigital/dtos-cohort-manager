@@ -21,11 +21,10 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly ValidationExceptionData _service;
     private readonly Mock<IValidationExceptionData> _validationDataMock = new();
     private readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
-    private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly Dictionary<string, string> columnToClassPropertyMapping = [];
 
     public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) =>
-            new GetValidationExceptions(logger, response, null, null, null))
+            new GetValidationExceptions(logger, response, null, null))
     {
         _exceptionList = new List<ValidationException>
         {
@@ -43,7 +42,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         CreateHttpResponseMock();
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
 
-        _function = new GetValidationExceptions(_loggerMock.Object, _createResponseMock.Object, _validationDataMock.Object, _exceptionHandlerMock.Object, _httpParserHelperMock.Object);
+        _function = new GetValidationExceptions(_loggerMock.Object, _createResponseMock.Object, _validationDataMock.Object, _httpParserHelperMock.Object);
         _service = new ValidationExceptionData(_mockDBConnection.Object, _serviceLoggerMock.Object);
     }
 
