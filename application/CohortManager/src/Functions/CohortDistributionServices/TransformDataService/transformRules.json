@@ -273,6 +273,34 @@
         }
       },
       {
+        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvide",
+        "Expression": "participant.PrimaryCareProvider != null && transformLookups.ParticipantIsInvalid(participant.ParticipantId)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "PrimaryCareProvider",
+                  "value": "null",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "\"ORR\"",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalBusinessEffectiveDate",
+                  "value": "DateTime.Today",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
         "RuleName": "3.Other.DateOfDeath.DoesNotExist",
         "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
         "Actions": {

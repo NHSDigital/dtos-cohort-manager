@@ -366,6 +366,36 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
+    {
+        // Arrange
+        _requestBody.Participant.InvalidFlag = true;
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "ORR",
+            ReasonForRemovalEffectiveFromDate = DateTime.Today,
+            PrimaryCareProvider = null
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
