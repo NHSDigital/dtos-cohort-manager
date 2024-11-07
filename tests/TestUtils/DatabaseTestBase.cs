@@ -1,4 +1,5 @@
 namespace NHS.CohortManager.Tests.TestUtils
+
 {
     using System.Collections.Specialized;
     using System.IO;

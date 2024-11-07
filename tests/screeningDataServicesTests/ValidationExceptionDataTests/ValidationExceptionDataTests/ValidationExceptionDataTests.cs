@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 
 using NHS.CohortManager.Tests.TestUtils;
-using System.Text.Json;
 using Model;
 using Data.Database;
 

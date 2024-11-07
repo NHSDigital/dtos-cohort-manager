@@ -1,4 +1,5 @@
 namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
+
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Model;
