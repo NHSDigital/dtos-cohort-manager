@@ -27,7 +27,6 @@ namespace NHS.CohortManager.Tests.TestUtils
         protected Mock<HttpRequestData> _request;
         protected Mock<FunctionContext> _context = new();
         protected Mock<ICreateResponse> _createResponseMock = new();
-
         protected DatabaseTestBaseSetup(Func<IDbConnection, ILogger<TService>, IDbTransaction, IDbCommand, ICreateResponse, TService> serviceFactory)
         {
             _service = serviceFactory(_mockDBConnection.Object, _loggerMock.Object, _mockTransaction.Object, _commandMock.Object, _createResponseMock.Object);
@@ -35,6 +34,11 @@ namespace NHS.CohortManager.Tests.TestUtils
             Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
             Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
 
+            SetupMock();
+        }
+
+        private void SetupMock()
+        {
             _mockDBConnection.Setup(s => s.ConnectionString).Returns("someFakeConnectionString");
             _mockDBConnection.Setup(s => s.BeginTransaction()).Returns(_mockTransaction.Object);
             _mockDBConnection.Setup(s => s.CreateCommand()).Returns(_commandMock.Object);
