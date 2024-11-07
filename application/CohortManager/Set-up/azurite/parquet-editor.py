@@ -99,7 +99,6 @@ if args.o:
     file_name = args.o[0]
 
 df.to_parquet(path=file_name, engine='fastparquet', index=False)
-# write(file_name, df, has_nulls=True)
 
 if args.s:
     send_sample_file(file_name)
