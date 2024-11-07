@@ -1,17 +1,11 @@
 namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
-
-using Common.Interfaces;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Model;
-using NHS.CohortManager.ScreeningDataServices;
-using Common;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using System.Data;
+using NHS.CohortManager.ScreeningDataServices;
 
 [TestClass]
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
