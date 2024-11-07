@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Model;
 using DataServices.Client;
 using DataServices.Database;
 
@@ -21,6 +22,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRulesFromBlobStorage, ReadRulesFromBlobStorage>();
         services.AddTransient<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
+        services.AddSingleton<IDataLookupFacade,DataLookupFacade>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

@@ -2,8 +2,7 @@ namespace BsSelectGpPractice;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using DataServices.Database;
-using System.Text.Json;
+using Model;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;

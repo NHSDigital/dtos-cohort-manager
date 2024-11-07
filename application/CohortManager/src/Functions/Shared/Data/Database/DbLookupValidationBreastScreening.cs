@@ -1,7 +1,7 @@
 namespace Data.Database;
 using System.Data;
 using DataServices.Client;
-using DataServices.Database;
+using Model;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 

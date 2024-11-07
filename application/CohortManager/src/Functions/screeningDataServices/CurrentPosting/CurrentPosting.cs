@@ -1,26 +1,27 @@
-namespace BsSelectGpPractice;
+namespace CurrentPostingDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Model;
+using DataServices.Database;
+using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;
 
-public class BsSelectOutCodeDataService
+public class CurrentPostingDataService
 {
-    private readonly ILogger<BsSelectOutCode> _logger;
-    private readonly IRequestHandler<BsSelectOutCode> _requestHandler;
+    private readonly ILogger<CurrentPostingDataService> _logger;
+    private readonly IRequestHandler<CurrentPosting> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public BsSelectOutCodeDataService(ILogger<BsSelectOutCode> logger, IRequestHandler<BsSelectOutCode> requestHandler, ICreateResponse createResponse)
+    public CurrentPostingDataService(ILogger<CurrentPostingDataService> logger, IRequestHandler<CurrentPosting> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
         _createResponse = createResponse;
     }
 
-    [Function("BsSelectOutCode")]
+    [Function("CurrentPostingDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
     {
         try

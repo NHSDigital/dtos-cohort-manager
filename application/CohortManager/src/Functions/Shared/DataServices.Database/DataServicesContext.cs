@@ -1,5 +1,6 @@
 ﻿namespace DataServices.Database;
 
+using Model;
 using Microsoft.EntityFrameworkCore;
 
 public class DataServicesContext : DbContext
@@ -7,6 +8,7 @@ public class DataServicesContext : DbContext
     DbSet<BsSelectGpPractice> bsSelectGpPractices {get; set;}
     DbSet<BsSelectOutCode> bsSelectOutcodes {get;set;}
     DbSet<LanguageCode> languageCodes {get;set;}
+    DbSet<CurrentPosting> currentPostings {get;set;}
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     {}
 
@@ -20,6 +22,10 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<LanguageCode>()
             .ToTable("LANGUAGE_CODES","dbo");
+
+        modelBuilder.Entity<CurrentPosting>()
+            .ToTable("CURRENT_POSTING_LKP","dbo");
+
     }
 
 }

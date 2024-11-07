@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -18,20 +19,23 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-    private IDbLookupValidationBreastScreening _dbLookup;
+    //private IDbLookupValidationBreastScreening _dbLookup;
+
+    private readonly DataLookupFacade _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
         IReadRulesFromBlobStorage readRulesFromBlobStorage,
-        IDbLookupValidationBreastScreening dbLookup
+        DataLookupFacade dataLookupFacade
+
     )
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
-        _dbLookup = dbLookup;
+        _dataLookup = dataLookupFacade;
     }
 
     [Function("LookupValidation")]
@@ -76,7 +80,7 @@ public class LookupValidation
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
-                new RuleParameter("dbLookup", _dbLookup)
+                new RuleParameter("dbLookup", _dataLookup)
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
@@ -85,6 +89,14 @@ public class LookupValidation
             {
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
+            }
+
+            foreach(var result in resultList)
+            {
+                if(!String.IsNullOrEmpty(result.ExceptionMessage))
+                {
+                    _logger.LogError(result.ExceptionMessage);
+                }
             }
 
             // Validation rules are logically reversed
