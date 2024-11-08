@@ -42,8 +42,8 @@ regions = {
 routes = {
   uksouth = {
     firewall_policy_priority = 100
-    application_rules = []
-    nat_rules         = []
+    application_rules        = []
+    nat_rules                = []
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
