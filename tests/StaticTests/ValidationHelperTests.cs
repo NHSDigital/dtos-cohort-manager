@@ -24,6 +24,7 @@ public class ValidationHelperTests
     [DataRow("123456789")]
     [DataRow("")]
     [DataRow("sdfgsdg")]
+    [DataRow("0000000000")]
     public void ValidateNhsNumber_InvalidNHNumbers_ReturnsFalse(string nhsNumber)
     {
         //act
