@@ -443,9 +443,9 @@
             "Context": {
               "transformFields": [
                 {
-                  "isExpression": "true",
+                  "isExpression": false,
                   "field": "DateOfDeath",
-                  "value": "null"
+                  "value": null
                 }
               ]
             }
