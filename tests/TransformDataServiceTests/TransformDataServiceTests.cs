@@ -405,4 +405,64 @@ public class TransformDataServiceTests
 
         _request.Setup(r => r.Body).Returns(bodyStream);
     }
+
+    [TestMethod]
+    public async Task Run_DateOfDeathSuppliedAndReasonForRemovalIsNotDea_SetDateOfDeathToNull()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "NOTDEA";
+        _requestBody.Participant.DateOfDeath = "2024-01-01";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "NOTDEA",
+            DateOfDeath = null,
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_DateOfDeathSuppliedAndReasonForRemovalIsDea_ShouldNotChangeDateOfDeath()
+    {
+        // Arrange
+        _requestBody.Participant.ReasonForRemoval = "DEA";
+        _requestBody.Participant.DateOfDeath = "2024-01-01";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "DEA",
+            DateOfDeath = "2024-01-01",
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
 }
