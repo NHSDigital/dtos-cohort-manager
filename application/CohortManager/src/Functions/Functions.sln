@@ -146,6 +146,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAudit"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{2D5B5A6C-69E8-4FC6-A4C1-0C09096D5AE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\screeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\screeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"

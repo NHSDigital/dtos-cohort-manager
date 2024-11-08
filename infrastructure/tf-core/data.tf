@@ -11,6 +11,8 @@ data "terraform_remote_state" "hub" {
   }
 }
 
+# Note the following two Networking data look-ups only work becasue the names for the
+# resources are effectively the same in both subscriptions (with additional name suffix for Audit RG)
 data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
 
