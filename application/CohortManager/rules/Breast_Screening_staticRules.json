@@ -100,24 +100,24 @@
       },
       {
         "RuleName": "39.FamilyName.NonFatal",
-        "Expression": "!(participant.RecordType == Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Name value missing"
+              "Expression": "Family Name value missing"
             }
           }
         }
       },
       {
         "RuleName": "40.FirstName.NonFatal",
-        "Expression": "!(participant.RecordType == Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Name value missing"
+              "Expression": "First Name value missing"
             }
           }
         }
