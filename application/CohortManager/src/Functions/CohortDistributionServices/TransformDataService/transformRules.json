@@ -449,7 +449,7 @@
         }
       },
       {
-        "RuleName": "1.ReasonForRemoval.NonFatal",
+        "RuleName": "1.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
         "Expression": "!(participantNotRegisteredToGP AND validPostcode)",
         "Actions": {
           "OnFailure": {
@@ -483,13 +483,13 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "2.ReasonForRemoval"
+              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval"
             }
           }
         }
       },
       {
-        "RuleName": "2.ReasonForRemoval.NonFatal",
+        "RuleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
         "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
@@ -523,29 +523,29 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "3.ReasonForRemoval"
+              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval"
             }
           }
         }
       },
       {
-        "RuleName": "3.ReasonForRemoval.NonFatal",
+        "RuleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
         "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider)",
-        "ErrorMessage": "ReasonForRemoval transformation rule failed.",
+        "ErrorMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed.",
         "Actions": {
           "OnSuccess": {
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "4.ReasonForRemoval"
+              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval"
             }
           }
         }
       },
       {
-        "RuleName": "4.ReasonForRemoval.NonFatal",
+        "RuleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
         "Expression": "!(participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider))",
-        "ErrorMessage": "ReasonForRemoval transformation rule failed."
+        "ErrorMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
       }
     ]
   }
