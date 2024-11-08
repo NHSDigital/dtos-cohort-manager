@@ -2,10 +2,13 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Linq.Dynamic.Core;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
+using FastExpressionCompiler;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
@@ -38,13 +41,17 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
     {
-        _logger.LogWarning(predicate.ToString());
-        var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",predicate.ToString()}});
+        //Resolves the constants
+        var expr  = new ClosureResolver().Visit(predicate);
+        _logger.LogWarning(expr.ToString());
+
+
+        var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
         IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
         return result;
     }
 
-    public async Task<TEntity> GetSingle(string id)
+    public virtual async Task<TEntity> GetSingle(string id)
     {
         var jsonString = await _callFunction.SendGet(_baseUrl+id);
         TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
@@ -56,4 +63,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var result = await _callFunction.SendDelete(_baseUrl+id);
         return result;
     }
+
+
+
+
 }

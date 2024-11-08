@@ -8,13 +8,16 @@ using Model;
 using DataServices.Client;
 using DataServices.Database;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+var hostBuilder = new HostBuilder();
+
+hostBuilder.AddConfiguration<LookupValidationConfig>(out LookupValidationConfig config);
+
+var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddDataService<BsSelectGpPractice>("http://localhost:7998/api/" )
-        .AddDataService<BsSelectOutCode>("http://localhost:7881/api/")
-        .AddDataService<LanguageCode>("http://localhost:7997/api/")
-        .AddDataService<CurrentPosting>("http://localhost:7996/api/")
+        .AddCachedDataService<BsSelectGpPractice>(config.BsSelectGpPracticeUrl )
+        .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddCachedDataService<LanguageCode>(config.LanguageCodeUrl)
+        .AddCachedDataService<CurrentPosting>(config.CurrentPostingUrl)
         .Build()
     .ConfigureServices(services =>
     {

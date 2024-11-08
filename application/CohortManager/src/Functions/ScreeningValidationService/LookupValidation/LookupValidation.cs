@@ -9,6 +9,7 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
@@ -20,14 +21,15 @@ public class LookupValidation
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
     //private IDbLookupValidationBreastScreening _dbLookup;
-
+    private readonly LookupValidationConfig _config;
     private readonly IDataLookupFacade _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
         IReadRulesFromBlobStorage readRulesFromBlobStorage,
-        IDataLookupFacade dataLookupFacade
+        IDataLookupFacade dataLookupFacade,
+        IOptions<LookupValidationConfig> config
 
     )
     {
@@ -36,6 +38,7 @@ public class LookupValidation
         _logger = logger;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
         _dataLookup = dataLookupFacade;
+        _config = config.Value;
     }
 
     [Function("LookupValidation")]
@@ -67,8 +70,8 @@ public class LookupValidation
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
 
-            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
-                                                                        Environment.GetEnvironmentVariable("BlobContainerName"),
+            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(_config.AzureWebJobsStorage,
+                                                                        _config.BlobContainerName,
                                                                         ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 

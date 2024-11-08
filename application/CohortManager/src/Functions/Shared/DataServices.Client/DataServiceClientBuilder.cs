@@ -8,6 +8,7 @@ public class DataServiceClientBuilder
 {
     private IHostBuilder _hostBuilder;
     private Dictionary<Type, string> _dataServiceUrls;
+    private bool CacheRequired = false;
     public DataServiceClientBuilder(IHostBuilder hostBuilder)
     {
         _dataServiceUrls = new();
@@ -25,10 +26,26 @@ public class DataServiceClientBuilder
         return this;
     }
 
+    public DataServiceClientBuilder AddCachedDataService<TEntity>(string url) where TEntity : class
+    {
+        CacheRequired = true;
+        _hostBuilder.ConfigureServices(_ => {
+            _.AddTransient<IDataServiceClient<TEntity>,DataServiceCacheClient<TEntity>>();
+
+        });
+        _dataServiceUrls.Add(typeof(TEntity),url);
+
+        return this;
+    }
+
+
     public IHostBuilder Build()
     {
         DataServiceResolver dataServiceResolver = new DataServiceResolver(_dataServiceUrls);
         _hostBuilder.ConfigureServices(_ =>{
+            if(CacheRequired){
+                _.AddMemoryCache();
+            }
             _.AddSingleton(dataServiceResolver);
             _.AddSingleton<ICallFunction, CallFunction>();
         });
