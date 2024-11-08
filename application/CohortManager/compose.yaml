@@ -77,6 +77,14 @@ services:
       - ASPNETCORE_URLS=http://*:7060
       - targetFunction=http://localhost:7061/api/processCaasFile
       - FileValidationURL=http://localhost:7073/api/FileValidation
+      - PMSAddParticipant=http://localhost:7062/api/addParticipant
+      - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
+      - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
+      - DemographicURI=http://localhost:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - AddQueueName=add-participant-queue
+      - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
     depends_on:
       - azurite

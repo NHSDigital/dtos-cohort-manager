@@ -101,7 +101,7 @@ public class BsTransformationLookups : IBsTransformationLookups
     /// </summary>
     /// <param name="participant">The participant.</param>
     /// <returns>CohortDistributionParticipant, the transformed participant.<returns>
-    public bool ParticipantIsInvalid(string ParticipantId)
+    public bool ParticipantIsInvalid(string participantId)
     {
         string sql = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
                     $"WHERE PARTICIPANT_ID = @ParticipantId AND INVALID_FLAG = 1";
