@@ -48,7 +48,7 @@ routes = {
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
-        priority              = 800
+        priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
         source_addresses      = ["10.105.0.0/16"]
@@ -58,7 +58,7 @@ routes = {
       },
       {
         name                  = "AllowAuditToCohman"
-        priority              = 800
+        priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
         source_addresses      = ["10.106.0.0/16"]
