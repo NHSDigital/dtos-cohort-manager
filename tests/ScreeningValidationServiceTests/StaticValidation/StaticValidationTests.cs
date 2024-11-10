@@ -24,7 +24,7 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
-    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+    private readonly Mock<IReadRules> _readRules = new();
     private readonly Mock<ICallFunction> _callFunction = new();
 
     public StaticValidationTests()
@@ -45,9 +45,9 @@ public class StaticValidationTests
             })).Verifiable();
 
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
-        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
+        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
-        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object, _callFunction.Object);
+        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRules.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
