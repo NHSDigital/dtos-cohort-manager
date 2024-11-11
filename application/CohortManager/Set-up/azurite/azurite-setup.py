@@ -3,20 +3,24 @@
 
 import os
 from azure.storage.blob import BlobServiceClient, BlobClient
+from azure.storage.queue import QueueServiceClient
 from azure.core.exceptions import ResourceExistsError
 
 def setup_azurite():
     connect_str = os.getenv("AZURITE_CONNECTION_STRING")
     blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+    queue_service_client = QueueServiceClient.from_connection_string(connect_str)
     print("Connected to Azurite")
 
     try:
         blob_service_client.create_container("inbound")
         blob_service_client.create_container("rules")
         blob_service_client.create_container("file-exceptions")
-        print("Blob containers created")
+        queue_service_client.create_queue("add-participant-queue")
+        queue_service_client.create_queue("add-participant-queue-poison")
+        print("Queues & blob containers created")
     except ResourceExistsError:
-        print("Blob containers already exist")
+        print("Queues & blob containers already exist")
 
     rules_client = blob_service_client.get_container_client("rules")
 

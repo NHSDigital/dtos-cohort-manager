@@ -31,6 +31,9 @@
         <None Update="characterRules.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="lookupTransformationRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     </ItemGroup>
     <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />

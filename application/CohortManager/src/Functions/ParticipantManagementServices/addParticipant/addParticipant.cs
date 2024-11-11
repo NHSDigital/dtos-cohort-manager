@@ -31,12 +31,11 @@ public class AddParticipantFunction
     }
 
     [Function(nameof(AddParticipantFunction))]
-    public async Task Run([QueueTrigger("add-participant-queue")] string jsonFromQueue)
+    public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
-
-        Participant participant = new Participant();
+        var participant = new Participant();
 
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 

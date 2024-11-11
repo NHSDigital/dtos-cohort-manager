@@ -8,6 +8,31 @@ variable "AUDIT_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "AUDIT_BACKEND_AZURE_SUBSCRIPTION_ID" {
+  description = "ID of the Azure Storage Account for the audit backend"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME" {
+  description = "The name of the Azure Storage Account for the audit backend"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME" {
+  description = "The name of the container in the Audit Azure Storage Account for the backend"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_STORAGE_KEY" {
+  description = "The name of the Statefile for the audit  resources"
+  type        = string
+}
+
+variable "AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME" {
+  description = "The name of the audit resource group for the Azure Storage Account"
+  type        = string
+}
+
 variable "ACR_SUBSCRIPTION_ID" {
   description = "ID of the subscription hosting the ACR used in current environment"
   type        = string
@@ -236,6 +261,7 @@ variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({
     bgp_route_propagation_enabled = optional(bool, false)
+    firewall_policy_priority      = number
     application_rules = list(object({
       name      = optional(string)
       priority  = optional(number)
@@ -270,7 +296,13 @@ variable "routes" {
       protocols             = optional(list(string))
       destination_ports     = optional(list(string))
     }))
-    route_table_routes = list(object({
+    route_table_routes_to_audit = list(object({
+      name                   = optional(string)
+      address_prefix         = optional(string)
+      next_hop_type          = optional(string)
+      next_hop_in_ip_address = optional(string)
+    }))
+    route_table_routes_from_audit = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)

@@ -433,6 +433,24 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "03.Other.DateOfDeath.NotDea",
+        "Expression": "participant.DateOfDeath != null && participant.ReasonForRemoval != \"DEA\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "DateOfDeath",
+                  "value": null
+                }
+              ]
+            }
+          }
+        }
       }
     ]
   }

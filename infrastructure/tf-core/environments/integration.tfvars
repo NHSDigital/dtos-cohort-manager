@@ -42,26 +42,44 @@ regions = {
 
 routes = {
   uksouth = {
-    application_rules = []
-    nat_rules         = []
+    firewall_policy_priority = 100
+    application_rules        = []
+    nat_rules                = []
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
-        priority              = 800
+        priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.105.0.0/16"] # will be populated with the cohort manager subnet address space
-        destination_addresses = ["10.106.0.0/16"] # will be populated with the audit subnet address space
+        source_addresses      = ["10.105.0.0/16"]
+        destination_addresses = ["10.106.0.0/16"]
+        protocols             = ["TCP", "UDP"]
+        destination_ports     = ["443"]
+      },
+      {
+        name                  = "AllowAuditToCohman"
+        priority              = 910
+        action                = "Allow"
+        rule_name             = "AuditToCohman"
+        source_addresses      = ["10.106.0.0/16"]
+        destination_addresses = ["10.105.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes = [
+    route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "" # will be populated with the cohort manager subnet address space
+        address_prefix         = "10.6.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+      }
+    ]
+    route_table_routes_from_audit = [{
+      name                   = "AuditToCohman"
+      address_prefix         = "10.5.0.0/16"
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
   }
