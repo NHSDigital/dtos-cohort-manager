@@ -5,104 +5,77 @@ using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
+using System.Collections.Concurrent;
+using Azure.Storage.Queues;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
 
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly ICallFunction _callFunction;
-    private readonly ICreateResponse _createResponse;
+
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
 
-    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IAzureQueueStorageHelper azureQueueStorageHelper)
+    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData, IExceptionHandler handleException, IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
-        _createResponse = createResponse;
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _handleException = handleException;
         _azureQueueStorageHelper = azureQueueStorageHelper;
     }
 
-
-    public async Task ProcessRecordAsync(Participant participant, string filename)
+    public async Task<QueueClient> CreateAddQueueCLient()
     {
-        int row = 0, add = 0, upd = 0, del = 0, err = 0;
-
-        row++;
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-        {
-            Participant = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = filename,
-        };
-        switch (participant.RecordType?.Trim())
-        {
-            case Actions.New:
-                add++;
-                await AddParticipant(basicParticipantCsvRecord, participant, filename);
-                break;
-            case Actions.Amended:
-                upd++;
-                await UpdateParticipant(basicParticipantCsvRecord, participant, filename);
-                break;
-            case Actions.Removed:
-                del++;
-                await RemoveParticipant(basicParticipantCsvRecord, participant, filename);
-                break;
-            default:
-                await CreateError(participant, filename);
-                err++;
-                break;
-        }
-        _logger.LogInformation("There are {add} Additions. There are {upd} Updates. There are {del} Deletions. There are {err} Errors.", add, upd, del, err);
-
+        return await _azureQueueStorageHelper.CreateAddQueue();
     }
 
-    private async Task AddParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    public async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        try
-        {
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            var demographicDataAdded = await PostDemographicDataAsync(participant);
+        //int row = 0, add = 0, upd = 0, del = 0, err = 0;
+        //row++;
+        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        var foo = await _azureQueueStorageHelper.ProcessBatch(currentBatch);
 
-            if (demographicDataAdded)
+        if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
+        {
+            foreach (var updateRecords in currentBatch.UpdateRecords)
             {
-                await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
-                _logger.LogInformation("Called add participant");
+                await UpdateParticipant(updateRecords, name);
+            }
+
+            foreach (var updateRecords in currentBatch.DeleteRecords)
+            {
+                await RemoveParticipant(updateRecords, name);
             }
         }
-        catch (Exception ex)
-        {
-            _logger.LogError("Add participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
-        }
     }
 
-    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            var demographicDataAdded = await PostDemographicDataAsync(participant);
-
-            if (demographicDataAdded)
+            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-                _logger.LogInformation("Called update participant");
             }
+            _logger.LogInformation("Called update participant");
+
         }
         catch (Exception ex)
         {
             _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+            _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, name);
+            await CreateError(basicParticipantCsvRecord.participant, name);
         }
     }
 
-    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, Participant participant, string filename)
+    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
     {
         try
         {
@@ -113,7 +86,8 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+            _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, filename);
+            await CreateError(basicParticipantCsvRecord.participant, filename);
         }
     }
 
@@ -130,17 +104,6 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
-    }
-
-    private async Task<bool> PostDemographicDataAsync(Participant participant)
-    {
-        var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
-        if (!demographicDataInserted)
-        {
-            _logger.LogError("Demographic function failed");
-            return false;
-        }
-        return true;
     }
 
 }

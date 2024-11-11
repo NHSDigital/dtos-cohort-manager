@@ -5,12 +5,12 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Data.Database;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using Common;
+using System.Security.Cryptography.X509Certificates;
 
 public class ReceiveCaasFile
 {
@@ -19,14 +19,26 @@ public class ReceiveCaasFile
     private readonly IScreeningServiceData _screeningServiceData;
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly ICreateBasicParticipantData _createBasicParticipantData;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, IReceiveCaasFileHelper receiveCaasFileHelper, IScreeningServiceData screeningServiceData, IExceptionHandler exceptionHandler, IProcessCaasFile processCaasFile)
+    private readonly ICheckDemographic _checkDemographic;
+
+    public ReceiveCaasFile(
+        ILogger<ReceiveCaasFile> logger,
+        IReceiveCaasFileHelper receiveCaasFileHelper,
+        IScreeningServiceData screeningServiceData,
+        IExceptionHandler exceptionHandler, IProcessCaasFile processCaasFile,
+        ICreateBasicParticipantData createBasicParticipantData,
+        ICheckDemographic checkDemographic
+        )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _screeningServiceData = screeningServiceData;
         _exceptionHandler = exceptionHandler;
         _processCaasFile = processCaasFile;
+        _createBasicParticipantData = createBasicParticipantData;
+        _checkDemographic = checkDemographic;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -46,17 +58,6 @@ public class ReceiveCaasFile
                 return;
             }
 
-            var badRecords = new Dictionary<int, string>();
-            Cohort cohort = new()
-            {
-                FileName = name
-            };
-
-            var chunks = new List<Cohort>();
-            var rowNumber = 0;
-            int err = 0;
-            var batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BatchSize"));
-
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
             _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
@@ -64,6 +65,7 @@ public class ReceiveCaasFile
             {
                 await blobStream.CopyToAsync(fileStream);
             }
+
             var screeningService = GetScreeningService(fileNameParser);
             if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
             {
@@ -74,52 +76,48 @@ public class ReceiveCaasFile
             }
             _logger.LogInformation($"Screening Name: {screeningService.ScreeningName}");
 
+            int rowNumber = 0; ;
+            var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+            await _processCaasFile.CreateAddQueueCLient();
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
-                /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
+                // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
-                    //foreach (var rec in values)
-                    await Parallel.ForEachAsync(values, async (rec, cancellationToken) =>
+
+
+                    var listOfAllValues = values.ToList();
+                    var countOfRecords = values.Length;
+
+                    if (countOfRecords > 3)
                     {
+                        //split list of all into N amount of chunks to be processed as batches
+                        var chunkSize = countOfRecords / 5;
+                        var chunks = listOfAllValues.Chunk(chunkSize).ToList();
 
-                        var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
-                        rowNumber++;
-
-                        if (participant == null)
+                        var allTasks = new List<Task>();
+                        foreach (var chunk in chunks)
                         {
-                            chunks.Clear();
-                            cohort.Participants.Clear();
-                            _logger.LogError("Invalid data in the file: {Name}", name);
-                            return;
+                            var batch = chunk.ToList();
+                            allTasks.Add(
+                                processRecords(batch, options, screeningService, name)
+                            );
                         }
-
-                        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {rowNumber}"), participant, name);
-                            err++;
-                            return; // skip current participant
-                        }
+                        // chunks.Remove(chunk);
 
 
-                        if (!_receiveCaasFileHelper.validateDateTimes(participant))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {rowNumber}."), participant, name);
-                            err++;
-                            return; // Skip current participant
-                        }
-                        cohort.Participants.Add(participant);
-
-                        _logger.LogInformation("sending to add now {datetime}", DateTime.Now);
-                        await _processCaasFile.ProcessRecordAsync(participant, name);
-
-                        if (cohort.Participants.Count == batchSize)
-                        {
-                            chunks.Add(cohort);
-                            cohort.Participants.Clear();
-                        }
-                    });
+                        // process each batches
+                        Task.WaitAll(allTasks.ToArray());
+                    }
+                    else
+                    {
+                        await processRecords(listOfAllValues, options, screeningService, name);
+                    }
+                    // dispose of all lists and variables from memory because they are no longer needed
+                    listOfAllValues = null;
+                    values = null;
                 }
             }
         }
@@ -136,6 +134,72 @@ public class ReceiveCaasFile
         }
     }
 
+    private async Task processRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
+    {
+        var currentBatch = new Batch();
+        //var currentBatchSize = values.Count - 1;
+        await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
+        {
+            var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name);
+
+            if (participant == null)
+            {
+                return;
+            }
+
+            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+            {
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception("Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
+
+                return; // skip current participant
+            }
+
+            if (!_receiveCaasFileHelper.validateDateTimes(participant))
+            {
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception("Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
+                return; // Skip current participant
+            }
+
+            await AddRecordToBatch(participant, currentBatch, name);
+
+        });
+        // _logger.LogInformation(currentBatch.AddRecords.Count().ToString());
+        await _processCaasFile.AddBatchToQueue(currentBatch, name);
+    }
+
+    private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string FileName)
+    {
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            Participant = _createBasicParticipantData.BasicParticipantData(participant),
+            FileName = FileName,
+            participant = participant
+        };
+
+        switch (participant.RecordType?.Trim())
+        {
+            case Actions.New:
+                await Task.CompletedTask;
+                //add++;
+                await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI"));
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                break;
+            case Actions.Amended:
+                //upd++;
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                break;
+            case Actions.Removed:
+                //del++;
+
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                break;
+            default:
+                //err++;
+                break;
+        }
+        return currentBatch;
+
+    }
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
 

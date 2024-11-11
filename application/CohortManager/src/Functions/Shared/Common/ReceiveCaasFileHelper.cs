@@ -57,7 +57,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return match.Success;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name, int rowNumber)
+    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try
@@ -107,7 +107,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
         }
