@@ -46,7 +46,6 @@ public class StaticValidation
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
             var json =  await _readRules.GetRulesFromDirectory(ruleFileName);
-            _logger.LogInformation("jsonResult: {json}", json);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
