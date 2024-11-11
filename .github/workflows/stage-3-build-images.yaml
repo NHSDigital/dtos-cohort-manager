@@ -23,9 +23,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-          submodules: 'true'
 
       - uses: tj-actions/changed-files@v44
         id: changed-files
@@ -60,7 +57,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Az CLI login
         if: github.ref == 'refs/heads/main'
