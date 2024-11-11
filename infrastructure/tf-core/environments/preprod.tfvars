@@ -204,6 +204,16 @@ function_apps = {
           function_app_key = "StaticValidation"
         }
       ]
+      env_vars_static = [
+        {
+          env_var_name  = "BatchSize"
+          env_var_value = "3500"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
+        }
+      ]
     }
 
     RetrieveMeshFile = {
@@ -288,6 +298,16 @@ function_apps = {
         {
           env_var_name     = "CohortDistributionServiceURL"
           function_app_key = "CreateCohortDistribution"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
         }
       ]
     }
@@ -617,6 +637,16 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "CohortQueueNamePoison"
+          env_var_value = "cohort-distribution-queue-poison"
         }
       ]
     }
