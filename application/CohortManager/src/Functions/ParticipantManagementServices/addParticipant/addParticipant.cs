@@ -31,7 +31,7 @@ public class AddParticipantFunction
     }
 
     [Function(nameof(AddParticipantFunction))]
-    public async Task Run([QueueTrigger("add-participant-queue")] BasicParticipantCsvRecord basicParticipantCsvRecord)
+    public async Task Run([QueueTrigger("%AddQueueName%")] BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
