@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
+using Common.Interfaces;
 
 public class LookupValidation
 {
