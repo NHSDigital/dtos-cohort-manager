@@ -184,24 +184,24 @@ function_apps = {
           function_app_key = "FileValidation"
         },
         {
-          env_var_name      = "PMSAddParticipant"
-          function_app_key  = "AddParticipant"
+          env_var_name     = "PMSAddParticipant"
+          function_app_key = "AddParticipant"
         },
         {
-          env_var_name      = "PMSRemoveParticipant"
-          function_app_key  = "RemoveParticipant"
+          env_var_name     = "PMSRemoveParticipant"
+          function_app_key = "RemoveParticipant"
         },
         {
-          env_var_name      = "PMSUpdateParticipant"
-          function_app_key  = "UpdateParticipant"
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
         },
         {
-          env_var_name      = "DemographicURI"
-          function_app_key  = "DemographicDataManagement"
+          env_var_name     = "DemographicURI"
+          function_app_key = "DemographicDataManagement"
         },
         {
-          env_var_name      = "StaticValidationURL"
-          function_app_key  = "StaticValidation"
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
         }
       ]
     }
