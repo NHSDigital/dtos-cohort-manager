@@ -2,6 +2,7 @@ using Common;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Data.Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -9,6 +10,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
+        services.AddTransient<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

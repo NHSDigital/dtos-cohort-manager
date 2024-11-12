@@ -3,10 +3,6 @@
         "WorkflowName": "Common",
         "Rules": [
             {
-              "RuleName": "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal",
-              "Expression": "newParticipant.RecordType == Actions.New OR !new string[] { \"HMP\", \"MHI\" }.Contains(newParticipant.CurrentPosting) OR newParticipant.CurrentPosting == existingParticipant.CurrentPosting"
-            },
-            {
               "RuleName": "35.TooManyDemographicsFieldsChanged.NonFatal",
               "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender== existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth))"
             },

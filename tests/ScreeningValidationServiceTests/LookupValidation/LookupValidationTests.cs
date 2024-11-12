@@ -345,54 +345,6 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.Amended, "MHI")]
-    [DataRow(Actions.Removed, "MHI")]
-    public async Task Run_InvalidCurrentPosting_CreatesException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "ABC")]
-    [DataRow(Actions.Amended, "ABC")]
-    [DataRow(Actions.Amended, "HMP")]
-    public async Task Run_ValidCurrentPosting_DoesNotCreateException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
     [DataRow("ABC")] // Invalid CurrentPosting
     public async Task Run_CurrentPosting_CreatesException(string currentPosting)
     {

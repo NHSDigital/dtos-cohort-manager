@@ -141,7 +141,18 @@ locals {
       key => {
         for app_url_key, app_url_value in value.app_urls :
         app_url_value.env_var_name => "https://${module.regions_config[region_key].names.function-app}-${var.function_apps.fa_config[app_url_value.function_app_key].name_suffix}.azurewebsites.net/api/${var.function_apps.fa_config[app_url_value.function_app_key].function_endpoint_name}"
+      }
+    }
+  }
 
+  # Create a map of the static environment variables for each function app
+  env_vars_static = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => {
+        for env_var_key, env_var_value in value.env_vars_static :
+        env_var_value.env_var_name => env_var_value.env_var_value
       }
     }
   }
@@ -220,6 +231,7 @@ locals {
       app_key => merge(
         local.global_app_settings,
         try(local.env_vars_app_urls[region_key][app_key], {}),
+        try(local.env_vars_static[region_key][app_key], {}),
         try(local.env_vars_storage_accounts[region_key][app_key], {}),
         try(local.env_vars_storage_accounts_private_blob[region_key][app_key], {}),
         try(local.env_vars_storage_accounts_private_queue[region_key][app_key], {}),
