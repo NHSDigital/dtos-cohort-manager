@@ -77,7 +77,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     {
         // Arrange
         var exceptionId = 999;
-        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).Returns(new ValidationException());
+        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).Returns((ValidationException)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
 
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "exceptionId", exceptionId.ToString() } });

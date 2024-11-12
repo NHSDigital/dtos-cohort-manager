@@ -53,7 +53,7 @@ public class GetValidationExceptions
 
             var exceptionById = _validationData.GetExceptionById(exceptionId);
 
-            if (exceptionById.ExceptionId == null)
+            if (exceptionById == null)
             {
                 _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
