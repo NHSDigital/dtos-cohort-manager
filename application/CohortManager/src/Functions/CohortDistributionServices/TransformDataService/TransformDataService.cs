@@ -117,7 +117,7 @@ public class TransformDataService
                 FileName = "",
             };
 
-            _logger.LogInformation("A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
+            _logger.LogError(exception, "A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
             await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
 
             return participant;
