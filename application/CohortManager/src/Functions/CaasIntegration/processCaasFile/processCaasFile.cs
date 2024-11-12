@@ -29,7 +29,7 @@ public class ProcessCaasFileFunction
         _handleException = handleException;
         _azureQueueStorageHelper = azureQueueStorageHelper;
     }
-
+    [Obsolete("Function is no longer used")]
     [Function("processCaasFile")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
