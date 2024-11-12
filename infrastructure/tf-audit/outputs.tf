@@ -5,3 +5,11 @@ output "log_analytics_workspace_id" {
     }
   }
 }
+
+output "storage_account_name" {
+  value = {
+    for k, v in module.log_analytics_workspace_audit : k => {
+      name = v.name
+    }
+  }
+}
