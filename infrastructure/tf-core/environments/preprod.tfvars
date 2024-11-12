@@ -370,6 +370,12 @@ function_apps = {
           function_app_key = "MarkParticipantAsIneligible"
         }
       ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+      ]
     }
 
     CreateParticipant = {
