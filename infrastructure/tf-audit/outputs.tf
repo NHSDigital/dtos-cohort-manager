@@ -8,7 +8,7 @@ output "log_analytics_workspace_id" {
 
 output "storage_account_name" {
   value = {
-    for k, v in module.storage_account_name : k => {
+    for k, v in module.storage : k => {
       name = v.name
     }
   }
