@@ -68,6 +68,7 @@ public class ReceiveCaasFile
                 await blobStream.CopyToAsync(fileStream);
             }
 
+            // get screening service name and id
             var screeningService = GetScreeningService(fileNameParser);
             if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
             {
@@ -76,6 +77,7 @@ public class ReceiveCaasFile
                 await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
                 return;
             }
+
             _logger.LogInformation($"Screening Name: {screeningService.ScreeningName}");
 
             int rowNumber = 0; ;
