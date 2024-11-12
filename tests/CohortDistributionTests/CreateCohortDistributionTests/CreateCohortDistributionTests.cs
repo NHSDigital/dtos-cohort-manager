@@ -14,7 +14,6 @@ using NHS.CohortManager.Tests.TestUtils;
 using Model;
 using Model.Enums;
 using Data.Database;
-using System.Runtime.CompilerServices;
 
 [TestClass]
 public class CreateCohortDistributionTests

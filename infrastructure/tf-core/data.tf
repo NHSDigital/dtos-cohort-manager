@@ -11,8 +11,17 @@ data "terraform_remote_state" "hub" {
   }
 }
 
-# Note the following two Networking data look-ups only work becasue the names for the
-# resources are effectively the same in both subscriptions (with additional name suffix for Audit RG)
+data "terraform_remote_state" "audit" {
+  backend = "azurerm"
+  config = {
+    subscription_id      = var.AUDIT_BACKEND_AZURE_SUBSCRIPTION_ID
+    storage_account_name = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    container_name       = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+    key                  = var.AUDIT_BACKEND_AZURE_STORAGE_KEY
+    resource_group_name  = var.AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
+  }
+}
+
 data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
 

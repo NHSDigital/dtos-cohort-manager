@@ -43,3 +43,13 @@ law = {
   law_sku        = "PerGB2018"
   retention_days = 30
 }
+
+storage_accounts = {
+  fnapp = {
+    name_suffix                   = "sqllogs"
+    account_tier                  = "Standard"
+    replication_type              = "LRS"
+    public_network_access_enabled = false
+    containers                    = {}
+  }
+}

@@ -78,6 +78,7 @@ services:
       - targetFunction=http://localhost:7061/api/processCaasFile
       - FileValidationURL=http://localhost:7073/api/FileValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AddQueueName=add-participant-queue
     depends_on:
       - azurite
 
@@ -112,6 +113,8 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
+      - CohortQueueName=cohort-distribution-queue
+      - AddQueueName=add-participant-queue
 
   remove-participant:
     container_name: remove-participant
@@ -302,6 +305,8 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - CohortQueueName=cohort-distribution-queue
+      - CohortQueueNamePoison=cohort-distribution-queue-poison
 
   retrieve-cohort-replay:
     container_name: retrieve-cohort-replay

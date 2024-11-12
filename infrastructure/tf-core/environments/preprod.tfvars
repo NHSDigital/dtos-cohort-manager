@@ -182,6 +182,36 @@ function_apps = {
         {
           env_var_name     = "FileValidationURL"
           function_app_key = "FileValidation"
+        },
+        {
+          env_var_name     = "PMSAddParticipant"
+          function_app_key = "AddParticipant"
+        },
+        {
+          env_var_name     = "PMSRemoveParticipant"
+          function_app_key = "RemoveParticipant"
+        },
+        {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
+          env_var_name     = "DemographicURI"
+          function_app_key = "DemographicDataManagement"
+        },
+        {
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "BatchSize"
+          env_var_value = "3500"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
         }
       ]
     }
@@ -268,6 +298,16 @@ function_apps = {
         {
           env_var_name     = "CohortDistributionServiceURL"
           function_app_key = "CreateCohortDistribution"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
         }
       ]
     }
@@ -597,6 +637,16 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "CohortQueueNamePoison"
+          env_var_value = "cohort-distribution-queue-poison"
         }
       ]
     }

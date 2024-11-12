@@ -71,7 +71,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (demographicDataAdded)
             {
-                await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "add-participant-queue");
+                await _azureQueueStorageHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, Environment.GetEnvironmentVariable("AddQueueName"));
                 _logger.LogInformation("Called add participant");
             }
         }
@@ -106,9 +106,8 @@ public class ProcessCaasFile : IProcessCaasFile
     {
         try
         {
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
-            _logger.LogInformation("Called remove participant");
+            await _handleException.CreateDeletedRecordException(basicParticipantCsvRecord);
+            _logger.LogInformation("Logged Exception for Deleted Record");
         }
         catch (Exception ex)
         {
