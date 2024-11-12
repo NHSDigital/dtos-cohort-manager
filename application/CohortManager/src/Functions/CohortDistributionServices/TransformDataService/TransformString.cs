@@ -17,7 +17,8 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant) {
+    public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant)
+    {
         participant.NamePrefix = await CheckParticipantCharactersAsync(participant.NamePrefix);
         participant.FirstName = await CheckParticipantCharactersAsync(participant.FirstName);
         participant.OtherGivenNames = await CheckParticipantCharactersAsync(participant.OtherGivenNames);
@@ -72,7 +73,7 @@ public class TransformString
             var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
             var transformedCharacter = (char?)rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
-                                            .FirstOrDefault();
+                                            .FirstOrDefault() ?? character;
 
             stringBuilder.Append(transformedCharacter);
         }
