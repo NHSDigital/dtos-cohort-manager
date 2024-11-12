@@ -13,7 +13,6 @@ module "azure_sql_server" {
   kv_id                      = module.key_vault[each.key].key_vault_id
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region].id
   law_sku                    = var.law_sku
-  retention_in_days          = var.retention_in_days
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name
