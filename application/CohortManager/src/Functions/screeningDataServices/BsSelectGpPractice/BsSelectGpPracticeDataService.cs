@@ -1,4 +1,4 @@
-namespace BsSelectGpPractice;
+namespace BsSelectGpPracticeDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;

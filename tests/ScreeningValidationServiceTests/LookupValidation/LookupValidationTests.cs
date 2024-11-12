@@ -14,6 +14,7 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using Data.Database;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class LookupValidationTests
@@ -29,6 +30,8 @@ public class LookupValidationTests
     private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
     private readonly Mock<IDataLookupFacade> _lookupValidation = new();
 
+    private readonly Mock<IOptions<LookupValidationConfig>> _lookupValidationConfig = new();
+
     [TestInitialize]
     public void IntialiseTests()
     {
@@ -43,6 +46,12 @@ public class LookupValidationTests
                 IsFatal = true,
                 CreatedException = true
             }));
+        LookupValidationConfig lookupValidationConfig = new LookupValidationConfig
+        {
+            ExceptionFunctionUrl = "CreateValidationExceptionURL"
+        };
+        _lookupValidationConfig.Setup(x => x.Value).Returns(lookupValidationConfig);
+
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
@@ -91,7 +100,7 @@ public class LookupValidationTests
         _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Returns(Task.FromResult<string>(json));
         _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,
-                                    _readRulesFromBlobStorage.Object, _lookupValidation.Object);
+                                    _readRulesFromBlobStorage.Object, _lookupValidation.Object, _lookupValidationConfig.Object);
 
     }
 
