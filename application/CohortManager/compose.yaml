@@ -305,8 +305,6 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - CohortQueueName=cohort-distribution-queue
-      - CohortQueueNamePoison=cohort-distribution-queue-poison
 
   retrieve-cohort-replay:
     container_name: retrieve-cohort-replay
@@ -377,6 +375,8 @@ services:
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortQueueName=cohort-distribution-queue
+      - CohortQueueNamePoison=cohort-distribution-queue-poison
 
   retrieve-participant-data:
     container_name: retrieve-participant-data

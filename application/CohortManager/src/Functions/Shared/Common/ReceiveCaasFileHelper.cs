@@ -81,7 +81,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 FamilyName = Convert.ToString(rec.SurnamePrefix),
                 PreviousFamilyName = Convert.ToString(rec.PreviousSurnamePrefix),
                 DateOfBirth = Convert.ToString(rec.DateOfBirth),
-                Gender = getEnumValue<Gender>(Gender.Male),
+                Gender = (Gender)rec.Gender.GetValueOrDefault(),
                 AddressLine1 = Convert.ToString(rec.AddressLine1),
                 AddressLine2 = Convert.ToString(rec.AddressLine2),
                 AddressLine3 = Convert.ToString(rec.AddressLine3),
@@ -93,7 +93,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval),
                 ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate,
                 DateOfDeath = Convert.ToString(rec.DateOfDeath),
-                DeathStatus = getEnumValue<Status>(Status.Formal),
+                DeathStatus = (Status)rec.DeathStatus.GetValueOrDefault(),
                 TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
                 MobileNumber = Convert.ToString(rec.MobileNumber),
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
@@ -159,14 +159,5 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             return false;
         }
         return true;
-    }
-
-    private T? getEnumValue<T>(T type)
-    {
-        if (Enum.IsDefined(typeof(T), Convert.ToInt16(type)))
-        {
-            return (T)Enum.ToObject(typeof(T), Convert.ToInt16(type));
-        }
-        return default;
     }
 }
