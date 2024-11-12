@@ -38,6 +38,7 @@ public class ReadRules : IReadRules
         catch (Exception ex)
         {
             _logger.LogError(ex, "error while getting rules from directory: {ex} {fileName}", ex.Message, jsonFileName);
+            return string.Empty;
         }
     }
 
