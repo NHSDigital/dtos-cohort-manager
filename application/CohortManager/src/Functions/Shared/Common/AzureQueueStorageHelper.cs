@@ -39,7 +39,6 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
             _logger.LogError(ex, "There was an error while putting item on queue for queue: {queueName}", queueName);
             return false;
         }
-
     }
 
     public async Task<QueueClient> CreateAddQueue()
@@ -50,19 +49,17 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
         return _AddQueueClient;
     }
 
-    public async Task<int> ProcessBatch(Batch batch)
+    public async Task ProcessBatch(Batch batch)
     {
         //_logger.LogInformation("ProcessBatch Items {count}", batch.AddRecords.Count);
         if (batch != null && batch.AddRecords.Any())
         {
             await AddMessages(batch);
         }
-        return batch.AddRecords.Count;
     }
 
     private async Task AddMessages(Batch currentBatch)
     {
-        // Determine the maximum parallelism level based on processor count or collection size
         var itemsToAdd = currentBatch.AddRecords;
 
         // List of tasks to handle messages

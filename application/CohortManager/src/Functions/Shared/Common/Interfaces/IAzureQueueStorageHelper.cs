@@ -7,7 +7,7 @@ public interface IAzureQueueStorageHelper
 {
     Task<bool> AddItemToQueueAsync<T>(T participantCsvRecord, string queueName);
 
-    Task<int> ProcessBatch(Batch batch);
+    Task ProcessBatch(Batch batch);
 
     Task<QueueClient> CreateAddQueue();
 }

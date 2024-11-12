@@ -105,8 +105,6 @@ public class ReceiveCaasFile
                                 processRecords(batch, options, screeningService, name)
                             );
                         }
-                        // chunks.Remove(chunk);
-
 
                         // process each batches
                         Task.WaitAll(allTasks.ToArray());
@@ -134,10 +132,18 @@ public class ReceiveCaasFile
         }
     }
 
+
+    /// <summary>
+    /// process a given batch and send it the queue 
+    /// </summary>
+    /// <param name="values"></param>
+    /// <param name="options"></param>
+    /// <param name="screeningService"></param>
+    /// <param name="name"></param>
+    /// <returns></returns>
     private async Task processRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
     {
         var currentBatch = new Batch();
-        //var currentBatchSize = values.Count - 1;
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
             var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name);
@@ -167,6 +173,13 @@ public class ReceiveCaasFile
         await _processCaasFile.AddBatchToQueue(currentBatch, name);
     }
 
+    /// <summary>
+    /// adds a given record to the current given batch
+    /// </summary>
+    /// <param name="participant"></param>
+    /// <param name="currentBatch"></param>
+    /// <param name="FileName"></param>
+    /// <returns></returns>
     private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string FileName)
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -179,27 +192,31 @@ public class ReceiveCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                await Task.CompletedTask;
-                //add++;
-                await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI"));
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
+                if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+                {
+                    // we need to wait on this dark to completed here
+                    await Task.CompletedTask;
+                    currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                }
                 break;
             case Actions.Amended:
-                //upd++;
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
-                //del++;
-
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
-                //err++;
                 break;
         }
         return currentBatch;
 
     }
+    /// <summary>
+    /// gets the screening service data for a screening work flow
+    /// </summary>
+    /// <param name="fileNameParser"></param>
+    /// <returns></returns>
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
 

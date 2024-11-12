@@ -36,10 +36,8 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        //int row = 0, add = 0, upd = 0, del = 0, err = 0;
-        //row++;
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        var foo = await _azureQueueStorageHelper.ProcessBatch(currentBatch);
+        await _azureQueueStorageHelper.ProcessBatch(currentBatch);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
