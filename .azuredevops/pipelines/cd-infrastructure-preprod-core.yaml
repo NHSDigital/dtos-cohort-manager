@@ -19,15 +19,19 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 311f358ce67ca67f008022793cb1e974dfac81e3
+      ref: cb523099bb7933a2b19b5da7cbe09ccea3951c34
       endpoint: NHSDigital
 
 variables:
-  - group: prod_global_variable_group
-  - group: prod_hub_variable_group
-  - group: preprod_core_variable_group
+  - group: PRE_core_backend
+  - group: PRE_audit_backend_remote_state
+  - group: PRD_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  - name: TF_VERSION
+    value: 1.9.2
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_core_PRE
   - name: ENVIRONMENT
     value: preprod
 
@@ -36,7 +40,7 @@ stages:
     displayName: Terraform Plan
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      tfvars: environments/$(ENVIRONMENT).tfvars
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: init_and_plan
         displayName: Init, plan, store artifact
