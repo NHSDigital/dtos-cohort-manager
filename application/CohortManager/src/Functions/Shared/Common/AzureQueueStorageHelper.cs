@@ -70,7 +70,6 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
             while (itemsToAdd.TryDequeue(out var item))
             {
                 AddMessage(item);
-
             }
         }));
 

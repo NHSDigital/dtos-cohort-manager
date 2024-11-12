@@ -49,6 +49,8 @@ public class ReceiveCaasFile
         {
             _logger.LogInformation("loading file from blob {name}", name);
 
+
+            // make sure that that file name is valid
             FileNameParser fileNameParser = new FileNameParser(name);
             if (!fileNameParser.IsValid)
             {
@@ -201,10 +203,10 @@ public class ReceiveCaasFile
                 }
                 break;
             case Actions.Amended:
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
                 break;

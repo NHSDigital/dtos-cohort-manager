@@ -68,7 +68,6 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, name);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
     }
@@ -83,7 +82,6 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, filename);
             await CreateError(basicParticipantCsvRecord.participant, filename);
         }
     }
