@@ -12,7 +12,7 @@ module "storage" {
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
-  storage_account_name = data.terraform_remote_state.audit.outputs.storage_account_name[local.primary_region].name
+  # storage_account_name = data.terraform_remote_state.audit.outputs.storage_account_name[local.primary_region].name
 
   rbac_roles = {}
 
