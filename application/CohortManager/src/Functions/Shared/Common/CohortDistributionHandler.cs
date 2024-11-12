@@ -28,7 +28,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             ErrorRecord = errorRecord
         };
 
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, "create-cohort-distribution-queue");
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
 
         _logger.LogInformation($"Participant sent to Cohort Distribution Service");
         return true;
