@@ -61,7 +61,7 @@ services:
       - MeshPassword = ${MESHPASSWORD}
       - MeshSharedKey = ${MESHSHAREDKEY}
       - MeshKeyPassphrase = ${MESHKEYPASSPHRASE}
-      - ASPNETCORE_URLS=http://*:7060
+      - ASPNETCORE_URLS=http://*:7059
     depends_on:
       - azurite
 
@@ -78,6 +78,7 @@ services:
       - targetFunction=http://localhost:7061/api/processCaasFile
       - FileValidationURL=http://localhost:7073/api/FileValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AddQueueName=add-participant-queue
     depends_on:
       - azurite
 
@@ -89,6 +90,7 @@ services:
       dockerfile: CaasIntegration/processCaasFile/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7061
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
@@ -104,12 +106,15 @@ services:
       dockerfile: ParticipantManagementServices/addParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7062
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - DSaddParticipant=http://localhost:7066/api/CreateParticipant
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
+      - CohortQueueName=cohort-distribution-queue
+      - AddQueueName=add-participant-queue
 
   remove-participant:
     container_name: remove-participant
@@ -370,6 +375,8 @@ services:
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortQueueName=cohort-distribution-queue
+      - CohortQueueNamePoison=cohort-distribution-queue-poison
 
   retrieve-participant-data:
     container_name: retrieve-participant-data

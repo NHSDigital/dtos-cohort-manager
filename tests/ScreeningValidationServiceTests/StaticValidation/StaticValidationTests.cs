@@ -519,6 +519,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_FamilyName_Rule_Passes(string familyName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -539,6 +540,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Created_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -564,6 +566,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_GivenName_Rule_Passes(string givenName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FirstName = givenName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -584,6 +587,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Created_And_Create_Exception_When_FirstName_Rule_Fails(string firstName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FirstName = firstName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);

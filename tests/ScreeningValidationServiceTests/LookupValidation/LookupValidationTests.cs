@@ -346,54 +346,6 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.Amended, "MHI")]
-    [DataRow(Actions.Removed, "MHI")]
-    public async Task Run_InvalidCurrentPosting_CreatesException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "ABC")]
-    [DataRow(Actions.Amended, "ABC")]
-    [DataRow(Actions.Amended, "HMP")]
-    public async Task Run_ValidCurrentPosting_DoesNotCreateException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
     [DataRow("ABC")] // Invalid CurrentPosting
     public async Task Run_CurrentPosting_CreatesException(string currentPosting)
     {
@@ -543,63 +495,6 @@ public class LookupValidationTests
             Times.Never());
     }
 
-    [TestMethod]
-    [DataRow(Actions.Amended, "D", "AFL", "ValidPCP")]
-    [DataRow(Actions.Amended, "DEA", "AFL", "ValidPCP")]
-    [DataRow(Actions.Amended, "D", null, "ValidPCP")]
-    public async Task Run_DeceasedParticipant_CreatesException(string recordType, string existingReasonForRemoval, string newReasonForRemoval, string primaryCareProvider)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.ReasonForRemoval = existingReasonForRemoval;
-        _requestBody.NewParticipant.ReasonForRemoval = newReasonForRemoval;
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = "ABCDE";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.DeceasedParticipant.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "D", "AFL", "ValidPCP")] // new record
-    [DataRow(Actions.Amended, "AFL", "AFL", "ValidPCP")] // existing reason for removal is not "D" or "DEA"
-    [DataRow(Actions.Amended, "AFL", "D", "ValidPCP")] // new reason for removal is "D"
-    [DataRow(Actions.Amended, "AFL", "DEA", "ValidPCP")] // new reason for removal is "DEA"
-    [DataRow(Actions.Amended, "AFL", null, "ValidPCP")] // new reason for removal is empty
-    [DataRow(Actions.Amended, "D", "AFL", "InvalidPCP")] // invalid new primary care provider
-    [DataRow(Actions.Amended, "D", "AFL", "ValidPCP")] // new and existing primary care provider match
-    public async Task Run_DeceasedParticipant_DoesNotCreateException(string recordType, string existingReasonForRemoval, string newReasonForRemoval, string primaryCareProvider)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.ReasonForRemoval = existingReasonForRemoval;
-        _requestBody.NewParticipant.ReasonForRemoval = newReasonForRemoval;
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = "ValidPCP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider != "InvalidPCP");
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.DeceasedParticipant.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
 
     #region Validate BSO Code (Rule 54)
     [TestMethod]

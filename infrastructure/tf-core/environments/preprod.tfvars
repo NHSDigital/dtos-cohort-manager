@@ -41,24 +41,43 @@ regions = {
 
 routes = {
   uksouth = {
-    application_rules = []
-    nat_rules         = []
+    firewall_policy_priority = 100
+    application_rules        = []
+    nat_rules                = []
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
         priority              = 800
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.2.0.0/16"] # will be populated with the cohort manager subnet address space
-        destination_addresses = ["10.3.0.0/16"] # will be populated with the audit subnet address space
+        source_addresses      = ["10.2.0.0/16"]
+        destination_addresses = ["10.3.0.0/16"]
+        protocols             = ["TCP", "UDP"]
+        destination_ports     = ["443"]
+      },
+      {
+        name                  = "AllowAuditToCohman"
+        priority              = 810
+        action                = "Allow"
+        rule_name             = "AuditToCohman"
+        source_addresses      = ["10.3.0.0/16"]
+        destination_addresses = ["10.2.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes = [
+    route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "" # will be populated with the cohort manager subnet address space
+        address_prefix         = "10.3.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+      }
+    ]
+    route_table_routes_from_audit = [
+      {
+        name                   = "AuditToCohman"
+        address_prefix         = "10.2.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -163,6 +182,36 @@ function_apps = {
         {
           env_var_name     = "FileValidationURL"
           function_app_key = "FileValidation"
+        },
+        {
+          env_var_name     = "PMSAddParticipant"
+          function_app_key = "AddParticipant"
+        },
+        {
+          env_var_name     = "PMSRemoveParticipant"
+          function_app_key = "RemoveParticipant"
+        },
+        {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
+          env_var_name     = "DemographicURI"
+          function_app_key = "DemographicDataManagement"
+        },
+        {
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "BatchSize"
+          env_var_value = "3500"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
         }
       ]
     }
@@ -251,6 +300,16 @@ function_apps = {
           function_app_key = "CreateCohortDistribution"
         }
       ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "AddQueueName"
+          env_var_value = "add-participant-queue"
+        }
+      ]
     }
 
     RemoveParticipant = {
@@ -310,6 +369,12 @@ function_apps = {
           env_var_name     = "markParticipantAsIneligible"
           function_app_key = "MarkParticipantAsIneligible"
         }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
       ]
     }
 
@@ -578,6 +643,16 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        }
+      ]
+      env_vars_static = [
+        {
+          env_var_name  = "CohortQueueName"
+          env_var_value = "cohort-distribution-queue"
+        },
+        {
+          env_var_name  = "CohortQueueNamePoison"
+          env_var_value = "cohort-distribution-queue-poison"
         }
       ]
     }

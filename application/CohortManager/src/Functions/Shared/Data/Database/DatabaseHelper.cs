@@ -63,6 +63,16 @@ public class DatabaseHelper : IDatabaseHelper
         return reader[columnName] == DBNull.Value ? Gender.NotKnown : (Gender)(short)reader[columnName];
     }
 
+    public static T? GetValue<T>(IDataReader reader, string columnName)
+    {
+        if (reader == null || string.IsNullOrEmpty(columnName) || reader[columnName] == DBNull.Value)
+        {
+            return default;
+        }
+
+        return (T)Convert.ChangeType(reader[columnName], typeof(T));
+    }
+
     public int ConvertBoolStringToInt(string value)
     {
         if (string.IsNullOrEmpty(value)) return 0;

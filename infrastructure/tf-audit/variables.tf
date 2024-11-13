@@ -111,52 +111,18 @@ variable "network_security_group_rules" {
   })))
 }
 
-variable "routes" {
-  description = "Routes configuration for different regions"
+variable "storage_accounts" {
+  description = "Configuration for the Storage Account, currently used for SQL Server audit logs"
   type = map(object({
-    bgp_route_propagation_enabled = optional(bool, false)
-    application_rules = list(object({
-      name      = optional(string)
-      priority  = optional(number)
-      action    = optional(string)
-      rule_name = optional(string)
-      protocols = list(object({
-        type = optional(string)
-        port = optional(number)
-      }))
-      source_addresses  = optional(list(string))
-      destination_fqdns = list(string)
-    }))
-    nat_rules = list(object({
-      name                = optional(string)
-      priority            = optional(number)
-      action              = optional(string)
-      rule_name           = optional(string)
-      protocols           = list(string)
-      source_addresses    = list(string)
-      destination_address = optional(string)
-      destination_ports   = list(string)
-      translated_address  = optional(string)
-      translated_port     = optional(string)
-    }))
-    network_rules = list(object({
-      name                  = optional(string)
-      priority              = optional(number)
-      action                = optional(string)
-      rule_name             = optional(string)
-      source_addresses      = optional(list(string))
-      destination_addresses = optional(list(string))
-      protocols             = optional(list(string))
-      destination_ports     = optional(list(string))
-    }))
-    route_table_routes = list(object({
-      name                   = optional(string)
-      address_prefix         = optional(string)
-      next_hop_type          = optional(string)
-      next_hop_in_ip_address = optional(string)
-    }))
+    name_suffix                   = string
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
+    public_network_access_enabled = optional(bool, false)
+    containers = optional(map(object({
+      container_name        = string
+      container_access_type = optional(string, "private")
+    })), {})
   }))
-  default = {}
 }
 
 variable "tags" {

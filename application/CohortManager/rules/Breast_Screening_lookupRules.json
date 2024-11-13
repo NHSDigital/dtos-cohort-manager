@@ -1,12 +1,6 @@
 [
   {
     "WorkflowName": "Common",
-    "GlobalParams": [
-      {
-        "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-      }
-    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
@@ -81,36 +75,6 @@
           }
         ],
         "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
-      },
-      {
-        "RuleName": "36.DeceasedParticipant.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "amendedRecordType",
-            "Expression": "newParticipant.RecordType == Actions.Amended"
-          },
-          {
-            "Name": "existingReasonForRemovalIsDOrDEA",
-            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
-          },
-          {
-            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
-            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
-          },
-          {
-            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
-            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid deceased participant\""
-            }
-          }
-        }
       }
     ]
   },
