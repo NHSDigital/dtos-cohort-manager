@@ -32,7 +32,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _exceptionHandler = exceptionHandler;
     }
 
-    public async Task AddBatchToQueue(Batch currentBatch, string name)
+    private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
         await _addBatchToQueue.ProcessBatch(currentBatch);

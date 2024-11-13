@@ -51,7 +51,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     }
 
-    private async void AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
+    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
         await _AddQueueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
     }
