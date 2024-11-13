@@ -82,16 +82,24 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             _logger.LogWarning("Unauthorized Method was called");
             return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
         }
-        var predicate = CreateFilterExpression(req);
-        var result = await _dataServiceAccessor.GetRange(predicate);
-        if(result == null || !result.Any())
-        {
-            return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
+        try{
+            var predicate = CreateFilterExpression(req);
+            var result = await _dataServiceAccessor.GetRange(predicate);
+            if(result == null || !result.Any())
+            {
+                return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
+            }
+            return CreateHttpResponse(req,new DataServiceResponse<string>
+            {
+                JsonData = JsonSerializer.Serialize(result)
+            });
         }
-        return CreateHttpResponse(req,new DataServiceResponse<string>
+        catch(Exception ex)
         {
-            JsonData = JsonSerializer.Serialize(result)
-        });
+            _logger.LogWarning(ex,"Unable to parse filter expression");
+            return CreateErrorResponse(req,"Unable to parse filter Expression",HttpStatusCode.BadRequest);
+        }
+
     }
 
     private async Task<HttpResponseData> GetById(HttpRequestData req, string keyValue)
@@ -185,7 +193,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         var result = await _dataServiceAccessor.Remove(keyPredicate);
         if(!result)
         {
-            return CreateErrorResponse(req,"Failed to delete Record",HttpStatusCode.InternalServerError);
+            return CreateErrorResponse(req,"Failed to delete Record",HttpStatusCode.NotFound);
         }
         return CreateHttpResponse(req,new DataServiceResponse<string>
         {
@@ -290,6 +298,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         HttpStatusCode statusCode;
         byte[] responseBody = null!;
         if(httpStatusCode == HttpStatusCode.NoContent){
+            responseBody = Encoding.UTF8.GetBytes("");
             statusCode = httpStatusCode;
         }
         else if (dataServiceResponse.ErrorMessage == null)
