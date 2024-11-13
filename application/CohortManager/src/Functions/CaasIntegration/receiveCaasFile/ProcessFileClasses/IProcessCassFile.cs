@@ -1,4 +1,4 @@
-namespace Common.Interfaces;
+namespace NHS.Screening.ReceiveCaasFile;
 
 using Model;
 

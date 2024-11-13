@@ -5,6 +5,7 @@ using Common;
 using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
+using NHS.Screening.ReceiveCaasFile;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");

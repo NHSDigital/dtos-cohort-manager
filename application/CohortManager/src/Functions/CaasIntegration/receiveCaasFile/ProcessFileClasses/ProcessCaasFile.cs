@@ -1,6 +1,7 @@
-namespace Common;
+namespace NHS.Screening.ReceiveCaasFile;
 
 using System.Text.Json;
+using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;

@@ -1,3 +1,5 @@
+namespace NHS.Screening.ReceiveCaasFile;
+
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
