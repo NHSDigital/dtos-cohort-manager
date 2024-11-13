@@ -1,5 +1,6 @@
 namespace Common.Interfaces;
 using Model;
+using NHS.Screening.ReceiveCaasFile;
 
 public interface IReceiveCaasFileHelper
 {
@@ -9,4 +10,6 @@ public interface IReceiveCaasFileHelper
     string GetUrlFromEnvironment(string key);
 
     bool validateDateTimes(Participant participant);
+
+    Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage);
 }

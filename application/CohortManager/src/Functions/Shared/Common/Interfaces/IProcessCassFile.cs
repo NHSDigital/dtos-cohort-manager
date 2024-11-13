@@ -8,10 +8,6 @@ public interface IProcessCaasFile
 {
     Task AddBatchToQueue(Batch currentBatch, string name);
 
-    Task<QueueClient> CreateAddQueueCLient();
-
-
-
-
+    Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name);
 }
 

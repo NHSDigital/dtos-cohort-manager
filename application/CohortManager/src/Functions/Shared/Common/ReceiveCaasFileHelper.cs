@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Model.Enums;
 using System.Threading.Tasks;
+using NHS.Screening.ReceiveCaasFile;
 
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
@@ -156,6 +157,20 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 
         if (listOfAllDates.Any(date => date.HasValue && date > DateTime.UtcNow))
         {
+            return false;
+        }
+        return true;
+    }
+
+
+    public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
+    {
+        _logger.LogInformation("loading file from blob {name}", name);
+
+        // make sure that that file name is valid
+        if (!fileNameParser.IsValid)
+        {
+            await InsertValidationErrorIntoDatabase(name, errorMessage);
             return false;
         }
         return true;

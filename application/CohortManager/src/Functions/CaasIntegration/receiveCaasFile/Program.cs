@@ -25,7 +25,7 @@ try
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
-        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+        services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()

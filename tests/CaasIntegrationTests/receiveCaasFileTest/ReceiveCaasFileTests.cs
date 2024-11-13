@@ -39,13 +39,17 @@ public class ReceiveCaasFileTests
 
     private readonly Mock<ICheckDemographic> _mockCheckDemographic = new();
 
+    private readonly Mock<IAddBatchToQueue> _mockAddBatchToQueue = new();
+
+    private readonly Mock<IScreeningServiceData> _mockScreeningServiceData = new();
+
     public ReceiveCaasFileTests()
     {
         _mockLogger = new Mock<ILogger<ReceiveCaasFile>>();
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIFileReader = new Mock<IFileReader>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
-        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _screeningServiceData.Object, _mockExceptionHandler.Object, _mockProcessCaasFile.Object, _mockCreateBasicParticipantData.Object, _mockCheckDemographic.Object);
+        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockExceptionHandler.Object, _mockProcessCaasFile.Object, _mockCreateBasicParticipantData.Object, _mockCheckDemographic.Object, _mockAddBatchToQueue.Object, _mockScreeningServiceData.Object);
         _blobName = "20241008132843905009_F9B292_-_BSS_20241201121212_n1.parquet";
         _expectedJson = "{\"Participants\":[{\"RecordType\":\"ADD\",\"ChangeTimeStamp\":\"20240524000000\",\"SerialChangeNumber\":\"1\",\"NhsNumber\":\"1111122202\",\"SupersededByNhsNumber\":\"\",\"PrimaryCareProvider\":\"E85121\",\"PrimaryCareProviderEffectiveFromDate\":\"20030319\",\"CurrentPosting\":\"BD\",\"CurrentPostingEffectiveFromDate\":\"20130419\",\"NamePrefix\":\"Miss\",\"FirstName\":\"John\",\"OtherGivenNames\":\"Reymond\",\"FamilyName\":\"Regans\",\"PreviousFamilyName\":\"\",\"DateOfBirth\":\"19600112\",\"Gender\":1,\"AddressLine1\":\"25 Ring Road\",\"AddressLine2\":\"Eastend\",\"AddressLine3\":\"\",\"AddressLine4\":\"Ashford\",\"AddressLine5\":\"United Kingdom\",\"Postcode\":\"AB43 8JR\",\"PafKey\":\"Z3S4Q5X8\",\"UsualAddressEffectiveFromDate\":\"20031118\",\"ReasonForRemoval\":\"\",\"ReasonForRemovalEffectiveFromDate\":\"\",\"DateOfDeath\":\"\",\"DeathStatus\":null,\"TelephoneNumber\":\"1619999998\",\"TelephoneNumberEffectiveFromDate\":\"20200819\",\"MobileNumber\":\"7888888889\",\"MobileNumberEffectiveFromDate\":\"20240502\",\"EmailAddress\":null,\"EmailAddressEffectiveFromDate\":null,\"PreferredLanguage\":null,\"IsInterpreterRequired\":\"1\",\"InvalidFlag\":\"0\",\"ParticipantId\":null,\"ScreeningId\":null,\"BusinessRuleVersion\":null,\"ExceptionFlag\":null,\"RecordInsertDateTime\":null,\"RecordUpdateDateTime\":null,\"ScreeningAcronym\":null,\"ScreeningName\":null,\"EligibilityFlag\":null}],\"FileName\":\"20241008132843905009_F9B292_-_BSS_20240718150245_n3.parquet\"}";
         _invalidCsvData = "invalid data";
