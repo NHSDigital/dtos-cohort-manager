@@ -46,7 +46,7 @@ stages:
     displayName: Terraform Plan
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      tfvars: environments/$(ENVIRONMENT).tfvars
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: init_and_plan
         displayName: Init, plan, store artifact
