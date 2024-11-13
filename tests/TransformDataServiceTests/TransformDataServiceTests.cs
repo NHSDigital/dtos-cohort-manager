@@ -320,7 +320,7 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("John.,-()/='+:?!\"%&;<>*", "John.,-()/='+:?!\"%&;<>*")]
     [DataRow("abby{}", "abby()")]
-    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields2(string name, string transformedName)
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields(string name, string transformedName)
     {
         // Arrange
         _requestBody.Participant.FamilyName = name;
