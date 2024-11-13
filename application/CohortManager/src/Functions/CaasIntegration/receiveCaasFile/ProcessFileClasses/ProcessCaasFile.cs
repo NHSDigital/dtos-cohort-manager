@@ -33,73 +33,6 @@ public class ProcessCaasFile : IProcessCaasFile
         _exceptionHandler = exceptionHandler;
     }
 
-    private async Task AddBatchToQueue(Batch currentBatch, string name)
-    {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
-
-        if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
-        {
-            foreach (var updateRecords in currentBatch.UpdateRecords)
-            {
-                await UpdateParticipant(updateRecords, name);
-            }
-
-            foreach (var updateRecords in currentBatch.DeleteRecords)
-            {
-                await RemoveParticipant(updateRecords, name);
-            }
-        }
-    }
-
-    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-            {
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-            }
-            _logger.LogInformation("Called update participant");
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, name);
-        }
-    }
-
-    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
-    {
-        try
-        {
-            await _handleException.CreateDeletedRecordException(basicParticipantCsvRecord);
-            _logger.LogInformation("Logged Exception for Deleted Record");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, filename);
-        }
-    }
-
-    private async Task CreateError(Participant participant, string filename)
-    {
-        try
-        {
-            _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-            var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
-        }
-    }
-
     /// <summary>
     /// process a given batch and send it the queue 
     /// </summary>
@@ -176,6 +109,73 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         return currentBatch;
 
+    }
+
+    private async Task AddBatchToQueue(Batch currentBatch, string name)
+    {
+        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        await _addBatchToQueue.ProcessBatch(currentBatch);
+
+        if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
+        {
+            foreach (var updateRecords in currentBatch.UpdateRecords)
+            {
+                await UpdateParticipant(updateRecords, name);
+            }
+
+            foreach (var updateRecords in currentBatch.DeleteRecords)
+            {
+                await RemoveParticipant(updateRecords, name);
+            }
+        }
+    }
+
+    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
+            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+            {
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+            }
+            _logger.LogInformation("Called update participant");
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await CreateError(basicParticipantCsvRecord.participant, name);
+        }
+    }
+
+    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
+    {
+        try
+        {
+            await _handleException.CreateDeletedRecordException(basicParticipantCsvRecord);
+            _logger.LogInformation("Logged Exception for Deleted Record");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await CreateError(basicParticipantCsvRecord.participant, filename);
+        }
+    }
+
+    private async Task CreateError(Participant participant, string filename)
+    {
+        try
+        {
+            _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
+            var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
+            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
     }
 
 }

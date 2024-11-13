@@ -49,6 +49,8 @@ public class ReceiveCaasFile
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
+        int.TryParse(Environment.GetEnvironmentVariable("recordThresholdForBatching"), out var recordThresholdForBatching);
+        int.TryParse(Environment.GetEnvironmentVariable("batchDivisionFactor"), out var batchDivisionFactor);
         try
         {
             FileNameParser fileNameParser = new FileNameParser(name);
@@ -82,19 +84,17 @@ public class ReceiveCaasFile
                 {
                     var values = rowReader.ReadRows(i);
 
-
                     var listOfAllValues = values.ToList();
                     var countOfRecords = values.Length;
 
-                    int.TryParse(Environment.GetEnvironmentVariable("recordThresholdForBatching"), out var recordThresholdForBatching);
-                    int.TryParse(Environment.GetEnvironmentVariable("batchDivisionFactor"), out var batchDivisionFactor);
+                    //split list of all into N amount of chunks to be processed as batches
+                    var chunkSize = countOfRecords / batchDivisionFactor;
+                    var chunks = listOfAllValues.Chunk(chunkSize).ToList();
+
+                    var allTasks = new List<Task>();
+
                     if (countOfRecords > recordThresholdForBatching)
                     {
-                        //split list of all into N amount of chunks to be processed as batches
-                        var chunkSize = countOfRecords / batchDivisionFactor;
-                        var chunks = listOfAllValues.Chunk(chunkSize).ToList();
-
-                        var allTasks = new List<Task>();
                         foreach (var chunk in chunks)
                         {
                             var batch = chunk.ToList();
@@ -102,7 +102,6 @@ public class ReceiveCaasFile
                                 _processCaasFile.ProcessRecords(batch, options, screeningService, name)
                             );
                         }
-
                         // process each batches
                         Task.WaitAll(allTasks.ToArray());
                     }
