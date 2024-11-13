@@ -65,11 +65,12 @@ public class DatabaseHelper : IDatabaseHelper
 
     public static T? GetValue<T>(IDataReader reader, string columnName)
     {
-        object value = reader[columnName];
+        if (reader == null || string.IsNullOrEmpty(columnName) || reader[columnName] == DBNull.Value)
+        {
+            return default;
+        }
 
-        if (value == DBNull.Value || value == null) return default;
-
-        return (T)Convert.ChangeType(value, typeof(T));
+        return (T)Convert.ChangeType(reader[columnName], typeof(T));
     }
 
     public int ConvertBoolStringToInt(string value)
