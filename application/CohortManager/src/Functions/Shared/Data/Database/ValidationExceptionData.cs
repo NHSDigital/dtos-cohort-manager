@@ -36,7 +36,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[IS_FATAL]
                 FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
-        var parameters = new Dictionary<string, object>{};
+        var parameters = new Dictionary<string, object> { };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
