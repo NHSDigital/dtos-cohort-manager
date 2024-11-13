@@ -38,7 +38,7 @@ public class TransformString
 
     private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
-        string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
+        string allowedCharacters = @"^[\w\d\s.,\-()\/='+:?!""%&;<>*]+$";
 
         // Skip if the field is null or doesn't have any invalid chars
         if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
