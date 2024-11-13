@@ -23,11 +23,21 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: global_variable_group
-  - group: hub_variable_group
-  - group: integration_audit_variable_group
+  # - group: global_variable_group
+  # - group: hub_variable_group
+  # - group: integration_audit_variable_group
+  # - name: TF_DIRECTORY
+  #   value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  # - name: ENVIRONMENT
+  #   value: integration
+  - group: INT_audit_backend
+  - group: INT_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: TF_VERSION
+    value: 1.9.2
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_audit_INT
   - name: ENVIRONMENT
     value: integration
 
