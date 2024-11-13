@@ -23,8 +23,6 @@ public class AddBatchToQueue : IAddBatchToQueue
         _logger = logger;
     }
 
-
-
     public async Task ProcessBatch(Batch batch)
     {
         if (batch != null && batch.AddRecords.Any())
