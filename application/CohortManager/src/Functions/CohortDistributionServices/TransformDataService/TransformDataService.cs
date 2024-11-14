@@ -107,11 +107,6 @@ public class TransformDataService
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-        var transformedParticipant = (CohortDistributionParticipant)resultList.Where(result => result.IsSuccess)
-                                                    .Select(result => result.ActionResult.Output)
-                                                    .FirstOrDefault()
-                                                    ?? participant;
       
         var result = resultList.Where(result => result.IsSuccess)
             .Select(result => result.ActionResult.Output)

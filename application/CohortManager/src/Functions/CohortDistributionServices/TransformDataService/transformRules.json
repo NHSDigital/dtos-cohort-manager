@@ -306,7 +306,7 @@
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString()",
+                  "value": "DateTime.Today.ToString(\"dd-MM-YYY\")",
                   "isExpression": true
                 }
               ]
