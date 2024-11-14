@@ -49,7 +49,6 @@ public class TransformDataServiceTests
 
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
-        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
 
         _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _lookupValidation.Object);
 
@@ -415,7 +414,8 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-  
+        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
+
         // Act
         var result = await _function.RunAsync(_request.Object);
 
@@ -435,7 +435,8 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
     }
-  
+
+    [TestMethod]
     [DataRow("RDR")]
     [DataRow("RDI")]
     [DataRow("RPR")]
