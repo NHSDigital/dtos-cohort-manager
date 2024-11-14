@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Data.Database;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
@@ -16,46 +15,43 @@ public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-    private readonly IScreeningServiceData _screeningServiceData;
     private readonly IProcessCaasFile _processCaasFile;
-    private readonly IExceptionHandler _exceptionHandler;
+    private readonly IScreeningServiceData _screeningServiceData;
 
-    public ReceiveCaasFile(ILogger<ReceiveCaasFile> logger, IReceiveCaasFileHelper receiveCaasFileHelper, IScreeningServiceData screeningServiceData, IExceptionHandler exceptionHandler, IProcessCaasFile processCaasFile)
+    public ReceiveCaasFile(
+        ILogger<ReceiveCaasFile> logger,
+        IReceiveCaasFileHelper receiveCaasFileHelper,
+        IProcessCaasFile processCaasFile,
+        IScreeningServiceData screeningServiceData
+        )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
-        _screeningServiceData = screeningServiceData;
-        _exceptionHandler = exceptionHandler;
         _processCaasFile = processCaasFile;
+        _screeningServiceData = screeningServiceData;
     }
 
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
+        int.TryParse(Environment.GetEnvironmentVariable("recordThresholdForBatching"), out var recordThresholdForBatching);
+        int.TryParse(Environment.GetEnvironmentVariable("batchDivisionFactor"), out var batchDivisionFactor);
         try
         {
-            _logger.LogInformation("loading file from blob {name}", name);
-
             FileNameParser fileNameParser = new FileNameParser(name);
-            if (!fileNameParser.IsValid)
+            var fileNameErrorMessage = "File name is invalid. File name: " + name;
+            if (!await _receiveCaasFileHelper.CheckFileName(name, fileNameParser, fileNameErrorMessage))
             {
-                string errorMessage = "File name is invalid. File name: " + name;
-                _logger.LogError(errorMessage);
-                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
+                _logger.LogError(fileNameErrorMessage);
                 return;
             }
 
-            var badRecords = new Dictionary<int, string>();
-            Cohort cohort = new()
+            var screeningService = await GetScreeningService(name, fileNameParser);
+            if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
             {
-                FileName = name
-            };
-
-            var chunks = new List<Cohort>();
-            var rowNumber = 0;
-            int err = 0;
-            var batchSize = Convert.ToInt32(Environment.GetEnvironmentVariable("BatchSize"));
+                return;
+            }
 
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
@@ -64,62 +60,42 @@ public class ReceiveCaasFile
             {
                 await blobStream.CopyToAsync(fileStream);
             }
-            var screeningService = GetScreeningService(fileNameParser);
-            if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
-            {
-                string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
-                _logger.LogError(errorMessage);
-                await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
-                return;
-            }
-            _logger.LogInformation($"Screening Name: {screeningService.ScreeningName}");
 
+            var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
-                /* A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.*/
+                // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
-                    //foreach (var rec in values)
-                    await Parallel.ForEachAsync(values, async (rec, cancellationToken) =>
+
+                    var listOfAllValues = values.ToList();
+                    var countOfRecords = values.Length;
+                    var allTasks = new List<Task>();
+
+                    if (countOfRecords >= recordThresholdForBatching)
                     {
+                        //split list of all into N amount of chunks to be processed as batches.
+                        var chunkSize = countOfRecords / batchDivisionFactor;
+                        var chunks = listOfAllValues.Chunk(chunkSize).ToList();
 
-                        var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name, rowNumber);
-                        rowNumber++;
-
-                        if (participant == null)
+                        foreach (var chunk in chunks)
                         {
-                            chunks.Clear();
-                            cohort.Participants.Clear();
-                            _logger.LogError("Invalid data in the file: {Name}", name);
-                            return;
+                            var batch = chunk.ToList();
+                            allTasks.Add(
+                                _processCaasFile.ProcessRecords(batch, options, screeningService, name)
+                            );
                         }
-
-                        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed at data row {rowNumber}"), participant, name);
-                            err++;
-                            return; // skip current participant
-                        }
-
-
-                        if (!_receiveCaasFileHelper.validateDateTimes(participant))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {rowNumber}."), participant, name);
-                            err++;
-                            return; // Skip current participant
-                        }
-                        cohort.Participants.Add(participant);
-
-                        _logger.LogInformation("sending to add now {datetime}", DateTime.Now);
-                        await _processCaasFile.ProcessRecordAsync(participant, name);
-
-                        if (cohort.Participants.Count == batchSize)
-                        {
-                            chunks.Add(cohort);
-                            cohort.Participants.Clear();
-                        }
-                    });
+                        // process each batches
+                        Task.WaitAll(allTasks.ToArray());
+                    }
+                    else
+                    {
+                        await _processCaasFile.ProcessRecords(listOfAllValues, options, screeningService, name);
+                    }
+                    // dispose of all lists and variables from memory because they are no longer needed
+                    listOfAllValues = null;
+                    values = null;
                 }
             }
         }
@@ -136,6 +112,27 @@ public class ReceiveCaasFile
         }
     }
 
+    private async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
+    {
+        // get screening service name and id
+        var screeningService = GetScreeningService(fileNameParser);
+        if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
+        {
+            string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
+            _logger.LogError(errorMessage);
+            await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
+
+            return new ScreeningService();
+        }
+
+        return screeningService;
+    }
+
+    /// <summary>
+    /// gets the screening service data for a screening work flow
+    /// </summary>
+    /// <param name="fileNameParser"></param>
+    /// <returns></returns>
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
 
@@ -143,5 +140,4 @@ public class ReceiveCaasFile
         _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
         return _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
     }
-
 }
