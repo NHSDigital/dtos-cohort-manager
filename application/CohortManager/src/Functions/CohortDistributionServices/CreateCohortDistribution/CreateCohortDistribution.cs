@@ -34,13 +34,8 @@ public class CreateCohortDistribution
     }
 
     [Function(nameof(CreateCohortDistribution))]
-    public async Task RunAsync([QueueTrigger("create-cohort-distribution-queue")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
+    public async Task RunAsync([QueueTrigger("%CohortQueueName%", Connection = "AzureWebJobsStorage")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
     {
-        //HttpRequestData req;
-
-
-
-
         if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
             string logMessage = $"One or more of the required parameters is missing.";
@@ -130,7 +125,7 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, "Create-cohort-distribution-queue-poison");
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, Environment.GetEnvironmentVariable("CohortQueueNamePoison"));
 
     }
 

@@ -1,6 +1,20 @@
 [
   {
     "WorkflowName": "TransformData",
+    "GlobalParams": [
+      {
+        "Name": "participantNotRegisteredToGP",
+        "Expression": "new string[] {\"RDR\",\"RDI\",\"RPR\"}.Contains(participant.ReasonForRemoval)"
+      },
+      {
+        "Name": "dummyPrimaryCareProvider",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND participant.PrimaryCareProvider.StartsWith(\"ZZZ\")"
+      },
+      {
+        "Name": "validPostcode",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) AND dbLookup.ValidateOutcode(participant.Postcode)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
@@ -458,6 +472,135 @@
                   "value": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
                 }
               ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "03.Other.DateOfDeath.NotDea",
+        "Expression": "participant.DateOfDeath != null && participant.ReasonForRemoval != \"DEA\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "DateOfDeath",
+                  "value": null
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "1.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
+        "Expression": "participantNotRegisteredToGP AND validPostcode",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProviderEffectiveFromDate",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate"
+                },
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": null
+                },
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemoval",
+                  "value": null
+                },
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProvider",
+                  "value": "\"ZZZ\" + bsoCode"
+                }
+              ]
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND !string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !dummyPrimaryCareProvider",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProviderEffectiveFromDate",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate"
+                },
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": null
+                },
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemoval",
+                  "value": null
+                },
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProvider",
+                  "value": "\"ZZZ\" + bsoCode"
+                }
+              ]
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformError",
+            "Context": {
+              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
+            }
+          },
+          "OnFailure": {
+            "Name": "EvaluateRule",
+            "Context": {
+              "workflowName": "TransformData",
+              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal",
+        "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformError",
+            "Context": {
+              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
             }
           }
         }

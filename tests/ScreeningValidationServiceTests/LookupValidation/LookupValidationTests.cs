@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,7 @@ public class LookupValidationTests
     private LookupValidationRequestBody _requestBody;
     private LookupValidation _sut;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
-    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+    private readonly Mock<IReadRules> _readRules = new();
     private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
 
     [TestInitialize]
@@ -88,10 +89,10 @@ public class LookupValidationTests
                 json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_lookupRules.json");
                 break;
         }
-        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
         .Returns(Task.FromResult<string>(json));
         _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,
-                                    _readRulesFromBlobStorage.Object, _lookupValidation.Object);
+                                    _readRules.Object, _lookupValidation.Object);
 
     }
 
@@ -342,54 +343,6 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow(Actions.Amended, "MHI")]
-    [DataRow(Actions.Removed, "MHI")]
-    public async Task Run_InvalidCurrentPosting_CreatesException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "ABC")]
-    [DataRow(Actions.Amended, "ABC")]
-    [DataRow(Actions.Amended, "HMP")]
-    public async Task Run_ValidCurrentPosting_DoesNotCreateException(string recordType, string currentPosting)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.ExistingParticipant.CurrentPosting = "HMP";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "67.CurrentPostingIsHMPOrMHIAndDoesNotMatchExistingRecord.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
     }
 
     [TestMethod]

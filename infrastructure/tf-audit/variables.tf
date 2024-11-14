@@ -111,6 +111,20 @@ variable "network_security_group_rules" {
   })))
 }
 
+variable "storage_accounts" {
+  description = "Configuration for the Storage Account, currently used for SQL Server audit logs"
+  type = map(object({
+    name_suffix                   = string
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
+    public_network_access_enabled = optional(bool, false)
+    containers = optional(map(object({
+      container_name        = string
+      container_access_type = optional(string, "private")
+    })), {})
+  }))
+}
+
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)

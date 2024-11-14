@@ -86,6 +86,9 @@ services:
       - AddQueueName=add-participant-queue
       - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AddQueueName=add-participant-queue
+      - recordThresholdForBatching=3
+      - batchDivisionFactor=5
     depends_on:
       - azurite
 
@@ -120,6 +123,8 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
+      - CohortQueueName=cohort-distribution-queue
+      - AddQueueName=add-participant-queue
 
   remove-participant:
     container_name: remove-participant
@@ -381,6 +386,8 @@ services:
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortQueueName=cohort-distribution-queue
+      - CohortQueueNamePoison=cohort-distribution-queue-poison
 
   retrieve-participant-data:
     container_name: retrieve-participant-data

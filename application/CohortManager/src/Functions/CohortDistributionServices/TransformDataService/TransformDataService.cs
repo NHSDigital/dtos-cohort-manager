@@ -1,5 +1,5 @@
 /// <summary>
-/// Takes a CohortDistributionParticipant, does a number of individual transformations, and retuns a transformed CohortDistributionParticipant
+/// Takes a CohortDistributionParticipant, does a number of individual transformations, and returns a transformed CohortDistributionParticipant
 /// </summary>
 /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
 /// <returns>The transformed participant</returns>
@@ -25,14 +25,17 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+
+    private readonly IDbLookupValidationBreastScreening _dbLookup;
     private readonly IBsTransformationLookups _transformationLookups;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,
-                                ILogger<TransformDataService> logger, IBsTransformationLookups transformationLookups)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
+                                IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformationLookups = transformationLookups;
+        _dbLookup = dbLookup;
     }
 
     [Function("TransformDataService")]
@@ -56,8 +59,7 @@ public class TransformDataService
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
-        // This function is currently not using the screeningService, but it will do in the future
-        // var screeningService = requestBody.ScreeningService;
+
         try
         {
             // Character transformation
@@ -88,10 +90,10 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var action = new Dictionary<string, Func<ActionBase>>{{"TransformAction", () => new TransformAction()}};
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, { "TransformError", () => new TransformError() } };
         var reSettings = new ReSettings
         {
-            CustomActions = action,
+            CustomActions = actions,
             CustomTypes = [typeof(Actions)]
         };
 
@@ -100,6 +102,8 @@ public class TransformDataService
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
             new RuleParameter("transformLookups", _transformationLookups)
+            new RuleParameter("dbLookup", _dbLookup),
+            new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -108,11 +112,29 @@ public class TransformDataService
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? participant;
+      
+        var result = resultList.Where(result => result.IsSuccess)
+            .Select(result => result.ActionResult.Output)
+            .FirstOrDefault();
 
-        return transformedParticipant;
+        if (result is Exception exception)
+        {
+            var participantCsvRecord = new ParticipantCsvRecord
+            {
+                Participant = new Participant(participant),
+                FileName = "",
+            };
+
+            _logger.LogError(exception, "A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
+            await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
+
+            return participant;
+        }
+
+        return participant;
     }
 
-    public async Task<string> TransformNamePrefixAsync(string namePrefix)
+    private static async Task<string> TransformNamePrefixAsync(string namePrefix)
     {
 
         // Set up rules engine
@@ -144,11 +166,12 @@ public class TransformDataService
     /// </summary>
     /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
     /// <returns>The transformed participant</returns>
-    public async Task<CohortDistributionParticipant> LookupTransformations(CohortDistributionParticipant participant) {
+    public async Task<CohortDistributionParticipant> LookupTransformations(CohortDistributionParticipant participant)
+    {
         // Set up rules engine
         string json = await File.ReadAllTextAsync("lookupTransformationRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var reSettings = new ReSettings {CustomTypes = [typeof(Actions)]};
+        var reSettings = new ReSettings { CustomTypes = [typeof(Actions)] };
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
@@ -184,7 +207,7 @@ public class TransformDataService
     /// <param name="field">The name of the field</param>
     /// <param name="currentValue">The current value of the field in the participant</param>
     /// <returns>The transformed value, or the current value if null</returns>
-    private T GetTransformedData<T>(List<RuleResultTree> results, string field, T currentValue)
+    private static T GetTransformedData<T>(List<RuleResultTree> results, string field, T currentValue)
     {
         // The field is the 3rd part of the rule
         var result = results.Find(x => x.Rule.RuleName.Split('.')[2] == field);

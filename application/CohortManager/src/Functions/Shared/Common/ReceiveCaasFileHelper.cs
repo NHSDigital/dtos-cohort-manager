@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Model.Enums;
 using System.Threading.Tasks;
+using NHS.Screening.ReceiveCaasFile;
 
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
@@ -57,7 +58,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return match.Success;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name, int rowNumber)
+    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try
@@ -81,7 +82,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 FamilyName = Convert.ToString(rec.SurnamePrefix),
                 PreviousFamilyName = Convert.ToString(rec.PreviousSurnamePrefix),
                 DateOfBirth = Convert.ToString(rec.DateOfBirth),
-                Gender = getEnumValue<Gender>(Gender.Male),
+                Gender = (Gender)rec.Gender.GetValueOrDefault(),
                 AddressLine1 = Convert.ToString(rec.AddressLine1),
                 AddressLine2 = Convert.ToString(rec.AddressLine2),
                 AddressLine3 = Convert.ToString(rec.AddressLine3),
@@ -93,7 +94,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval),
                 ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate,
                 DateOfDeath = Convert.ToString(rec.DateOfDeath),
-                DeathStatus = getEnumValue<Status>(Status.Formal),
+                DeathStatus = (Status)rec.DeathStatus.GetValueOrDefault(),
                 TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
                 MobileNumber = Convert.ToString(rec.MobileNumber),
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
@@ -107,7 +108,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
         }
@@ -161,12 +162,17 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return true;
     }
 
-    private T? getEnumValue<T>(T type)
+
+    public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
     {
-        if (Enum.IsDefined(typeof(T), Convert.ToInt16(type)))
+        _logger.LogInformation("loading file from blob {name}", name);
+
+        // make sure that that file name is valid
+        if (!fileNameParser.IsValid)
         {
-            return (T)Enum.ToObject(typeof(T), Convert.ToInt16(type));
+            await InsertValidationErrorIntoDatabase(name, errorMessage);
+            return false;
         }
-        return default;
+        return true;
     }
 }

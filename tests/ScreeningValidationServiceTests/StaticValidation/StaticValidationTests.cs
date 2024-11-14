@@ -3,6 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,7 +25,7 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
-    private readonly Mock<IReadRulesFromBlobStorage> _readRulesFromBlobStorage = new();
+    private readonly Mock<IReadRules> _readRules = new();
     private readonly Mock<ICallFunction> _callFunction = new();
 
     public StaticValidationTests()
@@ -45,9 +46,9 @@ public class StaticValidationTests
             })).Verifiable();
 
         var json = File.ReadAllText("../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
-        _readRulesFromBlobStorage.Setup(x => x.GetRulesFromBlob(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<string>(json));
+        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
-        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRulesFromBlobStorage.Object, _callFunction.Object);
+        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRules.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -518,6 +519,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_FamilyName_Rule_Passes(string familyName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -538,6 +540,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Created_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FamilyName = familyName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -563,6 +566,7 @@ public class StaticValidationTests
     public async Task Run_Should_Not_Create_Exception_When_GivenName_Rule_Passes(string givenName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FirstName = givenName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -583,6 +587,7 @@ public class StaticValidationTests
     public async Task Run_Should_Return_Created_And_Create_Exception_When_FirstName_Rule_Fails(string firstName)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.Participant.FirstName = firstName;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);

@@ -57,11 +57,3 @@ module "app-service-plan" {
   dec_scale_value     = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.memory_percentage.dec_scale_value, var.app_service_plan.autoscale.memory_percentage.dec_scale_value) : var.app_service_plan.autoscale.memory_percentage.dec_scale_value
   dec_scale_cooldown  = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.memory_percentage.dec_scale_cooldown, var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown) : var.app_service_plan.autoscale.memory_percentage.dec_scale_cooldown
 }
-
-output "app_service_plans_flatlist" {
-  value = local.app_service_plans_flatlist
-}
-
-output "app_service_plans" {
-  value = local.app_service_plans_map
-}
