@@ -63,7 +63,7 @@ schema = {
     "email_address_effective_from_date": "string",
     "preferred_language": "string",
     "is_interpreter_required": "boolean",
-    "invalid_flag": "Int64",
+    "invalid_flag": "boolean",
     "eligibility": "boolean"
 }
 

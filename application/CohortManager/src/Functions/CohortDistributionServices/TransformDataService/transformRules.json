@@ -273,8 +273,8 @@
         }
       },
       {
-        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvide",
-        "Expression": "participant.PrimaryCareProvider != null && transformLookups.ParticipantIsInvalid(participant.ParticipantId)",
+        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) && transformLookups.ParticipantIsInvalid(participant.ParticipantId)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -282,17 +282,17 @@
               "transformFields": [
                 {
                   "field": "PrimaryCareProvider",
-                  "value": "null",
+                  "value": "",
                   "isExpression": false
                 },
                 {
                   "field": "ReasonForRemoval",
-                  "value": "\"ORR\"",
+                  "value": "ORR",
                   "isExpression": false
                 },
                 {
-                  "field": "ReasonForRemovalBusinessEffectiveDate",
-                  "value": "DateTime.Today",
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.Today.ToString()",
                   "isExpression": true
                 }
               ]

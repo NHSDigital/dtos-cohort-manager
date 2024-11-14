@@ -47,6 +47,7 @@ public class TransformDataServiceTests
 
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
+        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
 
         _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object);
 
@@ -402,8 +403,9 @@ public class TransformDataServiceTests
     public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
     {
         // Arrange
-        _requestBody.Participant.InvalidFlag = true;
         _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -419,8 +421,8 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
             ReasonForRemoval = "ORR",
-            ReasonForRemovalEffectiveFromDate = DateTime.Today,
-            PrimaryCareProvider = null
+            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString(),
+            PrimaryCareProvider = ""
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);

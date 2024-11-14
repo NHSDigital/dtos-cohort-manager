@@ -98,10 +98,21 @@ public class TransformDataService
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("participant", participant)
+            new RuleParameter("participant", participant),
+            new RuleParameter("transformLookups", _transformationLookups)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
+
+        System.Console.WriteLine("participant is invalid: " + _transformationLookups.ParticipantIsInvalid(participant.ParticipantId)); 
+        System.Console.WriteLine("reason for removal effection from date: " + participant.ReasonForRemovalEffectiveFromDate);
+
+        foreach (var result in resultList) {
+            if (result.Rule.RuleName == "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider" && result.IsSuccess) {
+                System.Console.WriteLine("exception: " + result.ExceptionMessage);
+                System.Console.WriteLine("rule executed");
+            }
+        }
 
         var transformedParticipant = (CohortDistributionParticipant)resultList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)

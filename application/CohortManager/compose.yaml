@@ -373,6 +373,7 @@ services:
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7082
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - AllocateScreeningProviderURL=http://localhost:7081/api/AllocateServiceProviderToParticipantByService
       - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
