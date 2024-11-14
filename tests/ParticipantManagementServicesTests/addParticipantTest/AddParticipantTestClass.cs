@@ -110,7 +110,7 @@ public class AddNewParticipantTestClass
 
 
         // Act
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -160,7 +160,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -207,7 +207,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         //_callFunctionMock.Verify(x => x.SendPost("DemographicURIGet", It.IsAny<string>()),Times.Once);
@@ -246,7 +246,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _checkDemographic.Verify(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"), Times.Once);
@@ -275,7 +275,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -311,7 +311,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -351,7 +351,7 @@ public class AddNewParticipantTestClass
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(basicParticipantCsvRecord);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _callFunctionMock.Verify(call => call.SendPost("DSaddParticipant", It.IsAny<string>()), Times.Once());

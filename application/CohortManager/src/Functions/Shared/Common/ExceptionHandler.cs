@@ -17,11 +17,11 @@ public class ExceptionHandler : IExceptionHandler
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly ICallFunction _callFunction;
     private static readonly int DefaultRuleId = 0;
-    private static readonly string DefaultCohortName = "";
-    private static readonly string DefaultScreeningName = "";
-    private static readonly string DefaultErrorRecord = "N/A";
-    private static readonly string DefaultFileName = "";
-    private static readonly string DefaultNhsNumber = "";
+    private const string DefaultCohortName = "";
+    private const string DefaultScreeningName = "";
+    private const string DefaultErrorRecord = "N/A";
+    private const string DefaultFileName = "";
+    private const string DefaultNhsNumber = "";
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -75,6 +75,34 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
+    {
+        var exception = new ValidationException
+        {
+            RuleId = 0,
+            RuleDescription = "Record received was flagged for deletion",
+            FileName = participantCsvRecord.FileName,
+            NhsNumber = participantCsvRecord.Participant.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            ExceptionDate = DateTime.Now,
+            Category = (int)ExceptionCategory.DeleteRecord,
+            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            CohortName = DefaultCohortName,
+            Fatal = 1
+
+        };
+        var url = GetUrlFromEnvironment();
+        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(exception));
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("There was an error while logging an exception to the database.");
+        }
+
+
+    }
+
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
@@ -84,7 +112,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var errorMessage = (string)error.ActionResult.Output;
+            var errorMessage = error.ActionResult.Output is Exception ruleError ? ruleError.Message : (string)error.ActionResult.Output;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
