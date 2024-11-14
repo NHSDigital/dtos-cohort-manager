@@ -1,20 +1,28 @@
 namespace Common;
 
+using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
+using System.Reflection.Metadata;
 
 public static class ValidationHelper
 {
+
+    private static readonly string[] DateFormats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt", "yyyy"];
     private static readonly string NilReturnFileNhsNumber = "0000000000";
     // Validates that the date is not in the future and that it is in one of the expected formats
     public static bool ValidatePastDate(string dateString)
     {
-        string[] formats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
-
-        if (DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+        var date = ParseDate(dateString);
+        if(date.HasValue)
         {
             return date < DateTime.Today;
         }
         return false;
+    }
+    public static bool IsValidDate(string dateString)
+    {
+        var date = ParseDate(dateString);
+        return date.HasValue;
     }
     public static bool ValidateNHSNumber(string nhsNumber)
     {
@@ -69,5 +77,14 @@ public static class ValidationHelper
             return false;
         }
         return true;
+    }
+
+    private static DateTime? ParseDate(string dateString)
+    {
+        if (DateTime.TryParseExact(dateString, DateFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+        {
+            return date;
+        }
+        return null;
     }
 }
