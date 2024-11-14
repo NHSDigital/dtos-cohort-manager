@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "Open curly brace",
-        "Expression": "input1 == '{'",
+        "Expression": "input1 == 123",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -16,7 +16,7 @@
       },
       {
         "RuleName": "Closed curly brace",
-        "Expression": "input1 == '}'",
+        "Expression": "input1 == 125",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -28,7 +28,7 @@
       },
       {
         "RuleName": "Open square bracket",
-        "Expression": "input1 == '['",
+        "Expression": "input1 == 91",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -40,7 +40,7 @@
       },
       {
         "RuleName": "Closed square bracket",
-        "Expression": "input1 == ']'",
+        "Expression": "input1 == 93",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -52,7 +52,7 @@
       },
       {
         "RuleName": "Tilde",
-        "Expression": "input1 == '~'",
+        "Expression": "input1 == 126",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -64,7 +64,7 @@
       },
       {
         "RuleName": "Grave",
-        "Expression": "input1 == '`'",
+        "Expression": "input1 == 96",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "Hash",
-        "Expression": "input1 == '#'",
+        "Expression": "input1 == 35",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -88,7 +88,7 @@
       },
       {
         "RuleName": "At sign",
-        "Expression": "input1 == '@'",
+        "Expression": "input1 == 64",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -100,7 +100,7 @@
       },
       {
         "RuleName": "Underscore",
-        "Expression": "input1 == '_'",
+        "Expression": "input1 == 95",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -112,7 +112,7 @@
       },
       {
         "RuleName": "Pound",
-        "Expression": "input1 == '£'",
+        "Expression": "input1 == 163",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -124,7 +124,7 @@
       },
       {
         "RuleName": "Dollar",
-        "Expression": "input1 == '$'",
+        "Expression": "input1 == 36",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -136,7 +136,7 @@
       },
       {
         "RuleName": "Caret",
-        "Expression": "input1 == '^'",
+        "Expression": "input1 == 94",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -148,7 +148,7 @@
       },
       {
         "RuleName": "Pipe",
-        "Expression": "input1 == '|'",
+        "Expression": "input1 == 124",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -160,7 +160,7 @@
       },
       {
         "RuleName": "Backslash",
-        "Expression": "input1 == '\\'",
+        "Expression": "input1 == 92",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
