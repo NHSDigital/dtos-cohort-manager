@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -17,15 +18,15 @@ public class StaticValidation
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-    private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
+    private readonly IReadRules _readRules;
     private readonly ICallFunction _callFunction;
 
-    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRulesFromBlobStorage readRulesFromBlobStorage, ICallFunction callFunction)
+    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRules readRules, ICallFunction callFunction)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
-        _readRulesFromBlobStorage = readRulesFromBlobStorage;
+        _readRules = readRules;
         _callFunction = callFunction;
     }
 
@@ -45,9 +46,7 @@ public class StaticValidation
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
-            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
-                                                                        Environment.GetEnvironmentVariable("BlobContainerName"),
-                                                                        ruleFileName);
+            var json =  await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings

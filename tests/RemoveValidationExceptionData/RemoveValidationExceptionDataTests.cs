@@ -34,8 +34,6 @@ public class RemoveValidationExceptionDataTests
 
     public RemoveValidationExceptionDataTests()
     {
-
-
         Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
 
         _request = new Mock<HttpRequestData>(_context.Object);

@@ -10,6 +10,8 @@ using Model;
 public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 {
     private QueueClient _queueClient;
+
+    private QueueClient _AddQueueClient;
     private readonly string storageConnectionString;
 
     public readonly ILogger<AzureQueueStorageHelper> _logger;
@@ -24,7 +26,6 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
     {
         _queueClient = new QueueClient(storageConnectionString, queueName);
         await _queueClient.CreateIfNotExistsAsync();
-
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var bytes = Encoding.UTF8.GetBytes(json);
         try
@@ -37,6 +38,5 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
             _logger.LogError(ex, "There was an error while putting item on queue for queue: {queueName}", queueName);
             return false;
         }
-
     }
 }

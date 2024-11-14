@@ -1,9 +1,6 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
-
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
-using Microsoft.IdentityModel.Tokens;
 
 public class FileNameParser
 {
@@ -13,12 +10,13 @@ public class FileNameParser
 
     public FileNameParser(string fileName)
     {
-        match = Regex.Match(fileName,_fileNameRegex,RegexOptions.IgnoreCase,matchTimeout: new TimeSpan(0,0,30));
+        match = Regex.Match(fileName, _fileNameRegex, RegexOptions.IgnoreCase, matchTimeout: new TimeSpan(0, 0, 30));
     }
 
-    public bool IsValid =>  match.Success;
+    public bool IsValid => match.Success;
 
-    public string GetScreeningService(){
+    public string GetScreeningService()
+    {
         Group g = match.Groups[2];
         return g.Captures[0].ToString();
     }

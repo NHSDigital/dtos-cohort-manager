@@ -79,6 +79,8 @@ services:
       - FileValidationURL=http://localhost:7073/api/FileValidation
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AddQueueName=add-participant-queue
+      - recordThresholdForBatching=3
+      - batchDivisionFactor=5
     depends_on:
       - azurite
 
