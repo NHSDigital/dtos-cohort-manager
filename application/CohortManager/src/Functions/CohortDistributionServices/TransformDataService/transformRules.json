@@ -287,6 +287,34 @@
         }
       },
       {
+        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) && transformLookups.ParticipantIsInvalid(participant.ParticipantId)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "PrimaryCareProvider",
+                  "value": "",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.Today.ToString()",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
         "RuleName": "3.Other.DateOfDeath.DoesNotExist",
         "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
         "Actions": {

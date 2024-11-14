@@ -25,9 +25,11 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+
     private readonly IDbLookupValidationBreastScreening _dbLookup;
     private readonly IBsTransformationLookups _transformationLookups;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger, IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
+                                IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
@@ -99,12 +101,13 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
+            new RuleParameter("transformLookups", _transformationLookups),
             new RuleParameter("dbLookup", _dbLookup),
             new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
+      
         var result = resultList.Where(result => result.IsSuccess)
             .Select(result => result.ActionResult.Output)
             .FirstOrDefault();

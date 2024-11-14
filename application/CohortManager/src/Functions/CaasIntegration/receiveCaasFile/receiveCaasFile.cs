@@ -68,7 +68,6 @@ public class ReceiveCaasFile
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
-
                     var listOfAllValues = values.ToList();
                     var countOfRecords = values.Length;
                     var allTasks = new List<Task>();

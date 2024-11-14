@@ -406,6 +406,37 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
+    {
+        // Arrange
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "ORR",
+            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString(),
+            PrimaryCareProvider = ""
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+    }
+
+    [TestMethod]
     [DataRow("RDR")]
     [DataRow("RDI")]
     [DataRow("RPR")]
