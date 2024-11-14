@@ -3,16 +3,6 @@ variable "TARGET_SUBSCRIPTION_ID" {
   type        = string
 }
 
-variable "AUDIT_SUBSCRIPTION_ID" {
-  description = "ID of the Audit subscription to deploy infrastructure"
-  type        = string
-}
-
-variable "ACR_SUBSCRIPTION_ID" {
-  description = "ID of the subscription hosting the ACR used in current environment"
-  type        = string
-}
-
 variable "HUB_SUBSCRIPTION_ID" {
   description = "ID of the subscription hosting the DevOps resources"
   type        = string

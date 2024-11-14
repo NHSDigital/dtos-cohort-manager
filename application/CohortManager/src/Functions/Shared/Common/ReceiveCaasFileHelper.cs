@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Model.Enums;
 using System.Threading.Tasks;
+using NHS.Screening.ReceiveCaasFile;
 
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
@@ -57,7 +58,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return match.Success;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name, int rowNumber)
+    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try
@@ -99,15 +100,15 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
                 EmailAddress = Convert.ToString(rec.EmailAddress),
                 EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
-                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(true) ? "1" : "0"),
+                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired),
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
-                InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(true) ? "1" : "0"),
-                EligibilityFlag = Convert.ToString(rec.EligibilityFlag.GetValueOrDefault(true) ? "1" : "0"),
+                InvalidFlag = Convert.ToString(rec.InvalidFlag),
+                EligibilityFlag = Convert.ToString(rec.EligibilityFlag),
             };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
             await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
         }
@@ -156,6 +157,20 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 
         if (listOfAllDates.Any(date => date.HasValue && date > DateTime.UtcNow))
         {
+            return false;
+        }
+        return true;
+    }
+
+
+    public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
+    {
+        _logger.LogInformation("loading file from blob {name}", name);
+
+        // make sure that that file name is valid
+        if (!fileNameParser.IsValid)
+        {
+            await InsertValidationErrorIntoDatabase(name, errorMessage);
             return false;
         }
         return true;

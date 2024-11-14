@@ -48,7 +48,7 @@ public class GetValidationExceptions
             {
                 var exceptionList = _validationData.GetAllExceptions();
                 var exceptionListJson = JsonSerializer.Serialize(exceptionList);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionListJson));
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionListJson);
             }
 
             var exceptionById = _validationData.GetExceptionById(exceptionId);

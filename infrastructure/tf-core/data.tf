@@ -46,14 +46,14 @@ data "azuread_group" "sql_admin_group" {
 }
 
 data "azurerm_container_registry" "acr" {
-  provider = azurerm.acr_subscription
+  provider = azurerm.hub
 
   name                = var.function_apps.acr_name
   resource_group_name = var.function_apps.acr_rg_name
 }
 
 data "azurerm_user_assigned_identity" "acr_mi" {
-  provider = azurerm.acr_subscription
+  provider = azurerm.hub
 
   name                = var.function_apps.acr_mi_name
   resource_group_name = var.function_apps.acr_rg_name

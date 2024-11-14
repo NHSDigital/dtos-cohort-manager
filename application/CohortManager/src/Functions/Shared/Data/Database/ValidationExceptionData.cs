@@ -36,22 +36,22 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[IS_FATAL]
                 FROM [dbo].[EXCEPTION_MANAGEMENT]";
 
-        var parameters = new Dictionary<string, object>{};
+        var parameters = new Dictionary<string, object> { };
 
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetException(command);
+        return GetException(command, false);
     }
 
-    private List<ValidationException> GetException(IDbCommand command)
+    private List<ValidationException> GetException(IDbCommand command, bool includeDetails)
     {
         var exceptions = new List<ValidationException>();
         return ExecuteQuery(command, reader =>
         {
             while (reader.Read())
             {
-                exceptions.Add(new ValidationException
+                var exception = new ValidationException
                 {
                     ExceptionId = DatabaseHelper.GetValue<int>(reader, "EXCEPTION_ID"),
                     FileName = DatabaseHelper.GetValue<string>(reader, "FILE_NAME"),
@@ -65,8 +65,12 @@ public class ValidationExceptionData : IValidationExceptionData
                     ScreeningName = DatabaseHelper.GetValue<string>(reader, "SCREENING_NAME"),
                     ExceptionDate = DatabaseHelper.GetValue<DateTime>(reader, "EXCEPTION_DATE"),
                     CohortName = DatabaseHelper.GetValue<string>(reader, "COHORT_NAME"),
-                    Fatal = DatabaseHelper.GetValue<int>(reader, "IS_FATAL"),
-                    ExceptionDetails = new ExceptionDetails
+                    Fatal = DatabaseHelper.GetValue<int>(reader, "IS_FATAL")
+                };
+
+                if (includeDetails)
+                {
+                    exception.ExceptionDetails = new ExceptionDetails
                     {
                         GivenName = DatabaseHelper.GetValue<string>(reader, "GIVEN_NAME"),
                         FamilyName = DatabaseHelper.GetValue<string>(reader, "FAMILY_NAME"),
@@ -87,8 +91,10 @@ public class ValidationExceptionData : IValidationExceptionData
                         GpAddressLine4 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_4"),
                         GpAddressLine5 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_5"),
                         GpPostCode = DatabaseHelper.GetValue<string>(reader, "GP_POSTCODE"),
-                    }
-                });
+                    };
+                }
+
+                exceptions.Add(exception);
             }
             return exceptions;
         });
@@ -148,7 +154,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetException(command).FirstOrDefault();
+        return GetException(command, true).FirstOrDefault();
     }
 
     public bool Create(ValidationException exception)

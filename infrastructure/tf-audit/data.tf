@@ -10,22 +10,3 @@ data "terraform_remote_state" "hub" {
     resource_group_name  = var.HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
   }
 }
-
-# data "azurerm_virtual_network" "vnet_application" {
-#   for_each = length(var.routes) > 0 ? var.regions : {}
-
-#   provider = azurerm.application
-
-#   name                = module.regions_config[each.key].names.virtual-network
-#   resource_group_name = "${module.regions_config[each.key].names.resource-group}-networking"
-# }
-
-# data "azurerm_subnet" "subnet_application_pep" {
-#   for_each = length(var.routes) > 0 ? var.regions : {}
-
-#   provider = azurerm.application
-
-#   name                 = "${module.regions_config[each.key].names.subnet}-pep"
-#   resource_group_name  = "${module.regions_config[each.key].names.resource-group}-networking"
-#   virtual_network_name = module.regions_config[each.key].names.virtual-network
-# }

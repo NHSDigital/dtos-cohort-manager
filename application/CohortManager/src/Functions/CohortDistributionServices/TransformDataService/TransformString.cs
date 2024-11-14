@@ -17,7 +17,8 @@ public class TransformString
         _ruleEngine = new RulesEngine.RulesEngine(rules);
     }
 
-    public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant) {
+    public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant)
+    {
         participant.NamePrefix = await CheckParticipantCharactersAsync(participant.NamePrefix);
         participant.FirstName = await CheckParticipantCharactersAsync(participant.FirstName);
         participant.OtherGivenNames = await CheckParticipantCharactersAsync(participant.OtherGivenNames);
@@ -37,7 +38,7 @@ public class TransformString
 
     private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
-        string allowedCharacters = @"^[\w\d\s.,\-()/='+:?!""%&;<>*]+$";
+        string allowedCharacters = @"^[\w\d\s.,\-()\/='+:?!""%&;<>*]+$";
 
         // Skip if the field is null or doesn't have any invalid chars
         if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
@@ -69,10 +70,11 @@ public class TransformString
 
         foreach (char character in invalidString)
         {
-            var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
+            var asciiCode = (int)character;
+            var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", asciiCode);
             var transformedCharacter = (char?)rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
-                                            .FirstOrDefault();
+                                            .FirstOrDefault() ?? character;
 
             stringBuilder.Append(transformedCharacter);
         }
