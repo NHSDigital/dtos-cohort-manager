@@ -101,7 +101,7 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
-            new RuleParameter("transformLookups", _transformationLookups)
+            new RuleParameter("transformLookups", _transformationLookups),
             new RuleParameter("dbLookup", _dbLookup),
             new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
         };
