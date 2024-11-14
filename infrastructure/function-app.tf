@@ -180,7 +180,7 @@ locals {
       app_key => merge(
         local.global_app_settings,
         local.env_vars_app_urls[region_key][app_key],
-        try(local.env_vars_static[region_key][app_key], {}),
+        local.env_vars_static[region_key][app_key],
         local.env_vars_storage_accounts[app_key],
         local.env_vars_storage_containers[app_key],
         local.env_vars_database_connection_strings[region_key][app_key],
