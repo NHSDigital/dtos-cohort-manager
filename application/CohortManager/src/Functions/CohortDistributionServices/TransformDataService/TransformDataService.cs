@@ -25,7 +25,7 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    private IBsTransformationLookups _transformationLookups;
+    private readonly IBsTransformationLookups _transformationLookups;
     public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler,
                                 ILogger<TransformDataService> logger, IBsTransformationLookups transformationLookups)
     {
@@ -103,16 +103,6 @@ public class TransformDataService
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-
-        System.Console.WriteLine("participant is invalid: " + _transformationLookups.ParticipantIsInvalid(participant.ParticipantId)); 
-        System.Console.WriteLine("reason for removal effection from date: " + participant.ReasonForRemovalEffectiveFromDate);
-
-        foreach (var result in resultList) {
-            if (result.Rule.RuleName == "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider" && result.IsSuccess) {
-                System.Console.WriteLine("exception: " + result.ExceptionMessage);
-                System.Console.WriteLine("rule executed");
-            }
-        }
 
         var transformedParticipant = (CohortDistributionParticipant)resultList.Where(result => result.IsSuccess)
                                                     .Select(result => result.ActionResult.Output)
