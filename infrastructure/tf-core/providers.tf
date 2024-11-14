@@ -27,12 +27,6 @@ provider "azurerm" {
 }
 
 provider "azurerm" {
-  alias           = "acr_subscription"
-  subscription_id = var.ACR_SUBSCRIPTION_ID
-  features {}
-}
-
-provider "azurerm" {
   alias           = "hub"
   subscription_id = var.HUB_SUBSCRIPTION_ID
   features {}

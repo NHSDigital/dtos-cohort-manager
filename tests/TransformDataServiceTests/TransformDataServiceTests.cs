@@ -317,11 +317,14 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
+    [TestMethod]
+    [DataRow("John.,-()/='+:?!\"%&;<>*", "John.,-()/='+:?!\"%&;<>*")]
+    [DataRow("abby{}", "abby()")]
+    [DataRow("{[Smith£$^`~#@_|\\]}", "((Smith   '   -:/))")]
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields(string name, string transformedName)
     {
         // Arrange
-        _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
-        _requestBody.Participant.FamilyName = "{[Smith£$^`~#@_|\\]}";
+        _requestBody.Participant.FamilyName = name;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -332,9 +335,9 @@ public class TransformDataServiceTests
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
-            FirstName = "John.,-()/='+:?!\"%&;<>*",
-            FamilyName = "((Smith   '   -:/))",
-            NamePrefix = "DR",
+            FirstName = "John",
+            FamilyName = transformedName,
+            NamePrefix = "MR",
             Gender = Gender.Male
         };
 
