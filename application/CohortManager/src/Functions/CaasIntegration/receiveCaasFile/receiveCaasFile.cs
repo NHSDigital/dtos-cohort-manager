@@ -16,32 +16,21 @@ public class ReceiveCaasFile
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
-    private readonly IExceptionHandler _exceptionHandler;
-    private readonly ICreateBasicParticipantData _createBasicParticipantData;
-
-    private readonly IAddBatchToQueue _addBatchToQueue;
-
-    IScreeningServiceData _screeningServiceData;
-
+    private readonly IScreeningServiceData _screeningServiceData;
     private readonly ICheckDemographic _checkDemographic;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
-        IExceptionHandler exceptionHandler, IProcessCaasFile processCaasFile,
-        ICreateBasicParticipantData createBasicParticipantData,
+        IProcessCaasFile processCaasFile,
         ICheckDemographic checkDemographic,
-        IAddBatchToQueue addBatchToQueue,
         IScreeningServiceData screeningServiceData
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
-        _exceptionHandler = exceptionHandler;
         _processCaasFile = processCaasFile;
-        _createBasicParticipantData = createBasicParticipantData;
         _checkDemographic = checkDemographic;
-        _addBatchToQueue = addBatchToQueue;
         _screeningServiceData = screeningServiceData;
     }
 
@@ -75,7 +64,6 @@ public class ReceiveCaasFile
                 await blobStream.CopyToAsync(fileStream);
             }
 
-            int rowNumber = 0; ;
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
@@ -86,15 +74,14 @@ public class ReceiveCaasFile
 
                     var listOfAllValues = values.ToList();
                     var countOfRecords = values.Length;
-
-                    //split list of all into N amount of chunks to be processed as batches
-                    var chunkSize = countOfRecords / batchDivisionFactor;
-                    var chunks = listOfAllValues.Chunk(chunkSize).ToList();
-
                     var allTasks = new List<Task>();
 
-                    if (countOfRecords > recordThresholdForBatching)
+                    if (countOfRecords >= recordThresholdForBatching)
                     {
+                        //split list of all into N amount of chunks to be processed as batches.
+                        var chunkSize = countOfRecords / batchDivisionFactor;
+                        var chunks = listOfAllValues.Chunk(chunkSize).ToList();
+
                         foreach (var chunk in chunks)
                         {
                             var batch = chunk.ToList();

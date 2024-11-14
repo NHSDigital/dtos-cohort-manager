@@ -8,15 +8,13 @@ using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
-    private QueueClient _AddQueueClient;
-
-    private readonly string storageConnectionString;
+    private readonly QueueClient _AddQueueClient;
 
     public readonly ILogger<AddBatchToQueue> _logger;
 
     public AddBatchToQueue(ILogger<AddBatchToQueue> logger)
     {
-        storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "";
+        var storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "";
         _AddQueueClient = new QueueClient(storageConnectionString, Environment.GetEnvironmentVariable("AddQueueName"));
 
         _AddQueueClient.CreateIfNotExists();
@@ -56,7 +54,7 @@ public class AddBatchToQueue : IAddBatchToQueue
         await _AddQueueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
     }
 
-    private string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)
+    private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)
     {
         var json = JsonSerializer.Serialize(ParticipantCsvRecord);
         var bytes = Encoding.UTF8.GetBytes(json);
