@@ -93,7 +93,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval),
                 ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate,
                 DateOfDeath = Convert.ToString(rec.DateOfDeath),
-                DeathStatus = (Status)rec.DeathStatus.GetValueOrDefault(),
+                DeathStatus = rec.DeathStatus.HasValue ? (Status)rec.DeathStatus.GetValueOrDefault() : null,
                 TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
                 MobileNumber = Convert.ToString(rec.MobileNumber),
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
@@ -141,6 +141,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return url;
     }
 
+    [Obsolete("Logic is depricated",true)]
     public bool validateDateTimes(Participant participant)
     {
         var listOfAllDates = new List<DateTime?>

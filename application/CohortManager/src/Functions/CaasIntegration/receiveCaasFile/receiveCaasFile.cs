@@ -102,13 +102,6 @@ public class ReceiveCaasFile
                             return; // skip current participant
                         }
 
-
-                        if (!_receiveCaasFileHelper.validateDateTimes(participant))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data at row {rowNumber}."), participant, name);
-                            err++;
-                            return; // Skip current participant
-                        }
                         cohort.Participants.Add(participant);
 
                         _logger.LogInformation("sending to add now {datetime}", DateTime.Now);

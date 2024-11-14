@@ -121,6 +121,11 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
             }
 
+            if(!string.IsNullOrEmpty(error.ExceptionMessage) )
+            {
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}",error.ExceptionMessage);
+            }
+
             var exception = new ValidationException
             {
                 RuleId = int.Parse(ruleDetails[0]),
@@ -149,6 +154,7 @@ public class ExceptionHandler : IExceptionHandler
                     CreatedException = false
                 };
             }
+
         }
 
         return new ValidationExceptionLog()
