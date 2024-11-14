@@ -17,12 +17,8 @@ public class ReadRules : IReadRules
     {
         try
         {
-            // Get the path to the current directory where the executable is running (usually bin\Debug or bin\Release)
-            var currentDirectory = Directory.GetCurrentDirectory();
-
-            // Construct the path to the JSON file (assuming it was copied to the output directory)
-            var filePath = Path.Combine(currentDirectory, jsonFileName);
-             _logger.LogInformation("file path: {filePath}", filePath);
+            // Construct the path to the JSON file (assuming it the inside "Rules" folder)
+            var filePath = $"../../../../../../rules/{jsonFileName}";
 
             // Check if the file exists
             if (!File.Exists(filePath))
