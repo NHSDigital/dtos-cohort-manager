@@ -8,11 +8,20 @@ module "azure_sql_server" {
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
-  sqlversion                 = var.sqlserver.server.sqlversion
-  tlsver                     = var.sqlserver.server.tlsversion
-  kv_id                      = module.key_vault[each.key].key_vault_id
-  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region].id
-  # law_sku                    = var.law_sku
+  sqlversion = var.sqlserver.server.sqlversion
+  tlsver     = var.sqlserver.server.tlsversion
+  kv_id      = module.key_vault[each.key].key_vault_id
+
+
+  # Diagnostic Settings
+  log_analytics_workspace_id                    = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region].id
+  storage_account_name_audit                    = data.terraform_remote_state.audit.outputs.storage_account_audit[local.primary_region].name
+  primary_blob_endpoint_name                    = data.terraform_remote_state.audit.outputs.storage_account_audit[local.primary_region].primary_blob_endpoint_name
+  monitor_diagnostic_setting_database_logs      = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_database_metrics   = ["AllMetrics"]
+  monitor_diagnostic_setting_sql_server_logs    = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_sql_server_metrics = ["AllMetrics"]
+  sql_server_alert_policy_state                 = "Enabled"
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name

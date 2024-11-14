@@ -6,7 +6,7 @@ data "terraform_remote_state" "hub" {
     subscription_id      = var.HUB_SUBSCRIPTION_ID
     storage_account_name = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
     container_name       = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-    key                  = var.HUB_BACKEND_AZURE_STORAGE_KEY
+    key                  = var.HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
     resource_group_name  = var.HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
   }
 }
@@ -14,10 +14,10 @@ data "terraform_remote_state" "hub" {
 data "terraform_remote_state" "audit" {
   backend = "azurerm"
   config = {
-    subscription_id      = var.AUDIT_BACKEND_AZURE_SUBSCRIPTION_ID
+    subscription_id      = var.HUB_SUBSCRIPTION_ID
     storage_account_name = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
     container_name       = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-    key                  = var.AUDIT_BACKEND_AZURE_STORAGE_KEY
+    key                  = var.AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
     resource_group_name  = var.AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
   }
 }
