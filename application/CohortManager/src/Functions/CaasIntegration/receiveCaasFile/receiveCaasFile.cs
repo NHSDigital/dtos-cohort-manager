@@ -17,20 +17,17 @@ public class ReceiveCaasFile
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IScreeningServiceData _screeningServiceData;
-    private readonly ICheckDemographic _checkDemographic;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        ICheckDemographic checkDemographic,
         IScreeningServiceData screeningServiceData
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
-        _checkDemographic = checkDemographic;
         _screeningServiceData = screeningServiceData;
     }
 
