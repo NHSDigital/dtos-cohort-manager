@@ -1,18 +1,3 @@
-variable "TARGET_SUBSCRIPTION_ID" {
-  description = "ID of a subscription to deploy infrastructure"
-  type        = string
-}
-
-variable "AUDIT_SUBSCRIPTION_ID" {
-  description = "ID of the Audit subscription to deploy infrastructure"
-  type        = string
-}
-
-variable "AUDIT_BACKEND_AZURE_SUBSCRIPTION_ID" {
-  description = "ID of the Azure Storage Account for the audit backend"
-  type        = string
-}
-
 variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME" {
   description = "The name of the Azure Storage Account for the audit backend"
   type        = string
@@ -23,7 +8,7 @@ variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME" {
   type        = string
 }
 
-variable "AUDIT_BACKEND_AZURE_STORAGE_KEY" {
+variable "AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY" {
   description = "The name of the Statefile for the audit  resources"
   type        = string
 }
@@ -33,13 +18,8 @@ variable "AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME" {
   type        = string
 }
 
-variable "ACR_SUBSCRIPTION_ID" {
-  description = "ID of the subscription hosting the ACR used in current environment"
-  type        = string
-}
-
-variable "HUB_SUBSCRIPTION_ID" {
-  description = "ID of the subscription hosting the DevOps resources"
+variable "AUDIT_SUBSCRIPTION_ID" {
+  description = "ID of the Audit subscription to deploy infrastructure"
   type        = string
 }
 
@@ -53,13 +33,23 @@ variable "HUB_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME" {
   type        = string
 }
 
-variable "HUB_BACKEND_AZURE_STORAGE_KEY" {
+variable "HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY" {
   description = "The name of the Statefile for the hub resources"
   type        = string
 }
 
 variable "HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME" {
   description = "The name of the resource group for the Azure Storage Account"
+  type        = string
+}
+
+variable "HUB_SUBSCRIPTION_ID" {
+  description = "ID of the subscription hosting the DevOps resources"
+  type        = string
+}
+
+variable "TARGET_SUBSCRIPTION_ID" {
+  description = "ID of a subscription to deploy infrastructure"
   type        = string
 }
 
