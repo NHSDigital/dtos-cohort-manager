@@ -5,6 +5,7 @@ using Common;
 using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
+using NHS.Screening.ReceiveCaasFile;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -25,7 +26,7 @@ try
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
-        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+        services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
