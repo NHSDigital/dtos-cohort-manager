@@ -111,6 +111,18 @@ locals {
     }
   }
 
+  # Create a map of the static environment variables for each function app
+  env_vars_static = {
+    for region_key, region_value in module.regions_config :
+    region_key => {
+      for key, value in var.function_apps.fa_config :
+      key => {
+        for env_var_key, env_var_value in value.env_vars_static :
+        env_var_value.env_var_name => env_var_value.env_var_value
+      }
+    }
+  }
+
   # Create a map of the storage accounts for each function app as defined in the storage_account_env_var_name attribute
   env_vars_storage_accounts = {
     for key, value in var.function_apps.fa_config :
@@ -168,6 +180,7 @@ locals {
       app_key => merge(
         local.global_app_settings,
         local.env_vars_app_urls[region_key][app_key],
+        try(local.env_vars_static[region_key][app_key], {}),
         local.env_vars_storage_accounts[app_key],
         local.env_vars_storage_containers[app_key],
         local.env_vars_database_connection_strings[region_key][app_key],
