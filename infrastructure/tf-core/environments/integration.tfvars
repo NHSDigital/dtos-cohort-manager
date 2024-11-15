@@ -140,6 +140,10 @@ app_service_plan = {
   }
 }
 
+diagnostic_settings = {
+  retention_in_days        = 30
+}
+
 
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
