@@ -140,10 +140,6 @@ app_service_plan = {
   }
 }
 
-diagnostic_settings = {
-  retention_in_days = 30
-}
-
 
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
@@ -721,6 +717,7 @@ sqlserver = {
   sql_uai_name         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name = "sqlsvr_cohman_int_uks_admin"
   ad_auth_only         = true
+  retention_in_days = 30
 
   server = {
     sqlversion                    = "12.0"
