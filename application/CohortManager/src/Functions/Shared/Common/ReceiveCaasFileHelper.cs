@@ -94,16 +94,16 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval),
                 ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate,
                 DateOfDeath = Convert.ToString(rec.DateOfDeath),
-                DeathStatus = (Status)rec.DeathStatus.GetValueOrDefault(),
+                DeathStatus = rec.DeathStatus.HasValue ? (Status)rec.DeathStatus.GetValueOrDefault() : null,
                 TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
                 MobileNumber = Convert.ToString(rec.MobileNumber),
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
                 EmailAddress = Convert.ToString(rec.EmailAddress),
                 EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
-                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(true) ? "1" : "0"),
+                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired),
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
-                InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(true) ? "1" : "0"),
-                EligibilityFlag = Convert.ToString(rec.EligibilityFlag.GetValueOrDefault(true) ? "1" : "0"),
+                InvalidFlag = Convert.ToString(rec.InvalidFlag),
+                EligibilityFlag = Convert.ToString(rec.EligibilityFlag),
             };
         }
         catch (Exception ex)
@@ -142,6 +142,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return url;
     }
 
+    [Obsolete("Logic is depricated",true)]
     public bool validateDateTimes(Participant participant)
     {
         var listOfAllDates = new List<DateTime?>

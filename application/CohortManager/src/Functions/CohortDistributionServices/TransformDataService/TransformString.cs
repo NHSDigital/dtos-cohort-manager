@@ -70,7 +70,8 @@ public class TransformString
 
         foreach (char character in invalidString)
         {
-            var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", character);
+            var asciiCode = (int)character;
+            var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.CharacterRules", asciiCode);
             var transformedCharacter = (char?)rulesList.Where(result => result.IsSuccess)
                                             .Select(result => result.ActionResult.Output)
                                             .FirstOrDefault() ?? character;
