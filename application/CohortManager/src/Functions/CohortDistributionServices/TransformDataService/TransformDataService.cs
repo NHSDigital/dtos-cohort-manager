@@ -107,21 +107,23 @@ public class TransformDataService
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
-      
+
         var result = resultList.Where(result => result.IsSuccess)
             .Select(result => result.ActionResult.Output)
             .FirstOrDefault();
 
-        if (result is Exception exception)
+
+
+        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||  !i.IsSuccess);
+
+        if (failedTransforms.Any())
         {
             var participantCsvRecord = new ParticipantCsvRecord
             {
                 Participant = new Participant(participant),
                 FileName = "",
             };
-
-            _logger.LogError(exception, "A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
-            await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
+            await _exceptionHandler.CreateValidationExceptionLog(failedTransforms, participantCsvRecord);
 
             return participant;
         }
