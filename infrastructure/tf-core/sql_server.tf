@@ -23,12 +23,12 @@ module "azure_sql_server" {
   monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
   sql_server_alert_policy_state                      = "Enabled"
-  # retention_in_days                                  = var.retention_in_days
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name
   sql_admin_object_id  = data.azuread_group.sql_admin_group.object_id
   ad_auth_only         = var.sqlserver.ad_auth_only
+  retention_in_days    = var.sqlserver.retention_in_days
 
   # Default database
   db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
