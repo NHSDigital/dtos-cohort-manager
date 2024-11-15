@@ -131,7 +131,7 @@
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       },
       {
-        "RuleName": "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal",
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
         "LocalParams": [
           {
             "Name": "existingParticipantPosting",
@@ -142,12 +142,12 @@
             "Expression": "(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
           }
         ],
-        "Expression": "existingParticipantPosting AND newParticipantPosting",
+        "Expression": "!(existingParticipantPosting AND newParticipantPosting)",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"AMEND participant data does not meet the conditions mentioned in Transformation Rule 51.\""
+              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
             }
           }
         }
