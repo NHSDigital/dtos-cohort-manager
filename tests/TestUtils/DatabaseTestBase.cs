@@ -122,12 +122,13 @@ namespace NHS.CohortManager.Tests.TestUtils
         /// <param name="dataList">The list of data objects to be returned by the mock data reader.</param>
         /// <param name="columnToClassPropertyMapping">A dictionary mapping column names to class property names.
         /// 1st property is the column name in the table, 2nd is class name e.g. "EXCEPTION_ID", "ExceptionId" </param>
-        public void SetupDataReader<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping)
+        public void SetupDataReader<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping, int? specificId = null)
         {
-            var classProperties = typeof(T).GetProperties().ToDictionary(p => p.Name, p => p);
-            SetupReadSequence(dataList.Count);
-            SetupColumnMappings(dataList, columnToClassPropertyMapping, classProperties);
+            SetupReadSequence(specificId.HasValue ? 1 : dataList.Count);
+            var classProperties = typeof(T).GetProperties().ToList();
+            SetupColumnMappings(dataList, columnToClassPropertyMapping, classProperties, specificId);
         }
+
 
         /// <summary>
         /// Sets up the mock data reader to read the specified number of rows from the data list.
@@ -151,25 +152,47 @@ namespace NHS.CohortManager.Tests.TestUtils
         /// <param name="dataList">The list of data objects to be returned by the mock data reader.</param>
         /// <param name="columnToClassPropertyMapping">A dictionary mapping column names to class property names.</param>
         /// <param name="classProperties">A dictionary of class property information for mapping.</param>
-        private void SetupColumnMappings<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping, Dictionary<string, PropertyInfo> classProperties)
-        {
-            var currentIndex = 0;
 
-            _mockDataReader
-                .Setup(r => r[It.IsAny<string>()])
-                .Returns((string columnName) =>
+        private void SetupColumnMappings<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping, List<PropertyInfo> classProperties, int? specificId = null)
+        {
+            int currentIndex = 0;
+
+            foreach (var item in columnToClassPropertyMapping)
+            {
+                string columnName = item.Key;
+                string classPropertyName = item.Value;
+                object value;
+
+                PropertyInfo property = classProperties.SingleOrDefault(s => s.Name.Equals(classPropertyName, StringComparison.OrdinalIgnoreCase));
+
+                _mockDataReader.Setup(r => r[columnName]).Returns(() =>
                 {
-                    if (currentIndex < dataList.Count
-                        && columnToClassPropertyMapping.TryGetValue(columnName, out string propertyName)
-                        && classProperties.TryGetValue(propertyName, out var property))
+                    if (specificId.HasValue)
                     {
-                        var value = property.GetValue(dataList[currentIndex]);
-                        currentIndex++;
-                        return value;
+                        var specificItem = dataList.SingleOrDefault(item => property.GetValue(item) is int id && id == specificId.Value);
+                        if (specificItem != null)
+                        {
+                            value = property.GetValue(specificItem);
+                            return value;
+                        }
                     }
-                    return null;
+
+                    var currentItem = dataList[currentIndex];
+                    value = property.GetValue(currentItem);
+
+                    // Increment the index only once per item (after processing all columns)
+                    if (columnName == columnToClassPropertyMapping.Keys.Last())
+                    {
+                        currentIndex++;
+                    }
+
+                    return value;
                 });
+            }
         }
+
+
+
     }
 }
 
