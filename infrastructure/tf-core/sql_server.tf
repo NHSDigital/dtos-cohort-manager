@@ -24,12 +24,12 @@ module "azure_sql_server" {
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
   sql_server_alert_policy_state                      = "Enabled"
 
-  sql_uai_name         = var.sqlserver.sql_uai_name
-  sql_admin_group_name = var.sqlserver.sql_admin_group_name
-  sql_admin_object_id  = data.azuread_group.sql_admin_group.object_id
-  ad_auth_only         = var.sqlserver.ad_auth_only
-  retention_days       = var.sqlserver.retention_days
-  retention_in_days    = var.sqlserver.retention_in_days
+  sql_uai_name                         = var.sqlserver.sql_uai_name
+  sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
+  sql_admin_object_id                  = data.azuread_group.sql_admin_group.object_id
+  ad_auth_only                         = var.sqlserver.ad_auth_only
+  security_alert_policy_retention_days = var.sqlserver.security_alert_policy_retention_days
+  auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
 
 
   # Default database
