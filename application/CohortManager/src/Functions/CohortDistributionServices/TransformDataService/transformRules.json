@@ -334,7 +334,7 @@
       },
       {
         "RuleName": "01.TransformDate.DateOfBirth",
-        "Expression": "participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6)",
+        "Expression": "participant.DateOfBirth == null ? false : (participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -352,7 +352,7 @@
       },
       {
         "RuleName": "01.TransformDate.DateOfDeath",
-        "Expression": "participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6)",
+        "Expression": "participant.DateOfDeath == null ? false : (participant.DateOfDeath.Length != 8 && (participant.DateOfDeath.Length == 4 || participant.DateOfDeath.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -370,7 +370,7 @@
       },
       {
         "RuleName": "01.TransformDate.CurrentPostingEffectiveFromDate",
-        "Expression": "participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6)",
+        "Expression": "participant.CurrentPostingEffectiveFromDate == null ? false : (participant.CurrentPostingEffectiveFromDate.Length != 8 && (participant.CurrentPostingEffectiveFromDate.Length == 4 || participant.CurrentPostingEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -388,7 +388,7 @@
       },
       {
         "RuleName": "01.TransformDate.UsualAddressEffectiveFromDate",
-        "Expression": "participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6)",
+        "Expression": "participant.UsualAddressEffectiveFromDate == null ? false : (participant.UsualAddressEffectiveFromDate.Length != 8 && (participant.UsualAddressEffectiveFromDate.Length == 4 || participant.UsualAddressEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -406,7 +406,7 @@
       },
       {
         "RuleName": "01.TransformDate.ReasonForRemovalEffectiveFromDate",
-        "Expression": "participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6)",
+        "Expression": "participant.ReasonForRemovalEffectiveFromDate == null ? false : (participant.ReasonForRemovalEffectiveFromDate.Length != 8 && (participant.ReasonForRemovalEffectiveFromDate.Length == 4 || participant.ReasonForRemovalEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -424,7 +424,7 @@
       },
       {
         "RuleName": "01.TransformDate.TelephoneNumberEffectiveFromDate",
-        "Expression": "participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6)",
+        "Expression": "participant.TelephoneNumberEffectiveFromDate == null ? false : (participant.TelephoneNumberEffectiveFromDate.Length != 8 && (participant.TelephoneNumberEffectiveFromDate.Length == 4 || participant.TelephoneNumberEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -442,7 +442,7 @@
       },
       {
         "RuleName": "01.TransformDate.MobileNumberEffectiveFromDate",
-        "Expression": "participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6)",
+        "Expression": "participant.MobileNumberEffectiveFromDate == null ? false : (participant.MobileNumberEffectiveFromDate.Length != 8 && (participant.MobileNumberEffectiveFromDate.Length == 4 || participant.MobileNumberEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -460,7 +460,7 @@
       },
       {
         "RuleName": "01.TransformDate.EmailAddressEffectiveFromDate",
-        "Expression": "participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6)",
+        "Expression": "participant.EmailAddressEffectiveFromDate == null ? false : (participant.EmailAddressEffectiveFromDate.Length != 8 && (participant.EmailAddressEffectiveFromDate.Length == 4 || participant.EmailAddressEffectiveFromDate.Length == 6))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -470,6 +470,24 @@
                   "isExpression": true,
                   "field": "EmailAddressEffectiveFromDate",
                   "value": "(participant.EmailAddressEffectiveFromDate.Length == 4 ? participant.EmailAddressEffectiveFromDate + \"01\" + \"01\" : participant.EmailAddressEffectiveFromDate + \"01\")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "01.TransformDate.PrimaryCareProviderEffectiveFromDate",
+        "Expression": "participant.PrimaryCareProviderEffectiveFromDate == null ? false : (participant.PrimaryCareProviderEffectiveFromDate.Length != 8 && (participant.PrimaryCareProviderEffectiveFromDate.Length == 4 || participant.PrimaryCareProviderEffectiveFromDate.Length == 6))",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PrimaryCareProviderEffectiveFromDate",
+                  "value": "(participant.PrimaryCareProviderEffectiveFromDate.Length == 4 ? participant.PrimaryCareProviderEffectiveFromDate + \"01\" + \"01\" : participant.PrimaryCareProviderEffectiveFromDate + \"01\")"
                 }
               ]
             }
@@ -529,7 +547,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
@@ -569,7 +587,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
@@ -588,7 +606,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
