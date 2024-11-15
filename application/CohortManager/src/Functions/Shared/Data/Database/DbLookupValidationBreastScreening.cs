@@ -304,8 +304,8 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                     _connection.Open();
                     command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[EXCLUDED_SMU_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider;";
                     var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@outcode";
-                    parameter.Value = primaryCareProvider ?? string.Empty;
+                    parameter.ParameterName = "@primaryCareProvider";
+                    parameter.Value = primaryCareProvider;
                     command.Parameters.Add(parameter);
 
                     using (IDataReader reader = command.ExecuteReader())
