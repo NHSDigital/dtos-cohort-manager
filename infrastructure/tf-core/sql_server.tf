@@ -15,12 +15,12 @@ module "azure_sql_server" {
 
   # Diagnostic Settings
   log_analytics_workspace_id                    = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region].id
-  storage_account_name_audit                    = data.terraform_remote_state.audit.outputs.storage_account_audit[local.primary_region].name
+  storage_account_name                    = data.terraform_remote_state.audit.outputs.storage_account_audit[local.primary_region].name
   primary_blob_endpoint_name                    = data.terraform_remote_state.audit.outputs.storage_account_audit[local.primary_region].primary_blob_endpoint_name
   storage_container_id                          = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
-  monitor_diagnostic_setting_database_logs      = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_database_enabled_logs      = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_database_metrics   = ["AllMetrics"]
-  monitor_diagnostic_setting_sql_server_logs    = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_sql_server_enabled_logs    = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_sql_server_metrics = ["AllMetrics"]
   sql_server_alert_policy_state                 = "Enabled"
 
