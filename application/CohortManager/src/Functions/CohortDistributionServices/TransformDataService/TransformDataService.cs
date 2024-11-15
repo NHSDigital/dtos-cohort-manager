@@ -123,7 +123,6 @@ public class TransformDataService
                 Participant = new Participant(participant),
                 FileName = "",
             };
-            var x = failedTransforms.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal");
 
             await _exceptionHandler.CreateValidationExceptionLog(failedTransforms, participantCsvRecord);
 
