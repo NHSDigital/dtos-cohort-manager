@@ -718,6 +718,7 @@ sqlserver = {
   sql_admin_group_name = "sqlsvr_cohman_int_uks_admin"
   ad_auth_only         = true
   retention_days       = 30
+  retention_in_days    = 30
 
   server = {
     sqlversion                    = "12.0"

@@ -314,6 +314,7 @@ variable "sqlserver" {
     sql_admin_group_name = optional(string)
     ad_auth_only         = optional(bool)
     retention_days       = optional(number)
+    retention_in_days    = optional(number)
 
     # Server Instance
     server = optional(object({
