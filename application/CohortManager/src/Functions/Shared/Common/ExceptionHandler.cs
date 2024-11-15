@@ -112,7 +112,7 @@ public class ExceptionHandler : IExceptionHandler
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
-            var errorMessage = error.ActionResult.Output is Exception ruleError ? ruleError.Message : (string)error.ActionResult.Output;
+            var errorMessage = (string)error.ActionResult.Output;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
@@ -123,6 +123,7 @@ public class ExceptionHandler : IExceptionHandler
 
             if(!string.IsNullOrEmpty(error.ExceptionMessage) )
             {
+                errorMessage = error.ExceptionMessage;
                 _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}",error.ExceptionMessage);
             }
 
