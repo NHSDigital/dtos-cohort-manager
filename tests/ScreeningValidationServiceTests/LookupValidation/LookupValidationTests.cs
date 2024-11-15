@@ -54,7 +54,8 @@ public class LookupValidationTests
         {
             NhsNumber = "9876543210",
             FirstName = "John",
-            FamilyName = "Smith"
+            FamilyName = "Smith",
+            CurrentPosting = "DMS"
         };
         var newParticipant = new Participant
         {
@@ -553,6 +554,57 @@ public class LookupValidationTests
     }
     #endregion
 
+    #region Check if AMEND participant meets the conditions detailed in the rule no 51.
+    [TestMethod]
+    [DataRow("DMS", "PcpInSmu", Actions.Amended)]
+    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldThrowException(string currentPosting, string primaryCareProvider, string recordType)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.RecordType = recordType;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(true);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("ABC", "PcpNotInSmu", Actions.Amended)]
+    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldNotThrowException(string currentPosting, string primaryCareProvider, string recordType)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.CurrentPosting = "DMS";
+        _requestBody.ExistingParticipant.PrimaryCareProvider = "PcpNotInSmu";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(false);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
+    }
+    #endregion
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

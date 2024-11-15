@@ -129,6 +129,28 @@
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      },
+      {
+        "RuleName": "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "existingParticipantPosting",
+            "Expression": "(existingParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
+          },
+          {
+            "Name": "newParticipantPosting",
+            "Expression": "(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
+          }
+        ],
+        "Expression": "existingParticipantPosting AND newParticipantPosting",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"AMEND participant data does not meet the conditions mentioned in Transformation Rule 51.\""
+            }
+          }
+        }
       }
     ]
   },
