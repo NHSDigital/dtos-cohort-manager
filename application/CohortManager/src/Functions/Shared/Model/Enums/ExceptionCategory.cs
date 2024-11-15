@@ -3,5 +3,6 @@ public enum ExceptionCategory
 {
     File = 5,
     NilReturnFile = 7,
-    DeleteRecord = 8
+    DeleteRecord = 8,
+    ParticipantLocationRemainingOutsideOfCohort = 9
 }

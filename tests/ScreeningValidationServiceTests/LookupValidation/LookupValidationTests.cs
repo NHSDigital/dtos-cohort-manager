@@ -558,7 +558,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("DMS", "ExcludedSMU", "")]
     [DataRow("", "", "WALES")]
-    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldThrowException(string currentPosting, string primaryCareProvider, string postingCategory)
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string currentPosting, string primaryCareProvider, string postingCategory)
     {
         // Arrange
         SetupRules("LookupRules");
@@ -578,7 +578,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -586,7 +586,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("ExcludedSMU", "NotExcludedSMU", "", "")]
     [DataRow("NotExcludedSMU", "NotExcludedSMU", "WALES", "")]
-    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldNotThrowException(string newPrimaryCareProvider, string existingPrimaryCareProvider, string newPostingCategory, string existingPostingCategory)
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string newPrimaryCareProvider, string existingPrimaryCareProvider, string newPostingCategory, string existingPostingCategory)
     {
         // Arrange
         SetupRules("LookupRules");
@@ -609,7 +609,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }

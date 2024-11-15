@@ -113,6 +113,7 @@ public class ExceptionHandler : IExceptionHandler
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
             var errorMessage = error.ActionResult.Output is Exception ruleError ? ruleError.Message : (string)error.ActionResult.Output;
+            var ruleId = int.Parse(ruleDetails[0]);
 
             var IsFatal = ParseFatalRuleType(ruleDetails[2]);
             if (IsFatal == 1)
@@ -121,14 +122,14 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
             }
 
-            if(!string.IsNullOrEmpty(error.ExceptionMessage) )
+            if (!string.IsNullOrEmpty(error.ExceptionMessage))
             {
-                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}",error.ExceptionMessage);
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}", error.ExceptionMessage);
             }
 
             var exception = new ValidationException
             {
-                RuleId = int.Parse(ruleDetails[0]),
+                RuleId = ruleId,
                 RuleDescription = errorMessage ?? ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
@@ -136,7 +137,7 @@ public class ExceptionHandler : IExceptionHandler
                 DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.Now,
-                Category = (int)ExceptionCategory.File,
+                Category = ruleId == 51 ? (int)ExceptionCategory.ParticipantLocationRemainingOutsideOfCohort : (int)ExceptionCategory.File,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
                 Fatal = IsFatal
