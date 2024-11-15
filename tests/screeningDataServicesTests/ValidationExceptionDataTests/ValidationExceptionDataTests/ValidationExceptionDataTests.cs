@@ -3,6 +3,7 @@ namespace NHS.CohortManager.Tests.ScreeningDataServicesTests;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
 using Data.Database;
+using FluentAssertions;
 
 [TestClass]
 public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExceptionData>
@@ -10,16 +11,19 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
     private List<ValidationException> _exceptionList;
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
 
-    public ValidationExceptionDataTests(): base((conn, logger, transaction, command, response) => new ValidationExceptionData(conn,logger))
+    public ValidationExceptionDataTests() : base((conn, logger, transaction, command, response) => new ValidationExceptionData(conn, logger))
     {
-        columnToClassPropertyMapping = new Dictionary<string, string>{{ "EXCEPTION_ID", "ExceptionId" }};
+        columnToClassPropertyMapping = new Dictionary<string, string>
+        {
+            { "EXCEPTION_ID", "ExceptionId"},
+            { "COHORT_NAME", "CohortName" }
+        };
         _exceptionList = new List<ValidationException>
         {
-            new ValidationException { ExceptionId = 1 },
-            new ValidationException { ExceptionId = 2 },
-            new ValidationException { ExceptionId = 3 }
+            new ValidationException { ExceptionId = 1, CohortName = "Cohort1" },
+            new ValidationException { ExceptionId = 2, CohortName = "Cohort2" },
+            new ValidationException { ExceptionId = 3, CohortName = "Cohort3" }
         };
-
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
     }
 
@@ -30,34 +34,41 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
         var result = _service.GetAllExceptions();
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(List<ValidationException>));
-        Assert.AreEqual(3, result.Count);
-        Assert.AreEqual(1, result[0].ExceptionId);
-        Assert.AreEqual(2, result[1].ExceptionId);
-        Assert.AreEqual(3, result[2].ExceptionId);
+        result.Should().NotBeNull();
+        result.Should().BeOfType<List<ValidationException>>();
+        result.Should().HaveCount(3);
+        result.Should().BeEquivalentTo(_exceptionList, options => options
+            .ExcludingMissingMembers()
+            .Including(x => x.ExceptionId)
+            .Including(x => x.CohortName));
     }
 
+    [DataRow(1)]
+    [DataRow(2)]
+    [DataRow(3)]
     [TestMethod]
-    public void GetExceptionById_ValidExceptionId_ReturnsExpectedException()
+    public void GetExceptionById_ValidExceptionId_ReturnsExpectedException(int exceptionId)
     {
         // Arrange
-        var exceptionId = 1;
+        SetupDataReader(_exceptionList, columnToClassPropertyMapping, exceptionId);
 
         // Act
         var result = _service.GetExceptionById(exceptionId);
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(ValidationException));
-        Assert.AreEqual(1, result.ExceptionId);
+        result.Should().NotBeNull();
+        result.Should().BeOfType<ValidationException>();
+        result.ExceptionId.Should().Be(exceptionId);
+
     }
 
+    [DataRow(999)]
+    [DataRow(4)]
+    [DataRow(37)]
     [TestMethod]
-    public void GetExceptionById_InvalidId_ReturnsNull()
+    public void GetExceptionById_InvalidId_ReturnsNull(int exceptionId)
     {
         // Arrange
-        var exceptionId = 999;
         _exceptionList = new List<ValidationException>();
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
 
@@ -65,7 +76,7 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
         var result = _service.GetExceptionById(exceptionId);
 
         // Assert
-        Assert.IsNull(result);
+        result.Should().BeNull();
     }
 }
 
