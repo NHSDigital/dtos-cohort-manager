@@ -556,18 +556,22 @@ public class LookupValidationTests
 
     #region Check if AMEND participant meets the conditions detailed in the rule no 51.
     [TestMethod]
-    [DataRow("DMS", "PcpInSmu", Actions.Amended)]
-    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldThrowException(string currentPosting, string primaryCareProvider, string recordType)
+    [DataRow("DMS", "ExcludedSMU", "")]
+    [DataRow("", "", "WALES")]
+    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldThrowException(string currentPosting, string primaryCareProvider, string postingCategory)
     {
         // Arrange
         SetupRules("LookupRules");
+        _requestBody.ExistingParticipant.CurrentPosting = currentPosting;
+        _requestBody.ExistingParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(true);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(primaryCareProvider == "ExcludedSMU");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(postingCategory);
 
         // Act
         await _sut.RunAsync(_request.Object);

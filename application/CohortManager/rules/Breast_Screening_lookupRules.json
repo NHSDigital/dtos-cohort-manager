@@ -142,7 +142,7 @@
             "Expression": "(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
           }
         ],
-        "Expression": "existingParticipantPosting AND newParticipantPosting",
+        "Expression": "!(existingParticipantPosting AND newParticipantPosting)",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
