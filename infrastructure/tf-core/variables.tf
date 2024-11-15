@@ -313,7 +313,7 @@ variable "sqlserver" {
     sql_uai_name         = optional(string)
     sql_admin_group_name = optional(string)
     ad_auth_only         = optional(bool)
-    retention_in_days    = optional(number)
+    retention_days       = optional(number)
 
     # Server Instance
     server = optional(object({

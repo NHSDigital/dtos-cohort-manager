@@ -28,7 +28,7 @@ module "azure_sql_server" {
   sql_admin_group_name = var.sqlserver.sql_admin_group_name
   sql_admin_object_id  = data.azuread_group.sql_admin_group.object_id
   ad_auth_only         = var.sqlserver.ad_auth_only
-  retention_in_days    = var.sqlserver.retention_in_days
+  retention_days       = var.sqlserver.retention_days
 
   # Default database
   db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
