@@ -100,7 +100,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
                 EmailAddress = Convert.ToString(rec.EmailAddress),
                 EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
-                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired),
+                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(false) ? "1" : "0"),
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
                 InvalidFlag = Convert.ToString(rec.InvalidFlag),
                 EligibilityFlag = Convert.ToString(rec.EligibilityFlag),
