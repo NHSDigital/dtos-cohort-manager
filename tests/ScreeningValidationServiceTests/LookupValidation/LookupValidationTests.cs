@@ -588,6 +588,8 @@ public class LookupValidationTests
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.ExistingParticipant.CurrentPosting = "DMS";
+        _requestBody.ExistingParticipant.PrimaryCareProvider = "PcpNotInSmu";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
