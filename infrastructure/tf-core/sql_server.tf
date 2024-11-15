@@ -14,16 +14,16 @@ module "azure_sql_server" {
 
 
   # Diagnostic Settings
-  log_analytics_workspace_id                    = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  storage_account_name                    = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].name
-  primary_blob_endpoint_name                    = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].primary_blob_endpoint_name
-  storage_container_id                          = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
-  monitor_diagnostic_setting_database_enabled_logs      = ["SQLSecurityAuditEvents"]
-  monitor_diagnostic_setting_database_metrics   = ["AllMetrics"]
-  monitor_diagnostic_setting_sql_server_enabled_logs    = ["SQLSecurityAuditEvents"]
-  monitor_diagnostic_setting_sql_server_metrics = ["AllMetrics"]
-  sql_server_alert_policy_state                 = "Enabled"
-  retention_in_days = var.retention_in_days
+  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  storage_account_name                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].name
+  primary_blob_endpoint_name                         = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].primary_blob_endpoint_name
+  storage_container_id                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
+  monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
+  monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
+  sql_server_alert_policy_state                      = "Enabled"
+  retention_in_days                                  = var.retention_in_days
 
   sql_uai_name         = var.sqlserver.sql_uai_name
   sql_admin_group_name = var.sqlserver.sql_admin_group_name

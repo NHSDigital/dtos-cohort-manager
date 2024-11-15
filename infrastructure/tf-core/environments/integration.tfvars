@@ -141,7 +141,7 @@ app_service_plan = {
 }
 
 diagnostic_settings = {
-  retention_in_days        = 30
+  retention_in_days = 30
 }
 
 
