@@ -114,7 +114,7 @@ public class TransformDataService
 
 
 
-        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||  !i.IsSuccess);
+        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||  !i.IsSuccess ).ToList();
 
         if (failedTransforms.Any())
         {
@@ -123,6 +123,8 @@ public class TransformDataService
                 Participant = new Participant(participant),
                 FileName = "",
             };
+            var x = failedTransforms.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal");
+
             await _exceptionHandler.CreateValidationExceptionLog(failedTransforms, participantCsvRecord);
 
             return participant;

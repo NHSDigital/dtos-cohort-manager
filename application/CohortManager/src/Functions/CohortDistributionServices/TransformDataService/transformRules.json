@@ -547,7 +547,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "2.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
@@ -587,7 +587,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
@@ -606,7 +606,7 @@
             "Name": "EvaluateRule",
             "Context": {
               "workflowName": "TransformData",
-              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval"
+              "ruleName": "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal"
             }
           }
         }
