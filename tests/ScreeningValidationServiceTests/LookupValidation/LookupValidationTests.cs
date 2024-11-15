@@ -584,20 +584,25 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("ABC", "PcpNotInSmu", Actions.Amended)]
-    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldNotThrowException(string currentPosting, string primaryCareProvider, string recordType)
+    [DataRow("ExcludedSMU", "NotExcludedSMU", "", "")]
+    [DataRow("NotExcludedSMU", "NotExcludedSMU", "WALES", "")]
+    public async Task Run_ResidentInNotIncludedAreaInCohortMovingToSameOrAnotherAreaNotIncludedInCohort_ShouldNotThrowException(string newPrimaryCareProvider, string existingPrimaryCareProvider, string newPostingCategory, string existingPostingCategory)
     {
         // Arrange
         SetupRules("LookupRules");
-        _requestBody.NewParticipant.CurrentPosting = currentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.NewParticipant.RecordType = recordType;
+        _requestBody.NewParticipant.CurrentPosting = "DMS";
+        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
         _requestBody.ExistingParticipant.CurrentPosting = "DMS";
-        _requestBody.ExistingParticipant.PrimaryCareProvider = "PcpNotInSmu";
+        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.RecordType = Actions.Amended;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProvider == "ExcludedSMU");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProvider == "ExcludedSMU");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(newPostingCategory);
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(existingPostingCategory);
 
         // Act
         await _sut.RunAsync(_request.Object);
