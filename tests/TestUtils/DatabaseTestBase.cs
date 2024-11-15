@@ -190,9 +190,6 @@ namespace NHS.CohortManager.Tests.TestUtils
                 });
             }
         }
-
-
-
     }
 }
 
