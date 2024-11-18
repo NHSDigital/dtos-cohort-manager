@@ -21,7 +21,7 @@ module "azure_sql_server" {
   storage_container_id                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
   monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
-  monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_sql_server_enabled_logs = concat(local.activity_log_categories, local.resource_log_categories)
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
   sql_server_alert_policy_state                      = "Enabled"
 
@@ -55,3 +55,9 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
+
+ locals {
+  resource_log_categories =[
+    "SQLSecurityAuditEvents" 
+    ]
+ }
