@@ -2,8 +2,6 @@ namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 
 using System.Data;
 using System.Net;
-using System.Text.Json;
-using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using Model;

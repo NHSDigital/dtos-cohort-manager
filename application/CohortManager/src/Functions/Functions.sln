@@ -62,7 +62,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataFunctionTest
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningValidationServiceTests", "ScreeningValidationServiceTests", "{2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "ScreeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj", "{B6719E71-5BBE-4F24-B728-EE92AC5C8E07}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptions", "screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj", "{B6719E71-5BBE-4F24-B728-EE92AC5C8E07}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LookupValidation", "ScreeningValidationService\LookupValidation\LookupValidation.csproj", "{5AF185E2-6CDD-47E6-8B93-4624F0A8CA66}"
 EndProject
