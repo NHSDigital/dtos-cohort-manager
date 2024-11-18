@@ -30,10 +30,10 @@ public class ParticipantManagerData : IParticipantManagerData
 
             var recordUpdateTime = DateTime.Now;
 
-            var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
+            var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] with (rowlock)" +
                 " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
                 " ELIGIBILITY_FLAG = @eligibilityFlag " +
-                " WHERE PARTICIPANT_ID = @participantId with (rowlock)";
+                " WHERE PARTICIPANT_ID = @participantId ";
 
             var Parameters = new Dictionary<string, object>
             {

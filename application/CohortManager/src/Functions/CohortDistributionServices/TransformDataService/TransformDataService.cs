@@ -114,7 +114,7 @@ public class TransformDataService
 
 
 
-        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||  !i.IsSuccess ).ToList();
+        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage)).ToList();
 
         if (failedTransforms.Any())
         {
