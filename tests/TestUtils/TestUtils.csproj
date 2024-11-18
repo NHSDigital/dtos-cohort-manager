@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
   </ItemGroup>
 
 

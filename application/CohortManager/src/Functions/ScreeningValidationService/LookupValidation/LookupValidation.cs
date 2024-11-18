@@ -13,12 +13,14 @@ using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
+using Common.Interfaces;
 
 public class LookupValidation
 {
     private readonly IExceptionHandler _handleException;
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
+    private readonly IReadRules _readRules;
     private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
     //private IDbLookupValidationBreastScreening _dbLookup;
     private readonly LookupValidationConfig _config;
@@ -30,15 +32,17 @@ public class LookupValidation
         IReadRulesFromBlobStorage readRulesFromBlobStorage,
         IDataLookupFacade dataLookupFacade,
         IOptions<LookupValidationConfig> config
+        IReadRules readRules
 
     )
-    {
+
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
         _readRulesFromBlobStorage = readRulesFromBlobStorage;
         _dataLookup = dataLookupFacade;
         _config = config.Value;
+        _readRules = readRules;
     }
 
     [Function("LookupValidation")]
@@ -70,9 +74,7 @@ public class LookupValidation
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
 
-            var json = await _readRulesFromBlobStorage.GetRulesFromBlob(_config.AzureWebJobsStorage,
-                                                                        _config.BlobContainerName,
-                                                                        ruleFileName);
+            var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings

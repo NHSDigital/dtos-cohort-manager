@@ -1,4 +1,5 @@
 using Common;
+using Common.Interfaces;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +25,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
 
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<IReadRules, ReadRules>();
         services.AddSingleton<IReadRulesFromBlobStorage, ReadRulesFromBlobStorage>();
         services.AddSingleton<IDataLookupFacade,DataLookupFacade>();
     })

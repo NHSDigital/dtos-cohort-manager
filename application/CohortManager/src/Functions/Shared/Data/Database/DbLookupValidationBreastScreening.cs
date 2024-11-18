@@ -72,6 +72,45 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     }
 
     /// <summary>
+    /// Retrieves the participant's BSO code (using the participant's outcode)
+    /// </summary>
+    /// <param name="postcode">The participant's postcode.</param>
+    /// <returns>string, BSO code<returns>
+    public string RetrieveBSOCode(string postcode)
+    {
+        try
+        {
+            var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                _connection.Open();
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    command.CommandText = $"SELECT BSO FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@outcode";
+                    parameter.Value = outcode;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return reader["BSO"].ToString() ?? string.Empty;
+                        }
+                    }
+                    return string.Empty;
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    /// <summary>
     /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
     /// </summary>
     /// <param name="languageCode">The participant's preferred language code.</param>

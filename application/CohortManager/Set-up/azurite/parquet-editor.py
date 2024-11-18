@@ -2,6 +2,8 @@ import argparse
 import sys
 from send_sample_file import send_sample_file
 import pandas as pd
+import numpy as np
+from fastparquet import write
 
 parser = argparse.ArgumentParser(description='An script that allows you to edit parquet files',
                                 formatter_class=argparse.RawTextHelpFormatter,
@@ -72,14 +74,18 @@ for i in range(len(args.c)):
     value = args.v[i]
     column_type = df[column_name].dtype
 
+
     if column_name not in df.columns:
         sys.exit(f"Column {column_name} not in schema, exiting")
 
-    match schema[column_name]:
-        case "Int64":
-            value = int(value)
-        case "boolean":
-            value = bool(value)
+    if value == "null":
+        value = ""
+    else:
+        match schema[column_name]:
+            case "Int64":
+                value = int(value)
+            case "boolean":
+                value = bool(value)
 
     if args.r:
         df.at[args.r[0], column_name] = value

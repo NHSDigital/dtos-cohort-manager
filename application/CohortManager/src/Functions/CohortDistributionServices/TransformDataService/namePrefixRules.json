@@ -153,7 +153,7 @@
           "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"EARL\""
+              "Expression": "\"FR\""
             }
           }
         }
@@ -831,8 +831,8 @@
         }
       },
       {
-        "RuleName": "71.NamePrefix.RightRev",
-        "Expression": "namePrefix.StartsWith(\"RIGHT REV\")",
+        "RuleName": "71.NamePrefix.RtRev",
+        "Expression": "namePrefix.StartsWith(\"RT REV\")",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -861,7 +861,7 @@
           "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"R.RV\""
+              "Expression": "\"REV\""
             }
           }
         }

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 /// <summary>
@@ -15,13 +16,12 @@ public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly ICallFunction _callFunction;
-    private static readonly int DefaultCategory = 5;
     private static readonly int DefaultRuleId = 0;
-    private static readonly string DefaultCohortName = "";
-    private static readonly string DefaultScreeningName = "";
-    private static readonly string DefaultErrorRecord = "N/A";
-    private static readonly string DefaultFileName = "";
-    private static readonly string DefaultNhsNumber = "";
+    private const string DefaultCohortName = "";
+    private const string DefaultScreeningName = "";
+    private const string DefaultErrorRecord = "N/A";
+    private const string DefaultFileName = "";
+    private const string DefaultNhsNumber = "";
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
     {
@@ -75,6 +75,34 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
     }
 
+    public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
+    {
+        var exception = new ValidationException
+        {
+            RuleId = 0,
+            RuleDescription = "Record received was flagged for deletion",
+            FileName = participantCsvRecord.FileName,
+            NhsNumber = participantCsvRecord.Participant.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            ExceptionDate = DateTime.Now,
+            Category = (int)ExceptionCategory.DeleteRecord,
+            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            CohortName = DefaultCohortName,
+            Fatal = 1
+
+        };
+        var url = GetUrlFromEnvironment();
+        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(exception));
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("There was an error while logging an exception to the database.");
+        }
+
+
+    }
+
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         var url = GetUrlFromEnvironment();
@@ -93,6 +121,12 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
             }
 
+            if(!string.IsNullOrEmpty(error.ExceptionMessage) )
+            {
+                errorMessage = error.ExceptionMessage;
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}",error.ExceptionMessage);
+            }
+
             var exception = new ValidationException
             {
                 RuleId = int.Parse(ruleDetails[0]),
@@ -103,7 +137,7 @@ public class ExceptionHandler : IExceptionHandler
                 DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.Now,
-                Category = DefaultCategory,
+                Category = (int)ExceptionCategory.File,
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
                 Fatal = IsFatal
@@ -121,6 +155,7 @@ public class ExceptionHandler : IExceptionHandler
                     CreatedException = false
                 };
             }
+
         }
 
         return new ValidationExceptionLog()
@@ -150,7 +185,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = errorDescription,
-            Category = DefaultCategory,
+            Category = (int)ExceptionCategory.File,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 0,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
@@ -180,7 +215,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
-            Category = DefaultCategory,
+            Category = IsNilReturnFileNhsNumber(nhsNumber) ? (int)ExceptionCategory.NilReturnFile : (int)ExceptionCategory.File,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
@@ -224,4 +259,9 @@ public class ExceptionHandler : IExceptionHandler
         return (int)IsFatal;
     }
 
+    private static bool IsNilReturnFileNhsNumber(string nhsNumber)
+    {
+        string[] nilReturnFileNhsNumbers = { "0", "0000000000" };
+        return nilReturnFileNhsNumbers.Contains(nhsNumber);
+    }
 }

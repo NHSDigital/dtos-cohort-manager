@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Model.Enums;
 using System.Threading.Tasks;
+using NHS.Screening.ReceiveCaasFile;
 
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
@@ -57,101 +58,60 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return match.Success;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, Participant participant, string name, int rowNumber)
+    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
+
         try
         {
-            participant.RecordType = Convert.ToString(rec.RecordType);
-            participant.ChangeTimeStamp = Convert.ToString(rec.ChangeTimeStamp);
-            participant.SerialChangeNumber = Convert.ToString(rec.SerialChangeNumber);
-            participant.NhsNumber = Convert.ToString(rec.NhsNumber);
-            participant.SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber);
-            participant.PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider);
-            participant.PrimaryCareProviderEffectiveFromDate =
-                Convert.ToString(rec.PrimaryCareEffectiveFromDate);
-            participant.CurrentPosting = Convert.ToString(rec.CurrentPosting);
-            participant.CurrentPostingEffectiveFromDate =
-                Convert.ToString(rec.CurrentPostingEffectiveFromDate);
-            participant.NamePrefix = Convert.ToString(rec.NamePrefix);
-            participant.FirstName = Convert.ToString(rec.FirstName);
-            participant.OtherGivenNames = Convert.ToString(rec.OtherGivenNames);
-            participant.FamilyName = Convert.ToString(rec.SurnamePrefix);
-            participant.PreviousFamilyName = Convert.ToString(rec.PreviousSurnamePrefix);
-            participant.DateOfBirth = Convert.ToString(rec.DateOfBirth);
-            if (Enum.IsDefined(typeof(Gender), Convert.ToInt16(rec.Gender)))
+            return new Participant()
             {
-                participant.Gender =
-                    (Gender)Enum.ToObject(typeof(Gender), Convert.ToInt16(rec.Gender));
-            }
-            participant.AddressLine1 = Convert.ToString(rec.AddressLine1);
-            participant.AddressLine2 = Convert.ToString(rec.AddressLine2);
-            participant.AddressLine3 = Convert.ToString(rec.AddressLine3);
-            participant.AddressLine4 = Convert.ToString(rec.AddressLine4);
-            participant.AddressLine5 = Convert.ToString(rec.AddressLine5);
-            participant.Postcode = Convert.ToString(rec.Postcode);
-            participant.PafKey = Convert.ToString(rec.PafKey);
-            participant.UsualAddressEffectiveFromDate =
-                Convert.ToString(rec.UsualAddressEffectiveFromDate);
-            participant.ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval);
-            participant.ReasonForRemovalEffectiveFromDate =
-                Convert.ToString(rec.ReasonForRemovalEffectiveFromDate);
-            participant.DateOfDeath = Convert.ToString(rec.DateOfDeath);
-            if (Enum.IsDefined(typeof(Status), Convert.ToInt16(rec.DeathStatus)))
-            {
-                participant.DeathStatus = (Status)Enum.ToObject(typeof(Status),
-                    Convert.ToInt16(rec.DeathStatus));
-            }
-            participant.TelephoneNumber = Convert.ToString(rec.TelephoneNumber);
-            participant.TelephoneNumberEffectiveFromDate =
-                Convert.ToString(rec.TelephoneNumberEffectiveFromDate);
-            participant.MobileNumber = Convert.ToString(rec.MobileNumber);
-            participant.MobileNumberEffectiveFromDate =
-                Convert.ToString(rec.MobileNumberEffectiveFromDate);
-            participant.EmailAddress = Convert.ToString(rec.EmailAddress);
-            participant.EmailAddressEffectiveFromDate =
-                Convert.ToString(rec.EmailAddressEffectiveFromDate);
-            participant.IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(true) ? "1" : "0");
-            participant.PreferredLanguage = Convert.ToString(rec.PreferredLanguage);
-            participant.InvalidFlag = Convert.ToString(rec.InvalidFlag.GetValueOrDefault(true) ? "1" : "0");
-            participant.EligibilityFlag = Convert.ToString(rec.EligibilityFlag.GetValueOrDefault(true) ? "1" : "0");
-
-            return participant;
+                ScreeningId = screeningId,
+                ScreeningName = ScreeningName,
+                RecordType = Convert.ToString(rec.RecordType),
+                ChangeTimeStamp = Convert.ToString(rec.ChangeTimeStamp),
+                SerialChangeNumber = Convert.ToString(rec.SerialChangeNumber),
+                NhsNumber = Convert.ToString(rec.NhsNumber),
+                SupersededByNhsNumber = Convert.ToString(rec.SupersededByNhsNumber),
+                PrimaryCareProvider = Convert.ToString(rec.PrimaryCareProvider),
+                PrimaryCareProviderEffectiveFromDate = Convert.ToString(rec.PrimaryCareEffectiveFromDate),
+                CurrentPosting = Convert.ToString(rec.CurrentPosting),
+                CurrentPostingEffectiveFromDate = Convert.ToString(rec.CurrentPostingEffectiveFromDate),
+                NamePrefix = Convert.ToString(rec.NamePrefix),
+                FirstName = Convert.ToString(rec.FirstName),
+                OtherGivenNames = Convert.ToString(rec.OtherGivenNames),
+                FamilyName = Convert.ToString(rec.SurnamePrefix),
+                PreviousFamilyName = Convert.ToString(rec.PreviousSurnamePrefix),
+                DateOfBirth = Convert.ToString(rec.DateOfBirth),
+                Gender = (Gender)rec.Gender.GetValueOrDefault(),
+                AddressLine1 = Convert.ToString(rec.AddressLine1),
+                AddressLine2 = Convert.ToString(rec.AddressLine2),
+                AddressLine3 = Convert.ToString(rec.AddressLine3),
+                AddressLine4 = Convert.ToString(rec.AddressLine4),
+                AddressLine5 = Convert.ToString(rec.AddressLine5),
+                Postcode = Convert.ToString(rec.Postcode),
+                PafKey = Convert.ToString(rec.PafKey),
+                UsualAddressEffectiveFromDate = rec.UsualAddressEffectiveFromDate,
+                ReasonForRemoval = Convert.ToString(rec.ReasonForRemoval),
+                ReasonForRemovalEffectiveFromDate = rec.ReasonForRemovalEffectiveFromDate,
+                DateOfDeath = Convert.ToString(rec.DateOfDeath),
+                DeathStatus = rec.DeathStatus.HasValue ? (Status)rec.DeathStatus.GetValueOrDefault() : null,
+                TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
+                TelephoneNumberEffectiveFromDate = Convert.ToString(rec.TelephoneNumberEffectiveFromDate),
+                MobileNumber = Convert.ToString(rec.MobileNumber),
+                MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
+                EmailAddress = Convert.ToString(rec.EmailAddress),
+                EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
+                IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(false) ? "1" : "0"),
+                PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
+                InvalidFlag = Convert.ToString(rec.InvalidFlag),
+                EligibilityFlag = Convert.ToString(rec.EligibilityFlag),
+            };
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unable to create object on line {RowNumber}.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", rowNumber, ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(participant));
+            _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
-        }
-    }
-
-    public async Task SerializeParquetFile(List<Cohort> chunks, Cohort cohort, string filename, int rowNumber)
-    {
-        try
-        {
-            var targetFunctionUrl = GetUrlFromEnvironment("targetFunction");
-            if (chunks.Count > 0)
-            {
-                _logger.LogInformation("Start processing the files in chunks");
-                foreach (var chunk in chunks)
-                {
-                    var json = JsonSerializer.Serialize(chunk);
-                    await _callFunction.SendPost(targetFunctionUrl, json);
-                }
-            }
-
-            if (cohort.Participants.Count > 0)
-            {
-                _logger.LogInformation("Start processing last remaining {CohortCount} Objects.", cohort.Participants.Count);
-                var json = JsonSerializer.Serialize(cohort);
-                await _callFunction.SendPost(targetFunctionUrl, json);
-            }
-            _logger.LogInformation("Created {CohortCount} Objects.", rowNumber);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await InsertValidationErrorIntoDatabase(filename, "N/A");
         }
     }
 
@@ -181,5 +141,19 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             throw new InvalidOperationException("Environment variable is not set.");
         }
         return url;
+    }
+
+
+    public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
+    {
+        _logger.LogInformation("loading file from blob {name}", name);
+
+        // make sure that that file name is valid
+        if (!fileNameParser.IsValid)
+        {
+            await InsertValidationErrorIntoDatabase(name, errorMessage);
+            return false;
+        }
+        return true;
     }
 }

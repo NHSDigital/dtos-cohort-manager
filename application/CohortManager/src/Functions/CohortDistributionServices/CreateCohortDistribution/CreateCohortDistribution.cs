@@ -34,13 +34,8 @@ public class CreateCohortDistribution
     }
 
     [Function(nameof(CreateCohortDistribution))]
-    public async Task RunAsync([QueueTrigger("create-cohort-distribution-queue")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
+    public async Task RunAsync([QueueTrigger("%CohortQueueName%", Connection = "AzureWebJobsStorage")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
     {
-        //HttpRequestData req;
-
-
-
-
         if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
             string logMessage = $"One or more of the required parameters is missing.";
@@ -59,6 +54,14 @@ public class CreateCohortDistribution
                 await HandleErrorResponseAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
+
+            if(string.IsNullOrEmpty(participantData.ScreeningServiceId))
+            {
+                _logger.LogInformation("participant data was missing ScreeningServiceId");
+                await HandleErrorResponseAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                return;
+            }
+
             _logger.LogInformation("participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
 
             // Allocate service provider
@@ -130,7 +133,7 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, "Create-cohort-distribution-queue-poison");
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, Environment.GetEnvironmentVariable("CohortQueueNamePoison"));
 
     }
 
