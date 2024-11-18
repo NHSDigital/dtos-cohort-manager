@@ -33,7 +33,7 @@ public class ParticipantManagerData : IParticipantManagerData
             var SQL = " UPDATE [dbo].[PARTICIPANT_MANAGEMENT] " +
                 " SET RECORD_UPDATE_DATETIME = @recordEndDateOldRecords, " +
                 " ELIGIBILITY_FLAG = @eligibilityFlag " +
-                " WHERE PARTICIPANT_ID = @participantId ";
+                " WHERE PARTICIPANT_ID = @participantId with (rowlock)";
 
             var Parameters = new Dictionary<string, object>
             {
