@@ -737,6 +737,8 @@ sqlserver = {
   sql_uai_name         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name = "sqlsvr_cohman_preprod_uks_admin"
   ad_auth_only         = true
+  auditing_policy_retention_in_days    = 30
+  security_alert_policy_retention_days = 30
 
   server = {
     sqlversion                    = "12.0"
