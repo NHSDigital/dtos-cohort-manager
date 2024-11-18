@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using DataServices.Core;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -21,6 +22,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     private readonly AuthenticationConfiguration _authConfig;
 
     private PropertyInfo _keyInfo;
+
+    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+        };
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
     {
@@ -133,7 +138,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         try
         {
-            var entityData = await getBodyFromRequest(req);
+            var entityData = await GetBodyFromRequest(req);
 
             var result = await _dataServiceAccessor.InsertSingle(entityData);
             if (!result)
@@ -146,10 +151,15 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 JsonData = "Success"
             });
         }
+        catch(JsonException je)
+        {
+            _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
+            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get request Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.BadRequest);
+            _logger.LogError(ex, "An unexpected error occurred while trying to add data");
+            return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
         }
 
 
@@ -163,7 +173,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         try
         {
-            var entityData = await getBodyFromRequest(req);
+            var entityData = await GetBodyFromRequest(req);
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
@@ -202,15 +212,14 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private async Task<TEntity> getBodyFromRequest(HttpRequestData req)
+    private async Task<TEntity> GetBodyFromRequest(HttpRequestData req)
     {
         string jsonData;
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
             jsonData = await reader.ReadToEndAsync();
         }
-        return JsonSerializer.Deserialize<TEntity>(jsonData);
-
+        return JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
     }
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)

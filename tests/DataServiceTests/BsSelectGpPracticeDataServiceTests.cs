@@ -351,6 +351,29 @@ public class BsSelectGpPracticeDataServiceTests
         //assert
         Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
     }
+    [TestMethod]
+    public async Task RunAsync_AddNewRecordInvalidData_Returns403()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new{
+            id = "123",
+            number = 123,
+            testing = "This should fail"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"POST");
+
+        //act
+        var result = await function.Run(req,null);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+    }
+
 
 
 

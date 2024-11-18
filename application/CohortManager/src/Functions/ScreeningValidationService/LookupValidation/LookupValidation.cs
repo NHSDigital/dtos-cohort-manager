@@ -21,25 +21,21 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRules _readRules;
-    private readonly IReadRulesFromBlobStorage _readRulesFromBlobStorage;
-    //private IDbLookupValidationBreastScreening _dbLookup;
     private readonly LookupValidationConfig _config;
     private readonly IDataLookupFacade _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
-        IReadRulesFromBlobStorage readRulesFromBlobStorage,
         IDataLookupFacade dataLookupFacade,
-        IOptions<LookupValidationConfig> config
+        IOptions<LookupValidationConfig> config,
         IReadRules readRules
 
     )
-
+    {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
-        _readRulesFromBlobStorage = readRulesFromBlobStorage;
         _dataLookup = dataLookupFacade;
         _config = config.Value;
         _readRules = readRules;
