@@ -113,7 +113,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        await AddParticipant(currentBatch, name);
+        await AddParticipant(currentBatch);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -129,7 +129,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
     }
 
-    private async Task AddParticipant(Batch currentBatch, string name)
+    private async Task AddParticipant(Batch currentBatch)
     {
         var getData = "";
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
