@@ -17,6 +17,10 @@ module "vnet" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
+  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_vnet_enabled_logs = ["VMProtectionAlerts"]
+  monitor_diagnostic_setting_vnet_metrics      = ["AllMetrics"]
+
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
   location            = each.key
@@ -53,6 +57,13 @@ module "subnets" {
   for_each = local.subnets_map
 
   source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
+
+  
+  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]
+  monitor_diagnostic_setting_network_security_group_metrics      = ["AllMetrics"]
+
+
 
   name                              = each.value.subnet_name
   location                          = module.vnet[each.value.vnet_key].vnet.location
