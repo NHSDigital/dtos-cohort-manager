@@ -134,10 +134,12 @@ services:
       dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7063
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - RemoveCohortDistributionURL=http://localhost:7079/api/RemoveCohortDistributionData
+      - CohortQueueName=cohort-distribution-queue
 
   update-participant:
     container_name: update-participant
@@ -147,6 +149,7 @@ services:
       dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7065
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
       - UpdateParticipant=http://localhost:7069/api/updateParticipantDetails
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
@@ -154,6 +157,7 @@ services:
       - DSmarkParticipantAsEligible=http://localhost:7067/api/markParticipantAsEligible
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
+      - CohortQueueName=cohort-distribution-queue
 
   # Screening Data Service
   create-participant:

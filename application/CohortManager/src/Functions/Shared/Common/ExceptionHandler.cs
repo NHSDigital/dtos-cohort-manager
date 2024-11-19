@@ -17,6 +17,7 @@ public class ExceptionHandler : IExceptionHandler
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly ICallFunction _callFunction;
     private static readonly int DefaultRuleId = 0;
+    private readonly string _createExceptionUrl;
     private const string DefaultCohortName = "";
     private const string DefaultScreeningName = "";
     private const string DefaultErrorRecord = "N/A";
@@ -28,6 +29,14 @@ public class ExceptionHandler : IExceptionHandler
 
         _logger = logger;
         _callFunction = callFunction;
+        _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
+
+        if (_createExceptionUrl == null)
+        {
+            _logger.LogError("ExceptionFunctionURL environment variable is not set.");
+            throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
+        }
+
     }
 
     /// <summary>
@@ -38,7 +47,6 @@ public class ExceptionHandler : IExceptionHandler
     /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
     {
-        var url = GetUrlFromEnvironment();
         if (participant.NhsNumber != null)
         {
             participant.ExceptionFlag = "Y";
@@ -48,7 +56,7 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     /// <summary>
@@ -59,20 +67,18 @@ public class ExceptionHandler : IExceptionHandler
     /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
-        var url = GetUrlFromEnvironment();
         var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
-        var url = GetUrlFromEnvironment();
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
-        await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
@@ -93,8 +99,8 @@ public class ExceptionHandler : IExceptionHandler
             Fatal = 1
 
         };
-        var url = GetUrlFromEnvironment();
-        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(exception));
+
+        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -103,9 +109,43 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
+    /// <summary>
+    /// Method to create a transformation exception and send it to the DB.
+    /// </summary>
+    /// <param name="tansformationErrors">RuleResultTree containing the transformations that have failed.</param>
+    /// <param name="participant">The participant that caused the exception.</param>
+    public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant) {
+        foreach (var error in transformationErrors) {
+            var ruleNumber = int.Parse(error.Rule.RuleName.Split('.')[0]);
+
+            var exception = new ValidationException
+            {
+                RuleId = ruleNumber,
+                RuleDescription = error.Rule.RuleName,
+                FileName = DefaultFileName,
+                NhsNumber = participant.NhsNumber,
+                ErrorRecord = JsonSerializer.Serialize(participant),
+                DateCreated = DateTime.Now,
+                DateResolved = null,
+                ExceptionDate = DateTime.Now,
+                Category = (int)ExceptionCategory.File,
+                ScreeningName = participant.ScreeningName,
+                CohortName = DefaultCohortName,
+                Fatal = 0
+            };
+            
+            var exceptionJson = JsonSerializer.Serialize(exception);
+            var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
+
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogError("There was an error while logging a transformation exception to the database");
+            }
+        }
+    }
+
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
-        var url = GetUrlFromEnvironment();
         participantCsvRecord.Participant.ExceptionFlag = "Y";
 
         var foundFatalRule = false;
@@ -144,7 +184,7 @@ public class ExceptionHandler : IExceptionHandler
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);
-            var response = await _callFunction.SendPost(url, exceptionJson);
+            var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -175,7 +215,6 @@ public class ExceptionHandler : IExceptionHandler
     /// <returns></returns>
     private ValidationException CreateDefaultValidationException(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
-
         return new ValidationException()
         {
             RuleId = DefaultRuleId,
@@ -227,25 +266,14 @@ public class ExceptionHandler : IExceptionHandler
     {
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
-        var url = GetUrlFromEnvironment();
-        var response = await _callFunction.SendPost(url, JsonSerializer.Serialize(validationException));
+
+        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
             return false;
         }
         return true;
-    }
-
-    private string GetUrlFromEnvironment()
-    {
-        var url = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
-        if (url == null)
-        {
-            _logger.LogError("ExceptionFunctionURL environment variable is not set.");
-            throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
-        }
-        return url;
     }
 
     private int ParseFatalRuleType(string fatal)
