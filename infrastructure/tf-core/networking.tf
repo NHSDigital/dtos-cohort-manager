@@ -58,12 +58,9 @@ module "subnets" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
 
-
   log_analytics_workspace_id                                     = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]
   monitor_diagnostic_setting_network_security_group_metrics      = ["AllMetrics"]
-
-
 
   name                              = each.value.subnet_name
   location                          = module.vnet[each.value.vnet_key].vnet.location
