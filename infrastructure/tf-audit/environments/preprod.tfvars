@@ -45,11 +45,16 @@ law = {
 }
 
 storage_accounts = {
-  fnapp = {
+  sqllogs = {
     name_suffix                   = "sqllogs"
     account_tier                  = "Standard"
     replication_type              = "LRS"
     public_network_access_enabled = false
-    containers                    = {}
+    containers = {
+      vulnerability-assessment = {
+        container_name        = "vulnerability-assessment"
+        container_access_type = "private"
+      }
+    }
   }
 }
