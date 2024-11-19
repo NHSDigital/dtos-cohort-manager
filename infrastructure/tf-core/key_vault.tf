@@ -7,7 +7,7 @@ module "key_vault" {
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
-  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_keyvault_enabled_logs = ["VMProAuditEvent", "AzurePolicyEvaluationDetailstectionAlerts"]
   monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
 
