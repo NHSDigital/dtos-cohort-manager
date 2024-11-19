@@ -9,7 +9,7 @@ module "functionapp" {
 
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
-  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_keyvault_enabled_logs = ["AppServiceAuthenticationLogs", "FunctionAppLogs"]
   monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
 

@@ -25,6 +25,7 @@ module "app-service-plan" {
   location            = each.value.region_key
 
   log_analytics_workspace_id                  = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  enabled_log                                 = true
   monitor_diagnostic_setting_keyvault_metrics = ["AllMetrics"]
 
   os_type  = var.app_service_plan.os_type
