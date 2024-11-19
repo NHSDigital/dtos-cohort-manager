@@ -6,11 +6,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CaasIntegration", "CaasInte
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningDataServices", "ScreeningDataServices", "{3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsEligible", "ScreeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj", "{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsEligible", "screeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj", "{A12A3C14-DA68-4E9F-A9BB-53FF587C0A51}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsIneligible", "ScreeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj", "{323B466B-D2DB-4774-993A-61B2A66715E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsIneligible", "screeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj", "{323B466B-D2DB-4774-993A-61B2A66715E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateParticipant", "ScreeningDataServices\createParticipant\CreateParticipant.csproj", "{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateParticipant", "screeningDataServices\createParticipant\CreateParticipant.csproj", "{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServices", "ParticipantManagementServices", "{E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}"
 EndProject
@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFile", "CaasInte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipant", "ParticipantManagementServices\updateParticipant\updateParticipant.csproj", "{7BFA62FE-3066-45C1-B675-2266A28D0F96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantDetails", "ScreeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj", "{9BDAC0A4-FDCA-40D6-927D-8E1DE01F5F17}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipantDetails", "screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj", "{9BDAC0A4-FDCA-40D6-927D-8E1DE01F5F17}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{198995B8-A14C-4890-BF05-10C65C1E790F}"
 EndProject
@@ -44,7 +44,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipantTests", ".
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningDataServicesTests", "ScreeningDataServicesTests", "{2BE7CEE7-58EF-4087-8D7C-B74CE7969A5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataService", "ScreeningDataServices\DemographicDataService\DemographicDataService.csproj", "{96AD14C8-67A1-4DC4-8593-F2D64F999223}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataService", "screeningDataServices\DemographicDataService\DemographicDataService.csproj", "{96AD14C8-67A1-4DC4-8593-F2D64F999223}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemographicServices", "DemographicServices", "{8546F1DA-6055-4224-8A2B-36CDE94CBD07}"
 EndProject
