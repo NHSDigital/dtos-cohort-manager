@@ -320,6 +320,8 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("John.,-()/='+:?!\"%&;<>*", "John.,-()/='+:?!\"%&;<>*")]
     [DataRow("abby{}", "abby()")]
+    [DataRow("abc_", "abc-")]
+    [DataRow("abc\\", "abc/")]
     [DataRow("{[Smith£$^`~#@_|\\]}", "((Smith   '   -:/))")]
     public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields(string name, string transformedName)
     {
@@ -494,7 +496,7 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
-    [DataRow("RPR", "INVALID_POSTCODE")]
+    [DataRow("RPR", "InvalidPostcode")]
     public async Task Run_ReasonForRemovalRule2_TransformsMultipleFields(string reasonForRemoval, string postcode)
     {
         // Arrange
@@ -514,7 +516,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
         _lookupValidation.Setup(x => x.RetrieveBSOCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
@@ -548,7 +550,7 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
-    [DataRow("RPR", "INVALID_POSTCODE")]
+    [DataRow("RPR", "InvalidPostcode")]
     public async Task Run_ReasonForRemovalRule3_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
     {
         // Arrange
@@ -566,7 +568,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -600,7 +602,7 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
-    [DataRow("RPR", "INVALID_POSTCODE")]
+    [DataRow("RPR", "InvalidPostcode")]
     public async Task Run_ReasonForRemovalRule4_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
     {
         // Arrange
@@ -618,7 +620,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
