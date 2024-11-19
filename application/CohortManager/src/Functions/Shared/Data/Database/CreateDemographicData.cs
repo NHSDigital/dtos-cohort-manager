@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Microsoft.Data.SqlClient;
 using Model.Enums;
+using System.Text;
 
 public class CreateDemographicData : ICreateDemographicData
 {
@@ -21,134 +22,96 @@ public class CreateDemographicData : ICreateDemographicData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
     }
 
-    public bool InsertDemographicData(Demographic demographic)
+    public bool InsertDemographicData(List<Demographic> demographic)
     {
-        if (!int.TryParse(demographic.IsInterpreterRequired, out var _))
-        {
-            demographic.IsInterpreterRequired = null;
-        }
+        var cmdText = demographic.Aggregate(
+      new StringBuilder(),
+      (sb, DemographicParticipant) => sb.AppendLine(@$"
+        DELETE FROM [dbo].PARTICIPANT_DEMOGRAPHIC WHERE NHS_NUMBER = {DemographicParticipant.NhsNumber} 
 
-        RemoveOldDemographicData(demographic.NhsNumber);
+        INSERT INTO [dbo].[PARTICIPANT_DEMOGRAPHIC] (
+            [NHS_NUMBER], 
+            [SUPERSEDED_BY_NHS_NUMBER], 
+            [PRIMARY_CARE_PROVIDER], 
+            [PRIMARY_CARE_PROVIDER_FROM_DT], 
+            [CURRENT_POSTING], 
+            [CURRENT_POSTING_FROM_DT], 
+            [NAME_PREFIX], 
+            [GIVEN_NAME], 
+            [OTHER_GIVEN_NAME], 
+            [FAMILY_NAME], 
+            [PREVIOUS_FAMILY_NAME], 
+            [DATE_OF_BIRTH], 
+            [GENDER], 
+            [ADDRESS_LINE_1], 
+            [ADDRESS_LINE_2], 
+            [ADDRESS_LINE_3], 
+            [ADDRESS_LINE_4], 
+            [ADDRESS_LINE_5], 
+            [POST_CODE], 
+            [PAF_KEY], 
+            [USUAL_ADDRESS_FROM_DT], 
+            [DATE_OF_DEATH], 
+            [DEATH_STATUS], 
+            [TELEPHONE_NUMBER_HOME], 
+            [TELEPHONE_NUMBER_HOME_FROM_DT], 
+            [TELEPHONE_NUMBER_MOB], 
+            [TELEPHONE_NUMBER_MOB_FROM_DT], 
+            [EMAIL_ADDRESS_HOME], 
+            [EMAIL_ADDRESS_HOME_FROM_DT], 
+            [PREFERRED_LANGUAGE], 
+            [INTERPRETER_REQUIRED], 
+            [INVALID_FLAG], 
+            [RECORD_INSERT_DATETIME], 
+            [RECORD_UPDATE_DATETIME]
+        ) VALUES (
+            '{(_databaseHelper.CheckIfNumberNull(DemographicParticipant.NhsNumber) ? DBNull.Value : long.Parse(DemographicParticipant.NhsNumber).ToString())}',
+            '{(_databaseHelper.CheckIfNumberNull(DemographicParticipant.SupersededByNhsNumber) ? DBNull.Value : long.Parse(DemographicParticipant.SupersededByNhsNumber).ToString())}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PrimaryCareProvider)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PrimaryCareProviderEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.CurrentPosting)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.CurrentPostingEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.NamePrefix)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.FirstName)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.OtherGivenNames)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.FamilyName)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PreviousFamilyName)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.DateOfBirth)}',
+            {(DemographicParticipant.Gender.HasValue ? (int)DemographicParticipant.Gender : DBNull.Value)},
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.AddressLine1)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.AddressLine2)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.AddressLine3)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.AddressLine4)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.AddressLine5)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.Postcode)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PafKey)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.UsualAddressEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.DateOfDeath)}',
+            '{(DemographicParticipant.DeathStatus.HasValue ? DemographicParticipant.DeathStatus.ToString() : DBNull.Value)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.TelephoneNumber)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.TelephoneNumberEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.MobileNumber)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.MobileNumberEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.EmailAddress)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.EmailAddressEffectiveFromDate)}',
+            '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PreferredLanguage)}',
+            '{(!int.TryParse(DemographicParticipant.IsInterpreterRequired, out var _) ? "NULL" : _databaseHelper.ConvertNullToDbNull(DemographicParticipant.IsInterpreterRequired))}',
+            '{_databaseHelper.ConvertBoolStringToInt(DemographicParticipant.InvalidFlag)}',
+            GETDATE(),
+            '{_databaseHelper.ParseDateTime(DemographicParticipant.RecordUpdateDateTime)}'
+            );"
+        ));
 
-        var command = new List<SQLReturnModel>()
+        // Execute the generated command
+        return UpdateRecords(new List<SQLReturnModel>()
         {
             new SQLReturnModel()
             {
                 CommandType = CommandType.Command,
-                SQL = "INSERT INTO [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
-                "(" +
-                    "  [NHS_NUMBER] " +
-                    ", [SUPERSEDED_BY_NHS_NUMBER] " +
-                    ", [PRIMARY_CARE_PROVIDER] " +
-                    ", [PRIMARY_CARE_PROVIDER_FROM_DT] " +
-                    ", [CURRENT_POSTING] " +
-                    ", [CURRENT_POSTING_FROM_DT] " +
-                    ", [NAME_PREFIX] " +
-                    ", [GIVEN_NAME] " +
-                    ", [OTHER_GIVEN_NAME] " +
-                    ", [FAMILY_NAME] " +
-                    ", [PREVIOUS_FAMILY_NAME] " +
-                    ", [DATE_OF_BIRTH] " +
-                    ", [GENDER] " +
-                    ", [ADDRESS_LINE_1] " +
-                    ", [ADDRESS_LINE_2] " +
-                    ", [ADDRESS_LINE_3] " +
-                    ", [ADDRESS_LINE_4] " +
-                    ", [ADDRESS_LINE_5] " +
-                    ", [POST_CODE] " +
-                    ", [PAF_KEY] " +
-                    ", [USUAL_ADDRESS_FROM_DT] " +
-                    ", [DATE_OF_DEATH] " +
-                    ", [DEATH_STATUS] " +
-                    ", [TELEPHONE_NUMBER_HOME] " +
-                    ", [TELEPHONE_NUMBER_HOME_FROM_DT] " +
-                    ", [TELEPHONE_NUMBER_MOB] " +
-                    ", [TELEPHONE_NUMBER_MOB_FROM_DT] " +
-                    ", [EMAIL_ADDRESS_HOME] " +
-                    ", [EMAIL_ADDRESS_HOME_FROM_DT] " +
-                    ", [PREFERRED_LANGUAGE] " +
-                    ", [INTERPRETER_REQUIRED] " +
-                    ", [INVALID_FLAG] " +
-                    ", [RECORD_INSERT_DATETIME] " +
-                    ", [RECORD_UPDATE_DATETIME] ) " +
-                "VALUES " +
-                "(" +
-                    " @NHS_NUMBER, " +
-                    " @SUPERSEDED_BY_NHS_NUMBER, " +
-                    " @PRIMARY_CARE_PROVIDER, " +
-                    " @PRIMARY_CARE_PROVIDER_FROM_DT, " +
-                    " @CURRENT_POSTING, " +
-                    " @CURRENT_POSTING_FROM_DT, " +
-                    " @NAME_PREFIX, " +
-                    " @GIVEN_NAME, " +
-                    " @OTHER_GIVEN_NAME, " +
-                    " @FAMILY_NAME," +
-                    " @PREVIOUS_FAMILY_NAME, " +
-                    " @DATE_OF_BIRTH, " +
-                    " @GENDER, " +
-                    " @ADDRESS_LINE_1, " +
-                    " @ADDRESS_LINE_2, " +
-                    " @ADDRESS_LINE_3, " +
-                    " @ADDRESS_LINE_4, " +
-                    " @ADDRESS_LINE_5, " +
-                    " @POST_CODE, " +
-                    " @PAF_KEY, " +
-                    " @USUAL_ADDRESS_FROM_DT, " +
-                    " @DATE_OF_DEATH, " +
-                    " @DEATH_STATUS, " +
-                    " @TELEPHONE_NUMBER_HOME, " +
-                    " @TELEPHONE_NUMBER_HOME_FROM_DT, " +
-                    " @TELEPHONE_NUMBER_MOB, " +
-                    " @TELEPHONE_NUMBER_MOB_FROM_DT, " +
-                    " @EMAIL_ADDRESS_HOME, " +
-                    " @EMAIL_ADDRESS_HOME_FROM_DT," +
-                    " @PREFERRED_LANGUAGE," +
-                    " @INTERPRETER_REQUIRED," +
-                    " @INVALID_FLAG," +
-                    " @RECORD_INSERT_DATETIME," +
-                    " @RECORD_UPDATE_DATETIME" +
-                ")",
-                Parameters = new Dictionary<string, object>
-                {
-                    {"@NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.NhsNumber) ? DBNull.Value : long.Parse(demographic.NhsNumber)},
-                    {"@SUPERSEDED_BY_NHS_NUMBER", _databaseHelper.CheckIfNumberNull(demographic.SupersededByNhsNumber) ? DBNull.Value : long.Parse(demographic.SupersededByNhsNumber)},
-                    {"@PRIMARY_CARE_PROVIDER", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProvider)},
-                    {"@PRIMARY_CARE_PROVIDER_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.PrimaryCareProviderEffectiveFromDate)},
-                    {"@CURRENT_POSTING", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPosting)},
-                    {"@CURRENT_POSTING_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.CurrentPostingEffectiveFromDate)},
-                    {"@NAME_PREFIX", _databaseHelper.ConvertNullToDbNull(demographic.NamePrefix)},
-                    {"@GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FirstName)},
-                    {"@OTHER_GIVEN_NAME", _databaseHelper.ConvertNullToDbNull(demographic.OtherGivenNames)},
-                    {"@FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.FamilyName)},
-                    {"@PREVIOUS_FAMILY_NAME", _databaseHelper.ConvertNullToDbNull(demographic.PreviousFamilyName)},
-                    {"@DATE_OF_BIRTH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfBirth) },
-                    {"@GENDER", demographic.Gender.HasValue ? demographic.Gender : DBNull.Value},
-                    {"@ADDRESS_LINE_1", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine1)},
-                    {"@ADDRESS_LINE_2", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine2)},
-                    {"@ADDRESS_LINE_3", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine3)},
-                    {"@ADDRESS_LINE_4", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine4)},
-                    {"@ADDRESS_LINE_5", _databaseHelper.ConvertNullToDbNull(demographic.AddressLine5)},
-                    {"@POST_CODE", _databaseHelper.ConvertNullToDbNull(demographic.Postcode)},
-                    {"@PAF_KEY", _databaseHelper.ConvertNullToDbNull(demographic.PafKey)},
-                    {"@USUAL_ADDRESS_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.UsualAddressEffectiveFromDate)},
-                    {"@DATE_OF_DEATH", _databaseHelper.ConvertNullToDbNull(demographic.DateOfDeath)},
-                    {"@DEATH_STATUS", demographic.DeathStatus.HasValue ? demographic.DeathStatus : DBNull.Value},
-                    {"@TELEPHONE_NUMBER_HOME", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumber)},
-                    {"@TELEPHONE_NUMBER_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.TelephoneNumberEffectiveFromDate)},
-                    {"@TELEPHONE_NUMBER_MOB", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumber)},
-                    {"@TELEPHONE_NUMBER_MOB_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.MobileNumberEffectiveFromDate)},
-                    {"@EMAIL_ADDRESS_HOME", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddress)},
-                    {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddressEffectiveFromDate)},
-                    {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
-                    {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
-                    {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
-                    {"@RECORD_INSERT_DATETIME", DateTime.Now},
-                    {"@RECORD_UPDATE_DATETIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
-                },
+                SQL = cmdText.ToString(),
+                Parameters = new Dictionary<string, object>()
             }
-        };
-
-        return UpdateRecords(command);
+        });
     }
 
     public Demographic GetDemographicData(string nhsNumber)

@@ -171,12 +171,13 @@ public class ProcessCaasFileFunction
 
     private async Task<bool> PostDemographicDataAsync(Participant participant)
     {
+        /* commenting out for now as we probably won't need it but unsure
         var demographicDataInserted = await _checkDemographic.PostDemographicDataAsync(participant, Environment.GetEnvironmentVariable("DemographicURI"));
         if (!demographicDataInserted)
         {
             _logger.LogError("Demographic function failed");
             return false;
-        }
+        }*/
         return true;
     }
 

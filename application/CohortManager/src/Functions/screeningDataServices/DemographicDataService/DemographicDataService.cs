@@ -28,7 +28,7 @@ public class DemographicDataService
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        Demographic participantDemographic = new Demographic();
+        List<Demographic> participantDemographic = new List<Demographic>();
 
         try
         {
@@ -37,7 +37,7 @@ public class DemographicDataService
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
                     var requestBody = await reader.ReadToEndAsync();
-                    participantDemographic = JsonSerializer.Deserialize<Demographic>(requestBody);
+                    participantDemographic = JsonSerializer.Deserialize<List<Demographic>>(requestBody);
                 }
 
                 var created = _createDemographicData.InsertDemographicData(participantDemographic);
@@ -63,7 +63,7 @@ public class DemographicDataService
         catch (Exception ex)
         {
             _logger.LogError(ex, $"An error has occurred while inserting data {ex.Message}");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantDemographic.NhsNumber, "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 

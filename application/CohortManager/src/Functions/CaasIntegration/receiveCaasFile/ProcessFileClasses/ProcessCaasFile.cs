@@ -1,5 +1,6 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
@@ -92,10 +93,10 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             case Actions.New:
                 //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
-                if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-                {
-                    currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                }
+                await Task.CompletedTask;
+                currentBatch.DemographicData.Enqueue(basicParticipantCsvRecord.participant);
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+
                 break;
             case Actions.Amended:
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -112,8 +113,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
+        await AddParticipant(currentBatch, name);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -129,12 +129,29 @@ public class ProcessCaasFile : IProcessCaasFile
         }
     }
 
+    private async Task AddParticipant(Batch currentBatch, string name)
+    {
+        var getData = "";
+        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        if (await _checkDemographic.PostDemographicBatchAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+        }
+        _logger.LogInformation("finished sending {count} records to queue", currentBatch.AddRecords.Count);
+
+    }
+
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+            List<Participant> participants = new List<Participant>()
+            {
+                basicParticipantCsvRecord.participant
+            };
+
+            if (await _checkDemographic.PostDemographicBatchAsync(participants, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }
@@ -143,7 +160,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex ,"Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
     }
@@ -157,7 +174,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,"Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, filename);
         }
     }
@@ -172,7 +189,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
