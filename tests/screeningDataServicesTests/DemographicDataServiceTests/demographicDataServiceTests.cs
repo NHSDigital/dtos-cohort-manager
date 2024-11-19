@@ -46,7 +46,9 @@ public class DemographicDataServiceTests
     public async Task Run_DemographicDataSaved_OK()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(new List<Participant>() {
+            _participant
+        });
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
