@@ -39,6 +39,7 @@ public class DataLookupFacade : IDataLookupFacade
     {
         _logger.LogInformation("Checking Primary Care Provider {primaryCareProvider} Exists", primaryCareProvider);
         var result =  _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
+        _logger.LogCritical($"{primaryCareProvider} existed {result != null}");
         return result != null;
     }
 
@@ -79,9 +80,9 @@ public class DataLookupFacade : IDataLookupFacade
             return false;
         }
         if(result.Any()){
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
     /// <summary>
     /// takes in posting and returns if that posting has a valid posting category in the database

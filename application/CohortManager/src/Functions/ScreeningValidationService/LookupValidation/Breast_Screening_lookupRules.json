@@ -10,7 +10,7 @@
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",

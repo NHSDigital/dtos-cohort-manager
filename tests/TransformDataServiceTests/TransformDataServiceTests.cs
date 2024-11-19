@@ -50,7 +50,7 @@ public class TransformDataServiceTests
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _lookupValidation.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
