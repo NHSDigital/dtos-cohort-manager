@@ -8,7 +8,6 @@ locals {
     "Policy",
     "Recommendation",
     "ResourceHealth",
-    "Security",
     "ServiceHealth"
   ]
 }
