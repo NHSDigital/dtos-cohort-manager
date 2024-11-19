@@ -6,5 +6,5 @@ public interface IDataServiceAccessor<TEntity>
     Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates);
     Task<bool> InsertSingle(TEntity entity);
     Task<bool> Remove(Expression<Func<TEntity, bool>> predicate);
-    Task<bool> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate);
+    Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate);
 }

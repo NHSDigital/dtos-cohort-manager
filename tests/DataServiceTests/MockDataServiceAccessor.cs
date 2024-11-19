@@ -42,7 +42,7 @@ public class MockDataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> wh
         return false;
     }
 
-    public async Task<bool> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
+    public async Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
         TEntity item = await this.GetSingle(predicate);
 
@@ -50,8 +50,8 @@ public class MockDataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> wh
         {
             var index = _data.FindIndex(i => i == item);
             _data[index] = entity;
-            return true;
+            return _data[index];
         }
-        return false;
+        return null;
     }
 }

@@ -78,7 +78,7 @@ public class BsSelectGpPracticeDataServiceTests
         bsSelectGpPractices.Should().BeEquivalentTo(_mockData);
     }
     [TestMethod]
-    public async Task RunAsync_GetAllItemsNotAllowed_Returns403()
+    public async Task RunAsync_GetAllItemsNotAllowed_Returns401()
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
@@ -135,7 +135,7 @@ public class BsSelectGpPracticeDataServiceTests
     }
     [DataRow("F83043")]
     [TestMethod]
-    public async Task RunAsync_GetItemByIdNotAllowed_Returns403(string gpPracticeCode)
+    public async Task RunAsync_GetItemByIdNotAllowed_Returns401(string gpPracticeCode)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
@@ -197,7 +197,7 @@ public class BsSelectGpPracticeDataServiceTests
     }
     [DataRow("i => i.BsoCode == \"ECX\"",new string[] {"E85121"})]
     [TestMethod]
-    public async Task RunAsync_GetItemByQueryNotAllowed_Returns403(string query, string[] expectedPracticeCodes)
+    public async Task RunAsync_GetItemByQueryNotAllowed_Returns401(string query, string[] expectedPracticeCodes)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
@@ -256,7 +256,7 @@ public class BsSelectGpPracticeDataServiceTests
 
     [DataRow("F83043")]
     [TestMethod]
-    public async Task RunAsync_DeleteNotAllowed_Returns403(string gpPracticeCode)
+    public async Task RunAsync_DeleteNotAllowed_Returns401(string gpPracticeCode)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
@@ -325,7 +325,7 @@ public class BsSelectGpPracticeDataServiceTests
     }
     [DataRow("XY6789","XYZ","ENGLAND")]
     [TestMethod]
-    public async Task RunAsync_AddNewRecordUnAuthorized_Returns403(string gpPracticeCode, string bsoCode, string countryCategory)
+    public async Task RunAsync_AddNewRecordUnAuthorized_Returns401(string gpPracticeCode, string bsoCode, string countryCategory)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
@@ -352,7 +352,7 @@ public class BsSelectGpPracticeDataServiceTests
         Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
     }
     [TestMethod]
-    public async Task RunAsync_AddNewRecordInvalidData_Returns403()
+    public async Task RunAsync_AddNewRecordInvalidData_Returns401()
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
@@ -373,9 +373,147 @@ public class BsSelectGpPracticeDataServiceTests
         //assert
         Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
     }
+    #endregion
+    #region PUT Requests
+    [DataRow("G82650","ABC","ENGLAND")]
+    [DataRow("E85121","XYZ","ENGLAND")]
+    [TestMethod]
+    public async Task RunAsync_PutUpdateRecord_ReturnsSuccessIsUpdated(string gpPracticeCode, string bsoCode, string countryCategory)
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
 
 
+        var oldData = _dataServiceAccessor.GetSingle(i =>  i.GpPracticeCode == gpPracticeCode);
 
+        var data = new BsSelectGpPractice
+        {
+            GpPracticeCode = gpPracticeCode,
+            BsoCode = bsoCode,
+            CountryCategory = countryCategory,
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+
+        //act
+        var result = await function.Run(req,gpPracticeCode);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        var updatedPractice = _mockData.Where(i => i.GpPracticeCode == gpPracticeCode).Single();
+        updatedPractice.Should().BeEquivalentTo(data);
+        updatedPractice.Should().NotBeEquivalentTo(oldData);
+    }
+    [DataRow("G82650","XYZ","ENGLAND")]
+    [TestMethod]
+    public async Task RunAsync_PutRecordUnAuthorized_Returns401(string gpPracticeCode, string bsoCode, string countryCategory)
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new BsSelectGpPractice
+        {
+            GpPracticeCode = gpPracticeCode,
+            BsoCode = bsoCode,
+            CountryCategory = countryCategory,
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+
+        //act
+        var result = await function.Run(req,gpPracticeCode);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+    }
+    [TestMethod]
+    public async Task RunAsync_PutRecordNoSlug_Returns400()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new BsSelectGpPractice
+        {
+            GpPracticeCode = "G82650",
+            BsoCode = "XYZ",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+
+        //act
+        var result = await function.Run(req,null);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+    }
+    [TestMethod]
+    public async Task RunAsync_PutRecordDoesntExist_Returns400()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new BsSelectGpPractice
+        {
+            GpPracticeCode = "G82650",
+            BsoCode = "XYZ",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+
+        //act
+        var result = await function.Run(req,"ABC1234");
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.NotFound,result.StatusCode);
+    }
+    [TestMethod]
+    public async Task RunAsync_PutRecordInvalidData_Returns401()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new{
+            id = "123",
+            number = 123,
+            testing = "This should fail"
+        };
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+
+        //act
+        var result = await function.Run(req,"G82650");
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+    }
 
     #endregion
 

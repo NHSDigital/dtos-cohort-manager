@@ -177,18 +177,23 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
-            if (!result)
+            if (result == null)
             {
-                return CreateErrorResponse(req,"Failed to update Record",HttpStatusCode.InternalServerError);
+                return CreateErrorResponse(req,"Record not found",HttpStatusCode.NotFound);
             }
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = "Success"
             });
         }
+        catch(JsonException je)
+        {
+            _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
+            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to get request Data, This is due to a badly formed request");
+            _logger.LogError(ex, "Failed to Update Record");
             return CreateErrorResponse(req,"Failed to Update Record",HttpStatusCode.BadRequest);
         }
     }

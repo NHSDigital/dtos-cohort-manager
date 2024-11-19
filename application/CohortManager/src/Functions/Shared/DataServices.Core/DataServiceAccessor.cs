@@ -1,5 +1,6 @@
 ﻿namespace DataServices.Core;
 
+using System.Data.Common;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using DataServices.Database;
@@ -50,19 +51,32 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
-    public async Task<bool> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
+    public async Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
+
         var existingEntity = _context.Set<TEntity>().SingleOrDefault(predicate);
         await Task.CompletedTask;
 
         if (existingEntity == null)
         {
-            await _context.AddAsync(entity);
+            return null;
         }
+        using var transaction = _context.Database.BeginTransaction();
+        TEntity updatedEntity =  _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+        var rowsEffected  = await _context.SaveChangesAsync();
+        if(rowsEffected == 1)
+        {
+            return updatedEntity;
+        }
+        else if(rowsEffected > 1)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError("Multiple Records where updated by PUT request, Changes have been Rolledback");
+            throw new Exception("Multiple Records where updated by PUT request, Changes have been Rolledback");
+        }
+        _logger.LogError("No records where updated despite a record being found");
+        throw new Exception("Multiple Records where updated by PUT request, Changes have been Rolledback");
 
-        _context.Entry(existingEntity).CurrentValues.SetValues(entity);
-
-        return await _context.SaveChangesAsync() > 0;
     }
 
 }
