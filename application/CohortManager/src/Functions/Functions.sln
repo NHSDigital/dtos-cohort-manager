@@ -152,8 +152,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\screeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateParticipantForAdd", "ParticipantManagementServices\ValidateParticipantForAdd\ValidateParticipantForAdd.csproj", "{C7CA63DB-B17B-46D1-A401-8A23EF1C0740}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -380,10 +378,6 @@ Global
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7CA63DB-B17B-46D1-A401-8A23EF1C0740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7CA63DB-B17B-46D1-A401-8A23EF1C0740}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7CA63DB-B17B-46D1-A401-8A23EF1C0740}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7CA63DB-B17B-46D1-A401-8A23EF1C0740}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -429,7 +423,6 @@ Global
 		{7D2ACE1A-2691-484E-B227-392B2CDEF2EA} = {A80097AA-4EAB-4E8A-97D1-7B480DCD5407}
 		{6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109} = {7D2ACE1A-2691-484E-B227-392B2CDEF2EA}
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3} = {6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109}
-		{C7CA63DB-B17B-46D1-A401-8A23EF1C0740} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
