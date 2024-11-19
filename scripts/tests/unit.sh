@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 dir="$PWD"
-UnitDir="$dir/tests/UnitTests"
+UnitDir="$dir/tests/UnitTests/"
 ResDir="$UnitDir"results-unit
 Format="trx"
 
