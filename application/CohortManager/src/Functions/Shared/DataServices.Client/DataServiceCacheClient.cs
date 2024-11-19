@@ -1,3 +1,5 @@
+namespace DataServices.Client;
+
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,7 +9,7 @@ public class DataServiceCacheClient<TEntity> : DataServiceClient<TEntity> where 
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<DataServiceCacheClient<TEntity>> _logger;
-    public DataServiceCacheClient(ILogger<DataServiceClient<TEntity>> logger, DataServiceResolver dataServiceResolver, ICallFunction callFunction, IMemoryCache memoryCache, ILogger<DataServiceCacheClient<TEntity>> cacheLogger) : base(logger, dataServiceResolver, callFunction)
+    public DataServiceCacheClient(ILogger<DataServiceCacheClient<TEntity>> logger, DataServiceResolver dataServiceResolver, ICallFunction callFunction, IMemoryCache memoryCache, ILogger<DataServiceCacheClient<TEntity>> cacheLogger) : base(logger, dataServiceResolver, callFunction)
     {
         _cache = memoryCache;
         _logger = cacheLogger;

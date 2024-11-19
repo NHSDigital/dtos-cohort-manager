@@ -21,23 +21,19 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRules _readRules;
-    private readonly LookupValidationConfig _config;
     private readonly IDataLookupFacade _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
         IDataLookupFacade dataLookupFacade,
-        IOptions<LookupValidationConfig> config,
         IReadRules readRules
-
     )
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
         _dataLookup = dataLookupFacade;
-        _config = config.Value;
         _readRules = readRules;
     }
 

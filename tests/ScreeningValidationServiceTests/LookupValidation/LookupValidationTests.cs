@@ -100,7 +100,7 @@ public class LookupValidationTests
         }
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
         .Returns(Task.FromResult<string>(json));
-        _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,_lookupValidation.Object,_lookupValidationConfig.Object,_readRules.Object);
+        _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,_lookupValidation.Object,_readRules.Object);
 
 
     }

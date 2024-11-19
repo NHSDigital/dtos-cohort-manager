@@ -1,3 +1,4 @@
+namespace NHS.CohortManager.ScreeningValidationService;
 public class LookupValidationConfig
 {
     public string ExceptionFunctionUrl {get;set;}

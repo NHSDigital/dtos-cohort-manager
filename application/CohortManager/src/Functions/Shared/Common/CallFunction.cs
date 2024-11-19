@@ -38,7 +38,7 @@ public class CallFunction : ICallFunction
         {
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return true;;
+                return true;
             }
         }
 

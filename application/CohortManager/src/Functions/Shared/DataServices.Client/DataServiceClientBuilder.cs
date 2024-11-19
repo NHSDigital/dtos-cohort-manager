@@ -6,8 +6,8 @@ using Microsoft.Extensions.Hosting;
 
 public class DataServiceClientBuilder
 {
-    private IHostBuilder _hostBuilder;
-    private Dictionary<Type, string> _dataServiceUrls;
+    private readonly IHostBuilder _hostBuilder;
+    private readonly Dictionary<Type, string> _dataServiceUrls;
     private bool CacheRequired = false;
     public DataServiceClientBuilder(IHostBuilder hostBuilder)
     {

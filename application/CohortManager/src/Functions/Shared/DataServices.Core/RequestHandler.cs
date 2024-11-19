@@ -1,4 +1,6 @@
 
+namespace DataServices.Core;
+
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
@@ -7,7 +9,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DataServices.Core;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -17,21 +18,28 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 {
 
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
-    private ILogger<RequestHandler<TEntity>> _logger;
+    private readonly ILogger<RequestHandler<TEntity>> _logger;
 
     private readonly AuthenticationConfiguration _authConfig;
 
-    private PropertyInfo _keyInfo;
+    private readonly PropertyInfo _keyInfo;
 
     private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
         };
+
+    private const string UnauthorizedErrorMessage = "Action was either Unauthorized or not enabled";
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
     {
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
         _authConfig = authenticationConfiguration;
+
+        var type = typeof(TEntity);
+        _keyInfo = type.GetProperties().FirstOrDefault(p =>
+            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
+
     }
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
@@ -85,7 +93,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         if(!_authConfig.CanGet(req))
         {
             _logger.LogWarning("Unauthorized Method was called");
-            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         try{
             var predicate = CreateFilterExpression(req);
@@ -111,7 +119,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanGetById(req))
         {
-            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
 
         var keyPredicate = CreateGetByKeyExpression(keyValue);
@@ -134,7 +142,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanPost(req))
         {
-            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         try
         {
@@ -169,7 +177,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanPut(req))
         {
-            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         try
         {
@@ -202,7 +210,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanDelete(req))
         {
-            return CreateErrorResponse(req,"Action was either Unauthorized or not enabled",HttpStatusCode.Unauthorized);
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         var keyPredicate = CreateGetByKeyExpression(key);
         var result = await _dataServiceAccessor.Remove(keyPredicate);
@@ -217,7 +225,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private async Task<TEntity> GetBodyFromRequest(HttpRequestData req)
+    private static async Task<TEntity> GetBodyFromRequest(HttpRequestData req)
     {
         string jsonData;
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -229,10 +237,9 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
     {
-        string keyName = GetKeyName(typeof(TEntity));
         var entityParameter = Expression.Parameter(typeof(TEntity));
-        var entityKey = Expression.Property(entityParameter, keyName);
-        var filterConstant = Expression.Constant(Convert.ChangeType(filter, GetPropertyType(typeof(TEntity), keyName)));
+        var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
+        var filterConstant = Expression.Constant(Convert.ChangeType(filter, GetPropertyType(typeof(TEntity), _keyInfo.Name)));
 
         var expr = Expression.Equal(entityKey, filterConstant);
 
@@ -251,8 +258,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         foreach (var item in req.Query.AllKeys)
         {
-            _logger.LogInformation($"item {item} data: {req.Query[item]}");
-
             if(item == "query")
             {
                 return DynamicExpressionParser.ParseLambda<TEntity,bool>(new ParsingConfig(),true, req.Query[item]);
@@ -280,21 +285,12 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-
-    private string GetKeyName(Type type)
-    {
-        _keyInfo = type.GetProperties().FirstOrDefault(p =>
-            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
-
-        return _keyInfo.Name;
-    }
-
-    private Type GetPropertyType(Type type, string property)
+    private static Type GetPropertyType(Type type, string property)
     {
         return type.GetProperty(property).PropertyType;
     }
 
-    private bool PropertyExists(Type type, string property) =>
+    private static bool PropertyExists(Type type, string property) =>
         Array.Exists(type.GetProperties(), p => p.Name == property);
 
 
@@ -307,7 +303,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return CreateHttpResponse(req, errorResponse, statusCode);
     }
 
-    private HttpResponseData CreateHttpResponse(HttpRequestData req, DataServiceResponse<string> dataServiceResponse, HttpStatusCode httpStatusCode = HttpStatusCode.InternalServerError)
+    private static HttpResponseData CreateHttpResponse(HttpRequestData req, DataServiceResponse<string> dataServiceResponse, HttpStatusCode httpStatusCode = HttpStatusCode.InternalServerError)
     {
         HttpStatusCode statusCode;
         byte[] responseBody = null!;

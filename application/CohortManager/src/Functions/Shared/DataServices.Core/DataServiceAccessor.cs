@@ -33,7 +33,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<bool> InsertSingle(TEntity entity)
     {
-        var result = await _context.AddAsync(entity);
+        await _context.AddAsync(entity);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -61,7 +61,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         {
             return null;
         }
-        using var transaction = _context.Database.BeginTransaction();
+        using var transaction = await _context.Database.BeginTransactionAsync();
         TEntity updatedEntity =  _context.Entry(existingEntity).CurrentValues.SetValues(entity);
         var rowsEffected  = await _context.SaveChangesAsync();
         if(rowsEffected == 1)

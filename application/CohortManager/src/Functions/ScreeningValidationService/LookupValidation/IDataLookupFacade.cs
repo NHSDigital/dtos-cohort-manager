@@ -1,3 +1,4 @@
+namespace NHS.CohortManager.ScreeningValidationService;
 public interface IDataLookupFacade
 {
     bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);

@@ -16,11 +16,7 @@ public static class DataServiceClientExtension
     public static IHostBuilder AddDataServicesHandler<TEntity>(this IHostBuilder hostBuilder, string url) where TEntity : class
     {
         hostBuilder.ConfigureServices(_ => {
-
             _.AddTransient<IDataServiceClient<TEntity>,DataServiceClient<TEntity>>();
-
-            // _.TryAdd(ServiceDescriptor.Scoped(typeof(IDataServiceClient<>),typeof(DataServiceClient<>)));
-
         });
         return hostBuilder;
     }

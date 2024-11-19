@@ -1,3 +1,5 @@
+namespace DataServices.Core;
+
 using System.Linq.Expressions;
 
 public interface IDataServiceAccessor<TEntity>

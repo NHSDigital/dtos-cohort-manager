@@ -6,6 +6,7 @@ using Model;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;
+using DataServices.Core;
 
 public class BsSelectGpPracticeDataService
 {
@@ -26,7 +27,6 @@ public class BsSelectGpPracticeDataService
         try
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            _logger.LogInformation($"Key Recieved: {key}");
 
             var result = await _requestHandler.HandleRequest(req, key);
             return result;

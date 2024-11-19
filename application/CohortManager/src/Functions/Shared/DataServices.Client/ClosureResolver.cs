@@ -1,3 +1,5 @@
+namespace DataServices.Client;
+
 using System.Linq.Expressions;
 using System.Reflection;
 

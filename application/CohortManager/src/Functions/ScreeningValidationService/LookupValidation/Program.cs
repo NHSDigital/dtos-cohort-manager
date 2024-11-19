@@ -8,6 +8,7 @@ using System.Data;
 using Model;
 using DataServices.Client;
 using DataServices.Database;
+using NHS.CohortManager.ScreeningValidationService;
 
 var hostBuilder = new HostBuilder();
 

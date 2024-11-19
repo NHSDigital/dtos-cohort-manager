@@ -1,9 +1,11 @@
+namespace NHS.CohortManager.ScreeningValidationService;
+
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 public class DataLookupFacade : IDataLookupFacade
 {
-    private ILogger<DataLookupFacade> _logger;
+    private readonly ILogger<DataLookupFacade> _logger;
     private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;

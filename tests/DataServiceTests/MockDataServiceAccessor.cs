@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 
+using DataServices.Core;
+
 public class MockDataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where TEntity : class
 {
     private readonly List<TEntity> _data;

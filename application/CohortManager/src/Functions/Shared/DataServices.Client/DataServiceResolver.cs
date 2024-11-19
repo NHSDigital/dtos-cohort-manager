@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 public class DataServiceResolver
 {
-    private Dictionary<Type, string> _dataServiceUrls;
+    private readonly Dictionary<Type, string> _dataServiceUrls;
     public DataServiceResolver(Dictionary<Type, string> dataServiceUrls)
     {
         _dataServiceUrls = dataServiceUrls;
