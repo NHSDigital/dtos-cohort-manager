@@ -1,4 +1,4 @@
-namespace BsSelectGpPractice;
+namespace BsSelectOutCodeDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -9,11 +9,11 @@ using Common;
 
 public class BsSelectOutCodeDataService
 {
-    private readonly ILogger<BsSelectOutCode> _logger;
+    private readonly ILogger<BsSelectOutCodeDataService> _logger;
     private readonly IRequestHandler<BsSelectOutCode> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public BsSelectOutCodeDataService(ILogger<BsSelectOutCode> logger, IRequestHandler<BsSelectOutCode> requestHandler, ICreateResponse createResponse)
+    public BsSelectOutCodeDataService(ILogger<BsSelectOutCodeDataService> logger, IRequestHandler<BsSelectOutCode> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
