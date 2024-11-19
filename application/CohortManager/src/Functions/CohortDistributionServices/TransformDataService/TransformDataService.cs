@@ -25,9 +25,11 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+
     private readonly IDbLookupValidationBreastScreening _dbLookup;
     private readonly IBsTransformationLookups _transformationLookups;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger, IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
+    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
+                                IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
@@ -99,6 +101,7 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
+            new RuleParameter("transformLookups", _transformationLookups),
             new RuleParameter("dbLookup", _dbLookup),
             new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
         };
@@ -109,7 +112,11 @@ public class TransformDataService
             .Select(result => result.ActionResult.Output)
             .FirstOrDefault();
 
-        if (result is Exception exception)
+
+
+        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) || !i.IsSuccess).ToList();
+
+        if (failedTransforms.Any())
         {
             var participantCsvRecord = new ParticipantCsvRecord
             {
@@ -117,8 +124,7 @@ public class TransformDataService
                 FileName = "",
             };
 
-            _logger.LogError(exception, "A transformation rule raised an exception: {ExceptionMessage}", exception.Message);
-            await _exceptionHandler.CreateValidationExceptionLog(resultList.Where(result => result.IsSuccess), participantCsvRecord);
+            await _exceptionHandler.CreateValidationExceptionLog(failedTransforms, participantCsvRecord);
 
             return participant;
         }

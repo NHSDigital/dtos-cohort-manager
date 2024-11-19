@@ -19,15 +19,18 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 46e5d81bf58a7b9324a35e191eac7f6cc3660dfd
+      ref: 36f0b2d85e7a2fe1f8e52fd07c85850b24da7f02
       endpoint: NHSDigital
 
 variables:
-  - group: global_variable_group
-  - group: hub_variable_group
-  - group: integration_audit_variable_group
+  - group: INT_audit_backend
+  - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: TF_VERSION
+    value: 1.9.2
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_audit_INT
   - name: ENVIRONMENT
     value: integration
 
@@ -36,7 +39,7 @@ stages:
     displayName: Terraform Plan
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      tfvars: environments/$(ENVIRONMENT).tfvars
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: init_and_plan
         displayName: Init, plan, store artifact

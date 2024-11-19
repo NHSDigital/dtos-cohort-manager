@@ -317,11 +317,14 @@ public class TransformDataServiceTests
         Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
     }
 
-    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields()
+    [TestMethod]
+    [DataRow("John.,-()/='+:?!\"%&;<>*", "John.,-()/='+:?!\"%&;<>*")]
+    [DataRow("abby{}", "abby()")]
+    [DataRow("{[Smith£$^`~#@_|\\]}", "((Smith   '   -:/))")]
+    public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields(string name, string transformedName)
     {
         // Arrange
-        _requestBody.Participant.FirstName = "John.,-()/='+:?!\"%&;<>*";
-        _requestBody.Participant.FamilyName = "{[Smith£$^`~#@_|\\]}";
+        _requestBody.Participant.FamilyName = name;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -332,9 +335,9 @@ public class TransformDataServiceTests
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
-            FirstName = "John.,-()/='+:?!\"%&;<>*",
-            FamilyName = "((Smith   '   -:/))",
-            NamePrefix = "DR",
+            FirstName = "John",
+            FamilyName = transformedName,
+            NamePrefix = "MR",
             Gender = Gender.Male
         };
 
@@ -396,6 +399,37 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+    }
+
+    [TestMethod]
+    public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
+    {
+        // Arrange
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReasonForRemoval = "ORR",
+            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString(),
+            PrimaryCareProvider = ""
         };
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -519,7 +553,59 @@ public class TransformDataServiceTests
     {
         // Arrange
         var addressLine = "address";
-        var primaryCareProvider = "ZZZABC";
+
+
+        _requestBody.Participant.PrimaryCareProvider = null;
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.Participant.Postcode = postcode;
+        _requestBody.Participant.AddressLine1 = addressLine;
+        _requestBody.Participant.AddressLine2 = addressLine;
+        _requestBody.Participant.AddressLine3 = addressLine;
+        _requestBody.Participant.AddressLine4 = addressLine;
+        _requestBody.Participant.AddressLine5 = addressLine;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            AddressLine1 = addressLine,
+            AddressLine2 = addressLine,
+            AddressLine3 = addressLine,
+            AddressLine4 = addressLine,
+            AddressLine5 = addressLine,
+            Postcode = postcode,
+            ReasonForRemoval = reasonForRemoval,
+        };
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("RDR", null)]
+    [DataRow("RDI", "")]
+    [DataRow("RPR", "INVALID_POSTCODE")]
+    public async Task Run_ReasonForRemovalRule4_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
+    {
+        // Arrange
+        var addressLine = "address";
+        var primaryCareProvider = "ZZZ";
 
         _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
@@ -552,57 +638,6 @@ public class TransformDataServiceTests
             AddressLine5 = addressLine,
             Postcode = postcode,
             PrimaryCareProvider = primaryCareProvider,
-            ReasonForRemoval = reasonForRemoval,
-        };
-
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow("RDR", null)]
-    [DataRow("RDI", "")]
-    [DataRow("RPR", "INVALID_POSTCODE")]
-    public async Task Run_ReasonForRemovalRule4_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
-    {
-        // Arrange
-        var addressLine = "address";
-
-        _requestBody.Participant.PrimaryCareProvider = null;
-        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
-        _requestBody.Participant.Postcode = postcode;
-        _requestBody.Participant.AddressLine1 = addressLine;
-        _requestBody.Participant.AddressLine2 = addressLine;
-        _requestBody.Participant.AddressLine3 = addressLine;
-        _requestBody.Participant.AddressLine4 = addressLine;
-        _requestBody.Participant.AddressLine5 = addressLine;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.Male,
-            AddressLine1 = addressLine,
-            AddressLine2 = addressLine,
-            AddressLine3 = addressLine,
-            AddressLine4 = addressLine,
-            AddressLine5 = addressLine,
-            Postcode = postcode,
             ReasonForRemoval = reasonForRemoval,
         };
 

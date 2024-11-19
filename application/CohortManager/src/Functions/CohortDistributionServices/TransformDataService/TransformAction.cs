@@ -20,41 +20,48 @@ class TransformAction : ActionBase
 {
     public override async ValueTask<object> Run(ActionContext context, RuleParameter[] ruleParameters)
     {
-        var transformFields = context.GetContext<List<TransformFields>>("transformFields");
-        var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
-        var bsoCode = ruleParameters.Where(rule => rule.Name == "bsoCode").Select(result => result.Value).FirstOrDefault();
+        try{
+            var transformFields = context.GetContext<List<TransformFields>>("transformFields");
+            var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
+            var bsoCode = ruleParameters.Where(rule => rule.Name == "bsoCode").Select(result => result.Value).FirstOrDefault();
 
-        foreach (var transformField in transformFields)
-        {
-            var property = typeof(CohortDistributionParticipant).GetProperty(transformField.field);
-
-            if (transformField.isExpression)
+            foreach (var transformField in transformFields)
             {
-                EvaluateExpression(property!, transformField.value, participant, bsoCode);
-            }
-            else
-            {
-                dynamic value;
+                var property = typeof(CohortDistributionParticipant).GetProperty(transformField.field);
 
-                switch (property!.PropertyType.Name)
+                if (transformField.isExpression)
                 {
-                    case "string":
-                        value = transformField.value;
-                        break;
-                    case "int":
-                        value = int.Parse(transformField.value);
-                        break;
-                    case "Nullable`1":
-                        value = Enum.Parse<Gender>(transformField.value);
-                        break;
-                    default:
-                        value = transformField.value;
-                        break;
+                    EvaluateExpression(property!, transformField.value, participant, bsoCode);
                 }
-                property.SetValue(participant, value);
+                else
+                {
+                    dynamic value;
+
+                    switch (property!.PropertyType.Name)
+                    {
+                        case "string":
+                            value = transformField.value;
+                            break;
+                        case "int":
+                            value = int.Parse(transformField.value);
+                            break;
+                        case "Nullable`1":
+                            value = Enum.Parse<Gender>(transformField.value);
+                            break;
+                        default:
+                            value = transformField.value;
+                            break;
+                    }
+                    property.SetValue(participant, value);
+                }
             }
+            return participant;
         }
-        return participant;
+        catch(Exception ex)
+        {
+            throw;
+        }
+
     }
 
     private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, object bsoCode)
