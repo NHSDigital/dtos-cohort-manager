@@ -1060,9 +1060,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.New, "1")]
-    [DataRow(Actions.Removed, "0")]
-    [DataRow(Actions.Amended, "1")]
+    [DataRow(Actions.New, "True")]
+    [DataRow(Actions.Removed, "False")]
+    [DataRow(Actions.Amended, "True")]
     public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordType, string eligibilityFlag)
     {
         // Arrange
