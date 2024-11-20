@@ -81,7 +81,6 @@ public class TransformDataService
         }
         catch (TransformationException)
         {
-            System.Console.WriteLine("Exception thrown");
             _logger.LogWarning("An error occured during transformation");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
