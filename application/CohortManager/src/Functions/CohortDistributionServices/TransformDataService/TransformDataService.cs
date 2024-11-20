@@ -96,7 +96,7 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, { "TransformError", () => new TransformError() } };
+        var actions = new Dictionary<string, Func<ActionBase>> {{"TransformAction", () => new TransformAction()}};
         var reSettings = new ReSettings
         {
             CustomActions = actions,
@@ -176,7 +176,7 @@ public class TransformDataService
 
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
-        
+
         // Exception handling
         var failedTransforms = rulesList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
