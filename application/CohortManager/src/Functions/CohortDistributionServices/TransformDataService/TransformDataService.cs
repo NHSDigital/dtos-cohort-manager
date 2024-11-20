@@ -109,7 +109,6 @@ public class TransformDataService
             new RuleParameter("participant", participant),
             new RuleParameter("transformLookups", _transformationLookups),
             new RuleParameter("dbLookup", _dbLookup),
-            new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -177,15 +176,7 @@ public class TransformDataService
 
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
-
-        foreach (var result in rulesList) {
-            if (result.IsSuccess) {
-                System.Console.WriteLine("rule: " + result.Rule.RuleName);
-                System.Console.WriteLine("exception message " + result.ExceptionMessage);
-                System.Console.WriteLine("output: " + result.ActionResult.Output);
-            }
-        }
-
+        
         // Exception handling
         var failedTransforms = rulesList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();

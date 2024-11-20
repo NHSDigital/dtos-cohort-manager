@@ -549,7 +549,7 @@ public class TransformDataServiceTests
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
     [DataRow("RPR", "INVALID_POSTCODE")]
-    public async Task Run_ReasonForRemovalRule3_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
+    public async Task Run_ReasonForRemovalRule3_RaisesException(string reasonForRemoval, string postcode)
     {
         // Arrange
         var addressLine = "address";
@@ -572,28 +572,11 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.Male,
-            AddressLine1 = addressLine,
-            AddressLine2 = addressLine,
-            AddressLine3 = addressLine,
-            AddressLine4 = addressLine,
-            AddressLine5 = addressLine,
-            Postcode = postcode,
-            ReasonForRemoval = reasonForRemoval,
-        };
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
+            It.IsAny<CohortDistributionParticipant>()),
             Times.Once());
     }
 
@@ -601,7 +584,7 @@ public class TransformDataServiceTests
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
     [DataRow("RPR", "INVALID_POSTCODE")]
-    public async Task Run_ReasonForRemovalRule4_RaisesExceptionAndNoTransformation(string reasonForRemoval, string postcode)
+    public async Task Run_ReasonForRemovalRule4_RaisesException(string reasonForRemoval, string postcode)
     {
         // Arrange
         var addressLine = "address";
@@ -624,29 +607,11 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.Male,
-            AddressLine1 = addressLine,
-            AddressLine2 = addressLine,
-            AddressLine3 = addressLine,
-            AddressLine4 = addressLine,
-            AddressLine5 = addressLine,
-            Postcode = postcode,
-            PrimaryCareProvider = primaryCareProvider,
-            ReasonForRemoval = reasonForRemoval,
-        };
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
+            It.IsAny<CohortDistributionParticipant>()),
             Times.Once());
     }
 

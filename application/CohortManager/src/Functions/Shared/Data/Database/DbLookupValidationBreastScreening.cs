@@ -129,6 +129,10 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 }
             }
         }
+        catch (Exception)
+        {
+            throw new System.ComponentModel.DataAnnotations.ValidationException();
+        }
         finally
         {
             _connection.Close();

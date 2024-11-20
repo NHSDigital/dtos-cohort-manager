@@ -13,6 +13,10 @@
       {
         "Name": "validPostcode",
         "Expression": "!string.IsNullOrEmpty(participant.Postcode) AND dbLookup.ValidateOutcode(participant.Postcode)"
+      },
+      {
+        "Name": "bsoCode",
+        "Expression": "dbLookup.RetrieveBSOCode(participant.Postcode)"
       }
     ],
     "Rules": [
@@ -597,9 +601,15 @@
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
-            "Name": "TransformError",
+            "Name": "TransformAction",
             "Context": {
-              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ParticipantId",
+                  "value": "throw new Exception()"
+                }
+              ]
             }
           },
           "OnFailure": {
@@ -616,9 +626,15 @@
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnSuccess": {
-            "Name": "TransformError",
+            "Name": "TransformAction",
             "Context": {
-              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ParticipantId",
+                  "value": "throw new Exception()"
+                }
+              ]
             }
           }
         }
