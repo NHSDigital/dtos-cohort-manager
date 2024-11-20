@@ -556,6 +556,38 @@ public class TransformDataServiceTests
         // Arrange
         var addressLine = "address";
 
+        _requestBody.Participant.PrimaryCareProvider = "ZZZ";
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+        _requestBody.Participant.Postcode = postcode;
+        _requestBody.Participant.AddressLine1 = addressLine;
+        _requestBody.Participant.AddressLine2 = addressLine;
+        _requestBody.Participant.AddressLine3 = addressLine;
+        _requestBody.Participant.AddressLine4 = addressLine;
+        _requestBody.Participant.AddressLine5 = addressLine;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
+            It.IsAny<CohortDistributionParticipant>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("RDR", null)]
+    [DataRow("RDI", "")]
+    [DataRow("RPR", null)]
+    public async Task Run_ReasonForRemovalRule4_RaisesException(string reasonForRemoval, string postcode)
+    {
+        // Arrange
+        var addressLine = "address";
 
         _requestBody.Participant.PrimaryCareProvider = null;
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
@@ -574,45 +606,9 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<CohortDistributionParticipant>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow("RDR", null)]
-    [DataRow("RDI", "")]
-    [DataRow("RPR", "InvalidPostcode")]
-    public async Task Run_ReasonForRemovalRule4_RaisesException(string reasonForRemoval, string postcode)
-    {
-        // Arrange
-        var addressLine = "address";
-        var primaryCareProvider = "ZZZ";
-
-        _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
-        _requestBody.Participant.Postcode = postcode;
-        _requestBody.Participant.AddressLine1 = addressLine;
-        _requestBody.Participant.AddressLine2 = addressLine;
-        _requestBody.Participant.AddressLine3 = addressLine;
-        _requestBody.Participant.AddressLine4 = addressLine;
-        _requestBody.Participant.AddressLine5 = addressLine;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
             It.IsAny<CohortDistributionParticipant>()),
             Times.Once());
     }
