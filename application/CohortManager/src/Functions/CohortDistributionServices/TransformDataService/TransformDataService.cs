@@ -204,7 +204,7 @@ public class TransformDataService
 
     private void HandleExceptions(List<RuleResultTree> exceptions)
     {
-        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
+        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
         if (failedTransforms.Any())
         {
