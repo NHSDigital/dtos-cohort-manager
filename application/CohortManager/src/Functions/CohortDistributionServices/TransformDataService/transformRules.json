@@ -13,6 +13,10 @@
       {
         "Name": "validPostcode",
         "Expression": "!string.IsNullOrEmpty(participant.Postcode) AND dbLookup.ValidateOutcode(participant.Postcode)"
+      },
+      {
+        "Name": "bsoCode",
+        "Expression": "dbLookup.GetBsoCode(participant.Postcode)"
       }
     ],
     "Rules": [

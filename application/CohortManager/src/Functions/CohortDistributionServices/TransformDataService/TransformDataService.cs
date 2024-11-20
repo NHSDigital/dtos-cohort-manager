@@ -27,9 +27,13 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformDataLookupFacade _dataLookup;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
-                                IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup
-                                )
+    public TransformDataService(
+        ICreateResponse createResponse,
+        IExceptionHandler exceptionHandler,
+        ILogger<TransformDataService> logger,
+        IBsTransformationLookups transformationLookups,
+        ITransformDataLookupFacade dataLookup
+    )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;

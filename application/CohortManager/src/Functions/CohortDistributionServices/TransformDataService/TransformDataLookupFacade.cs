@@ -18,9 +18,17 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     {
         var outcode = postcode.Substring(0, postcode.IndexOf(" "));
         _logger.LogInformation("Valdating Outcode: {outcode}",outcode);
-        var result = _outcodeClient.GetSingle(outcode);
+        var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result != null;
+    }
+
+    public string GetBsoCode(string postcode){
+        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        _logger.LogInformation("getting BSO Code for  Outcode: {outcode}",outcode);
+        var result = _outcodeClient.GetSingle(outcode).Result;
+
+        return result?.BSO;
     }
 
 

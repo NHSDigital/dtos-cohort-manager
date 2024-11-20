@@ -28,7 +28,7 @@ public class TransformDataServiceTests
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
-    private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
+    private readonly Mock<ITransformDataLookupFacade> _lookupValidation = new();
 
     public TransformDataServiceTests()
     {
@@ -50,7 +50,7 @@ public class TransformDataServiceTests
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object,_lookupValidation.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -284,7 +284,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
-    public async Task GetAddress_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    public void GetAddress_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
     {
         // Arrange
         var participant = new CohortDistributionParticipant()
@@ -461,7 +461,7 @@ public class TransformDataServiceTests
         SetUpRequestBody(json);
 
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.RetrieveBSOCode(It.IsAny<string>())).Returns(bsoCode);
+        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -515,7 +515,7 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
-        _lookupValidation.Setup(x => x.RetrieveBSOCode(It.IsAny<string>())).Returns(bsoCode);
+        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -567,6 +567,7 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "INVALID_POSTCODE");
+
 
         // Act
         var result = await _function.RunAsync(_request.Object);
