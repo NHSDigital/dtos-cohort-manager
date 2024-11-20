@@ -96,10 +96,6 @@ function_apps = {
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
-          env_var_name     = "targetFunction"
-          function_app_key = "ProcessCaasFile"
-        },
-        {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         },
@@ -117,47 +113,12 @@ function_apps = {
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
-          env_var_name     = "targetFunction"
-          function_app_key = "ProcessCaasFile"
-        },
-        {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         },
         {
           env_var_name     = "FileValidationURL"
           function_app_key = "FileValidation"
-        }
-      ]
-    }
-
-    ProcessCaasFile = {
-      name_suffix            = "process-caas-file"
-      function_endpoint_name = "processCaasFile"
-      app_urls = [
-        {
-          env_var_name     = "PMSAddParticipant"
-          function_app_key = "AddParticipant"
-        },
-        {
-          env_var_name     = "PMSRemoveParticipant"
-          function_app_key = "RemoveParticipant"
-        },
-        {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
-        },
-        {
-          env_var_name     = "DemographicURI"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "StaticValidationURL"
-          function_app_key = "StaticValidation"
         }
       ]
     }
