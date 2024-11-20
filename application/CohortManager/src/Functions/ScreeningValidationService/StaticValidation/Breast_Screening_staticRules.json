@@ -52,7 +52,7 @@
       },
       {
         "RuleName": "30.Postcode.NonFatal",
-        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -289,7 +289,7 @@
           },
           {
             "Name": "validAmendEligibilityFlag",
-            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
+            "Expression": "(participant.EligibilityFlag == \"True\") OR (participant.EligibilityFlag == \"False\")"
           }
         ],
         "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",

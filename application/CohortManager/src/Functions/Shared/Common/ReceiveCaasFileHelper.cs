@@ -96,6 +96,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 DateOfDeath = Convert.ToString(rec.DateOfDeath),
                 DeathStatus = rec.DeathStatus.HasValue ? (Status)rec.DeathStatus.GetValueOrDefault() : null,
                 TelephoneNumber = Convert.ToString(rec.TelephoneNumber),
+                TelephoneNumberEffectiveFromDate = Convert.ToString(rec.TelephoneNumberEffectiveFromDate),
                 MobileNumber = Convert.ToString(rec.MobileNumber),
                 MobileNumberEffectiveFromDate = Convert.ToString(rec.MobileNumberEffectiveFromDate),
                 EmailAddress = Convert.ToString(rec.EmailAddress),
@@ -140,27 +141,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             throw new InvalidOperationException("Environment variable is not set.");
         }
         return url;
-    }
-
-    [Obsolete("Logic is depricated",true)]
-    public bool validateDateTimes(Participant participant)
-    {
-        var listOfAllDates = new List<DateTime?>
-        {
-            DateTime.TryParse(participant.PrimaryCareProviderEffectiveFromDate, out var primaryCareProviderEffectiveFromDate) ? primaryCareProviderEffectiveFromDate : null,
-            DateTime.TryParse(participant.UsualAddressEffectiveFromDate, out var usualAddressEffectiveFromDate) ? usualAddressEffectiveFromDate : null,
-            DateTime.TryParse(participant.ReasonForRemovalEffectiveFromDate, out var reasonForRemovalEffectiveFromDate) ? reasonForRemovalEffectiveFromDate : null,
-            DateTime.TryParse(participant.TelephoneNumberEffectiveFromDate, out var telephoneNumberEffectiveFromDate) ? telephoneNumberEffectiveFromDate : null,
-            DateTime.TryParse(participant.MobileNumberEffectiveFromDate, out var mobileNumberEffectiveFromDate) ? mobileNumberEffectiveFromDate : null,
-            DateTime.TryParse(participant.EmailAddressEffectiveFromDate, out var emailAddressEffectiveFromDate) ? emailAddressEffectiveFromDate : null,
-            DateTime.TryParse(participant.DateOfBirth, out var dateOfBirth) ? dateOfBirth : null
-        };
-
-        if (listOfAllDates.Any(date => date.HasValue && date > DateTime.UtcNow))
-        {
-            return false;
-        }
-        return true;
     }
 
 

@@ -9,7 +9,5 @@ public interface IReceiveCaasFileHelper
     Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord);
     string GetUrlFromEnvironment(string key);
 
-    bool validateDateTimes(Participant participant);
-
     Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage);
 }
