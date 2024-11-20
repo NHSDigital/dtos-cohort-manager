@@ -7,7 +7,6 @@ using Common;
 using Common.Interfaces;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -48,7 +47,7 @@ public class UpdateParticipantDetails
 
             var existingParticipantData = GetLastAddedParticipant(participantCsvRecord);
             if (existingParticipantData == null)
-            {   
+            {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "The participant was not added to the database because no historical record be found");
             }
             var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
