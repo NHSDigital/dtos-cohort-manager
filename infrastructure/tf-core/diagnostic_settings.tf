@@ -15,7 +15,7 @@ locals {
   monitor_diagnostic_setting_log_analytics_workspace_metrics      = ["AllMetrics"]
 
   #SQL SERVER AND DATABASE
-  monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents", "SQLInsights", "QueryStoreWaitStatistics", "Errors", "DatabaseWaitStatistics", "Timeouts"]
   monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
   monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
