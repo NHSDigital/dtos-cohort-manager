@@ -136,12 +136,12 @@
       },
       {
         "RuleName": "66.DeathStatus.NonFatal",
-        "Expression": "participant.RecordType != Actions.Amended OR participant.DeathStatus != Status.Formal OR participant.ReasonForRemoval == \"DEA\"",
+        "Expression": "participant.RecordType == Actions.Amended OR (participant.DeathStatus.HasValue ? participant.DeathStatus.Value != Status.Formal) OR participant.ReasonForRemoval == \"DEA\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Invalid death status"
+              "Expression": "\"Invalid death status\""
             }
           }
         }
