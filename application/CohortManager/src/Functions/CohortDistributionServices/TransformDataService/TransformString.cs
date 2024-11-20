@@ -50,7 +50,7 @@ public class TransformString
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
-                throw new System.ComponentModel.DataAnnotations.ValidationException("Participant contains illegal characters");
+                throw new TransformationException("Participant contains illegal characters");
             }
 
             var transformedField = await TransformCharactersAsync(stringField);
@@ -58,7 +58,7 @@ public class TransformString
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
-                throw new System.ComponentModel.DataAnnotations.ValidationException("Participant contains illegal characters");
+                throw new TransformationException("Participant contains illegal characters");
             }
             return transformedField;
         }

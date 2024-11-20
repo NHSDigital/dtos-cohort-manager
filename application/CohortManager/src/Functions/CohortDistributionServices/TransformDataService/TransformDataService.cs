@@ -113,18 +113,7 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        var result = resultList.Where(result => result.IsSuccess)
-            .Select(result => result.ActionResult.Output)
-            .FirstOrDefault();
-
-        // Exception handling
-        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
-                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
-        if (failedTransforms.Any())
-        {
-            await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
-            throw new TransformationException("There was an error during transformation");
-        }
+        HandleExceptions(resultList);
 
         return participant;
     }
@@ -177,14 +166,7 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
 
-        // Exception handling
-        var failedTransforms = rulesList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
-                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
-        if (failedTransforms.Any())
-        {
-            await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
-            throw new TransformationException("There was an error during transformation");
-        }
+        HandleExceptions(rulesList);
 
         participant.FirstName = GetTransformedData<string>(rulesList, "FirstName", participant.FirstName);
         participant.FamilyName = GetTransformedData<string>(rulesList, "FamilyName", participant.FamilyName);
@@ -218,5 +200,16 @@ public class TransformDataService
         if (result == null) return currentValue;
 
         return result.ActionResult.Output == null ? currentValue : (T)result.ActionResult.Output;
+    }
+
+    private void HandleExceptions(List<RuleResultTree> exceptions)
+    {
+        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
+                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
+        if (failedTransforms.Any())
+        {
+            await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
+            throw new TransformationException("There was an error during transformation");
+        }
     }
 }
