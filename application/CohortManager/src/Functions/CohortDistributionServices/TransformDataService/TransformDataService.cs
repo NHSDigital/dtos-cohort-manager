@@ -81,6 +81,7 @@ public class TransformDataService
         }
         catch (TransformationException)
         {
+            System.Console.WriteLine("Exception thrown");
             _logger.LogWarning("An error occured during transformation");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -113,7 +114,7 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        HandleExceptions(resultList);
+        await HandleExceptions(resultList, participant);
 
         return participant;
     }
@@ -166,7 +167,7 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
 
-        HandleExceptions(rulesList);
+        await HandleExceptions(rulesList, participant);
 
         participant.FirstName = GetTransformedData<string>(rulesList, "FirstName", participant.FirstName);
         participant.FamilyName = GetTransformedData<string>(rulesList, "FamilyName", participant.FamilyName);
@@ -202,12 +203,13 @@ public class TransformDataService
         return result.ActionResult.Output == null ? currentValue : (T)result.ActionResult.Output;
     }
 
-    private void HandleExceptions(List<RuleResultTree> exceptions)
+    private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
     {
         var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
         if (failedTransforms.Any())
         {
+            System.Console.WriteLine("Throwing exception");
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
             throw new TransformationException("There was an error during transformation");
         }
