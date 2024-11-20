@@ -79,7 +79,7 @@ public class TransformDataService
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
-        catch (System.ComponentModel.DataAnnotations.ValidationException)
+        catch (TransformationException)
         {
             _logger.LogWarning("An error occured during transformation");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -123,7 +123,7 @@ public class TransformDataService
         if (failedTransforms.Any())
         {
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
-            throw new System.ComponentModel.DataAnnotations.ValidationException("There was an error during transformation");
+            throw new TransformationException("There was an error during transformation");
         }
 
         return participant;
@@ -183,7 +183,7 @@ public class TransformDataService
         if (failedTransforms.Any())
         {
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
-            throw new System.ComponentModel.DataAnnotations.ValidationException("There was an error during transformation");
+            throw new TransformationException("There was an error during transformation");
         }
 
         participant.FirstName = GetTransformedData<string>(rulesList, "FirstName", participant.FirstName);
