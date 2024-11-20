@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.CohortDistribution;
+
 public class TransformationException : Exception
 {
     public TransformationException() : base() { }
