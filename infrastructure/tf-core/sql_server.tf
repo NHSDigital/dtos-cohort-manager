@@ -12,10 +12,26 @@ module "azure_sql_server" {
   tlsver     = var.sqlserver.server.tlsversion
   kv_id      = module.key_vault[each.key].key_vault_id
 
-  sql_uai_name         = var.sqlserver.sql_uai_name
-  sql_admin_group_name = var.sqlserver.sql_admin_group_name
-  sql_admin_object_id  = data.azuread_group.sql_admin_group.object_id
-  ad_auth_only         = var.sqlserver.ad_auth_only
+
+  # Diagnostic Settings
+  log_analytics_workspace_id                         = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  primary_blob_endpoint_name                         = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].primary_blob_endpoint_name
+  storage_account_name                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].name
+  storage_account_id                                 = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].id
+  storage_container_id                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
+  monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
+  monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
+  monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
+  sql_server_alert_policy_state                      = "Enabled"
+
+  sql_uai_name                         = var.sqlserver.sql_uai_name
+  sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
+  sql_admin_object_id                  = data.azuread_group.sql_admin_group.object_id
+  ad_auth_only                         = var.sqlserver.ad_auth_only
+  security_alert_policy_retention_days = var.sqlserver.security_alert_policy_retention_days
+  auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
+
 
   # Default database
   db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix

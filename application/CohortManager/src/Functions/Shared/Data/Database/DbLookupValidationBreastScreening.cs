@@ -253,5 +253,75 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             _connection.Close();
         }
     }
-}
 
+    /// <summary>
+    /// takes in posting and returns a valid posting category (if exists) from the database
+    /// </summary>
+    /// <param name="currentPosting"></param>
+    /// <returns></returns>
+    public string RetrievePostingCategory(string currentPosting)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT POSTING_CATEGORY FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@currentPosting";
+                    parameter.Value = currentPosting ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    var postingCategory = "";
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            postingCategory = reader["POSTING_CATEGORY"].ToString() ?? string.Empty;
+                        }
+                    }
+                    return string.Empty;
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    /// <summary>
+    /// Check if the Primary Care Provider is on the 'Excluded SMU list'
+    /// </summary>
+    /// <param name="primaryCareProvider"></param>
+    /// <returns></returns>
+    public bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[EXCLUDED_SMU_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@primaryCareProvider";
+                    parameter.Value = primaryCareProvider;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        return reader.Read();
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+}

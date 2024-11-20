@@ -34,7 +34,7 @@ public class ProcessCaasFile : IProcessCaasFile
     }
 
     /// <summary>
-    /// process a given batch and send it the queue 
+    /// process a given batch and send it the queue
     /// </summary>
     /// <param name="values"></param>
     /// <param name="options"></param>
@@ -55,14 +55,15 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception("Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"),participant,name );
 
                 return; // skip current participant
             }
 
-            if (!_receiveCaasFileHelper.validateDateTimes(participant))
+            if (!ValidateDates(participant))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception("Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
+
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
                 return; // Skip current participant
             }
 
@@ -79,12 +80,12 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="currentBatch"></param>
     /// <param name="FileName"></param>
     /// <returns></returns>
-    private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string FileName)
+    private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             Participant = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = FileName,
+            FileName = fileName,
             participant = participant
         };
 
@@ -175,6 +176,66 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
+    }
+        private async Task CreateError(Participant participant, string filename, string errorMessage)
+    {
+        try
+        {
+            _logger.LogError(errorMessage);
+            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorMessage, "", JsonSerializer.Serialize(participant));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+        }
+    }
+
+    private bool ValidateDates(Participant participant)
+    {
+        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.EmailAddressEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.EmailAddressEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.MobileNumberEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.MobileNumberEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.UsualAddressEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.UsualAddressEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.TelephoneNumberEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.TelephoneNumberEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.PrimaryCareProviderEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.PrimaryCareProviderEffectiveFromDate));
+            return false;
+        }
+        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
+             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
+            return false;
+        }
+
+        return true;
+    }
+    private static bool IsValidDate(string? date)
+    {
+        if(date== null)
+        {
+            return true;
+        }
+        if(date.Length > 8)
+        {
+            return false;
+        }
+        return true;
+
     }
 
 }
