@@ -1,12 +1,6 @@
 [
   {
     "WorkflowName": "Common",
-    "GlobalParams": [
-      {
-        "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-      }
-    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
@@ -81,36 +75,6 @@
           }
         ],
         "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
-      },
-      {
-        "RuleName": "36.DeceasedParticipant.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "amendedRecordType",
-            "Expression": "newParticipant.RecordType == Actions.Amended"
-          },
-          {
-            "Name": "existingReasonForRemovalIsDOrDEA",
-            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
-          },
-          {
-            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
-            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
-          },
-          {
-            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
-            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid deceased participant\""
-            }
-          }
-        }
       }
     ]
   },
@@ -129,6 +93,28 @@
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      },
+      {
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "existingParticipantPosting",
+            "Expression": "(existingParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
+          },
+          {
+            "Name": "newParticipantPosting",
+            "Expression": "(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
+          }
+        ],
+        "Expression": "existingParticipantPosting AND newParticipantPosting",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
+            }
+          }
+        }
       }
     ]
   },
