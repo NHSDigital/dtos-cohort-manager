@@ -302,6 +302,8 @@ public class StaticValidationTests
     [DataRow("B33 8TH")]
     [DataRow("CR2 6XH")]
     [DataRow("LS10 1LT")]
+    [DataRow("")]
+    [DataRow(null)]
     public async Task Run_Should_Not_Create_Exception_When_Postcode_Rule_Passes(string postcode)
     {
         // Arrange
