@@ -8,7 +8,6 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
     ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
     #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
-    ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
     ["CohortDistributionServices/RetrieveCohortRequestAudit"]="retrieve-cohort-request-audit"

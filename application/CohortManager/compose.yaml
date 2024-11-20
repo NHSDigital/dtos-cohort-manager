@@ -137,7 +137,6 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
-      - RemoveCohortDistributionURL=http://localhost:7079/api/RemoveCohortDistributionData
 
   update-participant:
     container_name: update-participant
@@ -335,17 +334,6 @@ services:
       dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7086
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-
-  remove-cohort-distribution-data:
-    container_name: remove-cohort-distribution-data
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/RemoveCohortDistributionData/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7079
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 

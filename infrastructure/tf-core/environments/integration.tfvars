@@ -303,10 +303,6 @@ function_apps = {
           function_app_key = "MarkParticipantAsIneligible"
         },
         {
-          env_var_name     = "RemoveCohortDistributionURL"
-          function_app_key = "RemoveCohortDistributionData"
-        },
-        {
           env_var_name     = "DemographicURIGet"
           function_app_key = "DemographicDataManagement"
         },
@@ -538,19 +534,6 @@ function_apps = {
     RetrieveCohortDistributionData = {
       name_suffix            = "retrieve-cohort-distribution-data"
       function_endpoint_name = "RetrieveCohortDistributionData"
-      app_service_plan_key   = "CohortDistributionServices"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-    }
-
-    RemoveCohortDistributionData = {
-      name_suffix            = "remove-cohort-distribution-data"
-      function_endpoint_name = "RemoveCohortDistributionData"
       app_service_plan_key   = "CohortDistributionServices"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
