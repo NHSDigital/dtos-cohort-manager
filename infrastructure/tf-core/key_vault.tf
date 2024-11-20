@@ -8,8 +8,8 @@ module "key_vault" {
   location            = each.key
 
   log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_keyvault_enabled_logs = ["VMProAuditEvent", "AzurePolicyEvaluationDetailstectionAlerts"]
-  monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
+  monitor_diagnostic_setting_keyvault_enabled_logs = local.monitor_diagnostic_setting_keyvault_enabled_logs
+  monitor_diagnostic_setting_keyvault_metrics      = local.monitor_diagnostic_setting_keyvault_metrics
 
   disk_encryption          = var.key_vault.disk_encryption
   soft_delete_retention    = var.key_vault.soft_del_ret_days

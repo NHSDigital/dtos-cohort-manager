@@ -18,8 +18,8 @@ module "vnet" {
   source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
   log_analytics_workspace_id                   = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_vnet_enabled_logs = ["VMProtectionAlerts"]
-  monitor_diagnostic_setting_vnet_metrics      = ["AllMetrics"]
+  monitor_diagnostic_setting_vnet_enabled_logs = local.monitor_diagnostic_setting_vnet_enabled_logs
+  monitor_diagnostic_setting_vnet_metrics      = local.monitor_diagnostic_setting_vnet_metrics
 
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
