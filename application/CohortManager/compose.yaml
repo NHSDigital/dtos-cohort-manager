@@ -239,6 +239,45 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
+  bs-select-gp-practice-data-service:
+    container_name: demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/BsSelectGpPractice/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7998
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  bs-select-outcode-data-service:
+    container_name: demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/BsSelectOutCode/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7881
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  language-code-data-service:
+    container_name: demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/LanguageCodesDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7997
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  current-posting-data-service:
+    container_name: demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/CurrentPostingDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7996
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
   # Screening Validation Service
   file-validation:
     container_name: file-validation
@@ -277,6 +316,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/
+      - BsSelectOutCodeUrl=http://localhost:7881/api/
+      - LanguageCodeUrl=http://localhost:7997/api/
+      - CurrentPostingUrl=http://localhost:7996/api/
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -358,6 +401,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - BsSelectOutCodeUrl=http://localhost:7881/api/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   allocate-service-provider:
