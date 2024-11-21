@@ -1,22 +1,20 @@
 import os
 from azure.identity import ClientSecretCredential
 from azure.storage.blob import BlobServiceClient
+import logging
 from config import *
 
-BLOB_NAME = os.getenv("BLOB_NAME")
 BLOB_CONTAINER_NAME = os.getenv("BLOB_CONTAINER_NAME")
 
 def read_file(blob_client, filename):
     """
-    Reads the file from azurite/ azure storage
+    Reads the file from azurite/ azure storage and saves it to the filesystem
 
     Parameters:
         filename (string): the name of the file
         blob_client (azure.storage.blob.BlobClient): The blob client to read the file
-
-    Returns:
-        Something: The CSV/ Parquet file
     """
+    logging.info("Reading file")
 
     # Open a local file to write the blob content
     with open(filename, "wb") as file:
@@ -25,37 +23,35 @@ def read_file(blob_client, filename):
         for chunk in download_stream.chunks():
             file.write(chunk)
 
-    return file
+    logging.info("File saved")
 
-def retrieve_file_azurite(filename):
+def get_blob_client_azurite(filename):
     """
     Sets up the blob client and reads the file from azurite
 
     Parameters:
-        filename (string): the name of the file
+        filename (string): the name of the blob
 
     Returns:
-        Something: The CSV/ Parquet file
+        BlobClient
     """
 
     AZURITE_CONNECTION_STRING = os.getenv("AZURITE_CONNECTION_STRING")
 
-    blob_service_client = BlobServiceClient.from_connection_string(AZURITE_CONNECTION_STRING)
-    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=BLOB_NAME)
+    blob_service_client = BlobServiceClient.from_connection_string(AZURITE_CONNECTION_STRING, logging=azure_storage_logger)
+    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=filename)
 
-    file = read_file(blob_client, filename)
+    return blob_client
 
-    return file
-
-def retrieve_file_azure(filename):
+def get_blob_client_azure(filename):
     """
     Sets up the blob client and reads the file from azure storage
 
     Parameters:
-        filename (string): the name of the file
+        filename (string): the name of the blob
 
     Returns:
-        Something: The CSV/ Parquet file
+        BlobClient
     """
 
     credential = ClientSecretCredential(tenant_id=TENANT_ID, client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
@@ -66,9 +62,7 @@ def retrieve_file_azure(filename):
     blob_service_client_url = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
     
     # Create the BlobServiceClient with Entra ID credentials
-    blob_service_client = BlobServiceClient(account_url=blob_service_client_url, credential=credential)
-    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=BLOB_NAME)
+    blob_service_client = BlobServiceClient(account_url=blob_service_client_url, credential=credential, logging=azure_storage_logger)
+    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=filename)
 
-    file = read_file(blob_client, filename)
-
-    return file
+    return blob_client

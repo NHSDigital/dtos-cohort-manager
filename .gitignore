@@ -65,3 +65,4 @@ infrastructure/tf-audit/.terraform.lock.hcl
 
 .python_packages
 __pycache__
+.vscode/extensions.json

@@ -52,12 +52,13 @@ services:
     network_mode: host
     build:
       context: ./Set-up/DataInsertionService
-      dockerfile: Dockerfile_caas_data
+      dockerfile: Dockerfile_Caas_Data
     environment:
       - PASSWORD=${PASSWORD}
       - DB_NAME=${DB_NAME}
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
       - ENVIRONMENT=Local
+      - AzureFunctionsJobHost__http__port=7057
 
   # data-loader-csv:
   #   container_name: data-loader-csv

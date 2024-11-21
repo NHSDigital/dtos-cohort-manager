@@ -9,3 +9,5 @@ pandas
 fastparquet
 python-dotenv
 sqlalchemy
+pyodbc
+pymsssql
