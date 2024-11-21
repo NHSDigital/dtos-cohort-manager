@@ -1,12 +1,18 @@
 {
   "version": "2.0",
   "logging": {
+    "logLevel": {
+      "NHS.Screening.ReceiveCaasFile" : "Information",
+      "default": "Warning"
+    },
     "applicationInsights": {
       "samplingSettings": {
         "isEnabled": true,
         "excludedTypes": "Request"
       },
-      "enableLiveMetricsFilters": true
+      "enableDependencyTracking": true,
+      "enableLiveMetricsFilters": true,
+      "enablePerformanceCountersCollection": true
     }
   },
   "concurrency": {
