@@ -103,8 +103,8 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
                 IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(false) ? "1" : "0"),
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
-                InvalidFlag = Convert.ToString(rec.InvalidFlag),
-                EligibilityFlag = Convert.ToString(rec.EligibilityFlag),
+                InvalidFlag = Convert.ToString(rec.IsInterpreterRequired),
+                EligibilityFlag = BitStringFromNullableBoolean(rec.EligibilityFlag),
             };
         }
         catch (Exception ex)
@@ -113,6 +113,14 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
         }
+    }
+
+    private static string? BitStringFromNullableBoolean(bool? boolValue)
+    {
+        if(!boolValue.HasValue){
+            return null;
+        }
+        return boolValue.Value ? "1" : "0";
     }
 
     public async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
