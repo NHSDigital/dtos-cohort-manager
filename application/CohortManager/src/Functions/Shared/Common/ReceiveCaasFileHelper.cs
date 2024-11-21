@@ -103,7 +103,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 EmailAddressEffectiveFromDate = rec.EmailAddressEffectiveFromDate,
                 IsInterpreterRequired = Convert.ToString(rec.IsInterpreterRequired.GetValueOrDefault(false) ? "1" : "0"),
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
-                InvalidFlag = Convert.ToString(rec.IsInterpreterRequired),
+                InvalidFlag = Convert.ToString(rec.InvalidFlag),
                 EligibilityFlag = BitStringFromNullableBoolean(rec.EligibilityFlag),
             };
         }
