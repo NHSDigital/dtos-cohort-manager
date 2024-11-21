@@ -1,4 +1,5 @@
 using Common;
+using Common.Interfaces;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,7 +10,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<IGetParticipantData, GetParticipantData>();
+        services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })

@@ -302,6 +302,8 @@ public class StaticValidationTests
     [DataRow("B33 8TH")]
     [DataRow("CR2 6XH")]
     [DataRow("LS10 1LT")]
+    [DataRow("")]
+    [DataRow(null)]
     public async Task Run_Should_Not_Create_Exception_When_Postcode_Rule_Passes(string postcode)
     {
         // Arrange
@@ -1058,9 +1060,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.New, "1")]
-    [DataRow(Actions.Removed, "0")]
-    [DataRow(Actions.Amended, "1")]
+    [DataRow(Actions.New, "True")]
+    [DataRow(Actions.Removed, "False")]
+    [DataRow(Actions.Amended, "True")]
     public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordType, string eligibilityFlag)
     {
         // Arrange
