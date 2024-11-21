@@ -87,7 +87,7 @@ public class CreateDemographicData : ICreateDemographicData
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.PafKey)}',
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.UsualAddressEffectiveFromDate)}',
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.DateOfDeath)}',
-            '{(DemographicParticipant.DeathStatus.HasValue ? DemographicParticipant.DeathStatus.ToString() : DBNull.Value)}',
+            {(DemographicParticipant.DeathStatus.HasValue ? (int)DemographicParticipant.DeathStatus : DBNull.Value)},
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.TelephoneNumber)}',
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.TelephoneNumberEffectiveFromDate)}',
             '{_databaseHelper.ConvertNullToDbNull(DemographicParticipant.MobileNumber)}',
