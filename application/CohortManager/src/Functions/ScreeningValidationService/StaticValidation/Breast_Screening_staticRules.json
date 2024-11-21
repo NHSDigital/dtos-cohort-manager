@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NonFatal",
-        "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
+        "Expression": "!(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR !(!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
