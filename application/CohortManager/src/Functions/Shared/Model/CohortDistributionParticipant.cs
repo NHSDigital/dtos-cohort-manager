@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 
 public class CohortDistributionParticipant
 {
-
     [JsonPropertyName("request_id")]
     public string? RequestId { get; set; }
     [JsonPropertyName("nhs_number")]
@@ -88,6 +87,5 @@ public class CohortDistributionParticipant
     public string? CurrentPostingEffectiveFromDate { get; set; }
     [JsonIgnore]
     public string? ParticipantId { get; set; }
-    [JsonIgnore]
     public string RecordType { get; set; }
 }
