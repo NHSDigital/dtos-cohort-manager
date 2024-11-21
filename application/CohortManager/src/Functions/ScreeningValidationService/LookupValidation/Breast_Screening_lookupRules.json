@@ -1,6 +1,12 @@
 [
   {
     "WorkflowName": "Common",
+    "GlobalParams": [
+      {
+        "Name": "ValidCurrentPosting",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
@@ -18,23 +24,19 @@
         "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "CurrentPostingDoesNotExistInDB",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
-          },
-          {
             "Name": "ValidatePostingCategories",
-            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
             "Name": "PrimaryCareProviderValid",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderValid AND ValidatePostingCategories"
+        "Expression": "ValidCurrentPosting AND PrimaryCareProviderValid AND ValidatePostingCategories"
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)",
+        "Expression": "ValidCurrentPosting",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",

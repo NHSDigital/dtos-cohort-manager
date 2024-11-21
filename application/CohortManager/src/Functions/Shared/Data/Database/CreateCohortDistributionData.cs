@@ -296,26 +296,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return GetParticipant(command);
     }
 
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
-    {
-        try
-        {
-            var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(testDataJson);
-
-            if (participants == null || participants.Count == 0) return [];
-
-            return participants
-                .Where(p => p.ServiceProviderId == serviceProviderId)
-                .Take(rowCount)
-                .ToList();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to read or deserialize CohortMockData.json.");
-            return [];
-        }
-    }
-
     public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
     {
         var SQL = "SELECT TOP (1) [PARTICIPANT_ID], " +
