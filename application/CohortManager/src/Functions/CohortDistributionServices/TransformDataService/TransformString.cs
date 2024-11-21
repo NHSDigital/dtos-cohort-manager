@@ -36,7 +36,7 @@ public class TransformString
         return participant;
     }
 
-    private async Task<string> CheckParticipantCharactersAsync(string stringField)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[a-zA-Z0-9\d\s.,\-()\/='+:?!""%&;<>*]+$";
 

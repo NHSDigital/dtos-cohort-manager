@@ -7,8 +7,7 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Model;
-using Model.Enums;
+using Model.DTO;
 
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
@@ -40,13 +39,13 @@ public class RetrieveCohortDistributionData
         _httpParserHelper = httpParserHelper;
     }
 
-    [Function("RetrieveCohortDistributionData")]
+    [Function(nameof(RetrieveCohortDistributionData))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
         int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
         int rowCount = _httpParserHelper.GetRowCount(req);
-        List<CohortDistributionParticipant> cohortDistributionParticipants;
+        List<CohortDistributionParticipantDto> cohortDistributionParticipants;
 
         try
         {

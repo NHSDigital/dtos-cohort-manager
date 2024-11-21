@@ -19,11 +19,12 @@ module "azure_sql_server" {
   storage_account_name                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].name
   storage_account_id                                 = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].id
   storage_container_id                               = data.terraform_remote_state.audit.outputs.storage_account_audit["sqllogs-${local.primary_region}"].containers["vulnerability-assessment"].id
-  monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents"]
-  monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
-  monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
-  monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
-  sql_server_alert_policy_state                      = "Enabled"
+  monitor_diagnostic_setting_database_enabled_logs   = local.monitor_diagnostic_setting_database_enabled_logs
+  monitor_diagnostic_setting_database_metrics        = local.monitor_diagnostic_setting_database_metrics
+  monitor_diagnostic_setting_sql_server_enabled_logs = local.monitor_diagnostic_setting_sql_server_enabled_logs
+  monitor_diagnostic_setting_sql_server_metrics      = local.monitor_diagnostic_setting_sql_server_metrics
+
+  sql_server_alert_policy_state = "Enabled"
 
   sql_uai_name                         = var.sqlserver.sql_uai_name
   sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
@@ -46,7 +47,7 @@ module "azure_sql_server" {
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
-    private_dns_zone_ids_sql             = [data.terraform_remote_state.hub.outputs.private_dns_zone_azure_sql[each.key].private_dns_zone.id]
+    private_dns_zone_ids_sql             = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-azure_sql"].id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.key].names.subnet}-pep"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.key].name

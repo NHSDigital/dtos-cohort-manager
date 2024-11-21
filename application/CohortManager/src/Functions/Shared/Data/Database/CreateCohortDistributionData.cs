@@ -2,11 +2,11 @@ namespace Data.Database;
 
 using System.Data;
 using System.Net;
-using System.Text.Json;
 using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
@@ -133,8 +133,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
             {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
             {"@reasonForRemovalFromDate",  _databaseHelper.ParseDates(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
-            {"@recordInsertDateTime", _databaseHelper.ParseDateTime(cohortDistributionParticipant.RecordInsertDateTime)},
-            {"@recordUpdateDateTime", _databaseHelper.ParseDateTime(cohortDistributionParticipant.RecordUpdateDateTime)},
+            {"@recordInsertDateTime", _databaseHelper.ParseDates(cohortDistributionParticipant.RecordInsertDateTime)},
+            {"@recordUpdateDateTime", _databaseHelper.ParseDates(cohortDistributionParticipant.RecordUpdateDateTime)},
             {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
             {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
             {"@currentPostingFromDate",  _databaseHelper.ParseDates(cohortDistributionParticipant.CurrentPostingEffectiveFromDate)},
@@ -150,7 +150,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipant> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
+    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -206,11 +206,52 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
-            return listOfAllParticipants;
+            return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
         }
 
-        LogRequestAudit(requestId, (int)HttpStatusCode.InternalServerError);
-        return new List<CohortDistributionParticipant>();
+        var statusCode = listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
+        LogRequestAudit(requestId, statusCode);
+
+        return new List<CohortDistributionParticipantDto>();
+    }
+
+    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistributionParticipant> listOfAllParticipants, string requestId)
+    {
+        return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
+        {
+            RequestId = requestId ?? string.Empty,
+            NhsNumber = s.NhsNumber ?? string.Empty,
+            SupersededByNhsNumber = s.SupersededByNhsNumber ?? string.Empty,
+            PrimaryCareProvider = s.PrimaryCareProvider ?? string.Empty,
+            PrimaryCareProviderEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.PrimaryCareProviderEffectiveFromDate),
+            NamePrefix = s.NamePrefix ?? string.Empty,
+            FirstName = s.FirstName ?? string.Empty,
+            OtherGivenNames = s.OtherGivenNames ?? string.Empty,
+            FamilyName = s.FamilyName ?? string.Empty,
+            PreviousFamilyName = s.PreviousFamilyName ?? string.Empty,
+            DateOfBirth = DatabaseHelper.FormatDateAPI(s.DateOfBirth),
+            Gender = s.Gender ?? Gender.NotKnown,
+            AddressLine1 = s.AddressLine1 ?? string.Empty,
+            AddressLine2 = s.AddressLine2 ?? string.Empty,
+            AddressLine3 = s.AddressLine3 ?? string.Empty,
+            AddressLine4 = s.AddressLine4 ?? string.Empty,
+            AddressLine5 = s.AddressLine5 ?? string.Empty,
+            Postcode = s.Postcode ?? string.Empty,
+            UsualAddressEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.UsualAddressEffectiveFromDate),
+            DateOfDeath = DatabaseHelper.FormatDateAPI(s.DateOfDeath),
+            TelephoneNumber = s.TelephoneNumber ?? string.Empty,
+            TelephoneNumberEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.TelephoneNumberEffectiveFromDate),
+            MobileNumber = s.MobileNumber ?? string.Empty,
+            MobileNumberEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.MobileNumberEffectiveFromDate) ?? string.Empty,
+            EmailAddress = s.EmailAddress ?? string.Empty,
+            EmailAddressEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.EmailAddressEffectiveFromDate) ?? string.Empty,
+            PreferredLanguage = s.PreferredLanguage ?? string.Empty,
+            IsInterpreterRequired = int.TryParse(s.IsInterpreterRequired, out var isInterpreterRequired) ? isInterpreterRequired : 0,
+            ReasonForRemoval = s.ReasonForRemoval ?? string.Empty,
+            ReasonForRemovalEffectiveFromDate = DatabaseHelper.FormatDateAPI(s.ReasonForRemovalEffectiveFromDate),
+            ParticipantId = s.ParticipantId ?? string.Empty,
+            IsExtracted = s.Extracted ?? string.Empty,
+        }).ToList();
     }
 
     private void LogRequestAudit(string requestId, int statusCode)
@@ -240,10 +281,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
 
         UpdateRecords(SQLToExecuteInOrder);
-
     }
 
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
+    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
         var SQL = "SELECT" +
             " [PARTICIPANT_ID], " +
@@ -293,7 +333,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetParticipant(command);
+        var cohortList = GetParticipant(command);
+        return CohortDistributionParticipantDto(cohortList, requestId);
     }
 
     public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
@@ -501,7 +542,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-    public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
+    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList)
     {
         if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, 1000);
 

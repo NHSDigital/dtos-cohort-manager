@@ -1,14 +1,12 @@
 #!/bin/bash
 
 declare -A docker_functions_map=(
-    ["CaasIntegration/processCaasFile"]="process-caas-file"
     ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
     ["CaasIntegration/RetrieveMeshFile"]="retrieve-mesh-file"
     ["ExceptionHandling/CreateException"]="create-exception"
     ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
-    ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistant file name for the function (should be create-cohort-distribution-data )
+    ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistent file name for the function (should be create-cohort-distribution-data )
     #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
-    ["CohortDistributionServices/RemoveCohortDistributionData"]="remove-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
     ["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay"
     ["CohortDistributionServices/RetrieveCohortRequestAudit"]="retrieve-cohort-request-audit"
@@ -20,9 +18,14 @@ declare -A docker_functions_map=(
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/addParticipant"]="add-participant"
     ["ParticipantManagementServices/updateParticipant"]="update-participant"
+    ["screeningDataServices/BsSelectGpPractice"]="bs-select-gp-practice-data-service"
+    ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
     ["screeningDataServices/createParticipant"]="create-participant"
+    ["screeningDataServices/CurrentPostingDataService"]="current-posting-data-service"
     ["screeningDataServices/DemographicDataService"]="demographic-data-service"
+    ["screeningDataServices/ExcludedSMULookupDataService"]="excluded-smu-data-service"
     ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
+    ["screeningDataServices/LanguageCodesDataService"]="language-code-data-service"
     ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
     ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
     ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
@@ -56,15 +59,15 @@ fi
 changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
 
 # The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-# changed_functions_json='["process-caas-file","receive-caas-file","create-exception","add-cohort-distribution-data",\
-# "create-cohort-distribution","remove-cohort-distribution-data","retrieve-cohort-distribution-data",\
+# changed_functions_json='["receive-caas-file","create-exception","add-cohort-distribution-data",\
+# "create-cohort-distribution","retrieve-cohort-distribution-data",\
 # "retrieve-participant-data","allocate-service-provider","transform-data-service","validate-cohort-distribution-record",\
 # "demographic-data-management","remove-participant","add-participant","update-participant",\
 # "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
 # "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
 # "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit","retrieve-mesh-file"]'
 
-# changed_functions_json='["process-caas-file","receive-caas-file","create-exception"]'
+# changed_functions_json='["receive-caas-file","create-exception"]'
 
 echo "Final list of functions to rebuild:"
 echo "$changed_functions_json"

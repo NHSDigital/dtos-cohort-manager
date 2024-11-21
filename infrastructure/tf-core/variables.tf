@@ -155,6 +155,14 @@ variable "app_service_plan" {
   })
 }
 
+
+variable "diagnostic_settings" {
+  description = "Configuration for the diagnostic settings"
+  type = object({
+    metric_enabled = optional(bool, false)
+  })
+}
+
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
@@ -194,10 +202,7 @@ variable "function_apps" {
         env_var_name     = string
         function_app_key = string
       })), [])
-      env_vars_static = optional(list(object({
-        env_var_name  = string
-        env_var_value = string
-      })), [])
+      env_vars_static = optional(map(string), {})
     }))
   })
 }

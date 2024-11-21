@@ -100,24 +100,24 @@
       },
       {
         "RuleName": "39.FamilyName.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(participant.FamilyName)",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Name value missing\""
+              "Expression": "\"Family Name value missing\""
             }
           }
         }
       },
       {
         "RuleName": "40.FirstName.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(participant.FirstName)",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Name value missing\""
+              "Expression": "\"First Name value missing\""
             }
           }
         }
@@ -143,11 +143,11 @@
           },
           {
             "Name": "DeathStatusFormal",
-            "Expression": "participant.DeathStatus == Status.Formal"
+            "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
           },
           {
             "Name": "ReasonForRemovalNotDEA",
-            "Expression": "participant.ReasonForRemoval != \"DEA\""
+            "Expression": "string.isNullOrEmpty(participant.ReasonForRemoval) OR participant.ReasonForRemoval  != \"DEA\""
           }
         ],
         "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",

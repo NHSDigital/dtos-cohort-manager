@@ -6,7 +6,6 @@
       "dependsOrder": "parallel",
       "dependsOn": [
         "CaasIntegration/receiveCaasFile",
-        "CaasIntegration/processCaasFile",
         "DemographicServices/DemographicDataManagementFunction",
         "ParticipantManagementServices/addParticipant",
         "ParticipantManagementServices/updateParticipant",
@@ -26,8 +25,7 @@
         "CohortDistributionServices/ServiceProviderAllocationService",
         "CohortDistributionServices/ValidateCohortDistributionRecord",
         "CohortDistributionServices/TransformDataService",
-        "CohortDistributionServices/AddCohortDistributionData",
-        "CohortDistributionServices/RemoveCohortDistributionData"
+        "CohortDistributionServices/AddCohortDistributionData"
       ]
     },
     {
@@ -414,24 +412,6 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
-      }
-    },
-    {
-      "label": "CohortDistributionServices/RemoveCohortDistributionData",
-      "type": "shell",
-      "osx": {
-        "command": "sleep 11.5 && func start"
-      },
-      "windows": {
-        "command": "timeout 22 && func start",
-        "options": {
-          "shell": {
-            "executable": "cmd.exe"
-          }
-        }
-      },
-      "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RemoveCohortDistributionData"
       }
     }
   ]
