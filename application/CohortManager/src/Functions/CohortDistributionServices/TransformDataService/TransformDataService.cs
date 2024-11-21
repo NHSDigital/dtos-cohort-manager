@@ -79,9 +79,9 @@ public class TransformDataService
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
-        catch (TransformationException)
+        catch (TransformationException ex)
         {
-            _logger.LogWarning("An error occured during transformation");
+            _logger.LogWarning("An error occured during transformation", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
