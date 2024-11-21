@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -26,11 +26,11 @@
             "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
-            "Name": "PrimaryCareProviderDoesNotExistOnDB",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Name": "PrimaryCareProviderValid",
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderDoesNotExistOnDB AND ValidatePostingCategories"
+        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderValid AND ValidatePostingCategories"
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
@@ -99,11 +99,11 @@
         "LocalParams": [
           {
             "Name": "existingParticipantPosting",
-            "Expression": "(existingParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
+            "Expression": "!(existingParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
           },
           {
             "Name": "newParticipantPosting",
-            "Expression": "(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
+            "Expression": "!(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
           }
         ],
         "Expression": "existingParticipantPosting AND newParticipantPosting",
