@@ -75,6 +75,7 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - ASPNETCORE_URLS=http://*:7060
+      - targetFunction=http://localhost:7061/api/processCaasFile
       - FileValidationURL=http://localhost:7073/api/FileValidation
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
@@ -90,6 +91,21 @@ services:
       - batchDivisionFactor=5
     depends_on:
       - azurite
+
+  process-caas-file:
+    container_name: process-caas-file
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: CaasIntegration/processCaasFile/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7061
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - PMSAddParticipant=http://localhost:7062/api/addParticipant
+      - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
+      - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
+      - DemographicURI=http://localhost:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   # Participant Management Service
   add-participant:
