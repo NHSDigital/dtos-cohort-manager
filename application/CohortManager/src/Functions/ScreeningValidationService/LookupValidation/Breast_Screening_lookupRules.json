@@ -95,5 +95,14 @@
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
+  },
+  {
+    "WorkflowName": "DEL",
+    "Rules": [
+      {
+        "RuleName": "22.ParticipantMustExist.Fatal",
+        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
+      }
+    ]
   }
 ]
