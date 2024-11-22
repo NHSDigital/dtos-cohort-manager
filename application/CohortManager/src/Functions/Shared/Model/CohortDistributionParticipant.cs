@@ -31,20 +31,15 @@ public class CohortDistributionParticipant
     public string? EmailAddress { get; set; }
     public string? EmailAddressEffectiveFromDate { get; set; }
     public string? PreferredLanguage { get; set; }
-    [JsonPropertyName("interpreter_required")]
     public string? IsInterpreterRequired { get; set; }
     public string? ReasonForRemoval { get; set; }
     public string? ReasonForRemovalEffectiveFromDate { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
     public string? Extracted { get; set; }
-    [JsonIgnore]
     public int? ServiceProviderId { get; set; }
-    [JsonIgnore]
     public string? ScreeningAcronym { get; set; }
-    [JsonIgnore]
     public string? ScreeningServiceId { get; set; }
-    [JsonIgnore]
     public string? ScreeningName { get; set; }
     public string? EligibilityFlag { get; set; }
     public string? CurrentPosting { get; set; }
