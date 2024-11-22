@@ -1,6 +1,12 @@
 [
   {
     "WorkflowName": "Common",
+    "GlobalParams": [
+      {
+        "Name": "ValidCurrentPosting",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+      }
+    ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
@@ -18,23 +24,19 @@
         "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "CurrentPostingDoesNotExistInDB",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
-          },
-          {
             "Name": "ValidatePostingCategories",
-            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
             "Name": "PrimaryCareProviderValid",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderValid AND ValidatePostingCategories"
+        "Expression": "ValidCurrentPosting AND PrimaryCareProviderValid AND ValidatePostingCategories"
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)",
+        "Expression": "ValidCurrentPosting",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -93,28 +95,6 @@
       {
         "RuleName": "22.ParticipantMustExist.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      },
-      {
-        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "existingParticipantPosting",
-            "Expression": "!(existingParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
-          },
-          {
-            "Name": "newParticipantPosting",
-            "Expression": "!(newParticipant.CurrentPosting == \"DMS\" AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)) OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
-          }
-        ],
-        "Expression": "existingParticipantPosting AND newParticipantPosting",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
-            }
-          }
-        }
       }
     ]
   },

@@ -35,8 +35,7 @@ public class ReceiveCaasFile
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
-        int.TryParse(Environment.GetEnvironmentVariable("recordThresholdForBatching"), out var recordThresholdForBatching);
-        int.TryParse(Environment.GetEnvironmentVariable("batchDivisionFactor"), out var batchDivisionFactor);
+        int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
             FileNameParser fileNameParser = new FileNameParser(name);
@@ -73,26 +72,21 @@ public class ReceiveCaasFile
                     var countOfRecords = values.Length;
                     var allTasks = new List<Task>();
 
-                    if (countOfRecords >= recordThresholdForBatching)
-                    {
-                        //split list of all into N amount of chunks to be processed as batches.
-                        var chunkSize = countOfRecords / batchDivisionFactor;
-                        var chunks = listOfAllValues.Chunk(chunkSize).ToList();
 
-                        foreach (var chunk in chunks)
-                        {
-                            var batch = chunk.ToList();
-                            allTasks.Add(
-                                _processCaasFile.ProcessRecords(batch, options, screeningService, name)
-                            );
-                        }
-                        // process each batches
-                        Task.WaitAll(allTasks.ToArray());
-                    }
-                    else
+                    //split list of all into N amount of chunks to be processed as batches.
+
+                    var chunks = listOfAllValues.Chunk(BatchSize).ToList();
+
+                    foreach (var chunk in chunks)
                     {
-                        await _processCaasFile.ProcessRecords(listOfAllValues, options, screeningService, name);
+                        var batch = chunk.ToList();
+                        allTasks.Add(
+                            _processCaasFile.ProcessRecords(batch, options, screeningService, name)
+                        );
                     }
+                    // process each batches
+                    Task.WaitAll(allTasks.ToArray());
+
                     // dispose of all lists and variables from memory because they are no longer needed
                     listOfAllValues = null;
                     values = null;

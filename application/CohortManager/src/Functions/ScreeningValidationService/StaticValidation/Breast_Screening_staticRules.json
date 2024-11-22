@@ -136,7 +136,21 @@
       },
       {
         "RuleName": "66.DeathStatus.NonFatal",
-        "Expression": "participant.RecordType == Actions.Amended OR (participant.DeathStatus.HasValue ? participant.DeathStatus.Value != Status.Formal) OR participant.ReasonForRemoval == \"DEA\"",
+        "LocalParams": [
+          {
+            "Name": "IsUpdateRequest",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "DeathStatusFormal",
+            "Expression": "participant.DeathStatus == Status.Formal"
+          },
+          {
+            "Name": "ReasonForRemovalNotDEA",
+            "Expression": "participant.ReasonForRemoval != \"DEA\""
+          }
+        ],
+        "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -289,7 +303,7 @@
           },
           {
             "Name": "validAmendEligibilityFlag",
-            "Expression": "(participant.EligibilityFlag == \"True\") OR (participant.EligibilityFlag == \"False\")"
+            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
           }
         ],
         "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
