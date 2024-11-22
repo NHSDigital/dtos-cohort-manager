@@ -36,7 +36,7 @@ module "subnets" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
 
-  log_analytics_workspace_id                                     = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                                     = module.log_analytics_workspace_audit[each.key].id
   monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]
 
   name                              = each.value.subnet_name
