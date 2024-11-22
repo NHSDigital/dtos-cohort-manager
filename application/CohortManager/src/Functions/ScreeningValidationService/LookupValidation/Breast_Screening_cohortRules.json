@@ -34,10 +34,6 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "22.ParticipantMustExist.Fatal",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      },
-      {
         "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
         "LocalParams": [
           {
