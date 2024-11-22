@@ -8,6 +8,7 @@ module "storage" {
   location            = each.value.region_key
 
   containers = each.value.containers
+  monitor_diagnostic_setting_storage_account_enabled_logs      = local.monitor_diagnostic_setting_storage_account_enabled_logs
 
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
