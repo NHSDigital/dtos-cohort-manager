@@ -9,7 +9,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "NHS ID Invalid"
+              "Expression": "\"NHS ID Invalid\""
             }
           }
         }
@@ -21,7 +21,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Superseded by NHS ID invalid"
+              "Expression": "\"Superseded by NHS ID invalid\""
             }
           }
         }
@@ -33,7 +33,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Incorrect record type"
+              "Expression": "\"Incorrect record type\""
             }
           }
         }
@@ -45,19 +45,19 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Reason for removal is invalid"
+              "Expression": "\"Reason for removal is invalid\""
             }
           }
         }
       },
       {
         "RuleName": "30.Postcode.NonFatal",
-        "Expression": "Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Postcode invalid"
+              "Expression": "\"Postcode invalid\""
             }
           }
         }
@@ -69,7 +69,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Address is missing"
+              "Expression": "\"Address is missing\""
             }
           }
         }
@@ -81,7 +81,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "GP practice code and Reason for Removal fields contain incompatible values"
+              "Expression": "\"GP practice code and Reason for Removal fields contain incompatible values\""
             }
           }
         }
@@ -93,7 +93,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Date of birth invalid"
+              "Expression": "\"Date of birth invalid\""
             }
           }
         }
@@ -105,7 +105,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Name value missing"
+              "Expression": "\"Name value missing\""
             }
           }
         }
@@ -117,7 +117,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Name value missing"
+              "Expression": "\"Name value missing\""
             }
           }
         }
@@ -129,19 +129,33 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "GP practice code invalid"
+              "Expression": "\"GP practice code invalid\""
             }
           }
         }
       },
       {
         "RuleName": "66.DeathStatus.NonFatal",
-        "Expression": "participant.RecordType != Actions.Amended OR (participant.DeathStatus.HasValue ? participant.DeathStatus.Value != Status.Formal : false ) OR participant.ReasonForRemoval == \"DEA\"",
+        "LocalParams": [
+          {
+            "Name": "IsUpdateRequest",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "DeathStatusFormal",
+            "Expression": "participant.DeathStatus == Status.Formal"
+          },
+          {
+            "Name": "ReasonForRemovalNotDEA",
+            "Expression": "participant.ReasonForRemoval != \"DEA\""
+          }
+        ],
+        "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Invalid death status"
+              "Expression": "\"Invalid death status\""
             }
           }
         }
@@ -153,7 +167,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Reason for removal date invalid"
+              "Expression": "\"Reason for removal date invalid\""
             }
           }
         }
@@ -189,7 +203,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Date of death invalid"
+              "Expression": "\"Date of death invalid\""
             }
           }
         }
@@ -201,7 +215,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Removal fields incompatible with record type"
+              "Expression": "\"Removal fields incompatible with record type\""
             }
           }
         }
@@ -213,7 +227,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Interpreter required does not contain a valid value"
+              "Expression": "\"Interpreter required does not contain a valid value\""
             }
           }
         }
@@ -225,7 +239,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "The Invalid Flag received does not contain a valid value"
+              "Expression": "\"The Invalid Flag received does not contain a valid value\""
             }
           }
         }
@@ -237,7 +251,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Reason for removal and superseded NHS ID values incompatible"
+              "Expression": "\"Reason for removal and superseded NHS ID values incompatible\""
             }
           }
         }
@@ -259,7 +273,7 @@
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "Current posting and Primary Care provider contain incompatible values"
+              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
             }
           }
         }

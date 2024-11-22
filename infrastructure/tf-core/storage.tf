@@ -13,7 +13,7 @@ module "storage" {
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
 
-  rbac_roles = local.rbac_roles_storage
+  rbac_roles = local.wip_rbac_roles_storage
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {

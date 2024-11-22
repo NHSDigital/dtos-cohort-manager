@@ -46,7 +46,7 @@ public class StaticValidation
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
-            var json =  await _readRules.GetRulesFromDirectory(ruleFileName);
+            var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
             var reSettings = new ReSettings
