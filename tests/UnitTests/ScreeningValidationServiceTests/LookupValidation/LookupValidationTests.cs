@@ -82,13 +82,13 @@ public class LookupValidationTests
         switch (ruleType)
         {
             case "LookupRules":
-                json = File.ReadAllText("../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
                 break;
             case "CohortRules":
-                json = File.ReadAllText("../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_cohortRules.json");
+                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_cohortRules.json");
                 break;
             default:
-                json = File.ReadAllText("../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
                 break;
         }
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
