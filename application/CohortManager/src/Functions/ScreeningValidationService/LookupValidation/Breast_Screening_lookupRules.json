@@ -3,14 +3,14 @@
     "WorkflowName": "Common",
     "GlobalParams": [
       {
-        "Name": "validPrimaryCareProvider",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+        "Name": "ValidCurrentPosting",
+        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
       }
     ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -24,23 +24,19 @@
         "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "CurrentPostingDoesNotExistInDB",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
-          },
-          {
             "Name": "ValidatePostingCategories",
-            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
-            "Name": "PrimaryCareProviderDoesNotExistOnDB",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Name": "PrimaryCareProviderValid",
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "CurrentPostingDoesNotExistInDB AND PrimaryCareProviderDoesNotExistOnDB AND ValidatePostingCategories"
+        "Expression": "ValidCurrentPosting AND PrimaryCareProviderValid AND ValidatePostingCategories"
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)",
+        "Expression": "ValidCurrentPosting",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -81,36 +77,6 @@
           }
         ],
         "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
-      },
-      {
-        "RuleName": "36.DeceasedParticipant.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "amendedRecordType",
-            "Expression": "newParticipant.RecordType == Actions.Amended"
-          },
-          {
-            "Name": "existingReasonForRemovalIsDOrDEA",
-            "Expression": "existingParticipant.ReasonForRemoval == \"D\" OR existingParticipant.ReasonForRemoval == \"DEA\""
-          },
-          {
-            "Name": "newReasonForRemovalIsNotDOrDEAOrEmpty",
-            "Expression": "newParticipant.ReasonForRemoval != \"D\" OR newParticipant.ReasonForRemoval != \"DEA\" OR string.IsNullOrEmpty(newParticipant.ReasonForRemoval)"
-          },
-          {
-            "Name": "newAndExistingPrimaryCareProviderDoNotMatch",
-            "Expression": "validPrimaryCareProvider AND newParticipant.PrimaryCareProvider != existingParticipant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(amendedRecordType AND existingReasonForRemovalIsDOrDEA AND newReasonForRemovalIsNotDOrDEAOrEmpty AND newAndExistingPrimaryCareProviderDoNotMatch)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid deceased participant\""
-            }
-          }
-        }
       }
     ]
   },

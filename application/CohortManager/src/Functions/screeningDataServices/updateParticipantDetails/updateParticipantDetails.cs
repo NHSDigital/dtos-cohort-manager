@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -16,16 +17,18 @@ public class UpdateParticipantDetails
     private readonly ICreateResponse _createResponse;
     private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
-
     private readonly ICallFunction _callFunction;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
+    private readonly ICreateCohortDistributionData _createCohortDistributionData;
+
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction, ICreateCohortDistributionData createCohortDistributionData)
     {
         _logger = logger;
         _createResponse = createResponse;
         _participantManagerData = participantManagerData;
         _handleException = handleException;
         _callFunction = callFunction;
+        _createCohortDistributionData = createCohortDistributionData;
     }
 
     [Function("updateParticipantDetails")]
@@ -43,6 +46,7 @@ public class UpdateParticipantDetails
             }
 
             var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+
             var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
