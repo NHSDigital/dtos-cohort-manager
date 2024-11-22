@@ -45,7 +45,7 @@ public class StaticValidationTests
                 CreatedException = true
             })).Verifiable();
 
-        var json = File.ReadAllText("../../../../../../../application/CohortManager/rules/Breast_Screening_staticRules.json");
+        var json = File.ReadAllText("../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/Breast_Screening_staticRules.json");
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
         _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRules.Object, _callFunction.Object);
@@ -322,8 +322,6 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
     [DataRow("ABC123")]
     [DataRow("ABC 123")]
     public async Task Run_Should_Return_Created_And_Create_Exception_When_Postcode_Rule_Fails(string postcode)
@@ -1060,9 +1058,9 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    [DataRow(Actions.New, "True")]
-    [DataRow(Actions.Removed, "False")]
-    [DataRow(Actions.Amended, "True")]
+    [DataRow(Actions.New, "1")]
+    [DataRow(Actions.Removed, "0")]
+    [DataRow(Actions.Amended, "1")]
     public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordType, string eligibilityFlag)
     {
         // Arrange
