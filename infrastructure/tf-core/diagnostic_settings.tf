@@ -20,6 +20,9 @@ locals {
   monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
 
+  #STORAGE ACCOUNT
+  monitor_diagnostic_setting_storage_account_enabled_logs = ["StorageWrite", "StorageRead", "StorageDelete"]
+
   #SUBNET
   monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]
 
