@@ -120,9 +120,9 @@ public class AddCohortDistributionTests
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
         Assert.AreEqual("1", result[0].ParticipantId);
-        Assert.AreEqual("1", result[0].Extracted);
+        Assert.AreEqual("1", result[0].IsExtracted);
         Assert.AreEqual("1", result[1].ParticipantId);
-        Assert.AreEqual("1", result[1].Extracted);
+        Assert.AreEqual("1", result[1].IsExtracted);
     }
 
     [TestMethod]
@@ -239,7 +239,7 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("participantId", result[0].ParticipantId);
-        Assert.AreEqual(_requestId, result[0].RequestId);
+        Assert.AreEqual(requestIdsList[0], result[0].RequestId);
     }
 
     [TestMethod]

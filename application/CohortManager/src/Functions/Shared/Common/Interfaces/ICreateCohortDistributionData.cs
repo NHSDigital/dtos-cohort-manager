@@ -1,16 +1,16 @@
 namespace Common.Interfaces;
 
 using Model;
-
+using Model.DTO;
 
 public interface ICreateCohortDistributionData
 {
     bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant);
-    List<CohortDistributionParticipant> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount);
+    List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount);
     bool UpdateCohortParticipantAsInactive(string NhsNumber);
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
-    List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId);
+    List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
-    List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList);
+    List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList);
     List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId);
 }
