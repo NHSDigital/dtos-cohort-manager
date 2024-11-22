@@ -240,7 +240,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   bs-select-gp-practice-data-service:
-    container_name: demographic-data-service
+    container_name: bs-select-gp-practice-data-service
     network_mode: host
     build:
       context: ./src/Functions/
@@ -250,7 +250,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   bs-select-outcode-data-service:
-    container_name: demographic-data-service
+    container_name: bs-select-outcode-data-service
     network_mode: host
     build:
       context: ./src/Functions/
@@ -260,7 +260,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   language-code-data-service:
-    container_name: demographic-data-service
+    container_name: language-code-data-service
     network_mode: host
     build:
       context: ./src/Functions/
@@ -270,7 +270,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   current-posting-data-service:
-    container_name: demographic-data-service
+    container_name: current-posting-data-service
     network_mode: host
     build:
       context: ./src/Functions/
@@ -278,6 +278,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      
   # Screening Validation Service
   file-validation:
     container_name: file-validation
