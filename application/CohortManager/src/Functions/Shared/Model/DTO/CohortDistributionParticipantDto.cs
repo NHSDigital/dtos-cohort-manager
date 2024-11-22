@@ -65,4 +65,9 @@ public class CohortDistributionParticipantDto
     public string? ReasonForRemoval { get; set; }
     [JsonPropertyName("reason_removal_eff_from_date")]
     public string? ReasonForRemovalEffectiveFromDate { get; set; }
+    [JsonIgnore]
+    public string? ParticipantId { get; set; }
+    [JsonIgnore]
+    public string? IsExtracted { get; set; }
+
 }
