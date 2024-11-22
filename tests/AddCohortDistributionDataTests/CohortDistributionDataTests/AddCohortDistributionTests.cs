@@ -239,7 +239,7 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("participantId", result[0].ParticipantId);
-        Assert.AreEqual(_requestId, result[0].RequestId);
+        Assert.AreEqual(requestIdsList[0], result[0].RequestId);
     }
 
     [TestMethod]
