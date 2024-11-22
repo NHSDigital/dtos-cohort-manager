@@ -7,7 +7,7 @@ locals {
   monitor_diagnostic_setting_function_app_metrics      = ["AllMetrics"]
 
   # KEYVAULT
-  monitor_diagnostic_setting_keyvault_enabled_logs = ["AuditEvent", "AzurePolicyEvaluationDetails", "Administrative", "Alert"]
+  monitor_diagnostic_setting_keyvault_enabled_logs = ["AuditEvent", "AzurePolicyEvaluationDetails"]
   monitor_diagnostic_setting_keyvault_metrics      = ["AllMetrics"]
 
   # LOG ANALYTICS WORKSPACE
