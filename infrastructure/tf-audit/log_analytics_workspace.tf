@@ -8,9 +8,9 @@ module "log_analytics_workspace_audit" {
 
   law_sku                                                         = var.law.law_sku
   retention_days                                                  = var.law.retention_days
-  log_analytics_workspace_id                                      = azurerm_log_analytics_workspace.log_analytics_workspace.id
-  monitor_diagnostic_setting_log_analytics_workspace_enabled_logs = var.monitor_diagnostic_setting_log_analytics_workspace_enabled_logs
-  monitor_diagnostic_setting_log_analytics_workspace_metrics      = var.monitor_diagnostic_setting_log_analytics_workspace_metrics
+
+  monitor_diagnostic_setting_log_analytics_workspace_enabled_logs = local.monitor_diagnostic_setting_log_analytics_workspace_enabled_logs
+  monitor_diagnostic_setting_log_analytics_workspace_metrics      = local.monitor_diagnostic_setting_log_analytics_workspace_metrics
 
   resource_group_name = azurerm_resource_group.audit[each.key].name
 
