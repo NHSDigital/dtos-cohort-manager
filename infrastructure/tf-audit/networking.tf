@@ -17,7 +17,7 @@ module "vnet" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
-  log_analytics_workspace_id                   = module.log_analytics_workspace_audit[primary_region].id
+  log_analytics_workspace_id                   = module.log_analytics_workspace_audit[primary_region].log_analytics_workspace.id
   monitor_diagnostic_setting_vnet_enabled_logs = local.monitor_diagnostic_setting_vnet_enabled_logs
   monitor_diagnostic_setting_vnet_metrics      = local.monitor_diagnostic_setting_vnet_metrics
 
@@ -58,7 +58,7 @@ module "subnets" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
 
-  log_analytics_workspace_id                                     = module.log_analytics_workspace_audit[primary_region].id
+  log_analytics_workspace_id                                     = module.log_analytics_workspace_audit[primary_region].log_analytics_workspace.id
   monitor_diagnostic_setting_network_security_group_enabled_logs = local.monitor_diagnostic_setting_network_security_group_enabled_logs
 
   name                              = each.value.subnet_name
