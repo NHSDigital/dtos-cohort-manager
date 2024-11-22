@@ -19,7 +19,7 @@ module "private_link_scoped_service_law" {
   name                = "${module.regions_config[each.key].names.log-analytics-workspace}-ampls-service-law"
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
 
-  linked_resource_id = module.log_analytics_workspace_audit[each.key].id
+  linked_resource_id = module.log_analytics_workspace_audit[primary_region].id
   scope_name         = module.private_link_scope[each.key].scope_name
 }
 
