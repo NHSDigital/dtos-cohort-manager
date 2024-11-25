@@ -40,6 +40,7 @@ Download docker engine using [these instructions](https://medium.com/@rom.bruyer
 First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
 The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
+
 - compose.deps.yaml - contains the database, azurite and setup containers, this must be run before the other files
 - compose.core.yaml - contains the application minus cohort distribution
 - compose.cohort-distribution.yaml - cohort distribution
