@@ -121,7 +121,7 @@ public class ExceptionHandler : IExceptionHandler
             var exception = new ValidationException
             {
                 RuleId = ruleNumber,
-                RuleDescription = error.Rule.RuleName,
+                RuleDescription = error.ExceptionMessage ?? error.Rule.RuleName,
                 FileName = DefaultFileName,
                 NhsNumber = participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participant),
@@ -133,7 +133,7 @@ public class ExceptionHandler : IExceptionHandler
                 CohortName = DefaultCohortName,
                 Fatal = 0
             };
-            
+
             var exceptionJson = JsonSerializer.Serialize(exception);
             var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
 

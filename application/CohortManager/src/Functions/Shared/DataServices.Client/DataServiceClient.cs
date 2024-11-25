@@ -10,6 +10,7 @@ using Common;
 using FastExpressionCompiler;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
 {
@@ -53,9 +54,24 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public virtual async Task<TEntity> GetSingle(string id)
     {
-        var jsonString = await _callFunction.SendGet(_baseUrl+id);
-        TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
-        return result;
+        try{
+            var jsonString = await _callFunction.SendGet(_baseUrl+id);
+            TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
+            return result;
+        }
+        catch(WebException wex)
+        {
+            HttpWebResponse response = (HttpWebResponse)wex.Response;
+            if(response.StatusCode! == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            throw;
+        }
+
+
     }
 
     public async Task<bool> Delete(string id)
