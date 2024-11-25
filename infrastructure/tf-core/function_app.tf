@@ -130,7 +130,7 @@ locals {
           rbac_role_assignments = flatten([
 
             # Key Vault
-            var.key_vault != {} ? [
+            var.key_vault != {} && length(config.key_vault_url) > 0 ? [
               for role in local.rbac_roles_key_vault : {
                 role_definition_name = role
                 scope                = module.key_vault[region].key_vault_id
