@@ -282,7 +282,17 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      
+
+  excluded-smu-data-service:
+    container_name: excluded-smu-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ExcludedSMULookupDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7995
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
   # Screening Validation Service
   file-validation:
     container_name: file-validation
@@ -325,6 +335,7 @@ services:
       - BsSelectOutCodeUrl=http://localhost:7881/api/
       - LanguageCodeUrl=http://localhost:7997/api/
       - CurrentPostingUrl=http://localhost:7996/api/
+      - ExcludedSMULookupUrl=http://localhost:7995/api/
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
