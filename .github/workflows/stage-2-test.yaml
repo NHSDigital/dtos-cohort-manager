@@ -49,7 +49,7 @@ jobs:
         uses: bibipkins/dotnet-test-reporter@v1.4.0
         with:
           comment-title: 'Unit Test Results'
-          results-path: ./tests/results-unit/*.trx
+          results-path: ./tests/UnitTests/results-unit/*.trx
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
