@@ -2,6 +2,7 @@ import azure.functions as func
 import logging
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
+from azure.core.exceptions import ResourceNotFoundError
 import os
 from config import *
 import storage
@@ -24,7 +25,11 @@ def InsertCaasData(req: func.HttpRequest) -> func.HttpResponse:
         blob_client = storage.get_blob_client_azure(FILE_NAME)
         db_engine = db.setup_engine_azure()
 
-    storage.read_file(blob_client, FILE_NAME)
+    try: 
+        storage.read_file(blob_client, FILE_NAME)
+    except ResourceNotFoundError:
+        logging.error("Blob does not exist")
+        return func.HttpResponse("Blob does not exist", status_code=400)
     
     df = parquet_to_dataframe(FILE_NAME)
 
@@ -46,6 +51,7 @@ def parquet_to_dataframe(filename):
 
     df = pd.read_parquet(filename, engine='fastparquet').astype(CAAS_SCHEMA)
     df = format_dates(df)
+    df = rename_columns(df)
 
     return df
 
@@ -65,4 +71,25 @@ def format_dates(df):
 
     return df
 
+def rename_columns(df):
+    """Rename columns according to database names"""
 
+    COLUMN_NAME_MAPPINGS = {
+        'primary_care_effective_from_date': 'Primary_Care_Provider_Business_Effective_From_Date',
+        'current_posting_effective_from_date': 'Current_Posting_Business_Effective_From_Date',
+        'other_given_name': 'Other_Given_Name(s)',
+        'address_effective_from_date': 'Usual_Address_Business_Effective_From_Date',
+        'reason_for_removal_effective_from_date': 'Reason_For_Removal_Business_Effective_From_Date',
+        'home_telephone_number': 'Telephone_Number(Home)',
+        'home_telephone_effective_from_date': 'Telephone_Number(Home)_Business_Effective_From_Date',
+        'mobile_telephone_number': 'Telephone_Number(mobile)',
+        'mobile_telephone_effective_from_date': 'Telephone_Number(Mobile)_Business_Effective_From_Date',
+        'email_address': 'E-mail_Address(Home)',
+        'email_address_effective_from_date': 'E-mail_Address(Home)_Business_Effective_From_Date',
+        'date_of_death': 'Date_Of_Death(Formal)',
+        'is_interpreter_required': 'Interpreter_Required'
+    }
+
+    df.rename(columns=COLUMN_NAME_MAPPINGS, inplace=True)
+
+    return df

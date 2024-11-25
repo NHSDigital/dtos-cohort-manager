@@ -27,7 +27,7 @@ def read_file(blob_client, filename):
 
 def get_blob_client_azurite(filename):
     """
-    Sets up the blob client and reads the file from azurite
+    Sets up the blob client
 
     Parameters:
         filename (string): the name of the blob
@@ -41,11 +41,12 @@ def get_blob_client_azurite(filename):
     blob_service_client = BlobServiceClient.from_connection_string(AZURITE_CONNECTION_STRING, logging=azure_storage_logger)
     blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=filename)
 
+
     return blob_client
 
 def get_blob_client_azure(filename):
     """
-    Sets up the blob client and reads the file from azure storage
+    Sets up the blob client
 
     Parameters:
         filename (string): the name of the blob
