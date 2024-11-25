@@ -622,7 +622,12 @@ function_apps = {
       function_endpoint_name = "RetrieveParticipantData"
       app_service_plan_key   = "CohortDistributionServices"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = []
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
     }
 
     ValidateCohortDistributionRecord = {
@@ -634,6 +639,10 @@ function_apps = {
         {
           env_var_name     = "LookupValidationURL"
           function_app_key = "LookupValidation"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
     }
