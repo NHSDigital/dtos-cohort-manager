@@ -13,7 +13,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 57e204e15509e40243551dccfe077f3452a31369
+      ref: feat/DTOSS-4815-Application-Gateway-Parameterisation2
       endpoint: NHSDigital
 
 variables:
