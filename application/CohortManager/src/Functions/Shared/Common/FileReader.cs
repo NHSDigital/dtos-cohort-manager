@@ -23,8 +23,9 @@ public class FileReader : IFileReader
         {
             Path.Combine(basePath, $"{fileName}"),
             Path.Combine(basePath, "..", "..", $"{fileName}"),
-            Path.Combine(basePath, "TestUtils", "MockData", $"{fileName}"),
+            Path.Combine(basePath, "..", "..", "..", "..", "..", "..", "TestUtils", "MockData", $"{fileName}"),
             Path.Combine(basePath, "..", "..", "..", "..", "..", "..", "tests", "TestUtils", "MockData", $"{fileName}"),
+            Path.Combine(basePath, "TestUtils", "MockData", $"{fileName}"),
         };
 
         string filePath = potentialDirectories.Select(Path.GetFullPath).FirstOrDefault(File.Exists)
