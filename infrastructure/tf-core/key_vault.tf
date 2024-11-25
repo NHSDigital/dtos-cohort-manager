@@ -7,6 +7,10 @@ module "key_vault" {
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
+  log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_keyvault_enabled_logs = local.monitor_diagnostic_setting_keyvault_enabled_logs
+  monitor_diagnostic_setting_keyvault_metrics      = local.monitor_diagnostic_setting_keyvault_metrics
+
   disk_encryption          = var.key_vault.disk_encryption
   soft_delete_retention    = var.key_vault.soft_del_ret_days
   purge_protection_enabled = var.key_vault.purge_prot

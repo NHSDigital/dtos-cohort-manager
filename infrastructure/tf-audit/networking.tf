@@ -17,6 +17,10 @@ module "vnet" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
+  log_analytics_workspace_id                   = module.log_analytics_workspace_audit[local.primary_region].id
+  monitor_diagnostic_setting_vnet_enabled_logs = local.monitor_diagnostic_setting_vnet_enabled_logs
+  monitor_diagnostic_setting_vnet_metrics      = local.monitor_diagnostic_setting_vnet_metrics
+
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
   location            = each.key
@@ -30,29 +34,6 @@ module "vnet" {
 /*--------------------------------------------------------------------------------------------------
   Create Subnets
 --------------------------------------------------------------------------------------------------*/
-
-module "subnets" {
-  for_each = local.subnets_map
-
-  source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
-
-  name                              = each.value.subnet_name
-  location                          = module.vnet[each.value.vnet_key].vnet.location
-  network_security_group_name       = each.value.nsg_name
-  network_security_group_nsg_rules  = each.value.nsg_rules
-  create_nsg                        = each.value.create_nsg
-  resource_group_name               = module.vnet[each.value.vnet_key].vnet.resource_group_name
-  vnet_name                         = module.vnet[each.value.vnet_key].name
-  address_prefixes                  = [each.value.address_prefixes]
-  default_outbound_access_enabled   = true
-  private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
-
-  delegation_name            = each.value.delegation_name != null ? each.value.delegation_name : ""
-  service_delegation_name    = each.value.service_delegation_name != null ? each.value.service_delegation_name : ""
-  service_delegation_actions = each.value.service_delegation_actions != null ? each.value.service_delegation_actions : []
-
-  tags = var.tags
-}
 
 locals {
   # Expand a flattened list of objects for all subnets (allows nested for loops)
@@ -70,6 +51,32 @@ locals {
   ])
   # Project the above list into a map with unique keys for consumption in a for_each meta argument
   subnets_map = { for subnet in local.subnets_flatlist : subnet.subnet_name => subnet }
+}
+
+module "subnets" {
+  for_each = local.subnets_map
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/subnet"
+
+  log_analytics_workspace_id                                     = module.log_analytics_workspace_audit[local.primary_region].id
+  monitor_diagnostic_setting_network_security_group_enabled_logs = local.monitor_diagnostic_setting_network_security_group_enabled_logs
+
+  name                              = each.value.subnet_name
+  location                          = module.vnet[each.value.vnet_key].vnet.location
+  network_security_group_name       = each.value.nsg_name
+  network_security_group_nsg_rules  = each.value.nsg_rules
+  create_nsg                        = each.value.create_nsg
+  resource_group_name               = module.vnet[each.value.vnet_key].vnet.resource_group_name
+  vnet_name                         = module.vnet[each.value.vnet_key].name
+  address_prefixes                  = [each.value.address_prefixes]
+  default_outbound_access_enabled   = true
+  private_endpoint_network_policies = "Disabled" # Default as per compliance requirements
+
+  delegation_name            = each.value.delegation_name != null ? each.value.delegation_name : ""
+  service_delegation_name    = each.value.service_delegation_name != null ? each.value.service_delegation_name : ""
+  service_delegation_actions = each.value.service_delegation_actions != null ? each.value.service_delegation_actions : []
+
+  tags = var.tags
 }
 
 /*--------------------------------------------------------------------------------------------------
