@@ -23,9 +23,9 @@ public class CheckDemographic : ICheckDemographic
         return demographicData;
     }
 
-    public async Task<bool> PostDemographicDataAsync(Participant participant, string DemographicFunctionURI)
+    public async Task<bool> PostDemographicBatchAsync(List<Participant> participantList, string DemographicFunctionURI)
     {
-        var json = JsonSerializer.Serialize(participant);
+        var json = JsonSerializer.Serialize(participantList);
         var response = await _callFunction.SendPost(DemographicFunctionURI, json);
         if (response.StatusCode != HttpStatusCode.OK)
         {

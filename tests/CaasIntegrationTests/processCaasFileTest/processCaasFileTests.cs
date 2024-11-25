@@ -49,7 +49,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+        _checkDemographic.Setup(x => x.PostDemographicBatchAsync(It.IsAny<List<Participant>>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
@@ -78,7 +78,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+        _checkDemographic.Setup(x => x.PostDemographicBatchAsync(It.IsAny<List<Participant>>(), It.IsAny<string>())).Returns(Task.FromResult(true));
         var sut = new ProcessCaasFileFunction(_logger.Object, _callFunction.Object, _createResponse.Object, _checkDemographic.Object, _createBasicParticipantData.Object, _handleException.Object, _azureQueueStorageHelper.Object);
 
         // Act
@@ -168,7 +168,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+        _checkDemographic.Setup(x => x.PostDemographicBatchAsync(It.IsAny<List<Participant>>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         _azureQueueStorageHelper.Setup(call => call.AddItemToQueueAsync<BasicParticipantCsvRecord>(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception());
@@ -203,7 +203,7 @@ public class ProcessCaasFileTests
         var json = JsonSerializer.Serialize(cohort);
         _request = _setupRequest.Setup(json);
 
-        _checkDemographic.Setup(x => x.PostDemographicDataAsync(It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.FromResult(true));
+        _checkDemographic.Setup(x => x.PostDemographicBatchAsync(It.IsAny<List<Participant>>(), It.IsAny<string>())).Returns(Task.FromResult(true));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("PMSUpdateParticipant")), It.IsAny<string>()))
             .ThrowsAsync(new Exception());

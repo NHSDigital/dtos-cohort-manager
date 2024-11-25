@@ -1,5 +1,6 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
@@ -34,7 +35,7 @@ public class ProcessCaasFile : IProcessCaasFile
     }
 
     /// <summary>
-    /// process a given batch and send it the queue
+    /// process a given batch and send it the queue 
     /// </summary>
     /// <param name="values"></param>
     /// <param name="options"></param>
@@ -55,7 +56,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"),participant,name );
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
 
                 return; // skip current participant
             }
@@ -92,13 +93,13 @@ public class ProcessCaasFile : IProcessCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
-                if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-                {
-                    currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                }
+                await Task.CompletedTask;
+                currentBatch.DemographicData.Enqueue(basicParticipantCsvRecord.participant);
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+
                 break;
             case Actions.Amended:
+                currentBatch.DemographicData.Enqueue(basicParticipantCsvRecord.participant);
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
@@ -113,8 +114,10 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
+        if (currentBatch.DemographicData.Count > 0)
+        {
+            await AddParticipant(currentBatch);
+        }
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -130,12 +133,28 @@ public class ProcessCaasFile : IProcessCaasFile
         }
     }
 
+    private async Task AddParticipant(Batch currentBatch)
+    {
+        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        if (await _checkDemographic.PostDemographicBatchAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+        }
+        _logger.LogInformation("finished sending {count} records to queue", currentBatch.AddRecords.Count);
+
+    }
+
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+            List<Participant> participants = new List<Participant>()
+            {
+                basicParticipantCsvRecord.participant
+            };
+
+            if (await _checkDemographic.PostDemographicBatchAsync(participants, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }
@@ -144,7 +163,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex ,"Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
     }
@@ -158,7 +177,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,"Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, filename);
         }
     }
@@ -173,52 +192,46 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
-        }
-    }
-        private async Task CreateError(Participant participant, string filename, string errorMessage)
-    {
-        try
-        {
-            _logger.LogError(errorMessage);
-            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorMessage, "", JsonSerializer.Serialize(participant));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+            _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
 
     private bool ValidateDates(Participant participant)
     {
-        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
+        if (!IsValidDate(participant.CurrentPostingEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.CurrentPostingEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.EmailAddressEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.EmailAddressEffectiveFromDate));
+        if (!IsValidDate(participant.EmailAddressEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.EmailAddressEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.MobileNumberEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.MobileNumberEffectiveFromDate));
+        if (!IsValidDate(participant.MobileNumberEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.MobileNumberEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.UsualAddressEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.UsualAddressEffectiveFromDate));
+        if (!IsValidDate(participant.UsualAddressEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.UsualAddressEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.TelephoneNumberEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.TelephoneNumberEffectiveFromDate));
+        if (!IsValidDate(participant.TelephoneNumberEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.TelephoneNumberEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.PrimaryCareProviderEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.PrimaryCareProviderEffectiveFromDate));
+        if (!IsValidDate(participant.PrimaryCareProviderEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.PrimaryCareProviderEffectiveFromDate));
             return false;
         }
-        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
+        if (!IsValidDate(participant.CurrentPostingEffectiveFromDate))
+        {
+            _logger.LogWarning("Invalid {datename} found in participant data", nameof(participant.CurrentPostingEffectiveFromDate));
             return false;
         }
 
@@ -226,11 +239,11 @@ public class ProcessCaasFile : IProcessCaasFile
     }
     private static bool IsValidDate(string? date)
     {
-        if(date== null)
+        if (date == null)
         {
             return true;
         }
-        if(date.Length > 8)
+        if (date.Length > 8)
         {
             return false;
         }

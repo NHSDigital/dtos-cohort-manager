@@ -71,7 +71,9 @@ public class DemographicDataFunctionTests
     public async Task Run_return_DemographicDataSavedPostRequest_OK()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(new List<Participant>() {
+            _participant
+        });
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         _request = _setupRequest.Setup(json);

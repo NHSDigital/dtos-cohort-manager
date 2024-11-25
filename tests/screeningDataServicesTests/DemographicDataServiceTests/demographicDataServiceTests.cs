@@ -46,7 +46,9 @@ public class DemographicDataServiceTests
     public async Task Run_DemographicDataSaved_OK()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        var json = JsonSerializer.Serialize(new List<Participant>() {
+            _participant
+        });
         var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
 
         SetupRequest(json);
@@ -59,7 +61,7 @@ public class DemographicDataServiceTests
                 return response;
             });
         _request.Setup(x => x.Method).Returns("POST");
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(true);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(true);
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -85,7 +87,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(false);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(false);
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");
@@ -112,7 +114,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Throws(new Exception("there has been an error"));
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Throws(new Exception("there has been an error"));
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");
