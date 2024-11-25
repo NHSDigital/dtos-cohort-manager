@@ -166,7 +166,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrentPosting", "screening
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\DataServiceTests\DataServiceTests.csproj", "{824D0893-14F9-47D9-B381-3BB899B4CBDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcludedSMULookupDataServices", "screeningDataServices\ExcludedSMULookupDataServuce\ExcludedSMULookupDataServices.csproj", "{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcludedSMULookupDataServices", "screeningDataServices\ExcludedSMULookupDataService\ExcludedSMULookupDataServices.csproj", "{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

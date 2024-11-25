@@ -21,7 +21,7 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
-
+    [Obsolete("Replaced by LookupFacade Class")]
     public DbLookupValidationBreastScreening(
         IDbConnection IdbConnection,
         ILogger<DbLookupValidationBreastScreening> logger,
