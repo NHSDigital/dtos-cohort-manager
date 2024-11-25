@@ -143,11 +143,11 @@
           },
           {
             "Name": "DeathStatusFormal",
-            "Expression": "participant.DeathStatus == Status.Formal"
+            "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
           },
           {
             "Name": "ReasonForRemovalNotDEA",
-            "Expression": "participant.ReasonForRemoval != \"DEA\""
+            "Expression": "string.isNullOrEmpty(participant.ReasonForRemoval) && participant.ReasonForRemoval  != \"DEA\""
           }
         ],
         "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
