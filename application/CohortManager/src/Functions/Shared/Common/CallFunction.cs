@@ -51,6 +51,7 @@ public class CallFunction : ICallFunction
         request.Method = Method;
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = data.Length;
+        request.Timeout = 9999;
 
         using (var stream = request.GetRequestStream())
         {
@@ -62,9 +63,9 @@ public class CallFunction : ICallFunction
             var response = (HttpWebResponse)await request.GetResponseAsync();
             return response;
         }
-        catch(WebException ex)
+        catch (WebException ex)
         {
-            _logger.LogError(ex,"Failed to execute webrequest");
+            _logger.LogError(ex, "Failed to execute webrequest");
             return (HttpWebResponse)ex.Response;
 
         }
