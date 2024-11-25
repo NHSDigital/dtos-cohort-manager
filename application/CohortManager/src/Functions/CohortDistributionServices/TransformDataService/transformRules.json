@@ -22,7 +22,7 @@
     "Rules": [
       {
         "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
-        "Expression": "participant.NamePrefix.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.NamePrefix) && participant.NamePrefix.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -40,7 +40,7 @@
       },
       {
         "RuleName": "2.Truncate.FirstName.ExceedsMaximumLength",
-        "Expression": "participant.FirstName.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.FirstName) && participant.FirstName.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -58,7 +58,7 @@
       },
       {
         "RuleName": "3.Truncate.OtherGivenNames.ExceedsMaximumLength",
-        "Expression": "participant.OtherGivenNames.Length > 100",
+        "Expression": "!string.IsNullOrEmpty(participant.OtherGivenNames) && participant.OtherGivenNames.Length > 100",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "4.Truncate.FamilyName.ExceedsMaximumLength",
-        "Expression": "participant.FamilyName.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.FamilyName) && participant.FamilyName.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -94,7 +94,7 @@
       },
       {
         "RuleName": "5.Truncate.PreviousFamilyName.ExceedsMaximumLength",
-        "Expression": "participant.PreviousFamilyName.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.PreviousFamilyName) && participant.PreviousFamilyName.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -112,7 +112,7 @@
       },
       {
         "RuleName": "6.Truncate.AddressLine1.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine1.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.AddressLine1) && participant.AddressLine1.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -130,7 +130,7 @@
       },
       {
         "RuleName": "7.Truncate.AddressLine2.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine2.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.AddressLine2) && participant.AddressLine2.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -148,7 +148,7 @@
       },
       {
         "RuleName": "8.Truncate.AddressLine3.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine3.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.AddressLine3) && participant.AddressLine3.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -166,7 +166,7 @@
       },
       {
         "RuleName": "9.Truncate.AddressLine4.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine4.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.AddressLine4) && participant.AddressLine4.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -184,7 +184,7 @@
       },
       {
         "RuleName": "10.Truncate.AddressLine5.ExceedsMaximumLength",
-        "Expression": "participant.AddressLine5.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.AddressLine5) && participant.AddressLine5.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -202,7 +202,7 @@
       },
       {
         "RuleName": "13.Truncate.Postcode.ExceedsMaximumLength",
-        "Expression": "participant.Postcode.Length > 35",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Length > 35",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -220,7 +220,7 @@
       },
       {
         "RuleName": "14.Truncate.TelephoneNumber.ExceedsMaximumLength",
-        "Expression": "participant.TelephoneNumber.Length > 32",
+        "Expression": "!string.IsNullOrEmpty(participant.TelephoneNumber) && participant.TelephoneNumber.Length > 32",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -238,7 +238,7 @@
       },
       {
         "RuleName": "15.Truncate.MobileNumber.ExceedsMaximumLength",
-        "Expression": "participant.MobileNumber.Length > 32",
+        "Expression": "!string.IsNullOrEmpty(participant.MobileNumber) && participant.MobileNumber.Length > 32",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -256,7 +256,7 @@
       },
       {
         "RuleName": "16.Truncate.EmailAddress.ExceedsMaximumLength",
-        "Expression": "participant.EmailAddress.Length > 90",
+        "Expression": "!string.IsNullOrEmpty(participant.EmailAddress) && participant.EmailAddress.Length > 90",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -601,9 +601,15 @@
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND dummyPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
-            "Name": "TransformError",
+            "Name": "TransformAction",
             "Context": {
-              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ParticipantId",
+                  "value": "throw new Exception()"
+                }
+              ]
             }
           },
           "OnFailure": {
@@ -620,9 +626,15 @@
         "Expression": "participantNotRegisteredToGP AND !validPostcode AND string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnSuccess": {
-            "Name": "TransformError",
+            "Name": "TransformAction",
             "Context": {
-              "exceptionMessage": "ParticipantNotRegisteredToGPWithReasonForRemoval transformation rule failed."
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "ParticipantId",
+                  "value": "throw new Exception()"
+                }
+              ]
             }
           }
         }

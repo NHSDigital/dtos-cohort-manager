@@ -1,14 +1,8 @@
 ---
 
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
-
-trigger:
-  branches:
-    include:
-      - main
-  paths:
-    include:
-      - infrastructure/*
+trigger: none
+pr: none
 
 pool:
   #vmImage: ubuntu-latest
@@ -19,7 +13,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 0525a712ae0813d5e4a7395efc4b419159b15621
+      ref: 57e204e15509e40243551dccfe077f3452a31369
       endpoint: NHSDigital
 
 variables:

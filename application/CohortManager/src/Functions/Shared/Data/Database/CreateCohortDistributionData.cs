@@ -2,11 +2,11 @@ namespace Data.Database;
 
 using System.Data;
 using System.Net;
-using System.Text.Json;
 using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
@@ -150,7 +150,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipant> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
+    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -206,11 +206,50 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
-            return listOfAllParticipants;
+            return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
         }
 
         LogRequestAudit(requestId, (int)HttpStatusCode.InternalServerError);
-        return new List<CohortDistributionParticipant>();
+        return new List<CohortDistributionParticipantDto>();
+    }
+
+    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto( List<CohortDistributionParticipant> listOfAllParticipants, string requestId)
+    {
+            return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
+            {
+                RequestId = requestId,
+                NhsNumber = s.NhsNumber,
+                SupersededByNhsNumber = s.SupersededByNhsNumber,
+                PrimaryCareProvider = s.PrimaryCareProvider,
+                PrimaryCareProviderEffectiveFromDate = s.PrimaryCareProviderEffectiveFromDate,
+                NamePrefix = s.NamePrefix,
+                FirstName = s.FirstName,
+                OtherGivenNames = s.OtherGivenNames,
+                FamilyName = s.FamilyName,
+                PreviousFamilyName = s.PreviousFamilyName,
+                DateOfBirth = s.DateOfBirth,
+                Gender = s.Gender,
+                AddressLine1 = s.AddressLine1,
+                AddressLine2 = s.AddressLine2,
+                AddressLine3 = s.AddressLine3,
+                AddressLine4 = s.AddressLine4,
+                AddressLine5 = s.AddressLine5,
+                Postcode = s.Postcode,
+                UsualAddressEffectiveFromDate = s.UsualAddressEffectiveFromDate,
+                DateOfDeath = s.DateOfDeath,
+                TelephoneNumber = s.TelephoneNumber,
+                TelephoneNumberEffectiveFromDate = s.TelephoneNumberEffectiveFromDate,
+                MobileNumber = s.MobileNumber,
+                MobileNumberEffectiveFromDate = s.MobileNumberEffectiveFromDate,
+                EmailAddress = s.EmailAddress,
+                EmailAddressEffectiveFromDate = s.EmailAddressEffectiveFromDate,
+                PreferredLanguage = s.PreferredLanguage,
+                IsInterpreterRequired = s.IsInterpreterRequired,
+                ReasonForRemoval = s.ReasonForRemoval,
+                ReasonForRemovalEffectiveFromDate = s.ReasonForRemovalEffectiveFromDate,
+                ParticipantId = s.ParticipantId,
+                IsExtracted = s.Extracted,
+            }).ToList();
     }
 
     private void LogRequestAudit(string requestId, int statusCode)
@@ -240,10 +279,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
 
         UpdateRecords(SQLToExecuteInOrder);
-
     }
 
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsByRequestId(string requestId)
+    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
         var SQL = "SELECT" +
             " [PARTICIPANT_ID], " +
@@ -293,27 +331,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        return GetParticipant(command);
-    }
-
-    public List<CohortDistributionParticipant> GetCohortDistributionParticipantsMock(int serviceProviderId, int rowCount, string testDataJson)
-    {
-        try
-        {
-            var participants = JsonSerializer.Deserialize<List<CohortDistributionParticipant>>(testDataJson);
-
-            if (participants == null || participants.Count == 0) return [];
-
-            return participants
-                .Where(p => p.ServiceProviderId == serviceProviderId)
-                .Take(rowCount)
-                .ToList();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to read or deserialize CohortMockData.json.");
-            return [];
-        }
+        var cohortList = GetParticipant(command);
+        return CohortDistributionParticipantDto(cohortList, requestId);
     }
 
     public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
@@ -521,7 +540,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-    public List<CohortDistributionParticipant> GetParticipantsByRequestIds(List<string> requestIdsList)
+    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList)
     {
         if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, 1000);
 

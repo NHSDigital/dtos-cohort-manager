@@ -20,7 +20,8 @@ class TransformAction : ActionBase
 {
     public override async ValueTask<object> Run(ActionContext context, RuleParameter[] ruleParameters)
     {
-        try{
+        try
+        {
             var transformFields = context.GetContext<List<TransformFields>>("transformFields");
             var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
             var bsoCode = ruleParameters.Where(rule => rule.Name == "bsoCode").Select(result => result.Value).FirstOrDefault();
@@ -57,11 +58,10 @@ class TransformAction : ActionBase
             }
             return participant;
         }
-        catch(Exception ex)
+        catch (Exception)
         {
-            throw;
+            return null;
         }
-
     }
 
     private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, object bsoCode)

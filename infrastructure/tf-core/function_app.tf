@@ -9,7 +9,9 @@ module "functionapp" {
 
   app_settings = local.app_settings[each.value.region_key][each.value.function_key]
 
-  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
+  monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
 
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
