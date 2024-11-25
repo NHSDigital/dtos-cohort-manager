@@ -6,4 +6,7 @@ public interface IDataLookupFacade
     bool ValidateLanguageCode(string languageCode);
     bool CheckIfCurrentPostingExists(string currentPosting);
     bool ValidatePostingCategories(string currentPosting);
+    bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider);
+    string RetrievePostingCategory(string currentPosting);
 }
+

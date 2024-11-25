@@ -10,6 +10,7 @@ public class DataLookupFacade : IDataLookupFacade
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<CurrentPosting> _currentPostingClient;
+    private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
 
 
@@ -19,7 +20,8 @@ public class DataLookupFacade : IDataLookupFacade
         IDataServiceClient<BsSelectGpPractice> gpPracticeClient,
         IDataServiceClient<BsSelectOutCode> outcodeClient,
         IDataServiceClient<LanguageCode> languageCodeClient,
-        IDataServiceClient<CurrentPosting> currentPostingClient
+        IDataServiceClient<CurrentPosting> currentPostingClient,
+        IDataServiceClient<ExcludedSMULookup> excludedSMUClient
     )
     {
         _logger = logger;
@@ -27,6 +29,7 @@ public class DataLookupFacade : IDataLookupFacade
         _languageCodeClient = languageCodeClient;
         _outcodeClient = outcodeClient;
         _currentPostingClient = currentPostingClient;
+        _excludedSMUClient = excludedSMUClient;
     }
 
     /// <summary>
@@ -99,5 +102,15 @@ public class DataLookupFacade : IDataLookupFacade
             return true;
         }
         return false;
+    }
+    public bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider)
+    {
+        var result =  _excludedSMUClient.GetSingle(primaryCareProvider).Result;
+        return result != null;
+    }
+    public string RetrievePostingCategory(string currentPosting)
+    {
+        var result = _currentPostingClient.GetSingle(currentPosting).Result;
+        return result.PostingCategory;
     }
 }

@@ -20,6 +20,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
         .AddCachedDataService<LanguageCode>(config.LanguageCodeUrl)
         .AddCachedDataService<CurrentPosting>(config.CurrentPostingUrl)
+        .AddCachedDataService<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
         .Build()
     .ConfigureServices(services =>
     {

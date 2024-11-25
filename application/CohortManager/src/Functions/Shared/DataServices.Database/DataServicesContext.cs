@@ -9,6 +9,7 @@ public class DataServicesContext : DbContext
     DbSet<BsSelectOutCode> bsSelectOutcodes {get;set;}
     DbSet<LanguageCode> languageCodes {get;set;}
     DbSet<CurrentPosting> currentPostings {get;set;}
+    DbSet<ExcludedSMULookup> excludedSMULookups {get;set;}
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     {}
 
@@ -25,6 +26,9 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<CurrentPosting>()
             .ToTable("CURRENT_POSTING_LKP","dbo");
+
+        modelBuilder.Entity<ExcludedSMULookup>()
+            .ToTable("EXCLUDED_SMU_LKP","dbo");
 
     }
 
