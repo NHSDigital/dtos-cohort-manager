@@ -1,0 +1,46 @@
+name: cohort-manager-deps
+
+services:
+  azurite:
+    container_name: azurite
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite --silent
+    network_mode: host
+
+  azurite-setup:
+    container_name: azurite-setup
+    build:
+      context: ./
+      dockerfile: ./Set-up/azurite/Dockerfile
+    network_mode: host
+    depends_on:
+      - azurite
+    environment:
+      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
+
+  sql-edge:
+    container_name: db
+    network_mode: host
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${PASSWORD}
+    cap_add:
+      - SYS_PTRACE
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+
+  db-setup:
+    container_name: db-setup
+    network_mode: host
+    build: ./Set-up/database
+    depends_on:
+      sql-edge:
+        condition: service_healthy
+    environment:
+      - PASSWORD=${PASSWORD}
+      - DB_NAME=${DB_NAME}
