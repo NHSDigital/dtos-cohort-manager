@@ -39,7 +39,7 @@ public class RetrieveCohortDistributionData
         _httpParserHelper = httpParserHelper;
     }
 
-    [Function("RetrieveCohortDistributionData")]
+    [Function(nameof(RetrieveCohortDistributionData))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
