@@ -1,5 +1,5 @@
 import os
-from azure.identity import ClientSecretCredential
+from azure.identity.aio import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 import logging
 from config import *
@@ -25,7 +25,7 @@ def read_file(blob_client, filename):
 
     logging.info("File saved")
 
-def get_blob_client_azurite(filename):
+def get_blob_client(filename):
     """
     Sets up the blob client
 
@@ -36,34 +36,17 @@ def get_blob_client_azurite(filename):
         BlobClient
     """
 
-    AZURITE_CONNECTION_STRING = os.getenv("AZURITE_CONNECTION_STRING")
+    # if LOCAL_ENV:
+    CONNECTION_STRING = os.getenv("STORAGE_CONNECTION_STRING")
 
-    blob_service_client = BlobServiceClient.from_connection_string(AZURITE_CONNECTION_STRING, logging=azure_storage_logger)
-    blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=filename)
+    blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING, logging=azure_storage_logger)
+    # else:
+    #     credential = DefaultAzureCredential()
+    #     STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
+    #     blob_service_client_url = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
+        
+    #     blob_service_client = BlobServiceClient(account_url=blob_service_client_url, credential=credential, logging=azure_storage_logger)
 
-
-    return blob_client
-
-def get_blob_client_azure(filename):
-    """
-    Sets up the blob client
-
-    Parameters:
-        filename (string): the name of the blob
-
-    Returns:
-        BlobClient
-    """
-
-    credential = ClientSecretCredential(tenant_id=TENANT_ID, client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
-
-    STORAGE_ACCOUNT_NAME = os.getenv("STORAGE_ACCOUNT_NAME")
-
-    # Form the Blob Service Client URL
-    blob_service_client_url = f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
-    
-    # Create the BlobServiceClient with Entra ID credentials
-    blob_service_client = BlobServiceClient(account_url=blob_service_client_url, credential=credential, logging=azure_storage_logger)
     blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=filename)
 
     return blob_client

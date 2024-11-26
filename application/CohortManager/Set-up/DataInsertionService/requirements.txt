@@ -10,4 +10,4 @@ fastparquet
 python-dotenv
 sqlalchemy
 pyodbc
-pymsssql
+pymssql
