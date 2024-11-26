@@ -279,9 +279,9 @@ function_apps = {
     }
 
     AddParticipant = {
-      name_suffix            = "add-participant"
-      function_endpoint_name = "addParticipant"
-      app_service_plan_key   = "ParticipantManagementServices"
+      name_suffix                  = "add-participant"
+      function_endpoint_name       = "addParticipant"
+      app_service_plan_key         = "ParticipantManagementServices"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
@@ -625,7 +625,7 @@ function_apps = {
       function_endpoint_name = "TransformDataService"
       app_service_plan_key   = "CohortDistributionServices"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = [
+      app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
@@ -654,11 +654,11 @@ function_apps = {
     }
 
     CreateCohortDistribution = {
-      name_suffix            = "create-cohort-distribution"
-      function_endpoint_name = "CreateCohortDistribution"
-      app_service_plan_key   = "CohortDistributionServices"
+      name_suffix                  = "create-cohort-distribution"
+      function_endpoint_name       = "CreateCohortDistribution"
+      app_service_plan_key         = "CohortDistributionServices"
       storage_account_env_var_name = "caasfolder_STORAGE"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      db_connection_string         = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "RetrieveParticipantDataURL"
