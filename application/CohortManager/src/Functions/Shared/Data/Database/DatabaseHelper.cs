@@ -28,24 +28,28 @@ public class DatabaseHelper : IDatabaseHelper
     {
         if (string.IsNullOrEmpty(dateString)) return DBNull.Value;
 
-        dateString = dateString.Split(' ')[0];
-        DateTime tempDate = new DateTime();
-        string[] formats = { "dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy" };
-        bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ"];
+        bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
 
-        if (!success) _logger.LogError("Failed to parse date: {DateString}", dateString);
+        if (!success)
+        {
+            _logger.LogError("Failed to parse date: {DateString}", dateString);
+            return DBNull.Value;
+        }
 
         return tempDate;
     }
 
-    public object ParseDateTime(string dateTimeString)
+    public static string? FormatDateAPI(string date)
     {
-        if (string.IsNullOrEmpty(dateTimeString)) return DBNull.Value;
+        const string format = "yyyyMMdd";
 
-        string[] formats = { "dd/MM/yyyy HH:mm:ss" };
-        if (DateTime.TryParseExact(dateTimeString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime datetime)) return datetime;
+        if (!DateTime.TryParse(date?.Trim(), out var parsedDate))
+        {
+            return null;
+        }
 
-        return DBNull.Value;
+        return parsedDate.ToString(format);
     }
 
     public object ConvertNullToDbNull(string value)

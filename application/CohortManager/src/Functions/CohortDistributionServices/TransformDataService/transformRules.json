@@ -16,7 +16,7 @@
       },
       {
         "Name": "bsoCode",
-        "Expression": "dbLookup.GetBsoCode(participant.Postcode)"
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) ? dbLookup.GetBsoCode(participant.Postcode) : \"\""
       }
     ],
     "Rules": [

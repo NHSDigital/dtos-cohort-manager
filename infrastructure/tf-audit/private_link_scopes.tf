@@ -39,11 +39,11 @@ module "private_link_scope" {
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids = [
-      data.terraform_remote_state.hub.outputs.private_dns_zone_app_insight[each.key].private_dns_zone.id,
-      data.terraform_remote_state.hub.outputs.private_dns_zone_azure_automation[each.key].private_dns_zone.id,
-      data.terraform_remote_state.hub.outputs.private_dns_zone_od_insights[each.key].private_dns_zone.id,
-      data.terraform_remote_state.hub.outputs.private_dns_zone_op_insights[each.key].private_dns_zone.id,
-      data.terraform_remote_state.hub.outputs.private_dns_zone_storage_blob[each.key].private_dns_zone.id
+      data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-app_insights"].id,
+      data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-automation"].id,
+      data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-operations_data_store"].id,
+      data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-operations_management_suite"].id,
+      data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-storage_blob"].id
     ]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.key].names.subnet}-pep"].id

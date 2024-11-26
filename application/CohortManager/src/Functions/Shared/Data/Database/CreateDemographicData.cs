@@ -143,7 +143,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
                     {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
                     {"@RECORD_INSERT_DATETIME", DateTime.Now},
-                    {"@RECORD_UPDATE_DATETIME", _databaseHelper.ParseDateTime(demographic.RecordUpdateDateTime)}
+                    {"@RECORD_UPDATE_DATETIME", DBNull.Value}
                 },
             }
         };

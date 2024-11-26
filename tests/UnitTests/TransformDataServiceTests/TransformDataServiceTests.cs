@@ -502,7 +502,7 @@ public class TransformDataServiceTests
         // Arrange
         var reasonForRemovalEffectiveFromDate = "2/10/2024";
         var addressLine = "address";
-        var bsoCode = "ELD";
+        var bsoCode = !string.IsNullOrEmpty(postcode) ? "ELD" : "";
 
         _requestBody.Participant.PrimaryCareProvider = "Y00090";
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
