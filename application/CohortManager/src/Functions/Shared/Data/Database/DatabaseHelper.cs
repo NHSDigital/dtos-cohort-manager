@@ -48,6 +48,18 @@ public class DatabaseHelper : IDatabaseHelper
         return DBNull.Value;
     }
 
+    public static string? FormatDateAPI(string date)
+    {
+        const string format = "yyyyMMdd";
+
+        if (!DateTime.TryParse(date?.Trim(), out var parsedDate))
+        {
+            return null;
+        }
+
+        return parsedDate.ToString(format);
+    }
+
     public object ConvertNullToDbNull(string value)
     {
         return string.IsNullOrEmpty(value) ? DBNull.Value : value;
