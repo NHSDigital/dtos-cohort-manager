@@ -147,7 +147,7 @@
           },
           {
             "Name": "ReasonForRemovalNotDEA",
-            "Expression": "string.isNullOrEmpty(participant.ReasonForRemoval) OR participant.ReasonForRemoval  != \"DEA\""
+            "Expression": "!string.isNullOrEmpty(participant.ReasonForRemoval) && participant.ReasonForRemoval  != \"DEA\""
           }
         ],
         "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
