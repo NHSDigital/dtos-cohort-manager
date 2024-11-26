@@ -26,8 +26,7 @@ public class LanguageCodesDataService
     {
         try
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {data type} " ,req.Method,typeof(LanguageCode));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }

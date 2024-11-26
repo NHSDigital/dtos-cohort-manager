@@ -71,11 +71,11 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         else if(rowsEffected > 1)
         {
             await transaction.RollbackAsync();
-            _logger.LogError("Multiple Records where updated by PUT request, Changes have been Rolledback");
-            throw new Exception("Multiple Records where updated by PUT request, Changes have been Rolledback");
+            _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolledback");
+            throw new Exception("Multiple Records were updated by PUT request, Changes have been Rolledback");
         }
-        _logger.LogError("No records where updated despite a record being found");
-        throw new Exception("Multiple Records where updated by PUT request, Changes have been Rolledback");
+        _logger.LogError("No records were updated despite a record being found");
+        throw new Exception("Multiple Records were updated by PUT request, Changes have been Rolledback");
 
     }
 

@@ -44,7 +44,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
     {
-        //DataServiceResponse<string>
         _logger.LogInformation("Http Request Method of type {method} has been received", req.Method);
         _logger.LogInformation("DataService of type {type} has been called",typeof(TEntity) );
 
