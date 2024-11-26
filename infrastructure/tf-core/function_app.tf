@@ -121,7 +121,6 @@ locals {
             length(config.db_connection_string) > 0 ? {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
             } : {}
-
           )
 
           # These RBAC assignments are for the Function Apps only
