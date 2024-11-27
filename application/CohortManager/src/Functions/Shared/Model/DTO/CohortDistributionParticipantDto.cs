@@ -60,7 +60,7 @@ public class CohortDistributionParticipantDto
     [JsonPropertyName("preferred_language")]
     public string? PreferredLanguage { get; set; }
     [JsonPropertyName("interpreter_required")]
-    public string? IsInterpreterRequired { get; set; }
+    public int IsInterpreterRequired { get; set; }
     [JsonPropertyName("reason_for_removal")]
     public string? ReasonForRemoval { get; set; }
     [JsonPropertyName("reason_removal_eff_from_date")]
