@@ -22,7 +22,7 @@ public class CurrentPostingDataService
     }
 
     [Function("CurrentPostingDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "CurrentPostingDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {

@@ -22,7 +22,7 @@ public class BsSelectGpPracticeDataService
     }
 
     [Function("BsSelectGpPracticeDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "BsSelectGpPracticeDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
