@@ -79,10 +79,12 @@ public class DataLookupFacade : IDataLookupFacade
     public bool CheckIfCurrentPostingExists(string currentPosting)
     {
         var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.IncludedInCohort == "Y" && i.InUse == "Y").Result;
-        if(result == null){
+        if(result == null)
+        {
             return false;
         }
-        if(result.Any()){
+        if(result.Any())
+        {
             return true;
         }
         return false;
@@ -95,10 +97,12 @@ public class DataLookupFacade : IDataLookupFacade
     public bool ValidatePostingCategories(string currentPosting)
     {
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
-        if(result == null){
+        if(result == null)
+        {
             return false;
         }
-        if(allPossiblePostingCategories.Contains(result.PostingCategory)){
+        if(allPossiblePostingCategories.Contains(result.PostingCategory))
+        {
             return true;
         }
         return false;

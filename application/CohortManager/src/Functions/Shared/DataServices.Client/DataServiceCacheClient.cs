@@ -26,7 +26,6 @@ public class DataServiceCacheClient<TEntity> : DataServiceClient<TEntity> where 
         entity = await base.GetSingle(id);
         if(entity == null)
         {
-
             return null;
         }
         return _cache.Set<TEntity>(id,entity,TimeSpan.FromHours(1));

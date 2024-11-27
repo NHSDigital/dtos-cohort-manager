@@ -29,9 +29,9 @@ public class CallFunction : ICallFunction
         return await GetAsync(url);
     }
 
-    public async Task<bool> SendDelete(string uri)
+    public async Task<bool> SendDelete(string url)
     {
-        var request = (HttpWebRequest)WebRequest.Create(uri);
+        var request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "DELETE";
 
         using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
@@ -44,9 +44,9 @@ public class CallFunction : ICallFunction
 
         return false;
     }
-    private async Task<string> GetAsync(string uri)
+    private async Task<string> GetAsync(string url)
     {
-        var request = (HttpWebRequest)WebRequest.Create(uri);
+        var request = (HttpWebRequest)WebRequest.Create(url);
 
         using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
         {

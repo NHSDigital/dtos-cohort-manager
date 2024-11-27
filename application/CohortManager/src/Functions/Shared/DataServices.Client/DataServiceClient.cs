@@ -26,13 +26,11 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         {
             throw new InvalidDataException("Unable to resolve DataServiceUrl");
         }
-
         _callFunction = callFunction;
         _logger = logger;
 
-
-
     }
+
     public async Task<IEnumerable<TEntity>> GetAll()
     {
         var jsonString = await _callFunction.SendGet(_baseUrl);
@@ -70,8 +68,6 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             _logger.LogError(wex,"An Exception Happened while calling data service API");
             throw;
         }
-
-
     }
 
     public async Task<bool> Delete(string id)
@@ -79,8 +75,5 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var result = await _callFunction.SendDelete(_baseUrl+id);
         return result;
     }
-
-
-
 
 }
