@@ -21,8 +21,8 @@ public class BsSelectOutCodeDataService
         _createResponse = createResponse;
     }
 
-    [Function("BsSelectOutCode")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
+    [Function("BsSelectOutCodeDataService")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "BsSelectOutCodeDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {

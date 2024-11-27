@@ -22,7 +22,7 @@ public class LanguageCodesDataService
     }
 
     [Function("LanguageCodesDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "LanguageCodesDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
