@@ -46,7 +46,7 @@ public class DatabaseHelper : IDatabaseHelper
 
         if (!DateTime.TryParse(date?.Trim(), out var parsedDate))
         {
-            return null;
+            return string.Empty;
         }
 
         return parsedDate.ToString(format);
