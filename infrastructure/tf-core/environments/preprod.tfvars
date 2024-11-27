@@ -383,7 +383,7 @@ function_apps = {
         {
           env_var_name  = "CohortQueueName"
           env_var_value = "cohort-distribution-queue"
-        },
+        }
       ]
     }
 
