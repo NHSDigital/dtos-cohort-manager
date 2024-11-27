@@ -24,7 +24,7 @@ public class ExcludedSMULookupDataService
     }
 
     [Function("ExcludedSMULookupDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ExcludedSMULookupDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {

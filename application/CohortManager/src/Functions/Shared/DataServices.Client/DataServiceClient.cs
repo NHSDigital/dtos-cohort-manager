@@ -40,14 +40,33 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
     {
-        //Resolves the constants
-        var expr  = new ClosureResolver().Visit(predicate);
-        _logger.LogWarning(expr.ToString());
+
+        try{
+            //Resolves the constants
+            var expr  = new ClosureResolver().Visit(predicate);
+            _logger.LogWarning(expr.ToString());
 
 
-        var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
-        IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
-        return result;
+            var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
+            if(string.IsNullOrEmpty(jsonString))
+            {
+                return null;
+            }
+            IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
+            return result;
+
+        }
+        catch(WebException wex)
+        {
+            HttpWebResponse response = (HttpWebResponse)wex.Response;
+            if(response.StatusCode! == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            throw;
+        }
     }
 
     public virtual async Task<TEntity> GetSingle(string id)
