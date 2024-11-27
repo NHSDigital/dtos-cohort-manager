@@ -204,16 +204,10 @@ function_apps = {
           function_app_key = "StaticValidation"
         }
       ]
-      env_vars_static = [
-        {
-          env_var_name  = "BatchSize"
-          env_var_value = "3500"
-        },
-        {
-          env_var_name  = "AddQueueName"
-          env_var_value = "add-participant-queue"
-        }
-      ]
+      env_vars_static = {
+        BatchSize    = "3500"
+        AddQueueName = "add-participant-queue"
+      }
     }
 
     RetrieveMeshFile = {
@@ -300,16 +294,10 @@ function_apps = {
           function_app_key = "CreateCohortDistribution"
         }
       ]
-      env_vars_static = [
-        {
-          env_var_name  = "CohortQueueName"
-          env_var_value = "cohort-distribution-queue"
-        },
-        {
-          env_var_name  = "AddQueueName"
-          env_var_value = "add-participant-queue"
-        }
-      ]
+      env_vars_static = {
+        CohortQueueName = "cohort-distribution-queue"
+        AddQueueName    = "add-participant-queue"
+      }
     }
 
     RemoveParticipant = {
@@ -370,12 +358,9 @@ function_apps = {
           function_app_key = "MarkParticipantAsIneligible"
         }
       ]
-      env_vars_static = [
-        {
-          env_var_name  = "CohortQueueName"
-          env_var_value = "cohort-distribution-queue"
-        },
-      ]
+      env_vars_static = {
+        CohortQueueName = "cohort-distribution-queue"
+      }
     }
 
     CreateParticipant = {
@@ -645,16 +630,10 @@ function_apps = {
           function_app_key = "ValidateCohortDistributionRecord"
         }
       ]
-      env_vars_static = [
-        {
-          env_var_name  = "CohortQueueName"
-          env_var_value = "cohort-distribution-queue"
-        },
-        {
-          env_var_name  = "CohortQueueNamePoison"
-          env_var_value = "cohort-distribution-queue-poison"
-        }
-      ]
+      env_vars_static = {
+        CohortQueueName       = "cohort-distribution-queue"
+        CohortQueueNamePoison = "cohort-distribution-queue-poison"
+      }
     }
 
     RetrieveParticipantData = {

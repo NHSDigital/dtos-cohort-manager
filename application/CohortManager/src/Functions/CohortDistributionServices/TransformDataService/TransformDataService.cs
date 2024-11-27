@@ -86,7 +86,7 @@ public class TransformDataService
         }
         catch (TransformationException ex)
         {
-            _logger.LogWarning("An error occured during transformation", ex);
+            _logger.LogWarning(ex, "An error occurred during transformation");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -101,7 +101,7 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> {{"TransformAction", () => new TransformAction()}};
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() } };
         var reSettings = new ReSettings
         {
             CustomActions = actions,
