@@ -42,7 +42,6 @@ public class DataLookupFacade : IDataLookupFacade
     {
         _logger.LogInformation("Checking Primary Care Provider {primaryCareProvider} Exists", primaryCareProvider);
         var result =  _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
-        _logger.LogCritical($"{primaryCareProvider} existed {result != null}");
         return result != null;
     }
 
