@@ -194,7 +194,10 @@ variable "function_apps" {
         env_var_name     = string
         function_app_key = string
       })), [])
-      env_vars_static = optional(map(string), {})
+      env_vars_static = optional(list(object({
+        env_var_name  = string
+        env_var_value = string
+      })), [])
     }))
   })
 }
