@@ -14,21 +14,11 @@ def setup_azurite():
 
     try:
         blob_service_client.create_container("inbound")
-        blob_service_client.create_container("rules")
         blob_service_client.create_container("file-exceptions")
         queue_service_client.create_queue("add-participant-queue")
         queue_service_client.create_queue("add-participant-queue-poison")
         print("Queues & blob containers created")
     except ResourceExistsError:
         print("Queues & blob containers already exist")
-
-    rules_client = blob_service_client.get_container_client("rules")
-
-    for file in os.listdir("../../rules"):
-        blob_client = rules_client.get_blob_client(file)
-        with open(f"../../rules/{file}", "rb") as data:
-            blob_client.upload_blob(data)
-
-    print("Rules uploaded to blob container")
 
 setup_azurite()
