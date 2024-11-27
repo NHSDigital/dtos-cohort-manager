@@ -88,20 +88,6 @@ public class LookupValidation
                 resultList.AddRange(ActionResults);
             }
 
-            foreach(var result in resultList)
-            {
-                if(result.IsSuccess == false){
-                    _logger.LogError(result.Rule.RuleName);
-                }
-                if(!string.IsNullOrEmpty(result.ExceptionMessage))
-                {
-                    _logger.LogError(result.ExceptionMessage);
-                }
-            }
-            var item = string.IsNullOrEmpty(newParticipant.CurrentPosting) || _dataLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting);
-
-            _logger.LogCritical($"{item.ToString()}");
-
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
