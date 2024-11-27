@@ -62,3 +62,7 @@ application/CohortManager/Set-up/SampleData/CaaSSchema02.json
 infrastructure/.terraform.lock.hcl
 infrastructure/tf-core/.terraform.lock.hcl
 infrastructure/tf-audit/.terraform.lock.hcl
+
+.python_packages
+__pycache__
+.vscode/extensions.json
