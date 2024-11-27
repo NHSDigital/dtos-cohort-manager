@@ -37,9 +37,25 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 Download docker engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
 
-First, copy the .env.example file, rename it to just ".env", enter a password that meets the security requirements, and enter the azurite connection string
+First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-To run the system locally, in the CohortManager directory, run `docker compose up`, this will run all of the functions.
+The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
+
+- compose.deps.yaml - contains the database, azurite and setup containers, this must be run before the other files
+- compose.core.yaml - contains the application minus cohort distribution
+- compose.cohort-distribution.yaml - cohort distribution
+- compose.yaml - imports the core and cohort distribution files so they can be interacted with together
+
+To build and run the system locally:
+
+```bash
+# Build the functions
+docker compose -f compose.core.yaml build
+docker compose -f compose.cohort-distribution.yaml build
+
+docker compose -f compose.deps.yaml up --build -d # Run the deps before the rest of the functions
+docker compose up # Run the functions
+```
 
 Other useful commands:
 
@@ -69,7 +85,7 @@ Download Colima using [these instructions](https://smallsharpsoftwaretools.com/t
 Add the environment variables using the instructions in the windows setup
 
 You can then run and setup the dependencies using docker:
-    `docker compose up azurite-setup db-setup`
+    `docker compose -f compose.deps.yaml up`
 
 ### Functions
 

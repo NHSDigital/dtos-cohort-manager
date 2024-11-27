@@ -26,16 +26,21 @@ public class TransformDataService
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IDbLookupValidationBreastScreening _dbLookup;
     private readonly IBsTransformationLookups _transformationLookups;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
-                                IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
+    private readonly ITransformDataLookupFacade _dataLookup;
+    public TransformDataService(
+        ICreateResponse createResponse,
+        IExceptionHandler exceptionHandler,
+        ILogger<TransformDataService> logger,
+        IBsTransformationLookups transformationLookups,
+        ITransformDataLookupFacade dataLookup
+    )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformationLookups = transformationLookups;
-        _dbLookup = dbLookup;
+        _dataLookup = dataLookup;
     }
 
     [Function("TransformDataService")]
@@ -108,7 +113,7 @@ public class TransformDataService
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
             new RuleParameter("transformLookups", _transformationLookups),
-            new RuleParameter("dbLookup", _dbLookup),
+            new RuleParameter("dbLookup",_dataLookup)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
