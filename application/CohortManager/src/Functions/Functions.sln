@@ -128,6 +128,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortReplay", "Coh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticTests", "..\..\..\..\tests\UnitTests\StaticTests\StaticTests.csproj", "{1E99A3AD-6BCE-4772-AED2-CF895F945D31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Database", "Shared\DataServices.Database\DataServices.Database.csproj", "{C5344540-1189-4AFD-B5B7-A0FD433937A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsSelectGpPractice", "screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj", "{2A6C992E-3599-40E9-B2A2-677F4FCA88E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Core", "Shared\DataServices.Core\DataServices.Core.csproj", "{5DF1B206-87EA-4EC8-B579-358C3A2608FD}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "dotnet-mesh-client", "dotnet-mesh-client", "{A80097AA-4EAB-4E8A-97D1-7B480DCD5407}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{57F325D0-5499-4BA3-9273-DAF208C20210}"
@@ -149,6 +155,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Client", "Shared\DataServices.Client\DataServices.Client.csproj", "{420B8566-2CE2-4B89-A0E4-D86C6AB24722}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsSelectOutCode", "screeningDataServices\BsSelectOutCode\BsSelectOutCode.csproj", "{DFF9E27F-D313-482B-BAF6-8506D771600E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageCodesDataService", "screeningDataServices\LanguageCodesDataService\LanguageCodesDataService.csproj", "{95B31F6C-8854-4E01-975B-424750A52A02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrentPosting", "screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj", "{9974CB33-DDF0-4CBD-95F8-6CA94F2F04E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\DataServiceTests\DataServiceTests.csproj", "{824D0893-14F9-47D9-B381-3BB899B4CBDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcludedSMULookupDataServices", "screeningDataServices\ExcludedSMULookupDataService\ExcludedSMULookupDataServices.csproj", "{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -372,6 +390,10 @@ Global
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -416,6 +438,7 @@ Global
 		{7D2ACE1A-2691-484E-B227-392B2CDEF2EA} = {A80097AA-4EAB-4E8A-97D1-7B480DCD5407}
 		{6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109} = {7D2ACE1A-2691-484E-B227-392B2CDEF2EA}
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3} = {6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109}
+		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

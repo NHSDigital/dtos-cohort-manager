@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Azure.Core.Serialization;
 using System.Net;
 using Common;
+using System.Collections.Specialized;
+using System.Text.Json;
 
 public static class MockHelpers
 {
@@ -33,6 +35,33 @@ public static class MockHelpers
         requestData.Setup(context => context.Headers).Returns(headersForHttpRequestData);
 
         return requestData.Object;
+    }
+
+    public static HttpRequestData CreateMockHttpRequestDataWithMethod(string? body, string method, NameValueCollection headers)
+    {
+        var context = new Mock<FunctionContext>();
+        var requestData = new Mock<HttpRequestData>(context.Object);
+
+        if(!string.IsNullOrEmpty(body))
+        {
+            var bodyForHttpRequest = GetBodyForHttpRequest(body);
+            requestData.Setup(context => context.Body).Returns(bodyForHttpRequest);
+        }
+
+        requestData.Setup(i => i.Method).Returns(method);
+        requestData.Setup(i => i.Query).Returns(headers);
+
+
+        return requestData.Object;
+    }
+
+    public static async Task<TEntity> GetResponseBodyAsObject<TEntity>(HttpResponseData httpResponseData)
+    {
+        using (var reader = new StreamReader(httpResponseData.Body)){
+            var result = await reader.ReadToEndAsync();
+            return JsonSerializer.Deserialize<TEntity>(result);
+        }
+
     }
 
     public static HttpWebResponse CreateMockHttpResponseData(HttpStatusCode statusCode, string body = null)
