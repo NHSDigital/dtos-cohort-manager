@@ -5,9 +5,9 @@
 azure-functions
 azure-identity
 azure-storage-blob
+azure-core
 pandas
 fastparquet
-python-dotenv
 sqlalchemy
 pyodbc
 pymssql

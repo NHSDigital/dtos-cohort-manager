@@ -3,7 +3,7 @@ import logging
 
 """Global config variables"""
 
-LOCAL_ENV = os.getenv("LOCAL_ENVIRONMENT")
+LOCAL_ENV = os.getenv("LOCAL_ENVIRONMENT", False)
 
 azure_storage_logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
 

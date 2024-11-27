@@ -2,7 +2,7 @@ import os
 from azure.identity.aio import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 import logging
-from config import *
+from config import LOCAL_ENV, azure_storage_logger
 
 BLOB_CONTAINER_NAME = os.getenv("BLOB_CONTAINER_NAME")
 
@@ -16,14 +16,20 @@ def read_file(blob_client, filename):
     """
     logging.info("Reading file")
 
-    # Open a local file to write the blob content
-    with open(filename, "wb") as file:
-        # Download the blob and write it to a file in chunks
-        download_stream = blob_client.download_blob()
-        for chunk in download_stream.chunks():
-            file.write(chunk)
+    # path = "/tmp/" + filename if not LOCAL_ENV else filename
+
+    # # Open a local file to write the blob content
+    # with open(path, "wb") as file:
+    #     # Download the blob and write it to a file in chunks
+    #     download_stream = blob_client.download_blob()
+    #     for chunk in download_stream.chunks():
+            # file.write(chunk)
+    
+    stream = blob_client.download_blob().readall()
 
     logging.info("File saved")
+
+    return stream
 
 def get_blob_client(filename):
     """
