@@ -205,10 +205,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        BatchSize = "3500"
-        AddQueueName = "add-participant-queue"
+        BatchSize                  = "3500"
+        AddQueueName               = "add-participant-queue"
         recordThresholdForBatching = "3"
-        batchDivisionFactor = "5"
+        batchDivisionFactor        = "5"
       }
 
     }
@@ -301,7 +301,7 @@ function_apps = {
 
       env_vars_static = {
         CohortQueueName = "cohort-distribution-queue"
-        AddQueueName = "add-participant-queue"
+        AddQueueName    = "add-participant-queue"
       }
 
     }
@@ -668,7 +668,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortQueueName = "cohort-distribution-queue"
+        CohortQueueName       = "cohort-distribution-queue"
         CohortQueueNamePoison = "cohort-distribution-queue-poison"
       }
     }
