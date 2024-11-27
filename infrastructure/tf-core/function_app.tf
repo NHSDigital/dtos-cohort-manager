@@ -79,7 +79,7 @@ locals {
         {
           app_settings = merge(
             local.app_settings_common,
-            # config.env_vars_static,
+            config.env_vars_static,
 
             # # Dynamic env vars which cannot be stored in tfvars file
             # function == "example-function" ? {
@@ -94,12 +94,6 @@ locals {
                 var.function_apps.fa_config[obj.function_app_key].name_suffix,
                 var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
               )
-            },
-            {
-              for obj in config.env_vars_static : obj.env_var_name => {
-                for env_var_key, env_var_value in value.env_vars_static :
-                env_var_value.env_var_name => env_var_value.env_var_value
-              }
             },
 
             # Dynamic reference to Key Vault
