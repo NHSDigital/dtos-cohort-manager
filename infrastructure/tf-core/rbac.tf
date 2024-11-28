@@ -1,11 +1,17 @@
 locals {
-  rbac_roles_storage = {
-    storage_account_contributor    = "Storage Account Contributor"
-    storage_blob_data_owner        = "Storage Blob Data Owner"
-    storage_queue_data_contributor = "Storage Queue Data Contributor"
-  }
+  rbac_roles_key_vault = [
+    "Key Vault Certificate User",
+    "Key Vault Crypto User",
+    "Key Vault Secrets User"
+  ]
 
-  rbac_roles_database = {
-    sql_contributor = "Contributor"
-  }
+  rbac_roles_storage = [
+    "Storage Account Contributor",
+    "Storage Blob Data Owner",
+    "Storage Queue Data Contributor"
+  ]
+
+  rbac_roles_database = [
+    "Contributor"
+  ]
 }

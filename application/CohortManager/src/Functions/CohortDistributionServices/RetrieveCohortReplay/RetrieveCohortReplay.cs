@@ -37,8 +37,8 @@ public class RetrieveCohortReplay
         _httpParserHelper = httpParserHelper;
     }
 
-    [Function("RetrieveCohortReplay")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    [Function(nameof(RetrieveCohortReplay))]
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
         if (string.IsNullOrEmpty(requestId)) return _httpParserHelper.LogErrorResponse(req, "No RequestId has been provided.");

@@ -53,7 +53,7 @@ public class CreateParticipantData : ICreateParticipantData
             { "@reasonForRemovalDate", _databaseHelper.ParseDates(participantData.ReasonForRemovalEffectiveFromDate)},
             { "@businessRuleVersion", _databaseHelper.ParseDates(participantData.BusinessRuleVersion)},
             { "@exceptionFlag", _databaseHelper.ParseExceptionFlag(_databaseHelper.ConvertNullToDbNull(participantData.ExceptionFlag)) },
-            { "@recordInsertDateTime", DateTime.Now},
+            { "@recordInsertDateTime", _databaseHelper.ParseDates(participantData.RecordInsertDateTime)},
             { "@recordUpdateDateTime", DBNull.Value},
             { "@recordType", _databaseHelper.ConvertNullToDbNull(participantData.RecordType)},
         };

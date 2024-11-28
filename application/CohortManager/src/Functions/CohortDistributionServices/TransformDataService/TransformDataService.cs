@@ -19,23 +19,28 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using RulesEngine.Actions;
+using System.ComponentModel.DataAnnotations;
 
 public class TransformDataService
 {
     private readonly ILogger<TransformDataService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-
-    private readonly IDbLookupValidationBreastScreening _dbLookup;
     private readonly IBsTransformationLookups _transformationLookups;
-    public TransformDataService(ICreateResponse createResponse, IExceptionHandler exceptionHandler, ILogger<TransformDataService> logger,
-                                IBsTransformationLookups transformationLookups, IDbLookupValidationBreastScreening dbLookup)
+    private readonly ITransformDataLookupFacade _dataLookup;
+    public TransformDataService(
+        ICreateResponse createResponse,
+        IExceptionHandler exceptionHandler,
+        ILogger<TransformDataService> logger,
+        IBsTransformationLookups transformationLookups,
+        ITransformDataLookupFacade dataLookup
+    )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformationLookups = transformationLookups;
-        _dbLookup = dbLookup;
+        _dataLookup = dataLookup;
     }
 
     [Function("TransformDataService")]
@@ -76,7 +81,13 @@ public class TransformDataService
             participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
             var response = JsonSerializer.Serialize(participant);
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+        }
+        catch (TransformationException ex)
+        {
+            _logger.LogWarning(ex, "An error occurred during transformation");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
@@ -90,7 +101,7 @@ public class TransformDataService
     {
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, { "TransformError", () => new TransformError() } };
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() } };
         var reSettings = new ReSettings
         {
             CustomActions = actions,
@@ -102,32 +113,12 @@ public class TransformDataService
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
             new RuleParameter("transformLookups", _transformationLookups),
-            new RuleParameter("dbLookup", _dbLookup),
-            new RuleParameter("bsoCode", _dbLookup.RetrieveBSOCode(participant.Postcode))
+            new RuleParameter("dbLookup",_dataLookup)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        var result = resultList.Where(result => result.IsSuccess)
-            .Select(result => result.ActionResult.Output)
-            .FirstOrDefault();
-
-
-
-        var failedTransforms = resultList.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) || !i.IsSuccess).ToList();
-
-        if (failedTransforms.Any())
-        {
-            var participantCsvRecord = new ParticipantCsvRecord
-            {
-                Participant = new Participant(participant),
-                FileName = "",
-            };
-
-            await _exceptionHandler.CreateValidationExceptionLog(failedTransforms, participantCsvRecord);
-
-            return participant;
-        }
+        await HandleExceptions(resultList, participant);
 
         return participant;
     }
@@ -180,6 +171,8 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
 
+        await HandleExceptions(rulesList, participant);
+
         participant.FirstName = GetTransformedData<string>(rulesList, "FirstName", participant.FirstName);
         participant.FamilyName = GetTransformedData<string>(rulesList, "FamilyName", participant.FamilyName);
 
@@ -212,5 +205,17 @@ public class TransformDataService
         if (result == null) return currentValue;
 
         return result.ActionResult.Output == null ? currentValue : (T)result.ActionResult.Output;
+    }
+
+    private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
+    {
+        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
+                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
+        if (failedTransforms.Any())
+        {
+            System.Console.WriteLine("Throwing exception");
+            await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
+            throw new TransformationException("There was an error during transformation");
+        }
     }
 }

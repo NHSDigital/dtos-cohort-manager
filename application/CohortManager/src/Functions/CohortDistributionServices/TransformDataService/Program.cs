@@ -1,16 +1,26 @@
+
+
 using Common;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Data.Database;
+using DataServices.Client;
+using Model;
+using NHS.CohortManager.CohortDistribution;
 
-var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+var hostBuilder = new HostBuilder();
+
+hostBuilder.AddConfiguration<TransformDataServiceConfig>(out TransformDataServiceConfig config);
+
+var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler()
+        .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
-        services.AddTransient<IDbLookupValidationBreastScreening, DbLookupValidationBreastScreening>();
+        services.AddSingleton<ITransformDataLookupFacade,TransformDataLookupFacade>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

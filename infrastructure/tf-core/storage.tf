@@ -9,6 +9,9 @@ module "storage" {
 
   containers = each.value.containers
 
+  log_analytics_workspace_id                              = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
+
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
@@ -17,8 +20,8 @@ module "storage" {
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
-    private_dns_zone_ids_blob            = [data.terraform_remote_state.hub.outputs.private_dns_zone_storage_blob[each.value.region_key].private_dns_zone.id]
-    private_dns_zone_ids_queue           = [data.terraform_remote_state.hub.outputs.private_dns_zone_storage_queue[each.value.region_key].private_dns_zone.id]
+    private_dns_zone_ids_blob            = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region_key}-storage_blob"].id]
+    private_dns_zone_ids_queue           = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region_key}-storage_queue"].id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region_key].name

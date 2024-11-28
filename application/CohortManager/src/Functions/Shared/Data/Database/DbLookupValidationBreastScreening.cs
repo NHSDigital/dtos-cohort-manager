@@ -1,11 +1,15 @@
 namespace Data.Database;
 using System.Data;
+using DataServices.Client;
+using Model;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Various validation methods for use in the breast screening lookup/ cohort rules
 /// </summary>
+///
+[Obsolete("Deprecated Please use DataLookupFacade Instead",true)]
 public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreening
 {
     private IDbConnection _connection;
@@ -13,13 +17,25 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
 
     private readonly ILogger<DbLookupValidationBreastScreening> _logger;
 
+    private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
+    private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
+    private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
-
-    public DbLookupValidationBreastScreening(IDbConnection IdbConnection, ILogger<DbLookupValidationBreastScreening> logger)
+    [Obsolete("Replaced by LookupFacade Class")]
+    public DbLookupValidationBreastScreening(
+        IDbConnection IdbConnection,
+        ILogger<DbLookupValidationBreastScreening> logger,
+        IDataServiceClient<BsSelectGpPractice> gpPracticeServiceClient,
+        IDataServiceClient<BsSelectOutCode> outcodeClient,
+        IDataServiceClient<LanguageCode> languageCodeClient
+        )
     {
         _connection = IdbConnection;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
         _logger = logger;
+        _gpPracticeServiceClient = gpPracticeServiceClient;
+        _outcodeClient = outcodeClient;
+        _languageCodeClient = languageCodeClient;
     }
 
     /// <summary>
@@ -30,32 +46,9 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
     public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
-        try
-        {
-            using (_connection = new SqlConnection(_connectionString))
-            {
-                _connection.Open();
-                using (IDbCommand command = _connection.CreateCommand())
-                {
-                    command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider";
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@primaryCareProvider";
-                    parameter.Value = primaryCareProvider;
-                    command.Parameters.Add(parameter);
-
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-
-                        return reader.Read();
-                    }
-                }
-            }
-        }
-        finally
-        {
-            _connection.Close();
-        }
-
+        _logger.LogInformation("Checking Primary Care Provider {primaryCareProvider} Exists", primaryCareProvider);
+        var result =  _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
+        return result != null;
     }
 
 
@@ -67,32 +60,14 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
-        try
-        {
-            var outcode = postcode.Substring(0, postcode.IndexOf(" "));
 
-            using (_connection = new SqlConnection(_connectionString))
-            {
-                _connection.Open();
-                using (IDbCommand command = _connection.CreateCommand())
-                {
-                    command.CommandText = $"SELECT OUTCODE FROM [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] WHERE OUTCODE = @outcode";
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@outcode";
-                    parameter.Value = outcode ?? string.Empty;
-                    command.Parameters.Add(parameter);
 
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        return reader.Read();
-                    }
-                }
-            }
-        }
-        finally
-        {
-            _connection.Close();
-        }
+        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        _logger.LogInformation("Valdating Outcode: {outcode}",outcode);
+        var result = _outcodeClient.GetSingle(outcode);
+
+        return result != null;
+
 
     }
 
@@ -129,6 +104,10 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
                 }
             }
         }
+        catch (Exception)
+        {
+            throw new System.ComponentModel.DataAnnotations.ValidationException();
+        }
         finally
         {
             _connection.Close();
@@ -142,33 +121,9 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
     /// <returns>bool, whether or not the language code exists in the DB.<returns>
     public bool ValidateLanguageCode(string languageCode)
     {
-        try
-        {
-            using (_connection = new SqlConnection(_connectionString))
-            {
-                _connection.Open();
-                using (IDbCommand command = _connection.CreateCommand())
-                {
-                    command.CommandText = $"SELECT LANGUAGE_CODE FROM [dbo].[LANGUAGE_CODES] WHERE LANGUAGE_CODE = @languageCode";
-                    var parameter = command.CreateParameter();
-                    parameter.ParameterName = "@languageCode";
-                    parameter.Value = languageCode ?? string.Empty;
-                    command.Parameters.Add(parameter);
-
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-
-                        return reader.Read();
-                    }
-                }
-            }
-        }
-
-        finally
-        {
-            _connection.Close();
-        }
-
+        _logger.LogInformation("Valdating Language Code: {languageCode}",languageCode);
+        var result = _languageCodeClient.GetSingle(languageCode).Result;
+        return result != null;
     }
 
     /// Used in rule 58 of the lookup rules.
@@ -249,5 +204,75 @@ public class DbLookupValidationBreastScreening : IDbLookupValidationBreastScreen
             _connection.Close();
         }
     }
-}
 
+    /// <summary>
+    /// takes in posting and returns a valid posting category (if exists) from the database
+    /// </summary>
+    /// <param name="currentPosting"></param>
+    /// <returns></returns>
+    public string RetrievePostingCategory(string currentPosting)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT POSTING_CATEGORY FROM [dbo].[CURRENT_POSTING_LKP] WHERE POSTING = @currentPosting;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@currentPosting";
+                    parameter.Value = currentPosting ?? string.Empty;
+                    command.Parameters.Add(parameter);
+
+                    var postingCategory = "";
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            postingCategory = reader["POSTING_CATEGORY"].ToString() ?? string.Empty;
+                        }
+                    }
+                    return string.Empty;
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+
+    /// <summary>
+    /// Check if the Primary Care Provider is on the 'Excluded SMU list'
+    /// </summary>
+    /// <param name="primaryCareProvider"></param>
+    /// <returns></returns>
+    public bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider)
+    {
+        try
+        {
+            using (_connection = new SqlConnection(_connectionString))
+            {
+                using (IDbCommand command = _connection.CreateCommand())
+                {
+                    _connection.Open();
+                    command.CommandText = $"SELECT GP_PRACTICE_CODE FROM [dbo].[EXCLUDED_SMU_LKP] WHERE GP_PRACTICE_CODE = @primaryCareProvider;";
+                    var parameter = command.CreateParameter();
+                    parameter.ParameterName = "@primaryCareProvider";
+                    parameter.Value = primaryCareProvider;
+                    command.Parameters.Add(parameter);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        return reader.Read();
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _connection.Close();
+        }
+    }
+}

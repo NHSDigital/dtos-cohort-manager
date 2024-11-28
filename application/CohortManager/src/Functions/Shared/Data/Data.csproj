@@ -14,6 +14,8 @@
     <ItemGroup>
     <ProjectReference Include="..\Model\Model.csproj" />
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\DataServices.Client\DataServices.Client.csproj" />
+    <ProjectReference Include="..\DataServices.Database\DataServices.Database.csproj" />
     </ItemGroup>
 
 </Project>
