@@ -41,7 +41,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
     {
 
-        try{
+        try
+        {
             //Resolves the constants
             var expr  = new ClosureResolver().Visit(predicate);
             _logger.LogWarning(expr.ToString());
