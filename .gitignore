@@ -50,6 +50,7 @@ local.settings.json
 application/CohortManager/SampleData/
 *.csv
 *.parquet
+*.txt
 
 # Python
 *.pyc
