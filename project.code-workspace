@@ -17,11 +17,11 @@
         "request": "attach"
       },
       {
-        "name": "receiveCaasFile",
+        "name": "processCaasFile",
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build",
-        "program": "${workspaceFolder}/bin/Debug/receiveCaasFile.dll",
+        "program": "${workspaceFolder}/bin/Debug/processCaasFile.dll",
         "args": [],
         "cwd": "${workspaceFolder}",
         "stopAtEntry": false,

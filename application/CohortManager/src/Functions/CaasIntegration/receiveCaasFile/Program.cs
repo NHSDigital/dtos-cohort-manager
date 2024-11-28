@@ -22,6 +22,7 @@ try
         services.AddTransient<ICallFunction, CallFunction>();
         services.AddTransient<IScreeningServiceData, ScreeningServiceData>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
+        services.AddSingleton<IProcessCaasFile, ProcessCaasFile>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
