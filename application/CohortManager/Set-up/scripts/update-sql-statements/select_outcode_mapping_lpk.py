@@ -12,6 +12,14 @@
 
 
 import csv
+import datetime
+
+def timestamp_conversion(time):
+  date_str = time[0:19]
+  format_str = '%d/%m/%Y %H:%M:%S' # The format
+  datetime_obj = datetime.datetime.strptime(date_str, format_str)
+  return datetime_obj  
+
 filepath = input("Enter your file path: ")
 with open(filepath, mode ='r')as input_file:
   csvFile = csv.reader(input_file)
@@ -22,11 +30,13 @@ with open(filepath, mode ='r')as input_file:
         outcode = schema[0]
         bso = schema[1]
         audit_id = schema[2]
-        audit_created_timestamp = schema[3]
-        audit_last_modified_timestamp = schema[4]
+        aud_created = schema[3]
+        audit_created_timestamp = timestamp_conversion(aud_created)
+        aud_last_mod = schema[4]
+        audit_last_modified_timestamp = timestamp_conversion(aud_last_mod)
         audit_text = schema[5]
 
-        output_file.write('\t(\'' + outcode + '\', \'' + bso + '\', \'' + audit_id + '\', CONVERT(DATETIME, \'' + audit_created_timestamp[0:19] 
-              + '\', 120), CONVERT(DATETIME, \'' + audit_last_modified_timestamp[0:19] + '\', 120), \'' + audit_text +'\'), \n')
+        output_file.write('\t(\'' + outcode + '\', \'' + bso + '\', \'' + audit_id + '\', \'' + str(audit_created_timestamp) 
+              + '\', \'' + str(audit_last_modified_timestamp) + '\', \'' + audit_text +'\'), \n')
         
 print('File created!')
