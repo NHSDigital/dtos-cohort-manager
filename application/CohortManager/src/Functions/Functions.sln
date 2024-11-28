@@ -16,8 +16,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "addParticipant", "ParticipantManagementServices\addParticipant\addParticipant.csproj", "{A47CFB75-1972-4BFB-98A1-9933FD5E086F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "processCaasFile", "CaasIntegration\processCaasFile\processCaasFile.csproj", "{11BE4A36-F6EC-422E-98F3-D27D4A7717B5}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFile", "CaasIntegration\receiveCaasFile\receiveCaasFile.csproj", "{AE6D7A1A-E034-470B-8AB5-793AFE4C9C51}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "updateParticipant", "ParticipantManagementServices\updateParticipant\updateParticipant.csproj", "{7BFA62FE-3066-45C1-B675-2266A28D0F96}"
@@ -86,7 +84,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionData",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveCohortDistributionData", "CohortDistributionServices\RemoveCohortDistributionData\RemoveCohortDistributionData.csproj", "{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetCohortDistributionParticipants", "CohortDistributionServices\GetCohortDistributionParticipants\GetCohortDistributionParticipants.csproj", "{858FB86B-B4B4-4CFB-8101-0D86C14E83C9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
 EndProject
