@@ -9,25 +9,30 @@ using Microsoft.Extensions.Logging;
 using Data.Database;
 using Common;
 using Model;
+using DataServices.Client;
+using Microsoft.EntityFrameworkCore.Query;
 
 public class CreateParticipant
 {
     private readonly ILogger<CreateParticipant> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICreateParticipantData _createParticipantData;
     private readonly IExceptionHandler _handleException;
-    private readonly IParticipantManagerData _participantManagerData;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICallFunction _callFunction;
     static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
-    public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, IExceptionHandler handleException, IParticipantManagerData participantManagerData, ICallFunction callFunction)
+    public CreateParticipant(ILogger<CreateParticipant> logger,
+        ICreateResponse createResponse,
+        IExceptionHandler handleException,
+        ICallFunction callFunction,
+        IDataServiceClient<ParticipantManagement> participantManagementClient
+        )
     {
         _logger = logger;
         _createResponse = createResponse;
-        _createParticipantData = createParticipantData;
         _handleException = handleException;
-        _participantManagerData = participantManagerData;
         _callFunction = callFunction;
+        _participantManagementClient = participantManagementClient;
     }
 
     [Function("CreateParticipant")]
@@ -44,8 +49,19 @@ public class CreateParticipant
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
-            var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
+            // var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+
+            var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantCsvRecord.Participant.NhsNumber && i.ScreeningId.ToString() == participantCsvRecord.Participant.ScreeningId);
+            Participant existingParticipant = new Participant();
+
+            if(existingParticipantResult != null && existingParticipantResult.Any())
+            {
+                existingParticipant = new Participant(existingParticipantResult.FirstOrDefault());
+            }
+
+
+
+            var response = await ValidateData(existingParticipant, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
                 _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
@@ -56,17 +72,25 @@ public class CreateParticipant
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
-            //prevents deadlocks
-            await semaphoreSlim.WaitAsync();
-            bool participantCreated;
-            try
-            {
-                participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
-            }
-            finally
-            {
-                semaphoreSlim.Release();
-            }
+
+
+
+
+            var participantCreated = await  _participantManagementClient.Add(new ParticipantManagement{
+                ScreeningId = Int64.Parse(participantCsvRecord.Participant.ScreeningId),
+                NHSNumber = Int64.Parse(participantCsvRecord.Participant.NhsNumber),
+                ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
+                ReasonForRemovalDate = ParseNullableDateTime(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
+                BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
+                ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
+                RecordInsertDateTime = ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
+                RecordUpdateDateTime = ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
+                RecordType = participantCsvRecord.Participant.RecordType
+
+            });
+
+
+
             if (participantCreated)
             {
                 _logger.LogInformation("Successfully created the participant");
@@ -100,5 +124,14 @@ public class CreateParticipant
             _logger.LogInformation(ex,$"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
+    }
+
+    private DateTime? ParseNullableDateTime(string dateTimeString)
+    {
+        if(DateTime.TryParse(dateTimeString,out var result))
+        {
+            return result;
+        }
+        return null;
     }
 }
