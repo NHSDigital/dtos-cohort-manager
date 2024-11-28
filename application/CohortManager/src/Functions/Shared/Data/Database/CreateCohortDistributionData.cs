@@ -211,7 +211,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
         }
 
-        LogRequestAudit(requestId, (int)HttpStatusCode.InternalServerError);
+        var statusCode = listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
+        LogRequestAudit(requestId, statusCode);
         return new List<CohortDistributionParticipantDto>();
     }
 
