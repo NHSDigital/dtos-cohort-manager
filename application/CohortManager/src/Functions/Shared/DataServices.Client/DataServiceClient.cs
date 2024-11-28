@@ -100,7 +100,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(_baseUrl+id);
+        var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl,id));
         return result;
     }
 
