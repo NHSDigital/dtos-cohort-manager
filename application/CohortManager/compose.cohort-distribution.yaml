@@ -46,17 +46,6 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
-  remove-cohort-distribution-data:
-    container_name: remove-cohort-distribution-data
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/RemoveCohortDistributionData/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7079
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-
   transform-data-service:
     container_name: transform-data-service
     network_mode: host
