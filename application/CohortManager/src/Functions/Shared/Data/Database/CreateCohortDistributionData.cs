@@ -205,14 +205,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var requestId = Guid.NewGuid().ToString();
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
-            var statusCode =listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.OK;
-
-            LogRequestAudit(requestId, statusCode);
+            LogRequestAudit(requestId, (int)HttpStatusCode.OK);
             return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
         }
 
         var statusCode = listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
         LogRequestAudit(requestId, statusCode);
+
         return new List<CohortDistributionParticipantDto>();
     }
 
