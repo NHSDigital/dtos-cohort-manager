@@ -6,7 +6,6 @@
       "dependsOrder": "parallel",
       "dependsOn": [
         "CaasIntegration/receiveCaasFile",
-        "CaasIntegration/processCaasFile",
         "DemographicServices/DemographicDataManagementFunction",
         "ParticipantManagementServices/addParticipant",
         "ParticipantManagementServices/updateParticipant",
