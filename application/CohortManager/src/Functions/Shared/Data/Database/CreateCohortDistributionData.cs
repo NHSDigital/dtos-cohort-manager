@@ -205,7 +205,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var requestId = Guid.NewGuid().ToString();
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
-            LogRequestAudit(requestId, (int)HttpStatusCode.OK);
+            var statusCode =listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.OK;
+
+            LogRequestAudit(requestId, statusCode);
             return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
         }
 
