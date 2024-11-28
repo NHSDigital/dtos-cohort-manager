@@ -73,7 +73,15 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public virtual async Task<TEntity> GetSingle(string id)
     {
         try{
-            var jsonString = await _callFunction.SendGet(_baseUrl+id);
+
+            var jsonString = await _callFunction.SendGet(GetUrlBuilder(_baseUrl,id));
+
+            if(string.IsNullOrEmpty(jsonString))
+            {
+                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty" ,typeof(TEntity).FullName);
+                return null;
+            }
+
             TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
             return result;
         }
@@ -94,6 +102,13 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         var result = await _callFunction.SendDelete(_baseUrl+id);
         return result;
+    }
+
+    private string GetUrlBuilder(string baseUrl, string argument)
+    {
+        baseUrl = baseUrl.TrimEnd('/');
+        argument = argument.TrimStart('/');
+        return string.Format("{0}/{1}", baseUrl, argument);
     }
 
 }
