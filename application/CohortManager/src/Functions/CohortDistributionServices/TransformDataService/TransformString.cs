@@ -36,7 +36,7 @@ public class TransformString
         return participant;
     }
 
-    private async Task<string> CheckParticipantCharactersAsync(string stringField)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[a-zA-Z0-9\d\s.,\-()\/='+:?!""%&;<>*]+$";
 
@@ -58,7 +58,7 @@ public class TransformString
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters))
             {
-                throw new TransformationException("Participant contains illegal characters");
+                throw new ArgumentException("Participant contains illegal characters");
             }
             return transformedField;
         }
