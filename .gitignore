@@ -50,7 +50,11 @@ local.settings.json
 application/CohortManager/SampleData/
 *.csv
 *.parquet
-*.txt
+
+# csv to sql statement scripts
+bs_select_gp_practice_lpk.txt
+current_posting.txt
+select_outcode_mapping_lkp_output.txt
 
 # Python
 *.pyc
