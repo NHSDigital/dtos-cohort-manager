@@ -11,7 +11,7 @@ module "storage" {
 
   log_analytics_workspace_id                              = module.log_analytics_workspace_audit[local.primary_region].id
   monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
-  monitor_diagnostic_setting_storage_account_metrics = local.monitor_diagnostic_setting_storage_account_metrics
+  monitor_diagnostic_setting_storage_account_metrics      = local.monitor_diagnostic_setting_storage_account_metrics
 
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
