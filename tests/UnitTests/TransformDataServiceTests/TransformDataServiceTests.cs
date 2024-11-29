@@ -348,6 +348,19 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
+
+    [DataRow("Bob\\E\\")]
+    [DataRow("Bob\\T\\")]
+    [DataRow("Bob€")]
+    public async Task Run_ExceptionalCharsInParticipant_RaisesException(string name)
+    {
+        // Arrange
+        var sut = new TransformString();
+
+        // Act & Assert
+        Assert.ThrowsException<ArgumentException>(() => sut.CheckParticipantCharactersAsync(name));
+    }
+
     [TestMethod]
     public async Task Run_RfrIsDeaAndDateOfDeathIsNull_SetDateOfDeathToRfrDate()
     {
