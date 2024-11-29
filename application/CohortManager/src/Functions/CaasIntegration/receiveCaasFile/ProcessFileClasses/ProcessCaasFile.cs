@@ -105,6 +105,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
+                await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord,"RecordType was not set to an expected value");
                 break;
         }
         return currentBatch;
