@@ -11,3 +11,5 @@ fastparquet
 sqlalchemy
 pyodbc
 pymssql
+pytest
+faker

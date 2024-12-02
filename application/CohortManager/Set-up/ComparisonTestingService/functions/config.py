@@ -1,9 +1,12 @@
 import os
 import logging
+import pandas as pd
 
 """Global config variables"""
 
 LOCAL_ENV = os.getenv("LOCAL_ENVIRONMENT", False)
+
+pd.set_option('future.no_silent_downcasting', True)
 
 azure_storage_logger = logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
 
@@ -60,12 +63,12 @@ CAAS_COLUMN_MAPPINGS = {
     'mobile_telephone_effective_from_date': 'Telephone_Number(Mobile)_Business_Effective_From_Date',
     'email_address': 'E-mail_Address(Home)',
     'email_address_effective_from_date': 'E-mail_Address(Home)_Business_Effective_From_Date',
-    'date_of_death': 'Date_Of_Death(Formal)',
     'is_interpreter_required': 'Interpreter_Required'
 }
 
 BSS_COLUMN_MAPPINGS = {
     'removal_reason': 'REASON_FOR_REMOVAL',
-    'removal_date': 'REASON_FOR_REMOVAL_FROM_DT',
-    'gender_code': 'GENDER_CD'
+    'gp_practice_code': 'PRIMARY_CARE_PROVIDER',
+    'removal_date': 'REASON_FOR_REMOVAL_BUSINESS_EFFECTIVE_FROM_DATE',
+    'gender_code': 'GENDER'
 }

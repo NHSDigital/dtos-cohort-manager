@@ -1,7 +1,8 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import logging
 import os
 from config import LOCAL_ENV
+import pandas as pd
 
 def setup_engine():
     """
@@ -25,3 +26,19 @@ def setup_engine():
 
     return engine
 
+def create_tables(engine):
+    """Creates the CAAS_PARTICIPANT and BSS_PARTICIPANT tables"""
+
+    with open('comparison_test_create_tables.sql') as file:
+        sql = file.read()
+
+    with engine.connect() as connection:
+        connection.execute(text(sql))
+
+    logging.info("Created comparison test tables")
+
+def get_table(table, engine):
+    df = pd.read_sql(f"SELECT * FROM {table}", engine)
+    if df.shape[0] == 0: raise ValueError(f"No data returned from table {table}")
+
+    return df
