@@ -26,7 +26,7 @@ public class CurrentPostingDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(CurrentPosting));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {data type} " ,req.Method,typeof(CurrentPosting));
 
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
