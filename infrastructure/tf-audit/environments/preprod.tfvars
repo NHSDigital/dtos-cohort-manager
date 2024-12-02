@@ -43,7 +43,7 @@ law = {
   retention_days      = 30
   export_enabled      = true
   export_eventhub_key = "cohort-manager"
-  export_table_names  = [
+  export_table_names = [
     "Alert",
     "AppDependencies",
     "AppExceptions",
