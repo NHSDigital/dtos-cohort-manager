@@ -39,10 +39,29 @@ app_insights = {
 }
 
 law = {
-  law_sku            = "PerGB2018"
-  retention_days     = 30
-  export_enabled     = true
-  export_table_names = ["Alert"]
+  law_sku             = "PerGB2018"
+  retention_days      = 30
+  export_enabled      = true
+  export_eventhub_key = "cohort-manager"
+  export_table_names  = [
+    "Alert",
+    "AppDependencies",
+    "AppExceptions",
+    "AppMetrics",
+    "AppPerformanceCounters",
+    "AppRequests",
+    "AppSystemEvents",
+    "AppTraces",
+    "AzureDiagnostics",
+    "AzureMetrics",
+    "FunctionAppLogs",
+    "LAQueryLogs",
+    "StorageBlobLogs",
+    "StorageFileLogs",
+    "StorageQueueLogs",
+    "StorageTableLogs",
+    "Usage"
+  ]
 }
 
 storage_accounts = {
