@@ -1,4 +1,4 @@
-namespace Model;
+using Model;
 
 public class ValidateCohortDistributionRecordBody
 {
