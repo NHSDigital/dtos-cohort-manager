@@ -11,6 +11,7 @@ using Common;
 using Model;
 using DataServices.Client;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 public class CreateParticipant
 {
@@ -75,8 +76,7 @@ public class CreateParticipant
 
 
 
-
-            var participantCreated = await  _participantManagementClient.Add(new ParticipantManagement{
+            var ParticipantManagementRecord  = new ParticipantManagement{
                 ScreeningId = Int64.Parse(participantCsvRecord.Participant.ScreeningId),
                 NHSNumber = Int64.Parse(participantCsvRecord.Participant.NhsNumber),
                 ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
@@ -87,7 +87,8 @@ public class CreateParticipant
                 RecordUpdateDateTime = ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
                 RecordType = participantCsvRecord.Participant.RecordType
 
-            });
+            };
+            var participantCreated = await  _participantManagementClient.Add(ParticipantManagementRecord);
 
 
 

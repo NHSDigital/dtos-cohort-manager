@@ -10,16 +10,17 @@ using Data.Database;
 using Model;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
+using DataServices.Client;
 
 [TestClass]
 public class CreateParticipantTests
 {
     private readonly Mock<ILogger<ScreeningDataServices.CreateParticipant>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
-    private readonly Mock<ICreateParticipantData> _mockCreateParticipantData = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private Mock<IParticipantManagerData> _participantManagerData = new();
-    private Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
+
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnsSuccess()
@@ -35,14 +36,19 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-        var sut = new ScreeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object, _handleException.Object, _participantManagerData.Object, _callFunction.Object);
+        var sut = new ScreeningDataServices.CreateParticipant(
+            _mockLogger.Object,
+            _mockCreateResponse.Object,
+            _handleException.Object,
+            _callFunction.Object,
+            _participantManagementClient.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
                 IsFatal = false,
                 CreatedException = false
             })));
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).ReturnsAsync(true);
+        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         // Act
         await sut.Run(mockRequest);
@@ -66,14 +72,19 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-        var sut = new ScreeningDataServices.CreateParticipant(_mockLogger.Object, _mockCreateResponse.Object, _mockCreateParticipantData.Object, _handleException.Object, _participantManagerData.Object, _callFunction.Object);
+        var sut = new ScreeningDataServices.CreateParticipant(
+            _mockLogger.Object,
+            _mockCreateResponse.Object,
+            _handleException.Object,
+            _callFunction.Object,
+            _participantManagementClient.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
                 IsFatal = false,
                 CreatedException = false
             })));
-        _mockCreateParticipantData.Setup(data => data.CreateParticipantEntry(It.IsAny<ParticipantCsvRecord>())).ReturnsAsync(false);
+        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
         await sut.Run(mockRequest);
