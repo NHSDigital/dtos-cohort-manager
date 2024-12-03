@@ -40,20 +40,48 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
     {
-        //Resolves the constants
-        var expr  = new ClosureResolver().Visit(predicate);
-        _logger.LogWarning(expr.ToString());
+
+        try
+        {
+            //Resolves the constants
+            var expr  = new ClosureResolver().Visit(predicate);
+            _logger.LogWarning(expr.ToString());
 
 
-        var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
-        IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
-        return result;
+            var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
+            if(string.IsNullOrEmpty(jsonString))
+            {
+                return null;
+            }
+            IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
+            return result;
+
+        }
+        catch(WebException wex)
+        {
+            HttpWebResponse response = (HttpWebResponse)wex.Response;
+            if(response.StatusCode! == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            throw;
+        }
     }
 
     public virtual async Task<TEntity> GetSingle(string id)
     {
         try{
-            var jsonString = await _callFunction.SendGet(_baseUrl+id);
+
+            var jsonString = await _callFunction.SendGet(GetUrlBuilder(_baseUrl,id));
+
+            if(string.IsNullOrEmpty(jsonString))
+            {
+                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty" ,typeof(TEntity).FullName);
+                return null;
+            }
+
             TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
             return result;
         }
@@ -72,8 +100,15 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(_baseUrl+id);
+        var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl,id));
         return result;
+    }
+
+    private string GetUrlBuilder(string baseUrl, string argument)
+    {
+        baseUrl = baseUrl.TrimEnd('/');
+        argument = argument.TrimStart('/');
+        return string.Format("{0}/{1}", baseUrl, argument);
     }
 
 }

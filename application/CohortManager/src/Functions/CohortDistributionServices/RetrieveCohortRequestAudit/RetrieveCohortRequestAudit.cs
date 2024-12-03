@@ -45,7 +45,7 @@ public class RetrieveCohortRequestAudit
         var requestId = req.Query["requestId"];
         var statusCode = req.Query["statusCode"];
         var dateFromQuery = req.Query["dateFrom"];
-        var acceptedStatusCodes = new string[] { ((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString() };
+        var acceptedStatusCodes = new string[] { ((int)HttpStatusCode.OK).ToString(), ((int)HttpStatusCode.InternalServerError).ToString(),((int)HttpStatusCode.NoContent).ToString() };
         DateTime? dateFrom = null;
 
         if (!string.IsNullOrEmpty(dateFromQuery))
@@ -57,7 +57,7 @@ public class RetrieveCohortRequestAudit
 
         try
         {
-            if (!string.IsNullOrEmpty(statusCode) && !acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200 and 500 are accepted.");
+            if (!string.IsNullOrEmpty(statusCode) && !acceptedStatusCodes.Contains(statusCode)) return _httpParserHelper.LogErrorResponse(req, "Invalid status code. Only status codes 200, 204 and 500 are accepted.");
             var cohortAuditHistoryList = await _createCohortDistributionData.GetCohortRequestAudit(requestId, statusCode, dateFrom);
             if (cohortAuditHistoryList.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
