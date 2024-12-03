@@ -28,7 +28,7 @@ public class ExcludedSMULookupDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {data type} " ,req.Method,typeof(ExcludedSMULookup));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(ExcludedSMULookup));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
