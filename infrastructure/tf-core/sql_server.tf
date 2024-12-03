@@ -23,7 +23,8 @@ module "azure_sql_server" {
   monitor_diagnostic_setting_database_metrics        = local.monitor_diagnostic_setting_database_metrics
   monitor_diagnostic_setting_sql_server_enabled_logs = local.monitor_diagnostic_setting_sql_server_enabled_logs
   monitor_diagnostic_setting_sql_server_metrics      = local.monitor_diagnostic_setting_sql_server_metrics
-  sql_server_alert_policy_state                      = "Enabled"
+
+  sql_server_alert_policy_state = "Enabled"
 
   sql_uai_name                         = var.sqlserver.sql_uai_name
   sql_admin_group_name                 = var.sqlserver.sql_admin_group_name

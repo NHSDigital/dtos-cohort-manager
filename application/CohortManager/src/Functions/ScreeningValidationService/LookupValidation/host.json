@@ -3,10 +3,12 @@
     "logging": {
         "applicationInsights": {
             "samplingSettings": {
-                "isEnabled": true,
-                "excludedTypes": "Request"
+                "isEnabled": true
             },
             "enableLiveMetricsFilters": true
+        },
+        "logLevel": {
+          "DataServices.Client": "Information"
         }
     }
 }

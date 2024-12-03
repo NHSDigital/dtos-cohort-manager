@@ -3,3 +3,4 @@ name: cohort-manager
 include:
   - compose.cohort-distribution.yaml
   - compose.core.yaml
+
