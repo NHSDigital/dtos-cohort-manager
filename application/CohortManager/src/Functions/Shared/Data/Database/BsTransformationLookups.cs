@@ -95,23 +95,23 @@ public class BsTransformationLookups : IBsTransformationLookups
         }
         return participant;
     }
-    
+
     /// <summary>
     /// Used in
     /// </summary>
     /// <param name="participant">The participant.</param>
     /// <returns>CohortDistributionParticipant, the transformed participant.<returns>
-    public bool ParticipantIsInvalid(string participantId)
+    public bool ParticipantIsInvalid(string nhsNumber)
     {
         string sql = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
-                    $"WHERE PARTICIPANT_ID = @ParticipantId AND INVALID_FLAG = 1";
+                    $"WHERE NHS_NUMBER = @NhsNumber AND INVALID_FLAG = 1";
 
         using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
             using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
             {
-                command.Parameters.AddWithValue("@ParticipantId", participantId);
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
                     return reader.Read();
