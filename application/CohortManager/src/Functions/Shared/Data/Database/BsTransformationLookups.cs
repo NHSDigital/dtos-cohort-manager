@@ -120,4 +120,31 @@ public class BsTransformationLookups : IBsTransformationLookups
         }
     }
 
+    /// <summary>
+    /// Used in the 4 chained ParticipantNotRegisteredToGPWithReasonForRemoval rules.
+    /// Gets the participant's primary care provider.
+    /// </summary>
+    /// <param name="nhsNumber">The participant's NHS number.</param>
+    /// <returns>string, the participant's primary care provider.<returns>
+    public string GetPrimaryCareProvider(string nhsNumber)
+    {
+        string sql = $"SELECT TOP 1 PRIMARY_CARE_PROVIDER FROM [dbo].[BS_COHORT_DISTRIBUTION] WHERE NHS_NUMBER = @NhsNumber ORDER BY BS_COHORT_DISTRIBUTION_ID DESC";
+
+        using (_connection = new SqlConnection(_connectionString))
+        {
+            _connection.Open();
+            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
+            {
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader["PRIMARY_CARE_PROVIDER"].ToString() ?? string.Empty;
+                    }
+                }
+            }
+        }
+        return string.Empty;
+    }
 }
