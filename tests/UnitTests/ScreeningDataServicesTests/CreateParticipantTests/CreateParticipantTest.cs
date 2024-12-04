@@ -30,7 +30,8 @@ public class CreateParticipantTests
         {
             Participant = new Participant
             {
-                NhsNumber = "1234567890"
+                NhsNumber = "1234567890",
+                ScreeningId = "1"
             }
         };
         var json = JsonSerializer.Serialize(participantCsvRecord);

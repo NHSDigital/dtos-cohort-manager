@@ -20,7 +20,6 @@ public class CreateParticipant
     private readonly IExceptionHandler _handleException;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICallFunction _callFunction;
-    static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
     public CreateParticipant(ILogger<CreateParticipant> logger,
         ICreateResponse createResponse,
@@ -77,14 +76,14 @@ public class CreateParticipant
 
 
             var ParticipantManagementRecord  = new ParticipantManagement{
-                ScreeningId = Int64.Parse(participantCsvRecord.Participant.ScreeningId),
-                NHSNumber = Int64.Parse(participantCsvRecord.Participant.NhsNumber),
+                ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
+                NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
                 ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
-                ReasonForRemovalDate = ParseNullableDateTime(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
+                ReasonForRemovalDate = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
                 BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
                 ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
-                RecordInsertDateTime = ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
-                RecordUpdateDateTime = ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
+                RecordInsertDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
+                RecordUpdateDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
                 RecordType = participantCsvRecord.Participant.RecordType
 
             };
@@ -127,12 +126,5 @@ public class CreateParticipant
         }
     }
 
-    private DateTime? ParseNullableDateTime(string dateTimeString)
-    {
-        if(DateTime.TryParse(dateTimeString,out var result))
-        {
-            return result;
-        }
-        return null;
-    }
+
 }
