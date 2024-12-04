@@ -50,7 +50,7 @@ public class TransformDataServiceTests
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object,_lookupValidation.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _lookupValidation.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -452,14 +452,13 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("RDR")]
-    [DataRow("RDI")]
-    [DataRow("RPR")]
-    public async Task Run_ReasonForRemovalRule1_TransformsMultipleFields(string reasonForRemoval)
+    [DataRow("RDR", "AL1 1BB")]
+    [DataRow("RDI", "AL1 1BB")]
+    [DataRow("RPR", "AL1 1BB")]
+    public async Task Run_ReasonForRemovalRule1_TransformsMultipleFields(string reasonForRemoval, string postcode)
     {
         // Arrange
         var reasonForRemovalEffectiveFromDate = "2/10/2024";
-        var postcode = "AL1 1BB";
         var addressLine = "address";
         var bsoCode = "ELD";
 
@@ -475,8 +474,9 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
+        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
+        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -529,8 +529,9 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
+        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -569,7 +570,7 @@ public class TransformDataServiceTests
         // Arrange
         var addressLine = "address";
 
-        _requestBody.Participant.PrimaryCareProvider = "ZZZ";
+        _requestBody.Participant.PrimaryCareProvider = "Y00090";
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
         _requestBody.Participant.Postcode = postcode;
         _requestBody.Participant.AddressLine1 = addressLine;
@@ -580,30 +581,33 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("ZZZABC");
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<CohortDistributionParticipant>()),
-            Times.Once());
+        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.Is<string>(x => x == "3.ParticipantNotRegisteredToGPWithReasonForRemoval"),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+        Times.Once());
     }
 
     [TestMethod]
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
-    [DataRow("RPR", null)]
+    [DataRow("RPR", "InvalidPostcode")]
     public async Task Run_ReasonForRemovalRule4_RaisesException(string reasonForRemoval, string postcode)
     {
         // Arrange
         var addressLine = "address";
 
-        _requestBody.Participant.PrimaryCareProvider = null;
+        _requestBody.Participant.PrimaryCareProvider = "Y00090";
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
         _requestBody.Participant.Postcode = postcode;
         _requestBody.Participant.AddressLine1 = addressLine;
@@ -614,6 +618,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
+        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns(string.Empty);
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
 
         // Act
@@ -621,10 +626,13 @@ public class TransformDataServiceTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateTransformationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "4.ParticipantNotRegisteredToGPWithReasonForRemoval.NonFatal")),
-            It.IsAny<CohortDistributionParticipant>()),
-            Times.Once());
+        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.Is<string>(x => x == "4.ParticipantNotRegisteredToGPWithReasonForRemoval"),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+        Times.Once());
     }
 
     private void SetUpRequestBody(string json)

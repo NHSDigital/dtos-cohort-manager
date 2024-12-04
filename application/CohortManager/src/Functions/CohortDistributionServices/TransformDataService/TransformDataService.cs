@@ -80,6 +80,8 @@ public class TransformDataService
             // Name prefix transformation
             participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
+            participant = await ChainedRules(participant);
+
             var response = JsonSerializer.Serialize(participant);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -112,8 +114,7 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
-            new RuleParameter("transformLookups", _transformationLookups),
-            new RuleParameter("dbLookup",_dataLookup)
+            new RuleParameter("transformLookups", _transformationLookups)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -213,9 +214,40 @@ public class TransformDataService
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
         if (failedTransforms.Any())
         {
-            System.Console.WriteLine("Throwing exception");
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
             throw new TransformationException("There was an error during transformation");
         }
+    }
+
+    private async Task<CohortDistributionParticipant> ChainedRules(CohortDistributionParticipant participant)
+    {
+        var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
+        var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
+        var existingPrimaryCareProvider = _transformationLookups.GetPrimaryCareProvider(participant.NhsNumber);
+
+        var rule1 = participantNotRegisteredToGP && validOutcode && !string.IsNullOrEmpty(participant.Postcode);
+        var rule2 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && !existingPrimaryCareProvider.StartsWith("ZZZ");
+        var rule3 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && existingPrimaryCareProvider.StartsWith("ZZZ");
+        var rule4 = participantNotRegisteredToGP && !validOutcode && string.IsNullOrEmpty(existingPrimaryCareProvider);
+
+        if (rule1 || rule2)
+        {
+            participant.PrimaryCareProviderEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate;
+            participant.ReasonForRemovalEffectiveFromDate = null;
+            participant.ReasonForRemoval = null;
+            participant.PrimaryCareProvider = "ZZZ" + (!string.IsNullOrEmpty(participant.Postcode) ? _dataLookup.GetBsoCode(participant.Postcode) : "");
+            return participant;
+        }
+        else if (rule3)
+        {
+            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            throw new TransformationException("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
+        }
+        else if (rule4)
+        {
+            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "4.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            throw new TransformationException("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
+        }
+        else return participant;
     }
 }
