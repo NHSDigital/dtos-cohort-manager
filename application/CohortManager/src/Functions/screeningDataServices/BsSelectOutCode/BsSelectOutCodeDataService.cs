@@ -26,7 +26,7 @@ public class BsSelectOutCodeDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {data type} " ,req.Method,typeof(BsSelectOutCode));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(BsSelectOutCode));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
