@@ -1,4 +1,6 @@
 namespace Common;
+
+using System.Linq.Expressions;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -9,6 +11,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 {
     private readonly ICallFunction _callFunction;
     private readonly ILogger<CohortDistributionHelper> _logger;
+    private readonly IExceptionHandler _exceptionHandler;
     public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger)
     {
         _callFunction = callFunction;
@@ -99,7 +102,10 @@ public class CohortDistributionHelper : ICohortDistributionHelper
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
     {
         var response = await _callFunction.SendPost(functionURL, requestBodyJson);
-
+        if (response == null) 
+        {
+            return "";
+        }
         if (response.StatusCode == HttpStatusCode.OK)
         {
             var responseText = await _callFunction.GetResponseText(response);
@@ -109,6 +115,8 @@ public class CohortDistributionHelper : ICohortDistributionHelper
             }
 
         }
+        
+
         return "";
     }
 }
