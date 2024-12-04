@@ -26,7 +26,7 @@ public class LanguageCodesDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {data type} " ,req.Method,typeof(LanguageCode));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(LanguageCode));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }

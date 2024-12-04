@@ -50,7 +50,7 @@ public class MarkParticipantAsEligible
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError($"an error occurred while updating data for {participant.NhsNumber}");
+            _logger.LogError($"an error occurred while updating data for {participant?.NhsNumber}");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
