@@ -786,7 +786,7 @@ sqlserver = {
       max_gb               = 5
       read_scale           = false
       sku                  = "S0"
-      storage_account_type = "Local"
+      storage_account_type = "local"
     }
   }
 
