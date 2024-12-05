@@ -32,6 +32,7 @@ module "azure_sql_server" {
   ad_auth_only                         = var.sqlserver.ad_auth_only
   security_alert_policy_retention_days = var.sqlserver.security_alert_policy_retention_days
   auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
+  backup_storage_redundancy            = var.sqlserver.backup_storage_redundancy
 
 
   # Default database

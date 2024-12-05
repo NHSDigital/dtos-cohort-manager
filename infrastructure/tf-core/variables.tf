@@ -319,6 +319,7 @@ variable "sqlserver" {
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
     security_alert_policy_retention_days = optional(number)
+    backup_storage_redundancy            = optional(string)
 
     # Server Instance
     server = optional(object({
