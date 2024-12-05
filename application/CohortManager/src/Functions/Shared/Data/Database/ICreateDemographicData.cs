@@ -4,6 +4,6 @@ using Model;
 
 public interface ICreateDemographicData
 {
-    public bool InsertDemographicData(Demographic demographic);
-    public Demographic GetDemographicData(string NhsNumber);
+    Task<bool> InsertDemographicData(List<Demographic> demographic);
+    Demographic GetDemographicData(string NhsNumber);
 }
