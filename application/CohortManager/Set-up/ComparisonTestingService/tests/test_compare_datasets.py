@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from src.discrepency_flags import get_unique_rows, calculate_age, flag_discrepencies
+from functions.discrepency_flags import get_unique_rows, calculate_age, flag_discrepencies
 import pandas.testing as pdt
 from datetime import datetime
 

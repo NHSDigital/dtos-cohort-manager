@@ -3,6 +3,7 @@
 # Manually managing azure-functions-worker may cause unexpected issues
 
 azure-functions
+azure-functions-durable
 azure-identity
 azure-storage-blob
 azure-core
@@ -13,3 +14,4 @@ pyodbc
 pymssql
 pytest
 faker
+opencensus-ext-azure

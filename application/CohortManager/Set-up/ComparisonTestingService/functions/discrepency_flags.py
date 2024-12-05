@@ -24,10 +24,10 @@ Rules:
     7. People aged >= 44 and < 74 whose gender = male                     *CaaS has a gender code and BSS has a string
         age >= 44 && age < 74 && gender == 'MALE'
 """
-import datetime
+from datetime import datetime, date
 import pandas as pd
 import numpy as np
-import logging
+from config import logger
 
 discrepancy_map = {
     0: 'Discrepency category could not be determined',
@@ -42,83 +42,91 @@ discrepancy_map = {
 
 
 def flag_discrepencies(df: pd.DataFrame):
-    df['discrepancy_category_description'] = np.nan
-    df['discrepancy_category_id'] = np.nan
 
-    return df.apply(determine_discrepancy_category, axis=1)
+    df = initialze_categorisation_columns(df)
+
+    is_bss = 'is_higher_risk' in df.columns
+    logger.info(is_bss)
+
+    discrepancy_conditions = [
+        (is_bss and df['age'] < 44), # and df['is_higher_risk'].bool()),
+        # (is_bss and df['age'] < 44 and df['is_higher_risk'] != True),
+        (df['age'] >= 74),
+        # (df['eligible_age'] and df['primary_care_provider'].isna() and df['death_rfr']),
+        # (df['eligible_age'] and df['primary_care_provider'].isna() and not df['death_rfr']),
+        # (df['eligible_age'] and df['primary_care_provider'].str.startswith('ZZZ')),
+        # (df['eligible_age'] and df['gender'] == 'MALE' or df['gender'] == 1)
+    ]
+    discrepancy_ids = [1, 2] #, 3, 4, 5, 6, 7]
+
+    df['discrepancy_category_id'] = np.select(discrepancy_conditions, discrepancy_ids)
+
+    # df.loc[df['age'] >= 74, 'discrepancy_category_id'] = 3
+    # df.loc[df['eligible_age'] and df['primary_care_provider'].isna() and df['death_rfr'], 'discrepancy_category_id'] = 3
+
+    # df = df.apply(determine_discrepancy_category, axis=1)
+
+    df['discrepancy_category_description'] = df['discrepancy_category_id'].map(discrepancy_map)
+
+    df = df.drop(columns=['age', 'eligible_age', 'death_rfr'])
+
+    return df
 
 def determine_discrepancy_category(row):
-    age = calculate_age(row['date_of_birth'])
-    within_cohort_age = age >= 44 and age < 74
-    death_rfr = row['reason_for_removal'] in ['DEATH', 'DEA', 'UNCERTIFIED_DEATH']
-    primary_care_provider = row['primary_care_provider']
-
     discrepancy_id = 0
 
-    if within_cohort_age:
-        if pd.isna(primary_care_provider):
-            if death_rfr:
+    if row['eligible_age']:
+        if pd.isna(row['primary_care_provider']):
+            if row['death_rfr']:
                 discrepancy_id = 4
             else:
                 discrepancy_id = 5
-        elif primary_care_provider.startswith('ZZZ'):
+        elif row['primary_care_provider'].startswith('ZZZ'):
             discrepancy_id = 6
         
         if row['gender'] == 'MALE' or row['gender'] == 1:
             discrepancy_id = 7
-    elif age < 44 and 'is_higher_risk' in row:
+    elif row['age'] < 44 and 'is_higher_risk' in row:
         if row['is_higher_risk']:
             discrepancy_id = 1
         else:
             discrepancy_id = 2
-    elif age >= 74:
-        discrepancy_id = 3
+    # elif row['age'] >= 74:
+    #     discrepancy_id = 3
 
     row['discrepancy_category_id'] = discrepancy_id
-    row['discrepancy_category_description'] = discrepancy_map[discrepancy_id]
 
     return row
 
 
 
-def calculate_age(date_of_birth):
-    format = '%Y-%m-%d'
-    if isinstance(date_of_birth, str):
-        date_of_birth = datetime.datetime.strptime(date_of_birth, format)
+# def calculate_age(date_of_birth):
+#     format = '%Y-%m-%d'
+#     if isinstance(date_of_birth, str):
+#         date_of_birth = datetime.datetime.strptime(date_of_birth, format)
 
-    today = datetime.date.today()
+#     today = datetime.date.today()
 
-    age = today.year - date_of_birth.year
+#     age = today.year - date_of_birth.year
 
-    birthday_occurred = (today.month, today.day) >= (date_of_birth.month, date_of_birth.day)
+#     birthday_occurred = (today.month, today.day) >= (date_of_birth.month, date_of_birth.day)
 
-    if not birthday_occurred:
-        return age - 1
+#     if not birthday_occurred:
+#         return age - 1
     
-    return age
+#     return age
 
-def preprocess_data(df):
-    columns = ['nhs_number', 'date_of_birth', 'primary_care_provider',
-                'reason_for_removal', 'reason_for_removal_business_effective_from_date',
-                'date_of_death', 'postcode', 'gender']
+def initialze_categorisation_columns(df: pd.DataFrame):
+    df['discrepancy_category_id'] = 0
+    df['date_of_birth'] = pd.to_datetime(df['date_of_birth'])
 
-    df.columns = df.columns.str.lower()
-    df = df.fillna(np.nan).replace('', np.nan)
+    today = date.today()
 
-    if 'name_prefix' in df.columns:
-        df = df[columns]
+    df['age'] = df['date_of_birth'].apply(
+               lambda x: today.year - x.year - 
+               ((today.month, today.day) < (x.month, x.day)))
+    df['eligible_age'] = (df['age'] >= 44) & (df['age'] < 74)
+
+    df['death_rfr'] = df['reason_for_removal'].isin(['DEATH', 'DEA', 'UNCERTIFIED_DEATH'])
 
     return df
-
-def get_unique_rows(caas_df, bss_df):
-    merged_on_caas_df = pd.merge(caas_df, bss_df, on=["nhs_number", "date_of_birth"], how="left", suffixes=('', '_bss'), indicator=True)
-    merged_on_bss_df = pd.merge(bss_df, caas_df, on=["nhs_number", "date_of_birth"], how="left", suffixes=('', '_caas'), indicator=True)
-
-    # Drop rows and columns that are only in bss
-    caas_only_df = merged_on_caas_df[merged_on_caas_df['_merge'] == 'left_only'].drop(columns=['_merge'])
-    caas_only_df = caas_only_df.drop(columns=caas_only_df.filter(like='_bss').columns)
-
-    bss_only_df = merged_on_bss_df[merged_on_bss_df['_merge'] == 'left_only'].drop(columns=['_merge'])
-    bss_only_df = bss_only_df.drop(columns=bss_only_df.filter(like='_caas').columns)
-
-    return caas_only_df, bss_only_df

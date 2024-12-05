@@ -1,10 +1,19 @@
 import os
 import logging
 import pandas as pd
+from opencensus.ext.azure.log_exporter import AzureLogHandler
 
 """Global config variables"""
 
 LOCAL_ENV = os.getenv("LOCAL_ENVIRONMENT", False)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+if not LOCAL_ENV:
+    APPINSIGHTS_KEY = os.getenv("APPINSIGHTS_INSTRUMENTATIONKEY")
+    logger.addHandler(AzureLogHandler(connection_string=f"InstrumentationKey={APPINSIGHTS_KEY}"))
+
 
 pd.set_option('future.no_silent_downcasting', True)
 

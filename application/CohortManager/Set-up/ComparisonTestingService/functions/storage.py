@@ -1,7 +1,6 @@
 import os
 from azure.storage.blob import BlobServiceClient
-import logging
-from config import azure_storage_logger
+from config import azure_storage_logger, logger
 
 BLOB_CONTAINER_NAME = os.getenv("BLOB_CONTAINER_NAME")
 
