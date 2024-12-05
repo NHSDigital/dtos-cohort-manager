@@ -147,4 +147,32 @@ public class BsTransformationLookups : IBsTransformationLookups
         }
         return string.Empty;
     }
+
+    /// <summary>
+    /// Used in the 4 chained ParticipantNotRegisteredToGPWithReasonForRemoval rules.
+    /// Gets the participant's BSO code using their existing primary care provider.
+    /// </summary>
+    /// <param name="primaryCareProvider">The participant's existing primary care provider.</param>
+    /// <returns>string, the participant's BSO code.<returns>
+    public string GetBsoCode(string primaryCareProvider)
+    {
+        string sql = $"SELECT TOP 1 BSO FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @PrimaryCareProvider";
+
+        using (_connection = new SqlConnection(_connectionString))
+        {
+            _connection.Open();
+            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
+            {
+                command.Parameters.AddWithValue("@PrimaryCareProvider", primaryCareProvider);
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return reader["BSO"].ToString() ?? string.Empty;
+                    }
+                }
+            }
+        }
+        return string.Empty;
+    }
 }
