@@ -524,7 +524,6 @@ function_apps = {
           env_var_name     = "DemographicDataServiceURI"
           function_app_key = "DemographicDataService"
         },
-,
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
