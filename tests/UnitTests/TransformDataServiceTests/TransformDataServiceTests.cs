@@ -515,7 +515,7 @@ public class TransformDataServiceTests
         // Arrange
         var reasonForRemovalEffectiveFromDate = "2/10/2024";
         var addressLine = "address";
-        var bsoCode = !string.IsNullOrEmpty(postcode) ? "ELD" : "";
+        var bsoCode = "ELD";
 
         _requestBody.Participant.PrimaryCareProvider = "Y00090";
         _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
@@ -531,7 +531,7 @@ public class TransformDataServiceTests
         SetUpRequestBody(json);
         _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
+        _transformationLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
