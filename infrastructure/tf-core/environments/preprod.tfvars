@@ -140,6 +140,11 @@ app_service_plan = {
   }
 }
 
+
+diagnostic_settings = {
+  metric_enabled = true
+}
+
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
   acr_name    = "acrukshubprodcohman"
@@ -787,6 +792,8 @@ sqlserver = {
       max_gb         = 5
       read_scale     = false
       sku            = "S0"
+      storage_account_type = "GeoZone"
+      zone_redundant       = false
     }
   }
 
