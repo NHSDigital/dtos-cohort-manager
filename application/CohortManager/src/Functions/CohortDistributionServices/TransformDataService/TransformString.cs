@@ -36,12 +36,13 @@ public class TransformString
         return participant;
     }
 
-    private async Task<string> CheckParticipantCharactersAsync(string stringField)
+    public async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[a-zA-Z0-9\d\s.,\-()\/='+:?!""%&;<>*]+$";
+        TimeSpan matchTimeout = TimeSpan.FromSeconds(2); // Adjust timeout as needed
 
         // Skip if the field is null or doesn't have any invalid chars
-        if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters))
+        if (string.IsNullOrWhiteSpace(stringField) || Regex.IsMatch(stringField, allowedCharacters, RegexOptions.None, matchTimeout))
         {
             return stringField;
         }
@@ -56,9 +57,9 @@ public class TransformString
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
-            if (!Regex.IsMatch(transformedField, allowedCharacters))
+            if (!Regex.IsMatch(transformedField, allowedCharacters, RegexOptions.None, matchTimeout))
             {
-                throw new TransformationException("Participant contains illegal characters");
+                throw new ArgumentException("Participant contains illegal characters");
             }
             return transformedField;
         }

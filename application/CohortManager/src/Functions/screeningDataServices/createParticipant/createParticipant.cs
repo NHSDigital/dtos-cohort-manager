@@ -18,6 +18,7 @@ public class CreateParticipant
     private readonly IExceptionHandler _handleException;
     private readonly IParticipantManagerData _participantManagerData;
     private readonly ICallFunction _callFunction;
+    static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
 
     public CreateParticipant(ILogger<CreateParticipant> logger, ICreateResponse createResponse, ICreateParticipantData createParticipantData, IExceptionHandler handleException, IParticipantManagerData participantManagerData, ICallFunction callFunction)
     {
@@ -32,6 +33,7 @@ public class CreateParticipant
     [Function("CreateParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
+
         _logger.LogInformation("CreateParticipant is called...");
         ParticipantCsvRecord participantCsvRecord = null;
         try
@@ -54,8 +56,17 @@ public class CreateParticipant
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
-
-            var participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
+            //prevents deadlocks
+            await semaphoreSlim.WaitAsync();
+            bool participantCreated;
+            try
+            {
+                participantCreated = await _createParticipantData.CreateParticipantEntry(participantCsvRecord);
+            }
+            finally
+            {
+                semaphoreSlim.Release();
+            }
             if (participantCreated)
             {
                 _logger.LogInformation("Successfully created the participant");
@@ -67,7 +78,7 @@ public class CreateParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex,"Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
-            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord?.Participant, participantCsvRecord?.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

@@ -109,6 +109,34 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
+    public async Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description)
+    {
+        var exception = new ValidationException
+        {
+            RuleId = 0,
+            RuleDescription = description,
+            FileName = participantCsvRecord.FileName,
+            NhsNumber = participantCsvRecord.Participant.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            ExceptionDate = DateTime.Now,
+            Category = (int)ExceptionCategory.Schema,
+            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            CohortName = DefaultCohortName,
+            Fatal = 1
+
+        };
+
+        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("There was an error while logging an exception to the database.");
+        }
+
+
+    }
+
     /// <summary>
     /// Method to create a transformation exception and send it to the DB.
     /// </summary>
@@ -121,7 +149,7 @@ public class ExceptionHandler : IExceptionHandler
             var exception = new ValidationException
             {
                 RuleId = ruleNumber,
-                RuleDescription = error.Rule.RuleName,
+                RuleDescription = error.ExceptionMessage ?? error.Rule.RuleName,
                 FileName = DefaultFileName,
                 NhsNumber = participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participant),
@@ -133,7 +161,7 @@ public class ExceptionHandler : IExceptionHandler
                 CohortName = DefaultCohortName,
                 Fatal = 0
             };
-            
+
             var exceptionJson = JsonSerializer.Serialize(exception);
             var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
 

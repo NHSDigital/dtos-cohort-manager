@@ -16,12 +16,13 @@ locals {
 
   #SQL SERVER AND DATABASE
   monitor_diagnostic_setting_database_enabled_logs   = ["SQLSecurityAuditEvents", "SQLInsights", "QueryStoreWaitStatistics", "Errors", "DatabaseWaitStatistics", "Timeouts"]
-  monitor_diagnostic_setting_database_metrics        = ["AllMetrics"]
+  monitor_diagnostic_setting_database_metrics        = ["Basic", "InstanceAndAppAdvanced", "WorkloadManagement"]
   monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
-  monitor_diagnostic_setting_sql_server_metrics      = ["AllMetrics"]
+  monitor_diagnostic_setting_sql_server_metrics      = ["Basic", "InstanceAndAppAdvanced", "WorkloadManagement"]
 
   #STORAGE ACCOUNT
   monitor_diagnostic_setting_storage_account_enabled_logs = ["StorageWrite", "StorageRead", "StorageDelete"]
+  monitor_diagnostic_setting_storage_account_metrics      = ["Capacity", "Transaction"]
 
   #SUBNET
   monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]

@@ -1,3 +1,5 @@
+namespace Model.Enums;
+
 public enum FatalRule
 {
     Fatal = 1,

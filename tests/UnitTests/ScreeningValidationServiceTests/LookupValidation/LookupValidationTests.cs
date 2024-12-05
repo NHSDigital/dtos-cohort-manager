@@ -16,6 +16,7 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using Data.Database;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class LookupValidationTests
@@ -29,7 +30,9 @@ public class LookupValidationTests
     private LookupValidation _sut;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
     private readonly Mock<IReadRules> _readRules = new();
-    private readonly Mock<IDbLookupValidationBreastScreening> _lookupValidation = new();
+    private readonly Mock<IDataLookupFacade> _lookupValidation = new();
+
+    private readonly Mock<IOptions<LookupValidationConfig>> _lookupValidationConfig = new();
 
     [TestInitialize]
     public void IntialiseTests()
@@ -45,6 +48,12 @@ public class LookupValidationTests
                 IsFatal = true,
                 CreatedException = true
             }));
+        LookupValidationConfig lookupValidationConfig = new LookupValidationConfig
+        {
+            ExceptionFunctionUrl = "CreateValidationExceptionURL"
+        };
+        _lookupValidationConfig.Setup(x => x.Value).Returns(lookupValidationConfig);
+
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
@@ -93,8 +102,8 @@ public class LookupValidationTests
         }
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
         .Returns(Task.FromResult<string>(json));
-        _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,
-                                    _readRules.Object, _lookupValidation.Object);
+        _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object,_lookupValidation.Object,_readRules.Object);
+
 
     }
 

@@ -1,6 +1,6 @@
 namespace Data.Database;
 
-
+[Obsolete("Deprecated, use the LookupFacade instead",true)]
 public interface IDbLookupValidationBreastScreening
 {
     bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);

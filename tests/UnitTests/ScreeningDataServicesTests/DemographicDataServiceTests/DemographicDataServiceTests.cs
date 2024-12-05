@@ -59,7 +59,7 @@ public class DemographicDataServiceTests
                 return response;
             });
         _request.Setup(x => x.Method).Returns("POST");
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(true);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(Task.FromResult(true));
 
         // Act
         var result = await sut.Run(_request.Object);
@@ -85,7 +85,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Returns(false);
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(Task.FromResult(false));
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");
@@ -112,7 +112,7 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<Demographic>())).Throws(new Exception("there has been an error"));
+        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Throws(new Exception("there has been an error"));
 
         // Act
         _request.Setup(x => x.Method).Returns("POST");

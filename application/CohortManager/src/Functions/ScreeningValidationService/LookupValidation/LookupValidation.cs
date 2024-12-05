@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -8,6 +9,7 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
@@ -19,16 +21,20 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRules _readRules;
-    private IDbLookupValidationBreastScreening _dbLookup;
+    private readonly IDataLookupFacade _dataLookup;
 
-    public LookupValidation(ICreateResponse createResponse, IExceptionHandler handleException, ILogger<LookupValidation> logger,
-                            IReadRules readRules, IDbLookupValidationBreastScreening dbLookup)
+    public LookupValidation(
+        ICreateResponse createResponse,
+        IExceptionHandler handleException, ILogger<LookupValidation> logger,
+        IDataLookupFacade dataLookupFacade,
+        IReadRules readRules
+    )
     {
         _createResponse = createResponse;
         _handleException = handleException;
         _logger = logger;
+        _dataLookup = dataLookupFacade;
         _readRules = readRules;
-        _dbLookup = dbLookup;
     }
 
     [Function("LookupValidation")]
@@ -71,7 +77,7 @@ public class LookupValidation
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
-                new RuleParameter("dbLookup", _dbLookup)
+                new RuleParameter("dbLookup", _dataLookup)
             };
 
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
