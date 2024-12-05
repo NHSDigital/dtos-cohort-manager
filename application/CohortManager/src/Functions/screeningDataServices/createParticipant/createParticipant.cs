@@ -49,14 +49,12 @@ public class CreateParticipant
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            // var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
-
             var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantCsvRecord.Participant.NhsNumber && i.ScreeningId.ToString() == participantCsvRecord.Participant.ScreeningId);
             Participant existingParticipant = new Participant();
 
             if(existingParticipantResult != null && existingParticipantResult.Any())
             {
-                existingParticipant = new Participant(existingParticipantResult.FirstOrDefault());
+                existingParticipant = new Participant(existingParticipantResult.First());
             }
 
 
