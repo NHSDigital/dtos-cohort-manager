@@ -41,8 +41,8 @@ module "azure_sql_server" {
   max_gb               = var.sqlserver.dbs.cohman.max_gb
   read_scale           = var.sqlserver.dbs.cohman.read_scale
   sku                  = var.sqlserver.dbs.cohman.sku
-  storage_account_type = var.sqlserver.dbs.storage_account_type
-  zone_redundant       = var.sqlserver.dbs.zone_redundant
+  storage_account_type = var.sqlserver.dbs.cohman.storage_account_type
+  zone_redundant       = var.sqlserver.dbs.cohman.zone_redundant
 
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules
