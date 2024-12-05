@@ -9,5 +9,5 @@ public interface IBsTransformationLookups
     public CohortDistributionParticipant GetAddress(CohortDistributionParticipant participant);
     public bool ParticipantIsInvalid(string participantId);
     public string GetPrimaryCareProvider(string nhsNumber);
-    public string GetBsoCode(string primaryCareProvider);
+    public string GetBsoCodeUsingPCP(string primaryCareProvider);
 }

@@ -278,7 +278,7 @@ public class TransformDataService
 
         if (!string.IsNullOrEmpty(existingPrimaryCareProvider))
         {
-            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCode(existingPrimaryCareProvider);
+            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
         }
 
         return dummyPrimaryCareProvider;

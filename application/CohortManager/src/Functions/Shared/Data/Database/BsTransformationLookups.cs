@@ -154,7 +154,7 @@ public class BsTransformationLookups : IBsTransformationLookups
     /// </summary>
     /// <param name="primaryCareProvider">The participant's existing primary care provider.</param>
     /// <returns>string, the participant's BSO code.<returns>
-    public string GetBsoCode(string primaryCareProvider)
+    public string GetBsoCodeUsingPCP(string primaryCareProvider)
     {
         string sql = $"SELECT TOP 1 BSO FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @PrimaryCareProvider";
 

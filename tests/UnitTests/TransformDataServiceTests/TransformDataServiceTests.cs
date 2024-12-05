@@ -531,7 +531,7 @@ public class TransformDataServiceTests
         SetUpRequestBody(json);
         _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
         _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-        _transformationLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
+        _transformationLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns(bsoCode);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
