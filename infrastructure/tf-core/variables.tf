@@ -319,7 +319,6 @@ variable "sqlserver" {
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
     security_alert_policy_retention_days = optional(number)
-    backup_storage_redundancy            = optional(string)
 
     # Server Instance
     server = optional(object({
@@ -330,12 +329,14 @@ variable "sqlserver" {
 
     # Database
     dbs = optional(map(object({
-      db_name_suffix = optional(string, "cohman")
-      collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
-      licence_type   = optional(string, "LicenseIncluded")
-      max_gb         = optional(number, 5)
-      read_scale     = optional(bool, false)
-      sku            = optional(string, "S0")
+      db_name_suffix       = optional(string, "cohman")
+      collation            = optional(string, "SQL_Latin1_General_CP1_CI_AS")
+      licence_type         = optional(string, "LicenseIncluded")
+      max_gb               = optional(number, 5)
+      read_scale           = optional(bool, false)
+      sku                  = optional(string, "S0")
+      storage_account_type = optional(string)
+
     })), {})
 
     # FW Rules

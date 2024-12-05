@@ -32,16 +32,16 @@ module "azure_sql_server" {
   ad_auth_only                         = var.sqlserver.ad_auth_only
   security_alert_policy_retention_days = var.sqlserver.security_alert_policy_retention_days
   auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
-  backup_storage_redundancy            = var.sqlserver.backup_storage_redundancy
 
 
   # Default database
-  db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
-  collation      = var.sqlserver.dbs.cohman.collation
-  licence_type   = var.sqlserver.dbs.cohman.licence_type
-  max_gb         = var.sqlserver.dbs.cohman.max_gb
-  read_scale     = var.sqlserver.dbs.cohman.read_scale
-  sku            = var.sqlserver.dbs.cohman.sku
+  db_name_suffix       = var.sqlserver.dbs.cohman.db_name_suffix
+  collation            = var.sqlserver.dbs.cohman.collation
+  licence_type         = var.sqlserver.dbs.cohman.licence_type
+  max_gb               = var.sqlserver.dbs.cohman.max_gb
+  read_scale           = var.sqlserver.dbs.cohman.read_scale
+  sku                  = var.sqlserver.dbs.cohman.sku
+  storage_account_type = var.sqlserver.dbs.storage_account_type
 
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules
