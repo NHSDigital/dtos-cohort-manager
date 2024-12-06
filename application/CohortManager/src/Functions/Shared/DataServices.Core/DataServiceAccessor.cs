@@ -38,6 +38,13 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         return true;
     }
 
+    public async Task<bool> InsertMany(IEnumerable<TEntity> entities)
+    {
+        await _context.AddRangeAsync(entities);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<bool> Remove(Expression<Func<TEntity, bool>> predicate)
     {
         var result = _context.Set<TEntity>().SingleOrDefault(predicate);

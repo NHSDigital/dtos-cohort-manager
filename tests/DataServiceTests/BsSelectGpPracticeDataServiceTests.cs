@@ -290,7 +290,7 @@ public class BsSelectGpPracticeDataServiceTests
         Assert.AreEqual(HttpStatusCode.NotFound,result.StatusCode);
     }
     #endregion
-    #region Put New Record
+    #region POST New Record
     [DataRow("AB1234","ABC","ENGLAND")]
     [DataRow("XY6789","XYZ","ENGLAND")]
     [TestMethod]
@@ -322,6 +322,50 @@ public class BsSelectGpPracticeDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
         var insertedPractice = _mockData.Where(i => i.GpPracticeCode == gpPracticeCode).Single();
         insertedPractice.Should().BeEquivalentTo(data);
+    }
+    [TestMethod]
+    public async Task RunAsync_AddArrayNewRecord_ReturnsSuccessIsAdded()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+
+        var data = new List<BsSelectGpPractice>{ new BsSelectGpPractice
+        {
+            GpPracticeCode = "ABC123",
+            BsoCode = "ABC",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        },
+        new BsSelectGpPractice
+        {
+            GpPracticeCode = "XYZ987",
+            BsoCode = "XYZ",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        }
+        }
+        ;
+
+
+        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"POST");
+        //act
+        var result = await function.Run(req,null);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        var insertedPractice = _mockData.Where(i => i.GpPracticeCode == "ABC123").Single();
+        insertedPractice.Should().BeEquivalentTo(data[0]);
+        var insertedPractice2 = _mockData.Where(i => i.GpPracticeCode == "XYZ987").Single();
+        insertedPractice2.Should().BeEquivalentTo(data[1]);
     }
     [DataRow("XY6789","XYZ","ENGLAND")]
     [TestMethod]
