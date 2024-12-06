@@ -17,9 +17,7 @@ using Common;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using RulesEngine.Actions;
-using System.ComponentModel.DataAnnotations;
 
 public class TransformDataService
 {
@@ -27,20 +25,20 @@ public class TransformDataService
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IBsTransformationLookups _transformationLookups;
-    private readonly ITransformDataLookupFacade _dataLookup;
+    private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         IBsTransformationLookups transformationLookups,
-        ITransformDataLookupFacade dataLookup
+        ITransformReasonForRemoval transformReasonForRemoval
     )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformationLookups = transformationLookups;
-        _dataLookup = dataLookup;
+        _transformReasonForRemoval = transformReasonForRemoval;
     }
 
     [Function("TransformDataService")]
@@ -80,6 +78,8 @@ public class TransformDataService
             // Name prefix transformation
             participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
+            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant);
+
             var response = JsonSerializer.Serialize(participant);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -112,8 +112,7 @@ public class TransformDataService
 
         var ruleParameters = new[] {
             new RuleParameter("participant", participant),
-            new RuleParameter("transformLookups", _transformationLookups),
-            new RuleParameter("dbLookup",_dataLookup)
+            new RuleParameter("transformLookups", _transformationLookups)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -213,7 +212,6 @@ public class TransformDataService
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
         if (failedTransforms.Any())
         {
-            System.Console.WriteLine("Throwing exception");
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
             throw new TransformationException("There was an error during transformation");
         }

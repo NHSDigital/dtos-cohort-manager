@@ -20,7 +20,8 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
-        services.AddSingleton<ITransformDataLookupFacade,TransformDataLookupFacade>();
+        services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
+        services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
