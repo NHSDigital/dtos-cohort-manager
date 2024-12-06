@@ -549,7 +549,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, rowCount);
 
-        return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
+        return requestIdsList.SelectMany(requestId => GetCohortDistributionParticipantsByRequestId(requestId, rowCount)).ToList();
     }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
