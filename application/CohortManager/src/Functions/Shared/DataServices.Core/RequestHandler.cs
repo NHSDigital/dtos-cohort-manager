@@ -295,9 +295,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             expr = Expression.AndAlso(expr, comparison);
         }
-        _logger.LogError(expr.Print());
         var lambdaexpr = Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
-        lambdaexpr.Print();
         return lambdaexpr;
 
     }
