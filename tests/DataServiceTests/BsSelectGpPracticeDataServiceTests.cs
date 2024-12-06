@@ -27,7 +27,7 @@ public class BsSelectGpPracticeDataServiceTests
     {
 
 
-       _mockData = new List<BsSelectGpPractice>{
+        _mockData = new List<BsSelectGpPractice>{
             new BsSelectGpPractice{
                 GpPracticeCode = "G82650",
                 BsoCode = "GCT",
@@ -56,7 +56,7 @@ public class BsSelectGpPracticeDataServiceTests
                 AuditText = "From PostgreSQL"
             }
        };
-       _dataServiceAccessor = new MockDataServiceAccessor<BsSelectGpPractice>(_mockData);
+        _dataServiceAccessor = new MockDataServiceAccessor<BsSelectGpPractice>(_mockData);
 
     }
     #region Get Tests
@@ -65,15 +65,15 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         List<BsSelectGpPractice> bsSelectGpPractices = await MockHelpers.GetResponseBodyAsObject<List<BsSelectGpPractice>>(result);
         bsSelectGpPractices.Should().BeEquivalentTo(_mockData);
     }
@@ -82,15 +82,15 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
     [TestMethod]
     public async Task RunAsync_GetAllItemsNoData_ReturnsNoContent()
@@ -98,15 +98,15 @@ public class BsSelectGpPracticeDataServiceTests
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
         var _dataServiceAccessorEmpty = new MockDataServiceAccessor<BsSelectGpPractice>(new List<BsSelectGpPractice>());
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessorEmpty,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessorEmpty, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.NoContent,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
     }
     #endregion
     #region Get By Id
@@ -119,18 +119,18 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
         var expectedPractice = _mockData.Single(i => i.GpPracticeCode == gpPracticeCode);
         var resultObject = await MockHelpers.GetResponseBodyAsObject<BsSelectGpPractice>(result);
 
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         resultObject.Should().BeEquivalentTo(expectedPractice);
     }
     [DataRow("F83043")]
@@ -139,15 +139,15 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
     [DataRow("TEST")]
     [DataRow("123")]
@@ -157,76 +157,76 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.NotFound,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
     #endregion
 
 
 
-   #region Get By Query
+    #region Get By Query
 
-    [DataRow("i => i.GpPracticeCode == \"G82650\"", new string[] {"G82650"})]
-    [DataRow("i => i.BsoCode == \"ECX\"",new string[] {"E85121"})]
-    [DataRow("i => true",new string[] {"E85121","G82650","F83043"})]
+    [DataRow("i => i.GpPracticeCode == \"G82650\"", new string[] { "G82650" })]
+    [DataRow("i => i.BsoCode == \"ECX\"", new string[] { "E85121" })]
+    [DataRow("i => true", new string[] { "E85121", "G82650", "F83043" })]
     [TestMethod]
     public async Task RunAsync_GetItemByQuery_ReturnsCorrectItems(string query, string[] expectedPracticeCodes)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
-        req.AddQuery("query",query);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
+        req.AddQuery("query", query);
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
         var expectedPractices = _mockData.Where(i => expectedPracticeCodes.Contains(i.GpPracticeCode));
         var resultObject = await MockHelpers.GetResponseBodyAsObject<List<BsSelectGpPractice>>(result);
 
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         resultObject.Should().BeEquivalentTo(expectedPractices);
     }
-    [DataRow("i => i.BsoCode == \"ECX\"",new string[] {"E85121"})]
+    [DataRow("i => i.BsoCode == \"ECX\"", new string[] { "E85121" })]
     [TestMethod]
     public async Task RunAsync_GetItemByQueryNotAllowed_Returns401(string query, string[] expectedPracticeCodes)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
-        req.AddQuery("query",query);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
+        req.AddQuery("query", query);
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
-    [DataRow("i => i.nonexistant = \"ECX\"",new string[] {"E85121"})]
-    [DataRow("error",new string[] {"E85121"})]
+    [DataRow("i => i.nonexistant = \"ECX\"", new string[] { "E85121" })]
+    [DataRow("error", new string[] { "E85121" })]
     [TestMethod]
     public async Task RunAsync_GetItemByQueryBadQuery_ReturnsBadRequest(string query, string[] expectedPracticeCodes)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","GET");
-        req.AddQuery("query",query);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
+        req.AddQuery("query", query);
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
     #endregion
     #region Deletes
@@ -239,16 +239,16 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","DELETE");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "DELETE");
 
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         var deletedItem = await _dataServiceAccessor.GetSingle(i => i.GpPracticeCode == gpPracticeCode);
         deletedItem.Should().BeNull();
 
@@ -260,15 +260,15 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","DELETE");
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "DELETE");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
     [DataRow("TEST")]
     [DataRow("123")]
@@ -278,29 +278,29 @@ public class BsSelectGpPracticeDataServiceTests
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
 
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
-        var req = new MockHttpRequestData(_context.Object,"","DELETE");
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "DELETE");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.NotFound,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
     #endregion
-    #region Put New Record
-    [DataRow("AB1234","ABC","ENGLAND")]
-    [DataRow("XY6789","XYZ","ENGLAND")]
+    #region POST New Record
+    [DataRow("AB1234", "ABC", "ENGLAND")]
+    [DataRow("XY6789", "XYZ", "ENGLAND")]
     [TestMethod]
     public async Task RunAsync_AddNewRecord_ReturnsSuccessIsAdded(string gpPracticeCode, string bsoCode, string countryCategory)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
         var data = new BsSelectGpPractice
         {
@@ -314,24 +314,68 @@ public class BsSelectGpPracticeDataServiceTests
         };
 
 
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"POST");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "POST");
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         var insertedPractice = _mockData.Where(i => i.GpPracticeCode == gpPracticeCode).Single();
         insertedPractice.Should().BeEquivalentTo(data);
     }
-    [DataRow("XY6789","XYZ","ENGLAND")]
+    [TestMethod]
+    public async Task RunAsync_AddArrayNewRecord_ReturnsSuccessIsAdded()
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+
+        var data = new List<BsSelectGpPractice>{ new BsSelectGpPractice
+        {
+            GpPracticeCode = "ABC123",
+            BsoCode = "ABC",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        },
+        new BsSelectGpPractice
+        {
+            GpPracticeCode = "XYZ987",
+            BsoCode = "XYZ",
+            CountryCategory = "ENGLAND",
+            AuditId = 1,
+            AuditCreatedTimeStamp = DateTime.Now,
+            AuditLastUpdatedTimeStamp = DateTime.Now,
+            AuditText = "From PostgreSQL"
+        }
+        }
+        ;
+
+
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "POST");
+        //act
+        var result = await function.Run(req, null);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        var insertedPractice = _mockData.Where(i => i.GpPracticeCode == "ABC123").Single();
+        insertedPractice.Should().BeEquivalentTo(data[0]);
+        var insertedPractice2 = _mockData.Where(i => i.GpPracticeCode == "XYZ987").Single();
+        insertedPractice2.Should().BeEquivalentTo(data[1]);
+    }
+    [DataRow("XY6789", "XYZ", "ENGLAND")]
     [TestMethod]
     public async Task RunAsync_AddNewRecordUnAuthorized_Returns401(string gpPracticeCode, string bsoCode, string countryCategory)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
         var data = new BsSelectGpPractice
         {
@@ -343,13 +387,13 @@ public class BsSelectGpPracticeDataServiceTests
             AuditLastUpdatedTimeStamp = DateTime.Now,
             AuditText = "From PostgreSQL"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"POST");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "POST");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
     [TestMethod]
     public async Task RunAsync_AddNewRecordInvalidData_Returns401()
@@ -357,37 +401,38 @@ public class BsSelectGpPracticeDataServiceTests
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
-        var data = new{
+        var data = new
+        {
             id = "123",
             number = 123,
             testing = "This should fail"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"POST");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "POST");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
     #endregion
     #region PUT Requests
-    [DataRow("G82650","ABC","ENGLAND")]
-    [DataRow("E85121","XYZ","ENGLAND")]
+    [DataRow("G82650", "ABC", "ENGLAND")]
+    [DataRow("E85121", "XYZ", "ENGLAND")]
     [TestMethod]
     public async Task RunAsync_PutUpdateRecord_ReturnsSuccessIsUpdated(string gpPracticeCode, string bsoCode, string countryCategory)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
 
-        var oldData = _dataServiceAccessor.GetSingle(i =>  i.GpPracticeCode == gpPracticeCode);
+        var oldData = _dataServiceAccessor.GetSingle(i => i.GpPracticeCode == gpPracticeCode);
 
         var data = new BsSelectGpPractice
         {
@@ -399,26 +444,26 @@ public class BsSelectGpPracticeDataServiceTests
             AuditLastUpdatedTimeStamp = DateTime.Now,
             AuditText = "From PostgreSQL"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "PUT");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.OK,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         var updatedPractice = _mockData.Where(i => i.GpPracticeCode == gpPracticeCode).Single();
         updatedPractice.Should().BeEquivalentTo(data);
         updatedPractice.Should().NotBeEquivalentTo(oldData);
     }
-    [DataRow("G82650","XYZ","ENGLAND")]
+    [DataRow("G82650", "XYZ", "ENGLAND")]
     [TestMethod]
     public async Task RunAsync_PutRecordUnAuthorized_Returns401(string gpPracticeCode, string bsoCode, string countryCategory)
     {
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.DenyAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
         var data = new BsSelectGpPractice
         {
@@ -430,13 +475,13 @@ public class BsSelectGpPracticeDataServiceTests
             AuditLastUpdatedTimeStamp = DateTime.Now,
             AuditText = "From PostgreSQL"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "PUT");
 
         //act
-        var result = await function.Run(req,gpPracticeCode);
+        var result = await function.Run(req, gpPracticeCode);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.Unauthorized,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Unauthorized, result.StatusCode);
     }
     [TestMethod]
     public async Task RunAsync_PutRecordNoSlug_Returns400()
@@ -444,8 +489,8 @@ public class BsSelectGpPracticeDataServiceTests
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
         var data = new BsSelectGpPractice
         {
@@ -457,13 +502,13 @@ public class BsSelectGpPracticeDataServiceTests
             AuditLastUpdatedTimeStamp = DateTime.Now,
             AuditText = "From PostgreSQL"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "PUT");
 
         //act
-        var result = await function.Run(req,null);
+        var result = await function.Run(req, null);
 
         //assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
     [TestMethod]
     public async Task RunAsync_PutRecordDoesntExist_Returns400()
@@ -471,8 +516,8 @@ public class BsSelectGpPracticeDataServiceTests
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
         var data = new BsSelectGpPractice
         {
@@ -484,13 +529,13 @@ public class BsSelectGpPracticeDataServiceTests
             AuditLastUpdatedTimeStamp = DateTime.Now,
             AuditText = "From PostgreSQL"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "PUT");
 
         //act
-        var result = await function.Run(req,"ABC1234");
+        var result = await function.Run(req, "ABC1234");
 
         //assert
-        Assert.AreEqual(HttpStatusCode.NotFound,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
     [TestMethod]
     public async Task RunAsync_PutRecordInvalidData_Returns401()
@@ -498,21 +543,22 @@ public class BsSelectGpPracticeDataServiceTests
         //arrange
         _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
 
-        var _requestHandler =  new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor,_mockRequestHandlerLogger.Object,_authenticationConfiguration);
-        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object,_requestHandler,_createResponse);
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
 
-        var data = new{
+        var data = new
+        {
             id = "123",
             number = 123,
             testing = "This should fail"
         };
-        var req = new MockHttpRequestData(_context.Object,JsonSerializer.Serialize(data),"PUT");
+        var req = new MockHttpRequestData(_context.Object, JsonSerializer.Serialize(data), "PUT");
 
         //act
-        var result = await function.Run(req,"G82650");
+        var result = await function.Run(req, "G82650");
 
         //assert
-        Assert.AreEqual(HttpStatusCode.BadRequest,result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     #endregion
