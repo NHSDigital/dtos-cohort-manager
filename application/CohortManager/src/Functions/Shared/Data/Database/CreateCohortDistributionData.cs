@@ -530,9 +530,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var sql = "SELECT [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
             " WHERE CREATED_DATETIME >= ( " +
-            "SELECT CREATED_DATETIME " +
-            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            "WHERE REQUEST_ID = @lastRequestId)";
+            " SELECT CREATED_DATETIME " +
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            " WHERE REQUEST_ID = @lastRequestId)";
 
         var parameters = new Dictionary<string, object>
         {
