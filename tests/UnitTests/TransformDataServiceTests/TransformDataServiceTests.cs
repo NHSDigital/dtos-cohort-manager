@@ -15,7 +15,6 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
-using RulesEngine.Models;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -28,7 +27,7 @@ public class TransformDataServiceTests
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
-    private readonly Mock<ITransformDataLookupFacade> _lookupValidation = new();
+    private readonly Mock<ITransformReasonForRemoval> _transformReasonForRemoval = new();
 
     public TransformDataServiceTests()
     {
@@ -50,7 +49,7 @@ public class TransformDataServiceTests
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _lookupValidation.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _transformReasonForRemoval.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -69,8 +68,6 @@ public class TransformDataServiceTests
                 response.WriteString(ResponseBody);
                 return response;
             });
-
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
     }
 
     [TestMethod]
@@ -107,11 +104,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.NamePrefix = namePrefix;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -120,7 +112,12 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Gender.Male
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -133,11 +130,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.NamePrefix = "Not a valid name prefix";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -146,7 +138,12 @@ public class TransformDataServiceTests
             NamePrefix = null,
             Gender = Gender.Male
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -159,11 +156,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.NamePrefix = "DRS";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -172,7 +164,12 @@ public class TransformDataServiceTests
             NamePrefix = "DR",
             Gender = Gender.Male,
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -202,11 +199,6 @@ public class TransformDataServiceTests
         };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NamePrefix = null,
@@ -225,7 +217,12 @@ public class TransformDataServiceTests
             EmailAddress = new string('A', 90),
             Gender = Gender.NotSpecified
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -238,11 +235,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.Gender = (Gender)4;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -251,6 +243,12 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.NotSpecified,
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         result.Body.Position = 0;
         var reader = new StreamReader(result.Body, Encoding.UTF8);
         var responseBody = await reader.ReadToEndAsync();
@@ -265,11 +263,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.Gender = Gender.Male;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -278,7 +271,12 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -329,11 +327,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.FamilyName = name;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -342,7 +335,12 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -370,11 +368,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -386,7 +379,12 @@ public class TransformDataServiceTests
             ReasonForRemovalEffectiveFromDate = "2/10/2024",
             DateOfDeath = "2/10/2024"
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -401,11 +399,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             RecordType = Actions.Amended,
@@ -415,7 +408,12 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
     }
@@ -430,11 +428,6 @@ public class TransformDataServiceTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -446,7 +439,12 @@ public class TransformDataServiceTests
             ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString(),
             PrimaryCareProvider = ""
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
     }
@@ -473,15 +471,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns(bsoCode);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -500,7 +489,12 @@ public class TransformDataServiceTests
             ReasonForRemoval = null,
             ReasonForRemovalEffectiveFromDate = null,
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -527,16 +521,6 @@ public class TransformDataServiceTests
         _requestBody.Participant.AddressLine4 = addressLine;
         _requestBody.Participant.AddressLine5 = addressLine;
 
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("E85121");
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-        _transformationLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns(bsoCode);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -555,7 +539,14 @@ public class TransformDataServiceTests
             ReasonForRemoval = null,
             ReasonForRemovalEffectiveFromDate = null,
         };
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -565,7 +556,7 @@ public class TransformDataServiceTests
     [DataRow("RDR", null)]
     [DataRow("RDI", "")]
     [DataRow("RPR", "InvalidPostcode")]
-    public async Task Run_ReasonForRemovalRule3_RaisesException(string reasonForRemoval, string postcode)
+    public async Task Run_ReasonForRemovalRule_RaisesException(string reasonForRemoval, string postcode)
     {
         // Arrange
         var addressLine = "address";
@@ -581,58 +572,13 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("ZZZABC");
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Throws<TransformationException>();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.Is<string>(x => x == "3.ParticipantNotRegisteredToGPWithReasonForRemoval"),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-        Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow("RDR", null)]
-    [DataRow("RDI", "")]
-    [DataRow("RPR", "InvalidPostcode")]
-    public async Task Run_ReasonForRemovalRule4_RaisesException(string reasonForRemoval, string postcode)
-    {
-        // Arrange
-        var addressLine = "address";
-
-        _requestBody.Participant.PrimaryCareProvider = "Y00090";
-        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
-        _requestBody.Participant.Postcode = postcode;
-        _requestBody.Participant.AddressLine1 = addressLine;
-        _requestBody.Participant.AddressLine2 = addressLine;
-        _requestBody.Participant.AddressLine3 = addressLine;
-        _requestBody.Participant.AddressLine4 = addressLine;
-        _requestBody.Participant.AddressLine5 = addressLine;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns(string.Empty);
-        _lookupValidation.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode != "InvalidPostcode");
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.Is<string>(x => x == "4.ParticipantNotRegisteredToGPWithReasonForRemoval"),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-        Times.Once());
     }
 
     private void SetUpRequestBody(string json)
@@ -652,11 +598,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -667,7 +608,12 @@ public class TransformDataServiceTests
             ReasonForRemoval = "NOTDEA",
             DateOfDeath = null,
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -682,11 +628,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -697,7 +638,12 @@ public class TransformDataServiceTests
             ReasonForRemoval = "DEA",
             DateOfDeath = "2024-01-01",
         };
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
