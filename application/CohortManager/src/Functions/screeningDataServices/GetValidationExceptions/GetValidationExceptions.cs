@@ -9,6 +9,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
 /// </summary>
@@ -27,40 +28,62 @@ public class GetValidationExceptions
     private readonly ICreateResponse _createResponse;
     private readonly IValidationExceptionData _validationData;
     private readonly IHttpParserHelper _httpParserHelper;
+    private readonly IPaginationService<ValidationException> _paginationService;
 
 
-    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper)
+    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper,IPaginationService<ValidationException> paginationService)
     {
         _logger = logger;
         _createResponse = createResponse;
         _validationData = validationData;
         _httpParserHelper = httpParserHelper;
+        _paginationService = paginationService;
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> RunAsync ([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
+        var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
+        // var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
+        var pageSize = 20;
 
         try
         {
-            if (exceptionId == 0)
+            if (exceptionId != 0)
             {
-                var exceptionList = _validationData.GetAllExceptions();
-                var exceptionListJson = JsonSerializer.Serialize(exceptionList);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionListJson);
+                var exceptionById = _validationData.GetExceptionById(exceptionId);
+                if (exceptionById == null)
+                {
+                    _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK,req,JsonSerializer.Serialize(exceptionById)
+                );
             }
 
-            var exceptionById = _validationData.GetExceptionById(exceptionId);
+            // Pagination for all exceptions
+            var exceptionQuery = _validationData.GetAllExceptions().AsQueryable();
+            var paginationResult = _paginationService.GetPaginatedResult(
+                exceptionQuery,
+                lastId,
+                pageSize,
+                e => e.ExceptionId.Value
+            );
 
-            if (exceptionById == null)
+            // Prepare response with pagination metadata
+            var response = new
             {
-                _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
+                Items = paginationResult.Items,
+                HasMoreItems = paginationResult.HasMoreItems,
+                NextLastId = paginationResult.NextLastId
+            };
 
-            var exceptionByIdJson = JsonSerializer.Serialize(exceptionById);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionByIdJson);
+            return _createResponse.CreateHttpResponse(
+                HttpStatusCode.OK,
+                req,
+                JsonSerializer.Serialize(response)
+            );
         }
         catch (Exception ex)
         {
@@ -69,3 +92,31 @@ public class GetValidationExceptions
         }
     }
 }
+
+
+
+// var exceptionQuery = _validationData.GetAllExceptions().AsQueryable();
+
+// // Ensure the query is not null and has items
+// if (exceptionQuery == null || !exceptionQuery.Any())
+// {
+//     return _createResponse.CreateHttpResponse(
+//         HttpStatusCode.NoContent,
+//         req
+//     );
+// }
+
+// var paginationResult = _paginationService.GetPaginatedResult(
+//     exceptionQuery,
+//     lastId,
+//     pageSize ?? 20
+// );
+
+// // Check if no items were found
+// if (!paginationResult.Items.Any())
+// {
+//     return _createResponse.CreateHttpResponse(
+//         HttpStatusCode.NoContent,
+//         req
+//     );
+// }
