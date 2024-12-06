@@ -787,6 +787,8 @@ sqlserver = {
       max_gb         = 5
       read_scale     = false
       sku            = "S0"
+      storage_account_type = "GeoZone"
+      zone_redundant       = false
     }
   }
 
