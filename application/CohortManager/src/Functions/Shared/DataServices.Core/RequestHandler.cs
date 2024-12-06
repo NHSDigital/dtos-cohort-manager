@@ -147,8 +147,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         try
         {
 
-
-            //var entityData = await GetBodyFromRequest(req);
             string jsonData;
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
@@ -206,7 +204,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
 
 
-            var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);;
+            var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
@@ -250,21 +248,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private static bool IsJsonArray(string json){
-        JsonNode root = JsonNode.Parse(json);
+    private static bool IsJsonArray(string json)
+    {
         var doc = JsonDocument.Parse(json);
         return doc.RootElement.ValueKind == JsonValueKind.Array;
-    }
-
-    [Obsolete("error",true)]
-    private static async Task<TEntity> GetBodyFromRequest(HttpRequestData req)
-    {
-        string jsonData;
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            jsonData = await reader.ReadToEndAsync();
-        }
-        return JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
     }
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
