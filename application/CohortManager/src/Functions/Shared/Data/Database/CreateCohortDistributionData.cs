@@ -283,9 +283,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
+    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId, int rowCount)
     {
-        var SQL = "SELECT" +
+        var SQL = "SELECT TOP (@RowCount)" +
             " [PARTICIPANT_ID], " +
             " [NHS_NUMBER], " +
             " [SUPERSEDED_NHS_NUMBER], " +
@@ -328,6 +328,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId },
+            {"@RowCount", rowCount },
         };
 
         var command = CreateCommand(parameters);
@@ -526,14 +527,16 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId)
     {
-        var sql = "SELECT TOP (@MaxRequests) [REQUEST_ID],[STATUS_CODE],[CREATED_DATETIME] " +
-        " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-        " WHERE CREATED_DATETIME > (SELECT CREATED_DATETIME FROM [dbo].[BS_SELECT_REQUEST_AUDIT] WHERE REQUEST_ID = @LastRequestId) ";
+        var sql = "SELECT [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            " WHERE CREATED_DATETIME >= ( " +
+            " SELECT CREATED_DATETIME " +
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            " WHERE REQUEST_ID = @lastRequestId)";
 
         var parameters = new Dictionary<string, object>
         {
             {"@LastRequestId", lastRequestId},
-            {"@MaxRequests", 100},
         };
 
         using var command = CreateCommand(parameters);
@@ -542,9 +545,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList)
+    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList, int rowCount)
     {
-        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, 1000);
+        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, rowCount);
 
         return requestIdsList.SelectMany(GetCohortDistributionParticipantsByRequestId).ToList();
     }
@@ -555,7 +558,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [REQUEST_ID], " +
             " [STATUS_CODE], " +
             " [CREATED_DATETIME] " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            " ORDER BY CREATED_DATETIME DESC";
 
         var conditions = new List<string>();
 

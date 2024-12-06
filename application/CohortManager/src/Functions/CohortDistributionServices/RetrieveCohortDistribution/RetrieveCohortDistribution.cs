@@ -61,7 +61,7 @@ public class RetrieveCohortDistributionData
                     .Select(s => s.RequestId)
                     .ToList();
 
-                cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+                cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList, rowCount);
             }
 
             if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
