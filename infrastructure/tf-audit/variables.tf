@@ -83,7 +83,6 @@ variable "law" {
     law_sku             = optional(string, "PerGB2018")
     retention_days      = optional(number, 30)
     export_enabled      = optional(bool, false)
-    export_eventhub_key = optional(string, "")
     export_table_names  = optional(list(string), [])
   })
 }
