@@ -811,7 +811,7 @@ sqlserver = {
       licence_type   = "LicenseIncluded"
       max_gb         = 5
       read_scale     = false
-      sku            = "S1"
+      sku            = "S3"
     }
   }
 
