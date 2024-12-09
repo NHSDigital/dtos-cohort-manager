@@ -342,6 +342,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -519,6 +523,10 @@ function_apps = {
         {
           env_var_name     = "DemographicDataServiceURI"
           function_app_key = "DemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
     }
@@ -752,6 +760,19 @@ function_apps = {
         }
       ]
     }
+
+    ParticipantManagementDataService = {
+      name_suffix            = "participant-management-data-service"
+      function_endpoint_name = "ParticipantManagementDataService"
+      app_service_plan_key   = "screeningDataServices"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
   }
 }
 
@@ -788,9 +809,9 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 5
+      max_gb               = 10
       read_scale           = false
-      sku                  = "S0"
+      sku                  = "S4"
       storage_account_type = "GeoZone"
       zone_redundant       = false
     }
