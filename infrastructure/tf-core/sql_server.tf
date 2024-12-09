@@ -23,7 +23,8 @@ module "azure_sql_server" {
   monitor_diagnostic_setting_database_metrics        = local.monitor_diagnostic_setting_database_metrics
   monitor_diagnostic_setting_sql_server_enabled_logs = local.monitor_diagnostic_setting_sql_server_enabled_logs
   monitor_diagnostic_setting_sql_server_metrics      = local.monitor_diagnostic_setting_sql_server_metrics
-  sql_server_alert_policy_state                      = "Enabled"
+
+  sql_server_alert_policy_state = "Enabled"
 
   sql_uai_name                         = var.sqlserver.sql_uai_name
   sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
@@ -34,12 +35,14 @@ module "azure_sql_server" {
 
 
   # Default database
-  db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
-  collation      = var.sqlserver.dbs.cohman.collation
-  licence_type   = var.sqlserver.dbs.cohman.licence_type
-  max_gb         = var.sqlserver.dbs.cohman.max_gb
-  read_scale     = var.sqlserver.dbs.cohman.read_scale
-  sku            = var.sqlserver.dbs.cohman.sku
+  db_name_suffix       = var.sqlserver.dbs.cohman.db_name_suffix
+  collation            = var.sqlserver.dbs.cohman.collation
+  licence_type         = var.sqlserver.dbs.cohman.licence_type
+  max_gb               = var.sqlserver.dbs.cohman.max_gb
+  read_scale           = var.sqlserver.dbs.cohman.read_scale
+  sku                  = var.sqlserver.dbs.cohman.sku
+  storage_account_type = var.sqlserver.dbs.cohman.storage_account_type
+  zone_redundant       = var.sqlserver.dbs.cohman.zone_redundant
 
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules

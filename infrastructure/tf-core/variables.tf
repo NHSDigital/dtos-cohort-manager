@@ -155,6 +155,13 @@ variable "app_service_plan" {
   })
 }
 
+variable "diagnostic_settings" {
+  description = "Configuration for the diagnostic settings"
+  type = object({
+    metric_enabled = optional(bool, false)
+  })
+}
+
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
@@ -322,12 +329,15 @@ variable "sqlserver" {
 
     # Database
     dbs = optional(map(object({
-      db_name_suffix = optional(string, "cohman")
-      collation      = optional(string, "SQL_Latin1_General_CP1_CI_AS")
-      licence_type   = optional(string, "LicenseIncluded")
-      max_gb         = optional(number, 5)
-      read_scale     = optional(bool, false)
-      sku            = optional(string, "S0")
+      db_name_suffix       = optional(string, "cohman")
+      collation            = optional(string, "SQL_Latin1_General_CP1_CI_AS")
+      licence_type         = optional(string, "LicenseIncluded")
+      max_gb               = optional(number, 5)
+      read_scale           = optional(bool, false)
+      sku                  = optional(string, "S0")
+      storage_account_type = optional(string, "Local")
+      zone_redundant       = optional(bool, false)
+
     })), {})
 
     # FW Rules

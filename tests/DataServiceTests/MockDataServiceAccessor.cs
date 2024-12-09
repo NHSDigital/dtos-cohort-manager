@@ -21,6 +21,13 @@ public class MockDataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> wh
         return _data.SingleOrDefault(predicate.Compile());
     }
 
+    public async Task<bool> InsertMany(IEnumerable<TEntity> entities)
+    {
+        await Task.CompletedTask;
+       _data.AddRange(entities);
+        return true;
+    }
+
     public async Task<bool> InsertSingle(TEntity entity)
     {
         await Task.CompletedTask;
