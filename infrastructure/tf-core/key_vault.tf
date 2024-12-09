@@ -29,5 +29,10 @@ module "key_vault" {
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
+  depends_on = [
+    module.peering_spoke_hub,
+    module.peering_hub_spoke
+  ]
+
   tags = var.tags
 }
