@@ -17,7 +17,9 @@
   "extensions": {
     "durableTask": {
       "storageProvider": {
-        "type": "AzureStorage"
+        "type": "AzureStorage",
+        "maxDurableActivityFunctionTimeout": "00:10:00", 
+        "maxOrchestrationFunctionTimeout": "7.00:00:00"
       }
     }
   }

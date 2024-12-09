@@ -17,17 +17,19 @@ public class DurableDemographicFunction
 
     private readonly ICreateDemographicData _createDemographicData;
 
-    public DurableDemographicFunction(ICreateDemographicData createDemographicData)
+    private readonly ILogger<DurableDemographicFunction> _logger;
+
+    public DurableDemographicFunction(ICreateDemographicData createDemographicData, ILogger<DurableDemographicFunction> logger)
     {
         _createDemographicData = createDemographicData;
+        _logger = logger;
     }
 
     [Function(nameof(DurableDemographicFunction))]
     public async Task<bool> RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        ILogger logger = context.CreateReplaySafeLogger(nameof(DurableDemographicFunction));
-        logger.LogInformation("Calling Run Orchestrator");
+        _logger.LogInformation("Calling Run Orchestrator");
 
         var demographicJsonData = context.GetInput<string>();
 
@@ -44,7 +46,6 @@ public class DurableDemographicFunction
     [Function(nameof(InsertDemographicData))]
     public async Task<bool> InsertDemographicData([ActivityTrigger] string DemographicJsonData, FunctionContext executionContext)
     {
-        var logger = executionContext.GetLogger("InsertDemographicData");
         try
         {
             var participantData = JsonSerializer.Deserialize<List<Demographic>>(DemographicJsonData);
@@ -55,7 +56,7 @@ public class DurableDemographicFunction
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "inserting demographic data failed");
+            _logger.LogError(ex, "inserting demographic data failed");
             return false;
         }
     }
@@ -66,7 +67,7 @@ public class DurableDemographicFunction
         [DurableClient] DurableTaskClient client,
         FunctionContext executionContext)
     {
-        ILogger logger = executionContext.GetLogger("DurableDemographicFunction_HttpStart");
+        //ILogger logger = executionContext.GetLogger("DurableDemographicFunction_HttpStart");
 
         // Function input comes from the request content.   
         var requestBody = "";
@@ -78,7 +79,7 @@ public class DurableDemographicFunction
         var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
             nameof(DurableDemographicFunction), requestBody);
 
-        logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
         // Returns an HTTP 202 response with an instance management payload.
         return await client.CreateCheckStatusResponseAsync(req, instanceId);

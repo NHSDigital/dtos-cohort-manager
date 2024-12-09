@@ -2,6 +2,7 @@ using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Data.Database;
+using NHS.CohortManager.DemographicServices;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

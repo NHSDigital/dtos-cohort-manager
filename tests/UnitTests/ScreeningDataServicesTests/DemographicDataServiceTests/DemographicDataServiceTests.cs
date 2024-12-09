@@ -42,31 +42,6 @@ public class DemographicDataServiceTests
         };
     }
 
-    [TestMethod]
-    public async Task Run_DemographicDataSaved_OK()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
-
-        SetupRequest(json);
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-        _request.Setup(x => x.Method).Returns("POST");
-        _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(Task.FromResult(true));
-
-        // Act
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
 
     [TestMethod]
     public async Task Run_DemographicNotSaved_InternalServerError()

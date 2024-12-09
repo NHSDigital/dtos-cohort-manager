@@ -178,6 +178,18 @@ services:
       - ASPNETCORE_URLS=http://*:7072
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+
+  demographic-durable-function:
+    container_name: durable-demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: /DemographicServices/DemograpghicDurableFunction/DockerFile
+    environment:
+      - ASPNETCORE_URLS=http://*:7077
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
     
   # Data Services
   bs-select-gp-practice-data-service:

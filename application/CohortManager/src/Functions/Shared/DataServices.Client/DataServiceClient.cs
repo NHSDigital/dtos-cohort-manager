@@ -22,9 +22,9 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         _baseUrl = dataServiceResolver.GetDataServiceUrl(typeof(TEntity));
 
-        if( string.IsNullOrEmpty(_baseUrl))
+        if (string.IsNullOrEmpty(_baseUrl))
         {
-            throw new InvalidDataException("Unable to resolve DataServiceUrl");
+            throw new InvalidDataException($"Unable to resolve DataServiceUrl {typeof(TEntity).Name}");
         }
         _callFunction = callFunction;
         _logger = logger;
@@ -38,18 +38,18 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return result;
     }
 
-    public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
+    public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
 
         try
         {
             //Resolves the constants
-            var expr  = new ClosureResolver().Visit(predicate);
+            var expr = new ClosureResolver().Visit(predicate);
             _logger.LogWarning(expr.ToString());
 
 
-            var jsonString = await _callFunction.SendGet(_baseUrl,new Dictionary<string, string>{{"query",expr.ToString()}});
-            if(string.IsNullOrEmpty(jsonString))
+            var jsonString = await _callFunction.SendGet(_baseUrl, new Dictionary<string, string> { { "query", expr.ToString() } });
+            if (string.IsNullOrEmpty(jsonString))
             {
                 return null;
             }
@@ -57,50 +57,51 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             return result;
 
         }
-        catch(WebException wex)
+        catch (WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if (response.StatusCode! == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            _logger.LogError(wex, "An Exception Happened while calling data service API");
             throw;
         }
     }
 
     public virtual async Task<TEntity> GetSingle(string id)
     {
-        try{
+        try
+        {
 
-            var jsonString = await _callFunction.SendGet(GetUrlBuilder(_baseUrl,id));
+            var jsonString = await _callFunction.SendGet(GetUrlBuilder(_baseUrl, id));
 
-            if(string.IsNullOrEmpty(jsonString))
+            if (string.IsNullOrEmpty(jsonString))
             {
-                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty" ,typeof(TEntity).FullName);
+                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty", typeof(TEntity).FullName);
                 return null;
             }
 
             TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
             return result;
         }
-        catch(WebException wex)
+        catch (WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if (response.StatusCode! == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            _logger.LogError(wex, "An Exception Happened while calling data service API");
             throw;
         }
     }
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl,id));
+        var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl, id));
         return result;
     }
 
