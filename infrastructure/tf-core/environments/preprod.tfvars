@@ -806,12 +806,14 @@ sqlserver = {
   # cohman database
   dbs = {
     cohman = {
-      db_name_suffix = "DToSDB"
-      collation      = "SQL_Latin1_General_CP1_CI_AS"
-      licence_type   = "LicenseIncluded"
-      max_gb         = 5
-      read_scale     = false
-      sku            = "S3"
+      db_name_suffix       = "DToSDB"
+      collation            = "SQL_Latin1_General_CP1_CI_AS"
+      licence_type         = "LicenseIncluded"
+      max_gb               = 10
+      read_scale           = false
+      sku                  = "S4"
+      storage_account_type = "GeoZone"
+      zone_redundant       = false
     }
   }
 
