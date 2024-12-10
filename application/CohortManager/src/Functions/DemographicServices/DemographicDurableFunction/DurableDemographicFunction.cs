@@ -2,9 +2,8 @@ namespace NHS.CohortManager.DemographicServices;
 
 using System.Text;
 using System.Text.Json;
-using Apache.Arrow;
-using Data.Database;
-using DurableTask.Core;
+
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -14,14 +13,13 @@ using Model;
 
 public class DurableDemographicFunction
 {
-
-    private readonly ICreateDemographicData _createDemographicData;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
     private readonly ILogger<DurableDemographicFunction> _logger;
 
-    public DurableDemographicFunction(ICreateDemographicData createDemographicData, ILogger<DurableDemographicFunction> logger)
+    public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger)
     {
-        _createDemographicData = createDemographicData;
+        _participantDemographic = dataServiceClient;
         _logger = logger;
     }
 
@@ -36,7 +34,7 @@ public class DurableDemographicFunction
         //Max number of attempts: The maximum number of attempts. If set to 1, there will be no retry.
         var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
             maxNumberOfAttempts: 1,
-            firstRetryInterval: TimeSpan.FromSeconds(5))
+            firstRetryInterval: TimeSpan.FromSeconds(100))
         );
 
         var res = await context.CallActivityAsync<bool>(nameof(InsertDemographicData), demographicJsonData, options: retryOptions);
@@ -48,9 +46,9 @@ public class DurableDemographicFunction
     {
         try
         {
-            var participantData = JsonSerializer.Deserialize<List<Demographic>>(DemographicJsonData);
+            var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(DemographicJsonData);
 
-            var res = await _createDemographicData.InsertDemographicData(participantData);
+            var res = await _participantDemographic.AddRange(participantData);
             return res;
 
         }
@@ -67,8 +65,6 @@ public class DurableDemographicFunction
         [DurableClient] DurableTaskClient client,
         FunctionContext executionContext)
     {
-        //ILogger logger = executionContext.GetLogger("DurableDemographicFunction_HttpStart");
-
         // Function input comes from the request content.   
         var requestBody = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))

@@ -34,6 +34,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Model\Model.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Database\DataServices.Database.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Client\DataServices.Client.csproj" />
   </ItemGroup>
   <Target Name="CopyGrpcNativeAssetsToOutDir" AfterTargets="Build"> <ItemGroup> <NativeAssetToCopy Condition="$([MSBuild]::IsOSPlatform('OSX'))" Include="$(OutDir)runtimes/osx-arm64/native/*" /> </ItemGroup> <Copy SourceFiles="@(NativeAssetToCopy)" DestinationFolder="$(OutDir).azurefunctions/runtimes/osx-arm64/native" /> </Target>
 </Project>

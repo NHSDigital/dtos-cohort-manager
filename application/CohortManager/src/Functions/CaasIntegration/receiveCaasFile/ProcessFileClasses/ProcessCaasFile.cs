@@ -97,7 +97,7 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             case Actions.New:
                 //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
-                currentBatch.DemographicData.Enqueue(participant);
+                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
 
                 break;
@@ -139,9 +139,9 @@ public class ProcessCaasFile : IProcessCaasFile
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            var listOfData = new List<Participant>()
+            var listOfData = new List<ParticipantDemographic>()
             {
-                basicParticipantCsvRecord.participant
+                basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
             if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
             {

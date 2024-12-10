@@ -47,6 +47,47 @@ public class Participant
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
     }
 
+    public ParticipantDemographic ToParticipantDemographic()
+    {
+        return new ParticipantDemographic
+        {
+            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? long.Parse(NhsNumber) : null,
+            SupersededByNhsNumber = !string.IsNullOrEmpty(SupersededByNhsNumber) ? long.Parse(SupersededByNhsNumber) : null,
+            PrimaryCareProvider = PrimaryCareProvider,
+            PrimaryCareProviderFromDate = PrimaryCareProviderEffectiveFromDate,
+            CurrentPosting = CurrentPosting,
+            CurrentPostingFromDate = CurrentPostingEffectiveFromDate,
+            NamePrefix = NamePrefix,
+            GivenName = FirstName,
+            OtherGivenName = OtherGivenNames,
+            FamilyName = FamilyName,
+            PreviousFamilyName = PreviousFamilyName,
+            DateOfBirth = DateOfBirth,
+            Gender = Gender.HasValue ? (short?)Gender : null,
+            AddressLine1 = AddressLine1,
+            AddressLine2 = AddressLine2,
+            AddressLine3 = AddressLine3,
+            AddressLine4 = AddressLine4,
+            AddressLine5 = AddressLine5,
+            PostCode = Postcode,
+            PafKey = PafKey,
+            UsualAddressFromDate = UsualAddressEffectiveFromDate,
+            DateOfDeath = DateOfDeath,
+            DeathStatus = DeathStatus.HasValue ? (short?)DeathStatus : null,
+            TelephoneNumberHome = TelephoneNumber,
+            TelephoneNumberHomeFromDate = TelephoneNumberEffectiveFromDate,
+            TelephoneNumberMob = MobileNumber,
+            TelephoneNumberMobFromDate = MobileNumberEffectiveFromDate,
+            EmailAddressHome = EmailAddress,
+            EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
+            PreferredLanguage = PreferredLanguage,
+            InterpreterRequired = !string.IsNullOrEmpty(IsInterpreterRequired) ? short.Parse(IsInterpreterRequired) : null,
+            InvalidFlag = (short?)(!string.IsNullOrEmpty(InvalidFlag) ? InvalidFlag.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0 : 0),
+            RecordInsertDateTime = DateTime.Now,
+            RecordUpdateDateTime = null,
+        };
+    }
+
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }

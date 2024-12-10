@@ -3,8 +3,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Data.Database;
 using NHS.CohortManager.DemographicServices;
+using Model;
+using DataServices.Client;
 
 var host = new HostBuilder()
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .Build()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
