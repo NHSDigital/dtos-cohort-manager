@@ -25,7 +25,7 @@ module "log_analytics_data_export_rule" {
   name                    = "${module.regions_config[each.key].names.log-analytics-workspace}-export-rule"
   resource_group_name     = azurerm_resource_group.audit[each.key].name
   workspace_resource_id   = module.log_analytics_workspace_audit[each.key].id
-  destination_resource_id = data.terraform_remote_state.hub.outputs.eventhubs["dtos-hub-${each.key}"]["${var.application_full_name}-${lower(var.environment)}"].id
+  destination_resource_id = data.terraform_remote_state.hub.outputs.event_hubs["dtos-hub-${each.key}"]["${var.application_full_name}-${lower(var.environment)}"].id
   table_names             = var.law.export_table_names
   enabled                 = true # could re-use var.law.export_enabled but may as well create/destroy the resource instead of keeping it but in disabled state
 }
