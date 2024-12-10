@@ -5,6 +5,27 @@ using Model.Enums;
 public class Participant
 {
     public Participant() { }
+    public Participant(ParticipantManagement pm)
+    {
+        if(pm == null)
+        {
+            return;
+        }
+
+        ParticipantId = pm.ParticipantId.ToString();
+        ScreeningId = pm.ScreeningId.ToString();
+        NhsNumber = pm.NHSNumber.ToString();
+        RecordType = pm.RecordType;
+        EligibilityFlag = pm.EligibilityFlag.ToString();
+        ReasonForRemoval = pm.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = pm.ReasonForRemovalDate.ToString();
+        BusinessRuleVersion = pm.BusinessRuleVersion;
+        ExceptionFlag = pm.ExceptionFlag.ToString();
+        RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
+        RecordUpdateDateTime = pm.RecordUpdateDateTime.ToString();
+
+    }
+
     public Participant(CohortDistributionParticipant cohortDistributionParticipant)
     {
         RecordType = cohortDistributionParticipant.RecordType;

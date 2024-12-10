@@ -28,6 +28,7 @@ declare -A docker_functions_map=(
     ["screeningDataServices/LanguageCodesDataService"]="language-code-data-service"
     ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
     ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
+    ["screeningDataServices/ParticipantManagementDataService"]="participant-management-data-service"
     ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"

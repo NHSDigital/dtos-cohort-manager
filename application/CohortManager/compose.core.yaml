@@ -108,6 +108,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   mark-participant-as-eligible:
@@ -250,6 +251,16 @@ services:
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7993
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  participant-management-data-service:
+    container_name: participant-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7994
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service
