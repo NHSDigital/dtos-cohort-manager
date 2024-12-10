@@ -19,6 +19,7 @@ public class AddCohortDistributionTests
     private readonly CreateCohortDistributionData _createCohortDistributionData;
     private const int serviceProviderId = (int)ServiceProvider.BSS;
     private readonly string _requestId = new Guid().ToString();
+    private const int _rowCount = 1;
 
     public AddCohortDistributionTests()
     {
@@ -155,9 +156,9 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
 
-        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
+        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID",_rowCount);
 
         // Assert
         Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
@@ -175,7 +176,7 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
 
         // Assert
         Assert.IsNotNull(result);
@@ -233,7 +234,7 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(_requestId);
         _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns("participantId");
         // Act
-        var result = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList);
+        var result = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList, _rowCount);
 
         // Assert
         Assert.IsNotNull(result);
@@ -258,7 +259,7 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
 
         // Assert
         Assert.IsNotNull(result);
