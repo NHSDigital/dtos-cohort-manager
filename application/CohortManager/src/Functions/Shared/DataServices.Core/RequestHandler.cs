@@ -8,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -145,9 +146,26 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         try
         {
-            var entityData = await GetBodyFromRequest(req);
 
-            var result = await _dataServiceAccessor.InsertSingle(entityData);
+            string jsonData;
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                jsonData = await reader.ReadToEndAsync();
+            }
+
+            bool result;
+            if(IsJsonArray(jsonData))
+            {
+                var entityData = JsonSerializer.Deserialize<List<TEntity>>(jsonData,jsonSerializerOptions);
+                result = await _dataServiceAccessor.InsertMany(entityData);
+            }
+            else
+            {
+                var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
+                result = await _dataServiceAccessor.InsertSingle(entityData);
+            }
+
+
             if (!result)
             {
 
@@ -180,7 +198,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         try
         {
-            var entityData = await GetBodyFromRequest(req);
+            string jsonData;
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8)){
+                jsonData = await reader.ReadToEndAsync();
+            }
+
+
+            var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
@@ -224,14 +248,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private static async Task<TEntity> GetBodyFromRequest(HttpRequestData req)
+    private static bool IsJsonArray(string json)
     {
-        string jsonData;
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            jsonData = await reader.ReadToEndAsync();
-        }
-        return JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
+        var doc = JsonDocument.Parse(json);
+        return doc.RootElement.ValueKind == JsonValueKind.Array;
     }
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
@@ -239,10 +259,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
         var filterConstant = Expression.Constant(Convert.ChangeType(filter, GetPropertyType(typeof(TEntity), _keyInfo.Name)));
-
         var expr = Expression.Equal(entityKey, filterConstant);
 
-        _logger.LogError(expr.Print());
         return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
     }
 
@@ -277,9 +295,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             expr = Expression.AndAlso(expr, comparison);
         }
-        _logger.LogError(expr.Print());
         var lambdaexpr = Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
-        lambdaexpr.Print();
         return lambdaexpr;
 
     }
