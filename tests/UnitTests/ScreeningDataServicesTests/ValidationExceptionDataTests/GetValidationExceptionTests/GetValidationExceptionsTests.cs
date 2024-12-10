@@ -7,12 +7,14 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using NHS.CohortManager.ScreeningDataServices;
+using Common;
 
 [TestClass]
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
 {
     private readonly List<ValidationException> _exceptionList;
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
+    private readonly Mock<PaginationService<ValidationException>> _paginationServiceMock = new();
 
     public GetValidationExceptionsTests(): base((conn, logger, transaction, command, response) => null)
     {
@@ -28,7 +30,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             _loggerMock.Object,
             _createResponseMock.Object,
             _validationDataMock.Object,
-            _httpParserHelperMock.Object
+            _httpParserHelperMock.Object,
+            _paginationServiceMock.Object
         );
 
         var json = JsonSerializer.Serialize(_exceptionList);

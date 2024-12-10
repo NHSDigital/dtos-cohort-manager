@@ -29,7 +29,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ExcludedSMULookup>()
             .ToTable("EXCLUDED_SMU_LKP","dbo");
-
+        modelBuilder.Entity<ParticipantManagement>()
+            .ToTable("PARTICIPANT_MANAGEMENT","dbo");
     }
 
 }
