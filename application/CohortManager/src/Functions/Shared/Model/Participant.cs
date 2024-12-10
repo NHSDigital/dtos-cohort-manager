@@ -12,14 +12,13 @@ public class Participant
             return;
         }
 
-
         ParticipantId = pm.ParticipantId.ToString();
         ScreeningId = pm.ScreeningId.ToString();
         NhsNumber = pm.NHSNumber.ToString();
         RecordType = pm.RecordType;
         EligibilityFlag = pm.EligibilityFlag.ToString();
         ReasonForRemoval = pm.ReasonForRemoval;
-        ReasonForRemovalEffectiveFromDate = pm.ReasonForRemovalDate.ToString();//NOT SURE THIS IS RIGHT
+        ReasonForRemovalEffectiveFromDate = pm.ReasonForRemovalDate.ToString();
         BusinessRuleVersion = pm.BusinessRuleVersion;
         ExceptionFlag = pm.ExceptionFlag.ToString();
         RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
