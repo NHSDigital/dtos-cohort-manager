@@ -42,7 +42,7 @@ public class GetValidationExceptions
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public HttpResponseData Run ([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
