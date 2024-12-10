@@ -14,27 +14,32 @@ public class PaginationService<T> : IPaginationService<T>
             idSelector = GetDefaultIdSelector();
         }
 
-        var IsFirstPage = !lastId.HasValue || lastId.Value == 0;
+        // Convert source to a list of IDs to calculate index-based pagination
+        var idList = source.Select(idSelector).OrderBy(id => id).ToList();
 
-        var query = lastId.HasValue && lastId.Value > 0
-            ? source.Where(s => idSelector(s) > lastId.Value)
-            : source;
+        // Get the index of the lastId
+        int lastIdIndex = lastId.HasValue? idList.IndexOf(lastId.Value) : -1;
 
-        query = query.OrderBy(x => idSelector(x));
+        // Calculate the current page
+        int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 1 : 1;
 
-        var resultItems = query.Take(pageSize + 1).ToList();
-        bool hasMoreItems = resultItems.Count > pageSize;
-        int? lastResultId = hasMoreItems ? idSelector(resultItems[resultItems.Count - 1]) : null;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        var query = source.OrderBy(idSelector).AsQueryable();
 
-        int currentPage = !IsFirstPage ? (int)Math.Ceiling((double)(lastId.Value + resultItems.Count) / pageSize) : 1;
+        if (lastIdIndex >= 0)
+        {
+            query = query.Skip(lastIdIndex + 1);
+        }
+
+        var items = query.Take(pageSize).ToList();
+        int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
 
         return new PaginationResult<T>
         {
-            Items = resultItems,
-            IsFirstPage = IsFirstPage,
-            HasNextPage = hasMoreItems,
+            Items = items,
+            IsFirstPage = currentPage == 1,
+            HasNextPage = lastResultId.HasValue && (lastIdIndex + pageSize < totalItems),
             LastResultId = lastResultId,
             TotalItems = totalItems,
             TotalPages = totalPages,
