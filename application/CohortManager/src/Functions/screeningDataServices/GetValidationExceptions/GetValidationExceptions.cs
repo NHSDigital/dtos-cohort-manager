@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.ScreeningDataServices;
 
+using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Text.Json;
 using Common;
@@ -9,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
 /// </summary>
@@ -27,45 +29,59 @@ public class GetValidationExceptions
     private readonly ICreateResponse _createResponse;
     private readonly IValidationExceptionData _validationData;
     private readonly IHttpParserHelper _httpParserHelper;
+    private readonly IPaginationService<ValidationException> _paginationService;
 
 
-    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper)
+    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper, IPaginationService<ValidationException> paginationService)
     {
         _logger = logger;
         _createResponse = createResponse;
         _validationData = validationData;
         _httpParserHelper = httpParserHelper;
+        _paginationService = paginationService;
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public HttpResponseData Run ([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
+        var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
 
         try
         {
-            if (exceptionId == 0)
+            if (exceptionId != 0)
             {
-                var exceptionList = _validationData.GetAllExceptions();
-                var exceptionListJson = JsonSerializer.Serialize(exceptionList);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionListJson);
+                return GetExceptionById(req, exceptionId);
             }
 
-            var exceptionById = _validationData.GetExceptionById(exceptionId);
+            var exceptionQuery = _validationData.GetAllExceptions().AsQueryable();
 
-            if (exceptionById == null)
+            if (exceptionQuery == null || exceptionQuery.Count() == 0)
             {
-                _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent,req);
             }
 
-            var exceptionByIdJson = JsonSerializer.Serialize(exceptionById);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, exceptionByIdJson);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptionQuery, lastId, pageSize, e => e.ExceptionId.Value);
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing: {Function} validation exceptions request", nameof(GetValidationExceptions));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private HttpResponseData GetExceptionById(HttpRequestData req, int exceptionId)
+    {
+        var exceptionById = _validationData.GetExceptionById(exceptionId);
+        if (exceptionById == null)
+        {
+            _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById)
+        );
     }
 }
