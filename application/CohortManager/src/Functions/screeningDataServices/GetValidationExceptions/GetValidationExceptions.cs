@@ -42,11 +42,13 @@ public class GetValidationExceptions
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public HttpResponseData Run ([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
+        // var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize"); //WP - ask about this
+        var pageSize = 20;
+        var todayOnly = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
 
         try
         {
@@ -55,11 +57,11 @@ public class GetValidationExceptions
                 return GetExceptionById(req, exceptionId);
             }
 
-            var exceptionQuery = _validationData.GetAllExceptions().AsQueryable();
+            var exceptionQuery = _validationData.GetAllExceptions(todayOnly).AsQueryable();
 
             if (exceptionQuery == null || exceptionQuery.Count() == 0)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent,req);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
             var paginatedResults = _paginationService.GetPaginatedResult(exceptionQuery, lastId, pageSize, e => e.ExceptionId.Value);
