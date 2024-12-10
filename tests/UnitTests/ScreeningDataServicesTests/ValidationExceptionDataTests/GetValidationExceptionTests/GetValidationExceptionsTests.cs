@@ -32,7 +32,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             _validationDataMock.Object,
             _httpParserHelperMock.Object,
             _paginationServiceMock.Object
-
         );
 
         var json = JsonSerializer.Serialize(_exceptionList);
