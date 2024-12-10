@@ -775,10 +775,10 @@ function_apps = {
     }
 
     ParticipantDemographicDataService = {
-      name_suffix                  = "participant-demographic-data-service"
-      function_endpoint_name       = "ParticipantDemographicDataService"
-      app_service_plan_key         = "screeningDataServices"
-      db_connection_string         = "DtOsDatabaseConnectionString"
+      name_suffix            = "participant-demographic-data-service"
+      function_endpoint_name = "ParticipantDemographicDataService"
+      app_service_plan_key   = "screeningDataServices"
+      db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
