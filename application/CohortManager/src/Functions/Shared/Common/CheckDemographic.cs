@@ -31,10 +31,8 @@ public class CheckDemographic : ICheckDemographic
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
     {
         var json = JsonSerializer.Serialize(participants);
-
         using var client = new HttpClient();
 
-        client.Timeout = new TimeSpan(500);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await client.PostAsync(DemographicFunctionURI, content);
 

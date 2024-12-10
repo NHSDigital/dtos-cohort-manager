@@ -55,7 +55,7 @@ public class DurableDemographicFunction
         catch (Exception ex)
         {
             _logger.LogError(ex, "inserting demographic data failed");
-            return false;
+            return false;     
         }
     }
 
