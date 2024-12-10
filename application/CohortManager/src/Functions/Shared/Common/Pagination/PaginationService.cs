@@ -20,9 +20,7 @@ public class PaginationService<T> : IPaginationService<T>
         // Get the index of the lastId
         int lastIdIndex = lastId.HasValue? idList.IndexOf(lastId.Value) : -1;
 
-        // Calculate the current page
-        int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 1 : 1;
-
+        int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 2 : 1;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
         var query = source.OrderBy(idSelector).AsQueryable();
