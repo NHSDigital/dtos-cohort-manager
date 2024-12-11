@@ -35,12 +35,14 @@ module "azure_sql_server" {
 
 
   # Default database
-  db_name_suffix = var.sqlserver.dbs.cohman.db_name_suffix
-  collation      = var.sqlserver.dbs.cohman.collation
-  licence_type   = var.sqlserver.dbs.cohman.licence_type
-  max_gb         = var.sqlserver.dbs.cohman.max_gb
-  read_scale     = var.sqlserver.dbs.cohman.read_scale
-  sku            = var.sqlserver.dbs.cohman.sku
+  db_name_suffix       = var.sqlserver.dbs.cohman.db_name_suffix
+  collation            = var.sqlserver.dbs.cohman.collation
+  licence_type         = var.sqlserver.dbs.cohman.licence_type
+  max_gb               = var.sqlserver.dbs.cohman.max_gb
+  read_scale           = var.sqlserver.dbs.cohman.read_scale
+  sku                  = var.sqlserver.dbs.cohman.sku
+  storage_account_type = var.sqlserver.dbs.cohman.storage_account_type
+  zone_redundant       = var.sqlserver.dbs.cohman.zone_redundant
 
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules
@@ -53,6 +55,11 @@ module "azure_sql_server" {
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.key].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
+
+  depends_on = [
+    module.peering_spoke_hub,
+    module.peering_hub_spoke
+  ]
 
   tags = var.tags
 }

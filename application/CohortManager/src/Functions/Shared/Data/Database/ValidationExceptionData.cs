@@ -34,7 +34,8 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[EXCEPTION_DATE]
                 ,[COHORT_NAME]
                 ,[IS_FATAL]
-                FROM [dbo].[EXCEPTION_MANAGEMENT]";
+                FROM [dbo].[EXCEPTION_MANAGEMENT]
+                ORDER BY [DATE_CREATED] DESC";
 
         var parameters = new Dictionary<string, object> { };
 
