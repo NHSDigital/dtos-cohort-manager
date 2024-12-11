@@ -40,8 +40,8 @@ public class DataLookupFacade : IDataLookupFacade
     /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
     public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
-        _logger.LogInformation("Checking Primary Care Provider {primaryCareProvider} Exists", primaryCareProvider);
-        var result =  _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
+        _logger.LogInformation("Checking Primary Care Provider {PrimaryCareProvider} Exists", primaryCareProvider);
+        var result = _gpPracticeServiceClient.GetSingle(primaryCareProvider).Result;
         return result != null;
     }
 
@@ -53,7 +53,7 @@ public class DataLookupFacade : IDataLookupFacade
     public bool ValidateOutcode(string postcode)
     {
         var outcode = postcode.Substring(0, postcode.IndexOf(" "));
-        _logger.LogInformation("Valdating Outcode: {outcode}",outcode);
+        _logger.LogInformation("Validating Outcode: {Outcode}", outcode);
         var result = _outcodeClient.GetSingle(outcode);
 
         return result != null;
@@ -65,7 +65,7 @@ public class DataLookupFacade : IDataLookupFacade
     /// <returns>bool, whether or not the language code exists in the DB.<returns>
     public bool ValidateLanguageCode(string languageCode)
     {
-        _logger.LogInformation("Valdating Language Code: {languageCode}",languageCode);
+        _logger.LogInformation("Validating Language Code: {LanguageCode}", languageCode);
         var result = _languageCodeClient.GetSingle(languageCode).Result;
         return result != null;
     }
@@ -77,12 +77,12 @@ public class DataLookupFacade : IDataLookupFacade
     /// <returns>bool, whether or not the current posting is valid.<returns>
     public bool CheckIfCurrentPostingExists(string currentPosting)
     {
-        var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.IncludedInCohort == "Y" && i.InUse == "Y").Result;
-        if(result == null)
+        var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.InUse == "Y").Result;
+        if (result == null)
         {
             return false;
         }
-        if(result.Any())
+        if (result.Any())
         {
             return true;
         }
@@ -96,11 +96,11 @@ public class DataLookupFacade : IDataLookupFacade
     public bool ValidatePostingCategories(string currentPosting)
     {
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
-        if(result == null)
+        if (result == null)
         {
             return false;
         }
-        if(allPossiblePostingCategories.Contains(result.PostingCategory))
+        if (allPossiblePostingCategories.Contains(result.PostingCategory))
         {
             return true;
         }
@@ -108,7 +108,7 @@ public class DataLookupFacade : IDataLookupFacade
     }
     public bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider)
     {
-        var result =  _excludedSMUClient.GetSingle(primaryCareProvider).Result;
+        var result = _excludedSMUClient.GetSingle(primaryCareProvider).Result;
         return result != null;
     }
     public string RetrievePostingCategory(string currentPosting)
