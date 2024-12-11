@@ -26,11 +26,10 @@ module "log_analytics_data_export_rule" {
   name                    = "${module.regions_config[each.key].names.log-analytics-workspace}-export-rule"
   resource_group_name     = azurerm_resource_group.audit[each.key].name
   workspace_resource_id   = module.log_analytics_workspace_audit[each.key].id
-  destination_resource_id = data.terraform_remote_state.hub.outputs.eventhub_law_export_id["dtos-hub-${each.key}"]
+  destination_resource_id = data.terraform_remote_state.hub.outputs.eventhubs["dtos-hub-${each.key}"]["cohort-manager"].id
   table_names             = var.law.export_table_names
   enabled                 = var.law.export_enabled
 }
-
 
 /*--------------------------------------------------------------------------------------------------
   RBAC Assignments

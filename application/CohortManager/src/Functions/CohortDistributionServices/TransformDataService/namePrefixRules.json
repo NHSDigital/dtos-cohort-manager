@@ -628,7 +628,7 @@
       },
       {
         "RuleName": "54.NamePrefix.HisRoyalHighness",
-        "Expression": "namePrefix == \"HIS ROYAL HGHNESS\"",
+        "Expression": "namePrefix == \"HIS ROYAL HIGHNESS\"",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -640,7 +640,7 @@
       },
       {
         "RuleName": "55.NamePrefix.HerRoyalHighness",
-        "Expression": "namePrefix == \"HER ROYAL HGHNESS\"",
+        "Expression": "namePrefix == \"HER ROYAL HIGHNESS\"",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",

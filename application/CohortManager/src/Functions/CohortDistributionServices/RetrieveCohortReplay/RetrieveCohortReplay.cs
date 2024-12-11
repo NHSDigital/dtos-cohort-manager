@@ -37,6 +37,7 @@ public class RetrieveCohortReplay
         _httpParserHelper = httpParserHelper;
     }
 
+    [Obsolete("This method's functionality is now part of RetrieveCohortDistributionData, Function to be removed soon, staying currently for pipeline stability.")]
     [Function(nameof(RetrieveCohortReplay))]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
@@ -45,7 +46,7 @@ public class RetrieveCohortReplay
 
         try
         {
-            var cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
+            var cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId, 1000);
             if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
 
             var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
