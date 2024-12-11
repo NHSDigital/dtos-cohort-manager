@@ -77,7 +77,7 @@ public class DurableDemographicFunction
 
         _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 
-        // Returns an HTTP 202 response with an instance management payload.
+        // Returns an HTTP 202 response the response status 
         return await client.CreateCheckStatusResponseAsync(req, instanceId);
     }
 }

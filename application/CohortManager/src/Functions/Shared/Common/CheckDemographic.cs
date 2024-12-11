@@ -37,6 +37,7 @@ public class CheckDemographic : ICheckDemographic
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participant, string DemographicFunctionURI)
     {
         using var memoryStream = new MemoryStream();
+        // this seems to be better for memory management 
         await JsonSerializer.SerializeAsync(memoryStream, participant);
         memoryStream.Position = 0;
 
@@ -49,7 +50,7 @@ public class CheckDemographic : ICheckDemographic
         var maxNumberOfChecks = 20;
         var delayBetweenChecks = TimeSpan.FromSeconds(10);
 
-
+        // this is not retrying the function if it fails but checking if it has done yet. 
         var retryPolicy = Policy
             .HandleResult<WorkflowStatus>(status => status != WorkflowStatus.Completed)
             .WaitAndRetryAsync(maxNumberOfChecks, check => delayBetweenChecks,
