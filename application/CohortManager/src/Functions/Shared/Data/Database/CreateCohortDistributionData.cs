@@ -558,8 +558,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " [REQUEST_ID], " +
             " [STATUS_CODE], " +
             " [CREATED_DATETIME] " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " ORDER BY CREATED_DATETIME DESC";
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
 
         var conditions = new List<string>();
 
@@ -582,6 +581,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             SQL += " WHERE " + string.Join(" AND ", conditions);
         }
+
+        SQL += " ORDER BY CREATED_DATETIME DESC";
 
         return SQL;
     }
