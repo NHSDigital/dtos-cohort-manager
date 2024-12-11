@@ -46,7 +46,6 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        // var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize"); //WP - ask about this
         var pageSize = 20;
         var todayOnly = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
 
