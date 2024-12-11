@@ -153,8 +153,10 @@ public class CreateCohortDistribution
         return exceptionFlag == Exists.Yes;
     }
 
-    private bool RetrieveEnivornmentalVariableAsBool(string environmentVariableName) {
-        if (Environment.GetEnvironmentVariable(environmentVariableName) == "true") {
+    private static bool RetrieveEnivornmentalVariableAsBool(string environmentVariableName) 
+    {
+        if (Environment.GetEnvironmentVariable(environmentVariableName) == "true") 
+        {
             return true;
         } else return false;
     }
