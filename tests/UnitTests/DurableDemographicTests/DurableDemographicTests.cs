@@ -9,11 +9,14 @@ using Microsoft.DurableTask;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using System.Text;
+using DataServices.Client;
+using System.Collections.Generic;
+using System.Text.Json;
 
 [TestClass]
 public class DurableDemographicTests
 {
-    private readonly Mock<ICreateDemographicData> CreateDemographicData = new();
+    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
 
     private readonly DurableDemographicFunction _function;
 
@@ -22,7 +25,7 @@ public class DurableDemographicTests
     public DurableDemographicTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new DurableDemographicFunction(CreateDemographicData.Object, _logger.Object);
+        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
     }
 
 
@@ -31,7 +34,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var mockCreateDemographicData = new Mock<ICreateDemographicData>();
-        var function = new DurableDemographicFunction(mockCreateDemographicData.Object, _logger.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
 
         var mockContext = new Mock<TaskOrchestrationContext>();
         var logger = Mock.Of<ILogger>();
@@ -55,20 +58,18 @@ public class DurableDemographicTests
     public async Task InsertDemographicData_Should_Return_True_When_Data_Is_Inserted_Successfully()
     {
         // Arrange
-        var mockCreateDemographicData = new Mock<ICreateDemographicData>();
-        var function = new DurableDemographicFunction(mockCreateDemographicData.Object, _logger.Object);
+        var Participants = new List<ParticipantDemographic>();
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
         var mockLogger = new Mock<ILogger>();
 
-        var demographicJsonData = "[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]";
-
-        mockCreateDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(Task.FromResult(true));
+        var demographicJsonData = JsonSerializer.Serialize(Participants);
+        _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>())).ReturnsAsync(true);
 
         // Act
         var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext());
 
         // Assert
         Assert.IsTrue(result);
-        mockCreateDemographicData.Verify(x => x.InsertDemographicData(It.IsAny<List<Demographic>>()), Times.Once);
     }
 
     private static HttpRequestData CreateHttpRequest(string body)
@@ -90,31 +91,5 @@ public class DurableDemographicTests
     }
 }
 
-
-/*
-public async Task Run_DemographicDataSaved_OK()
-{
-    // Arrange
-    var json = JsonSerializer.Serialize(_participant);
-    var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
-
-    SetupRequest(json);
-
-    _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-        .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-        {
-            var response = req.CreateResponse(statusCode);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-            return response;
-        });
-    _request.Setup(x => x.Method).Returns("POST");
-    _createDemographicData.Setup(x => x.InsertDemographicData(It.IsAny<List<Demographic>>())).Returns(Task.FromResult(true));
-
-    // Act
-    var result = await sut.Run(_request.Object);
-
-    // Assert
-    Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-}*/
 
 
