@@ -3,16 +3,9 @@ import os
 from config import LOCAL_ENV, logger
 import pandas as pd
 import time
-import pyodbc
+import logging
 
 def setup_engine():
-    """
-    Sets up the local database engine, called if the ENV environment variable is set to 'Local'
-
-    Returns:
-        sqlalchemy.engine.base.Engine: The database engine
-    """
-
     if LOCAL_ENV:
         logger.info('Setting up local database engine')
         PASSWORD = os.getenv("PASSWORD")
@@ -28,26 +21,21 @@ def setup_engine():
     return engine
 
 def create_tables(engine):
-    """Creates the CAAS_PARTICIPANT and BSS_PARTICIPANT tables"""
-
-    with open('comparison_test_create_tables.sql') as file:
-        sql = file.read()
-
+    # logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
     with engine.connect() as connection:
-        connection.execute(text(sql))
+        trans = connection.begin()
+        with open('comparison_test_create_tables.sql', 'r') as file:
+            sql = text(file.read())
+            connection.execute(sql)
+            trans.commit()
 
     logger.info("Created comparison test tables")
 
 def get_table(table, engine):
-    # CAAS_COLUMNS = ["NHS_NUMBER", "DATE_OF_BIRTH", "PRIMARY_CARE_PROVIDER",
-    #                 "REASON_FOR_REMOVAL","REASON_FOR_REMOVAL_BUSINESS_EFFECTIVE_FROM_DATE",
-    #                 "DATE_OF_DEATH","POSTCODE","GENDER"]
-    
-    # "ROW_INDEX", 
-
     start = time.time()
     if table == "CAAS_PARTICIPANT":
-        df = pd.read_sql(f"SELECT NHS_NUMBER, DATE_OF_BIRTH, PRIMARY_CARE_PROVIDER, REASON_FOR_REMOVAL,REASON_FOR_REMOVAL_BUSINESS_EFFECTIVE_FROM_DATE, DATE_OF_DEATH, POSTCODE,GENDER FROM {table}", engine)
+        df = pd.read_sql(f"SELECT ROW_INDEX, NHS_NUMBER, DATE_OF_BIRTH, PRIMARY_CARE_PROVIDER, REASON_FOR_REMOVAL," +
+                         f"REASON_FOR_REMOVAL_BUSINESS_EFFECTIVE_FROM_DATE, DATE_OF_DEATH, POSTCODE,GENDER FROM {table}", engine)
     else:
         df = pd.read_sql(f"SELECT * FROM {table}", engine)
     end = time.time()

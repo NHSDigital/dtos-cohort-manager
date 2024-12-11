@@ -7,7 +7,7 @@ compare_datasets_bp = d_func.Blueprint()
 
 try:
     from database import setup_engine, get_table, insert_tables
-    from discrepency_flags import flag_discrepencies
+    from discrepancy_flags import flag_discrepencies
     import numpy as np
     import pandas as pd
 except Exception as e:
@@ -16,7 +16,6 @@ except Exception as e:
 
 @compare_datasets_bp.activity_trigger(input_name="params")
 async def compare_datasets(params):
-    """Creates a table with the participants that are in the CaaS table but not in the BS Select table. Triggered manually in azure"""
     # Set-up
     try:
         db_engine = setup_engine()
@@ -48,20 +47,6 @@ async def compare_datasets(params):
         insert_tables(bss_only_df, "BSS_ONLY_PARTICIPANT", db_engine)
     except Exception as e:
         logger.error(e)
-
-    # Return as formatted HTML tables
-    df_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head><title>Comparison Data</title></head>
-    <body>
-        <h2>Participants only in CaaS data:</h2>
-        {caas_only_df.to_html(index=False, classes='table table-stripped')}
-        <h2>Participants only in BS Select data:</h2>
-        {bss_only_df.to_html(index=False, classes='table table-stripped')}
-    </body>
-    </html>
-    """
 
 def preprocess_data(df):
     df.columns = df.columns.str.lower()

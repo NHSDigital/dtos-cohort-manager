@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
-from functions.discrepency_flags import get_unique_rows, calculate_age, flag_discrepencies
+from functions.discrepancy_flags import flag_discrepencies
+from functions.compare_datasets import get_unique_rows
 import pandas.testing as pdt
-from datetime import datetime
 
 def test_common_participants_removed():
     """
@@ -39,13 +39,6 @@ def test_common_participants_removed():
     pdt.assert_frame_equal(actual_caas_df, expected_caas_df)
     pdt.assert_frame_equal(actual_bss_df, expected_bss_df)
 
-@pytest.mark.parametrize("dob, expected_age", [
-    ("2000-06-13", 24),
-    ("2000-12-31", 23),
-    (datetime(2000, 6, 13), 24)])
-def test_calculate_age(dob, expected_age):
-    assert calculate_age(dob) == expected_age
-
 def test_flag_discrepancy_not_determined():
     # Arrange
     input_df = pd.DataFrame({
@@ -70,12 +63,14 @@ def test_discrepancy_category_1():
         'date_of_birth': ['2000-5-12'],
         'primary_care_provider': ['G82650'],
         'reason_for_removal': [None],
-        'is_higher_risk': [True]
+        'is_higher_risk': [True],
+        'gender': [2]
     })
 
     # Act
     actual_df = flag_discrepencies(input_df)
 
+    # Assert
     assert actual_df['discrepancy_category_id'].iloc[0] == 1
 
 def test_discrepancy_category_2():
@@ -85,7 +80,8 @@ def test_discrepancy_category_2():
         'date_of_birth': ['2000-5-12'],
         'primary_care_provider': ['ZZZGB123d'],
         'reason_for_removal': [None],
-        'is_higher_risk': [False]
+        'is_higher_risk': [False],
+        'gender': 'FEMALE'
     })
 
     # Act
@@ -101,6 +97,7 @@ def test_discrepancy_category_3():
         'date_of_birth': ['1923-5-12'],
         'primary_care_provider': ['G82650'],
         'reason_for_removal': [None],
+        'gender': 'INDETERMINATE'
     })
 
     actual_df = flag_discrepencies(input_df)
@@ -161,7 +158,7 @@ def test_discrepancy_category_7(gender):
     input_df = pd.DataFrame({
         'nhs_number': ['7777'],
         'date_of_birth': ['1970-5-12'],
-        'primary_care_provider': ['ZZZG82650'],
+        'primary_care_provider': ['G82650'],
         'reason_for_removal': [None],
         'gender': gender
     })

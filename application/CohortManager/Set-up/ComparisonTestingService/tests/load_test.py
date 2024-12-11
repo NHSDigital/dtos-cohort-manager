@@ -40,8 +40,8 @@ def generate_bss_data():
 def generate_caas_data():
     fake = Faker()
 
-    filename = "caas_load_test_1_mill.parquet" 
-    num_rows = 1_000_000
+    filename = "caas_load_test_10_mill.parquet" 
+    num_rows = 10_000_000
     date_format = "%Y-%m-%d"
 
     data = {
@@ -52,7 +52,7 @@ def generate_caas_data():
             "superseded_by_nhs_number": [None for _ in range(num_rows)],
             "primary_care_provider": [random.choice(sample_data.gp_practices) for _ in range(num_rows)],
             "primary_care_effective_from_date": [fake.date() for _ in range(num_rows)],
-            "current_posting": [fake.word() for _ in range(num_rows)],
+            "current_posting": [fake.lexify(text='?' * 3)  for _ in range(num_rows)],
             "current_posting_effective_from_date": [fake.date() for _ in range(num_rows)],
             "name_prefix": [fake.prefix() for _ in range(num_rows)],
             "given_name": [fake.first_name() for _ in range(num_rows)],

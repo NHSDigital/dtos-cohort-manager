@@ -2,16 +2,6 @@ from config import CAAS_SCHEMA
 import pandas as pd
 
 def to_dataframe(stream):
-    """
-    Converts the parquet file into a pandas dataframe object using the schema
-
-    Parameters:
-        filename (string): the name of the file
-
-    Returns:
-        DataFrame: cleaned data in a pandas dataframe
-    """
-
     df = pd.read_parquet(stream, engine='fastparquet').astype(CAAS_SCHEMA)
     df = format_dates(df)
 

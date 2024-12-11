@@ -5,6 +5,13 @@
       "samplingSettings": {
         "isEnabled": false
       }
+    },
+    "logLevel": {
+      "default": "Information",
+      "Host.Results": "Error",
+      "Function": "Information",
+      "Host.Aggregator": "Warning",
+      "Host.General": "Warning"
     }
   },
   "extensionBundle": {
