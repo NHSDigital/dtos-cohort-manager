@@ -1,0 +1,45 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CAAS_UNMATCHED](
+	[record_type] [varchar](max) NULL,
+	[change_time_stamp] [bigint] NULL,
+	[serial_change_number] [bigint] NULL,
+	[nhs_number] [bigint] NULL,
+	[superseded_by_nhs_number] [bigint] NULL,
+	[primary_care_provider] [varchar](max) NULL,
+	[Primary_Care_Provider_Business_Effective_From_Date] [varchar](max) NULL,
+	[current_posting] [varchar](max) NULL,
+	[Current_Posting_Business_Effective_From_Date] [varchar](max) NULL,
+	[name_prefix] [varchar](max) NULL,
+	[given_name] [varchar](max) NULL,
+	[Other_Given_Name(s)] [varchar](max) NULL,
+	[family_name] [varchar](max) NULL,
+	[previous_family_name] [varchar](max) NULL,
+	[date_of_birth] [varchar](max) NULL,
+	[gender] [bigint] NULL,
+	[address_line_1] [varchar](max) NULL,
+	[address_line_2] [varchar](max) NULL,
+	[address_line_3] [varchar](max) NULL,
+	[address_line_4] [varchar](max) NULL,
+	[address_line_5] [varchar](max) NULL,
+	[postcode] [varchar](max) NULL,
+	[paf_key] [varchar](max) NULL,
+	[Usual_Address_Business_Effective_From_Date] [varchar](max) NULL,
+	[reason_for_removal] [varchar](max) NULL,
+	[Reason_For_Removal_Business_Effective_From_Date] [varchar](max) NULL,
+	[date_of_death] [varchar](max) NULL,
+	[death_status] [int] NULL,
+	[Telephone_Number(Home)] [varchar](max) NULL,
+	[Telephone_Number(Home)_Business_Effective_From_Date] [varchar](max) NULL,
+	[Telephone_Number(mobile)] [varchar](max) NULL,
+	[Telephone_Number(Mobile)_Business_Effective_From_Date] [varchar](max) NULL,
+	[E-mail_Address(Home)] [varchar](max) NULL,
+	[E-mail_Address(Home)_Business_Effective_From_Date] [varchar](max) NULL,
+	[preferred_language] [varchar](max) NULL,
+	[Interpreter_Required] [bigint] NULL,
+	[invalid_flag] [bigint] NULL,
+	[eligibility] [bigint] NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
