@@ -11,7 +11,6 @@ using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
-
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
@@ -283,7 +282,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId, int rowCount)
+    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " [PARTICIPANT_ID], " +
@@ -328,7 +327,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId },
-            {"@RowCount", rowCount },
         };
 
         var command = CreateCommand(parameters);
@@ -543,13 +541,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         command.CommandText = sql;
 
         return ExecuteQuery(command, ReadCohortRequestAudit);
-    }
-
-    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList, int rowCount)
-    {
-        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, rowCount);
-
-        return requestIdsList.SelectMany(requestId => GetCohortDistributionParticipantsByRequestId(requestId, rowCount)).ToList();
     }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
