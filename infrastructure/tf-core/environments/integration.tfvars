@@ -799,6 +799,10 @@ key_vault = {
   sku_name          = "standard"
 }
 
+private_dns_zones = {
+  is_app_insights_private_dns_zone_enabled = true
+}
+
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"

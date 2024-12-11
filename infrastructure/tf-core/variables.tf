@@ -216,6 +216,13 @@ variable "key_vault" {
   })
 }
 
+variable "private_dns_zones" {
+  description = "Configuration for private DNS zones"
+  type = object({
+    is_app_insights_private_dns_zone_enabled = optional(bool, false)
+  })
+}
+
 variable "network_security_group_rules" {
   description = "The network security group rules."
   default     = {}
