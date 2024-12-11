@@ -284,7 +284,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
-        var SQL = "SELECT TOP (@RowCount)" +
+        var SQL = "SELECT " +
             " [PARTICIPANT_ID], " +
             " [NHS_NUMBER], " +
             " [SUPERSEDED_NHS_NUMBER], " +
