@@ -13,6 +13,10 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
+        {
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
+        });
     })
     .AddExceptionHandler()
     .Build();
