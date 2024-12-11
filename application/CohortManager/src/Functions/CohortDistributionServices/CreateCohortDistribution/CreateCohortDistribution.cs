@@ -158,6 +158,7 @@ public class CreateCohortDistribution
         if (Environment.GetEnvironmentVariable(environmentVariableName) == "true") 
         {
             return true;
-        } else return false;
+        }
+        return false;
     }
 }
