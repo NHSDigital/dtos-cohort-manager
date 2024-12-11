@@ -12,7 +12,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
         });
     })
     .AddExceptionHandler()
