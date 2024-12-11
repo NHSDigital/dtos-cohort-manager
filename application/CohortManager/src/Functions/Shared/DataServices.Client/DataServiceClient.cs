@@ -108,15 +108,16 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entity);
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl,jsonString);
+        var result = await _callFunction.SendPost(_baseUrl, jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
@@ -126,15 +127,16 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         var jsonString = JsonSerializer.Serialize<TEntity>(entity);
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl,jsonString);
+        var result = await _callFunction.SendPost(_baseUrl, jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
