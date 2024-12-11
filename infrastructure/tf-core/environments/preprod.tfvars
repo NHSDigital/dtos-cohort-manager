@@ -773,6 +773,20 @@ function_apps = {
         }
       ]
     }
+
+    ParticipantDemographicDataService = {
+      name_suffix            = "participant-demographic-data-service"
+      function_endpoint_name = "ParticipantDemographicDataService"
+      app_service_plan_key   = "screeningDataServices"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
   }
 }
 
@@ -809,7 +823,7 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 10
+      max_gb               = 20
       read_scale           = false
       sku                  = "S4"
       storage_account_type = "GeoZone"
