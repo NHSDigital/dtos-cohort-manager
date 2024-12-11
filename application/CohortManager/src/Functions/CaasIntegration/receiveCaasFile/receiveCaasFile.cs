@@ -35,6 +35,7 @@ public class ReceiveCaasFile
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
+        // for larger batches use size of 5000 - this works the best
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
