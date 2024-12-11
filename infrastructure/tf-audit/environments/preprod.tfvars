@@ -3,9 +3,10 @@ application_full_name = "cohort-manager"
 environment           = "PRE"
 
 features = {
-  private_endpoints_enabled            = true
-  private_service_connection_is_manual = false
-  public_network_access_enabled        = false
+  private_endpoints_enabled              = true
+  private_service_connection_is_manual   = false
+  public_network_access_enabled          = false
+  log_analytics_data_export_rule_enabled = true
 }
 
 tags = {
@@ -38,9 +39,9 @@ app_insights = {
 }
 
 law = {
-  law_sku             = "PerGB2018"
-  retention_days      = 30
-  export_enabled      = true
+  export_enabled = true
+  law_sku        = "PerGB2018"
+  retention_days = 30
   export_table_names = [
     "Alert",
     "AppDependencies",
