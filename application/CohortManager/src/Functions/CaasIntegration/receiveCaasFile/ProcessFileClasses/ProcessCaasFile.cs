@@ -70,11 +70,11 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
 
         });
-
         if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
         {
             await AddBatchToQueue(currentBatch, name);
         }
+
     }
 
     /// <summary>
@@ -99,7 +99,6 @@ public class ProcessCaasFile : IProcessCaasFile
                 //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-
                 break;
             case Actions.Amended:
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -132,6 +131,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await RemoveParticipant(updateRecords, name);
             }
         }
+        currentBatch = new Batch();
     }
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
@@ -143,7 +143,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
-            if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
+            if (await _checkDemographic.PostDemographicDataAsync(new List<ParticipantDemographic>() { basicParticipantCsvRecord.participant.ToParticipantDemographic() }, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }

@@ -61,10 +61,12 @@ public class ReceiveCaasFile
             }
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
+                var i = 0;
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
-                for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
+                for (i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
                     var listOfAllValues = values.ToList();
@@ -73,7 +75,6 @@ public class ReceiveCaasFile
 
 
                     //split list of all into N amount of chunks to be processed as batches.
-
                     var chunks = listOfAllValues.Chunk(BatchSize).ToList();
 
                     foreach (var chunk in chunks)

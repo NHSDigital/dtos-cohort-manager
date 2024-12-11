@@ -1,21 +1,27 @@
 namespace Common;
 
-using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
+using Polly;
+using Polly.Retry;
 
 public class CheckDemographic : ICheckDemographic
 {
     private readonly ICallFunction _callFunction;
     private readonly ILogger<ICheckDemographic> _logger;
 
-    public CheckDemographic(ICallFunction callFunction, ILogger<ICheckDemographic> logger)
+    private readonly HttpClient _httpClient = new HttpClient();
+
+
+    public CheckDemographic(ICallFunction callFunction, ILogger<ICheckDemographic> logger, HttpClient httpClient)
     {
         _callFunction = callFunction;
         _logger = logger;
+        _httpClient = httpClient;
     }
 
     public async Task<Demographic> GetDemographicAsync(string NhsNumber, string DemographicFunctionURI)
@@ -28,83 +34,60 @@ public class CheckDemographic : ICheckDemographic
         return demographicData;
     }
 
-    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
+    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participant, string DemographicFunctionURI)
     {
-        var json = JsonSerializer.Serialize(participants);
-        using var client = new HttpClient();
+        using var memoryStream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(memoryStream, participant);
+        memoryStream.Position = 0;
 
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync(DemographicFunctionURI, content);
+        var content = new StreamContent(memoryStream);
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        var response = await _httpClient.PostAsync(DemographicFunctionURI, content);
 
         var responseContent = response.Headers.Location.ToString();
-        var checkTimerSeconds = Environment.GetEnvironmentVariable("checkTimerSeconds") ?? "800";
+
+        var maxNumberOfChecks = 20;
+        var delayBetweenChecks = TimeSpan.FromSeconds(10);
 
 
+        var retryPolicy = Policy
+            .HandleResult<WorkflowStatus>(status => status != WorkflowStatus.Completed)
+            .WaitAndRetryAsync(maxNumberOfChecks, check => delayBetweenChecks,
+                (result, timeSpan, checkCount, context) =>
+                {
+                    _logger.LogWarning($"Status: {result.Result}, checking status: ({checkCount}/{maxNumberOfChecks})...");
+                });
         try
         {
-            if (responseContent != null)
+            var finalStatus = await retryPolicy.ExecuteAsync(async () =>
             {
-                var responseStatus = await GetStatus(responseContent, client);
-                _logger.LogInformation("Demographic function status: {responseStatus}", responseStatus);
+                return await GetStatus(responseContent);
+            });
 
-                var cancellationsToken = new CancellationTokenSource();
-
-                await CallDemographicFunction(async () =>
-                {
-                    responseStatus = await GetStatus(responseContent, client);
-                    if (responseStatus == WorkflowStatus.Failed)
-                    {
-                        return;
-                    }
-                    _logger.LogWarning(responseStatus.ToString());
-                },
-                () => responseStatus == WorkflowStatus.Completed,
-                cancellationsToken.Token,
-                int.Parse(checkTimerSeconds));
-
-                _logger.LogInformation("Demographic function status: {responseStatus} for number of records: {number}", responseStatus, participants.Count);
+            if (finalStatus == WorkflowStatus.Completed)
+            {
+                _logger.LogWarning("durable function completed", finalStatus);
                 return true;
             }
-            _logger.LogError("The response content back from demographic was was null");
-            return false;
-
+            else
+            {
+                _logger.LogWarning("check limit reached", finalStatus);
+                return false;
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error while sending Demographic data to the durable function");
+            _logger.LogWarning($"An error occurred: {ex.Message}");
             return false;
         }
-        finally
-        {
-            client.Dispose();
-        }
-    }
-
-    private async Task CallDemographicFunction(
-       Action getStatus,
-       Func<bool> condition,
-       CancellationToken cancellationToken,
-       int checkTimerSeconds)
-    {
-        while (!condition() && !cancellationToken.IsCancellationRequested)
-        {
-            getStatus();
-            try
-            {
-                await Task.Delay(checkTimerSeconds, cancellationToken);
-            }
-            catch (TaskCanceledException)
-            {
-                _logger.LogError("There was a problem while canceling CallDemographicFunction");
-                break;
-            }
-        }
     }
 
 
-    private async Task<WorkflowStatus> GetStatus(string statusRequestGetUri, HttpClient client)
+
+
+    private async Task<WorkflowStatus> GetStatus(string statusRequestGetUri)
     {
-        using HttpResponseMessage response = await client.GetAsync(statusRequestGetUri);
+        using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
         var jsonResponse = await response.Content.ReadAsStringAsync();
         var data = JsonSerializer.Deserialize<RuntimeStatus>(jsonResponse);
 

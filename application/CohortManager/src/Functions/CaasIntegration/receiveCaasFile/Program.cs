@@ -27,6 +27,10 @@ try
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
+        {
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+        });
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
