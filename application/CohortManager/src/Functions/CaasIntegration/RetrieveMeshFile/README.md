@@ -35,17 +35,16 @@ These will need to be added to the environment settings locally as per the examp
 note: when running in azure these values will be stored in key vault.
 
 ```json
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "MeshApiBaseUrl": "https://localhost:8700/messageexchange",
-    "BSSMailBox": "X26ABC1",
-    "caasfolder_STORAGE": "UseDevelopmentStorage=true",
-    "MeshPassword": "password",
-    "MeshSharedKey": "TestKey",
-    "MeshKeyPassphrase": "test123"
-  }
-}
+   "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "MeshApiBaseUrl" : "https://localhost:8700/messageexchange",
+        "BSSMailBox": "X26ABC1",
+        "caasfolder_STORAGE":"UseDevelopmentStorage=true",
+        "MeshPassword": "password",
+        "MeshSharedKey": "TestKey",
+        "MeshKeyPassphrase":"test123"
+
+    }
 ```
