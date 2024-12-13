@@ -16,9 +16,9 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
     private readonly Mock<PaginationService<ValidationException>> _paginationServiceMock = new();
 
-    public GetValidationExceptionsTests(): base((conn, logger, transaction, command, response) => null)
+    public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) => null)
     {
-        columnToClassPropertyMapping = new Dictionary<string, string>{{ "EXCEPTION_ID", "ExceptionId" }};
+        columnToClassPropertyMapping = new Dictionary<string, string> { { "EXCEPTION_ID", "ExceptionId" } };
         _exceptionList = new List<ValidationException>
         {
             new ValidationException { ExceptionId = 1 },
@@ -45,7 +45,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     {
         // Arrange
         var exceptionId = 0;
-        _validationDataMock.Setup(s => s.GetAllExceptions()).Returns(_exceptionList);
+        _validationDataMock.Setup(s => s.GetAllExceptions(false)).Returns(_exceptionList);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
         SetupRequestWithQueryParams([]);
 
@@ -55,7 +55,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataMock.Verify(v => v.GetAllExceptions(), Times.Once);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false), Times.Once);
     }
 
     [TestMethod]
