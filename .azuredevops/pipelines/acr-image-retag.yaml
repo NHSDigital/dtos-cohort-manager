@@ -19,7 +19,7 @@ parameters:
     values:
       - acrukshubdevcohman
       - acrukshubprodcohman
-    default: acrukscohmandev
+    default: acrukshubdevcohman
 
   - name: selectImageTag
     displayName: Select Image Tag
@@ -39,9 +39,9 @@ parameters:
     displayName: Target Image Tag
     type: string
     values:
-      - preprod
+      - preprod-test
       - production
-    default: preprod
+    default: preprod-test
 
 variables:
   - group: DEV_hub_backend_remote_state
