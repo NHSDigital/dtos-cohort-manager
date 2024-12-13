@@ -1,7 +1,0 @@
-{
-    "azureFunctions.deploySubpath": "src/Functions/DemographicServices/DemograpghicDurableFunction/bin/Release/net8.0/publish",
-    "azureFunctions.projectLanguage": "C#",
-    "azureFunctions.projectRuntime": "~4",
-    "azureFunctions.projectSubpath": "src/Functions/DemographicServices/DemograpghicDurableFunction",
-    "azureFunctions.preDeployTask": "publish (functions)"
-}
