@@ -21,11 +21,11 @@ Please see the guide to setting up the local Mesh Sandbox [here](https://nhsd-co
 
 For connecting to an Integration environment Mailbox you will require the following:
 
-- Mesh Mailbox Id
-- Mesh Mailbox Password
-- A Mesh Key in the .pfx format
-- the passphrase for the key
-- URL for the integration environment
+* Mesh Mailbox Id
+* Mesh Mailbox Password
+* A Mesh Key in the .pfx format
+* the passphrase for the key
+* URL for the integration environment
 
 We recommend naming the Mesh Key File as `meshpfx.pfx` and sorting it in to root folder of the function as this will prevent additional changes to have to be made to the project file to copy on build.
 
@@ -35,7 +35,8 @@ These will need to be added to the environment settings locally as per the examp
 note: when running in azure these values will be stored in key vault.
 
 ```json
-   "IsEncrypted": false,
+{
+    "IsEncrypted": false,
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
@@ -47,4 +48,5 @@ note: when running in azure these values will be stored in key vault.
         "MeshKeyPassphrase":"test123"
 
     }
+}
 ```
