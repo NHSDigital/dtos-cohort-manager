@@ -109,6 +109,7 @@ services:
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
   mark-participant-as-eligible:
