@@ -43,7 +43,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (todayOnly)
         {
-            sql.Append(" WHERE CAST([DATE_CREATED] AS DATE) = @today");
+            sql.Append(" WHERE [DATE_CREATED] >= @today AND [DATE_CREATED] < @today + 1");
             parameters.Add("@today", today);
         }
 
