@@ -56,12 +56,7 @@ public class RetrieveCohortDistributionData
             }
             else
             {
-                var requestIdsList = _createCohortDistributionData
-                    .GetOutstandingCohortRequestAudits(requestId)
-                    .Select(s => s.RequestId)
-                    .ToList();
-
-                cohortDistributionParticipants = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList, rowCount);
+                cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
             }
 
             if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
