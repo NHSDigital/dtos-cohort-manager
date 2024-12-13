@@ -170,10 +170,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDurableFunction"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableDemographicTests", "..\..\..\..\tests\UnitTests\DurableDemographicTests\DurableDemographicTests.csproj", "{1A3F9317-A755-4D70-B947-B5AB903AE26A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantDemographicDataService", "screeningDataServices\ParticipantDemographicDataService\ParticipantDemographicDataService.csproj", "{D8990183-52BA-4A1F-B333-5B32AAF14348}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantDemographicDataService", "screeningDataServices\ParticipantDemographicDataService\ParticipantDemographicDataService.csproj", "{D8990183-52BA-4A1F-B333-5B32AAF14348}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManagement", "screeningDataServices\ParticipantManagementDataService\ParticipantManagement.csproj", "{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}"
 EndProject
 Global

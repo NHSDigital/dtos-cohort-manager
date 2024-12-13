@@ -52,7 +52,7 @@ public class CheckDemographic : ICheckDemographic
 
         // this is not retrying the function if it fails but checking if it has done yet. 
         var retryPolicy = Policy
-            .HandleResult<WorkflowStatus>(status => status != WorkflowStatus.Completed)
+            .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed)
             .WaitAndRetryAsync(maxNumberOfChecks, check => delayBetweenChecks,
                 (result, timeSpan, checkCount, context) =>
                 {
@@ -65,7 +65,7 @@ public class CheckDemographic : ICheckDemographic
                 return await GetStatus(responseContent);
             });
 
-            if (finalStatus == WorkflowStatus.Completed)
+            if (finalStatus == WorkFlowStatus.Completed)
             {
                 _logger.LogWarning("durable function completed", finalStatus);
                 return true;
@@ -86,7 +86,7 @@ public class CheckDemographic : ICheckDemographic
 
 
 
-    private async Task<WorkflowStatus> GetStatus(string statusRequestGetUri)
+    private async Task<WorkFlowStatus> GetStatus(string statusRequestGetUri)
     {
         using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
         var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -94,9 +94,9 @@ public class CheckDemographic : ICheckDemographic
 
         if (data != null)
         {
-            Enum.TryParse(data.runtimeStatus, out WorkflowStatus workFlowStatus);
+            Enum.TryParse(data.runtimeStatus, out WorkFlowStatus workFlowStatus);
             return workFlowStatus;
         }
-        return WorkflowStatus.Unknown;
+        return WorkFlowStatus.Unknown;
     }
 }

@@ -143,7 +143,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
-            if (await _checkDemographic.PostDemographicDataAsync(new List<ParticipantDemographic>() { basicParticipantCsvRecord.participant.ToParticipantDemographic() }, Environment.GetEnvironmentVariable("DemographicURI")))
+            if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }

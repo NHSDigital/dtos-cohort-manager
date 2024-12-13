@@ -23,7 +23,7 @@ public class DemographicDataFunction
     }
 
     [Function("DemographicDataFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         try
         {

@@ -1,6 +1,6 @@
 namespace Model.Enums;
 
-public enum WorkflowStatus
+public enum WorkFlowStatus
 {
     Unknown = -1,
     Running = 0,

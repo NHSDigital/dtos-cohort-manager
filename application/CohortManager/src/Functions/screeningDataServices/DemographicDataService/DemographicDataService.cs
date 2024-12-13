@@ -26,7 +26,7 @@ public class DemographicDataService
     }
 
     [Function("DemographicDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var participantDemographic = new List<Demographic>();
 
