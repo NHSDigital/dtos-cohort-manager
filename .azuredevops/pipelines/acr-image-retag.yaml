@@ -26,15 +26,14 @@ parameters:
     type: string
     values:
       - integration
-    default: development
+    default: integration
 
   - name: destRegistry
     displayName: Destination Container Registry
     type: string
     values:
-      - acrukshubdevcohman
       - acrukshubprodcohman
-    default: acrukscohmandev
+    default: acrukshubprodcohman
 
   - name: addImageTag
     displayName: Target Image Tag
@@ -42,7 +41,7 @@ parameters:
     values:
       - preprod
       - production
-    default: integration
+    default: preprod
 
 variables:
   - group: DEV_hub_backend_remote_state
