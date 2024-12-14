@@ -155,7 +155,13 @@ namespace NHS.CohortManager.Tests.TestUtils
 
         private void SetupColumnMappings<T>(List<T> dataList, Dictionary<string, string> columnToClassPropertyMapping, List<PropertyInfo> classProperties, int? specificId = null)
         {
-            int currentIndex = 0;
+            int currentRowIndex = -1;
+
+            _mockDataReader.Setup(r => r.Read()).Returns(() =>
+            {
+                currentRowIndex++;
+                return currentRowIndex < dataList.Count;
+            });
 
             foreach (var item in columnToClassPropertyMapping)
             {
@@ -177,19 +183,16 @@ namespace NHS.CohortManager.Tests.TestUtils
                         }
                     }
 
-                    var currentItem = dataList[currentIndex];
-                    value = property.GetValue(currentItem);
-
-                    // Increment the index only once per item (after processing all columns)
-                    if (columnName == columnToClassPropertyMapping.Keys.Last())
+                    if (currentRowIndex >= dataList.Count || currentRowIndex < 0)
                     {
-                        currentIndex++;
+                        return null;
                     }
 
+                    var currentItem = dataList[currentRowIndex];
+                    value = property.GetValue(currentItem);
                     return value;
                 });
             }
         }
     }
 }
-

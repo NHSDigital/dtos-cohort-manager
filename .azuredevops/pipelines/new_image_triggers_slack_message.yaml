@@ -87,10 +87,6 @@ parameters:
         repository: cohort-manager-retrieve-cohort-distribution-data
         tag:
           - development
-      - name: retrieve-cohort-replay
-        repository: cohort-manager-retrieve-cohort-replay
-        tag:
-          - development
       - name: retrieve-cohort-request-audit
         repository: cohort-manager-retrieve-cohort-request-audit
         tag:

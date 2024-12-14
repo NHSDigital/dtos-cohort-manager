@@ -8,4 +8,5 @@ public interface IHttpParserHelper
     int GetRowCount(HttpRequestData req);
     int GetScreeningServiceId(HttpRequestData req);
     int GetQueryParameterAsInt(HttpRequestData req, string key);
+    bool GetQueryParameterAsBool(HttpRequestData req, string key, bool defaultValue = false);
 };

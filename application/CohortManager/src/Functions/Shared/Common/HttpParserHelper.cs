@@ -36,4 +36,30 @@ public class HttpParserHelper : IHttpParserHelper
         _logger.LogError(errorMessage);
         return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, errorMessage);
     }
+
+    public bool GetQueryParameterAsBool(HttpRequestData req, string key, bool defaultValue = false)
+    {
+        var queryString = req.Query[key];
+
+        if (string.IsNullOrWhiteSpace(queryString))
+        {
+            return defaultValue;
+        }
+
+        switch (queryString.ToLowerInvariant())
+        {
+            case "true":
+            case "1":
+            case "yes":
+            case "y":
+                return true;
+            case "false":
+            case "0":
+            case "no":
+            case "n":
+                return false;
+            default:
+                return defaultValue;
+        }
+    }
 }
