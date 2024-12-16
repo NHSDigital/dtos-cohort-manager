@@ -95,6 +95,7 @@ public class AddParticipantFunction
                 await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
+            _logger.LogInformation("participant created, marked as eligible at  {datetime}", DateTime.UtcNow);
 
             // Send to cohort distribution
             var cohortDistResponse = await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant);
