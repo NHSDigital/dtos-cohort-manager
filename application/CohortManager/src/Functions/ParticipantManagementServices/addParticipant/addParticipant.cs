@@ -1,3 +1,8 @@
+/// <summary>
+/// Takes a participant from the queue, gets data from the demographic service,
+/// validates the participant, then calls create participant, mark as eligible, and create cohort distribution
+/// </summary>
+
 namespace addParticipant;
 
 using System.Net;
@@ -38,14 +43,15 @@ public class AddParticipantFunction
 
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
-
         try
         {
+            // Get demographic data
             var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
                 await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return;
             }
 
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
@@ -54,61 +60,57 @@ public class AddParticipantFunction
                 Participant = participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
+
+            // Validation
             participantCsvRecord.Participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
             if (response.IsFatal)
             {
-                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
                 await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return;
             }
 
-            if (response.CreatedException)
-            {
-                participantCsvRecord.Participant.ExceptionFlag = "Y";
-            }
+            if (response.CreatedException) participantCsvRecord.Participant.ExceptionFlag = "Y";
 
-
+            // Add participant to database
             var json = JsonSerializer.Serialize(participantCsvRecord);
-            _logger.LogInformation("ADD: sending record to add at {datetime}", DateTime.UtcNow);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError("There was problem posting the participant to the database");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return;
 
             }
             _logger.LogInformation("participant created");
 
+            // Mark participant as eligible
             var participantJson = JsonSerializer.Serialize(participant);
-            _logger.LogInformation("Eligible: sending record to add at {datetime}", DateTime.UtcNow);
             eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
-            _logger.LogInformation("Response Eligible: sending record to add at {datetime}", DateTime.UtcNow);
 
             if (eligibleResponse.StatusCode != HttpStatusCode.OK)
             {
-                _logger.LogError($"There was an error while marking participant as eligible {eligibleResponse}");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return;
             }
-            _logger.LogInformation("participant created, marked as eligible at  {datetime}", DateTime.UtcNow);
 
-
-            _logger.LogInformation("adding to cohort tool {datetime}", DateTime.UtcNow);
-            if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant))
+            // Send to cohort distribution
+            var cohortDistResponse = await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant);
+            if (!cohortDistResponse)
             {
                 _logger.LogError("participant failed to send to Cohort Distribution Service");
                 await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-
+                return;
             }
-
-
-            _logger.LogInformation("participant sent to Cohort Distribution Service at {datetime}", DateTime.UtcNow);
 
         }
         catch (Exception ex)
         {
             _logger.LogInformation(ex, $"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            return;
         }
     }
 
