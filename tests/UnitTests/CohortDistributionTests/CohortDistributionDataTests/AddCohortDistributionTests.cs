@@ -156,9 +156,9 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
+        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
-        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID",_rowCount);
+        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
 
         // Assert
         Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
@@ -176,7 +176,7 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
@@ -221,29 +221,6 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
-    public void GetParticipantsByRequestIds_ValidRequestIds_ReturnsParticipants()
-    {
-        // Arrange
-        var requestIdsList = new List<string> { "requestId1", "requestId2" };
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(true)
-            .Returns(false);
-
-        SetUpReader();
-
-        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(_requestId);
-        _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns("participantId");
-        // Act
-        var result = _createCohortDistributionData.GetParticipantsByRequestIds(requestIdsList, _rowCount);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("participantId", result[0].ParticipantId);
-        Assert.AreEqual(requestIdsList[0], result[0].RequestId);
-    }
-
-    [TestMethod]
     public void GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
         // Arrange
@@ -259,7 +236,7 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId, _rowCount);
+        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);

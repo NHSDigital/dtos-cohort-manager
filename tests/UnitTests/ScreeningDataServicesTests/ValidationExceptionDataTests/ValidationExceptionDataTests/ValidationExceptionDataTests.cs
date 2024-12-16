@@ -16,13 +16,14 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
         columnToClassPropertyMapping = new Dictionary<string, string>
         {
             { "EXCEPTION_ID", "ExceptionId"},
-            { "COHORT_NAME", "CohortName" }
+            { "COHORT_NAME", "CohortName" },
+            { "DATE_CREATED", "DateCreated" }
         };
         _exceptionList = new List<ValidationException>
         {
-            new ValidationException { ExceptionId = 1, CohortName = "Cohort1" },
-            new ValidationException { ExceptionId = 2, CohortName = "Cohort2" },
-            new ValidationException { ExceptionId = 3, CohortName = "Cohort3" }
+            new ValidationException { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.Today.AddDays(-2) },
+            new ValidationException { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.Today.AddDays(-1) },
+            new ValidationException { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.Today }
         };
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
     }
@@ -31,16 +32,38 @@ public class ValidationExceptionDataTests : DatabaseTestBaseSetup<ValidationExce
     public void GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
     {
         // Act
-        var result = _service.GetAllExceptions();
+        var result = _service.GetAllExceptions(false);
 
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(3);
         result.Should().BeEquivalentTo(_exceptionList, options => options
-            .ExcludingMissingMembers()
             .Including(x => x.ExceptionId)
-            .Including(x => x.CohortName));
+            .Including(x => x.CohortName)
+            .Including(x => x.DateCreated));
+
+    }
+
+    [TestMethod]
+    public void GetAllExceptions_TodaysExceptionsOnly_ReturnsAllExceptions()
+    {
+        // Arrange
+        var filteredList = _exceptionList.Where(w => w.DateCreated == DateTime.Today).ToList();
+        SetupDataReader(filteredList, columnToClassPropertyMapping);
+
+        // Act
+        var result = _service.GetAllExceptions(true);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType<List<ValidationException>>();
+        result.Should().HaveCount(1);
+        result.Should().BeEquivalentTo([_exceptionList[2]], options => options
+                .Including(x => x.ExceptionId)
+                .Including(x => x.CohortName)
+                .Including(x => x.DateCreated)
+        );
     }
 
     [DataRow(1)]

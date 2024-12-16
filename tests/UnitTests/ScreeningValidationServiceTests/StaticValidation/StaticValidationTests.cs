@@ -13,6 +13,7 @@ using Model.Enums;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class StaticValidationTests
@@ -1367,4 +1368,38 @@ public class StaticValidationTests
             Times.Once());
     }
     #endregion
+
+    [TestMethod]
+    public async Task Run_ValidParticipantFile_ReturnsOK()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.NhsNumber = "1211111881";
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.Participant.AddressLine1 = "Address1";
+        _participantCsvRecord.Participant.AddressLine2 = "Address2";
+        _participantCsvRecord.Participant.AddressLine3 = "Address3";
+        _participantCsvRecord.Participant.AddressLine4 = "Address4";
+        _participantCsvRecord.Participant.AddressLine5 = "Address5";
+        _participantCsvRecord.Participant.PrimaryCareProvider = "E85121";
+        _participantCsvRecord.Participant.DateOfBirth = "20130112";
+        _participantCsvRecord.Participant.FirstName = "Test";
+        _participantCsvRecord.Participant.FamilyName = "Test";
+        _participantCsvRecord.Participant.InvalidFlag = "1";
+        _participantCsvRecord.Participant.IsInterpreterRequired = "0";
+        _participantCsvRecord.Participant.CurrentPosting = "ABC";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(new ValidationExceptionLog()
+        {
+            IsFatal = false,
+            CreatedException = false
+        }), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
 }

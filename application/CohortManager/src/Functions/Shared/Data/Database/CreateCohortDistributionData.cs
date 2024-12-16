@@ -11,7 +11,6 @@ using Model.Enums;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
-
     private readonly IDbConnection _dbConnection;
     private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
@@ -283,9 +282,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId, int rowCount)
+    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
-        var SQL = "SELECT TOP (@RowCount)" +
+        var SQL = "SELECT " +
             " [PARTICIPANT_ID], " +
             " [NHS_NUMBER], " +
             " [SUPERSEDED_NHS_NUMBER], " +
@@ -328,7 +327,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestId },
-            {"@RowCount", rowCount },
         };
 
         var command = CreateCommand(parameters);
@@ -545,21 +543,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return ExecuteQuery(command, ReadCohortRequestAudit);
     }
 
-    public List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList, int rowCount)
-    {
-        if (requestIdsList.Count == 0) return GetUnextractedCohortDistributionParticipantsByScreeningServiceId((int)ServiceProvider.BSS, rowCount);
-
-        return requestIdsList.SelectMany(requestId => GetCohortDistributionParticipantsByRequestId(requestId, rowCount)).ToList();
-    }
-
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var SQL = "SELECT" +
             " [REQUEST_ID], " +
             " [STATUS_CODE], " +
             " [CREATED_DATETIME] " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " ORDER BY CREATED_DATETIME DESC";
+            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] ";
 
         var conditions = new List<string>();
 
@@ -582,6 +572,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             SQL += " WHERE " + string.Join(" AND ", conditions);
         }
+
+        SQL += " ORDER BY CREATED_DATETIME DESC";
 
         return SQL;
     }
