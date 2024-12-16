@@ -34,11 +34,11 @@ public class CheckDemographic : ICheckDemographic
         return demographicData;
     }
 
-    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participant, string DemographicFunctionURI)
+    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
     {
         using var memoryStream = new MemoryStream();
         // this seems to be better for memory management 
-        await JsonSerializer.SerializeAsync(memoryStream, participant);
+        await JsonSerializer.SerializeAsync(memoryStream, participants);
         memoryStream.Position = 0;
 
         var content = new StreamContent(memoryStream);

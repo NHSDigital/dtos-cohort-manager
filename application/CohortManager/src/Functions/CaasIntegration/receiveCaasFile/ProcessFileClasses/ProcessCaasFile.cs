@@ -131,7 +131,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await RemoveParticipant(updateRecords, name);
             }
         }
-        currentBatch = new Batch();
+        currentBatch = null;
     }
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
