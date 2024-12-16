@@ -9,8 +9,7 @@ public interface ICreateCohortDistributionData
     List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount);
     bool UpdateCohortParticipantAsInactive(string NhsNumber);
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
-    List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId, int rowCount);
+    List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
-    List<CohortDistributionParticipantDto> GetParticipantsByRequestIds(List<string> requestIdsList, int rowCount);
     List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId);
 }

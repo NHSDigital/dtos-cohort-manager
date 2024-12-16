@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -18,9 +19,11 @@ public class ValidationExceptionData : IValidationExceptionData
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
-    public List<ValidationException> GetAllExceptions()
+    public List<ValidationException> GetAllExceptions(bool todayOnly)
     {
-        var SQL = @"SELECT
+        var today = DateTime.Today.Date;
+
+        var sql = new StringBuilder(@"SELECT
                  [EXCEPTION_ID]
                 ,[FILE_NAME]
                 ,[NHS_NUMBER]
@@ -34,14 +37,20 @@ public class ValidationExceptionData : IValidationExceptionData
                 ,[EXCEPTION_DATE]
                 ,[COHORT_NAME]
                 ,[IS_FATAL]
-                FROM [dbo].[EXCEPTION_MANAGEMENT]
-                ORDER BY [DATE_CREATED] DESC";
+                FROM [dbo].[EXCEPTION_MANAGEMENT]");
 
-        var parameters = new Dictionary<string, object> { };
+        var parameters = new Dictionary<string, object>();
+
+        if (todayOnly)
+        {
+            sql.Append(" WHERE [DATE_CREATED] >= @today AND [DATE_CREATED] < @today + 1");
+            parameters.Add("@today", today);
+        }
+
+        sql.Append(" ORDER BY [DATE_CREATED] DESC");
 
         var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
+        command.CommandText = sql.ToString();
         return GetException(command, false);
     }
 

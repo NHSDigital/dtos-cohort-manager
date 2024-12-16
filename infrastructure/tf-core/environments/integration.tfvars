@@ -658,19 +658,6 @@ function_apps = {
       ]
     }
 
-    RetrieveCohortReplay = {
-      name_suffix            = "retrieve-cohort-replay"
-      function_endpoint_name = "RetrieveCohortReplay"
-      app_service_plan_key   = "CohortDistributionServices"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-    }
-
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
