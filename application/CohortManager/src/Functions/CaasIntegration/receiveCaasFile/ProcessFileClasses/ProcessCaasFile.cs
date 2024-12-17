@@ -150,15 +150,16 @@ public class ProcessCaasFile : IProcessCaasFile
 
             var participantRecord = await _participantDemographic.GetByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
 
-            await _participantDemographic.Delete(participantRecord.FirstOrDefault().ParticipantId.ToString());
-
-            if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
+            if (participantRecord.FirstOrDefault() != null)
             {
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                await _participantDemographic.Delete(participantRecord.FirstOrDefault().ParticipantId.ToString());
+                if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
+                {
+                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                }
+                _logger.LogInformation("Called update participant");
             }
-            _logger.LogInformation("Called update participant");
-
-
+            _logger.LogInformation("the participant could not found to allow for updating");
         }
         catch (Exception ex)
         {
