@@ -76,7 +76,7 @@ public class CreateCohortDistribution
                 }
             }
 
-            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId))
+            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && !RetrieveEnvironmentalVariableAsBool("IgnoreParticipantExceptions")) // Will only run if IgnoreParticipantExceptions is false.
             {
                 _logger.LogInformation($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it");
                 await HandleErrorResponseAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
@@ -88,7 +88,7 @@ public class CreateCohortDistribution
             // Validate cohort distribution record & transform data service
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
-            if (!validationRecordCreated)
+            if (!validationRecordCreated || RetrieveEnvironmentalVariableAsBool("IgnoreParticipantExceptions"))
             {
                 _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
 
@@ -139,7 +139,6 @@ public class CreateCohortDistribution
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
-        transformedParticipant.Extracted = RetrieveEnvironmentalVariableAsInt("IsExtractedToBSSelect").ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
 
@@ -156,22 +155,10 @@ public class CreateCohortDistribution
 
     private static bool RetrieveEnvironmentalVariableAsBool(string environmentVariableName) 
     {
-        var value = Environment.GetEnvironmentVariable(environmentVariableName);
-        if (value == "true" || value == "1") 
+        if (Environment.GetEnvironmentVariable(environmentVariableName) == "true") 
         {
             return true;
         }
         return false;
-    }
-
-    private static int RetrieveEnvironmentalVariableAsInt(string environmentVariableName) 
-    {
-        var value = Environment.GetEnvironmentVariable(environmentVariableName);
-        if (value == "true" || value == "1") 
-        {
-            return 1;
-        }
-        return 0;
-
     }
 }
