@@ -36,10 +36,10 @@ public class CheckDemographic : ICheckDemographic
 
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
     {
-        if(participants.Count == 0) 
+        if (participants.Count == 0)
         {
             _logger.LogInformation("There were no items to to send to the demographic durable function");
-            return false;
+            return true;
         }
         using var memoryStream = new MemoryStream();
         // this seems to be better for memory management 

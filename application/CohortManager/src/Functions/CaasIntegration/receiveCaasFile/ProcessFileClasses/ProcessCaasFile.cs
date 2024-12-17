@@ -73,7 +73,11 @@ public class ProcessCaasFile : IProcessCaasFile
 
             await AddRecordToBatch(participant, currentBatch, name);
         });
-        await AddBatchToQueue(currentBatch, name);
+
+        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await AddBatchToQueue(currentBatch, name);
+        }
     }
 
     /// <summary>
@@ -115,10 +119,9 @@ public class ProcessCaasFile : IProcessCaasFile
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
-        {
-            await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
-        }
+
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
