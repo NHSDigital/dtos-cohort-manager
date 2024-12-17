@@ -151,37 +151,6 @@ public class AddParticipantFunction
         _logger.LogInformation("[3] Preparing participant data for validation - Log 3...");
         _logger.LogInformation("[3] Participant data validation started for record 3...");
         _logger.LogInformation("[3] Initiating validation of participant data - Attempt 3...");
-        _logger.LogInformation("[4] Serializing participant data for validation step 4...");
-        _logger.LogInformation("[4] Participant validation in progress - Step 4...");
-        _logger.LogInformation("[4] Preparing participant data for validation - Log 4...");
-        _logger.LogInformation("[4] Participant data validation started for record 4...");
-        _logger.LogInformation("[4] Initiating validation of participant data - Attempt 4...");
-        _logger.LogInformation("[5] Serializing participant data for validation step 5...");
-        _logger.LogInformation("[5] Participant validation in progress - Step 5...");
-        _logger.LogInformation("[5] Preparing participant data for validation - Log 5...");
-        _logger.LogInformation("[5] Participant data validation started for record 5...");
-        _logger.LogInformation("[5] Initiating validation of participant data - Attempt 5...");
-        _logger.LogInformation("[6] Serializing participant data for validation step 6...");
-        _logger.LogInformation("[6] Participant validation in progress - Step 6...");
-        _logger.LogInformation("[6] Preparing participant data for validation - Log 6...");
-        _logger.LogInformation("[6] Participant data validation started for record 6...");
-        _logger.LogInformation("[6] Initiating validation of participant data - Attempt 6...");
-        _logger.LogInformation("[7] Serializing participant data for validation step 7...");
-        _logger.LogInformation("[7] Participant validation in progress - Step 7...");
-        _logger.LogInformation("[7] Preparing participant data for validation - Log 7...");
-        _logger.LogInformation("[7] Participant data validation started for record 7...");
-        _logger.LogInformation("[7] Initiating validation of participant data - Attempt 7...");
-        _logger.LogInformation("[8] Serializing participant data for validation step 8...");
-        _logger.LogInformation("[8] Participant validation in progress - Step 8...");
-        _logger.LogInformation("[8] Preparing participant data for validation - Log 8...");
-        _logger.LogInformation("[8] Participant data validation started for record 8...");
-        _logger.LogInformation("[8] Initiating validation of participant data - Attempt 8...");
-        _logger.LogInformation("[9] Serializing participant data for validation step 9...");
-        _logger.LogInformation("[9] Participant validation in progress - Step 9...");
-        _logger.LogInformation("[9] Preparing participant data for validation - Log 9...");
-        _logger.LogInformation("[9] Participant data validation started for record 9...");
-        _logger.LogInformation("[9] Initiating validation of participant data - Attempt 9...");
-
 
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
