@@ -3,6 +3,7 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -20,8 +21,10 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
 
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler)
+     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -31,6 +34,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
+        _participantDemographic = participantDemographic;
     }
 
     /// <summary>
@@ -68,13 +72,8 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             await AddRecordToBatch(participant, currentBatch, name);
-
         });
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
-        {
-            await AddBatchToQueue(currentBatch, name);
-        }
-
+        await AddBatchToQueue(currentBatch, name);
     }
 
     /// <summary>
@@ -92,11 +91,10 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             participant = participant
         };
-
+        // take not we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
@@ -117,7 +115,10 @@ public class ProcessCaasFile : IProcessCaasFile
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
+        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+        }
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -143,11 +144,17 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
+
+            var participantRecord = await _participantDemographic.GetByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+
+            await _participantDemographic.Delete(participantRecord.FirstOrDefault().ParticipantId.ToString());
+
             if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
             {
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }
             _logger.LogInformation("Called update participant");
+
 
         }
         catch (Exception ex)

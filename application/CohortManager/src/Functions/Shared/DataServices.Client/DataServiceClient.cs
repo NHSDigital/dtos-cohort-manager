@@ -104,6 +104,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl, id));
         return result;
     }
+    
     public async Task<bool> AddRange(IEnumerable<TEntity> entity)
     {
         var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entity);

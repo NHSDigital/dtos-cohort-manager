@@ -47,7 +47,6 @@ public class DurableDemographicFunction
         try
         {
             var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(DemographicJsonData);
-
             var res = await _participantDemographic.AddRange(participantData);
             return res;
 
