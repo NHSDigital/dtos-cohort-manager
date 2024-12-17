@@ -46,11 +46,13 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         else if (rule3)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            return participant;
             throw new TransformationException("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
         else if (rule4)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "4.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            return participant;
             throw new TransformationException("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
         else return participant;
@@ -69,16 +71,8 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     {
         var dummyPrimaryCareProvider = "ZZZ";
 
-        if (validOutcode)
-        {
-            return dummyPrimaryCareProvider + _dataLookup.GetBsoCode(postcode);
-        }
+        if (validOutcode) return dummyPrimaryCareProvider + _dataLookup.GetBsoCode(postcode);
 
-        if (!string.IsNullOrEmpty(existingPrimaryCareProvider))
-        {
-            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
-        }
-
-        return dummyPrimaryCareProvider;
+        else return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
     }
 }
