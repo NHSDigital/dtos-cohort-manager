@@ -150,12 +150,13 @@ public class ProcessCaasFile : IProcessCaasFile
 
             var participantRecord = await _participantDemographic.GetByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
 
-            if (participantRecord.FirstOrDefault() != null)
+            var participant = participantRecord.FirstOrDefault();
+            if (participant != null)
             {
-                await _participantDemographic.Delete(participantRecord.FirstOrDefault().ParticipantId.ToString());
-                if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI")))
+                await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI") ?? ""))
                 {
-                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant") ?? "", json);
                 }
                 _logger.LogInformation("Called update participant");
             }
