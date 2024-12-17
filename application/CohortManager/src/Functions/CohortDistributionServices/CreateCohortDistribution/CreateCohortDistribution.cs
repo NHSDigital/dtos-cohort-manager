@@ -139,6 +139,7 @@ public class CreateCohortDistribution
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
+        transformedParticipant.Extracted = RetrieveEnvironmentalVariableAsInt("IsExtractedToBSSelect").ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
 
@@ -151,5 +152,27 @@ public class CreateCohortDistribution
         var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
         var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
         return exceptionFlag == Exists.Yes;
+    }
+
+    private static bool RetrieveEnvironmentalVariableAsBool(string environmentVariableName) 
+    {
+        
+        var value = Environment.GetEnvironmentVariable(environmentVariableName);
+        if (value == "true" || value == "1") 
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private static int RetrieveEnvironmentalVariableAsInt(string environmentVariableName) 
+    {
+        var value = Environment.GetEnvironmentVariable(environmentVariableName);
+        if (value == "true" || value == "1") 
+        {
+            return 1;
+        }
+        return 0;
+
     }
 }
