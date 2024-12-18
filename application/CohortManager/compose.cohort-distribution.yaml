@@ -75,6 +75,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortQueueName=cohort-distribution-queue
       - CohortQueueNamePoison=cohort-distribution-queue-poison
+      - IgnoreParticipantExceptions=false
+      - IsExtractedToBSSelect=true
 
   retrieve-participant-data:
     container_name: retrieve-participant-data

@@ -1,3 +1,8 @@
+/// <summary>
+/// Takes a participant from the queue, gets data from the demographic service,
+/// validates the participant, then calls create participant, mark as eligible, and create cohort distribution
+/// </summary>
+
 namespace addParticipant;
 
 using System.Net;
@@ -42,7 +47,6 @@ public class AddParticipantFunction
         _logger.LogInformation("Deserializing queue message...");
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
-
         try
         {
         _logger.LogDebug("Starting retrieval of detailed demographic data for participant.");
@@ -67,6 +71,8 @@ public class AddParticipantFunction
                 Participant = participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
+
+            // Validation
             participantCsvRecord.Participant.ExceptionFlag = "N";
             _logger.LogDebug("Participant model successfully instantiated with all required properties set.");
             _logger.LogInformation("Participant model created successfully.");
@@ -76,7 +82,7 @@ public class AddParticipantFunction
             var response = await ValidateData(participantCsvRecord);
             if (response.IsFatal)
             {
-                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
                 await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
@@ -92,7 +98,6 @@ public class AddParticipantFunction
             _logger.LogDebug("Preparing payload and initiating API request to Create Participant endpoint.");
             _logger.LogInformation("Sending participant data to Create Participant API...");
             var json = JsonSerializer.Serialize(participantCsvRecord);
-            _logger.LogInformation("ADD: sending record to add at {datetime}", DateTime.UtcNow);
             createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
@@ -109,13 +114,10 @@ public class AddParticipantFunction
             _logger.LogDebug("Preparing and sending detailed participant payload to Eligibility API for validation.");
             _logger.LogInformation("Sending participant data to Eligibility API...");
             var participantJson = JsonSerializer.Serialize(participant);
-            _logger.LogInformation("Eligible: sending record to add at {datetime}", DateTime.UtcNow);
             eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
-            _logger.LogInformation("Response Eligible: sending record to add at {datetime}", DateTime.UtcNow);
 
             if (eligibleResponse.StatusCode != HttpStatusCode.OK)
             {
-                _logger.LogError($"There was an error while marking participant as eligible {eligibleResponse}");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
@@ -143,6 +145,7 @@ public class AddParticipantFunction
         {
             _logger.LogInformation(ex, $"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            return;
         }
     }
 
