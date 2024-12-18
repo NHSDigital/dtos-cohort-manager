@@ -25,7 +25,7 @@
         "LocalParams": [
           {
             "Name": "ValidatePostingCategories",
-            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR newParticipant.CurrentPosting == \"CYM\" OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
             "Name": "PrimaryCareProviderValid",
