@@ -105,7 +105,7 @@ public class TransformReasonForRemovalTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidPostcode")]
-    public async Task Run_InvalidParticipantForRule3_ReturnsParticipantAndRaisesException(string postcode)
+    public async Task Run_InvalidParticipantForRule3_RaisesException(string postcode)
     {
         // Arrange
         _participant.ReasonForRemoval = "RDR";
@@ -115,10 +115,10 @@ public class TransformReasonForRemovalTests
         _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns("ZZZABC");
 
         // Act
-        var result = await _function.ReasonForRemovalTransformations(_participant);
+        var exception = await Assert.ThrowsExceptionAsync<TransformationException>(() => _function.ReasonForRemovalTransformations(_participant));
 
         // Assert
-        Assert.AreEqual(_participant, result);
+        Assert.AreEqual("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception", exception.Message);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -131,7 +131,7 @@ public class TransformReasonForRemovalTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidPostcode")]
-    public async Task Run_InvalidParticipantForRule4_ReturnsParticipantAndRaisesException(string postcode)
+    public async Task Run_InvalidParticipantForRule4_RaisesException(string postcode)
     {
         // Arrange
         _participant.ReasonForRemoval = "RDR";
@@ -141,10 +141,10 @@ public class TransformReasonForRemovalTests
         _transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns(string.Empty);
 
         // Act
-        var result = await _function.ReasonForRemovalTransformations(_participant);
+        var exception = await Assert.ThrowsExceptionAsync<TransformationException>(() => _function.ReasonForRemovalTransformations(_participant));
 
         // Assert
-        Assert.AreEqual(_participant, result);
+        Assert.AreEqual("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception", exception.Message);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
