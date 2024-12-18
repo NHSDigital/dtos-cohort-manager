@@ -36,10 +36,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
         _authConfig = authenticationConfiguration;
-
-        var type = typeof(TEntity);
-        _keyInfo = type.GetProperties().FirstOrDefault(p =>
-            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
+        _keyInfo = ReflectionUtilities.GetKey<TEntity>();
 
     }
 

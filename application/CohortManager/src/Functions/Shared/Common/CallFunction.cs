@@ -18,10 +18,18 @@ public class CallFunction : ICallFunction
         return await GetHttpWebRequest(url, postData, "POST");
     }
 
+    public async Task<HttpWebResponse> SendPut(string url, string postData)
+    {
+        return await GetHttpWebRequest(url, postData, "PUT");
+    }
+
+
     public async Task<string> SendGet(string url)
     {
         return await GetAsync(url);
     }
+
+
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {

@@ -11,12 +11,15 @@ using FastExpressionCompiler;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Reflection;
+using Azure.Storage.Blobs.Models;
 
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
 {
     private readonly string _baseUrl;
     private readonly ILogger<DataServiceClient<TEntity>> _logger;
     private readonly ICallFunction _callFunction;
+    private readonly PropertyInfo _keyInfo;
     public DataServiceClient(ILogger<DataServiceClient<TEntity>> logger, DataServiceResolver dataServiceResolver, ICallFunction callFunction)
     {
 
@@ -24,10 +27,12 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         if( string.IsNullOrEmpty(_baseUrl))
         {
-            throw new InvalidDataException("Unable to resolve DataServiceUrl");
+            throw new InvalidDataException($"Unable to resolve DataServiceUrl for Data Service of type: {typeof(TEntity).FullName}");
         }
         _callFunction = callFunction;
         _logger = logger;
+
+        _keyInfo = ReflectionUtilities.GetKey<TEntity>();
 
     }
 
@@ -74,7 +79,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         try{
 
-            var jsonString = await _callFunction.SendGet(GetUrlBuilder(_baseUrl,id));
+            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl,id));
 
             if(string.IsNullOrEmpty(jsonString))
             {
@@ -100,7 +105,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(GetUrlBuilder(_baseUrl,id));
+        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl,id));
         return result;
     }
     public async Task<bool> AddRange(IEnumerable<TEntity> entity)
@@ -139,7 +144,26 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return true;
     }
 
-    private string GetUrlBuilder(string baseUrl, string argument)
+    public async Task<bool> Update(TEntity entity)
+    {
+        var jsonString = JsonSerializer.Serialize<TEntity>(entity);
+        var key = _keyInfo.GetValue(entity).ToString();
+
+        if(string.IsNullOrEmpty(jsonString))
+        {
+            _logger.LogWarning("Unable to serialize put request body for creating entity of type {entityType}", typeof(TEntity).FullName);
+            return false;
+        }
+
+        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl,key),jsonString);
+
+        if(result.StatusCode != HttpStatusCode.OK){
+            return false;
+        }
+        return true;
+    }
+
+    private string UrlBuilder(string baseUrl, string argument)
     {
         baseUrl = baseUrl.TrimEnd('/');
         argument = argument.TrimStart('/');
