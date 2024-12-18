@@ -73,12 +73,9 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         {
             return dummyPrimaryCareProvider + _dataLookup.GetBsoCode(postcode);
         }
-
-        if (!string.IsNullOrEmpty(existingPrimaryCareProvider))
+        else
         {
             return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
         }
-
-        return dummyPrimaryCareProvider;
     }
 }
