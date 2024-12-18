@@ -38,7 +38,6 @@ public class AddParticipantFunction
     [Function(nameof(AddParticipantFunction))]
     public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
-        _logger.LogDebug("Starting processing of queue message...");
 
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
