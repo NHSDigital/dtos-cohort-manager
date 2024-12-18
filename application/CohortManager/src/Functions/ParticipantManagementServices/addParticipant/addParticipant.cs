@@ -33,30 +33,33 @@ public class AddParticipantFunction
     [Function(nameof(AddParticipantFunction))]
     public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
-        _logger.LogInformation("Starting processing of queue message...");
+        _logger.LogDebug("Starting processing of queue message...");
 
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
 
+        _logger.LogDebug("Starting detailed deserialization of the queue message for processing.");
         _logger.LogInformation("Deserializing queue message...");
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
 
         try
         {
+        _logger.LogDebug("Starting retrieval of detailed demographic data for participant.");
          _logger.LogInformation("Retrieving demographic data for participant...");
         var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
 
         if (demographicData == null)
             {
              _logger.LogWarning("Demographic data retrieval returned null.");
+             _logger.LogDebug("Detailed trace: Demographic function execution failed. This might be due to invalid input or API timeout.");
              _logger.LogInformation("demographic function failed");
              await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
              return;
             }
-            _logger.LogInformation("Demographic data successfully retrieved.");
+            _logger.LogDebug("Demographic data successfully retrieved.");
 
-
+            _logger.LogDebug("Initializing participant model creation with detailed attributes.");
             _logger.LogInformation("Creating participant model...");
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
@@ -65,8 +68,10 @@ public class AddParticipantFunction
                 FileName = basicParticipantCsvRecord.FileName,
             };
             participantCsvRecord.Participant.ExceptionFlag = "N";
+            _logger.LogDebug("Participant model successfully instantiated with all required properties set.");
             _logger.LogInformation("Participant model created successfully.");
 
+            _logger.LogDebug("Initiating in-depth validation of participant data with all attributes and constraints.");
             _logger.LogInformation("Validating participant data...");
             var response = await ValidateData(participantCsvRecord);
             if (response.IsFatal)
@@ -81,9 +86,10 @@ public class AddParticipantFunction
                 _logger.LogWarning("Validation created an exception. Setting ExceptionFlag to 'Y'.");
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
+            _logger.LogDebug("Detailed validation checks on participant data completed without any errors or warnings.");
              _logger.LogInformation("Participant data validation completed successfully.");
 
-
+            _logger.LogDebug("Preparing payload and initiating API request to Create Participant endpoint.");
             _logger.LogInformation("Sending participant data to Create Participant API...");
             var json = JsonSerializer.Serialize(participantCsvRecord);
             _logger.LogInformation("ADD: sending record to add at {datetime}", DateTime.UtcNow);
@@ -96,8 +102,11 @@ public class AddParticipantFunction
                 return;
 
             }
+            _logger.LogDebug("Participant successfully created with all attributes populated.");
             _logger.LogInformation("participant created");
 
+
+            _logger.LogDebug("Preparing and sending detailed participant payload to Eligibility API for validation.");
             _logger.LogInformation("Sending participant data to Eligibility API...");
             var participantJson = JsonSerializer.Serialize(participant);
             _logger.LogInformation("Eligible: sending record to add at {datetime}", DateTime.UtcNow);
@@ -112,8 +121,9 @@ public class AddParticipantFunction
             }
             _logger.LogInformation("participant created, marked as eligible at  {datetime}", DateTime.UtcNow);
 
-
+            _logger.LogDebug("Initiating cohort distribution with participant details and screening ID.");
             _logger.LogInformation("Distributing participant to cohort...");
+            _logger.LogDebug("Adding participant data to cohort tool at {datetime} for detailed tracking.", DateTime.UtcNow);
             _logger.LogInformation("adding to cohort tool {datetime}", DateTime.UtcNow);
             if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant))
             {
@@ -123,7 +133,9 @@ public class AddParticipantFunction
 
             }
 
+            _logger.LogDebug("Participant successfully distributed to cohort with all required parameters validated.");
             _logger.LogInformation("Participant successfully distributed to cohort.");
+            _logger.LogDebug("Initiated API call to Cohort Distribution Service with payload at {datetime}.", DateTime.UtcNow);
             _logger.LogInformation("participant sent to Cohort Distribution Service at {datetime}", DateTime.UtcNow);
 
         }
@@ -136,22 +148,7 @@ public class AddParticipantFunction
 
     private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
-        _logger.LogInformation("[1] Serializing participant data for validation step 1...");
-        _logger.LogInformation("[1] Participant validation in progress - Step 1...");
-        _logger.LogInformation("[1] Preparing participant data for validation - Log 1...");
-        _logger.LogInformation("[1] Participant data validation started for record 1...");
-        _logger.LogInformation("[1] Initiating validation of participant data - Attempt 1...");
-        _logger.LogInformation("[2] Serializing participant data for validation step 2...");
-        _logger.LogInformation("[2] Participant validation in progress - Step 2...");
-        _logger.LogInformation("[2] Preparing participant data for validation - Log 2...");
-        _logger.LogInformation("[2] Participant data validation started for record 2...");
-        _logger.LogInformation("[2] Initiating validation of participant data - Attempt 2...");
-        _logger.LogInformation("[3] Serializing participant data for validation step 3...");
-        _logger.LogInformation("[3] Participant validation in progress - Step 3...");
-        _logger.LogInformation("[3] Preparing participant data for validation - Log 3...");
-        _logger.LogInformation("[3] Participant data validation started for record 3...");
-        _logger.LogInformation("[3] Initiating validation of participant data - Attempt 3...");
-
+        _logger.LogDebug("Serializing participant data for validation.");
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
         try
