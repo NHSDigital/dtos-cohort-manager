@@ -180,6 +180,18 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
+
+  demographic-durable-function:
+    container_name: durable-demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: /DemographicServices/DemograpghicDurableFunction/DockerFile
+    environment:
+      - ASPNETCORE_URLS=http://*:7077
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+    
   # Data Services
   bs-select-gp-practice-data-service:
     container_name: bs-select-gp-practice-data-service
@@ -231,16 +243,6 @@ services:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  participant-demographic-data-service:
-    container_name: participant-demographic-data-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7993
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
   participant-management-data-service:
     container_name: participant-management-data-service
     network_mode: host
@@ -249,6 +251,16 @@ services:
       dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7994
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  participant-demographic-data-service:
+    container_name: participant-demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7993
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service

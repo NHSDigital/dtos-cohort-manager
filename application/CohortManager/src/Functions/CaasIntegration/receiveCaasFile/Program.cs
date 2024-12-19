@@ -6,6 +6,8 @@ using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
+using Model;
+using DataServices.Client;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -14,7 +16,11 @@ var logger = loggerFactory.CreateLogger("program.cs");
 try
 {
     var host = new HostBuilder()
+        .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .Build()
     .ConfigureFunctionsWebApplication()
+
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
@@ -27,6 +33,10 @@ try
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
+        {
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+        });
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
