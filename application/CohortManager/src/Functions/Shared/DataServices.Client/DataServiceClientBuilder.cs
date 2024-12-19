@@ -1,5 +1,6 @@
 namespace DataServices.Client;
 
+using System.ComponentModel;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,7 +22,7 @@ public class DataServiceClientBuilder
             _.AddTransient<IDataServiceClient<TEntity>,DataServiceClient<TEntity>>();
 
         });
-        _dataServiceUrls.Add(typeof(TEntity),url);
+        AddDataServiceUrl(typeof(TEntity),url);
 
         return this;
     }
@@ -33,7 +34,7 @@ public class DataServiceClientBuilder
             _.AddTransient<IDataServiceClient<TEntity>,DataServiceCacheClient<TEntity>>();
 
         });
-        _dataServiceUrls.Add(typeof(TEntity),url);
+        AddDataServiceUrl(typeof(TEntity),url);
 
         return this;
     }
@@ -50,6 +51,15 @@ public class DataServiceClientBuilder
             _.AddSingleton<ICallFunction, CallFunction>();
         });
         return _hostBuilder;
+    }
+
+    private void AddDataServiceUrl(Type type,string url)
+    {
+        if(string.IsNullOrEmpty(url))
+        {
+            throw new ArgumentNullException($"Failed to register data service URL for Data service of Type {type.FullName}");
+        }
+        _dataServiceUrls.Add(type,url);
     }
 
 }
