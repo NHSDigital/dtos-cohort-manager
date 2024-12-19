@@ -21,18 +21,18 @@
         }
       },
       {
-        "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
+        "RuleName": "3645.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "ValidatePostingCategories",
-            "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Name": "ValidPostingCategory",
+            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
           },
           {
-            "Name": "PrimaryCareProviderValid",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Name": "InvalidPrimaryCareProvider",
+            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "ValidCurrentPosting AND PrimaryCareProviderValid AND ValidatePostingCategories"
+        "Expression": "!(ValidPostingCategory AND InvalidPrimaryCareProvider)"
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
