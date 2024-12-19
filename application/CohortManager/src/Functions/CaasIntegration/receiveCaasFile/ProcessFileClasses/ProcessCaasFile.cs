@@ -49,7 +49,6 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <returns></returns>
     public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
     {
-        _logger.LogError($"Instance ID: {_recordsProcessTracker.getInstanceId()}");
         var currentBatch = new Batch();
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
@@ -73,6 +72,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
                 return; // Skip current participant
             }
+
             if(!_recordsProcessTracker.RecordNotAlreadyProcessed(participant.RecordType,participant.NhsNumber))
             {
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
@@ -190,7 +190,7 @@ public class ProcessCaasFile : IProcessCaasFile
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
-        private async Task CreateError(Participant participant, string filename, string errorMessage)
+    private async Task CreateError(Participant participant, string filename, string errorMessage)
     {
         try
         {

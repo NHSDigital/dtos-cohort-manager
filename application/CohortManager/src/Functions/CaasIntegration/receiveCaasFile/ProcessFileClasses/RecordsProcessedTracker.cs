@@ -1,21 +1,12 @@
 namespace receiveCaasFile;
 public class RecordsProcessedTracker
 {
-    private readonly Guid _instanceId;
     private readonly HashSet<ParticipantRecord> _processedRecords;
-
     private static object lockObj = new object();
 
     public RecordsProcessedTracker()
     {
-        _instanceId = Guid.NewGuid();
-        Console.WriteLine(_instanceId);
         _processedRecords = new HashSet<ParticipantRecord>();
-    }
-
-    public string getInstanceId()
-    {
-        return _instanceId.ToString();
     }
 
     public bool RecordNotAlreadyProcessed(string RecordType, string NHSId)
