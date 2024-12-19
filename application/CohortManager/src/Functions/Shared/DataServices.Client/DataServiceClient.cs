@@ -157,7 +157,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         var result = await _callFunction.SendPut(UrlBuilder(_baseUrl,key),jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if(result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
