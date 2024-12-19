@@ -205,7 +205,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
-            return CohortDistributionParticipantDto(listOfAllParticipants, requestId);
+            return CohortDistributionParticipantDto(listOfAllParticipants);
         }
 
         var statusCode = listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
@@ -214,7 +214,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return new List<CohortDistributionParticipantDto>();
     }
 
-    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistributionParticipant> listOfAllParticipants, string requestId)
+    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistributionParticipant> listOfAllParticipants)
     {
         return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
         {
@@ -333,7 +333,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         command.CommandText = SQL;
 
         var cohortList = GetParticipant(command);
-        return CohortDistributionParticipantDto(cohortList, requestId);
+        return CohortDistributionParticipantDto(cohortList);
     }
 
     public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)
