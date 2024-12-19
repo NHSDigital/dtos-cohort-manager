@@ -164,6 +164,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantDemographicDataS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManagement", "screeningDataServices\ParticipantManagementDataService\ParticipantManagement.csproj", "{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateParticipant", "screeningDataServices\ValidateParticipant\ValidateParticipant.csproj", "{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -398,6 +400,10 @@ Global
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -443,6 +449,7 @@ Global
 		{9B9E8E86-601F-4C10-B6EF-348AF9A168AA} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 		{D8990183-52BA-4A1F-B333-5B32AAF14348} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
+		{6BF3030D-5A5C-43FF-A8D3-46EF08C9991C} = {3A61DBD3-B2D4-45D7-9CB6-9BC4C9586467}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}
