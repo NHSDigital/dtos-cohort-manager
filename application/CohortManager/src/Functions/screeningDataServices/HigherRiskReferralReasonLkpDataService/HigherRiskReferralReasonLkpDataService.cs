@@ -11,7 +11,7 @@ using DataServices.Core;
 public class HigherRiskReferralReasonLkpDataService
 {
     private readonly ILogger<HigherRiskReferralReasonLkpDataService> _logger;
-    private readonly IRequestHandler<GeneCodeLkp> _requestHandler;
+    private readonly IRequestHandler<HigherRiskReferralReasonLkp> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
     public HigherRiskReferralReasonLkpDataService(ILogger<HigherRiskReferralReasonLkpDataService> logger, IRequestHandler<HigherRiskReferralReasonLkp> requestHandler, ICreateResponse createResponse)
