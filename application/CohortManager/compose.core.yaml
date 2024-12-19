@@ -231,6 +231,26 @@ services:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
+  gene-code-lkp-data-service:
+    container_name: ene-code-lkp-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7991
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  higher-risk-referral-reason-lkp-data-service:
+    container_name: higher-risk-referral-reason-lkp-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7992
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     network_mode: host
