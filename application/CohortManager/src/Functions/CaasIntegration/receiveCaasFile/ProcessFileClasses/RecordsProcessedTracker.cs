@@ -2,7 +2,7 @@ namespace receiveCaasFile;
 public class RecordsProcessedTracker
 {
     private readonly HashSet<ParticipantRecord> _processedRecords;
-    private static object lockObj = new object();
+    private readonly static object lockObj = new object();
 
     public RecordsProcessedTracker()
     {
@@ -32,6 +32,16 @@ public class RecordsProcessedTracker
         {
             return HashCode.Combine(RecordType, NHSId);
         }
+        public override bool Equals(object obj)
+        {
+            return obj is ParticipantRecord other && Equals(other);
+        }
+
+        public bool Equals(ParticipantRecord other)
+        {
+            return RecordType == other.RecordType && NHSId == other.NHSId;
+        }
+
     }
 }
 
