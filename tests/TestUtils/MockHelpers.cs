@@ -37,6 +37,14 @@ public static class MockHelpers
         return requestData.Object;
     }
 
+    public static WebException CreateMockWebException(HttpStatusCode httpStatusCode, string ErrorMessage = "Exception")
+    {
+        Mock<HttpWebResponse> mockWebResponse = new();
+        mockWebResponse.Setup(i => i.StatusCode).Returns(httpStatusCode);
+        var webException  = new WebException(ErrorMessage,null, WebExceptionStatus.UnknownError,mockWebResponse.Object);
+        return webException;
+    }
+
     public static HttpRequestData CreateMockHttpRequestDataWithMethod(string? body, string method, NameValueCollection headers)
     {
         var context = new Mock<FunctionContext>();
