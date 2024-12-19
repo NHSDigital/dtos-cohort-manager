@@ -218,7 +218,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
         {
-            RequestId = requestId ?? string.Empty,
+            RequestId = s.RequestId ?? string.Empty,
             NhsNumber = s.NhsNumber ?? string.Empty,
             SupersededByNhsNumber = s.SupersededByNhsNumber ?? string.Empty,
             PrimaryCareProvider = s.PrimaryCareProvider ?? string.Empty,
