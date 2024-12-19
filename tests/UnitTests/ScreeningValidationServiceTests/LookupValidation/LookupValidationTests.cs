@@ -401,10 +401,7 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("InvalidCurrentPosting", "ValidPCP")]
     [DataRow("ValidCurrentPosting", "InvalidPCP")]
-    [DataRow("InvalidCurrentPosting", "InvalidPCP")]
-    [DataRow("CYM", "InvalidPCP")]
     public async Task Run_CurrentPostingAndPrimaryProvider_CreatesException(string currentPosting, string primaryCareProvider)
     {
         // Arrange
@@ -414,7 +411,6 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(currentPosting == "ValidCurrentPosting");
         _lookupValidation.Setup(x => x.ValidatePostingCategories(It.IsAny<string>())).Returns(currentPosting == "ValidCurrentPosting");
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
 
@@ -423,17 +419,16 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36-45.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
 
     [TestMethod]
+    [DataRow("InvalidCurrentPosting", "InvalidPCP")]
     [DataRow("ValidCurrentPosting", "ValidPCP")]
     [DataRow("ValidCurrentPosting", null)]
-    [DataRow(null, "ValidPCP")]
-    [DataRow(null, null)]
-    [DataRow("CYM", "ValidPCP")]
+    [DataRow("InvalidCurrentPosting", null)]
     public async Task Run_CurrentPostingAndPrimaryProvider_DoesNotCreateException(string currentPosting, string primaryCareProvider)
     {
         // Arrange
@@ -443,7 +438,6 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(!string.IsNullOrEmpty(currentPosting));
         _lookupValidation.Setup(x => x.ValidatePostingCategories(It.IsAny<string>())).Returns(currentPosting == "ValidCurrentPosting");
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
 
@@ -452,7 +446,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36-45.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
