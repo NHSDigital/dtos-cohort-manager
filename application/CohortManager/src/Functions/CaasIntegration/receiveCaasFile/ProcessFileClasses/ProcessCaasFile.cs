@@ -5,6 +5,7 @@ using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
+using receiveCaasFile;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
@@ -20,8 +21,12 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
 
+    private readonly RecordsProcessedTracker _recordsProcessTracker;
+
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler)
+     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
+     ,RecordsProcessedTracker recordsProcessedTracker
+     )
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -31,6 +36,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
+        _recordsProcessTracker = recordsProcessedTracker;
     }
 
     /// <summary>
@@ -64,6 +70,12 @@ public class ProcessCaasFile : IProcessCaasFile
             {
 
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
+                return; // Skip current participant
+            }
+
+            if(!_recordsProcessTracker.RecordNotAlreadyProcessed(participant.RecordType,participant.NhsNumber))
+            {
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
                 return; // Skip current participant
             }
 
@@ -178,7 +190,7 @@ public class ProcessCaasFile : IProcessCaasFile
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
-        private async Task CreateError(Participant participant, string filename, string errorMessage)
+    private async Task CreateError(Participant participant, string filename, string errorMessage)
     {
         try
         {
