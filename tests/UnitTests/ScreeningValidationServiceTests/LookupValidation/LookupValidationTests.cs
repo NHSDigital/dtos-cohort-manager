@@ -419,7 +419,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36-45.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3645.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
@@ -427,6 +427,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("InvalidCurrentPosting", "InvalidPCP")]
     [DataRow("ValidCurrentPosting", "ValidPCP")]
+    [DataRow("InvalidCurrentPosting", "ValidPCP")]
     [DataRow("ValidCurrentPosting", null)]
     [DataRow("InvalidCurrentPosting", null)]
     public async Task Run_CurrentPostingAndPrimaryProvider_DoesNotCreateException(string currentPosting, string primaryCareProvider)
@@ -446,7 +447,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "36-45.CurrentPostingAndPrimaryProvider.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3645.CurrentPostingAndPrimaryProvider.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
