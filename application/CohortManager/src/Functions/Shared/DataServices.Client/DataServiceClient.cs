@@ -164,7 +164,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return true;
     }
 
-    private string UrlBuilder(string baseUrl, string argument)
+    private static string UrlBuilder(string baseUrl, string argument)
     {
         baseUrl = baseUrl.TrimEnd('/');
         argument = argument.TrimStart('/');

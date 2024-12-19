@@ -1,3 +1,5 @@
+namespace Common;
+
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
