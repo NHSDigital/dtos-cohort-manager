@@ -131,7 +131,7 @@ jobs:
           ../../scripts/reports/scan-vulnerabilities.sh
 
           # Push the image to the repository
-          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+          if [ "$GITHUB_REF" == 'refs/heads/main' ] || [ "$GITHUB_REF" == 'refs/heads/chore/DTOSS-0000-rebuild-images' ]; then
             docker push "$repo_name:$COMMIT_HASH_TAG"
             if [ "$PR_NUM_TAG" != 'pr' ]; then
               docker push "$repo_name:$PR_NUM_TAG"
