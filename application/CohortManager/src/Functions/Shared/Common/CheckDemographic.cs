@@ -92,7 +92,6 @@ public class CheckDemographic : ICheckDemographic
     {
         using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
 
-
         var jsonResponse = await response.Content.ReadAsStringAsync();
 
         var data = JsonSerializer.Deserialize<RuntimeStatus>(jsonResponse);

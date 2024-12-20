@@ -40,7 +40,6 @@ public class DurableDemographicFunction
             maxNumberOfAttempts: 1,
             firstRetryInterval: TimeSpan.FromSeconds(100))
         );
-
         var res = await context.CallActivityAsync<bool>(nameof(InsertDemographicData), demographicJsonData, options: retryOptions);
         return res;
     }
