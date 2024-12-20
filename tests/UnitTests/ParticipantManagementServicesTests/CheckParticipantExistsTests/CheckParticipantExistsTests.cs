@@ -10,6 +10,7 @@ using Model;
 using NHS.CohortManager.ParticipantManagementService;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class CheckParticipantExistsTests
@@ -23,14 +24,27 @@ public class CheckParticipantExistsTests
 
     public CheckParticipantExistsTests()
     {
-    _createResponseMock.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-        .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-        {
-            var response = req.CreateResponse(statusCode);
-            response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            response.WriteString(ResponseBody);
-            return response;
-        });
+        _createResponseMock.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
+                response.WriteString(ResponseBody);
+                return response;
+            });
+
+        _createResponseMock.Setup(x => x.CreateHttpResponseWithBodyAsync(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+            .Returns(async (HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
+                await response.WriteStringAsync(ResponseBody);
+                return response;
+            });
+        
+        _dataServiceMock.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+                        .ReturnsAsync(new List<ParticipantManagement> {new ParticipantManagement()});
+
 
         _sut = new CheckParticipantExists(_dataServiceMock.Object, _createResponseMock.Object, _loggerMock.Object);
     }
@@ -59,6 +73,7 @@ public class CheckParticipantExistsTests
             NhsNumber = "12345",
             ScreeningId = "1"
         };
+
         string json = JsonSerializer.Serialize(participant);
         var request = _setupRequest.Setup(json);
 
