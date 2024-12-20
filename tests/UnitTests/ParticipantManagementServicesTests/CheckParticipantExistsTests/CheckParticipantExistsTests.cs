@@ -11,6 +11,7 @@ using NHS.CohortManager.ParticipantManagementService;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Linq.Expressions;
+using System.Collections.Specialized;
 
 [TestClass]
 public class CheckParticipantExistsTests
@@ -54,32 +55,40 @@ public class CheckParticipantExistsTests
     [DataRow(null, "1")]
     public async Task Run_NullFields_ReturnBadRequest(string nhsNumber, string screeningId)
     {
-        BasicParticipantData participant = new() {NhsNumber = nhsNumber,
-                                                ScreeningId = screeningId};
-        string json = JsonSerializer.Serialize(participant);
-        var request = _setupRequest.Setup(json);
+        // Arrange
+        var request = _setupRequest.Setup("");
+        var queryParams = new NameValueCollection
+        {
+            { "NhsNumber", nhsNumber},
+            { "ScreeningId", screeningId}
+        };
 
+        request.Setup(r => r.Query).Returns(queryParams);
 
+        // Act
         var response = await _sut.Run(request.Object);
 
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_ValidFields_ReturnOk()
     {
-        BasicParticipantData participant = new()
+        // Arrange
+        var request = _setupRequest.Setup("");
+        var queryParams = new NameValueCollection
         {
-            NhsNumber = "12345",
-            ScreeningId = "1"
+            { "NhsNumber", "1234567890"},
+            { "ScreeningId", "1"}
         };
 
-        string json = JsonSerializer.Serialize(participant);
-        var request = _setupRequest.Setup(json);
+        request.Setup(r => r.Query).Returns(queryParams);
 
-
+        // Act
         var response = await _sut.Run(request.Object);
 
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 }
