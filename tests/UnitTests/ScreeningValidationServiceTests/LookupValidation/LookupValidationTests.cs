@@ -607,23 +607,26 @@ public class LookupValidationTests
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", false, "", "ABC", true, "")]
-    [DataRow("DMS", false, "", "ABC", true, "WALES")]
-    [DataRow("DMS", true, "WALES", "DMS", true, "WALES")]
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string existingCurrentPosting, bool existingPrimaryCareProviderInExcludedSmuList, string existingPostingCategory, string newCurrentPosting, bool newPrimaryCareProviderInExcludedSmuList, string newPostingCategory)
+    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "")]
+    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")]
+    [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")]
+    [DataRow("DMS", null, "WALES", "DMS", null, "WALES")]
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
         // Arrange
         SetupRules("CohortRules");
 
         _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
         _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
+        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProviderInExcludedSmuList);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProviderInExcludedSmuList);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProvider == "ExcludedPCP");
         _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(newPostingCategory);
         _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(existingPostingCategory);
 
@@ -638,21 +641,23 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("DMS", true, "", "DMS", true, "")]
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string existingCurrentPosting, bool existingPrimaryCareProviderInExcludedSmuList, string existingPostingCategory, string newCurrentPosting, bool newPrimaryCareProviderInExcludedSmuList, string newPostingCategory)
+    [DataRow("DMS", "ExcludedPCP", "", "DMS", "ExcludedPCP", "")]
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
         // Arrange
         SetupRules("CohortRules");
 
         _requestBody.NewParticipant.RecordType = Actions.Amended;
         _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
         _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
+        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProviderInExcludedSmuList);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProviderInExcludedSmuList);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProvider == "ExcludedPCP");
         _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(newPostingCategory);
         _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(existingPostingCategory);
 
