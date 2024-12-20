@@ -84,8 +84,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{AA690015-629F-41A3-903C-7A65845691DC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\UnitTests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{142C4501-749C-4ECC-8F9E-452F204D65DE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateException", "ExceptionHandling\CreateException\CreateException.csproj", "{F694FC4E-A899-4466-B26F-B0E4C6E50F18}"
@@ -167,6 +165,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableDemographicTests", "..\..\..\..\tests\UnitTests\DurableDemographicTests\DurableDemographicTests.csproj", "{1A3F9317-A755-4D70-B947-B5AB903AE26A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManagement", "screeningDataServices\ParticipantManagementDataService\ParticipantManagement.csproj", "{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformReasonForRemovalTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformReasonForRemovalTests\TransformReasonForRemovalTests.csproj", "{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{DCBF3583-DC87-46BE-93DC-C345E779D95C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -314,10 +316,6 @@ Global
 		{81BF10AD-AD08-4D47-8150-96FA09227107}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{81BF10AD-AD08-4D47-8150-96FA09227107}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{81BF10AD-AD08-4D47-8150-96FA09227107}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AA690015-629F-41A3-903C-7A65845691DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AA690015-629F-41A3-903C-7A65845691DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AA690015-629F-41A3-903C-7A65845691DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AA690015-629F-41A3-903C-7A65845691DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{142C4501-749C-4ECC-8F9E-452F204D65DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -422,6 +420,14 @@ Global
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
