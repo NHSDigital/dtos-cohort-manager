@@ -12,6 +12,7 @@ using System.Text;
 using DataServices.Client;
 using System.Collections.Generic;
 using System.Text.Json;
+using Common;
 
 [TestClass]
 public class DurableDemographicTests
@@ -22,10 +23,12 @@ public class DurableDemographicTests
 
     private readonly Mock<ILogger<DurableDemographicFunction>> _logger = new();
 
+    private readonly Mock<ICreateResponse> _createResponse = new();
+
     public DurableDemographicTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
+        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
     }
 
 
@@ -34,7 +37,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var mockCreateDemographicData = new Mock<ICreateDemographicData>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
 
         var mockContext = new Mock<TaskOrchestrationContext>();
         var logger = Mock.Of<ILogger>();
@@ -59,7 +62,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
         var mockLogger = new Mock<ILogger>();
 
         var demographicJsonData = JsonSerializer.Serialize(Participants);
