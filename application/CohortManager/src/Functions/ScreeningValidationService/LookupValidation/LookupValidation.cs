@@ -106,7 +106,6 @@ public class LookupValidation
             LoggingRulesTemp(existingParticipant,"Existing Participant");
             LoggingRulesTemp(newParticipant,"New Participant");
 
-
             if (validationErrors.Any())
             {
 
