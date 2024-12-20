@@ -1,5 +1,5 @@
-namespace receiveCaasFile;
-public class RecordsProcessedTracker
+namespace NHS.Screening.ReceiveCaasFile;
+public class RecordsProcessedTracker : IRecordsProcessedTracker
 {
     private readonly HashSet<ParticipantRecord> _processedRecords;
     private readonly static object lockObj = new object();
@@ -32,7 +32,7 @@ public class RecordsProcessedTracker
         {
             return HashCode.Combine(RecordType, NHSId);
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ParticipantRecord other && Equals(other);
         }
