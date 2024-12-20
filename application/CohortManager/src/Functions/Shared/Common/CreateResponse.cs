@@ -29,8 +29,7 @@ public class CreateResponse : ICreateResponse
         var response = requestData.CreateResponse(statusCode);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
-        var json = JsonConvert.SerializeObject(responseBody);
-        await response.WriteStringAsync(json);
+        await response.WriteStringAsync(responseBody);
         return response;
     }
 }
