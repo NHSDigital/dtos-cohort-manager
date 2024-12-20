@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ValidateParticipant": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7092",
+      "launchBrowser": false
+    }
+  }
+}
