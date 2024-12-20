@@ -1,7 +1,28 @@
 {
   "version": "2.0",
-  "extensionBundle": {
-    "id": "Microsoft.Azure.Functions.ExtensionBundle",
-    "version": "[4.*, 5.0.0)"
+  "logging": {
+    "applicationInsights": {
+      "samplingExcludedTypes": "Request",
+      "samplingSettings": {
+        "isEnabled": true
+      }
+    },
+    "logLevel": {
+      "Default": "Warning",
+      "Host.Results": "Error",
+      "Host.Http": "Warning",
+      "Function": "Information"
+    }
+  }, 
+  "extensions": {
+    "durableTask": {
+      "storageProvider": {
+        "type": "AzureStorage",
+        "maxDurableActivityFunctionTimeout": "00:10:00", 
+        "maxOrchestrationFunctionTimeout": "7.00:00:00",
+        "extendedSessionsEnabled": true,
+        "historyRetentionInDays": 7
+      }
+    }
   }
 }
