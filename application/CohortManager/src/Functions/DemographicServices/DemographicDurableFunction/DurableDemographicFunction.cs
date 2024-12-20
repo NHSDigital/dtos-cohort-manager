@@ -1,8 +1,9 @@
 namespace NHS.CohortManager.DemographicServices;
 
+using System.Net;
 using System.Text;
 using System.Text.Json;
-
+using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -17,10 +18,13 @@ public class DurableDemographicFunction
 
     private readonly ILogger<DurableDemographicFunction> _logger;
 
-    public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger)
+    private readonly ICreateResponse _createResponse;
+
+    public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
     {
         _participantDemographic = dataServiceClient;
         _logger = logger;
+        _createResponse = createResponse;
     }
 
     [Function(nameof(DurableDemographicFunction))]
@@ -64,19 +68,29 @@ public class DurableDemographicFunction
         [DurableClient] DurableTaskClient client,
         FunctionContext executionContext)
     {
-        // Function input comes from the request content.   
-        var requestBody = "";
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+        try
         {
-            requestBody = await reader.ReadToEndAsync();
+            // Function input comes from the request content.   
+            var requestBody = "";
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                requestBody = await reader.ReadToEndAsync();
+            }
+
+            var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
+                nameof(DurableDemographicFunction), requestBody);
+
+            _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+
+            // Returns an HTTP 202 response the response status 
+            return await client.CreateCheckStatusResponseAsync(req, instanceId);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There has been an error executing the durable demographic function");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
         }
 
-        var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-            nameof(DurableDemographicFunction), requestBody);
 
-        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
-
-        // Returns an HTTP 202 response the response status 
-        return await client.CreateCheckStatusResponseAsync(req, instanceId);
     }
 }
