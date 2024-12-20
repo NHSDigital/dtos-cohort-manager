@@ -1,5 +1,4 @@
 namespace NHS.Screening.ReceiveCaasFile;
-using Model;
 
 public interface IRecordsProcessedTracker
 {
