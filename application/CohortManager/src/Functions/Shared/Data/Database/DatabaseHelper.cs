@@ -57,7 +57,7 @@ public class DatabaseHelper : IDatabaseHelper
         return string.IsNullOrEmpty(value) ? DBNull.Value : value;
     }
 
-    public static string GetStringValue(IDataReader reader, string columnName)
+    public static string? GetStringValue(IDataReader reader, string columnName)
     {
         return reader[columnName] == DBNull.Value ? null : reader[columnName].ToString();
     }

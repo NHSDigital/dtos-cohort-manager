@@ -1,22 +1,13 @@
-# Cohort Manager - Digital Screening
+# Cohort Manager Digital Screening
 
 [![CI/CD Pull Request](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=repository-template&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=repository-template)
 
-Start with an overview or a brief description of what the project is about and what it does. For example -
-
-Welcome to our repository template designed to streamline your project setup! This robust template provides a reliable starting point for your new projects, covering an essential tech stack and encouraging best practices in documenting.
-
-This repository template aims to foster a user-friendly development environment by ensuring that every included file is concise and adequately self-documented. By adhering to this standard, we can promote increased clarity and maintainability throughout your project's lifecycle. Bundled within this template are resources that pave the way for seamless repository creation. Currently supported technologies are:
-
-- Terraform
-- Docker
-
-Make use of this repository template to expedite your project setup and enhance your productivity right from the get-go. Enjoy the advantage of having a well-structured, self-documented project that reduces overhead and increases focus on what truly matters - coding!
+A digital product for NHS staff that identifies and stratifies citizens to be included in a screening cohort, and enables the cohort to be managed and analysed. The product will be available for use by any live or future screening programme and can be quickly configured to meet individual screening programme cohorting needs.
 
 ## Table of Contents
 
-- [Repository Template](#repository-template)
+- [Cohort Manager Digital Screening](#cohort-manager-digital-screening)
   - [Table of Contents](#table-of-contents)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
@@ -80,6 +71,8 @@ There are `make` tasks for you to configure to run your tests.  Run `make test` 
 ## Design
 
 ### Diagrams
+
+The Cohort Manager Application is built
 
 The [C4 model](https://c4model.com/) is a simple and intuitive way to create software architecture diagrams that are clear, consistent, scalable and most importantly collaborative. This should result in documenting all the system interfaces, external dependencies and integration points.
 
