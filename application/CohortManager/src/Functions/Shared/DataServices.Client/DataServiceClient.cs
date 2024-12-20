@@ -2,17 +2,13 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Linq.Dynamic.Core;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
-using FastExpressionCompiler;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Reflection;
-using Azure.Storage.Blobs.Models;
+
 
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
 {
@@ -80,7 +76,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         try
         {
 
-            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl,id));
+            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl, id));
 
             if (string.IsNullOrEmpty(jsonString))
             {
@@ -106,10 +102,10 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl,id));
+        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl, id));
         return result;
     }
-    
+
     public async Task<bool> AddRange(IEnumerable<TEntity> entity)
     {
         var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entity);
@@ -141,7 +137,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         var result = await _callFunction.SendPost(_baseUrl, jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
@@ -152,15 +149,15 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var jsonString = JsonSerializer.Serialize<TEntity>(entity);
         var key = _keyInfo.GetValue(entity).ToString();
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize put request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl,key),jsonString);
+        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl, key), jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK)
+        if (result.StatusCode != HttpStatusCode.OK)
         {
             return false;
         }

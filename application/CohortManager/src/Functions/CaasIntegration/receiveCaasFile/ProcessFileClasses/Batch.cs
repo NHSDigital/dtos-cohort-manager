@@ -1,6 +1,7 @@
-namespace Model;
+namespace NHS.Screening.ReceiveCaasFile;
 
 using System.Collections.Concurrent;
+using Model;
 
 public class Batch
 {

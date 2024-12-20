@@ -6,7 +6,6 @@ using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
-using receiveCaasFile;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
@@ -28,7 +27,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
-     ,RecordsProcessedTracker recordsProcessedTracker
+     , RecordsProcessedTracker recordsProcessedTracker
      )
     {
         _logger = logger;
@@ -77,7 +76,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 return; // Skip current participant
             }
 
-            if(!_recordsProcessTracker.RecordNotAlreadyProcessed(participant.RecordType,participant.NhsNumber))
+            if (!_recordsProcessTracker.RecordNotAlreadyProcessed(participant.RecordType, participant.NhsNumber))
             {
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
                 return; // Skip current participant
