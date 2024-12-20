@@ -83,7 +83,7 @@ jobs:
           echo "GITHUB_REF: $GITHUB_REF"
           echo "The branch is: ${{ github.ref }}"
 
-          if [ "$GITHUB_REF" == 'refs/heads/main' ] || [ "$GITHUB_REF" == 'refs/heads/chore/DTOSS-0000-rebuild-images' ]; then
+          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
             PR_NUM_TAG=$(echo "$GITHUB_REF" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
           else
             PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
