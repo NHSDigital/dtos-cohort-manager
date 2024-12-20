@@ -95,8 +95,6 @@ public class LookupValidation
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
-            var exceptions = resultList.Where(i => !string.IsNullOrWhiteSpace(i.ExceptionMessage));
-
             if (validationErrors.Any())
             {
 
