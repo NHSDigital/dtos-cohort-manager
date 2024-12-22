@@ -340,8 +340,6 @@ public async Task Run_Should_Log_Error_When_Participant_Not_Marked_As_Eligible()
     [TestMethod]
 public async Task Run_Should_Log_Error_When_Cohort_Distribution_Fails()
 {
-
-
     // Arrange
     _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
