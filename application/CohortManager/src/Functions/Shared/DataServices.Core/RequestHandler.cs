@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Common;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -36,10 +37,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
         _authConfig = authenticationConfiguration;
-
-        var type = typeof(TEntity);
-        _keyInfo = type.GetProperties().FirstOrDefault(p =>
-            p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
+        _keyInfo = ReflectionUtilities.GetKey<TEntity>();
 
     }
 
