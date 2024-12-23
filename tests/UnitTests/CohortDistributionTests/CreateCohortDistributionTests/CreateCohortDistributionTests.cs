@@ -19,9 +19,8 @@ using Data.Database;
 public class CreateCohortDistributionTests
 {
     private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ILogger<CreateCohortDistribution>> _logger = new();
-    private readonly Mock<ICohortDistributionHelper> _CohortDistributionHelper = new();
+    private readonly Mock<ICohortDistributionHelper> _cohortDistributionHelper = new();
     private readonly CreateCohortDistribution _function;
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
@@ -37,6 +36,8 @@ public class CreateCohortDistributionTests
         Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
         Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
         Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
+        Environment.SetEnvironmentVariable("IsExtractedToBSSelect", "IsExtractedToBSSelect");
+        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
 
         _request = new Mock<HttpRequestData>(_context.Object);
 
@@ -47,7 +48,7 @@ public class CreateCohortDistributionTests
 
         };
 
-        _function = new CreateCohortDistribution(_createResponse.Object, _logger.Object, _callFunction.Object, _CohortDistributionHelper.Object, _exceptionHandler.Object, _participantManagerData.Object, _azureQueueStorageHelper.Object);
+        _function = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object, _exceptionHandler.Object, _participantManagerData.Object, _azureQueueStorageHelper.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -57,15 +58,6 @@ public class CreateCohortDistributionTests
             response.SetupProperty(r => r.Body, new MemoryStream());
             return response.Object;
         });
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-                response.WriteString(ResponseBody);
-                return response;
-            });
     }
 
     [TestMethod]
@@ -118,7 +110,7 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Throws(new Exception("some error"));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Throws(new Exception("some error"));
 
         // Act
         try
@@ -133,7 +125,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -149,7 +141,7 @@ public class CreateCohortDistributionTests
         Exception caughtException = null;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()
         {
             ScreeningServiceId = "screeningservice",
             NhsNumber = "11111111",
@@ -160,13 +152,13 @@ public class CreateCohortDistributionTests
         {
             ExceptionFlag = "0",
         });
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
         .Returns(Task.FromResult(new CohortDistributionParticipant()
         {
             ScreeningServiceId = "screeningservice",
             Postcode = "POSTCODE",
         }));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Throws(new Exception("some error"));
 
 
@@ -183,7 +175,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -199,17 +191,16 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
-        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
+        _cohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
         _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant()
         {
             ExceptionFlag = "0",
         });
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
         .Returns(Task.FromResult<CohortDistributionParticipant>(null)); // Explicitly setting the return type to Task<object>
-
 
         // Act
         await _function.RunAsync(_requestBody);
@@ -230,15 +221,15 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
-        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
+        _cohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
         _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant()
         {
             ExceptionFlag = "0",
         });
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
         .Returns(Task.FromResult(new CohortDistributionParticipant())); // Explicitly setting the return type to Task<object>
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
@@ -257,7 +248,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the functions failed.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -273,15 +264,15 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
-        _CohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant() { ScreeningServiceId = "Screening123" }));
+        _cohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
         _participantManagerData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant()
         {
             ExceptionFlag = "0",
         });
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
         .Returns(Task.FromResult(new CohortDistributionParticipant())); // Explicitly setting the return type to Task<object>
 
 
@@ -299,7 +290,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("participant has been successfully put on the cohort distribution table")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant has been successfully put on the cohort distribution table")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -312,9 +303,9 @@ public class CreateCohortDistributionTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _CohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-        _CohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
-        _CohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>())).Verifiable();
 
         ParticipantException(true);
@@ -326,6 +317,210 @@ public class CreateCohortDistributionTests
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "AddCohortDistributionURL"), It.IsAny<string>()), Times.Never());
     }
 
+    [TestMethod]
+    public async Task RunAsync_ParticipantIsNull_HandlesErrorCorrectly()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(""));
+
+        ParticipantException(false);
+
+        // Act
+        await _function.RunAsync(_requestBody);
+
+        // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLog(
+            It.IsAny<Exception>(),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()),
+            Times.Once);
+
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task RunAsync_ParticipantMissingPostcodeAndServiceProvider_HandlesErrorCorrectly()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()
+        {
+            ScreeningServiceId = "screeningServiceId",
+            Postcode = "T357 P01",
+        }));
+
+        ParticipantException(false);
+
+        // Act
+        await _function.RunAsync(_requestBody);
+
+        // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLog(
+            It.IsAny<Exception>(),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()),
+            Times.Once);
+
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task RunAsync_ParticipantHasExceptionAndRetrieveEnvironmentalVariableAsBool_HandlesErrorCorrectly()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()
+        {
+            ScreeningServiceId = "screeningServiceId",
+            Postcode = string.Empty,
+        }));
+
+        var response = new Mock<HttpWebResponse>();
+        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
+
+        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
+
+        ParticipantException(true);
+                Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
+
+
+        // Act
+        await _function.RunAsync(_requestBody);
+
+        // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLog(
+            It.IsAny<Exception>(),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()),
+            Times.Once);
+
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task RunAsync_WhenAddCohortDistributionFails_HandlesErrorCorrectly()
+    {
+        // Arrange
+        var response = new Mock<HttpWebResponse>();
+        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
+
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(new CohortDistributionParticipant()));
+        _cohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(false));
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>())).Returns(Task.FromResult(new CohortDistributionParticipant()
+        {
+            ScreeningServiceId = "screeningServiceId",
+            Postcode = string.Empty,
+        }));
+
+        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
+
+        ParticipantException(false);
+        // Act
+        await _function.RunAsync(_requestBody);
+
+        // Assert
+        _callFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(x => x.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RunAsync_WhenExceptionOccurs_LogsAndRethrowsException()
+    {
+        // Arrange
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+            .ThrowsAsync(new Exception("Test exception"));
+
+        // Act & Assert
+        await Assert.ThrowsExceptionAsync<Exception>(() => _function.RunAsync(_requestBody));
+
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<Exception>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()
+        ), Times.Once);
+
+        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task RunAsync_ValidationFailed_CreatesValidationExceptionLog()
+    {
+        // Arrange
+        var participant = new CohortDistributionParticipant
+        {
+            ParticipantId = "123",
+            NhsNumber = "NHS123",
+            ScreeningServiceId = "Screening123"
+        };
+
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+            .ReturnsAsync(participant);
+
+        _cohortDistributionHelper.Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
+            .ReturnsAsync(true);
+
+        var response = new Mock<HttpWebResponse>();
+        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
+
+        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
+
+            ParticipantException(false);
+
+
+        // Act
+        await _function.RunAsync(_requestBody);
+
+        // Assert
+        _exceptionHandler.Verify(x => x.CreateRecordValidationExceptionLog(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()
+        ), Times.Once);
+    }
+
+    [TestMethod]
+public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableTrue_LogsAndHandlesError()
+{
+   // Arrange
+   var participant = new CohortDistributionParticipant
+   {
+       ScreeningServiceId = "test",
+       ParticipantId = "123",
+   };
+
+   _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+       .ReturnsAsync(participant);
+
+   Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "true");
+   ParticipantException(true);
+
+   // Act
+   await _function.RunAsync(_requestBody);
+
+   // Assert
+   _logger.Verify(x => x.Log(
+    LogLevel.Information,
+    It.IsAny<EventId>(),
+    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Unable to add to cohort distribution.")),
+    It.IsAny<Exception>(),
+    It.IsAny<Func<It.IsAnyType, Exception, string>>()));
+}
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
