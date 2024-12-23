@@ -128,7 +128,7 @@ public class AddNewParticipantTest
     }
 
 [TestMethod]
-public async Task Run_Should_Log_Error_When_Participant_Fails_To_Create()
+public async Task Run_FailedParticipantCreation_LogError()
 {
     // Arrange
     var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -243,7 +243,7 @@ public async Task Run_Should_Log_Error_When_Participant_Fails_To_Create()
             ));
     }
     [TestMethod]
-public async Task Run_Should_Log_Error_When_Participant_Not_Marked_As_Eligible()
+public async Task Run_ParticipantEligibility_Failure()
 {
     // Arrange
     var errorResponse = new Mock<HttpWebResponse>();
@@ -338,7 +338,7 @@ public async Task Run_Should_Log_Error_When_Participant_Not_Marked_As_Eligible()
     }
 
     [TestMethod]
-public async Task Run_Should_Log_Error_When_Cohort_Distribution_Fails()
+public async Task Run_CohortDistributionFails_LogError()
 {
     // Arrange
     _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
