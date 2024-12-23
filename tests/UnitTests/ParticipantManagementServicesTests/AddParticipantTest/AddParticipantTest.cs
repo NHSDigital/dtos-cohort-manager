@@ -243,16 +243,13 @@ public async Task Run_FailedParticipantCreation_LogError()
             ));
     }
     [TestMethod]
-public async Task Run_ParticipantEligibilityFailure_LogError()
+public async Task Run_ParticipantEligibilityFailure_LogsException()
 {
     // Arrange
     var errorResponse = new Mock<HttpWebResponse>();
     errorResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest); // Simulate error response
 
     _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-    _callFunctionMock.Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(errorResponse.Object)); // Return error response
 
     _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
@@ -293,6 +290,11 @@ public async Task Run_ParticipantEligibilityFailure_LogError()
 
     // Act
     await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
+
+
+    //Assert
+    _callFunctionMock.Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
+        .Returns(Task.FromResult<HttpWebResponse>(errorResponse.Object)); // Return error response
 
 }
     [TestMethod]
@@ -353,10 +355,6 @@ public async Task Run_CohortDistributionFails_LogError()
     _callFunctionMock.Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
         .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-    _cohortDistributionHandler.Setup(handler => handler.SendToCohortDistributionService(
-        It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),  It.IsAny<Model.Participant>()))
-        .ReturnsAsync(false); // Simulate cohort distribution failure
-
     _checkDemographic.Setup(x => x.GetDemographicAsync("DemographicURIGet", It.IsAny<string>()))
         .Returns(Task.FromResult<Demographic>(new Demographic()))
         .Verifiable();
@@ -386,6 +384,11 @@ public async Task Run_CohortDistributionFails_LogError()
         }
     };
     await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
+
+      // Assert
+    _cohortDistributionHandler.Setup(handler => handler.SendToCohortDistributionService(
+        It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),  It.IsAny<Model.Participant>()))
+        .ReturnsAsync(false); // Simulate cohort distribution failure
 
 }
     [TestMethod]
