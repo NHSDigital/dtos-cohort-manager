@@ -95,13 +95,6 @@ public class LookupValidation
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
-            var exceptions = resultList.Where(i => !string.IsNullOrWhiteSpace(i.ExceptionMessage));
-
-            foreach(var exp in exceptions)
-            {
-                _logger.LogError($"There was an error while executing rule {exp.Rule.RuleName} ExceptionMessage : {exp.ExceptionMessage}");
-            }
-
             if (validationErrors.Any())
             {
 

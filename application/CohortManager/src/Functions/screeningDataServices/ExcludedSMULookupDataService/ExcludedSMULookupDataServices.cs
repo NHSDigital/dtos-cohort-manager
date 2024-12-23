@@ -24,11 +24,11 @@ public class ExcludedSMULookupDataService
     }
 
     [Function("ExcludedSMULookupDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ExcludedSMULookupDataService/{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ExcludedSMUDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(ExcludedSMULookup));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(ExcludedSMULookup));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
