@@ -243,60 +243,78 @@ public async Task Run_FailedParticipantCreation_LogError()
             ));
     }
     [TestMethod]
-public async Task Run_ParticipantEligibilityFailure_LogsException()
-{
-    // Arrange
-    var errorResponse = new Mock<HttpWebResponse>();
-    errorResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest); // Simulate error response
-
-    _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-    _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-    _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-    _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
-        .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-    _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        })));
-
-    _handleException.Setup(x => x.CreateSystemExceptionLog(
-        It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>())).Returns(Task.CompletedTask);
-
-    var sut = new AddParticipantFunction(
-        _loggerMock.Object,
-        _callFunctionMock.Object,
-        _createResponse.Object,
-        _checkDemographic.Object,
-        _createParticipant,
-        _handleException.Object,
-         _cohortDistributionHandler.Object);
-
-    var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+    public async Task Run_ParticipantEligibilityFailure_LogsException()
     {
-        FileName = "ExampleFileName.CSV",
-        Participant = new BasicParticipantData
+        // Arrange
+
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            NhsNumber = "1234567890"
-        }
-    };
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
 
-    // Act
-    await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
+        var participantJson = JsonSerializer.Serialize(basicParticipantCsvRecord);
+
+        // Simulate eligibleResponse with a non-OK status code
+        var eligibleResponse = new Mock<HttpWebResponse>();
+        eligibleResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+
+        _callFunctionMock.Setup(call => call.SendPost(
+                Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"),
+                It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(eligibleResponse.Object));
+
+                _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
+                .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+            _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
+                .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+            _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
+                .Returns(Task.FromResult<Demographic>(new Demographic()));
+
+            _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+                JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+                {
+                    IsFatal = false,
+                    CreatedException = false
+                })));
 
 
-    //Assert
-    _callFunctionMock.Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(errorResponse.Object)); // Return error response
+        // Mock the exception handling
+        _handleException.Setup(x => x.CreateSystemExceptionLog(
+                It.Is<Exception>(e => e.Message.Contains("There was an error while marking participant as eligible")),
+                It.IsAny<Participant>(),
+                It.IsAny<string>()))
+            .Returns(Task.CompletedTask)
+            .Verifiable();
 
-}
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object,
+            _callFunctionMock.Object,
+            _createResponse.Object,
+            _checkDemographic.Object,
+            _createParticipant,
+            _handleException.Object,
+            _cohortDistributionHandler.Object);
+
+
+
+        // Act
+        await sut.Run(participantJson);
+
+
+        //Assert
+        _callFunctionMock.Verify(call => call.SendPost(
+            Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"),
+            It.IsAny<string>()), Times.Once);
+
+    }
     [TestMethod]
     public async Task Run_Should_Call_Create_Cohort_EndPoint_Success()
     {
@@ -340,59 +358,7 @@ public async Task Run_ParticipantEligibilityFailure_LogsException()
     }
 
     [TestMethod]
-public async Task Run_CohortDistributionFails_LogError()
-{
-    // Arrange
-    _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-    _webResponse.Setup(x => x.StatusCode)
-        .Returns(HttpStatusCode.Created);
-
-    // Simulate cohort distribution failure
-    _sendToCohortDistributionResponse.Setup(x => x.StatusCode)
-        .Returns(HttpStatusCode.BadRequest); // Mocking failure
-
-    _callFunctionMock.Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-    _checkDemographic.Setup(x => x.GetDemographicAsync("DemographicURIGet", It.IsAny<string>()))
-        .Returns(Task.FromResult<Demographic>(new Demographic()))
-        .Verifiable();
-
-    _handleException.Setup(x => x.CreateSystemExceptionLog(
-        It.IsAny<Exception>(),
-        It.IsAny<Participant>(),
-        It.IsAny<string>()))
-        .Returns(Task.CompletedTask); // Mock exception handler
-
-    var sut = new AddParticipantFunction(
-        _loggerMock.Object,
-        _callFunctionMock.Object,
-        _createResponse.Object,
-        _checkDemographic.Object,
-        _createParticipant,
-        _handleException.Object,
-         _cohortDistributionHandler.Object);
-
-    // Act
-    var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-    {
-        FileName = "ExampleFileName.CSV",
-        Participant = new BasicParticipantData
-        {
-            NhsNumber = "1234567890"
-        }
-    };
-    await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
-
-      // Assert
-    _cohortDistributionHandler.Setup(handler => handler.SendToCohortDistributionService(
-        It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),  It.IsAny<Model.Participant>()))
-        .ReturnsAsync(false); // Simulate cohort distribution failure
-
-}
-    [TestMethod]
-    public async Task Run_Should_Call_Create_Cohort_EndPoint_Failure()
+    public async Task Run_CohortDistribution_EndPointFailure()
     {
         // Arrange
         _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
