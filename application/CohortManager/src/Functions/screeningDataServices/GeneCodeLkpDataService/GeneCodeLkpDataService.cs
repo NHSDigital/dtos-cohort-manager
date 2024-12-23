@@ -1,4 +1,6 @@
-namespace LanguageCodesDataService;
+/// <summary>Data service for the GENE_CODE_LKP table.</summary>
+
+namespace NHS.CohortManager.ScreeningDataServices;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
