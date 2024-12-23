@@ -2,7 +2,7 @@
 /// Checks if a participant exists in the participant management table.
 /// </summary>
 /// <param name="participant">BasicParticipantData containing an NHS number & screening ID.</param>
-/// <returns>HttpResponseData: 200 if the participant exists, or 404 with an error response if it doesn't.
+/// <returns>HttpResponseData: 200 if the participant exists, or 404 with an error response if it doesn't.</returns>
 
 namespace NHS.CohortManager.ParticipantManagementService;
 
@@ -31,7 +31,7 @@ public class CheckParticipantExists
     }
 
     [Function(nameof(CheckParticipantExists))]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         long nhsNumber, screeningId;
         try
@@ -41,12 +41,12 @@ public class CheckParticipantExists
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError("{DateTime}: Request is missing required paramaters: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("{DateTime}: Request is missing required parameters: {Ex}", DateTime.UtcNow, ex);
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Request is missing required paramaters");
         }
         catch (Exception ex)
         {
-            _logger.LogError("{DateTime}: Request could not be desiralised: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("{DateTime}: Request could not be deserialised: {Ex}", DateTime.UtcNow, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         try 

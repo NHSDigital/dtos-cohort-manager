@@ -170,6 +170,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{55EA363F-FCE2-4EA2-8CEF-02996B45C2B6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExists", "ParticipantManagementServices\CheckParticipantExists\CheckParticipantExists.csproj", "{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -196,8 +198,21 @@ Global
 		{55EA363F-FCE2-4EA2-8CEF-02996B45C2B6}.Release|x64.Build.0 = Release|Any CPU
 		{55EA363F-FCE2-4EA2-8CEF-02996B45C2B6}.Release|x86.ActiveCfg = Release|Any CPU
 		{55EA363F-FCE2-4EA2-8CEF-02996B45C2B6}.Release|x86.Build.0 = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|x64.Build.0 = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Debug|x86.Build.0 = Debug|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|Any CPU.Build.0 = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|x64.ActiveCfg = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|x64.Build.0 = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|x86.ActiveCfg = Release|Any CPU
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{55EA363F-FCE2-4EA2-8CEF-02996B45C2B6} = {B29CA7B0-B5B8-46BF-98EC-8AF3225A5317}
+		{033D3F4B-81E6-45DF-B457-F8A7C9BDFA23} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
 	EndGlobalSection
 EndGlobal

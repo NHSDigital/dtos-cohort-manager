@@ -12,6 +12,7 @@ using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Linq.Expressions;
 using System.Collections.Specialized;
+using Grpc.Core;
 
 [TestClass]
 public class CheckParticipantExistsTests
@@ -90,5 +91,49 @@ public class CheckParticipantExistsTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantNotFound_ReturnNotFound()
+    {
+        // Arrange
+        var request = _setupRequest.Setup("");
+        var queryParams = new NameValueCollection
+        {
+            { "NhsNumber", "1234567890"},
+            { "ScreeningId", "1"}
+        };
+
+        request.Setup(r => r.Query).Returns(queryParams);
+        _dataServiceMock.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+                        .ReturnsAsync(new List<ParticipantManagement>());
+
+        // Act
+        var response = await _sut.Run(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ExceptionThrown_ReturnInternalServerError()
+    {
+        // Arrange
+        var request = _setupRequest.Setup("");
+        var queryParams = new NameValueCollection
+        {
+            { "NhsNumber", "1234567890"},
+            { "ScreeningId", "1"}
+        };
+
+        request.Setup(r => r.Query).Returns(queryParams);
+        _dataServiceMock.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+                        .Throws(new Exception());
+
+        // Act
+        var response = await _sut.Run(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 }
