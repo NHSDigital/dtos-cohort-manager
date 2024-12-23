@@ -243,7 +243,7 @@ public async Task Run_FailedParticipantCreation_LogError()
             ));
     }
     [TestMethod]
-public async Task Run_ParticipantEligibility_Failure()
+public async Task Run_ParticipantEligibilityFailure_LogError()
 {
     // Arrange
     var errorResponse = new Mock<HttpWebResponse>();
