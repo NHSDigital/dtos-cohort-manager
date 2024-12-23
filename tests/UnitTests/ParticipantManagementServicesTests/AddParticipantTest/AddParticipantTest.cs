@@ -243,7 +243,7 @@ public async Task Run_FailedParticipantCreation_LogError()
             ));
     }
     [TestMethod]
-    public async Task Run_ParticipantEligibilityFailure_LogsException()
+    public async Task Run_ParticipantEligibilityFailure()
     {
         // Arrange
 
