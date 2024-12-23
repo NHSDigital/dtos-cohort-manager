@@ -42,7 +42,7 @@ public class CheckParticipantExists
         catch (ArgumentNullException ex)
         {
             _logger.LogError("{DateTime}: Request is missing required parameters: {Ex}", DateTime.UtcNow, ex);
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Request is missing required paramaters");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Request is missing required parameters");
         }
         catch (Exception ex)
         {
