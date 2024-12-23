@@ -28,6 +28,13 @@ public class DemographicDataFunction
         return await Main(req, false);
     }
 
+
+    /// <summary>
+    /// Gets filtered demographic data from the demographic data service,
+    /// this endpoint is used by the external BI product
+    /// </summary>
+    /// <param name="Id">The NHS number to get the demographic data for.</param>
+    /// <returns>JSON response containing the Primary Care Provider & Preferred Language</returns>
     [Function("DemographicDataFunctionExternal")]
     public async Task<HttpResponseData> RunExternal([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
