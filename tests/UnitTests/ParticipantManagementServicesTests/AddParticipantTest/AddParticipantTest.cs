@@ -22,12 +22,9 @@ public class AddNewParticipantTest
     private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly CreateParticipant _createParticipant = new();
-    // private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly SetupRequest _setupRequest = new();
-
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
-
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new Mock<ICohortDistributionHandler>();
     private Mock<HttpRequestData> _request;
 
@@ -55,8 +52,6 @@ public class AddNewParticipantTest
 
         var json = JsonSerializer.Serialize(participantCsvRecord);
         _request = _setupRequest.Setup(json);
-
-        // _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _azureQueueStorageHelper.Object);
 
         _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_sendToCohortDistributionResponse.Object));
@@ -509,5 +504,4 @@ public async Task Run_FailedParticipantCreation_LogError()
         // Assert
         _callFunctionMock.Verify(call => call.SendPost("DSaddParticipant", It.IsAny<string>()), Times.Once());
     }
-
 }
