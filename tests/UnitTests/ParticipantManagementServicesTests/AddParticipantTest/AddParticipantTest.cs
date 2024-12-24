@@ -243,7 +243,7 @@ public async Task Run_FailedParticipantCreation_LogError()
             ));
     }
     [TestMethod]
-    public async Task Run_ParticipantEligibilityFailure()
+    public async Task Run_MarkAsEligibleFails_ThrowException()
     {
         // Arrange
 
@@ -286,13 +286,12 @@ public async Task Run_FailedParticipantCreation_LogError()
                 })));
 
 
-        // Mock the exception handling
+                // Mock the exception handling
         _handleException.Setup(x => x.CreateSystemExceptionLog(
-                It.Is<Exception>(e => e.Message.Contains("There was an error while marking participant as eligible")),
-                It.IsAny<Participant>(),
-                It.IsAny<string>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
+            It.IsAny<Exception>(),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()
+        )).Returns(Task.CompletedTask);
 
         var sut = new AddParticipantFunction(
             _loggerMock.Object,
@@ -310,9 +309,19 @@ public async Task Run_FailedParticipantCreation_LogError()
 
 
         //Assert
+        var invocations = _handleException.Invocations;
+
+        Assert.IsTrue(invocations.Any(i =>
+            i.Method.Name == "CreateSystemExceptionLog" &&
+            i.Arguments[0] is Exception ex &&
+            ex.Message.Contains("There was an error while marking participant as eligible")
+        ));
+
+
         _callFunctionMock.Verify(call => call.SendPost(
             Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"),
             It.IsAny<string>()), Times.Once);
+
 
     }
     [TestMethod]
