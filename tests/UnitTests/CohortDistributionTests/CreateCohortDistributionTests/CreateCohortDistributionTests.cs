@@ -45,7 +45,6 @@ public class CreateCohortDistributionTests
         {
             NhsNumber = "1234567890",
             ScreeningService = "BSS",
-
         };
 
         _function = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object, _exceptionHandler.Object, _participantManagerData.Object, _azureQueueStorageHelper.Object);
@@ -161,7 +160,6 @@ public class CreateCohortDistributionTests
         _cohortDistributionHelper.Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Throws(new Exception("some error"));
 
-
         // Assert
         try
         {
@@ -200,7 +198,7 @@ public class CreateCohortDistributionTests
             ExceptionFlag = "0",
         });
         _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
-        .Returns(Task.FromResult<CohortDistributionParticipant>(null)); // Explicitly setting the return type to Task<object>
+        .Returns(Task.FromResult<CohortDistributionParticipant>(null));
 
         // Act
         await _function.RunAsync(_requestBody);
@@ -318,7 +316,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ParticipantIsNull_HandlesErrorCorrectly()
+    public async Task RunAsync_ParticipantIsNull_CreatesSystemExceptionLog()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -343,7 +341,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ParticipantMissingPostcodeAndServiceProvider_HandlesErrorCorrectly()
+    public async Task RunAsync_ParticipantMissingPostcodeAndServiceProvider_CreatesSystemExceptionLog()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -372,7 +370,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ParticipantHasExceptionAndRetrieveEnvironmentalVariableAsBool_HandlesErrorCorrectly()
+    public async Task RunAsync_ParticipantHasExceptionAndRetrieveEnvironmentalVariableAsBool_CreatesSystemExceptionLog()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -387,12 +385,8 @@ public class CreateCohortDistributionTests
 
         var response = new Mock<HttpWebResponse>();
         response.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
-
         _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
-
         ParticipantException(true);
-                Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
-
 
         // Act
         await _function.RunAsync(_requestBody);
@@ -408,7 +402,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_WhenAddCohortDistributionFails_HandlesErrorCorrectly()
+    public async Task RunAsync_WhenAddCohortDistributionFails_CreatesRecordValidationExceptionLog()
     {
         // Arrange
         var response = new Mock<HttpWebResponse>();
@@ -431,12 +425,16 @@ public class CreateCohortDistributionTests
         // Assert
         _callFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _exceptionHandler.Verify(x => x.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
-            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Never);
     }
 
     [TestMethod]
-    public async Task RunAsync_WhenExceptionOccurs_LogsAndRethrowsException()
+    public async Task RunAsync_WhenExceptionOccurs_CreatesSystemExceptionLogFromNhsNumber()
     {
         // Arrange
         _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
@@ -478,8 +476,7 @@ public class CreateCohortDistributionTests
 
         _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
 
-            ParticipantException(false);
-
+        ParticipantException(false);
 
         // Act
         await _function.RunAsync(_requestBody);
@@ -495,32 +492,32 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableTrue_LogsAndHandlesError()
-{
-   // Arrange
-   var participant = new CohortDistributionParticipant
-   {
-       ScreeningServiceId = "test",
-       ParticipantId = "123",
-   };
+    public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableTrue_CreateSystemExceptionLog()
+    {
+        // Arrange
+        var participant = new CohortDistributionParticipant
+        {
+            ScreeningServiceId = "test",
+            ParticipantId = "123",
+        };
 
-   _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
-       .ReturnsAsync(participant);
+        _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+            .ReturnsAsync(participant);
 
-   Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "true");
-   ParticipantException(true);
+        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "true");
+        ParticipantException(true);
 
-   // Act
-   await _function.RunAsync(_requestBody);
+        // Act
+        await _function.RunAsync(_requestBody);
 
-   // Assert
-   _logger.Verify(x => x.Log(
-    LogLevel.Information,
-    It.IsAny<EventId>(),
-    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Unable to add to cohort distribution.")),
-    It.IsAny<Exception>(),
-    It.IsAny<Func<It.IsAnyType, Exception, string>>()));
-}
+        // Assert
+        _logger.Verify(x => x.Log(
+         LogLevel.Information,
+         It.IsAny<EventId>(),
+         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Unable to add to cohort distribution.")),
+         It.IsAny<Exception>(),
+         It.IsAny<Func<It.IsAnyType, Exception, string>>()));
+    }
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
