@@ -19,7 +19,12 @@ public class CreateCohortDistribution
     private readonly IParticipantManagerData _participantManagerData;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
 
-    public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger, ICallFunction callFunction, ICohortDistributionHelper CohortDistributionHelper, IExceptionHandler exceptionHandler, IParticipantManagerData participantManagerData, IAzureQueueStorageHelper azureQueueStorageHelper)
+    public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
+           ICallFunction callFunction,
+           ICohortDistributionHelper CohortDistributionHelper,
+           IExceptionHandler exceptionHandler,
+           IParticipantManagerData participantManagerData,
+           IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -72,8 +77,8 @@ public class CreateCohortDistribution
                 }
             }
 
-            var retrieveEnvironmentalVariableAsBool = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("IgnoreParticipantExceptions", DataTypes.Boolean);
-            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && retrieveEnvironmentalVariableAsBool) // Will only run if IgnoreParticipantExceptions is false.
+            var ignoreParticipantExceptions = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("IgnoreParticipantExceptions", DataTypes.Boolean);
+            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
                 var ParticipantExceptionErrorMessage = $"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it";
                 _logger.LogInformation(ParticipantExceptionErrorMessage, participantData.ParticipantId);
@@ -84,7 +89,7 @@ public class CreateCohortDistribution
             // Validate cohort distribution record & transform data service
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
-            if (!validationRecordCreated || retrieveEnvironmentalVariableAsBool)
+            if (!validationRecordCreated || ignoreParticipantExceptions)
             {
                 _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
                 var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
