@@ -124,7 +124,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed during TransformParticipant or AddCohortDistribution Function.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -173,7 +173,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed during TransformParticipant or AddCohortDistribution Function.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -228,7 +228,7 @@ public class CreateCohortDistributionTests
             ExceptionFlag = "0",
         });
         _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
-        .Returns(Task.FromResult(new CohortDistributionParticipant())); // Explicitly setting the return type to Task<object>
+        .Returns(Task.FromResult(new CohortDistributionParticipant()));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
             .Throws(new Exception("an error happened"));
@@ -246,7 +246,7 @@ public class CreateCohortDistributionTests
         // Assert
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed during TransformParticipant or AddCohortDistribution Function.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -271,7 +271,7 @@ public class CreateCohortDistributionTests
             ExceptionFlag = "0",
         });
         _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
-        .Returns(Task.FromResult(new CohortDistributionParticipant())); // Explicitly setting the return type to Task<object>
+        .Returns(Task.FromResult(new CohortDistributionParticipant()));
 
 
         _sendToCohortDistributionResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);

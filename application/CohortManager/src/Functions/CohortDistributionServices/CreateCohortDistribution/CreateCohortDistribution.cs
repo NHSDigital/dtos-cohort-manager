@@ -115,7 +115,8 @@ public class CreateCohortDistribution
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "One of the following functions failed - TransformParticipantAsync Or AddCohortDistribution.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            var errorMessage = $"Failed during TransformParticipant or AddCohortDistribution Function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            _logger.LogError(ex, errorMessage);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, "", JsonSerializer.Serialize(basicParticipantCsvRecord.ErrorRecord) ?? "N/A");
             throw;
         }
