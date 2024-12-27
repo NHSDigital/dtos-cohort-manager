@@ -190,19 +190,6 @@ public class ProcessCaasFile : IProcessCaasFile
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
-    private async Task CreateError(Participant participant, string filename, string errorMessage)
-    {
-        try
-        {
-            _logger.LogError(errorMessage);
-            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorMessage, "", JsonSerializer.Serialize(participant));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex ,"Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
-        }
-    }
 
     private bool ValidateDates(Participant participant)
     {

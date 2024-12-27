@@ -26,10 +26,7 @@ public class ReceiveCaasFileTests
     private readonly string _invalidCsvData;
     private string _expectedJson;
     private readonly string _blobName;
-    private readonly Mock<HttpWebResponse> _webResponse = new();
-
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
-
     private readonly Mock<IScreeningServiceData> _mockScreeningServiceData = new();
 
     public ReceiveCaasFileTests()
