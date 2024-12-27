@@ -23,23 +23,12 @@ public class ReceiveCaasFileTests
     private readonly ReceiveCaasFile _receiveCaasFileInstance;
     private readonly Participant _participant;
     private readonly ParticipantsParquetMap _participantsParquetMap;
-    private readonly Cohort _cohort;
-    private readonly string _validCsvData;
     private readonly string _invalidCsvData;
     private string _expectedJson;
     private readonly string _blobName;
     private readonly Mock<HttpWebResponse> _webResponse = new();
-    private readonly Mock<IScreeningServiceData> _screeningServiceData = new();
-
-    private readonly Mock<IExceptionHandler> _mockExceptionHandler = new();
 
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
-
-    private readonly Mock<ICreateBasicParticipantData> _mockCreateBasicParticipantData = new();
-
-    private readonly Mock<ICheckDemographic> _mockCheckDemographic = new();
-
-    private readonly Mock<IAddBatchToQueue> _mockAddBatchToQueue = new();
 
     private readonly Mock<IScreeningServiceData> _mockScreeningServiceData = new();
 
@@ -49,9 +38,11 @@ public class ReceiveCaasFileTests
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIFileReader = new Mock<IFileReader>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
+        Environment.SetEnvironmentVariable("BatchSize", "2000");
+
         _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningServiceData.Object);
-        _blobName = "20241008132843905009_F9B292_-_BSS_20241201121212_n1.parquet";
-        _expectedJson = "{\"Participants\":[{\"RecordType\":\"ADD\",\"ChangeTimeStamp\":\"20240524000000\",\"SerialChangeNumber\":\"1\",\"NhsNumber\":\"1111122202\",\"SupersededByNhsNumber\":\"\",\"PrimaryCareProvider\":\"E85121\",\"PrimaryCareProviderEffectiveFromDate\":\"20030319\",\"CurrentPosting\":\"BD\",\"CurrentPostingEffectiveFromDate\":\"20130419\",\"NamePrefix\":\"Miss\",\"FirstName\":\"John\",\"OtherGivenNames\":\"Reymond\",\"FamilyName\":\"Regans\",\"PreviousFamilyName\":\"\",\"DateOfBirth\":\"19600112\",\"Gender\":1,\"AddressLine1\":\"25 Ring Road\",\"AddressLine2\":\"Eastend\",\"AddressLine3\":\"\",\"AddressLine4\":\"Ashford\",\"AddressLine5\":\"United Kingdom\",\"Postcode\":\"AB43 8JR\",\"PafKey\":\"Z3S4Q5X8\",\"UsualAddressEffectiveFromDate\":\"20031118\",\"ReasonForRemoval\":\"\",\"ReasonForRemovalEffectiveFromDate\":\"\",\"DateOfDeath\":\"\",\"DeathStatus\":null,\"TelephoneNumber\":\"1619999998\",\"TelephoneNumberEffectiveFromDate\":\"20200819\",\"MobileNumber\":\"7888888889\",\"MobileNumberEffectiveFromDate\":\"20240502\",\"EmailAddress\":null,\"EmailAddressEffectiveFromDate\":null,\"PreferredLanguage\":null,\"IsInterpreterRequired\":\"1\",\"InvalidFlag\":\"0\",\"ParticipantId\":null,\"ScreeningId\":null,\"BusinessRuleVersion\":null,\"ExceptionFlag\":null,\"RecordInsertDateTime\":null,\"RecordUpdateDateTime\":null,\"ScreeningAcronym\":null,\"ScreeningName\":null,\"EligibilityFlag\":null}],\"FileName\":\"20241008132843905009_F9B292_-_BSS_20240718150245_n3.parquet\"}";
+        _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
+        _expectedJson = "{\"Participants\":[{\"record_type\":\"ADD\",\"change_time_stamp\":20240524000000,\"serial_change_number\":1,\"nhs_number\":3112728165,\"superseded_by_nhs_number\":null,\"primary_care_provider\":\"G82650\",\"primary_care_effective_from_date\":\"201304\",\"current_posting\":\"BAA\",\"current_posting_effective_from_date\":\"201304\",\"name_prefix\":\"Mrs\",\"given_name\":\"Herb\",\"other_given_name\":\"Bernard\",\"family_name\":\"Houlaghan\",\"previous_family_name\":\"bob\",\"date_of_birth\":\"19600111\",\"gender\":1,\"address_line_1\":\"257 Spaight Road\",\"address_line_2\":\"Eastbourne\",\"address_line_3\":\"\",\"address_line_4\":\"Chelmsford\",\"address_line_5\":\"United Kingdom\",\"postcode\":\"AB43 8FJ\",\"paf_key\":\"Z3S4Q5X9\",\"address_effective_from_date\":\"20031119\",\"reason_for_removal\":\"\",\"reason_for_removal_effective_from_date\":\"201304\",\"date_of_death\":\"\",\"death_status\":1,\"home_telephone_number\":\"01619999999\",\"home_telephone_effective_from_date\":\"20200818\",\"mobile_telephone_number\":\"07888888888\",\"mobile_telephone_effective_from_date\":\"20240501\",\"email_address\":\"\",\"email_address_effective_from_date\":\"\",\"preferred_language\":\"\",\"is_interpreter_required\":false,\"invalid_flag\":false,\"eligibility\":true}],\"FileName\":\"add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet\"}";
         _invalidCsvData = "invalid data";
         _participant = new Participant()
         {
@@ -75,124 +66,144 @@ public class ReceiveCaasFileTests
         // Arrange
 
         await using var fileSteam = File.OpenRead(_blobName);
+        var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
+        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(It.IsAny<string>(), It.IsAny<FileNameParser>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(true));
+
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-        _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _blobName)).Returns(Task.FromResult(true));
+        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(new ScreeningService()
+        {
+            ScreeningId = "1",
+            ScreeningName = "test screening name",
+        });
 
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
-
-        // Act
-        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
-
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
         _mockICallFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
-    }
 
-    [TestMethod]
-    public async Task Run_SuccessfulParseWithInvalidInput_FailsAndLogsError()
-    {
-        // Arrange
-        var _invalidfile = "BSS_20241201121212_n30.parquet";
-        await using var fileSteam = File.OpenRead(_blobName);
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-        _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _invalidfile)).Returns(Task.FromResult(true));
-
-        _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(It.IsAny<Participant?>()));
-        //_mockProcessCaasFile.Setup(x => x.ProcessRecordAsync())
-        // Act
-        await _receiveCaasFileInstance.Run(fileSteam, _invalidfile);
-
-        // Assert
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Invalid data in the file: BSS_20241201121212_n30.parquet")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Never);
-
-
-        _mockICallFunction.Verify(
-            x => x.SendPost(It.IsAny<string>(),
-                It.Is<string>(json => json == _expectedJson)),
-            Times.Never);
-
-        _mockICallFunction.Verify(
-            x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-                It.IsAny<string>()),
-            Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Run_InvalidFileExtension_LogsValidationErrorAndReturns()
-    {
-        // Arrange
-        var fileName = "Test.PDF";
-        Environment.SetEnvironmentVariable("FileValidationURL", "FileValidationURL");
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("FileValidationURL")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        await using var fileSteam = File.OpenRead(_blobName);
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-        _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, fileName)).Returns(Task.FromResult(false));
-
-        // Act & Assert
-        await _receiveCaasFileInstance.Run(fileSteam, fileName);
-
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name is invalid.")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"All rows processed for file named {_blobName}.")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
 
-        _mockICallFunction.Verify(
-            x => x.SendPost(It.Is<string>(url => url == "FileValidationURL"),
-                It.IsAny<string>()),
-            Times.Never);
-
-        _mockICallFunction.Verify(
-            x => x.SendPost(It.IsAny<string>(),
-                It.Is<string>(json => json == _expectedJson)),
-            Times.Never);
+        Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
     }
 
     [TestMethod]
-    public async Task Run_ValidFileNameRecordCount_CompletesAsExpected()
+    [DataRow("F9B292BSS_20241201121212_n1.parquet")]
+    public async Task Run_FileNameIsIncorrect_LogFileNameIsInvalid(string blobName)
+    {
+
+        await using var fileSteam = File.OpenRead(_blobName);
+        var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
+
+        // Act
+        await _receiveCaasFileInstance.Run(fileSteam, blobName);
+
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+                 It.IsAny<EventId>(),
+                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name is invalid.")),
+                 It.IsAny<Exception>(),
+                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+             Times.Once);
+
+        Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
+
+    }
+
+    [TestMethod]
+    public async Task Run_fileNameChecksTrowsError_ErrorIsThrown()
+    {
+
+        await using var fileSteam = File.OpenRead(_blobName);
+        var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
+
+        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
+        .Throws(new Exception("there was a problem checking file name"));
+        // Act
+        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
+
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+                 It.IsAny<EventId>(),
+                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Stack Trace:")),
+                 It.IsAny<Exception>(),
+                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+             Times.Once);
+
+        Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
+    }
+
+    [TestMethod]
+    [DataRow("", "")]
+    [DataRow(" ", " ")]
+    [DataRow(null, null)]
+    public async Task Run_cannotGetScreeningId_LogsError(string screeningId, string screeningName)
     {
         // Arrange
 
-        Environment.SetEnvironmentVariable("targetFunction", "targetFunction");
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _mockICallFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("targetFunction")), It.IsAny<string>()))
-                            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
         await using var fileSteam = File.OpenRead(_blobName);
+
+        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
+        .Returns(Task.FromResult(true));
+
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _screeningServiceData.Setup(x => x.GetScreeningServiceByAcronym(It.IsAny<string>())).Returns(new ScreeningService());
-        _mockIReceiveCaasFileHelper.Setup(x => x.InitialChecks(fileSteam, _blobName)).Returns(Task.FromResult(true));
+        var screeningService = new ScreeningService();
+
+        screeningService.ScreeningId = screeningId;
+        screeningService.ScreeningName = screeningName;
+
+        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(screeningService);
+
+        // Act
+        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
+
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("the Screening id or screening name was null or empty")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+        Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_ProcessesChunksInParallel()
+    {
+        // Arrange
+        await using var fileSteam = File.OpenRead(_blobName);
+        var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
+        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(It.IsAny<string>(), It.IsAny<FileNameParser>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(true));
+
+        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
+        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(new ScreeningService()
+        {
+            ScreeningId = "1",
+            ScreeningName = "test screening name",
+        });
 
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
+
+        var batchSize = 1;
+        Environment.SetEnvironmentVariable("BatchSize", batchSize.ToString());
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         // Assert
-        _mockICallFunction.Verify(
-            x => x.SendPost(It.IsAny<string>(),
-            It.Is<string>(json => json == _expectedJson)),
-            Times.Never);
+        _mockProcessCaasFile.Verify(x => x.ProcessRecords(It.Is<List<ParticipantsParquetMap>>(list => list.Count == batchSize), It.IsAny<ParallelOptions>(), It.IsAny<ScreeningService>(), _blobName), Times.Exactly(1));
+
+         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"All rows processed for file named {_blobName}.")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+
+        Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
     }
 }
