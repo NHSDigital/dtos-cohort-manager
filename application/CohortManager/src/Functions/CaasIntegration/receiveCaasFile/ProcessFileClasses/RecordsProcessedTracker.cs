@@ -32,6 +32,7 @@ public class RecordsProcessedTracker
         {
             return HashCode.Combine(RecordType, NHSId);
         }
+        
         public override bool Equals(object obj)
         {
             return obj is ParticipantRecord other && Equals(other);

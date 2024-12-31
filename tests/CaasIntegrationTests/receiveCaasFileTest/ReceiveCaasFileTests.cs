@@ -18,13 +18,10 @@ public class ReceiveCaasFileTests
 {
     private readonly Mock<ILogger<ReceiveCaasFile>> _mockLogger;
     private readonly Mock<ICallFunction> _mockICallFunction;
-    private readonly Mock<IFileReader> _mockIFileReader;
     private readonly Mock<IReceiveCaasFileHelper> _mockIReceiveCaasFileHelper;
     private readonly ReceiveCaasFile _receiveCaasFileInstance;
     private readonly Participant _participant;
     private readonly ParticipantsParquetMap _participantsParquetMap;
-    private readonly string _invalidCsvData;
-    private string _expectedJson;
     private readonly string _blobName;
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
     private readonly Mock<IScreeningServiceData> _mockScreeningServiceData = new();
@@ -33,14 +30,12 @@ public class ReceiveCaasFileTests
     {
         _mockLogger = new Mock<ILogger<ReceiveCaasFile>>();
         _mockICallFunction = new Mock<ICallFunction>();
-        _mockIFileReader = new Mock<IFileReader>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
         Environment.SetEnvironmentVariable("BatchSize", "2000");
 
         _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningServiceData.Object);
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
-        _expectedJson = "{\"Participants\":[{\"record_type\":\"ADD\",\"change_time_stamp\":20240524000000,\"serial_change_number\":1,\"nhs_number\":3112728165,\"superseded_by_nhs_number\":null,\"primary_care_provider\":\"G82650\",\"primary_care_effective_from_date\":\"201304\",\"current_posting\":\"BAA\",\"current_posting_effective_from_date\":\"201304\",\"name_prefix\":\"Mrs\",\"given_name\":\"Herb\",\"other_given_name\":\"Bernard\",\"family_name\":\"Houlaghan\",\"previous_family_name\":\"bob\",\"date_of_birth\":\"19600111\",\"gender\":1,\"address_line_1\":\"257 Spaight Road\",\"address_line_2\":\"Eastbourne\",\"address_line_3\":\"\",\"address_line_4\":\"Chelmsford\",\"address_line_5\":\"United Kingdom\",\"postcode\":\"AB43 8FJ\",\"paf_key\":\"Z3S4Q5X9\",\"address_effective_from_date\":\"20031119\",\"reason_for_removal\":\"\",\"reason_for_removal_effective_from_date\":\"201304\",\"date_of_death\":\"\",\"death_status\":1,\"home_telephone_number\":\"01619999999\",\"home_telephone_effective_from_date\":\"20200818\",\"mobile_telephone_number\":\"07888888888\",\"mobile_telephone_effective_from_date\":\"20240501\",\"email_address\":\"\",\"email_address_effective_from_date\":\"\",\"preferred_language\":\"\",\"is_interpreter_required\":false,\"invalid_flag\":false,\"eligibility\":true}],\"FileName\":\"add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet\"}";
-        _invalidCsvData = "invalid data";
+
         _participant = new Participant()
         {
             FirstName = "John",
@@ -194,12 +189,12 @@ public class ReceiveCaasFileTests
         // Assert
         _mockProcessCaasFile.Verify(x => x.ProcessRecords(It.Is<List<ParticipantsParquetMap>>(list => list.Count == batchSize), It.IsAny<ParallelOptions>(), It.IsAny<ScreeningService>(), _blobName), Times.Exactly(1));
 
-         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"All rows processed for file named {_blobName}.")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"All rows processed for file named {_blobName}.")),
+               It.IsAny<Exception>(),
+               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+           Times.Once);
 
         Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
     }
