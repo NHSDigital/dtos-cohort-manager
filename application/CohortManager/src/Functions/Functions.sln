@@ -168,6 +168,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCaasFileTests", "..\..\..\..\tests\CaasIntegrationTests\processCaasFileTest\ProcessCaasFileTests.csproj", "{FE9773EF-DFB8-4308-869B-EABD0776C828}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{2AC4643E-35A5-4BC1-BDF9-2377E9748316}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -410,6 +412,14 @@ Global
 		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
