@@ -26,7 +26,7 @@ public class AllocateServiceProviderToParticipantByService
     {
         // Currently using AllocationConfigRequest Object to deserialize and validate the incoming JSON data
         string requestBody = "";
-        AllocationConfigRequestBody configRequest = null;
+        AllocationConfigRequestBody configRequest = new AllocationConfigRequestBody();
         _logger.LogInformation("AllocateServiceProviderToParticipantByService is called...");
 
         try
