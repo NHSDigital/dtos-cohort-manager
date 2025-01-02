@@ -74,6 +74,9 @@ public class LookupValidation
                 CustomTypes = [typeof(Actions)]
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+
+
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -84,6 +87,7 @@ public class LookupValidation
 
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
+                _logger.LogInformation($"Executing workflow {newParticipant.RecordType}");
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
             }
@@ -93,6 +97,8 @@ public class LookupValidation
 
             if (validationErrors.Any())
             {
+
+                _logger.LogInformation("There was an error in the Validation Rules");
                 var participantCsvRecord = new ParticipantCsvRecord()
                 {
                     Participant = newParticipant,
