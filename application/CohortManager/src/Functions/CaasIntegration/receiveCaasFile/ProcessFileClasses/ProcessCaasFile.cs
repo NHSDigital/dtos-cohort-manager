@@ -75,7 +75,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 return; // Skip current participant
             }
 
-            if (!_recordsProcessTracker.RecordNotAlreadyProcessed(participant.RecordType, participant.NhsNumber))
+            if (!_recordsProcessTracker.RecordAlreadyProcessed(participant.RecordType, participant.NhsNumber))
             {
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
                 return; // Skip current participant

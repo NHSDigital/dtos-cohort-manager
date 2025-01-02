@@ -12,27 +12,27 @@ public class RecordsProcessedTrackerTests
 {
 
     [TestMethod]
-    public void RecordNotAlreadyProcessed_ShouldReturnTrue_ForNewRecord()
+    public void RecordAlreadyProcessed_ShouldReturnTrue_True()
     {
         // Arrange
         var tracker = new RecordsProcessedTracker();
 
         // Act
-        var result = tracker.RecordNotAlreadyProcessed("Type1", "12345");
+        var result = tracker.RecordAlreadyProcessed("Type1", "12345");
 
         // Assert
         Assert.IsTrue(result, "A new record should return true when checked.");
     }
 
     [TestMethod]
-    public void RecordNotAlreadyProcessed_ShouldReturnFalse_ForDuplicateRecord()
+    public void RecordAlreadyProcessed_ShouldReturnFalse_False()
     {
         // Arrange
         var tracker = new RecordsProcessedTracker();
 
         // Act
-        var firstResult = tracker.RecordNotAlreadyProcessed("Type1", "12345");
-        var secondResult = tracker.RecordNotAlreadyProcessed("Type1", "12345");
+        var firstResult = tracker.RecordAlreadyProcessed("Type1", "12345");
+        var secondResult = tracker.RecordAlreadyProcessed("Type1", "12345");
 
         // Assert
         Assert.IsTrue(firstResult, "The first check should return true.");
@@ -40,14 +40,14 @@ public class RecordsProcessedTrackerTests
     }
 
     [TestMethod]
-    public void RecordNotAlreadyProcessed_ShouldDifferentiateRecordsByType()
+    public void RecordAlreadyProcessed_ShouldDifferentiateRecordsByType_True()
     {
         // Arrange
         var tracker = new RecordsProcessedTracker();
 
         // Act
-        var firstResult = tracker.RecordNotAlreadyProcessed("Type1", "12345");
-        var secondResult = tracker.RecordNotAlreadyProcessed("Type2", "12345");
+        var firstResult = tracker.RecordAlreadyProcessed("Type1", "12345");
+        var secondResult = tracker.RecordAlreadyProcessed("Type2", "12345");
 
         // Assert
         Assert.IsTrue(firstResult, "The first record should return true.");
@@ -55,14 +55,14 @@ public class RecordsProcessedTrackerTests
     }
 
     [TestMethod]
-    public void RecordNotAlreadyProcessed_ShouldDifferentiateRecordsByNHSId()
+    public void RecordAlreadyProcessed_ShouldDifferentiateRecordsByNHSId_True()
     {
         // Arrange
         var tracker = new RecordsProcessedTracker();
 
         // Act
-        var firstResult = tracker.RecordNotAlreadyProcessed("Type1", "12345");
-        var secondResult = tracker.RecordNotAlreadyProcessed("Type1", "67890");
+        var firstResult = tracker.RecordAlreadyProcessed("Type1", "12345");
+        var secondResult = tracker.RecordAlreadyProcessed("Type1", "67890");
 
         // Assert
         Assert.IsTrue(firstResult, "The first record should return true.");
