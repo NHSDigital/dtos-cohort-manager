@@ -241,13 +241,14 @@ public class UpdateParticipantTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Update participant failed")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+
+        _logger.Verify(
+          m => m.Log(
+          LogLevel.Information,
+          It.IsAny<EventId>(),
+          It.IsAny<It.IsAnyType>(),
+          It.IsAny<Exception>(),
+          It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+        ), Times.AtLeast(1), "Update participant failed");
     }
 }

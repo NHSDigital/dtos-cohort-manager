@@ -43,7 +43,7 @@ public class ValidateCohortDistributionRecord
             string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                requestBodyJson = await reader.ReadToEndAsync();
             }
 
             requestBody = JsonSerializer.Deserialize<ValidateCohortDistributionRecordBody>(requestBodyJson);
@@ -51,7 +51,7 @@ public class ValidateCohortDistributionRecord
         catch (Exception ex)
         {
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
-            _logger.LogError($"there was an error while deserializing records");
+            _logger.LogError(ex, "there was an error while deserializing records");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
@@ -71,7 +71,7 @@ public class ValidateCohortDistributionRecord
         catch (Exception ex)
         {
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, requestBody.FileName, "", JsonSerializer.Serialize(requestBody.CohortDistributionParticipant));
-            _logger.LogError($"there was an error validating the cohort distribution records {ex.Message}");
+            _logger.LogError(ex, "There was an error validating the cohort distribution records {Message}", ex.Message);
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
     }
