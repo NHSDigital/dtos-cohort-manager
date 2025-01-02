@@ -56,7 +56,7 @@ public class DurableDemographicFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "inserting demographic data failed");
+            _logger.LogError(ex, "Inserting demographic data failed");
             return false;
         }
     }
@@ -75,9 +75,8 @@ public class DurableDemographicFunction
             {
                 requestBody = await reader.ReadToEndAsync();
             }
-
             var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-                nameof(DurableDemographicFunction), requestBody);
+                nameof(DurableDemographicFunction), requestBody, CancellationToken.None);
 
             _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
 

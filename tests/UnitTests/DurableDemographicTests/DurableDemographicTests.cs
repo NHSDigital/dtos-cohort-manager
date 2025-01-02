@@ -13,6 +13,11 @@ using DataServices.Client;
 using System.Collections.Generic;
 using System.Text.Json;
 using Common;
+using System.Net;
+using Microsoft.DurableTask.Client;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using Microsoft.Extensions.DependencyInjection;
 
 [TestClass]
 public class DurableDemographicTests
@@ -25,10 +30,28 @@ public class DurableDemographicTests
 
     private readonly Mock<ICreateResponse> _createResponse = new();
 
+    private readonly ServiceCollection _serviceCollection = new();
+
+    private readonly ServiceProvider serviceProvider;
+
+    private Mock<HttpRequestData> mockHttpRequest;
+
+    private readonly Mock<FunctionContext> mockFunctionContext;
+
+
     public DurableDemographicTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
         _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+
+        serviceProvider = _serviceCollection.BuildServiceProvider();
+
+        mockFunctionContext = CreateMockFunctionContext();
+
+        //mockHttpRequest = new Mock<HttpRequestData>(mockFunctionContext.Object);
+
+        mockFunctionContext.SetupProperty(c => c.InstanceServices, serviceProvider);
+
     }
 
 
@@ -69,29 +92,95 @@ public class DurableDemographicTests
         _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>())).ReturnsAsync(true);
 
         // Act
-        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext());
+        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
 
         // Assert
         Assert.IsTrue(result);
     }
 
-    private static HttpRequestData CreateHttpRequest(string body)
+
+    [TestMethod]
+    public async Task InsertDemographicData_Should_Return_True_When_Data_Is_Inserted_unsuccessfully()
     {
-        var context = new Mock<FunctionContext>();
-        var request = new Mock<HttpRequestData>(context.Object);
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(body));
-        request.Setup(req => req.Body).Returns(stream);
-        request.Setup(req => req.CreateResponse()).Returns(new Mock<HttpResponseData>(context.Object).Object);
-        return request.Object;
+        // Arrange
+        var Participants = new List<ParticipantDemographic>();
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var mockLogger = new Mock<ILogger>();
+
+        var demographicJsonData = JsonSerializer.Serialize(Participants);
+        _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>()))
+            .ThrowsAsync(new Exception("some new exception"));
+
+        // Act
+        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
+
+        // Assert
+        Assert.IsFalse(result);
+
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Inserting demographic data failed")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
     }
 
     [TestMethod]
-    private static FunctionContext CreateMockFunctionContext()
+    public async Task HttpStart_returns_null()
+    {
+        // Define constants
+        const string functionName = "DurableDemographicFunction";
+        const string instanceId = "7E467BDB-213F-407A-B86A-1954053D3C24";
+
+        var loggerMock = new Mock<ILogger>();
+        var clientMock = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
+
+        var json = JsonSerializer.Serialize(new BasicParticipantCsvRecord());
+
+        var HttpRequestData = SetupRequest(json);
+
+        // Mock StartNewAsync method
+        clientMock.
+            Setup(x => x.ScheduleNewOrchestrationInstanceAsync(functionName, It.IsAny<string>(), CancellationToken.None)).
+            ReturnsAsync(instanceId);
+
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+
+        // Call Orchestration trigger function
+        var result = await function.HttpStart(
+            mockHttpRequest.Object,
+            clientMock.Object,
+            mockFunctionContext.Object);
+
+        Assert.IsNull(result);
+    }
+
+    public Mock<HttpRequestData> SetupRequest(string json)
+    {
+        var byteArray = Encoding.ASCII.GetBytes(json);
+        var bodyStream = new MemoryStream(byteArray);
+
+        mockHttpRequest = new Mock<HttpRequestData>(mockFunctionContext.Object);
+        mockHttpRequest.Setup(s => s.Body).Returns(bodyStream);
+        mockHttpRequest.Setup(s => s.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(mockFunctionContext.Object);
+            response.SetupProperty(s => s.Headers, new HttpHeadersCollection());
+            response.SetupProperty(s => s.StatusCode, HttpStatusCode.Accepted);
+            response.SetupProperty(s => s.Body, new MemoryStream());
+            return response.Object;
+        });
+
+        return mockHttpRequest;
+    }
+
+    private static Mock<FunctionContext> CreateMockFunctionContext()
     {
         var context = new Mock<FunctionContext>();
         // var loggerMock = new Mock<ILogger>();
-        return context.Object;
+        return context;
     }
+
 }
 
 
