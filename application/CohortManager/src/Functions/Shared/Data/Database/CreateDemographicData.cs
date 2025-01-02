@@ -141,7 +141,7 @@ public class CreateDemographicData : ICreateDemographicData
                     {"@EMAIL_ADDRESS_HOME_FROM_DT", _databaseHelper.ConvertNullToDbNull(demographic.EmailAddressEffectiveFromDate)},
                     {"@PREFERRED_LANGUAGE", _databaseHelper.ConvertNullToDbNull(demographic.PreferredLanguage)},
                     {"@INTERPRETER_REQUIRED", _databaseHelper.ConvertNullToDbNull(demographic.IsInterpreterRequired)},
-                    {"@INVALID_FLAG", _databaseHelper.ConvertBoolStringToInt(demographic.InvalidFlag)},
+                    {"@INVALID_FLAG", DatabaseHelper.ConvertBoolStringToBoolByType(demographic.InvalidFlag, DataTypes.Integer)},
                     {"@RECORD_INSERT_DATETIME", DateTime.Now},
                     {"@RECORD_UPDATE_DATETIME", DBNull.Value}
                 },
