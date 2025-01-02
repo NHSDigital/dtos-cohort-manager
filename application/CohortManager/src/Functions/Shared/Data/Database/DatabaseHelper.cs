@@ -28,7 +28,7 @@ public class DatabaseHelper : IDatabaseHelper
     {
         if (string.IsNullOrEmpty(dateString)) return DBNull.Value;
 
-        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ"];
+        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "MM/dd/yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ"];
         bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
 
         if (!success)
@@ -75,12 +75,17 @@ public class DatabaseHelper : IDatabaseHelper
 
         return (T)Convert.ChangeType(value, typeof(T));
     }
-
-    public int ConvertBoolStringToInt(string value)
+    public static object ConvertBoolStringToBoolByType(string environmentVariableName, string dataType)
     {
-        if (string.IsNullOrEmpty(value)) return 0;
+        var value = Environment.GetEnvironmentVariable(environmentVariableName);
+        var isTrue = value?.Equals("true", StringComparison.CurrentCultureIgnoreCase) == true || value == "1";
 
-        return value.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0;
+        return dataType.ToLower() switch
+        {
+            "int" => isTrue ? 1 : 0,
+            "bool" => isTrue,
+            _ => throw new NotImplementedException()
+        };
     }
 
     public int ParseExceptionFlag(object exception)

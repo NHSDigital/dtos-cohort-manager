@@ -13,6 +13,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
+using System.ComponentModel.DataAnnotations;
 
 public class AddParticipantFunction
 {
