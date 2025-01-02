@@ -105,6 +105,11 @@ jobs:
         run: |
           function=${{ matrix.function }}
 
+          if [ -z "${function}" ]; then
+            echo "Function variable is empty. Skipping Docker build."
+            exit 0
+          fi
+
           # Build the image
           docker compose build $function
 
