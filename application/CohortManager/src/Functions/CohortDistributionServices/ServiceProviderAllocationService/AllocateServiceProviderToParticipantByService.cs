@@ -88,7 +88,7 @@ public class AllocateServiceProviderToParticipantByService
 
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message, ex);
+            _logger.LogError(ex, ex.Message);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
