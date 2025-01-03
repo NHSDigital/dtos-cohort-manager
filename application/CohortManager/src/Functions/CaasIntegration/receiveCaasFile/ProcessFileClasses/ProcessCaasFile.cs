@@ -70,7 +70,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 return; // skip current participant
             }
 
-            if (!_validateDates.ValidateAlleDates(participant))
+            if (!_validateDates.ValidateAllDates(participant))
             {
 
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);

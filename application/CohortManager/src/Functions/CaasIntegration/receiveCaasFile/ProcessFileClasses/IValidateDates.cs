@@ -1,6 +1,8 @@
+namespace NHS.Screening.ReceiveCaasFile;
+
 using Model;
 
 public interface IValidateDates
 {
-    public bool ValidateAlleDates(Participant participant);
+    public bool ValidateAllDates(Participant participant);
 }

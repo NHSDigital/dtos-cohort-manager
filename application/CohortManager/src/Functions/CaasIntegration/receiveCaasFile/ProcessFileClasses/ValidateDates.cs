@@ -1,3 +1,5 @@
+namespace NHS.Screening.ReceiveCaasFile;
+
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -11,7 +13,7 @@ public class ValidateDates : IValidateDates
         _logger = logger;
     }
 
-    public bool ValidateAlleDates(Participant participant)
+    public bool ValidateAllDates(Participant participant)
     {
         if (!IsValidDate(participant.CurrentPostingEffectiveFromDate))
         {
