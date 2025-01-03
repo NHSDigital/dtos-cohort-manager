@@ -38,7 +38,7 @@ try
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
-        services.AddScoped<RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker,RecordsProcessedTracker>(); //Do not change the lifetime of this.
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
