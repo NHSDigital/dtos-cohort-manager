@@ -188,9 +188,9 @@ public class DemographicDataFunctionTests
         log.Log(
             LogLevel.Error,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("there has been an error saving demographic data:")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-        ));
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+        ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
     }
 }

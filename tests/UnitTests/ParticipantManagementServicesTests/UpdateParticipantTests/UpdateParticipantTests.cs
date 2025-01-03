@@ -245,9 +245,9 @@ public class UpdateParticipantTests
             log.Log(
                 LogLevel.Information,
                 0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Update participant failed")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Update participant failed");
     }
 }

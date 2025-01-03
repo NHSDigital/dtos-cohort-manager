@@ -47,7 +47,7 @@ public class RetrieveParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
@@ -64,7 +64,7 @@ public class RetrieveParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError("Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "", "", JsonSerializer.Serialize(participant) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }

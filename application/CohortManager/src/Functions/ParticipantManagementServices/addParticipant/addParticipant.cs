@@ -6,14 +6,11 @@
 namespace addParticipant;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
-using System.ComponentModel.DataAnnotations;
 
 public class AddParticipantFunction
 {
@@ -85,7 +82,7 @@ public class AddParticipantFunction
                 return;
 
             }
-            _logger.LogInformation("participant created");
+            _logger.LogInformation("Participant created");
 
             // Mark participant as eligible
             var participantJson = JsonSerializer.Serialize(participant);
@@ -96,13 +93,13 @@ public class AddParticipantFunction
                 await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
-            _logger.LogInformation("participant created, marked as eligible at  {datetime}", DateTime.UtcNow);
+            _logger.LogInformation("Participant created, marked as eligible at {Datetime}", DateTime.UtcNow);
 
             // Send to cohort distribution
             var cohortDistResponse = await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant);
             if (!cohortDistResponse)
             {
-                _logger.LogError("participant failed to send to Cohort Distribution Service");
+                _logger.LogError("Participant failed to send to Cohort Distribution Service");
                 await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
@@ -110,7 +107,7 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, $"Unable to call function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return;
         }
@@ -142,7 +139,7 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
             return null;
         }
     }

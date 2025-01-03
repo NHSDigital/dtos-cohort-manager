@@ -115,7 +115,7 @@ public class CreateParticipantData : ICreateParticipantData
         catch (Exception ex)
         {
             transaction.Rollback();
-            _logger.LogError("An error occurred while updating records: {Message}", ex.Message);
+            _logger.LogError(ex, "An error occurred while updating records: {Message}", ex.Message);
             return false;
         }
         finally
@@ -138,7 +138,7 @@ public class CreateParticipantData : ICreateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError("An error occurred while executing SQL command: {Message}", ex.Message);
+            _logger.LogError(ex, "An error occurred while executing SQL command: {Message}", ex.Message);
             return false;
         }
 
@@ -171,7 +171,7 @@ public class CreateParticipantData : ICreateParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError("An error occurred: {Message}", ex.Message);
+            _logger.LogError(ex, "An error occurred: {Message}", ex.Message);
             return -1;
         }
     }
@@ -189,7 +189,7 @@ public class CreateParticipantData : ICreateParticipantData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         if (parameters == null) return dbCommand;
         foreach (var param in parameters)

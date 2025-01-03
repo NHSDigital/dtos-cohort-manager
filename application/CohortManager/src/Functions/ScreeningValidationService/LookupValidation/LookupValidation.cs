@@ -1,15 +1,12 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
@@ -52,7 +49,7 @@ public class LookupValidation
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex, ex.Message);
             await _handleException.CreateSystemExceptionLog(ex, requestBody.ExistingParticipant, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -64,7 +61,7 @@ public class LookupValidation
             newParticipant = requestBody.NewParticipant;
 
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
-            _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
+            _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
