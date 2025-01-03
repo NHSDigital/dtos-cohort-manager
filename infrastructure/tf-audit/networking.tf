@@ -26,8 +26,6 @@ module "vnet" {
   location            = each.key
   vnet_address_space  = each.value.address_space
 
-  dns_servers = [data.terraform_remote_state.hub.outputs.private_dns_resolver_inbound_ips[each.key].private_dns_resolver_ip]
-
   tags = var.tags
 }
 
