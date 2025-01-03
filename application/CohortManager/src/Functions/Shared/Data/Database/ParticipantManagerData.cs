@@ -47,7 +47,7 @@ public class ParticipantManagerData : IParticipantManagerData
         }
         catch (Exception ex)
         {
-            _logger.LogError("{MessageType} UpdateParticipantAsEligible failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "{MessageType} UpdateParticipantAsEligible failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
         }
     }
@@ -86,7 +86,7 @@ public class ParticipantManagerData : IParticipantManagerData
         }
         catch (Exception ex)
         {
-            _logger.LogError("{MessageType} UpdateParticipantDetails failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "{MessageType} UpdateParticipantDetails failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
         }
     }
@@ -224,7 +224,7 @@ public class ParticipantManagerData : IParticipantManagerData
         catch (Exception ex)
         {
             command.Transaction.Rollback();
-            _logger.LogError("{MessageType} ExecuteCommand failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "{MessageType} ExecuteCommand failed.\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.GetType().Name, ex.Message, ex.StackTrace);
             return false;
         }
         finally
@@ -246,7 +246,7 @@ public class ParticipantManagerData : IParticipantManagerData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         if (parameters == null) return dbCommand;
 

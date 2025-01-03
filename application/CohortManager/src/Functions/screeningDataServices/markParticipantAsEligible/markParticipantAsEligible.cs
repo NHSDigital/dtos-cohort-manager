@@ -46,17 +46,17 @@ public class MarkParticipantAsEligible
             }
             if (updated)
             {
-                _logger.LogInformation($"record updated for participant {participant.NhsNumber}");
+                _logger.LogInformation("Record updated for participant {NhsNumber}", participant?.NhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError($"an error occurred while updating data for {participant?.NhsNumber}");
+            _logger.LogError("An error occurred while updating data for {NhsNumber}", participant?.NhsNumber);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error occurred: {ex}");
+            _logger.LogError(ex, "An error occurred: {Ex}", ex);
             _handleException.CreateSystemExceptionLog(ex, participant, "");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
