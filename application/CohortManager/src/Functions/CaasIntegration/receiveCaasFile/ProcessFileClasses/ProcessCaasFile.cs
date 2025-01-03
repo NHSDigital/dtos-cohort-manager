@@ -110,7 +110,7 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             participant = participant
         };
-        // take not we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
+        // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
