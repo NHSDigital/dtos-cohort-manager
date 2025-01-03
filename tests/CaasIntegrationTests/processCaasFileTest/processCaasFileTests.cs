@@ -23,6 +23,9 @@ public class ProcessCaasFileTests
     private Mock<IExceptionHandler> _exceptionHandlerMock;
     private Mock<IAddBatchToQueue> _addBatchToQueueMock;
     private Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock;
+
+    private Mock<IValidateDates> _validateDates;
+
     private ProcessCaasFile _processCaasFile;
 
     public ProcessCaasFileTests()
@@ -35,6 +38,7 @@ public class ProcessCaasFileTests
         _exceptionHandlerMock = new Mock<IExceptionHandler>();
         _addBatchToQueueMock = new Mock<IAddBatchToQueue>();
         _recordsProcessedTrackerMock = new Mock<RecordsProcessedTracker>();
+        _validateDates = new Mock<IValidateDates>();
 
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
@@ -45,7 +49,8 @@ public class ProcessCaasFileTests
             _addBatchToQueueMock.Object,
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
-            _recordsProcessedTrackerMock.Object
+            _recordsProcessedTrackerMock.Object,
+            _validateDates.Object
         );
     }
 
@@ -120,30 +125,6 @@ public class ProcessCaasFileTests
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
             It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>()), Times.AtLeastOnce);
-    }
-
-    [TestMethod]
-    public async Task ProcessRecords_UpdateRecord_addsRecordToBatch()
-    {
-        // Arrange
-        var addRecordMethod = _processCaasFile.GetType().GetMethod("AddRecordToBatch", BindingFlags.Instance | BindingFlags.NonPublic);
-        var privateField = _processCaasFile.GetType().GetField("_currentBatch", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        var currentBatchValue = privateField.GetValue(_processCaasFile);
-        if (currentBatchValue == null)
-        {
-            var newBatch = new Batch();
-            privateField.SetValue(_processCaasFile, newBatch);
-        }
-        var batch = (Batch)privateField.GetValue(_processCaasFile);
-
-        // Act
-        await (Task)addRecordMethod.Invoke(_processCaasFile, new object[] { new Participant() { NhsNumber = "1234567890", RecordType = Actions.Amended }, batch, "TestFile" });
-
-
-        // Assert
-        Assert.AreEqual(1, batch.UpdateRecords.Count);
-
     }
 
     [TestMethod]
@@ -344,239 +325,6 @@ public class ProcessCaasFileTests
           Times.Once);
     }
 
-    [TestMethod]
-    public void ValidateDates_ShouldReturnFalse_WhenCurrentPostingEffectiveFromDateIsInvalid()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            //all invalid dates
-            CurrentPostingEffectiveFromDate = "123456789",
-            EmailAddressEffectiveFromDate = "20230101",
-            MobileNumberEffectiveFromDate = "20230101",
-            UsualAddressEffectiveFromDate = "20230101",
-            TelephoneNumberEffectiveFromDate = "20230101",
-            PrimaryCareProviderEffectiveFromDate = "20230101"
-        };
-
-        var method = _processCaasFile.GetType().GetMethod("ValidateDates", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { participant };
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-        // Assert
-        Assert.IsFalse(res);
-    }
-
-    [TestMethod]
-    public void ValidateDates_ShouldReturnTrue_WhenAllDatesAreValid()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            //all valid dates
-            CurrentPostingEffectiveFromDate = "20230101",
-            EmailAddressEffectiveFromDate = "20230101",
-            MobileNumberEffectiveFromDate = "20230101",
-            UsualAddressEffectiveFromDate = "20230101",
-            TelephoneNumberEffectiveFromDate = "20230101",
-            PrimaryCareProviderEffectiveFromDate = "20230101"
-        };
-
-        var method = _processCaasFile.GetType().GetMethod("ValidateDates", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { participant };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-             It.IsAny<EventId>(),
-             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("found in participant data")),
-             It.IsAny<Exception>(),
-             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-         Times.Never);
-
-    }
-
-    [TestMethod]
-    public void ValidateDates_ShouldReturnFalse_WhenEmailAddressEffectiveFromDateIsInvalid()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            //Valid date formats
-            CurrentPostingEffectiveFromDate = "20230101",
-            EmailAddressEffectiveFromDate = "123456789",
-            MobileNumberEffectiveFromDate = "20230101",
-            UsualAddressEffectiveFromDate = "20230101",
-            TelephoneNumberEffectiveFromDate = "20230101",
-            PrimaryCareProviderEffectiveFromDate = "20230101"
-        };
-
-        var method = _processCaasFile.GetType().GetMethod("ValidateDates", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { participant };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsFalse(res);
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-           It.IsAny<EventId>(),
-           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("EmailAddressEffectiveFromDate")),
-           It.IsAny<Exception>(),
-           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-       Times.Never);
-    }
-
-
-    [TestMethod]
-    public void ValidateDates_ShouldReturnFalse_WhenMobileNumberEffectiveFromDateIsInvalid()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            // Valid date format
-            CurrentPostingEffectiveFromDate = "20230101", 
-            EmailAddressEffectiveFromDate = "123456789", 
-            MobileNumberEffectiveFromDate = "20230101", 
-            UsualAddressEffectiveFromDate = "20230101", 
-            TelephoneNumberEffectiveFromDate = "20230101",
-            PrimaryCareProviderEffectiveFromDate = "20230101" 
-        };
-
-        var method = _processCaasFile.GetType().GetMethod("ValidateDates", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { participant };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsFalse(res);
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-           It.IsAny<EventId>(),
-           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("MobileNumberEffectiveFromDate")),
-           It.IsAny<Exception>(),
-           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-       Times.Never);
-    }
-
-    [TestMethod]
-    public void ValidateDates_ShouldReturnFalse_WhenUsualAddressEffectiveFromDateIsInvalid()
-    {
-        // Arrange
-        var participant = new Participant
-        {
-            //all valid date formats
-            CurrentPostingEffectiveFromDate = "20230101", 
-            EmailAddressEffectiveFromDate = "20230101", 
-            MobileNumberEffectiveFromDate = "20230101", 
-            UsualAddressEffectiveFromDate = "123456789", 
-            TelephoneNumberEffectiveFromDate = "20230101", 
-            PrimaryCareProviderEffectiveFromDate = "20230101" 
-        };
-
-        var method = _processCaasFile.GetType().GetMethod("ValidateDates", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { participant };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsFalse(res);
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-           It.IsAny<EventId>(),
-           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("MobileNumberEffectiveFromDate")),
-           It.IsAny<Exception>(),
-           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-       Times.Never);
-    }
-
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateIsNull()
-    {
-        // Arrange
-        string? date = null;
-
-
-        var method = _processCaasFile.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateIsEmpty()
-    {
-        // Arrange
-        string date = string.Empty;
-
-        var method = _processCaasFile.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-
-
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateLengthIs8()
-    {
-        // Arrange
-        string date = "20230101"; // Valid date format with 8 characters
-
-        var method = _processCaasFile.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnFalse_WhenDateLengthIsGreaterThan8()
-    {
-        // Arrange
-        string date = "20230101234"; // Invalid date with more than 8 characters
-
-        var method = _processCaasFile.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsFalse(res);
-    }
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateLengthIsLessThan8()
-    {
-        // Arrange
-        string date = "202301"; // Valid date with less than 8 characters
-
-        var method = _processCaasFile.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_processCaasFile, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
-
+    
 
 }

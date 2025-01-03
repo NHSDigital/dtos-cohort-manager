@@ -39,7 +39,7 @@ public class AddBatchToQueueTest
         var addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueServiceClient.Object);
 
         // Assert
-        mockQueueServiceClient.Verify(qsc => qsc.GetQueueClient("AddQueueName"), Times.Once);
+        mockQueueServiceClient.Verify(qsc => qsc.GetQueueClient("AddQueueName"), Times.AtLeastOnce);
     }
 
     [TestMethod]

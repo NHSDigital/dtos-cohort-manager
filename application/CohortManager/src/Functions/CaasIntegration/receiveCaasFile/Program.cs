@@ -31,6 +31,7 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IValidateDates, ValidateDates>();
         services.AddAzureClients(builder =>
         {
             // Use the environment credential by default
