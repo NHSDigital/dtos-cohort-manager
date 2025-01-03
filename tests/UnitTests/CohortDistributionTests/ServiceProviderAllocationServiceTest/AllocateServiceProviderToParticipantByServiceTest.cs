@@ -14,16 +14,13 @@ using NHS.CohortManager.Tests.TestUtils;
 [TestClass]
 public class AllocateServiceProviderToParticipantByServiceTests
 {
-
     private readonly Mock<ILogger<AllocateServiceProviderToParticipantByService>> _logger = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private Mock<HttpRequestData> _request;
     private readonly ServiceCollection _serviceCollection = new();
     private readonly Mock<ICreateResponse> _response = new();
-
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private AllocateServiceProviderToParticipantByService _function;
+    private readonly AllocateServiceProviderToParticipantByService _function;
     private AllocationConfigRequestBody _cohortDistributionData;
     private readonly SetupRequest _setupRequest = new();
 
@@ -37,7 +34,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        _function = new AllocateServiceProviderToParticipantByService(_logger.Object, _response.Object, _callFunction.Object, _exceptionHandler.Object);
+        _function = new AllocateServiceProviderToParticipantByService(_logger.Object, _response.Object, _exceptionHandler.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -56,6 +53,8 @@ public class AllocateServiceProviderToParticipantByServiceTests
             response.WriteString(responseBody);
             return response;
         });
+
+        _cohortDistributionData = new AllocationConfigRequestBody();
 
     }
 
@@ -81,7 +80,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual("BS Select - NE63", responseBody);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Never());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
     // Code under test not being used yet
@@ -106,7 +105,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
     // Code under test not being used yet
@@ -131,7 +130,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
     // Code under test not being used yet
@@ -156,7 +155,7 @@ public class AllocateServiceProviderToParticipantByServiceTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "CreateValidationExceptionURL"), It.IsAny<string>()), Times.Once());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
 }

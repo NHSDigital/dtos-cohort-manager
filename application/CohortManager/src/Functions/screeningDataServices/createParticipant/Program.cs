@@ -1,10 +1,7 @@
-using System.Data;
 using Common;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Data.Database;
-using System.Data.Common;
 using DataServices.Client;
 using Model;
 
@@ -25,4 +22,4 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();

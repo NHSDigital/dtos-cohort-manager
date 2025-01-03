@@ -27,4 +27,4 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();

@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.ScreeningDataServices;
 
-using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -39,7 +38,7 @@ public class MarkParticipantAsIneligible
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                var requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = await reader.ReadToEndAsync();
                 requestBody = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
         }
@@ -70,17 +69,17 @@ public class MarkParticipantAsIneligible
             }
             if (updated)
             {
-                _logger.LogInformation($"record updated for participant {participantData.NhsNumber}");
+                _logger.LogInformation("Record updated for participant {NhsNumber}", participantData.NhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError($"an error occurred while updating data for {participantData.NhsNumber}");
+            _logger.LogError("An error occurred while updating data for {NhsNumber}", participantData.NhsNumber);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"an error occurred: {ex}");
+            _logger.LogError(ex, "an error occurred: {Ex}", ex);
             await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -100,7 +99,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
             return null;
         }
     }

@@ -18,7 +18,6 @@ public class RetrieveParticipantData
     private readonly IParticipantManagerData _participantManagerData;
     private readonly ICreateDemographicData _createDemographicData;
     private readonly ICreateParticipant _createParticipant;
-
     private readonly IExceptionHandler _exceptionHandler;
 
     public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IParticipantManagerData participantManagerData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant, IExceptionHandler exceptionHandler)
@@ -41,13 +40,13 @@ public class RetrieveParticipantData
             string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                requestBodyJson = await reader.ReadToEndAsync();
             }
             requestBody = JsonSerializer.Deserialize<RetrieveParticipantRequestBody>(requestBodyJson);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
@@ -64,7 +63,7 @@ public class RetrieveParticipantData
         }
         catch (Exception ex)
         {
-            _logger.LogError("Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "", "", JsonSerializer.Serialize(participant) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }

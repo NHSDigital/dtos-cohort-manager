@@ -39,7 +39,7 @@ public class StaticValidation
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                var requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = await reader.ReadToEndAsync();
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
             }
 
