@@ -1,4 +1,5 @@
 namespace NHS.Screening.ReceiveCaasFile;
+
 public class RecordsProcessedTracker : IRecordsProcessedTracker
 {
     private readonly HashSet<ParticipantRecord> _processedRecords;

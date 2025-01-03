@@ -4,9 +4,9 @@ using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
-using receiveCaasFile;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
@@ -22,13 +22,15 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
 
-    private readonly RecordsProcessedTracker _recordsProcessTracker;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+
+    private readonly IRecordsProcessedTracker _recordsProcessTracker;
 
     private readonly IValidateDates _validateDates;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , RecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
+     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
      )
     {
         _logger = logger;
@@ -39,6 +41,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
+        _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
     }
@@ -84,9 +87,12 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             await AddRecordToBatch(participant, currentBatch, name);
-
         });
-        await AddBatchToQueue(currentBatch, name);
+
+        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await AddBatchToQueue(currentBatch, name);
+        }
     }
 
     /// <summary>
@@ -104,15 +110,12 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             participant = participant
         };
-
+        // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
-                if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-                {
-                    currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                }
+                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -131,7 +134,9 @@ public class ProcessCaasFile : IProcessCaasFile
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
+
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -145,6 +150,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await RemoveParticipant(updateRecords, name);
             }
         }
+        currentBatch = null;
     }
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
@@ -152,12 +158,24 @@ public class ProcessCaasFile : IProcessCaasFile
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+            var listOfData = new List<ParticipantDemographic>()
             {
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-            }
-            _logger.LogInformation("Called update participant");
+                basicParticipantCsvRecord.participant.ToParticipantDemographic()
+            };
 
+            var participantRecord = await _participantDemographic.GetByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+
+            var participant = participantRecord.FirstOrDefault();
+            if (participant != null)
+            {
+                await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI") ?? ""))
+                {
+                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant") ?? "", json);
+                }
+                _logger.LogInformation("Called update participant");
+            }
+            _logger.LogInformation("the participant could not found to allow for updating");
         }
         catch (Exception ex)
         {

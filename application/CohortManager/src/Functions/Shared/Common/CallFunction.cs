@@ -72,6 +72,7 @@ public class CallFunction : ICallFunction
         var request = (HttpWebRequest)WebRequest.Create(url);
         var data = Encoding.ASCII.GetBytes(dataToSend);
         request.Method = Method;
+        request.Timeout = 999999999;
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = data.Length;
 
@@ -85,9 +86,9 @@ public class CallFunction : ICallFunction
             var response = (HttpWebResponse)await request.GetResponseAsync();
             return response;
         }
-        catch(WebException ex)
+        catch (WebException ex)
         {
-            _logger.LogError(ex,"Failed to execute webrequest");
+            _logger.LogError(ex, "Failed to execute web request");
             return (HttpWebResponse)ex.Response;
 
         }

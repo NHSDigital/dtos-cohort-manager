@@ -6,6 +6,8 @@ using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
+using Model;
+using DataServices.Client;
 using receiveCaasFile;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
@@ -17,7 +19,11 @@ var logger = loggerFactory.CreateLogger("program.cs");
 try
 {
     var host = new HostBuilder()
+        .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .Build()
     .ConfigureFunctionsWebApplication()
+
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
@@ -30,7 +36,11 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker,  RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
+        {
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+        });
         services.AddScoped<IValidateDates, ValidateDates>();
         services.AddAzureClients(builder =>
         {
