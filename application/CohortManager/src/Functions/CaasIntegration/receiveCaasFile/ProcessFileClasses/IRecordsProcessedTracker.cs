@@ -2,5 +2,5 @@ namespace NHS.Screening.ReceiveCaasFile;
 
 public interface IRecordsProcessedTracker
 {
-    bool RecordNotAlreadyProcessed(string RecordType, string NHSId);
+    bool RecordAlreadyProcessed(string RecordType, string NHSId);
 }

@@ -10,7 +10,7 @@ public class RecordsProcessedTracker : IRecordsProcessedTracker
         _processedRecords = new HashSet<ParticipantRecord>();
     }
 
-    public bool RecordNotAlreadyProcessed(string RecordType, string NHSId)
+    public bool RecordAlreadyProcessed(string RecordType, string NHSId)
     {
         var rec = new ParticipantRecord { RecordType = RecordType, NHSId = NHSId };
         //avoiding race conditions on access to the process records hashset

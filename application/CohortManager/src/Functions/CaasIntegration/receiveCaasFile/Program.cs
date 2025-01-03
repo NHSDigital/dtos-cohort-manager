@@ -9,6 +9,8 @@ using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
 using receiveCaasFile;
+using Microsoft.Extensions.Azure;
+using Azure.Identity;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -34,10 +36,18 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker,  RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+        });
+        services.AddScoped<IValidateDates, ValidateDates>();
+        services.AddAzureClients(builder =>
+        {
+            // Use the environment credential by default
+            builder.UseCredential(new DefaultAzureCredential());
+            builder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "")
+              .ConfigureOptions(c => c.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
         });
     })
     .AddExceptionHandler()
