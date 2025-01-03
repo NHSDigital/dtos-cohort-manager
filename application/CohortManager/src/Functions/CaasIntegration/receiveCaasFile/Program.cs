@@ -34,11 +34,11 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
-        services.AddScoped<IRecordsProcessedTracker,RecordsProcessedTracker>(); //Do not change the lifetime of this.
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()

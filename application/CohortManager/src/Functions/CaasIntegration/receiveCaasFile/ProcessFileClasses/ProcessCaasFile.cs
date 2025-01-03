@@ -23,11 +23,11 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
-    private readonly RecordsProcessedTracker _recordsProcessTracker;
+    private readonly IRecordsProcessedTracker _recordsProcessTracker;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
-     , RecordsProcessedTracker recordsProcessedTracker
+     , IRecordsProcessedTracker recordsProcessedTracker
      )
     {
         _logger = logger;
