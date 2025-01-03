@@ -30,7 +30,7 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddScoped<IValidateDates, ValidateDates>();
         services.AddAzureClients(builder =>
         {
