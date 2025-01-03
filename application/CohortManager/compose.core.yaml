@@ -242,8 +242,8 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   
-  participant-management-data-service:
-    container_name: participant-management-data-service
+  participant-demographic-durable-function:
+    container_name: participant-demographic-durable-function
     network_mode: host
     build:
       context: ./src/Functions/
