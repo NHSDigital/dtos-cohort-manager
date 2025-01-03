@@ -34,6 +34,7 @@ public class ReceiveCaasFile
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
+        var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
@@ -43,12 +44,15 @@ public class ReceiveCaasFile
             if (!await _receiveCaasFileHelper.CheckFileName(name, fileNameParser, fileNameErrorMessage))
             {
                 _logger.LogError(fileNameErrorMessage);
+                ErrorOccurred = true;
                 return;
             }
 
             var screeningService = await GetScreeningService(name, fileNameParser);
             if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
             {
+                _logger.LogError("the Screening id or screening name was null or empty");
+                ErrorOccurred = true;
                 return;
             }
 
@@ -100,7 +104,12 @@ public class ReceiveCaasFile
         }
         finally
         {
-            _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
+            //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
+            if (!ErrorOccurred)
+            {
+                _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
+            }
+            //We want to release the file from temporary storage no matter what 
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }
@@ -131,6 +140,7 @@ public class ReceiveCaasFile
 
         var ScreeningWorkflow = fileNameParser.GetScreeningService();
         _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
-        return _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
+        var res = _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
+        return res;
     }
 }

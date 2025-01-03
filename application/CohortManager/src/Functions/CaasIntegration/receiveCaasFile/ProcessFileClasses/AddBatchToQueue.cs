@@ -8,17 +8,20 @@ using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
-    private readonly QueueClient _AddQueueClient;
-
+    private readonly QueueServiceClient _addQueueClient;
     public readonly ILogger<AddBatchToQueue> _logger;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger)
-    {
-        var storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "";
-        _AddQueueClient = new QueueClient(storageConnectionString, Environment.GetEnvironmentVariable("AddQueueName"));
+    private readonly QueueClient _queueClient;
 
-        _AddQueueClient.CreateIfNotExists();
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, QueueServiceClient addQueueClient)
+    {
+
+        _addQueueClient = addQueueClient;
         _logger = logger;
+
+        var queueName = Environment.GetEnvironmentVariable("AddQueueName");
+        _queueClient = _addQueueClient.GetQueueClient(queueName);
+        _queueClient.CreateIfNotExists();
     }
 
     public async Task ProcessBatch(Batch batch)
@@ -51,7 +54,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
-        await _AddQueueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
+        await _queueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
     }
 
     private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)
