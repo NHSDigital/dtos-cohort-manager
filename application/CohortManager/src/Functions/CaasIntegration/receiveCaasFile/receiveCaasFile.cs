@@ -18,8 +18,6 @@ public class ReceiveCaasFile
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IScreeningServiceData _screeningServiceData;
 
-    private bool ErrorOccurred = false;
-
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
@@ -36,6 +34,7 @@ public class ReceiveCaasFile
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
+        var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
