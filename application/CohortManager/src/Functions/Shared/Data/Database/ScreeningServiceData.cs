@@ -78,7 +78,7 @@ public class ScreeningServiceData : IScreeningServiceData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         if (parameters == null) return dbCommand;
 
