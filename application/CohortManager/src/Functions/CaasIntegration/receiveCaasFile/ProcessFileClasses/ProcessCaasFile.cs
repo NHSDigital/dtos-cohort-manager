@@ -26,9 +26,11 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
 
+    private readonly IValidateDates _validateDates;
+
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
-     , IRecordsProcessedTracker recordsProcessedTracker
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
      )
     {
         _logger = logger;
@@ -209,53 +211,6 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             _handleException.CreateSystemExceptionLog(ex, participant, filename);
         }
-    }
-
-    private bool ValidateDates(Participant participant)
-    {
-        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.EmailAddressEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.EmailAddressEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.MobileNumberEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.MobileNumberEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.UsualAddressEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.UsualAddressEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.TelephoneNumberEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.TelephoneNumberEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.PrimaryCareProviderEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.PrimaryCareProviderEffectiveFromDate));
-            return false;
-        }
-        if(!IsValidDate(participant.CurrentPostingEffectiveFromDate)){
-             _logger.LogWarning("Invalid {datename} found in participant data",nameof(participant.CurrentPostingEffectiveFromDate));
-            return false;
-        }
-
-        return true;
-    }
-    private static bool IsValidDate(string? date)
-    {
-        if(date== null)
-        {
-            return true;
-        }
-        if(date.Length > 8)
-        {
-            return false;
-        }
-        return true;
-
     }
 
 }
