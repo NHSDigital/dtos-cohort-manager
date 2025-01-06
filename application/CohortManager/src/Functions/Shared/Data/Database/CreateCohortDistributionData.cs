@@ -523,18 +523,19 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
     }
 
-    public List<CohortRequestAudit> GetOutstandingCohortRequestAudits(string lastRequestId)
+    public List<CohortRequestAudit> GetNextCohortRequestAudit(string requestId)
     {
-        var sql = "SELECT [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
+        var sql = "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE CREATED_DATETIME >= ( " +
+            " WHERE CREATED_DATETIME > ( " +
             " SELECT CREATED_DATETIME " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE REQUEST_ID = @lastRequestId)";
+            " WHERE REQUEST_ID = @lastRequestId)" +
+            " ORDER BY CREATED_DATETIME ASC";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@LastRequestId", lastRequestId},
+            {"@LastRequestId", requestId},
         };
 
         using var command = CreateCommand(parameters);

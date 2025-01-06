@@ -191,7 +191,7 @@ public class AddCohortDistributionTests
         _mockDataReader.Setup(r => r.Read()).Returns(false);
 
         // Act
-        var result = _createCohortDistributionData.GetOutstandingCohortRequestAudits(lastRequestId);
+        var result = _createCohortDistributionData.GetNextCohortRequestAudit(lastRequestId);
 
         // Assert
         Assert.AreEqual(0, result.Count);
@@ -212,7 +212,7 @@ public class AddCohortDistributionTests
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
         // Act
-        var result = _createCohortDistributionData.GetOutstandingCohortRequestAudits(lastRequestId);
+        var result = _createCohortDistributionData.GetNextCohortRequestAudit(lastRequestId);
 
         // Assert
         Assert.IsNotNull(result);
