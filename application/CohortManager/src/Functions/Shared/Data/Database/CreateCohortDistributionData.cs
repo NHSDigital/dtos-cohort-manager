@@ -523,7 +523,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return await Task.FromResult(ExecuteQuery(command, ReadCohortRequestAudit));
     }
 
-    public List<CohortRequestAudit> GetNextCohortRequestAudit(string requestId)
+    public CohortRequestAudit GetNextCohortRequestAudit(string requestId)
     {
         var sql = "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
@@ -541,7 +541,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         using var command = CreateCommand(parameters);
         command.CommandText = sql;
 
-        return ExecuteQuery(command, ReadCohortRequestAudit);
+        return ExecuteQuery(command, ReadCohortRequestAudit).FirstOrDefault();
     }
 
     private static string BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)

@@ -56,7 +56,7 @@ public class RetrieveCohortDistributionData
             }
             else
             {
-                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId).FirstOrDefault();
+                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
                 var nextRequest = nextRequestAudit?.RequestId;
                 if (nextRequest != null)
                 {

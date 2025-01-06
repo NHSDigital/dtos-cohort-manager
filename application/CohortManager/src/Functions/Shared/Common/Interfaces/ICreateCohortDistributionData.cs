@@ -11,5 +11,5 @@ public interface ICreateCohortDistributionData
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);
     List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
-    List<CohortRequestAudit> GetNextCohortRequestAudit(string requestId);
+    CohortRequestAudit GetNextCohortRequestAudit(string requestId);
 }
