@@ -194,7 +194,7 @@ public class AddCohortDistributionTests
         var result = _createCohortDistributionData.GetNextCohortRequestAudit(lastRequestId);
 
         // Assert
-        Assert.AreEqual(0, result.Count);
+        Assert.IsNull(result);
     }
 
     [TestMethod]
@@ -216,8 +216,7 @@ public class AddCohortDistributionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("moreRecentRequestId", result[0].RequestId);
+        Assert.AreEqual("moreRecentRequestId", result.RequestId);
     }
 
     [TestMethod]
