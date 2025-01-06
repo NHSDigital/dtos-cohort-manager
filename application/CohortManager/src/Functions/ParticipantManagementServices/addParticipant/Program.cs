@@ -12,8 +12,8 @@ var host = new HostBuilder()
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
-        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .Build();
 

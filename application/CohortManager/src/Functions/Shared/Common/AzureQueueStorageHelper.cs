@@ -11,7 +11,6 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 {
     private QueueClient _queueClient;
 
-    private QueueClient _AddQueueClient;
     private readonly string storageConnectionString;
 
     public readonly ILogger<AzureQueueStorageHelper> _logger;
