@@ -1,6 +1,7 @@
 ﻿namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
 using Azure.Storage.Queues;
+using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
@@ -12,40 +13,22 @@ using NHS.Screening.ReceiveCaasFile;
 public class AddBatchToQueueTest
 {
     private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
-    private readonly Mock<QueueServiceClient> mockQueueServiceClient = new();
-    private readonly Mock<QueueClient> mockQueueClient = new();
+    private readonly Mock<IAzureQueueStorageHelper>  mockQueueStorageHelper = new();
     private AddBatchToQueue _addBatchToQueue;
 
 
 
     public AddBatchToQueueTest()
     {
-        mockQueueServiceClient
-          .Setup(qsc => qsc.GetQueueClient(It.IsAny<string>()))
-          .Returns(mockQueueClient.Object);
-
-        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueServiceClient.Object);
-    }
-
-    [TestMethod]
-    public void Constructor_ShouldGetQueueClient()
-    {
-        // Arrange
-        Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
-        Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
 
-        // Act
-        var addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueServiceClient.Object);
-
-        // Assert
-        mockQueueServiceClient.Verify(qsc => qsc.GetQueueClient("AddQueueName"), Times.AtLeastOnce);
+        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueStorageHelper.Object);
     }
 
     [TestMethod]
     public async Task ProcessBatch_ValidRecord_ProcessSuccessfully()
     {
-        //arrange 
+        //arrange
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
@@ -62,13 +45,13 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(batch);
 
         //Assert
-        mockQueueClient.Verify(x => x.SendMessageAsync(It.IsAny<string>()), Times.Once);
+        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
     public async Task ProcessBatch_NoAddRecords_SendMessageNotCalled()
     {
-        //arrange 
+        //arrange
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
@@ -79,13 +62,13 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(batch);
 
         //Assert
-        mockQueueClient.Verify(x => x.SendMessageAsync(It.IsAny<string>()), Times.Never);
+        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
     public async Task ProcessBatch_BatchIsNull_SendMessageNotCalled()
     {
-        //arrange 
+        //arrange
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
@@ -96,7 +79,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null);
 
         //Assert
-        mockQueueClient.Verify(x => x.SendMessageAsync(It.IsAny<string>()), Times.Never);
+        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Never);
     }
 
 }
