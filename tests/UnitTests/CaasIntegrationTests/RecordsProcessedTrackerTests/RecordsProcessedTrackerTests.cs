@@ -1,11 +1,6 @@
 ﻿namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
-using Azure.Storage.Queues;
-using Microsoft.Extensions.Logging;
-using Model;
-using Moq;
 using NHS.Screening.ReceiveCaasFile;
-using receiveCaasFile;
 
 [TestClass]
 public class RecordsProcessedTrackerTests
