@@ -1,16 +1,10 @@
 namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using Common;
-using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.Screening.ReceiveCaasFile;
-using receiveCaasFile;
 
 [TestClass]
 public class ValidateDatesTests
@@ -39,7 +33,7 @@ public class ValidateDatesTests
             PrimaryCareProviderEffectiveFromDate = "20230101"
         };
 
-        var res = _validateDates.ValidateAlleDates(participant);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsFalse(res);
@@ -60,7 +54,7 @@ public class ValidateDatesTests
             PrimaryCareProviderEffectiveFromDate = "20230101"
         };
 
-        var res = _validateDates.ValidateAlleDates(participant);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsTrue(res);
@@ -89,7 +83,7 @@ public class ValidateDatesTests
             PrimaryCareProviderEffectiveFromDate = "20230101"
         };
 
-        var res = _validateDates.ValidateAlleDates(participant);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsFalse(res);
@@ -117,7 +111,7 @@ public class ValidateDatesTests
             PrimaryCareProviderEffectiveFromDate = "20230101"
         };
 
-        var res = _validateDates.ValidateAlleDates(participant);
+        var res = _validateDates.ValidateAllDates(participant);
         // Assert
         Assert.IsFalse(res);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
@@ -143,7 +137,7 @@ public class ValidateDatesTests
             PrimaryCareProviderEffectiveFromDate = "20230101"
         };
 
-        var res = _validateDates.ValidateAlleDates(participant);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsFalse(res);
