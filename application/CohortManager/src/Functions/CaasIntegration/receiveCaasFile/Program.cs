@@ -32,13 +32,14 @@ try
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddScoped<IValidateDates, ValidateDates>();
-        services.AddAzureClients(builder =>
-        {
-            // Use the environment credential by default
-            builder.UseCredential(new DefaultAzureCredential());
-            builder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "")
-              .ConfigureOptions(c => c.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
-        });
+        services.AddTransient<IAzureQueueStorageHelper,AzureQueueStorageHelper>();
+        // services.AddAzureClients(builder =>
+        // {
+        //     // Use the environment credential by default
+        //     builder.UseCredential(new DefaultAzureCredential());
+        //     builder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "")
+        //       .ConfigureOptions(c => c.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
+        // });
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()
