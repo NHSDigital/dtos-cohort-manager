@@ -110,7 +110,7 @@ public class AddNewParticipantTest
 
 
         // Act
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -176,7 +176,7 @@ public class AddNewParticipantTest
              _cohortDistributionHandler.Object);
 
         // Act
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -226,7 +226,7 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -301,7 +301,7 @@ public class AddNewParticipantTest
 
 
         // Act
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
 
         //Assert
@@ -355,7 +355,7 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         //_callFunctionMock.Verify(x => x.SendPost("DemographicURIGet", It.IsAny<string>()),Times.Once);
@@ -395,7 +395,7 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _checkDemographic.Verify(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"), Times.Once);
@@ -424,7 +424,7 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -460,7 +460,7 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _loggerMock.Verify(log =>
@@ -500,16 +500,9 @@ public class AddNewParticipantTest
                 NhsNumber = "1234567890"
             }
         };
-        await sut.Run(convertParticipantDataToBase64String(basicParticipantCsvRecord));
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
         // Assert
         _callFunctionMock.Verify(call => call.SendPost("DSaddParticipant", It.IsAny<string>()), Times.Once());
-    }
-
-    private string convertParticipantDataToBase64String(BasicParticipantCsvRecord basicParticipantCsvRecord)
-    {
-        var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-        var bytes = Encoding.UTF8.GetBytes(json);
-        return Convert.ToBase64String(bytes);
     }
 }
