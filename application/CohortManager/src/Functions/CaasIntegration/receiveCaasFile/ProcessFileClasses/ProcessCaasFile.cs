@@ -175,7 +175,11 @@ public class ProcessCaasFile : IProcessCaasFile
                 }
                 _logger.LogInformation("Called update participant");
             }
-            _logger.LogInformation("the participant could not found to allow for updating");
+            else
+            {
+                _logger.LogInformation("the participant could not found to allow for updating");
+            }
+
         }
         catch (Exception ex)
         {

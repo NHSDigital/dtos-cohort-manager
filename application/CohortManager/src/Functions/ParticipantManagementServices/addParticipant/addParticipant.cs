@@ -37,11 +37,13 @@ public class AddParticipantFunction
     }
 
     [Function(nameof(AddParticipantFunction))]
-    public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
+    public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string stringFromQueue)
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
 
+        var blob = Convert.FromBase64String(stringFromQueue);
+        var jsonFromQueue = Encoding.UTF8.GetString(blob);
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
         try
