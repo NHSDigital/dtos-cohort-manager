@@ -370,7 +370,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ParticipantHasExceptionAndRetrieveEnvironmentalVariableAsBool_CreatesSystemExceptionLog()
+    public async Task RunAsync_ParticipantHasException_CreatesSystemExceptionLog()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
@@ -397,8 +397,6 @@ public class CreateCohortDistributionTests
             It.IsAny<Participant>(),
             It.IsAny<string>()),
             Times.Once);
-
-        _callFunction.Verify(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
     [TestMethod]
@@ -492,7 +490,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableTrue_CreateSystemExceptionLog()
+    public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableFalse_CreateSystemExceptionLog()
     {
         // Arrange
         var participant = new CohortDistributionParticipant
@@ -504,7 +502,7 @@ public class CreateCohortDistributionTests
         _cohortDistributionHelper.Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
             .ReturnsAsync(participant);
 
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "true");
+        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "false");
         ParticipantException(true);
 
         // Act

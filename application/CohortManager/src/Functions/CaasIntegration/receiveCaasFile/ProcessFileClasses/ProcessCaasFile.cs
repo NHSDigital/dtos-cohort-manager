@@ -22,13 +22,13 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
 
-    private readonly RecordsProcessedTracker _recordsProcessTracker;
+    private readonly IRecordsProcessedTracker _recordsProcessTracker;
 
     private readonly IValidateDates _validateDates;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , RecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
      )
     {
         _logger = logger;
