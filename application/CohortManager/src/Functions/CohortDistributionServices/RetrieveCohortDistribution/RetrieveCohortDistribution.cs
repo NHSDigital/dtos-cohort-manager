@@ -57,10 +57,10 @@ public class RetrieveCohortDistributionData
             else
             {
                 var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                var nextRequest = nextRequestAudit?.RequestId;
-                if (nextRequest != null)
+                var nextRequestId = nextRequestAudit?.RequestId;
+                if (nextRequestId != null)
                 {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequest);
+                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequestId);
                 }
             }
 
