@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.Screening.ReceiveCaasFile;
-using receiveCaasFile;
 
 [TestClass]
 public class ProcessCaasFileTests
