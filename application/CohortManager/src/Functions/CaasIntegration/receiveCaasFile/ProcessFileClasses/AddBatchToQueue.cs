@@ -17,10 +17,8 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper)
     {
-
         _logger = logger;
         _queueHelper = queueHelper;
-
     }
 
     public async Task ProcessBatch(Batch batch)
