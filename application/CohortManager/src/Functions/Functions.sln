@@ -106,7 +106,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveMeshFile", "CaasIntegration\RetrieveMeshFile\RetrieveMeshFile.csproj", "{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\..\..\..\tests\CaasIntegrationTests\retrieveMeshFileTest\retrieveMeshFileTest.csproj", "{31A651CD-25D0-4131-B773-0A34495164D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\retrieveMeshFileTest\retrieveMeshFileTest.csproj", "{31A651CD-25D0-4131-B773-0A34495164D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecord", "CohortDistributionServices\ValidateCohortDistributionRecord\ValidateCohortDistributionRecord.csproj", "{BD5E5333-2C20-4009-BF58-BFB930AD6B6C}"
 EndProject
