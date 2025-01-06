@@ -41,8 +41,8 @@ public class AddParticipantFunction
     {
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
-
-        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
+        var decodedString = Convert.FromBase64String(jsonFromQueue);
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(decodedString);
 
         try
         {
