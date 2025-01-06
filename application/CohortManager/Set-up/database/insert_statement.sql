@@ -21,6 +21,35 @@ INSERT INTO [dbo].[GENDER_MASTER]
     VALUES
         ('2','Female');
 
+INSERT INTO [dbo].[HIGHER_RISK_REFERRAL_REASON_LKP]
+		([HIGHER_RISK_REFERRAL_REASON_CODE]
+		,[HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION])
+	VALUES
+		('AT_HETEROZYGOTES','A-T heterozygotes'),
+		('AT_HOMOZYGOTES','A-T homozygotes'),
+		('BRCA_RISK','BRCA1/BRCA2/PALB2 (8% 10-year risk)'),
+		('BRCA_TESTED','BRCA1/BRCA2/PALB2 Tested'),
+		('HR_GENE_UNTESTED','HR Gene untested'),
+		('OTHER_GENE_MUTATIONS','Other gene mutations'),
+		('RADIOTHERAPY_BELOW_30','Radiotherapy below aged 30'),
+		('RADIOTHERAPY_LOWER','Radiotherapy to breast tissue aged 10-19'),
+		('RADIOTHERAPY_UPPER','Radiotherapy to breast tissue aged 20-35'),
+		('RISK_EQUIVALENT','Risk equivalent, not tested'),
+		('TP53','TP53 (Li-Fraumeni) syndrome');
+
+
+INSERT INTO [dbo].[GENE_CODE_LKP]
+		([GENE_CODE]
+		,[GENE_CODE_DESCRIPTION])
+	VALUES
+		('BRCA1','BRCA1'),
+		('BRCA2','BRCA2'),
+		('CDH1','CDH1 (E-Cadherin)'),
+		('OTHER','Other'),
+		('PALB2','PALB2'),
+		('PTEN','PTEN'),
+		('STK11','STK11');
+
 INSERT INTO [dbo].[EXCLUDED_SMU_LKP] VALUES
     ('A91151'),
     ('A91168'),

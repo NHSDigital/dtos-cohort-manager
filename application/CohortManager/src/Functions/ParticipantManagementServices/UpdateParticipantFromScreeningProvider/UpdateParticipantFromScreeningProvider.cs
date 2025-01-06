@@ -16,7 +16,7 @@ public class UpdateParticipantFromScreeningProvider
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IDataServiceClient<HigherRiskReferralReasonLkp> _higherRiskReferralReasonClient;
     private readonly IDataServiceClient<GeneCodeLkp> _geneCodeClient;
-
+    private BiAnalyticsParticipantDto reqParticipant;
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
 
@@ -35,8 +35,7 @@ public class UpdateParticipantFromScreeningProvider
     }
 
     // TODO: change to eventgrid trigger
-    // TODO: update participant management ef model
-    [Function("updateParticipant")]
+    [Function("UpdateParticipantFromScreeningProvider")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {   
         _logger.LogInformation("Update participant from screening provider called.");
@@ -49,22 +48,52 @@ public class UpdateParticipantFromScreeningProvider
                 requestBodyJson = reader.ReadToEnd();
             }
 
-            var participantManagementData = JsonSerializer.Deserialize<ParticipantManagement>(requestBodyJson);
+            reqParticipant = JsonSerializer.Deserialize<BiAnalyticsParticipantDto>(requestBodyJson);
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError("Request participant is invalid: {Ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
         try
         {
-            // validate that the participant exists and that the new data is newer
+            var dbParticipants = await _participantManagementClient.GetByFilter(p => p.NHSNumber == reqParticipant.NhsNumber);
+            ParticipantManagement dbParticipant = dbParticipants.FirstOrDefault();
 
-            // lookup primary keys for HIGHER_RISK_REFERRAL_REASON_ID and GENE_CODE_ID and replace the values with the PKs
+            // Participant does not exist in the DB
+            if (dbParticipant == null)
+            {
+                _logger.LogError("Participant does not exist");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Participant not found");
+            }
+            // Database contains more recent data
+            else if (dbParticipant.RecordUpdateDateTime > reqParticipant.SrcSysProcessedDateTime)
+            {
+                _logger.LogInformation("Request participant data is older than database participant data");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant not found");
+            }
 
+            // Replace Gene Code & Higher Risk Reason Code with relevant foreign key
+            var geneCodes = await _geneCodeClient.GetByFilter(x => x.GeneCode == reqParticipant.GeneCode);
+            long geneCodePk = geneCodes.FirstOrDefault().GeneCodeId;
+
+            var higherRiskReasons = await _higherRiskReferralReasonClient.GetByFilter(x => x.HigherRiskReferralReasonCode == reqParticipant.HigherRiskReferralReasonCode);
+            long higherRiskReasonPk = higherRiskReasons.FirstOrDefault().HigherRiskReferralReasonId;
+
+            var participantManagement = reqParticipant.ToParticipantManagement(geneCodePk, higherRiskReasonPk);
 
             // update data
+            bool updated = await _participantManagementClient.Update(participantManagement);
 
+            if (!updated) throw new IOException("Updating participant managment object failed");
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+        }
+        catch (ArgumentException ex)
+        {
+            _logger.LogError(ex.Message);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
@@ -72,6 +101,5 @@ public class UpdateParticipantFromScreeningProvider
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
-
 }
 

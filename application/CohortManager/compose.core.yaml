@@ -95,6 +95,18 @@ services:
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
 
+  update-participant-from-screening-provider:
+    container_name: update-participant-from-screening-provider
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8001
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - GeneCodeLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
+      - HigherRiskReferralReasonLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
+
   check-participant-exists:
     container_name: check-participant-exists
     network_mode: host
@@ -102,6 +114,7 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
     environment:
+      - ASPNETCORE_URLS=http://*:8002
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   # Screening Data Service
