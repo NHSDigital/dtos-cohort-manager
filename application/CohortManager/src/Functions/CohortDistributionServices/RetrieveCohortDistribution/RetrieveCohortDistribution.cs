@@ -56,10 +56,11 @@ public class RetrieveCohortDistributionData
             }
             else
             {
-                var nextRequest = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                if (nextRequest.Count != 0)
+                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId).FirstOrDefault();
+                var nextRequest = nextRequestAudit?.RequestId;
+                if (nextRequest != null)
                 {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
+                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequest);
                 }
             }
 
