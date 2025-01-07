@@ -34,12 +34,11 @@ public class UpdateParticipantFunction
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation("Update participant called.");
-        HttpWebResponse createResponse;
 
         string postData = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            postData = reader.ReadToEnd();
+            postData = await reader.ReadToEndAsync();
         }
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
@@ -77,14 +76,14 @@ public class UpdateParticipantFunction
                 participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
-                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
+                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
                 return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             updateResponse = await updateParticipant(participantCsvRecord);
             participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
-            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
+            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
             return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -98,7 +97,7 @@ public class UpdateParticipantFunction
         }
     }
 
-    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
+    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName)
     {
         if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, participant))
         {

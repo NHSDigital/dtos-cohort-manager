@@ -7,10 +7,11 @@ using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
 using receiveCaasFile;
+using Microsoft.Extensions.Azure;
+using Azure.Identity;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
-
 
 try
 {
@@ -28,13 +29,15 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker,RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IValidateDates, ValidateDates>();
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
 
-    host.Run();
+    await host.RunAsync();
 }
 catch (Exception ex)
 {

@@ -43,7 +43,7 @@ public class LookupValidation
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                var requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = await reader.ReadToEndAsync();
                 requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
         }
@@ -84,7 +84,7 @@ public class LookupValidation
 
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
-                _logger.LogInformation($"Executing workflow {newParticipant.RecordType}");
+                _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
             }
@@ -115,13 +115,13 @@ public class LookupValidation
         catch (Exception ex)
         {
             _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
-            _logger.LogError(ex, $"Error while processing lookup Validation message: {ex.Message}");
+            _logger.LogError(ex, "Error while processing lookup Validation message: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }
     }
 
-    private string GetValidationRulesName(RulesType rulesType)
+    private static string GetValidationRulesName(RulesType rulesType)
     {
         switch (rulesType)
         {

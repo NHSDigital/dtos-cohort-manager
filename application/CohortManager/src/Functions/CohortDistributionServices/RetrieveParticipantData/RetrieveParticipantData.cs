@@ -18,7 +18,6 @@ public class RetrieveParticipantData
     private readonly IParticipantManagerData _participantManagerData;
     private readonly ICreateDemographicData _createDemographicData;
     private readonly ICreateParticipant _createParticipant;
-
     private readonly IExceptionHandler _exceptionHandler;
 
     public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IParticipantManagerData participantManagerData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant, IExceptionHandler exceptionHandler)
@@ -41,7 +40,7 @@ public class RetrieveParticipantData
             string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                requestBodyJson = await reader.ReadToEndAsync();
             }
             requestBody = JsonSerializer.Deserialize<RetrieveParticipantRequestBody>(requestBodyJson);
         }

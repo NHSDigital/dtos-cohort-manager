@@ -40,7 +40,7 @@ public class RemoveParticipant
             string postData = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postData = reader.ReadToEnd();
+                postData = await reader.ReadToEndAsync();
             }
 
             basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
