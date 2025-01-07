@@ -10,10 +10,10 @@ using Polly;
 public class CheckDemographic : ICheckDemographic
 {
     private readonly ICallFunction _callFunction;
-    private readonly ILogger<ICheckDemographic> _logger;
-    private readonly HttpClient _httpClient = new HttpClient();
+    private readonly ILogger<CheckDemographic> _logger;
+    private readonly HttpClient _httpClient;
 
-    public CheckDemographic(ICallFunction callFunction, ILogger<ICheckDemographic> logger, HttpClient httpClient)
+    public CheckDemographic(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient)
     {
         _callFunction = callFunction;
         _logger = logger;
@@ -62,7 +62,7 @@ public class CheckDemographic : ICheckDemographic
                 .WaitAndRetryAsync(maxNumberOfChecks, check => delayBetweenChecks,
                     (result, timeSpan, checkCount, context) =>
                     {
-                        _logger.LogWarning($"Status: {result.Result}, checking status: ({checkCount}/{maxNumberOfChecks})...");
+                        _logger.LogWarning("Status: {result}, checking status: ({checkCount} / {maxNumberOfChecks})...", result.Result, checkCount, maxNumberOfChecks);
                     });
 
             var finalStatus = await retryPolicy.ExecuteAsync(async () =>
@@ -83,8 +83,9 @@ public class CheckDemographic : ICheckDemographic
         }
         catch (Exception ex)
         {
-            _logger.LogWarning($"An error occurred: {ex.Message}");
-            return false;
+            // we want to do this as we don't want to lose records 
+            _logger.LogWarning(ex, "An error occurred: {Message} still sending records to queue", ex.Message);
+            return true;
         }
     }
 

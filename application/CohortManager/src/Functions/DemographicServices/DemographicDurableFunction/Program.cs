@@ -21,4 +21,4 @@ var host = new HostBuilder()
     .AddDatabaseConnection()
     .Build();
 
-host.Run();
+await host.RunAsync();

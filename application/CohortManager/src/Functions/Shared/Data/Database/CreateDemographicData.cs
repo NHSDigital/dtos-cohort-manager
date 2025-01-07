@@ -10,15 +10,12 @@ using Microsoft.Extensions.Options;
 public class CreateDemographicData : ICreateDemographicData
 {
     private readonly IDbConnection _dbConnection;
-    private readonly IDatabaseHelper _databaseHelper;
-    private readonly string _connectionString;
-    private readonly ILogger<CreateDemographicData> _logger;
 
-    public CreateDemographicData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateDemographicData> logger)
+    private readonly string _connectionString;
+
+    public CreateDemographicData(IDbConnection IdbConnection)
     {
         _dbConnection = IdbConnection;
-        _databaseHelper = databaseHelper;
-        _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString");
     }
 
@@ -146,57 +143,6 @@ public class CreateDemographicData : ICreateDemographicData
             }
         }
 
-    }
-
-    private async Task<bool> UpdateRecords(List<SQLReturnModel> sqlToExecute)
-    {
-        var command = CreateCommand(sqlToExecute[0].Parameters);
-        var transaction = BeginTransaction();
-        try
-        {
-            command.Transaction = transaction;
-            foreach (var sqlCommand in sqlToExecute)
-            {
-                command.CommandText = sqlCommand.SQL;
-                if (!Execute(command))
-                {
-                    transaction.Rollback();
-                    return false;
-                }
-            }
-
-            await Task.CompletedTask;
-            transaction.Commit();
-
-            return true;
-        }
-        catch
-        {
-            transaction.Rollback();
-            // we need to rethrow the exception here if there is an error we need to roll back the transaction.
-            throw;
-        }
-        finally
-        {
-            _dbConnection.Close();
-        }
-    }
-
-    private bool Execute(IDbCommand command)
-    {
-        var result = command.ExecuteNonQuery();
-        if (result == 0)
-        {
-            return false;
-        }
-        return true;
-    }
-
-    private IDbTransaction BeginTransaction()
-    {
-        _dbConnection.ConnectionString = _connectionString;
-        _dbConnection.Open();
-        return _dbConnection.BeginTransaction();
     }
 
     private IDbCommand CreateCommand(Dictionary<string, object> parameters)

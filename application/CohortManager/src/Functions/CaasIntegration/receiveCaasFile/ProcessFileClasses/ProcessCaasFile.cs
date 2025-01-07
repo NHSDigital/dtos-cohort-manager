@@ -150,6 +150,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await RemoveParticipant(updateRecords, name);
             }
         }
+        // this used to release memory from being used 
         currentBatch = null;
     }
 

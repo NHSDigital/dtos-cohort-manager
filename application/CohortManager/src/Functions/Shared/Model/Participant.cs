@@ -7,7 +7,7 @@ public class Participant
     public Participant() { }
     public Participant(ParticipantManagement pm)
     {
-        if(pm == null)
+        if (pm == null)
         {
             return;
         }
@@ -103,10 +103,15 @@ public class Participant
             EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = !string.IsNullOrEmpty(IsInterpreterRequired) ? short.Parse(IsInterpreterRequired) : null,
-            InvalidFlag = (short?)(!string.IsNullOrEmpty(InvalidFlag) ? InvalidFlag.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0 : 0),
+            InvalidFlag = (short?)GetInvalidFlag(),
             RecordInsertDateTime = DateTime.Now,
             RecordUpdateDateTime = null,
         };
+    }
+
+    private int GetInvalidFlag()
+    {
+        return !string.IsNullOrEmpty(InvalidFlag) ? InvalidFlag.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0 : 0;
     }
 
     public string? RecordType { get; set; }
