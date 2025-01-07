@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Common;
+using FluentValidation.Validators;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -108,10 +109,16 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 result = await _dataServiceAccessor.GetRange(predicate);
             }
 
-            if (result == null)
+            if (!ResultHasContent(result))
             {
                 return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
             }
+
+            if(result is IEnumerable<TEntity>){
+
+            }
+
+
 
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
@@ -327,6 +334,30 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             return result;
         }
         return defaultValue;
+    }
+
+    private static bool ResultHasContent(Object obj)
+    {
+        if(obj == null)
+        {
+            return true;
+        }
+
+        if(obj is not IEnumerable<TEntity>) // Object isnt null and isnt IEnumerable so will have data
+        {
+            return true;
+        }
+
+        var data = (IEnumerable<TEntity>)obj;
+
+        if(data == null)
+        {
+            return false;
+        }
+
+        var result = data.Any();
+
+        return result;
     }
 
     private HttpResponseData CreateErrorResponse(HttpRequestData req, string message, HttpStatusCode statusCode)
