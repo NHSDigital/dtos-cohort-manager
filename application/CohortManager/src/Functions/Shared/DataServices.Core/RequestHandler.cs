@@ -114,12 +114,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
             }
 
-            if(result is IEnumerable<TEntity>){
-
-            }
-
-
-
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = JsonSerializer.Serialize(result)
@@ -349,12 +343,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
 
         var data = (IEnumerable<TEntity>)obj;
-
-        if(data == null)
-        {
-            return false;
-        }
-
         var result = data.Any();
 
         return result;
