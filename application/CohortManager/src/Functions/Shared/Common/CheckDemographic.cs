@@ -94,11 +94,11 @@ public class CheckDemographic : ICheckDemographic
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
 
-        var data = JsonSerializer.Deserialize<RuntimeStatus>(jsonResponse);
+        var data = JsonSerializer.Deserialize<WebhookResponse>(jsonResponse);
 
         if (data != null)
         {
-            if (!Enum.TryParse(data.runtimeStatus, out WorkFlowStatus workFlowStatus))
+            if (!Enum.TryParse(data.RuntimeStatus, out WorkFlowStatus workFlowStatus))
             {
                 _logger.LogError(jsonResponse);
             }

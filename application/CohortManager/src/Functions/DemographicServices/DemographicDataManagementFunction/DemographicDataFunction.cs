@@ -35,7 +35,7 @@ public class DemographicDataFunction
 
             if (string.IsNullOrEmpty(data))
             {
-                _logger.LogInformation("demographic function failed");
+                _logger.LogInformation("Demographic function failed");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);

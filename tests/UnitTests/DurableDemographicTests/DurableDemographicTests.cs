@@ -45,13 +45,8 @@ public class DurableDemographicTests
         _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
 
         serviceProvider = _serviceCollection.BuildServiceProvider();
-
         mockFunctionContext = CreateMockFunctionContext();
-
-        //mockHttpRequest = new Mock<HttpRequestData>(mockFunctionContext.Object);
-
         mockFunctionContext.SetupProperty(c => c.InstanceServices, serviceProvider);
-
     }
 
 
@@ -177,7 +172,6 @@ public class DurableDemographicTests
     private static Mock<FunctionContext> CreateMockFunctionContext()
     {
         var context = new Mock<FunctionContext>();
-        // var loggerMock = new Mock<ILogger>();
         return context;
     }
 
