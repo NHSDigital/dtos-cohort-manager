@@ -50,6 +50,7 @@ local.settings.json
 application/CohortManager/SampleData/
 *.csv
 *.parquet
+!tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
