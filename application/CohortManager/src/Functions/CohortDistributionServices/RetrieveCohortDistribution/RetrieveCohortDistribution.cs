@@ -62,7 +62,16 @@ public class RetrieveCohortDistributionData
             if (cohortDistributionParticipants.Count == 0)
             {
                 cohortDistributionParticipants = _createCohortDistributionData
-                    .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+            }
+            else
+            {
+                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
+                var nextRequestId = nextRequestAudit?.RequestId;
+                if (nextRequestId != null)
+                {
+                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequestId);
+                }
             }
 
             return cohortDistributionParticipants.Count == 0
