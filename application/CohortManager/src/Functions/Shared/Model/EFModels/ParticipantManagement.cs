@@ -42,15 +42,15 @@ public class ParticipantManagement
     [Column("SCREENING_CEASED_REASON")]
     public string? ScreeningCeasedReason {get; set;}
     [Column("IS_HIGHER_RISK")]
-    public Int16 IsHigherRisk {get; set;}
+    public Int16? IsHigherRisk {get; set;}
     [Column("IS_HIGHER_RISK_ACTIVE")]
-    public Int16 IsHigherRiskActive {get; set;}
+    public Int16? IsHigherRiskActive {get; set;}
     [Column("HIGHER_RISK_NEXT_TEST_DUE_DATE")]
-    public DateTime HigherRiskNextTestDueDate {get; set;}
+    public DateTime? HigherRiskNextTestDueDate {get; set;}
     [Column("HIGHER_RISK_REFERRAL_REASON_ID")]
-    public Int64 HigherRiskReferralReasonId {get; set;}
+    public Int64? HigherRiskReferralReasonId {get; set;}
     [Column("DATE_IRRADIATED")]
-    public DateTime DateIrradiated {get; set;}
+    public DateTime? DateIrradiated {get; set;}
     [Column("GENE_CODE_ID")]
-    public Int64 GeneCodeId {get; set;}
+    public Int64? GeneCodeId {get; set;}
 }

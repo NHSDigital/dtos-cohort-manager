@@ -7,7 +7,7 @@ public class HigherRiskReferralReasonLkp
 {
     [Key]
     [Column("HIGHER_RISK_REFERRAL_REASON_ID")]
-    public long HigherRiskReferralReasonId { get; set; }
+    public Int32 HigherRiskReferralReasonId { get; set; }
 
     [Column("HIGHER_RISK_REFERRAL_REASON_CODE")]
     public string? HigherRiskReferralReasonCode { get; set; }

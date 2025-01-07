@@ -35,7 +35,7 @@ INSERT INTO [dbo].[HIGHER_RISK_REFERRAL_REASON_LKP]
 		('RADIOTHERAPY_LOWER','Radiotherapy to breast tissue aged 10-19'),
 		('RADIOTHERAPY_UPPER','Radiotherapy to breast tissue aged 20-35'),
 		('RISK_EQUIVALENT','Risk equivalent, not tested'),
-		('TP53','TP53 (Li-Fraumeni) syndrome');
+		('TP53', 'TP53 (Li-Fraumeni) syndrome');
 
 
 INSERT INTO [dbo].[GENE_CODE_LKP]

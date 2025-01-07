@@ -59,20 +59,23 @@ public class UpdateParticipantFromScreeningProvider
         try
         {
             var dbParticipants = await _participantManagementClient.GetByFilter(p => p.NHSNumber == reqParticipant.NhsNumber);
-            ParticipantManagement dbParticipant = dbParticipants.FirstOrDefault();
 
             // Participant does not exist in the DB
-            if (dbParticipant == null)
+            if (dbParticipants == null || !dbParticipants.Any())
             {
-                _logger.LogError("Participant does not exist");
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Participant not found");
-            }
-            // Database contains more recent data
-            else if (dbParticipant.RecordUpdateDateTime > reqParticipant.SrcSysProcessedDateTime)
-            {
-                _logger.LogInformation("Request participant data is older than database participant data");
+                _logger.LogError("Participant not found");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant not found");
             }
+
+            ParticipantManagement dbParticipant = dbParticipants.FirstOrDefault();
+
+            // Database contains more recent data
+            if (dbParticipant.RecordUpdateDateTime > reqParticipant.SrcSysProcessedDateTime)
+            {
+                _logger.LogInformation("Request participant data is older than database participant data");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Participant not found");
+            }
+
 
             // Replace Gene Code & Higher Risk Reason Code with relevant foreign key
             var geneCodes = await _geneCodeClient.GetByFilter(x => x.GeneCode == reqParticipant.GeneCode);
@@ -84,6 +87,7 @@ public class UpdateParticipantFromScreeningProvider
             var participantManagement = reqParticipant.ToParticipantManagement(geneCodePk, higherRiskReasonPk);
 
             // update data
+            participantManagement.ParticipantId = dbParticipant.ParticipantId;
             bool updated = await _participantManagementClient.Update(participantManagement);
 
             if (!updated) throw new IOException("Updating participant managment object failed");

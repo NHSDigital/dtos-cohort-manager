@@ -203,6 +203,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
 
             var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
+            if (entityData == null)
+                return CreateErrorResponse(req, "Couldn't desrialise body", HttpStatusCode.NotFound);
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);

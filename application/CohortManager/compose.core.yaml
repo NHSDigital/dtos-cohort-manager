@@ -103,9 +103,9 @@ services:
       dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8001
-      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
       - GeneCodeLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
-      - HigherRiskReferralReasonLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
+      - HigherRiskReferralReasonLkpUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
 
   check-participant-exists:
     container_name: check-participant-exists
