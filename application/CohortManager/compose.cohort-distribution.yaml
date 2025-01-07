@@ -94,7 +94,7 @@ services:
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/DockerFile
+      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7084
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
