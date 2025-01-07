@@ -28,8 +28,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Shared\Common\Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Shared\Model\Model.csproj", "{682DDE9F-2868-4477-B159-9EB7D255D565}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{8DF1A047-4800-4668-877F-8AC8708AB238}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Shared\Data\Data.csproj", "{ABA8CD5A-BEF7-4962-9C23-AE69F430CC1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveParticipant", "ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj", "{40B97A2D-B75C-417B-90DB-4EE423250314}"
@@ -168,15 +166,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformReasonForRemovalTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{DCBF3583-DC87-46BE-93DC-C345E779D95C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCaasFileTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\processCaasFileTest\ProcessCaasFileTests.csproj", "{FE9773EF-DFB8-4308-869B-EABD0776C828}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{2AC4643E-35A5-4BC1-BDF9-2377E9748316}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordsProcessedTrackerTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\RecordsProcessedTrackerTests\RecordsProcessedTrackerTests.csproj", "{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateDatesTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\ValidateDates\ValidateDatesTests.csproj", "{9005A919-F64D-4723-87A7-595BB4E64563}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\UnitTests\DataServiceTests\DataServiceTests.csproj", "{E26B2D73-BD60-4AD8-B403-939ACEDE9429}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{CD0F16B5-8752-4917-A4CF-15195607E027}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCaasFileTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\processCaasFileTest\ProcessCaasFileTests.csproj", "{FF6BE3D4-F1A4-42EB-B473-21E50A634317}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordsProcessedTrackerTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\RecordsProcessedTrackerTests\RecordsProcessedTrackerTests.csproj", "{04BAA993-D8D1-4A54-B74B-9B96561CA054}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -420,10 +420,6 @@ Global
 		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8990183-52BA-4A1F-B333-5B32AAF14348}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -464,6 +460,22 @@ Global
 		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD0F16B5-8752-4917-A4CF-15195607E027}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD0F16B5-8752-4917-A4CF-15195607E027}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD0F16B5-8752-4917-A4CF-15195607E027}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD0F16B5-8752-4917-A4CF-15195607E027}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF6BE3D4-F1A4-42EB-B473-21E50A634317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF6BE3D4-F1A4-42EB-B473-21E50A634317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF6BE3D4-F1A4-42EB-B473-21E50A634317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF6BE3D4-F1A4-42EB-B473-21E50A634317}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
