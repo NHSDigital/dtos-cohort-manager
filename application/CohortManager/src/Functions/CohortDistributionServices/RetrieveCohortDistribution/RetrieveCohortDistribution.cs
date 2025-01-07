@@ -45,24 +45,28 @@ public class RetrieveCohortDistributionData
         var requestId = req.Query["requestId"];
         int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
         int rowCount = _httpParserHelper.GetRowCount(req);
-        List<CohortDistributionParticipantDto> cohortDistributionParticipants;
+        var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
 
         try
         {
             if (string.IsNullOrEmpty(requestId))
             {
                 cohortDistributionParticipants = _createCohortDistributionData
-                    .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
             }
             else
             {
-                cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
+                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
+                var nextRequestId = nextRequestAudit?.RequestId;
+                if (nextRequestId != null)
+                {
+                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequestId);
+                }
             }
 
-            if (cohortDistributionParticipants.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-
-            var cohortDistributionParticipantsJson = JsonSerializer.Serialize(cohortDistributionParticipants);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, cohortDistributionParticipantsJson);
+            return cohortDistributionParticipants.Count == 0
+                ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+                : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(cohortDistributionParticipants));
         }
         catch (Exception ex)
         {
