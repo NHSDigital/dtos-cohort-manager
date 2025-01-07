@@ -4,25 +4,22 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
+using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
-    private readonly QueueServiceClient _addQueueClient;
+
     public readonly ILogger<AddBatchToQueue> _logger;
 
-    private readonly QueueClient _queueClient;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, QueueServiceClient addQueueClient)
+    private readonly IAzureQueueStorageHelper _queueHelper;
+
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper)
     {
-
-        _addQueueClient = addQueueClient;
         _logger = logger;
-
-        var queueName = Environment.GetEnvironmentVariable("AddQueueName");
-        _queueClient = _addQueueClient.GetQueueClient(queueName);
-        _queueClient.CreateIfNotExists();
+        _queueHelper = queueHelper;
     }
 
     public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch)
@@ -55,7 +52,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
-        await _queueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
+        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord,Environment.GetEnvironmentVariable("AddQueueName"));
     }
 
     private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)

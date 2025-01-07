@@ -78,12 +78,17 @@ public class CreateCohortDistribution
             }
 
             var ignoreParticipantExceptions = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("IgnoreParticipantExceptions", DataTypes.Boolean);
-            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
+
+            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
                 var ParticipantExceptionErrorMessage = $"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it";
                 _logger.LogInformation(ParticipantExceptionErrorMessage, participantData.ParticipantId);
                 await HandleErrorResponseAsync(ParticipantExceptionErrorMessage, participantData, basicParticipantCsvRecord.FileName);
                 return;
+            }
+            else
+            {
+                _logger.LogInformation("Ignore Participant Exceptions is enabled, Record will be processed");
             }
 
             // Validate cohort distribution record & transform data service

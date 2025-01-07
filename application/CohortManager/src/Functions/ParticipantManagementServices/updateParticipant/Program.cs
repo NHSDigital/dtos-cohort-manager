@@ -17,6 +17,7 @@ var host = new HostBuilder()
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
         });
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .Build();
 

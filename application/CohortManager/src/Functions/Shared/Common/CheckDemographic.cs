@@ -53,7 +53,7 @@ public class CheckDemographic : ICheckDemographic
 
             var responseContent = response.Headers.Location.ToString();
 
-            var maxNumberOfChecks = 20;
+            var maxNumberOfChecks = 50;
             var delayBetweenChecks = TimeSpan.FromSeconds(3);
 
             // this is not retrying the function if it fails but checking if it has done yet. 

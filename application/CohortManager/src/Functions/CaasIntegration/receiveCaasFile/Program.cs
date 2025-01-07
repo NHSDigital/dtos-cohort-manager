@@ -42,14 +42,8 @@ try
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
         services.AddScoped<IValidateDates, ValidateDates>();
-        services.AddAzureClients(builder =>
-        {
-            // Use the environment credential by default
-            builder.UseCredential(new DefaultAzureCredential());
-            builder.AddQueueServiceClient(Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "")
-              .ConfigureOptions(c => c.MessageEncoding = Azure.Storage.Queues.QueueMessageEncoding.Base64);
-        });
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
