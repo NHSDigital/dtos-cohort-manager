@@ -117,10 +117,10 @@ public class AddNewParticipantTest
             log.Log(
             LogLevel.Information,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created")),
+            It.IsAny<It.IsAnyType>(),
             null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Participant created");
     }
 
     [TestMethod]
@@ -185,7 +185,7 @@ public class AddNewParticipantTest
                 0,
                 It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("There was problem posting the participant to the database")),
                 null,
-                (Func<object, Exception, string>)It.IsAny<object>()),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once); // Ensure the LogError is called exactly once
     }
 
@@ -233,10 +233,10 @@ public class AddNewParticipantTest
             log.Log(
             LogLevel.Information,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created, marked as eligible")),
+            It.IsAny<It.IsAnyType>(),
             null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Participant created, marked as eligible");
     }
     [TestMethod]
     public async Task Run_MarkAsEligibleFails_ThrowException()

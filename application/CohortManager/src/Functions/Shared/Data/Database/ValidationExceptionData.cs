@@ -334,7 +334,7 @@ public class ValidationExceptionData : IValidationExceptionData
         }
         catch (Exception ex)
         {
-            _logger.LogError($"an error happened: {ex.Message}");
+            _logger.LogError(ex, "An error happened: {Message}", ex.Message);
             return false;
         }
 

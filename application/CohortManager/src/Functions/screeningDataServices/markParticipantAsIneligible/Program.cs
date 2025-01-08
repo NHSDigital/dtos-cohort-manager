@@ -8,7 +8,6 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.TryAddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
@@ -18,4 +17,4 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();

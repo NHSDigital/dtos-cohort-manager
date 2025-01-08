@@ -76,9 +76,9 @@ public class CallFunction : ICallFunction
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = data.Length;
 
-        using (var stream = request.GetRequestStream())
+        using (var stream = await request.GetRequestStreamAsync())
         {
-            stream.Write(data, 0, data.Length);
+            await stream.WriteAsync(data, 0, data.Length);
         }
 
         try

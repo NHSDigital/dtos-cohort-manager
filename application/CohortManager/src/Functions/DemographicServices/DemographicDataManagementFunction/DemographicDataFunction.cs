@@ -42,7 +42,7 @@ public class DemographicDataFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError($"there has been an error saving demographic data: {ex.Message}");
+            _logger.LogError(ex, "There has been an error saving demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
