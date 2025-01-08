@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Common;
+using FluentValidation.Validators;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
     private readonly ILogger<RequestHandler<TEntity>> _logger;
-
     private readonly AuthenticationConfiguration _authConfig;
-
     private readonly PropertyInfo _keyInfo;
-
-    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{
+    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+        {
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
         };
 
@@ -38,7 +37,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         _logger = logger;
         _authConfig = authenticationConfiguration;
         _keyInfo = ReflectionUtilities.GetKey<TEntity>();
-
     }
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
@@ -93,17 +91,37 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             _logger.LogWarning("Unauthorized Method was called");
             return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
-        try{
+
+        try
+        {
             var predicate = CreateFilterExpression(req);
-            var result = await _dataServiceAccessor.GetRange(predicate);
-            if(result == null || !result.Any())
+            object result;
+
+            if (GetBooleanQueryItem(req,"single"))
+            {
+                result = await _dataServiceAccessor.GetSingle(predicate);
+            }
+            else
+            {
+                result = await _dataServiceAccessor.GetRange(predicate);
+            }
+
+            if (!ResultHasContent(result))
             {
                 return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
             }
+
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = JsonSerializer.Serialize(result)
             });
+        }
+        catch(MultipleRecordsFoundException mre)
+        {
+            _logger.LogWarning(mre,"Multiple Records were returned from filter expression when only one was expected: {message}",mre.Message);
+            return CreateErrorResponse(req,"Multiple rows met filter condition when only one row was expected",HttpStatusCode.BadRequest);
+
+
         }
         catch(Exception ex)
         {
@@ -256,7 +274,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
-        var filterConstant = Expression.Constant(Convert.ChangeType(filter, GetPropertyType(typeof(TEntity), _keyInfo.Name)));
+        var filterConstant = Expression.Constant(Convert.ChangeType(filter, ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name)));
         var expr = Expression.Equal(entityKey, filterConstant);
 
         return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
@@ -278,13 +296,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 return DynamicExpressionParser.ParseLambda<TEntity,bool>(new ParsingConfig(),true, req.Query[item]);
             }
 
-            if (!PropertyExists(typeof(TEntity), item))
+            if (!ReflectionUtilities.PropertyExists(typeof(TEntity), item))
             {
                 _logger.LogWarning("Query Item: '{item}' does not exist in TEntity: '{entityName}'", item, typeof(TEntity).Name);
                 continue;
             }
             var entityKey = Expression.Property(entityParameter, item);
-            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item], GetPropertyType(typeof(TEntity), item)));
+            var filterConstant = Expression.Constant(Convert.ChangeType(req.Query[item], ReflectionUtilities.GetPropertyType(typeof(TEntity), item)));
             var comparison = Expression.Equal(entityKey, filterConstant);
             if (expr == null)
             {
@@ -298,17 +316,34 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private static Type GetPropertyType(Type type, string property)
+    private static bool GetBooleanQueryItem(HttpRequestData req, string headerKey, bool defaultValue = false)
     {
-        return type.GetProperty(property).PropertyType;
+        if(req.Query[headerKey] == null){
+            return defaultValue;
+        }
+        if(bool.TryParse(req.Query[headerKey],out var result)){
+            return result;
+        }
+        return defaultValue;
     }
 
-    private static bool PropertyExists(Type type, string property) =>
-        Array.Exists(type.GetProperties(), p => p.Name == property);
+    private static bool ResultHasContent(Object obj)
+    {
+        if(obj == null)
+        {
+            return true;
+        }
 
+        if(obj is not IEnumerable<TEntity>) // Object isnt null and isnt IEnumerable so will have data
+        {
+            return true;
+        }
 
+        var data = (IEnumerable<TEntity>)obj;
+        var result = data.Any();
 
-
+        return result;
+    }
 
     private HttpResponseData CreateErrorResponse(HttpRequestData req, string message, HttpStatusCode statusCode)
     {
