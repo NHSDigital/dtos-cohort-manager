@@ -13,7 +13,6 @@ using Azure.Identity;
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
 
-
 try
 {
     var host = new HostBuilder()
@@ -38,7 +37,7 @@ try
     .AddDatabaseConnection()
     .Build();
 
-    host.Run();
+    await host.RunAsync();
 }
 catch (Exception ex)
 {

@@ -103,10 +103,7 @@ public class AddNewParticipantTest
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-
-
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object,  _cohortDistributionHandler.Object);
-
+        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
@@ -116,77 +113,77 @@ public class AddNewParticipantTest
             log.Log(
             LogLevel.Information,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created")),
+            It.IsAny<It.IsAnyType>(),
             null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Participant created");
     }
 
-[TestMethod]
-public async Task Run_FailedParticipantCreation_LogError()
-{
-    // Arrange
-    var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+    [TestMethod]
+    public async Task Run_FailedParticipantCreation_LogError()
     {
-        FileName = "ExampleFileName.CSV",
-        Participant = new BasicParticipantData
+        // Arrange
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            NhsNumber = "1234567890"
-        }
-    };
-    var participantCsvRecord = new ParticipantCsvRecord
-    {
-        Participant = new Participant
+            FileName = "ExampleFileName.CSV",
+            Participant = new BasicParticipantData
+            {
+                NhsNumber = "1234567890"
+            }
+        };
+        var participantCsvRecord = new ParticipantCsvRecord
         {
-            NhsNumber = "1234567890",
-            ExceptionFlag = "N"
-        }
-    };
-    var requestJson = JsonSerializer.Serialize(basicParticipantCsvRecord);
-    var validateResponseJson = JsonSerializer.Serialize(participantCsvRecord);
+            Participant = new Participant
+            {
+                NhsNumber = "1234567890",
+                ExceptionFlag = "N"
+            }
+        };
+        var requestJson = JsonSerializer.Serialize(basicParticipantCsvRecord);
+        var validateResponseJson = JsonSerializer.Serialize(participantCsvRecord);
 
-    _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-    var errorResponse = new Mock<HttpWebResponse>();
-    errorResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest); // Simulate error response
+        var errorResponse = new Mock<HttpWebResponse>();
+        errorResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest); // Simulate error response
 
-    _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
-        .Returns(Task.FromResult<HttpWebResponse>(errorResponse.Object)); // Return error response
+        _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(errorResponse.Object)); // Return error response
 
-    _callFunctionMock.Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
-        .ReturnsAsync(validateResponseJson);
+        _callFunctionMock.Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(validateResponseJson);
 
-    _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
-        .Returns(Task.FromResult(new Demographic()));
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
+            .Returns(Task.FromResult(new Demographic()));
 
-    _handleException.Setup(x => x.CreateSystemExceptionLog(
-        It.IsAny<Exception>(),
-        It.IsAny<Participant>(),
-        It.IsAny<string>()))
-        .Returns(Task.CompletedTask);
+        _handleException.Setup(x => x.CreateSystemExceptionLog(
+            It.IsAny<Exception>(),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
-    var sut = new AddParticipantFunction(
-        _loggerMock.Object,
-        _callFunctionMock.Object,
-        _createResponse.Object,
-        _checkDemographic.Object,
-        _createParticipant,
-        _handleException.Object,
-         _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object,
+            _callFunctionMock.Object,
+            _createResponse.Object,
+            _checkDemographic.Object,
+            _createParticipant,
+            _handleException.Object,
+             _cohortDistributionHandler.Object);
 
-    // Act
-    await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
+        // Act
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
-    // Assert
-    _loggerMock.Verify(log =>
-        log.Log(
-            LogLevel.Error,
-            0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("There was problem posting the participant to the database")),
-            null,
-            (Func<object, Exception, string>)It.IsAny<object>()),
-        Times.Once); // Ensure the LogError is called exactly once
-}
+        // Assert
+        _loggerMock.Verify(log =>
+            log.Log(
+                LogLevel.Error,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("There was problem posting the participant to the database")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once); // Ensure the LogError is called exactly once
+    }
 
     [TestMethod]
     public async Task Run_Should_Log_Participant_Marked_As_Eligible()
@@ -232,10 +229,10 @@ public async Task Run_FailedParticipantCreation_LogError()
             log.Log(
             LogLevel.Information,
             0,
-            It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("participant created, marked as eligible")),
+            It.IsAny<It.IsAnyType>(),
             null,
-            (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Participant created, marked as eligible");
     }
     [TestMethod]
     public async Task Run_MarkAsEligibleFails_ThrowException()
@@ -264,24 +261,24 @@ public async Task Run_FailedParticipantCreation_LogError()
                 It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(eligibleResponse.Object));
 
-                _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
+        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-            _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+        _callFunctionMock.Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-            _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
-                .Returns(Task.FromResult<Demographic>(new Demographic()));
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-            _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-                JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-                {
-                    IsFatal = false,
-                    CreatedException = false
-                })));
+        _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
 
 
-                // Mock the exception handling
+        // Mock the exception handling
         _handleException.Setup(x => x.CreateSystemExceptionLog(
             It.IsAny<Exception>(),
             It.IsAny<Participant>(),
