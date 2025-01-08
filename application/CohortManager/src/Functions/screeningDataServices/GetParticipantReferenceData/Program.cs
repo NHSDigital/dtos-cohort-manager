@@ -10,9 +10,9 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
-        services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICallFunction, CallFunction>();
+        .AddDataService<GeneCodeLkp>(Environment.GetEnvironmentVariable("GeneCodeLkpUrl"))
+        .AddDataService<HigherRiskReferralReasonLkp>(Environment.GetEnvironmentVariable("HigherRiskReferralReasonLkpUrl"))
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
