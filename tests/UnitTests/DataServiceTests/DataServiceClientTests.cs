@@ -102,6 +102,26 @@ public class DataServiceClientTests
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
+    public async Task GetSingleByFilter_SendsValidRequest_ReturnsParticipantDemographic()
+    {
+        //arrange
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
+        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("{}");
+
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123
+        };
+
+        //act
+        var result = await dataServiceClient.GetSingleByFilter(i => i.ParticipantId == 123);
+
+        //assert
+        result.Should().BeAssignableTo<ParticipantDemographic>();
+        _mockCallFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockCallFunction.VerifyNoOtherCalls();
+    }
+    [TestMethod]
     public async Task GetSingle_SendsGetSingleRequest_ReturnsParticipantDemographic()
     {
         //arrange

@@ -228,6 +228,23 @@ public class BsSelectGpPracticeDataServiceTests
         //assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
+    [DataRow("i => i.CountryCategory = \"ENGLAND\"")]
+    [TestMethod]
+    public async Task RunAsyncGetItemByQueryExpectsSingle_ReturnsBadRequest(string query)
+    {
+        //arrange
+        _authenticationConfiguration = DataServiceTestHelper.AllowAllAccessConfig;
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, "", "GET");
+        req.AddQuery("query", query);
+        req.AddQuery("single","true");
+        //act
+        var result = await function.Run(req, null);
+
+        //assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
     #endregion
     #region Deletes
 

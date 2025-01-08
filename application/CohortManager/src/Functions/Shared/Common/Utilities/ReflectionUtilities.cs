@@ -16,4 +16,15 @@ public static class ReflectionUtilities
         return type.GetProperties().FirstOrDefault(p =>
             p.CustomAttributes.Any(attr => attr.AttributeType == typeof(KeyAttribute)));
     }
+
+
+    public static Type GetPropertyType(Type type, string property)
+    {
+        return type.GetProperty(property).PropertyType;
+    }
+
+    public static bool PropertyExists(Type type, string property) =>
+        Array.Exists(type.GetProperties(), p => p.Name == property);
+
+
 }
