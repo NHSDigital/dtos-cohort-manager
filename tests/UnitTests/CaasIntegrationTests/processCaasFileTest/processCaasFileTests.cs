@@ -165,7 +165,7 @@ public class ProcessCaasFileTests
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("the participant could not found to allow for updating")),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant could not be found, preventing updates from being applied")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
            Times.Once);
