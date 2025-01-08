@@ -5,7 +5,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Azure.Messaging.EventGrid;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using System.Text;
 using Model;
 using System.Text.Json;
@@ -19,43 +18,41 @@ public class UpdateParticipantFromScreeningProvider
     private readonly IDataServiceClient<HigherRiskReferralReasonLkp> _higherRiskReferralReasonClient;
     private readonly IDataServiceClient<GeneCodeLkp> _geneCodeClient;
     private BiAnalyticsParticipantDto reqParticipant;
-    private readonly ICreateResponse _createResponse;
-    private readonly ICallFunction _callFunction;
+    private readonly EventGridPublisherClient _eventGridPublisherClient;
+    private readonly IExceptionHandler _exceptionHandler;
 
-    public UpdateParticipantFromScreeningProvider(ILogger<UpdateParticipantFromScreeningProvider> logger,
-                                                ICreateResponse createResponse, ICallFunction callFunction,
+    public UpdateParticipantFromScreeningProvider(ILogger<UpdateParticipantFromScreeningProvider> logger,,
                                                 IDataServiceClient<ParticipantManagement> participantManagementClient,
                                                 IDataServiceClient<HigherRiskReferralReasonLkp> higherRiskReferralReasonClient,
-                                                IDataServiceClient<GeneCodeLkp> geneCodeClient)
+                                                IDataServiceClient<GeneCodeLkp> geneCodeClient,
+                                                EventGridPublisherClient eventGridPublisherClient,
+                                                IExceptionHandler exceptionHandler)
     {
         _logger = logger;
-        _createResponse = createResponse;
-        _callFunction = callFunction;
         _participantManagementClient = participantManagementClient;
         _higherRiskReferralReasonClient =  higherRiskReferralReasonClient;
         _geneCodeClient = geneCodeClient;
+        _eventGridPublisherClient = eventGridPublisherClient;
+        _exceptionHandler = exceptionHandler;
     }
 
+    // Default URL for triggering event grid function in the local environment.
+    // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
     // TODO: change to eventgrid trigger
     [Function("UpdateParticipantFromScreeningProvider")]
-    public async Task<HttpResponseData> Run([EventGridTrigger] EventGridEvent eventGridEvent)
+    public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
     {   
         _logger.LogInformation("Update participant from screening provider called.");
 
         try
         {
-            string requestBodyJson;
-            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
-                requestBodyJson = reader.ReadToEnd();
-            }
-
-            reqParticipant = JsonSerializer.Deserialize<BiAnalyticsParticipantDto>(requestBodyJson);
+            reqParticipant = JsonSerializer.Deserialize<BiAnalyticsParticipantDto>(eventGridEvent.Data.ToString());
         }
         catch (Exception ex)
         {
             _logger.LogError("Request participant is invalid: {Ex}", ex);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+            return;
         }
 
         try
@@ -64,20 +61,13 @@ public class UpdateParticipantFromScreeningProvider
 
             // Participant does not exist in the DB
             if (dbParticipants == null || !dbParticipants.Any())
-            {
-                _logger.LogError("Participant not found");
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant not found");
-            }
+                throw new KeyNotFoundException("Participant not found");
 
             ParticipantManagement dbParticipant = dbParticipants.FirstOrDefault();
 
             // Database contains more recent data
             if (dbParticipant.RecordUpdateDateTime > reqParticipant.SrcSysProcessedDateTime)
-            {
-                _logger.LogInformation("Request participant data is older than database participant data");
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Participant not found");
-            }
-
+                throw new InvalidOperationException("Request participant data is older than database participant data");
 
             // Replace Gene Code & Higher Risk Reason Code with relevant foreign key
             var geneCodes = await _geneCodeClient.GetByFilter(x => x.GeneCode == reqParticipant.GeneCode);
@@ -94,17 +84,22 @@ public class UpdateParticipantFromScreeningProvider
 
             if (!updated) throw new IOException("Updating participant managment object failed");
 
+            EventGridEvent message = new EventGridEvent(
+                subject: "IDK",
+                eventType: "IDK",
+                dataVersion: "1.0",
+                data: reqParticipant
+            );
+
+            var result = await _eventGridPublisherClient.SendEventAsync(eventGridEvent);
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-        }
-        catch (ArgumentException ex)
-        {
-            _logger.LogError(ex.Message);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            _logger.LogError($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+            return;
         }
     }
 }

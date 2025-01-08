@@ -14,6 +14,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        // services.AddSingleton<>();
     })
     .AddExceptionHandler()
     .Build();
