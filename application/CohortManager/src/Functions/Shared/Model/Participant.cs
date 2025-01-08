@@ -111,7 +111,12 @@ public class Participant
 
     private int GetInvalidFlag()
     {
-        return !string.IsNullOrEmpty(InvalidFlag) ? InvalidFlag.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0 : 0;
+        int result = 0;
+        if (!string.IsNullOrEmpty(InvalidFlag))
+        {
+            result = InvalidFlag.Equals("true", StringComparison.CurrentCultureIgnoreCase) ? 1 : 0;
+        }
+        return result;
     }
 
     public string? RecordType { get; set; }
