@@ -62,7 +62,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_And_Not_Update_Participant_When_Validation_Fails()
+    public async Task Run_ParticipantValidationFails_ReturnBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -108,7 +108,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_Ok_When_Participant_IsIneligiable_And_Update_Succeeds()
+    public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ReturnOk()
     {
         // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -164,7 +164,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Participant_Update_Fails()
+    public async Task Run_ParticipantUpdateFails_ReturnBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -211,7 +211,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_InternalServerError_When_Participant_Update_Throws_Exception()
+    public async Task Run_ParticipantUpdateThrowsException_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -253,7 +253,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_Bad_Request_When_Demographic_Data_Is_Null()
+    public async Task Run_DemographicDataIsNull_ReturnBadRequest()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -293,7 +293,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_Ok_When_Participant_IsEligiable_And_Update_Succeeds()
+    public async Task Run_ParticipantEligibleAndUpdateSuccessful_ReturnOk()
     {
         _participantCsvRecord.Participant.NhsNumber = "9727890016";
         _participantCsvRecord.Participant.ScreeningName = "BSS";
