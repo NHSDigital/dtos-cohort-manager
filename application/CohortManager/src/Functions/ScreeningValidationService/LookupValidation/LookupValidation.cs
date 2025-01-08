@@ -1,15 +1,12 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
@@ -46,13 +43,13 @@ public class LookupValidation
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                var requestBodyJson = reader.ReadToEnd();
+                var requestBodyJson = await reader.ReadToEndAsync();
                 requestBody = JsonSerializer.Deserialize<LookupValidationRequestBody>(requestBodyJson);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex.Message);
+            _logger.LogError(ex, ex.Message);
             await _handleException.CreateSystemExceptionLog(ex, requestBody.ExistingParticipant, requestBody.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
@@ -64,7 +61,7 @@ public class LookupValidation
             newParticipant = requestBody.NewParticipant;
 
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
-            _logger.LogInformation("ruleFileName {ruleFileName}", ruleFileName);
+            _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -74,6 +71,9 @@ public class LookupValidation
                 CustomTypes = [typeof(Actions)]
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+
+
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", existingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -84,6 +84,7 @@ public class LookupValidation
 
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
+                _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
             }
@@ -93,6 +94,8 @@ public class LookupValidation
 
             if (validationErrors.Any())
             {
+
+                _logger.LogInformation("There was an error in the Validation Rules");
                 var participantCsvRecord = new ParticipantCsvRecord()
                 {
                     Participant = newParticipant,
@@ -112,13 +115,13 @@ public class LookupValidation
         catch (Exception ex)
         {
             _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
-            _logger.LogError(ex, $"Error while processing lookup Validation message: {ex.Message}");
+            _logger.LogError(ex, "Error while processing lookup Validation message: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }
     }
 
-    private string GetValidationRulesName(RulesType rulesType)
+    private static string GetValidationRulesName(RulesType rulesType)
     {
         switch (rulesType)
         {

@@ -6,10 +6,12 @@ using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
+using receiveCaasFile;
+using Microsoft.Extensions.Azure;
+using Azure.Identity;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
-
 
 try
 {
@@ -22,17 +24,20 @@ try
         services.AddTransient<ICallFunction, CallFunction>();
         services.AddTransient<IScreeningServiceData, ScreeningServiceData>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
-        services.AddSingleton<IProcessCaasFile, ProcessCaasFile>();
+        services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<ICheckDemographic, CheckDemographic>();
-        services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
-        services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddScoped<ICheckDemographic, CheckDemographic>();
+        services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
+        services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IValidateDates, ValidateDates>();
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
 
-    host.Run();
+    await host.RunAsync();
 }
 catch (Exception ex)
 {

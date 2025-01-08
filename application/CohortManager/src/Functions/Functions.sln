@@ -28,7 +28,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Shared\Common\Com
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Shared\Model\Model.csproj", "{682DDE9F-2868-4477-B159-9EB7D255D565}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{8DF1A047-4800-4668-877F-8AC8708AB238}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{8DF1A047-4800-4668-877F-8AC8708AB238}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Shared\Data\Data.csproj", "{ABA8CD5A-BEF7-4962-9C23-AE69F430CC1B}"
 EndProject
@@ -106,7 +106,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveMeshFile", "CaasIntegration\RetrieveMeshFile\RetrieveMeshFile.csproj", "{A5CC3CCE-2816-434A-AC32-FCF4251BDCAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\..\..\..\tests\CaasIntegrationTests\retrieveMeshFileTest\retrieveMeshFileTest.csproj", "{31A651CD-25D0-4131-B773-0A34495164D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\retrieveMeshFileTest\retrieveMeshFileTest.csproj", "{31A651CD-25D0-4131-B773-0A34495164D5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecord", "CohortDistributionServices\ValidateCohortDistributionRecord\ValidateCohortDistributionRecord.csproj", "{BD5E5333-2C20-4009-BF58-BFB930AD6B6C}"
 EndProject
@@ -154,8 +154,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageCodesDataService", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrentPosting", "screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj", "{9974CB33-DDF0-4CBD-95F8-6CA94F2F04E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\DataServiceTests\DataServiceTests.csproj", "{824D0893-14F9-47D9-B381-3BB899B4CBDA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcludedSMULookupDataServices", "screeningDataServices\ExcludedSMULookupDataService\ExcludedSMULookupDataServices.csproj", "{9B9E8E86-601F-4C10-B6EF-348AF9A168AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantDemographicDataService", "screeningDataServices\ParticipantDemographicDataService\ParticipantDemographicDataService.csproj", "{D8990183-52BA-4A1F-B333-5B32AAF14348}"
@@ -165,6 +163,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformReasonForRemovalTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformReasonForRemovalTests\TransformReasonForRemovalTests.csproj", "{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformDataServiceTests\TransformDataServiceTests.csproj", "{DCBF3583-DC87-46BE-93DC-C345E779D95C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCaasFileTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\processCaasFileTest\ProcessCaasFileTests.csproj", "{FE9773EF-DFB8-4308-869B-EABD0776C828}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{2AC4643E-35A5-4BC1-BDF9-2377E9748316}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordsProcessedTrackerTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\RecordsProcessedTrackerTests\RecordsProcessedTrackerTests.csproj", "{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateDatesTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\ValidateDates\ValidateDatesTests.csproj", "{9005A919-F64D-4723-87A7-595BB4E64563}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\UnitTests\DataServiceTests\DataServiceTests.csproj", "{E26B2D73-BD60-4AD8-B403-939ACEDE9429}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -404,6 +412,34 @@ Global
 		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCBF3583-DC87-46BE-93DC-C345E779D95C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE9773EF-DFB8-4308-869B-EABD0776C828}.Release|Any CPU.Build.0 = Release|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{485F008C-4A4F-4AA7-81DD-A9CD471A3116}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AC4643E-35A5-4BC1-BDF9-2377E9748316}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA6F6E1A-7511-4A65-ADCB-B86DF46223D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBF592EF-DB88-4ED9-A65D-0F6C4C310C87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBF592EF-DB88-4ED9-A65D-0F6C4C310C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBF592EF-DB88-4ED9-A65D-0F6C4C310C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBF592EF-DB88-4ED9-A65D-0F6C4C310C87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9005A919-F64D-4723-87A7-595BB4E64563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9005A919-F64D-4723-87A7-595BB4E64563}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9005A919-F64D-4723-87A7-595BB4E64563}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9005A919-F64D-4723-87A7-595BB4E64563}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
