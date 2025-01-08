@@ -530,12 +530,14 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " WHERE CREATED_DATETIME >= ( " +
             " SELECT CREATED_DATETIME " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE REQUEST_ID = @lastRequestId)" +
+            " WHERE REQUEST_ID = @RequestId)" +
+            " AND STATUS_CODE != @StatusCode " +
             " ORDER BY CREATED_DATETIME ASC";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@LastRequestId", requestId},
+            {"@RequestId", requestId},
+            {"@StatusCode", HttpStatusCode.NoContent.ToString()}
         };
 
         using var command = CreateCommand(parameters);
