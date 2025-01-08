@@ -1,0 +1,40 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: feat/DTOSS-5599-Pipeline-to-transfer-images
+      endpoint: NHSDigital
+
+parameters:
+  - name: destEnvironmentShortName
+    displayName: Destination Environment Short Name
+    type: string
+    values:
+      - dev
+    default: dev
+
+variables:
+  - group: DEV_hub_backend_remote_state
+
+stages:
+- stage: post_deployment_tests_stage
+  displayName: Post-deployment tests
+  jobs:
+  - job: post_deployment_tests
+    pool:
+      name: private-pool-prod-uks
+    displayName: Run post-deployment tests
+    variables:
+      TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+    steps:
+      - checkout: self
+      - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
