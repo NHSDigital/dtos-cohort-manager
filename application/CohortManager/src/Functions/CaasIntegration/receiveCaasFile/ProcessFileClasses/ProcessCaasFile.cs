@@ -156,6 +156,11 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
+        var DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
+        if (string.IsNullOrWhiteSpace(DemographicURI))
+        {
+            throw (new Exception("Could not get DemographicURI from environment variables"));
+        }
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
@@ -170,7 +175,7 @@ public class ProcessCaasFile : IProcessCaasFile
             if (participant != null)
             {
                 await _participantDemographic.Delete(participant.ParticipantId.ToString());
-                if (await _checkDemographic.PostDemographicDataAsync(listOfData, Environment.GetEnvironmentVariable("DemographicURI") ?? ""))
+                if (await _checkDemographic.PostDemographicDataAsync(listOfData, DemographicURI))
                 {
                     await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant") ?? "", json);
                 }
@@ -178,7 +183,7 @@ public class ProcessCaasFile : IProcessCaasFile
             }
             else
             {
-                _logger.LogInformation("the participant could not found to allow for updating");
+                _logger.LogInformation("The participant could not be found, preventing updates from being applied");
             }
 
         }

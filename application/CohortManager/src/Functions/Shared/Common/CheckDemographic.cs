@@ -13,6 +13,9 @@ public class CheckDemographic : ICheckDemographic
     private readonly ILogger<CheckDemographic> _logger;
     private readonly HttpClient _httpClient;
 
+    private const int maxNumberOfChecks = 50;
+    private TimeSpan delayBetweenChecks = TimeSpan.FromSeconds(3);
+
     public CheckDemographic(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient)
     {
         _callFunction = callFunction;
@@ -52,9 +55,6 @@ public class CheckDemographic : ICheckDemographic
             var response = await _httpClient.PostAsync(DemographicFunctionURI, content);
 
             var responseContent = response.Headers.Location.ToString();
-
-            var maxNumberOfChecks = 50;
-            var delayBetweenChecks = TimeSpan.FromSeconds(3);
 
             // this is not retrying the function if it fails but checking if it has done yet. 
             var retryPolicy = Policy

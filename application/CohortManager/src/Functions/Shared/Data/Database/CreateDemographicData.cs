@@ -1,11 +1,9 @@
 namespace Data.Database;
 
 using System.Data;
-using Microsoft.Extensions.Logging;
 using Model;
-using Microsoft.Data.SqlClient;
 using Model.Enums;
-using Microsoft.Extensions.Options;
+
 
 public class CreateDemographicData : ICreateDemographicData
 {
