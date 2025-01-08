@@ -22,12 +22,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private readonly IDataServiceAccessor<TEntity> _dataServiceAccessor;
     private readonly ILogger<RequestHandler<TEntity>> _logger;
-
     private readonly AuthenticationConfiguration _authConfig;
-
     private readonly PropertyInfo _keyInfo;
-
-    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions{
+    private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
+        {
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
         };
 
@@ -93,7 +91,6 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             _logger.LogWarning("Unauthorized Method was called");
             return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
-
 
         try
         {
