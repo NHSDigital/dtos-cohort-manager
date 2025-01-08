@@ -19,9 +19,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
-        var result = _context.Set<TEntity>().SingleOrDefault(predicate);
+        var result = _context.Set<TEntity>().Where(predicate).ToList();
+        if(result.Count > 1){
+            throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
+        }
         await Task.CompletedTask;
-        return result;
+        return result.Single();
     }
 
     public async Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates)
@@ -71,6 +74,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         using var transaction = await _context.Database.BeginTransactionAsync();
         _context.Update(entity);
         var rowsEffected  = await _context.SaveChangesAsync();
+
+
         if(rowsEffected == 1)
         {
             await _context.Database.CommitTransactionAsync();
@@ -79,11 +84,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         else if(rowsEffected > 1)
         {
             await transaction.RollbackAsync();
-            _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolledback");
-            throw new Exception("Multiple Records were updated by PUT request, Changes have been Rolledback");
+            _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+            throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
+
         _logger.LogError("No records were updated despite a record being found");
-        throw new Exception("Multiple Records were updated by PUT request, Changes have been Rolledback");
+        throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
 
     }
 
