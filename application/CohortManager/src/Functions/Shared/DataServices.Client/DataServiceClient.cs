@@ -102,9 +102,9 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl,id));
         return result;
     }
-    public async Task<bool> AddRange(IEnumerable<TEntity> entity)
+    public async Task<bool> AddRange(IEnumerable<TEntity> entities)
     {
-        var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entity);
+        var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entities);
 
         if(string.IsNullOrEmpty(jsonString))
         {
@@ -160,7 +160,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     private async Task<string> GetJsonStringByFilter(Expression<Func<TEntity,bool>> predicate, bool returnOneRecord = false)
     {
-        try{
+        try
+        {
 
             //Resolves the constants
             var expr  = new ClosureResolver().Visit(predicate);
