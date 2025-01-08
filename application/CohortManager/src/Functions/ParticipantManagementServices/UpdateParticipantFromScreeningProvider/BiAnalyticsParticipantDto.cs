@@ -29,28 +29,25 @@ public class BiAnalyticsParticipantDto
     /// <param name="higherRiskReasonFk">The foreign key of the higher risk reason</param>
     /// <returns>A ParticipantManagment object</returns>
     /// <exception cref="ArgumentException"></exception>
-    public ParticipantManagement ToParticipantManagement(long geneCodeFk, long higherRiskReasonFk)
+    public ParticipantManagement ToParticipantManagement(long geneCodeFk, long higherRiskReasonFk, ParticipantManagement dbParticipant)
     {
         try
         {
-            ParticipantManagement participantManagement = new()
-            {
-                NHSNumber = NhsNumber,
-                ScreeningId = ScreeningId,
-                NextTestDueDate = ConvertDateToDateTime(NextTestDueDate),
-                NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod,
-                ParticipantScreeningStatus = ParticipantScreeningStatus,
-                ScreeningCeasedReason = ScreeningCeasedReason,
-                IsHigherRisk = IsHigherRisk ?? 0,
-                IsHigherRiskActive = IsHigherRiskActive ?? 0,
-                RecordUpdateDateTime = SrcSysProcessedDateTime,
-                HigherRiskNextTestDueDate = (DateTime)ConvertDateToDateTime(HigherRiskNextTestDueDate),
-                HigherRiskReferralReasonId = higherRiskReasonFk,
-                DateIrradiated = (DateTime)ConvertDateToDateTime(DateIrradiated),
-                GeneCodeId = geneCodeFk
-            };
+            dbParticipant.NHSNumber = NhsNumber;
+            dbParticipant.ScreeningId = ScreeningId;
+            dbParticipant.NextTestDueDate = ConvertDateToDateTime(NextTestDueDate);
+            dbParticipant.NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod;
+            dbParticipant.ParticipantScreeningStatus = ParticipantScreeningStatus;
+            dbParticipant.ScreeningCeasedReason = ScreeningCeasedReason;
+            dbParticipant.IsHigherRisk = IsHigherRisk ?? 0;
+            dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? 0;
+            dbParticipant.RecordUpdateDateTime = SrcSysProcessedDateTime;
+            dbParticipant.HigherRiskNextTestDueDate = (DateTime)ConvertDateToDateTime(HigherRiskNextTestDueDate);
+            dbParticipant.HigherRiskReferralReasonId = higherRiskReasonFk;
+            dbParticipant.DateIrradiated = (DateTime)ConvertDateToDateTime(DateIrradiated);
+            dbParticipant.GeneCodeId = geneCodeFk;
 
-            return participantManagement;
+            return dbParticipant;
         }
         catch (Exception ex)
         {

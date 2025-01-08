@@ -3,7 +3,9 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Azure.Messaging.EventGrid;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using System.Text;
 using Model;
 using System.Text.Json;
@@ -36,7 +38,7 @@ public class UpdateParticipantFromScreeningProvider
 
     // TODO: change to eventgrid trigger
     [Function("UpdateParticipantFromScreeningProvider")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([EventGridTrigger] EventGridEvent eventGridEvent)
     {   
         _logger.LogInformation("Update participant from screening provider called.");
 
@@ -84,7 +86,7 @@ public class UpdateParticipantFromScreeningProvider
             var higherRiskReasons = await _higherRiskReferralReasonClient.GetByFilter(x => x.HigherRiskReferralReasonCode == reqParticipant.HigherRiskReferralReasonCode);
             long higherRiskReasonPk = higherRiskReasons.FirstOrDefault().HigherRiskReferralReasonId;
 
-            var participantManagement = reqParticipant.ToParticipantManagement(geneCodePk, higherRiskReasonPk);
+            var participantManagement = reqParticipant.ToParticipantManagement(geneCodePk, higherRiskReasonPk, dbParticipant);
 
             // update data
             participantManagement.ParticipantId = dbParticipant.ParticipantId;
