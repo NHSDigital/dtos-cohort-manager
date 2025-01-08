@@ -52,7 +52,7 @@ public class TransformDataService
             string requestBodyJson;
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBodyJson = reader.ReadToEnd();
+                requestBodyJson = await reader.ReadToEndAsync();
             }
 
             requestBody = JsonSerializer.Deserialize<TransformDataRequestBody>(requestBodyJson);

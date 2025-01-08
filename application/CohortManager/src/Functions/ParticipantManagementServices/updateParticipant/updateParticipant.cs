@@ -34,12 +34,11 @@ public class UpdateParticipantFunction
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation("Update participant called.");
-        HttpWebResponse createResponse;
 
         string postData = "";
         using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            postData = reader.ReadToEnd();
+            postData = await reader.ReadToEndAsync();
         }
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
 
@@ -77,14 +76,14 @@ public class UpdateParticipantFunction
                 participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
-                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
+                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
                 return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             updateResponse = await updateParticipant(participantCsvRecord);
             participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
-            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName, req);
+            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
             return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
@@ -92,13 +91,13 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
+            _logger.LogInformation(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
-    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName, HttpRequestData req)
+    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName)
     {
         if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, participant))
         {
@@ -170,7 +169,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation($"Static validation failed.\nMessage: {ex.Message}\nParticipant: {participantCsvRecord}");
+            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
             return null;
         }
     }

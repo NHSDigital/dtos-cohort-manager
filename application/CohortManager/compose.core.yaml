@@ -254,7 +254,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   gene-code-lkp-data-service:
-    container_name: ene-code-lkp-data-service
+    container_name: gene-code-lkp-data-service
     network_mode: host
     build:
       context: ./src/Functions/

@@ -38,9 +38,8 @@ public class CreateParticipant
     [Function("CreateParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-
-        _logger.LogInformation("CreateParticipant is called...");
         ParticipantCsvRecord participantCsvRecord = null;
+        var existingParticipant = new Participant();
         try
         {
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -50,9 +49,8 @@ public class CreateParticipant
             }
 
             var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantCsvRecord.Participant.NhsNumber && i.ScreeningId.ToString() == participantCsvRecord.Participant.ScreeningId);
-            Participant existingParticipant = new Participant();
 
-            if(existingParticipantResult != null && existingParticipantResult.Any())
+            if (existingParticipantResult != null && existingParticipantResult.Any())
             {
                 existingParticipant = new Participant(existingParticipantResult.First());
             }
@@ -73,7 +71,8 @@ public class CreateParticipant
 
 
 
-            var ParticipantManagementRecord  = new ParticipantManagement{
+            var ParticipantManagementRecord = new ParticipantManagement
+            {
                 ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
                 NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
                 ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
@@ -85,7 +84,7 @@ public class CreateParticipant
                 RecordType = participantCsvRecord.Participant.RecordType
 
             };
-            var participantCreated = await  _participantManagementClient.Add(ParticipantManagementRecord);
+            var participantCreated = await _participantManagementClient.Add(ParticipantManagementRecord);
 
 
 
@@ -99,7 +98,7 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex,"Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
+            _logger.LogError(ex, "Failed to make the CreateParticipant request\nMessage: {Message}", ex.Message);
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord?.Participant, participantCsvRecord?.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -119,7 +118,7 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex,$"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogInformation(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
             return null;
         }
     }
