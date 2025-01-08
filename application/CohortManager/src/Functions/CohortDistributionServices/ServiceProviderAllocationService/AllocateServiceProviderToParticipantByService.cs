@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Model;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -13,15 +12,12 @@ public class AllocateServiceProviderToParticipantByService
 {
     private readonly ILogger _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICallFunction _callFunction;
-
     private readonly IExceptionHandler _exceptionHandler;
 
-    public AllocateServiceProviderToParticipantByService(ILogger<AllocateServiceProviderToParticipantByService> logger, ICreateResponse createResponse, ICallFunction callFunction, IExceptionHandler exceptionHandler)
+    public AllocateServiceProviderToParticipantByService(ILogger<AllocateServiceProviderToParticipantByService> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _callFunction = callFunction;
         _exceptionHandler = exceptionHandler;
     }
 
@@ -65,7 +61,7 @@ public class AllocateServiceProviderToParticipantByService
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
-            string configFile = File.ReadAllText(configFilePath);
+            string configFile = await File.ReadAllTextAsync(configFilePath);
             var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
             // find the best match postcode and return the provider
@@ -94,7 +90,7 @@ public class AllocateServiceProviderToParticipantByService
         }
     }
 
-    private string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
+    private static string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
 
         var result = allocationConfigData
