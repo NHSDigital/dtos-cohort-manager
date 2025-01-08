@@ -527,7 +527,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         var sql = "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE CREATED_DATETIME > ( " +
+            " WHERE CREATED_DATETIME >= ( " +
             " SELECT CREATED_DATETIME " +
             " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
             " WHERE REQUEST_ID = @lastRequestId)" +
