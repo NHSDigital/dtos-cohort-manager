@@ -1,9 +1,7 @@
 using Common;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -19,4 +17,4 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();

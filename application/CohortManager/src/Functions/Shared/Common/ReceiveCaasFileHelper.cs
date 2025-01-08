@@ -23,41 +23,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         _callFunction = callFunction;
     }
 
-    public async Task<bool> InitialChecks(Stream? blobStream, string name)
-    {
-        _logger.LogInformation("Blob & file extension check: {Name}", name);
-        if (blobStream == null)
-        {
-            _logger.LogError("Blob is empty.");
-            await InsertValidationErrorIntoDatabase(name, "N/A");
-            return false;
-        }
-        else if (!FileNameAndFileExtensionIsValid(name))
-        {
-            _logger.LogError(
-                "File name or file extension is invalid. Not in format BSS_ccyymmddhhmmss_n8.parquet. file Name: {Name}",
-                name);
-            await InsertValidationErrorIntoDatabase(name, "N/A");
-            return false;
-        }
-        else
-        {
-            return true;
-        }
-    }
-
-    private static bool FileNameAndFileExtensionIsValid(string name)
-    {
-        /* for file format BSS_ccyymmddhhmmss_n8.csv
-        '^\w{1,}_' Matches the screening acronym, it could be anything before the first underscore
-        '\d{14}' Matches exactly 14 digits, representing ccyymmddhhmmss
-        '_n' Matches the literal _n
-        '([1-9]\d*|0)' Matches any number with no leading zeros OR The number 0.
-        '\.csv$' matches .csv at the end of the string */
-        var match = Regex.Match(name, @"^\w{1,}_\d{14}_n([1-9]\d*|0)\.parquet$", RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(2000));
-        return match.Success;
-    }
-
     public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 

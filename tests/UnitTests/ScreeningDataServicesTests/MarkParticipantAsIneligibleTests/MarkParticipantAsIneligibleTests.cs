@@ -169,6 +169,32 @@ public class MarkParticipantAsIneligibleTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
+    [TestMethod]
+    public async Task Run_UpdateParticipantAsEligible_Response_Is_Fatal()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
+            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = true
+            })));
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
