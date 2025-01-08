@@ -170,7 +170,7 @@ public class MarkParticipantAsIneligibleTests
     }
 
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_UpdateParticipantAsEligible_Response_Is_Fatal()
+    public async Task Run_UpdateParticipantAsEligible_Response_Is_Fatal()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_requestBody);
