@@ -39,7 +39,11 @@ public interface IDataServiceClient<TEntity>
     /// <param name="entities">IEnumerable<TEntity> of items to be added to the database</param>
     /// <returns>a boolean representing if the record was inserted successfully</returns>
     Task<bool> AddRange(IEnumerable<TEntity> entities);
-
+    /// <summary>
+    /// Deletes a single record
+    /// </summary>
+    /// <param name="id">the id of the record to be deleted</param>
+    /// <returns>a boolean representing if the record was deleted successfully</returns>
     Task<bool> Delete(string id);
 
 }
