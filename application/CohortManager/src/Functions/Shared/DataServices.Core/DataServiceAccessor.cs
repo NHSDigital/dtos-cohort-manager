@@ -1,6 +1,5 @@
 ﻿namespace DataServices.Core;
 
-using System.Data.Common;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using DataServices.Database;
@@ -24,7 +23,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
         }
         await Task.CompletedTask;
-        return result.Single();
+        return result.SingleOrDefault();
     }
 
     public async Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates)
@@ -91,6 +90,5 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
 
     }
-
 }
 
