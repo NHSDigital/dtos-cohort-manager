@@ -53,4 +53,6 @@ public class ParticipantManagement
     public DateTime? DateIrradiated {get; set;}
     [Column("GENE_CODE_ID")]
     public Int64? GeneCodeId {get; set;}
+    [Column("SRC_SYSTEM_PROCESSED_DATETIME")]
+    public DateTime? SrcSysProcessedDateTime {get; set;}
 }

@@ -1,6 +1,4 @@
-namespace NHS.CohortManager.ParticipantManagementServices;
-
-using Model;
+namespace Model;
 
 
 /// <summary>
@@ -39,12 +37,12 @@ public class BiAnalyticsParticipantDto
             dbParticipant.NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod;
             dbParticipant.ParticipantScreeningStatus = ParticipantScreeningStatus;
             dbParticipant.ScreeningCeasedReason = ScreeningCeasedReason;
-            dbParticipant.IsHigherRisk = IsHigherRisk ?? 0;
-            dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? 0;
+            dbParticipant.IsHigherRisk = IsHigherRisk ?? dbParticipant.IsHigherRisk;
+            dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? dbParticipant.IsHigherRiskActive;
             dbParticipant.RecordUpdateDateTime = SrcSysProcessedDateTime;
-            dbParticipant.HigherRiskNextTestDueDate = (DateTime)ConvertDateToDateTime(HigherRiskNextTestDueDate);
+            dbParticipant.HigherRiskNextTestDueDate = ConvertDateToDateTime(HigherRiskNextTestDueDate);
             dbParticipant.HigherRiskReferralReasonId = higherRiskReasonFk;
-            dbParticipant.DateIrradiated = (DateTime)ConvertDateToDateTime(DateIrradiated);
+            dbParticipant.DateIrradiated = ConvertDateToDateTime(DateIrradiated);
             dbParticipant.GeneCodeId = geneCodeFk;
 
             return dbParticipant;

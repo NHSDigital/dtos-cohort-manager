@@ -1,11 +1,8 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
-using System.Net;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Azure.Messaging.EventGrid;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
@@ -21,7 +18,7 @@ public class UpdateParticipantFromScreeningProvider
     private readonly EventGridPublisherClient _eventGridPublisherClient;
     private readonly IExceptionHandler _exceptionHandler;
 
-    public UpdateParticipantFromScreeningProvider(ILogger<UpdateParticipantFromScreeningProvider> logger,,
+    public UpdateParticipantFromScreeningProvider(ILogger<UpdateParticipantFromScreeningProvider> logger,
                                                 IDataServiceClient<ParticipantManagement> participantManagementClient,
                                                 IDataServiceClient<HigherRiskReferralReasonLkp> higherRiskReferralReasonClient,
                                                 IDataServiceClient<GeneCodeLkp> geneCodeClient,
@@ -36,9 +33,11 @@ public class UpdateParticipantFromScreeningProvider
         _exceptionHandler = exceptionHandler;
     }
 
-    // Default URL for triggering event grid function in the local environment.
-    // http://localhost:7071/runtime/webhooks/EventGrid?functionName={functionname}
-    // TODO: change to eventgrid trigger
+    /// <summary>
+    /// Updates the participant managment table given a request from a screening provider (through
+    /// the BI & Data Analytics product).
+    /// </summary>
+    /// <returns>An Event Grid event</returns>
     [Function("UpdateParticipantFromScreeningProvider")]
     public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
     {   
@@ -57,24 +56,19 @@ public class UpdateParticipantFromScreeningProvider
 
         try
         {
-            var dbParticipants = await _participantManagementClient.GetByFilter(p => p.NHSNumber == reqParticipant.NhsNumber);
-
-            // Participant does not exist in the DB
-            if (dbParticipants == null || !dbParticipants.Any())
-                throw new KeyNotFoundException("Participant not found");
-
-            ParticipantManagement dbParticipant = dbParticipants.FirstOrDefault();
+            ParticipantManagement dbParticipant = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == reqParticipant.NhsNumber)
+            ?? throw new KeyNotFoundException("Participant not found");
 
             // Database contains more recent data
-            if (dbParticipant.RecordUpdateDateTime > reqParticipant.SrcSysProcessedDateTime)
+            if (dbParticipant.SrcSysProcessedDateTime != null && dbParticipant.SrcSysProcessedDateTime > reqParticipant.SrcSysProcessedDateTime)
                 throw new InvalidOperationException("Request participant data is older than database participant data");
 
             // Replace Gene Code & Higher Risk Reason Code with relevant foreign key
-            var geneCodes = await _geneCodeClient.GetByFilter(x => x.GeneCode == reqParticipant.GeneCode);
-            long geneCodePk = geneCodes.FirstOrDefault().GeneCodeId;
+            GeneCodeLkp geneCode = await _geneCodeClient.GetSingleByFilter(x => x.GeneCode == reqParticipant.GeneCode);
+            long geneCodePk = geneCode.GeneCodeId;
 
-            var higherRiskReasons = await _higherRiskReferralReasonClient.GetByFilter(x => x.HigherRiskReferralReasonCode == reqParticipant.HigherRiskReferralReasonCode);
-            long higherRiskReasonPk = higherRiskReasons.FirstOrDefault().HigherRiskReferralReasonId;
+            HigherRiskReferralReasonLkp higherRiskReason = await _higherRiskReferralReasonClient.GetSingleByFilter(x => x.HigherRiskReferralReasonCode == reqParticipant.HigherRiskReferralReasonCode);
+            long higherRiskReasonPk = higherRiskReason.HigherRiskReferralReasonId;
 
             var participantManagement = reqParticipant.ToParticipantManagement(geneCodePk, higherRiskReasonPk, dbParticipant);
 
@@ -82,24 +76,23 @@ public class UpdateParticipantFromScreeningProvider
             participantManagement.ParticipantId = dbParticipant.ParticipantId;
             bool updated = await _participantManagementClient.Update(participantManagement);
 
-            if (!updated) throw new IOException("Updating participant managment object failed");
+            if (!updated) throw new IOException("Updating participant management object failed");
 
-            EventGridEvent message = new EventGridEvent(
+            var message = new EventGridEvent(
                 subject: "IDK",
-                eventType: "IDK",
+                eventType: "Success",
                 dataVersion: "1.0",
                 data: reqParticipant
             );
 
-            var result = await _eventGridPublisherClient.SendEventAsync(eventGridEvent);
+            var result = await _eventGridPublisherClient.SendEventAsync(message);
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            if (result.Status != 200) throw new IOException("Sending event failed");
         }
         catch (Exception ex)
         {
             _logger.LogError($"Update participant failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}");
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
-            return;
         }
     }
 }
