@@ -139,8 +139,8 @@ public class AddParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
-            return null;
+            _logger.LogInformation(ex, "API Call to Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
+            throw;
         }
     }
 }
