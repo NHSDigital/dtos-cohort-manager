@@ -14,30 +14,30 @@ logger.setLevel(logging.INFO)
 
 def main(argv):
 
-    containerURL, functionDeployedName, tags, data ='', '', '', ''
+    container_url, function_deployed_name, tags, _ ='', '', '', ''
     verbose=False
     try:
-        opts, args = getopt.getopt(argv,"hc:f:r:t:v", ["containerURL=", "functionDeployedName=", "report=", "tags=","verbose"])
+        opts, _ = getopt.getopt(argv,"hc:f:r:t:v", ["container_url=", "function_deployed_name=", "report=", "tags=","verbose"])
     except getopt.GetoptError:
-        print('SlackWebhookController.py -c <containerURL> -d <data>  -f <functionDeployedName> -t <tags>')
+        print('SlackWebhookController.py -c <container_url> -d <data>  -f <function_deployed_name> -t <tags>')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print('SlackWebhookController.py -c <containerURL> -f <functionDeployedName> -r <reportFile> -t <tags> ')
+            print('SlackWebhookController.py -c <container_url> -f <function_deployed_name> -r <reportFile> -t <tags> ')
             sys.exit()
-        elif opt in ("-c", "--containerURL"):
-            containerURL = arg
+        elif opt in ("-c", "--container_url"):
+            container_url = arg
         elif opt in ("-r", "--report"):
             report = arg
         elif opt in ("-f", "--functionDeployed"):
-            functionDeployedName = arg
+            function_deployed_name = arg
         elif opt in ("-t", "--tags"):
             tags = arg
         elif opt in ("-v", "--verbose"):
             verbose=True
 
-    if not functionDeployedName:
+    if not function_deployed_name:
         print("Please provide the function name")
         exit(1)
 
@@ -45,17 +45,17 @@ def main(argv):
     slack = SlackWebhookBot(webhook_url)
 
     if verbose:
-        print('functionDeployedName is: ', functionDeployedName)
-        print('containerURL is: ', containerURL)
+        print('function_deployed_name is: ', function_deployed_name)
+        print('container_url is: ', container_url)
         print("tags: ", tags)
 
 
-    if containerURL:
-        new_docker_image_available(functionDeployedName, containerURL, tags, slack)
+    if container_url:
+        new_docker_image_available(function_deployed_name, container_url, tags, slack)
     elif report:
-        unstructured_slack_message(functionDeployedName, report, slack)
+        unstructured_slack_message(function_deployed_name, report, slack)
     else:
-        new_function_deployed(functionDeployedName, tags, slack)
+        new_function_deployed(function_deployed_name, tags, slack)
 
 
 if __name__ == "__main__":
