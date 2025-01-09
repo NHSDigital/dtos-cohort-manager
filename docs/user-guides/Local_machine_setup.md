@@ -133,7 +133,7 @@ The required queues are:
 - `cohort-distribution-queue`
 - `cohort-distribution-queue-poison`
 - `create-cohort-distribution-queue`
-- `create-cohort-distribution-queue-poison` 
+- `create-cohort-distribution-queue-poison`
 
 The below screenshot shows how your Azure Storage Explorer should look.
 ![Azure Storage Final](../assets/azure_storage.png)
