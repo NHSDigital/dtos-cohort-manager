@@ -7,7 +7,7 @@
 - HomeBrew (Mac Only): \
     `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 - [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- Docker / Podman (*Note: Docker Desktop requires a licence for commerical use; Podman Desktop is an open source alternative.)
+- Docker / Podman (*Note: Docker Desktop requires a licence for commercial use; Podman Desktop is an open source alternative.)
 - Member of the NHSDigital GitHub organisation
 - Signed Git commits (if you would like to contribute): <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
 
@@ -77,13 +77,13 @@ Alternatively, you can run an individual function locally with `func start`
 
 ## Running the Application Locally (Mac)
 
-The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker/podman.
+The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker/Podman.
 
 ### Dependencies
 
 Download Podman Desktop using [these instructions](https://podman-desktop.io/).
 Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
-You can then run and setup the SQL database using podman (or docker) by running the following commands:
+You can then run and setup the SQL database using Podman (or docker) by running the following commands:
     `podman machine init`
     `podman manchine start`
     `podman run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YOUR_PASSWORD' -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2022-latestp`
@@ -99,7 +99,7 @@ Run the following two commands:
 Next press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
 Finally, press command + p and type `task Run All Functions`. 
-*Note: Currently the following functions need to be run manually. The easiest way is to right click on the folder and Open in Integrated Termianl and typing `func start`. 
+*Note: Currently the following functions need to be run manually. The easiest way is to right click on the folder and Open in Integrated Terminal and typing `func start`. 
     - application/CohortManager/src/Functions/screeningDataServices/BsSelectGpPractice
     - application/CohortManager/src/Functions/screeningDataServices/BsSelectOutCode
     - application/CohortManager/src/Functions/screeningDataServices/CurrentPostingDataService
