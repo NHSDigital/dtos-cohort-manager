@@ -28,9 +28,9 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IValidateDates _validateDates;
 
-    private string DemographicURI;
+    private readonly string DemographicURI;
 
-    private string PMSUpdateParticipant;
+    private readonly string PMSUpdateParticipant;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
