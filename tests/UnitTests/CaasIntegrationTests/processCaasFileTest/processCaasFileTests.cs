@@ -35,6 +35,9 @@ public class ProcessCaasFileTests
 
     public ProcessCaasFileTests()
     {
+        Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
+        Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
+
         _loggerMock = new Mock<ILogger<ProcessCaasFile>>();
         _callFunctionMock = new Mock<ICallFunction>();
         _receiveCaasFileHelperMock = new Mock<IReceiveCaasFileHelper>();
