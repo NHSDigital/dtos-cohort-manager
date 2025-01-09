@@ -98,8 +98,8 @@ Run the following two commands:
 
 Next press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
-Finally, press command + p and type `task Run All Functions`. 
-*Note: Currently the following functions need to be run manually. The easiest way is to right click on the folder and Open in Integrated Terminal and typing `func start`. 
+Finally, press command + p and type `task Run All Functions`.
+*Note: Currently the following functions need to be run manually. The easiest way is to right click on the folder and Open in Integrated Terminal and typing `func start`.
     - application/CohortManager/src/Functions/screeningDataServices/BsSelectGpPractice
     - application/CohortManager/src/Functions/screeningDataServices/BsSelectOutCode
     - application/CohortManager/src/Functions/screeningDataServices/CurrentPostingDataService
@@ -124,10 +124,11 @@ Alternatively, you can use the storage explorer to send files to azurite
 
 Open the Azure Storage Explorer and in the Explorer, you will see **Azurite (Key)**. Expand that and you will see 1) Blob Container 2) Queues and 3) Tables. Right click on the **Blob Container** and click on **Create Blob Container**.
 
-On Azure Storage Explorer, collapse **Emulator & Attached > Storage Accounts > Azurite (Key)** and right click on **Blob containers** and select Create Blob Container and type in `inbound` to create a container with that name. Create another Blob Container called `inbound-poison` using the same method above. 
+On Azure Storage Explorer, collapse **Emulator & Attached > Storage Accounts > Azurite (Key)** and right click on **Blob containers** and select Create Blob Container and type in `inbound` to create a container with that name. Create another Blob Container called `inbound-poison` using the same method above.
 
 Next, create the required queues by right clicking on **Queues** and select Create Queue and type in a name to create a queue with that name.
 The required queues are:
+
 - `add-participant-queue`
 - `add-participant-queue-poison`
 - `cohort-distribution-queue`
