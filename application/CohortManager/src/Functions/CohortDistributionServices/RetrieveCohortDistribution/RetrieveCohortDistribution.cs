@@ -45,15 +45,13 @@ public class RetrieveCohortDistributionData
         var requestId = req.Query["requestId"];
         int screeningServiceId = _httpParserHelper.GetQueryParameterAsInt(req, "screeningServiceId");
         int rowCount = _httpParserHelper.GetQueryParameterAsInt(req, "rowCount");
-        bool replay = _httpParserHelper.GetQueryParameterAsBool(req, "replay");
         var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
 
         try
         {
-
             if (!string.IsNullOrEmpty(requestId))
             {
-                requestId = replay ? requestId : _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
+                requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
                 if (requestId != null)
                 {
                     cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
