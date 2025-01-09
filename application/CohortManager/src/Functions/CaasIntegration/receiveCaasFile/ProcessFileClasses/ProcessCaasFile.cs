@@ -28,6 +28,10 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IValidateDates _validateDates;
 
+    private string DemographicURI;
+
+    private string PMSUpdateParticipant;
+
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantDemographic> participantDemographic
      , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
@@ -44,6 +48,17 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+
+        DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
+        PMSUpdateParticipant = Environment.GetEnvironmentVariable("PMSUpdateParticipant");
+
+
+        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant))
+        {
+            _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
+            throw (new Exception("Required environment variables DemographicURI and PMSUpdateParticipant are missing."));
+        }
+
     }
 
     /// <summary>
@@ -156,11 +171,6 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
-        var DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
-        if (string.IsNullOrWhiteSpace(DemographicURI))
-        {
-            throw (new Exception("Could not get DemographicURI from environment variables"));
-        }
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
@@ -177,7 +187,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 await _participantDemographic.Delete(participant.ParticipantId.ToString());
                 if (await _checkDemographic.PostDemographicDataAsync(listOfData, DemographicURI))
                 {
-                    await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant") ?? "", json);
+                    await _callFunction.SendPost(PMSUpdateParticipant, json);
                 }
                 _logger.LogInformation("Called update participant");
             }
