@@ -158,8 +158,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantDemographicDataS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDurableFunction", "DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj", "{51D1B89F-E323-4C4F-AEDB-6494474CD65C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableDemographicTests", "..\..\..\..\tests\UnitTests\DurableDemographicTests\DurableDemographicTests.csproj", "{1A3F9317-A755-4D70-B947-B5AB903AE26A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParticipantManagement", "screeningDataServices\ParticipantManagementDataService\ParticipantManagement.csproj", "{28F22CA5-7CE5-4D2E-8E0E-AD1D9A11C0C8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformReasonForRemovalTests", "..\..\..\..\tests\UnitTests\TransformDataServiceTests\TransformReasonForRemovalTests\TransformReasonForRemovalTests.csproj", "{C31490BE-8D6F-4F0B-ABC7-9D3B97FE20C4}"
@@ -177,6 +175,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "receiveCaasFileTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\receiveCaasFileTest\receiveCaasFileTest.csproj", "{EEA8B0C5-BFF0-4726-B9AD-05216853E9DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecordsProcessedTrackerTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\RecordsProcessedTrackerTests\RecordsProcessedTrackerTests.csproj", "{04BAA993-D8D1-4A54-B74B-9B96561CA054}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurableDemographicTests", "..\..\..\..\tests\UnitTests\DurableDemographicTests\DurableDemographicTests.csproj", "{FE5F8CBB-B92E-47D9-B9C6-386863117BD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -476,6 +476,10 @@ Global
 		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04BAA993-D8D1-4A54-B74B-9B96561CA054}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE5F8CBB-B92E-47D9-B9C6-386863117BD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE5F8CBB-B92E-47D9-B9C6-386863117BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE5F8CBB-B92E-47D9-B9C6-386863117BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE5F8CBB-B92E-47D9-B9C6-386863117BD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
