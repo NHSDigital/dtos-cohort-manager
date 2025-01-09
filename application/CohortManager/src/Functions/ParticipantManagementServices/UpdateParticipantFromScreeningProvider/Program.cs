@@ -14,9 +14,9 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        // services.AddSingleton<>();
     })
+    .AddEventGridClient()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();
