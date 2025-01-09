@@ -150,85 +150,114 @@ public class ValidateDatesTests
     }
 
     [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateIsNull()
+    public void ValidateDates_ShouldReturnTrue_WhenDatesAreNull()
     {
         // Arrange
-        string? date = null;
+        var participant = new Participant
+        {
+            //all valid date formats
+            CurrentPostingEffectiveFromDate = null,
+            EmailAddressEffectiveFromDate = null,
+            MobileNumberEffectiveFromDate = null,
+            UsualAddressEffectiveFromDate = null,
+            TelephoneNumberEffectiveFromDate = null,
+            PrimaryCareProviderEffectiveFromDate = null
+        };
 
-
-        var method = _validateDates.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_validateDates, arguments);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsTrue(res);
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+           It.IsAny<EventId>(),
+           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("MobileNumberEffectiveFromDate")),
+           It.IsAny<Exception>(),
+           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+       Times.Never);
     }
 
-    [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateIsEmpty()
-    {
-        // Arrange
-        string date = string.Empty;
-
-        var method = _validateDates.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-
-
-        var res = (bool)method.Invoke(_validateDates, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
 
     [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateLengthIs8()
+    public void ValidateDates_ShouldReturnFalse_TelephoneNumberEffectiveFromDateIsInValid()
     {
         // Arrange
-        string date = "20230101"; // Valid date format with 8 characters
+        var participant = new Participant
+        {
+            //all valid date formats
+            CurrentPostingEffectiveFromDate = null,
+            EmailAddressEffectiveFromDate = null,
+            MobileNumberEffectiveFromDate = null,
+            UsualAddressEffectiveFromDate = null,
+            TelephoneNumberEffectiveFromDate = "12345678975657",
+            PrimaryCareProviderEffectiveFromDate = null
+        };
 
-        var method = _validateDates.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_validateDates, arguments);
-
-        // Assert
-        Assert.IsTrue(res);
-    }
-
-    [TestMethod]
-    public void IsValidDate_ShouldReturnFalse_WhenDateLengthIsGreaterThan8()
-    {
-        // Arrange
-        string date = "20230101234"; // Invalid date with more than 8 characters
-
-        var method = _validateDates.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_validateDates, arguments);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
         Assert.IsFalse(res);
     }
 
     [TestMethod]
-    public void IsValidDate_ShouldReturnTrue_WhenDateLengthIsLessThan8()
+    public void ValidateDates_ShouldReturnFalse_MobileNumberEffectiveFromDateIsInValid()
     {
         // Arrange
-        string date = "202301"; // Valid date with less than 8 characters
+        var participant = new Participant
+        {
+            //all valid date formats
+            CurrentPostingEffectiveFromDate = null,
+            EmailAddressEffectiveFromDate = null,
+            MobileNumberEffectiveFromDate = "12345678975657",
+            UsualAddressEffectiveFromDate = null,
+            TelephoneNumberEffectiveFromDate = null,
+            PrimaryCareProviderEffectiveFromDate = null
+        };
 
-        var method = _validateDates.GetType().GetMethod("IsValidDate", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { date };
-
-        // Act
-        var res = (bool)method.Invoke(_validateDates, arguments);
+        var res = _validateDates.ValidateAllDates(participant);
 
         // Assert
-        Assert.IsTrue(res);
+        Assert.IsFalse(res);
+    }
+
+    [TestMethod]
+    public void ValidateDates_ShouldReturnFalse_PrimaryCareProviderEffectiveFromDateIsInvalid()
+    {
+        // Arrange
+        var participant = new Participant
+        {
+            //all valid date formats
+            CurrentPostingEffectiveFromDate = null,
+            EmailAddressEffectiveFromDate = null,
+            MobileNumberEffectiveFromDate = null,
+            UsualAddressEffectiveFromDate = null,
+            TelephoneNumberEffectiveFromDate = null,
+            PrimaryCareProviderEffectiveFromDate = "12345678975657"
+        };
+
+        var res = _validateDates.ValidateAllDates(participant);
+
+        // Assert
+        Assert.IsFalse(res);
+    }
+
+    [TestMethod]
+    public void ValidateDates_ShouldReturnFalse_CurrentPostingEffectiveFromDateIsInValid()
+    {
+        // Arrange
+        var participant = new Participant
+        {
+            //all valid date formats
+            CurrentPostingEffectiveFromDate = "12345678975657",
+            EmailAddressEffectiveFromDate = null,
+            MobileNumberEffectiveFromDate = null,
+            UsualAddressEffectiveFromDate = null,
+            TelephoneNumberEffectiveFromDate = null,
+            PrimaryCareProviderEffectiveFromDate = null
+        };
+
+        var res = _validateDates.ValidateAllDates(participant);
+
+        // Assert
+        Assert.IsFalse(res);
     }
 }
