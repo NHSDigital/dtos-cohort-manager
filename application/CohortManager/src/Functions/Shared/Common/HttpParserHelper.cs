@@ -20,17 +20,6 @@ public class HttpParserHelper : IHttpParserHelper
         var queryString = req.Query[key];
         return int.TryParse(queryString, out int value) ? value : defaultValue;
     }
-
-    public int GetRowCount(HttpRequestData req)
-    {
-        return GetQueryParameterAsInt(req, "rowCount");
-    }
-
-    public int GetScreeningServiceId(HttpRequestData req)
-    {
-        return GetQueryParameterAsInt(req, "screeningServiceId");
-    }
-
     public HttpResponseData LogErrorResponse(HttpRequestData req, string errorMessage)
     {
         _logger.LogError(errorMessage);
