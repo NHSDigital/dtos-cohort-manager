@@ -24,8 +24,10 @@ public class GetParticipantReferenceData
         _higherRiskReferralReasonLkpClient = higherRiskReferralReasonLkpClient;
     }
 
-    // Gets all GeneCodeLkp and HigherRiskReferralReasonLkp data and returns necessary data to Receive Data function (In BI & Analytics project)
-    // To be deleted after historical data is loaded on to platform
+    /// <summary>
+    /// Gets all GeneCodeLkp and HigherRiskReferralReasonLkp data and returns necessary data to Receive Data function (In BI & Analytics project)
+    /// To be deleted after historical data is loaded on to platform
+    /// </summary>
     [Function("GetParticipantReferenceData")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
