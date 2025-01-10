@@ -68,7 +68,7 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataSavedPostRequest_OK()
+    public async Task RunPost_ValidRequest_ReturnOk()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -85,7 +85,7 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataSavedPostRequest_InternalServerEver()
+    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -105,7 +105,7 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataGetRequest_OK()
+    public async Task RunGet_ValidRequest_ReturnOk()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -157,7 +157,7 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_Return_DemographicFunctionThrows_InternalServerError()
+    public async Task RunPost_CallFunctionThrowsError_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -192,5 +192,44 @@ public class DemographicDataFunctionTests
             null,
             (Func<object, Exception, string>)It.IsAny<object>()
         ));
+    }
+
+    [TestMethod]
+    public async Task RunExternal_ValidRequest_ReturnFilteredDemographicData()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_participant);
+
+        _request = _setupRequest.Setup(json);
+
+        FilteredDemographicData DataServiceResponse = new()
+        {
+            PrimaryCareProvider = "Blerg",
+            PreferredLanguage = "Francais"
+        };
+
+        string serialisedResponse = JsonSerializer.Serialize(DataServiceResponse);
+
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+
+        _callFunction.Setup(call => call.SendGet(It.IsAny<string>()))
+                    .ReturnsAsync(serialisedResponse);
+
+        _request.Setup(r => r.Method).Returns("GET");
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
+
+        // Act
+        var result = await sut.RunExternal(_request.Object);
+
+        // var demographicData = JsonSerializer.Deserialize<FilteredDemographicData>(result.Body.ReadAsync());
+
+        string responseBody;
+        using (var reader = new StreamReader(result.Body))
+        {
+            responseBody = await reader.ReadToEndAsync();
+        }
+
+        // Assert
+        Assert.AreEqual(serialisedResponse, responseBody);
     }
 }
