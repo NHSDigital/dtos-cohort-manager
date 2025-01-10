@@ -17,7 +17,6 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
     })
-    .AddDatabaseConnection()
     .Build();
 
-host.Run();
+host.RunAsync();

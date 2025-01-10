@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ScreeningDataServices;
+namespace NHS.CohortManager.ParticipantManagementService;
 
 using System.Net;
 using System.Text.Json;
@@ -30,7 +30,7 @@ public class GetParticipantReferenceData
     {
         try
         {
-            var geneCodeLkpResult = await _geneCodeLkpClient.GetByFilter(i => true);
+            var geneCodeLkpResult = await _geneCodeLkpClient.GetAll();
             Dictionary<string, string> geneCodeDescriptions = new Dictionary<string, string>();
 
             if(geneCodeLkpResult != null && geneCodeLkpResult.Any())
@@ -41,7 +41,7 @@ public class GetParticipantReferenceData
                 }
             }
 
-            var higherRiskReferralReasonLkpResult = await _higherRiskReferralReasonLkpClient.GetByFilter(i => true);
+            var higherRiskReferralReasonLkpResult = await _higherRiskReferralReasonLkpClient.GetAll();
             Dictionary<string, string> higherRiskReferralReasonCodeDescriptions = new Dictionary<string, string>();
 
             if(higherRiskReferralReasonLkpResult != null && higherRiskReferralReasonLkpResult.Any())
