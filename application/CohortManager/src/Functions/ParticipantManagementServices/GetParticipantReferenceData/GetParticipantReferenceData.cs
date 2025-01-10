@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Common;
 using Model;
 using DataServices.Client;
-using System.Reflection.Metadata.Ecma335;
 
 public class GetParticipantReferenceData
 {
@@ -25,6 +24,8 @@ public class GetParticipantReferenceData
         _higherRiskReferralReasonLkpClient = higherRiskReferralReasonLkpClient;
     }
 
+    // Gets all GeneCodeLkp and HigherRiskReferralReasonLkp data and returns necessary data to Receive Data function (In BI & Analytics project)
+    // To be deleted after historical data is loaded on to platform
     [Function("GetParticipantReferenceData")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
