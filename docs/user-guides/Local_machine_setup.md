@@ -98,13 +98,6 @@ Run the following two commands:
 Next press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
 Finally, press command + p and type `task Run All Functions`.
-*Note: Currently the following functions need to be run manually. The easiest way is to right click on the folder and Open in Integrated Terminal and typing `func start`.
-    - application/CohortManager/src/Functions/screeningDataServices/BsSelectGpPractice
-    - application/CohortManager/src/Functions/screeningDataServices/BsSelectOutCode
-    - application/CohortManager/src/Functions/screeningDataServices/CurrentPostingDataService
-    - application/CohortManager/src/Functions/screeningDataServices/ExcludedSMULookupDataService
-    - application/CohortManager/src/Functions/screeningDataServices/LanguageCodesDataService
-    - application/CohortManager/src/Functions/screeningDataServices/ParticipantManagementDataService
 
 
 ## Appendix A: Storage
