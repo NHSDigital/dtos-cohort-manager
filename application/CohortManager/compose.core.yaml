@@ -250,6 +250,17 @@ services:
       - ASPNETCORE_URLS=http://*:7991
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
+  get-participant-reference-data:
+    container_name: get-participant-reference-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7999
+      - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - GeneCodeLkpDataServiceUrl=http://localhost:7991/api/GeneCodeLkpDataService
+
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
     network_mode: host
