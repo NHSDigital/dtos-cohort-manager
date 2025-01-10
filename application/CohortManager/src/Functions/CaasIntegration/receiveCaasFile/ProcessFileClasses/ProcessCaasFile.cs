@@ -1,6 +1,7 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
 using System.Text.Json;
+using Azure.Storage.Blobs;
 using System.Threading.Tasks.Dataflow;
 using Common;
 using Common.Interfaces;
@@ -26,6 +27,10 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IValidateDates _validateDates;
 
+    private const int MaxRetries = 5;
+    private const int BaseDelayMilliseconds = 2000;
+    private const string FailedBlobContainerName = "failed-files";
+
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
      , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
@@ -42,6 +47,66 @@ public class ProcessCaasFile : IProcessCaasFile
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
     }
+
+  public async Task ProcessRecordsWithRetry(string filePath, List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
+    {
+        int retryCount = 0;
+        while (retryCount < MaxRetries)
+        {
+            try
+            {
+                _logger.LogInformation($"Starting to process file {filePath}, attempt {retryCount + 1}");
+                await ProcessRecords(values, options, screeningService, name);
+                _logger.LogInformation($"File {filePath} processed successfully.");
+                return; // Exit loop on success
+            }
+            catch (Exception ex)
+            {
+                retryCount++;
+                _logger.LogError(ex, $"Error occurred while processing file {filePath}. Attempt {retryCount} of {MaxRetries}");
+
+                if (retryCount >= MaxRetries)
+                {
+                    _logger.LogCritical($"Max retries reached. File {filePath} processing failed.");
+                    await HandleFileFailure(filePath, name, ex.Message, retryCount);
+                    return;
+                }
+
+                int delay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
+                _logger.LogInformation($"Retrying in {delay / 1000} seconds...");
+                await Task.Delay(delay); // Exponential backoff
+            }
+        }
+    }
+
+     private async Task HandleFileFailure(string filePath, string fileName, string errorMessage, int retryCount)
+    {
+        try
+        {
+            // Move file to blob storage
+            await MoveFileToBlobStorage(filePath, FailedBlobContainerName, fileName);
+
+            _logger.LogInformation($"File {fileName} handled after max retries.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error while handling file failure for {fileName}.");
+            throw;
+        }
+    }
+
+    private async Task MoveFileToBlobStorage(string filePath, string blobContainerName, string blobName)
+    {
+        var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureBlobConnectionString"));
+        var containerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
+
+        await containerClient.CreateIfNotExistsAsync();
+        var blobClient = containerClient.GetBlobClient(blobName);
+
+        await blobClient.UploadAsync(filePath, overwrite: true);
+        _logger.LogInformation($"File {blobName} moved to blob storage in {blobContainerName}.");
+    }
+
 
     /// <summary>
     /// process a given batch and send it the queue
