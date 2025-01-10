@@ -534,20 +534,19 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             return new CohortRequestAudit();
         }
 
-        var sql =
-            "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
-            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            "WHERE (CREATED_DATETIME > ( " +
-            "SELECT CREATED_DATETIME " +
-            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            "WHERE REQUEST_ID = @RequestId) " +
-            "OR (CREATED_DATETIME = ( " +
-            "SELECT CREATED_DATETIME " +
-            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            "WHERE REQUEST_ID = @RequestId) " +
-            "AND REQUEST_ID > @RequestId)) " +
-            "AND STATUS_CODE != @StatusCode " +
-            "ORDER BY CREATED_DATETIME ASC, REQUEST_ID ASC";
+        var sql = "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
+                  "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+                  "WHERE (CREATED_DATETIME > ( " +
+                  "SELECT CREATED_DATETIME " +
+                  "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+                  "WHERE REQUEST_ID = @RequestId) " +
+                  "OR (CREATED_DATETIME = ( " +
+                  "SELECT CREATED_DATETIME " +
+                  "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+                  "WHERE REQUEST_ID = @RequestId) " +
+                  "AND REQUEST_ID > @RequestId)) " +
+                  "AND STATUS_CODE != @StatusCode " +
+                  "ORDER BY CREATED_DATETIME ASC, REQUEST_ID ASC";
 
         var parameters = new Dictionary<string, object>
         {
