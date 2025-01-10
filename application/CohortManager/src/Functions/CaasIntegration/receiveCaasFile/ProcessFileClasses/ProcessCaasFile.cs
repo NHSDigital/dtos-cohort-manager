@@ -85,7 +85,6 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             // Move file to blob storage
             await MoveFileToBlobStorage(filePath, FailedBlobContainerName, fileName);
-
             _logger.LogInformation($"File {fileName} handled after max retries.");
         }
         catch (Exception ex)
