@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Common;
 using Model;
 using DataServices.Client;
-
+using System.Reflection.Metadata.Ecma335;
 
 public class GetParticipantReferenceData
 {
@@ -30,7 +30,7 @@ public class GetParticipantReferenceData
     {
         try
         {
-            var geneCodeLkpResult = await _geneCodeLkpClient.GetByFilter(i => 1 == 1);
+            var geneCodeLkpResult = await _geneCodeLkpClient.GetByFilter(i => true);
             Dictionary<string, string> geneCodeDescriptions = new Dictionary<string, string>();
 
             if(geneCodeLkpResult != null && geneCodeLkpResult.Any())
@@ -41,7 +41,7 @@ public class GetParticipantReferenceData
                 }
             }
 
-            var higherRiskReferralReasonLkpResult = await _higherRiskReferralReasonLkpClient.GetByFilter(i => 1 == 1);
+            var higherRiskReferralReasonLkpResult = await _higherRiskReferralReasonLkpClient.GetByFilter(i => true);
             Dictionary<string, string> higherRiskReferralReasonCodeDescriptions = new Dictionary<string, string>();
 
             if(higherRiskReferralReasonLkpResult != null && higherRiskReferralReasonLkpResult.Any())
