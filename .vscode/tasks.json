@@ -25,7 +25,13 @@
         "CohortDistributionServices/ServiceProviderAllocationService",
         "CohortDistributionServices/ValidateCohortDistributionRecord",
         "CohortDistributionServices/TransformDataService",
-        "CohortDistributionServices/AddCohortDistributionData"
+        "CohortDistributionServices/AddCohortDistributionData",
+        "screeningDataServices/BsSelectGpPractice",
+        "screeningDataServices/BsSelectOutCode",
+        "screeningDataServices/CurrentPostingDataService",
+        "screeningDataServices/ExcludedSMULookupDataService",
+        "screeningDataServices/LanguageCodesDataService",
+        "screeningDataServices/ParticipantManagementDataService",
       ]
     },
     {
@@ -412,6 +418,114 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
+      }
+    },
+    {
+      "label": "screeningDataServices/BsSelectGpPractice",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 11.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 22 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/BsSelectGpPractice"
+      }
+    },
+    {
+      "label": "screeningDataServices/BsSelectOutCode",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12 && func start"
+      },
+      "windows": {
+        "command": "timeout 23 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/BsSelectOutCode"
+      }
+    },
+    {
+      "label": "screeningDataServices/CurrentPostingDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 24 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/CurrentPostingDataService"
+      }
+    },
+    {
+      "label": "screeningDataServices/ExcludedSMULookupDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13 && func start"
+      },
+      "windows": {
+        "command": "timeout 25 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ExcludedSMULookupDataService"
+      }
+    },
+    {
+      "label": "screeningDataServices/LanguageCodesDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 26 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/LanguageCodesDataService"
+      }
+    },
+    {
+      "label": "screeningDataServices/ParticipantManagementDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 14 && func start"
+      },
+      "windows": {
+        "command": "timeout 27 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ParticipantManagementDataService"
       }
     }
   ]
