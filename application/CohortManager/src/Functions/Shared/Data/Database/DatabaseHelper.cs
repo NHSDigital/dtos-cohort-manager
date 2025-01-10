@@ -44,7 +44,7 @@ public class DatabaseHelper : IDatabaseHelper
     {
         const string format = "yyyyMMdd";
 
-        if (!DateTime.TryParse(date?.Trim(), out var parsedDate))
+        if (!DateTime.TryParse(date?.Trim(), CultureInfo.InvariantCulture, out var parsedDate))
         {
             return string.Empty;
         }

@@ -36,12 +36,9 @@ public class CreateException
                 requestBody = await reader.ReadToEndAsync();
                 exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
             }
-            if (!string.IsNullOrEmpty(requestBody))
+            if (!string.IsNullOrEmpty(requestBody) && _validationData.Create(exception))
             {
-                if (_validationData.Create(exception))
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             return req.CreateResponse(HttpStatusCode.BadRequest);
 
