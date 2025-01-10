@@ -3,22 +3,22 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
+using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
-    private readonly QueueClient _AddQueueClient;
 
     public readonly ILogger<AddBatchToQueue> _logger;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger)
-    {
-        var storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? "";
-        _AddQueueClient = new QueueClient(storageConnectionString, Environment.GetEnvironmentVariable("AddQueueName"));
 
-        _AddQueueClient.CreateIfNotExists();
+    private readonly IAzureQueueStorageHelper _queueHelper;
+
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper)
+    {
         _logger = logger;
+        _queueHelper = queueHelper;
     }
 
     public async Task ProcessBatch(Batch batch)
@@ -51,7 +51,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
-        await _AddQueueClient.SendMessageAsync(ParseMessage(basicParticipantCsvRecord));
+        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord,Environment.GetEnvironmentVariable("AddQueueName"));
     }
 
     private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)

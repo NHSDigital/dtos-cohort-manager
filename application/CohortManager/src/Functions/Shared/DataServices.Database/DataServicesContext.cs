@@ -29,13 +29,17 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ExcludedSMULookup>()
             .ToTable("EXCLUDED_SMU_LKP","dbo");
-            
+
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT","dbo");
 
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo");
 
-    }
+        modelBuilder.Entity<GeneCodeLkp>()
+            .ToTable("GENE_CODE_LKP", "dbo");
 
+        modelBuilder.Entity<HigherRiskReferralReasonLkp>()
+            .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
+    }
 }

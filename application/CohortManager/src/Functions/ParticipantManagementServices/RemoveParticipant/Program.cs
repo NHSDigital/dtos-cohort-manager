@@ -14,4 +14,4 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .Build();
 
-host.Run();
+await host.RunAsync();

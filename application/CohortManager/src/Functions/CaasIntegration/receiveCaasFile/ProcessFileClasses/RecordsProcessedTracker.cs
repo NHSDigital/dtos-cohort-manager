@@ -1,5 +1,5 @@
-namespace receiveCaasFile;
-public class RecordsProcessedTracker
+namespace NHS.Screening.ReceiveCaasFile;
+public class RecordsProcessedTracker : IRecordsProcessedTracker
 {
     private readonly HashSet<ParticipantRecord> _processedRecords;
     private readonly static object lockObj = new object();
@@ -9,13 +9,13 @@ public class RecordsProcessedTracker
         _processedRecords = new HashSet<ParticipantRecord>();
     }
 
-    public bool RecordNotAlreadyProcessed(string RecordType, string NHSId)
+    public bool RecordAlreadyProcessed(string RecordType, string NHSId)
     {
-        var rec = new ParticipantRecord{ RecordType = RecordType, NHSId = NHSId};
+        var rec = new ParticipantRecord { RecordType = RecordType, NHSId = NHSId };
         //avoiding race conditions on access to the process records hashset
-        lock(lockObj)
+        lock (lockObj)
         {
-            if(_processedRecords.Contains(rec))
+            if (_processedRecords.Contains(rec))
             {
                 return false;
             }
@@ -32,7 +32,7 @@ public class RecordsProcessedTracker
         {
             return HashCode.Combine(RecordType, NHSId);
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is ParticipantRecord other && Equals(other);
         }

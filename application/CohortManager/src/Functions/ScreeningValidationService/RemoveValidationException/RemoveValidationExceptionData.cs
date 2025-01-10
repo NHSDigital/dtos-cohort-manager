@@ -10,7 +10,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 
-
 public class RemoveValidationExceptionData
 {
     private readonly ICreateResponse _createResponse;
@@ -32,7 +31,7 @@ public class RemoveValidationExceptionData
         OldExceptionRecord removeOldException;
         using (var reader = new StreamReader(req.Body, Encoding.UTF8))
         {
-            var requestBodyJson = reader.ReadToEnd();
+            var requestBodyJson = await reader.ReadToEndAsync();
             removeOldException = JsonSerializer.Deserialize<OldExceptionRecord>(requestBodyJson);
         }
 
@@ -52,7 +51,7 @@ public class RemoveValidationExceptionData
         {
             await _handleException.CreateSystemExceptionLogFromNhsNumber(ex, removeOldException.NhsNumber, "", removeOldException.ScreeningName, "N/A");
 
-            _logger.LogError("There was exception while removing an old ValidationExceptionRecord for NHS number: {NhsNumber}. StackTrace: {ex}", removeOldException.NhsNumber, ex);
+            _logger.LogError(ex, "There was exception while removing an old ValidationExceptionRecord for NHS number: {NhsNumber}. StackTrace: {Ex}", removeOldException.NhsNumber, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
