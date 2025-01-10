@@ -529,6 +529,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public CohortRequestAudit GetNextCohortRequestAudit(string requestId)
     {
+        if (!Guid.TryParse(requestId, out Guid requestIdGuid))
+        {
+            return new CohortRequestAudit();
+        }
+
         var sql =
             "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
             "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
@@ -546,7 +551,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var parameters = new Dictionary<string, object>
         {
-            {"@RequestId", Guid.Parse(requestId)},
+            {"@RequestId", requestIdGuid},
             {"@StatusCode", HttpStatusCode.NoContent.ToString()}
         };
 
