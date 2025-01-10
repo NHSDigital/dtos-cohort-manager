@@ -90,8 +90,7 @@ You can then run and setup the SQL database using Podman (or docker) by running 
 
 ### Functions
 
-Download the .recreate_local_settings.sh from [link to file](https://example.com/).
-Place the file within the `application/CohortManager/Set-up/scripts/` folder
+Run the get_local_settings.sh from `application/CohortManager/Set-up/scripts/`.
 Run the following two commands:
     - `cd application/CohortManager/Set-up/`
     - `sh ./scripts/recreate_local_settings.sh`
