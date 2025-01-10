@@ -43,19 +43,18 @@ public class RetrieveCohortDistributionData
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
-        int screeningServiceId = _httpParserHelper.GetScreeningServiceId(req);
-        int rowCount = _httpParserHelper.GetRowCount(req);
+        int screeningServiceId = _httpParserHelper.GetQueryParameterAsInt(req, "screeningServiceId");
+        int rowCount = _httpParserHelper.GetQueryParameterAsInt(req, "rowCount");
         var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
 
         try
         {
             if (!string.IsNullOrEmpty(requestId))
             {
-                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                var nextRequestId = nextRequestAudit?.RequestId;
-                if (nextRequestId != null)
+                requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
+                if (requestId != null)
                 {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequestId);
+                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
                 }
             }
 
@@ -63,15 +62,6 @@ public class RetrieveCohortDistributionData
             {
                 cohortDistributionParticipants = _createCohortDistributionData
                 .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
-            }
-            else
-            {
-                var nextRequestAudit = _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                var nextRequestId = nextRequestAudit?.RequestId;
-                if (nextRequestId != null)
-                {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(nextRequestId);
-                }
             }
 
             return cohortDistributionParticipants.Count == 0

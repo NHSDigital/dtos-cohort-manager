@@ -462,7 +462,8 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(false);
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
@@ -478,6 +479,7 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("ValidPCP")]
     [DataRow(null)]
+    [DataRow("ValidExcludedSMU")]
     public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string primaryCareProvider)
     {
         // Arrange
@@ -487,6 +489,7 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(primaryCareProvider == "ValidExcludedSMU");
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
