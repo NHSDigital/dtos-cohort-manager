@@ -16,6 +16,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Common;
 
 public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
 {
