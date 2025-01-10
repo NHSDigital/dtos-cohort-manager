@@ -1,5 +1,5 @@
 namespace NHS.CohortManager.ScreeningValidationService;
-public interface IDataLookupFacade
+public interface IDataLookupFacadeBreastScreening
 {
     bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);
     bool ValidateOutcode(string postcode);
