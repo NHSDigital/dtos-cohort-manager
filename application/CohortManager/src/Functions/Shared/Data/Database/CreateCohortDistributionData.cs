@@ -486,9 +486,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         foreach (var participant in cohortParticipants)
         {
-            var SQL = " UPDATE [dbo].[BS_COHORT_DISTRIBUTION] " +
-                    " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
-                    " WHERE PARTICIPANT_ID = @ParticipantId";
+            var SQL = "UPDATE TOP (1) [dbo].[BS_COHORT_DISTRIBUTION] " +
+                      " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
+                      " WHERE PARTICIPANT_ID = @ParticipantId" +
+                      " AND (RECORD_UPDATE_DATETIME IS NULL OR RECORD_UPDATE_DATETIME = (" +
+                      " SELECT MAX(RECORD_UPDATE_DATETIME)" +
+                      " FROM [dbo].[BS_COHORT_DISTRIBUTION]" +
+                      " WHERE PARTICIPANT_ID = @ParticipantId))";
 
             var parameters = new Dictionary<string, object>
         {
@@ -542,7 +546,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var parameters = new Dictionary<string, object>
         {
-            {"@RequestId", requestId},
+            {"@RequestId", Guid.Parse(requestId)},
             {"@StatusCode", HttpStatusCode.NoContent.ToString()}
         };
 
