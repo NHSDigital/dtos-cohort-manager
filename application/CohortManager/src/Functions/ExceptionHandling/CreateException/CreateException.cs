@@ -36,12 +36,20 @@ public class CreateException
                 requestBody = await reader.ReadToEndAsync();
                 exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
             }
-            if (!string.IsNullOrEmpty(requestBody) && _validationData.Create(exception))
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
-            return req.CreateResponse(HttpStatusCode.BadRequest);
 
+            if (string.IsNullOrEmpty(requestBody))
+            {
+                _logger.LogError("The requestBody is empty, unable to create exception record");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+            if (_validationData.Create(exception))
+            {
+                _logger.LogInformation("The exception has been created successfully");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+            }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch (Exception ex)
         {
