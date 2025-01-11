@@ -31,6 +31,13 @@ public class ProcessCaasFile : IProcessCaasFile
     private const int BaseDelayMilliseconds = 2000;
     private const string FailedBlobContainerName = "failed-files";
 
+    public class FileHandlingException : Exception
+    {
+        public FileHandlingException(string message, Exception innerException = null)
+            : base(message, innerException)
+        {
+        }
+    }
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
      , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
@@ -48,33 +55,59 @@ public class ProcessCaasFile : IProcessCaasFile
         _validateDates = validateDates;
     }
 
-  public async Task ProcessRecordsWithRetry(string filePath, List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
+    public async Task ProcessRecordsWithRetry(
+        string filePath,
+        List<ParticipantsParquetMap> values,
+        ParallelOptions options,
+        ScreeningService screeningService,
+        string name)
     {
         int retryCount = 0;
-        bool isSuccessful = false;
-        while (retryCount < MaxRetries && !isSuccessful)
+
+        // Add a clear termination condition
+        while (retryCount < MaxRetries)
         {
             try
             {
-                 _logger.LogInformation("Starting to process file {FilePath}, attempt {RetryAttempt}", filePath, retryCount + 1);
+                _logger.LogInformation(
+                    "Starting to process file {FilePath}, attempt {RetryAttempt}",
+                    filePath,
+                    retryCount + 1);
+
                 await ProcessRecords(values, options, screeningService, name);
-                 _logger.LogInformation("File {FilePath} processed successfully.", filePath);
-                return; // Exit loop on success
+
+                _logger.LogInformation(
+                    "File {FilePath} processed successfully.",
+                    filePath);
+
+                return; // Exit the loop on success
             }
             catch (Exception ex)
             {
                 retryCount++;
-                _logger.LogError(ex, "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}", filePath, retryCount, MaxRetries);
+
+                _logger.LogError(
+                    ex,
+                    "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}",
+                    filePath,
+                    retryCount,
+                    MaxRetries);
 
                 if (retryCount >= MaxRetries)
                 {
-                    _logger.LogCritical("Max retries reached. File {FilePath} processing failed.", filePath);
+                    _logger.LogCritical(
+                        "Max retries reached. File {FilePath} processing failed.",
+                        filePath);
+
                     await HandleFileFailure(filePath, name);
-                    return;
+                    return; // Exit the method after handling failure
                 }
 
                 int delay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
-                _logger.LogInformation("Retrying in {RetryDelay} seconds...", delay / 1000);
+                _logger.LogInformation(
+                    "Retrying in {RetryDelay} seconds...",
+                    delay / 1000);
+
                 await Task.Delay(delay); // Exponential backoff
             }
         }
@@ -91,7 +124,7 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
              _logger.LogError(ex, "Error while handling file failure for FilePath: {FilePath}, FileName: {FileName}", filePath, fileName);
-           throw new Exception($"Error while handling file failure for FileName: {fileName}.", ex);
+           throw new FileHandlingException($"Error while handling file failure for FileName: {fileName}", ex);
         }
     }
 
