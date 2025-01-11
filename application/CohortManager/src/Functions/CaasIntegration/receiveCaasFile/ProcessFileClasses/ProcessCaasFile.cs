@@ -51,46 +51,47 @@ public class ProcessCaasFile : IProcessCaasFile
   public async Task ProcessRecordsWithRetry(string filePath, List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
     {
         int retryCount = 0;
-        while (retryCount < MaxRetries)
+        bool isSuccessful = false;
+        while (retryCount < MaxRetries && !isSuccessful)
         {
             try
             {
-                _logger.LogInformation($"Starting to process file {filePath}, attempt {retryCount + 1}");
+                 _logger.LogInformation("Starting to process file {FilePath}, attempt {RetryAttempt}", filePath, retryCount + 1);
                 await ProcessRecords(values, options, screeningService, name);
-                _logger.LogInformation($"File {filePath} processed successfully.");
+                 _logger.LogInformation("File {FilePath} processed successfully.", filePath);
                 return; // Exit loop on success
             }
             catch (Exception ex)
             {
                 retryCount++;
-                _logger.LogError(ex, $"Error occurred while processing file {filePath}. Attempt {retryCount} of {MaxRetries}");
+                _logger.LogError(ex, "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}", filePath, retryCount, MaxRetries);
 
                 if (retryCount >= MaxRetries)
                 {
-                    _logger.LogCritical($"Max retries reached. File {filePath} processing failed.");
-                    await HandleFileFailure(filePath, name, ex.Message, retryCount);
+                    _logger.LogCritical("Max retries reached. File {FilePath} processing failed.", filePath);
+                    await HandleFileFailure(filePath, name);
                     return;
                 }
 
                 int delay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
-                _logger.LogInformation($"Retrying in {delay / 1000} seconds...");
+                _logger.LogInformation("Retrying in {RetryDelay} seconds...", delay / 1000);
                 await Task.Delay(delay); // Exponential backoff
             }
         }
     }
 
-     private async Task HandleFileFailure(string filePath, string fileName, string errorMessage, int retryCount)
+     private async Task HandleFileFailure(string filePath, string fileName)
     {
         try
         {
             // Move file to blob storage
             await MoveFileToBlobStorage(filePath, FailedBlobContainerName, fileName);
-            _logger.LogInformation($"File {fileName} handled after max retries.");
+            _logger.LogInformation("File {FileName} handled after max retries.", fileName);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error while handling file failure for {fileName}.");
-            throw;
+             _logger.LogError(ex, "Error while handling file failure for FilePath: {FilePath}, FileName: {FileName}", filePath, fileName);
+           throw new Exception($"Error while handling file failure for FileName: {fileName}.", ex);
         }
     }
 
@@ -103,7 +104,7 @@ public class ProcessCaasFile : IProcessCaasFile
         var blobClient = containerClient.GetBlobClient(blobName);
 
         await blobClient.UploadAsync(filePath, overwrite: true);
-        _logger.LogInformation($"File {blobName} moved to blob storage in {blobContainerName}.");
+        _logger.LogInformation("File {BlobName} moved to blob storage in {BlobContainerName}.", blobName, blobContainerName);
     }
 
 
