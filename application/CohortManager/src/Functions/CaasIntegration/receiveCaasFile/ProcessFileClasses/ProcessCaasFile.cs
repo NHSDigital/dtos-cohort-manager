@@ -62,9 +62,11 @@ public class ProcessCaasFile : IProcessCaasFile
         ScreeningService screeningService,
         string name)
     {
+        const int MaxRetries = 3; // Define maximum retries
         int retryCount = 0;
+        bool isSuccessful = false;
 
-        // Add a clear termination condition
+        // Loop until retries are exhausted or successful processing
         while (retryCount < MaxRetries)
         {
             try
@@ -74,13 +76,15 @@ public class ProcessCaasFile : IProcessCaasFile
                     filePath,
                     retryCount + 1);
 
+                // Call the main processing logic
                 await ProcessRecords(values, options, screeningService, name);
 
                 _logger.LogInformation(
                     "File {FilePath} processed successfully.",
                     filePath);
 
-                return; // Exit the loop on success
+                isSuccessful = true; // Mark as successful
+                break; // Exit the loop
             }
             catch (Exception ex)
             {
@@ -100,16 +104,21 @@ public class ProcessCaasFile : IProcessCaasFile
                         filePath);
 
                     await HandleFileFailure(filePath, name);
-                    return; // Exit the method after handling failure
+                    break; // Exit the loop after failure handling
                 }
 
+                // Exponential backoff for retry
                 int delay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
-                _logger.LogInformation(
-                    "Retrying in {RetryDelay} seconds...",
-                    delay / 1000);
+                _logger.LogInformation("Retrying in {RetryDelay} seconds...", delay / 1000);
 
-                await Task.Delay(delay); // Exponential backoff
+                await Task.Delay(delay);
             }
+        }
+
+        if (!isSuccessful)
+        {
+            // Handle any additional cleanup if needed after all retries fail
+            _logger.LogWarning("Processing ultimately failed for file {FilePath}.", filePath);
         }
     }
 
