@@ -62,12 +62,12 @@ public class ProcessCaasFile : IProcessCaasFile
         ScreeningService screeningService,
         string name)
     {
-        const int MaxRetries = 3; // Define maximum retries
+        const int MaxRetryAttempts  = 3; // Define maximum retries
         int retryCount = 0;
         bool isSuccessful = false;
 
         // Loop until retries are exhausted or successful processing
-        while (retryCount < MaxRetries)
+        while (retryCount < MaxRetryAttempts)
         {
             try
             {
