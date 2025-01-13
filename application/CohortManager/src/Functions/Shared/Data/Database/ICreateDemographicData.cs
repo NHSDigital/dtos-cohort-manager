@@ -4,5 +4,5 @@ using Model;
 
 public interface ICreateDemographicData
 {
-    Demographic GetDemographicData(string NhsNumber);
+    Demographic GetDemographicData(string nhsNumber);
 }

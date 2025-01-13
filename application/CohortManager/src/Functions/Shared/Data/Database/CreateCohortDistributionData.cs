@@ -149,7 +149,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int screeningServiceId, int rowCount)
+    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -202,7 +202,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var listOfAllParticipants = GetParticipant(command);
         var requestId = Guid.NewGuid().ToString();
-        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId, screeningServiceId))
+        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
             return CohortDistributionParticipantDto(listOfAllParticipants);
@@ -478,7 +478,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
     }
 
-    private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId, int screeningServiceId)
+    private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId)
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
@@ -504,7 +504,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
             participant.Extracted = "1";
             participant.RequestId = requestId;
-            participant.ScreeningServiceId = screeningServiceId.ToString();
             participant.ScreeningAcronym = nameof(ServiceProvider.BSS);
             participant.ScreeningName = EnumHelper.GetDisplayName(ServiceProvider.BSS);
         }
@@ -525,14 +524,20 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public CohortRequestAudit GetNextCohortRequestAudit(string requestId)
     {
-        var sql = "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE CREATED_DATETIME >= ( " +
-            " SELECT CREATED_DATETIME " +
-            " FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
-            " WHERE REQUEST_ID = @RequestId)" +
-            " AND STATUS_CODE != @StatusCode " +
-            " ORDER BY CREATED_DATETIME ASC";
+        var sql =
+            "SELECT TOP 1 [REQUEST_ID], [STATUS_CODE], [CREATED_DATETIME] " +
+            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            "WHERE (CREATED_DATETIME > ( " +
+            "SELECT CREATED_DATETIME " +
+            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            "WHERE REQUEST_ID = @RequestId) " +
+            "OR (CREATED_DATETIME = ( " +
+            "SELECT CREATED_DATETIME " +
+            "FROM [dbo].[BS_SELECT_REQUEST_AUDIT] " +
+            "WHERE REQUEST_ID = @RequestId) " +
+            "AND REQUEST_ID > @RequestId)) " +
+            "AND STATUS_CODE != @StatusCode " +
+            "ORDER BY CREATED_DATETIME ASC, REQUEST_ID ASC";
 
         var parameters = new Dictionary<string, object>
         {

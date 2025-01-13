@@ -8,12 +8,10 @@ public class ScreeningServiceData : IScreeningServiceData
 {
     private readonly IDbConnection _dbConnection;
     private readonly string _connectionString;
-    private readonly ILogger<ScreeningServiceData> _logger;
 
-    public ScreeningServiceData(IDbConnection dbConnection, ILogger<ScreeningServiceData> logger)
+    public ScreeningServiceData(IDbConnection dbConnection)
     {
         _dbConnection = dbConnection;
-        _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
 
@@ -78,7 +76,7 @@ public class ScreeningServiceData : IScreeningServiceData
         return AddParameters(parameters, dbCommand);
     }
 
-    private IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
         if (parameters == null) return dbCommand;
 

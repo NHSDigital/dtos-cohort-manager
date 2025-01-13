@@ -462,7 +462,7 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
@@ -607,10 +607,15 @@ public class LookupValidationTests
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "")]
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")]
-    [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")]
-    [DataRow("DMS", null, "WALES", "DMS", null, "WALES")]
+    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "")] //Valid -> Valid
+    [DataRow("ABC", null, "ABC", "ABC", null, "ENGLAND")]//  Valid -> Valid
+    [DataRow("ABC", "ExcludedPCP", "ABC", "ABC", "ExcludedPCP", "ENGLAND")] //Valid -> Valid
+
+    [DataRow("DMS", "ExcludedPCP", "", "ABC", "ValidPCP", "ENGLAND")] // DMS Invalid -> Valid
+    [DataRow("ABC", "ValidPCP", "", "DMS", "ExcludedPCP", "ENGLAND")] // Valid -> DMS Invalid
+
+    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")] // Valid -> Wales Invalid
+    [DataRow("CYM", "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid
     public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
         // Arrange
@@ -625,10 +630,10 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(existingPostingCategory);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
 
         // Act
         await _sut.RunAsync(_request.Object);
@@ -641,7 +646,11 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("DMS", "ExcludedPCP", "", "DMS", "ExcludedPCP", "")]
+    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "DMS", "ExcludedPCP", "ENGLAND")] //DMS Invalid -> DMS Invalid
+    [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")] //DMS + Wales Invalid -> DMS Wales Invalid
+    [DataRow("CYM","ValidPCP","WALES","CYM","ValidPCP","WALES")] //Wales Invalid -> Wales Invalid
+    [DataRow("CYM","ExcludedPCP","WALES","CYM","ExcludedPCP","WALES")] //Wales Invalid -> Wales Invalid
+    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "ABC", "ValidPCP", "WALES")] //DMS Invalid -> Wales Invalid
     public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
         // Arrange
@@ -656,10 +665,10 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsAny<string>())).Returns(existingPostingCategory);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
 
         // Act
         await _sut.RunAsync(_request.Object);

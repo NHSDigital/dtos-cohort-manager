@@ -50,6 +50,21 @@ public class CallFunction : ICallFunction
 
         return false;
     }
+
+    public async Task<string> GetResponseText(HttpWebResponse httpResponseData)
+    {
+        using (Stream stream = httpResponseData.GetResponseStream())
+        {
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                var responseText = await reader.ReadToEndAsync();
+                return responseText;
+            }
+        }
+    }
+
+    //Private
+
     private async Task<string> GetAsync(string url)
     {
         var request = (HttpWebRequest)WebRequest.Create(url);
@@ -88,22 +103,11 @@ public class CallFunction : ICallFunction
         }
         catch (WebException ex)
         {
-            _logger.LogError(ex, "Failed to execute web request");
+            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",url,ex.Message);
             return (HttpWebResponse)ex.Response;
-
         }
 
     }
 
-    public async Task<string> GetResponseText(HttpWebResponse httpResponseData)
-    {
-        using (Stream stream = httpResponseData.GetResponseStream())
-        {
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                var responseText = await reader.ReadToEndAsync();
-                return responseText;
-            }
-        }
-    }
+
 }
