@@ -61,20 +61,8 @@ public class GetParticipantReferenceData
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message, ex);
+            _logger.LogError(ex, "Error trying to get participant reference data");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-}
-
-public class ParticipantReferenceData
-{
-    public Dictionary<string, string> _geneCodeDescriptions { get; set; }
-    public Dictionary<string, string> _higherRiskReferralReasonCodeDescriptions { get; set; }
-
-    public ParticipantReferenceData(Dictionary<string, string> geneCodeDescriptions, Dictionary<string, string> higherRiskReferralReasonCodeDescriptions)
-    {
-        _geneCodeDescriptions = geneCodeDescriptions;
-        _higherRiskReferralReasonCodeDescriptions = higherRiskReferralReasonCodeDescriptions;
     }
 }
