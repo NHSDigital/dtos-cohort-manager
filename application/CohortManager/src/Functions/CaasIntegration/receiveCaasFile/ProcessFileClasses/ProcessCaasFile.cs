@@ -28,7 +28,6 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
 
     private readonly IValidateDates _validateDates;
-
     private const int BaseDelayMilliseconds = 2000;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
