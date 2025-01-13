@@ -9,8 +9,11 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
+using RulesEngine.Models;
 
 public class DurableDemographicFunction
 {
@@ -27,23 +30,64 @@ public class DurableDemographicFunction
         _createResponse = createResponse;
     }
 
+    /// <summary>
+    /// Orchestrates the execution of the Durable Demographic Function.
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    /// <exception cref="TimeoutException"></exception>
     [Function(nameof(DurableDemographicFunction))]
     public async Task<bool> RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        _logger.LogInformation("Calling Run Orchestrator");
+        var orchestrationTimeout = TimeSpan.FromHours(2.5);
+        var expirationTime = context.CurrentUtcDateTime.Add(orchestrationTimeout);
 
-        var demographicJsonData = context.GetInput<string>();
+        using (var cts = new CancellationTokenSource(orchestrationTimeout))
+        {
+            try
+            {
+                var demographicJsonData = context.GetInput<string>();
 
-        //Max number of attempts: The maximum number of attempts. If set to 1, there will be no retry.
-        var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
-            maxNumberOfAttempts: 1,
-            firstRetryInterval: TimeSpan.FromSeconds(100))
-        );
-        var res = await context.CallActivityAsync<bool>(nameof(InsertDemographicData), demographicJsonData, options: retryOptions);
-        return res;
+                var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
+                    maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
+                    firstRetryInterval: TimeSpan.FromSeconds(100))
+                );
+
+                // Add timeout-aware logic
+                var task = context.CallActivityAsync<bool>(
+                    nameof(InsertDemographicData),
+                    demographicJsonData,
+                    options: retryOptions
+                );
+
+                // Monitor for timeout
+                var timeoutTask = context.CreateTimer(expirationTime, cts.Token);
+                var completedTask = await Task.WhenAny(task, timeoutTask);
+
+                if (completedTask == timeoutTask)
+                {
+                    _logger.LogWarning("Orchestration timed out.");
+                    throw new TimeoutException("Orchestration function exceeded its timeout.");
+                }
+
+                cts.Cancel();
+                return await task;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Orchestration failed with exception.");
+                return false;
+            }
+        }
     }
 
+    /// <summary>
+    /// Inserts demographic data into the data store.
+    /// </summary>
+    /// <param name="DemographicJsonData"></param>
+    /// <param name="executionContext"></param>
+    /// <returns></returns>
     [Function(nameof(InsertDemographicData))]
     public async Task<bool> InsertDemographicData([ActivityTrigger] string DemographicJsonData, FunctionContext executionContext)
     {
@@ -60,6 +104,16 @@ public class DurableDemographicFunction
             return false;
         }
     }
+
+
+    /// <summary>
+    /// Handles HTTP requests to initiate the Durable Demographic Function orchestration.
+    /// </summary>
+    /// </summary>
+    /// <param name="req"></param>
+    /// <param name="client"></param>
+    /// <param name="executionContext"></param>
+    /// <returns></returns>
 
     [Function("DurableDemographicFunction_HttpStart")]
     public async Task<HttpResponseData> HttpStart(
@@ -88,7 +142,5 @@ public class DurableDemographicFunction
             _logger.LogError(ex, "There has been an error executing the durable demographic function");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
         }
-
-
     }
 }

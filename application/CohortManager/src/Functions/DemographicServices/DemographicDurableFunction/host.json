@@ -1,17 +1,12 @@
 {
   "version": "2.0",
+  "functionTimeout": "01:00:00", 
   "logging": {
     "applicationInsights": {
       "samplingExcludedTypes": "Request",
       "samplingSettings": {
         "isEnabled": true
       }
-    },
-    "logLevel": {
-      "Default": "Warning",
-      "Host.Results": "Error",
-      "Host.Http": "Warning",
-      "Function": "Information"
     }
   }, 
   "extensions": {
@@ -21,7 +16,7 @@
         "maxDurableActivityFunctionTimeout": "30:00:00", 
         "maxOrchestrationFunctionTimeout": "24:00:00",
         "extendedSessionsEnabled": true,
-        "historyRetentionInDays": 7
+        "historyRetentionInDays": 90
       }
     }
   }

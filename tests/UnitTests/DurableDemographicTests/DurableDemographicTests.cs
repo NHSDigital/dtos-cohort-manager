@@ -51,7 +51,7 @@ public class DurableDemographicTests
 
 
     [TestMethod]
-    public async Task Run_return_RunOrchestrator_True()
+    public async Task RunOrchestrator_ValidInput_ReturnsTrue()
     {
         // Arrange
         var mockCreateDemographicData = new Mock<ICreateDemographicData>();
@@ -76,7 +76,7 @@ public class DurableDemographicTests
 
 
     [TestMethod]
-    public async Task InsertDemographicData_Should_Return_True_When_Data_Is_Inserted_Successfully()
+    public async Task InsertDemographicData_DataInsertedSuccessfully_ReturnsTrue()
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
@@ -95,7 +95,7 @@ public class DurableDemographicTests
 
 
     [TestMethod]
-    public async Task InsertDemographicData_Should_Return_True_When_Data_Is_Inserted_unsuccessfully()
+    public async Task InsertDemographicData_DataInsertionFails_ReturnsFalseAndLogsError()
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
@@ -121,7 +121,7 @@ public class DurableDemographicTests
     }
 
     [TestMethod]
-    public async Task HttpStart_returns_null()
+    public async Task HttpStart_InvalidInput_ReturnsNull()
     {
         // Define constants
         const string functionName = "DurableDemographicFunction";

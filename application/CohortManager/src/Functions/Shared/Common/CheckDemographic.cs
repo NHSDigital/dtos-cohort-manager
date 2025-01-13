@@ -1,6 +1,8 @@
 namespace Common;
 
+using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -16,6 +18,7 @@ public class CheckDemographic : ICheckDemographic
     private const int maxNumberOfChecks = 50;
     private TimeSpan delayBetweenChecks = TimeSpan.FromSeconds(3);
 
+
     public CheckDemographic(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient)
     {
         _callFunction = callFunction;
@@ -24,6 +27,13 @@ public class CheckDemographic : ICheckDemographic
 
         _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }
+
+    /// <summary>
+    /// Retrieves demographic information for a specific NHS number.
+    /// </summary>
+    /// <param name="NhsNumber"></param>
+    /// <param name="DemographicFunctionURI"></param>
+    /// <returns></returns>
 
     public async Task<Demographic> GetDemographicAsync(string NhsNumber, string DemographicFunctionURI)
     {
@@ -35,8 +45,22 @@ public class CheckDemographic : ICheckDemographic
         return demographicData;
     }
 
+    /// <summary>
+    /// Posts demographic data for a list of participants to the specified demographic function URI.
+    /// </summary>
+    /// <param name="participants">A list of <see cref="ParticipantDemographic"/> objects representing the participants to send.</param>
+    /// <param name="DemographicFunctionURI">The URI of the demographic function to post data to.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation. Returns true if the operation completes successfully or if no participants were provided.
+    /// </returns>
+    /// <remarks>
+    /// This method handles posting data, logging, and checking the status of the durable function.
+    /// Implements retry logic for status checking.
+    /// </remarks>
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
     {
+        HttpResponseMessage? response = new HttpResponseMessage();
+        var responseContent = "";
         if (participants.Count == 0)
         {
             _logger.LogInformation("There were no items to to send to the demographic durable function");
@@ -52,9 +76,9 @@ public class CheckDemographic : ICheckDemographic
 
             var content = new StreamContent(memoryStream);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await _httpClient.PostAsync(DemographicFunctionURI, content);
+            response = await _httpClient.PostAsync(DemographicFunctionURI, content);
 
-            var responseContent = response.Headers.Location.ToString();
+            responseContent = response.Headers.Location.ToString();
 
             // this is not retrying the function if it fails but checking if it has done yet. 
             var retryPolicy = Policy
@@ -89,6 +113,16 @@ public class CheckDemographic : ICheckDemographic
         }
     }
 
+    /// <summary>
+    /// Checks the status of a workflow using the provided status request URI.
+    /// </summary>
+    /// <param name="statusRequestGetUri">The URI to request the workflow status.</param>
+    /// <returns>
+    /// A task representing the asynchronous operation. Returns the <see cref="WorkFlowStatus"/> of the workflow.
+    /// </returns>
+    /// <remarks>
+    /// Logs errors if the status cannot be parsed or if the response contains unexpected data.
+    /// </remarks>
     private async Task<WorkFlowStatus> GetStatus(string statusRequestGetUri)
     {
         using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
