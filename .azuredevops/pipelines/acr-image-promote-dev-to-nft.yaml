@@ -1,0 +1,116 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 7dd6e83de82475570a27e172b95be8d30f488695
+      endpoint: NHSDigital
+
+parameters:
+  - name: destEnvironmentShortName
+    displayName: Destination Environment Short Name
+    type: string
+    values:
+      - dev
+    default: dev
+
+  - name: sourceRegistry
+    displayName: Source Container Registry
+    type: string
+    values:
+      - acrukshubdevcohman
+    default: acrukshubdevcohman
+
+  - name: selectImageTag
+    displayName: Select Image Tag
+    type: string
+    values:
+      - development
+    default: development
+
+  - name: destRegistry
+    displayName: Destination Container Registry
+    type: string
+    values:
+      - acrukshubdevcohman
+    default: acrukshubdevcohman
+
+  - name: addImageTag
+    displayName: Target Image Tag
+    type: string
+    values:
+      - nft
+    default: nft
+
+variables:
+  - group: DEV_hub_backend_remote_state
+
+stages:
+- stage: db_changes_stage
+  displayName: Database changes
+  jobs:
+  - job: db_changes
+    pool:
+      name: private-pool-dev-uks
+    displayName: Apply database changes
+    steps:
+      - checkout: self
+      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+
+- stage: re_tag_stage
+  displayName: ACR re-tag
+  jobs:
+  - job: re_tag
+    pool:
+      name: private-pool-prod-uks
+    displayName: Update/copy Docker images with new tag
+    variables:
+      SRC_REGISTRY: ${{ parameters.sourceRegistry }}
+      DEST_REGISTRY: ${{ parameters.destRegistry }}
+      SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
+      ADD_IMAGE_TAG: ${{ parameters.addImageTag }}
+    steps:
+      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+
+- stage: deploy_image_stage
+  displayName: Deploy images
+  jobs:
+  - job: deploy_images
+    pool:
+      name: private-pool-prod-uks
+    displayName: Deploy Docker images to function apps
+    variables:
+      DEST_REGISTRY: ${{ parameters.destRegistry }}
+      ADD_IMAGE_TAG: ${{ parameters.addImageTag }}
+      FUNCTION_NAME_PREFIX: ${{ parameters.destEnvironmentShortName }}-uks
+      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-${{ parameters.destEnvironmentShortName }}-uks
+      PROJECT_NAME: cohort-manager
+    steps:
+      - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+
+- stage: post_deployment_tests_stage
+  displayName: Post-deployment tests
+  jobs:
+  - job: post_deployment_tests
+    pool:
+      name: private-pool-prod-uks
+    displayName: Run post-deployment tests
+    variables:
+      TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+    steps:
+      - checkout: self
+      - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
