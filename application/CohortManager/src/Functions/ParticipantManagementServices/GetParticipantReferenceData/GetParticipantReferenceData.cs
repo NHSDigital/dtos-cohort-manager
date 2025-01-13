@@ -55,7 +55,7 @@ public class GetParticipantReferenceData
                 }
             }
 
-            List<Dictionary<string, string>> data = [geneCodeDescriptions, higherRiskReferralReasonCodeDescriptions];
+            var data = new ParticipantReferenceData(geneCodeDescriptions, higherRiskReferralReasonCodeDescriptions);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(data));
         }
@@ -64,5 +64,17 @@ public class GetParticipantReferenceData
             _logger.LogError(ex, ex.Message, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+}
+
+public class ParticipantReferenceData
+{
+    public Dictionary<string, string> _geneCodeDescriptions;
+    public Dictionary<string, string> _higherRiskReferralReasonCodeDescriptions;
+
+    public ParticipantReferenceData(Dictionary<string, string> geneCodeDescriptions, Dictionary<string, string> higherRiskReferralReasonCodeDescriptions)
+    {
+        _geneCodeDescriptions = geneCodeDescriptions;
+        _higherRiskReferralReasonCodeDescriptions = higherRiskReferralReasonCodeDescriptions;
     }
 }
