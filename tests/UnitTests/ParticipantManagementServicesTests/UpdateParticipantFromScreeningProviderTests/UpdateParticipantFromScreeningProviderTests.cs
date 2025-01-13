@@ -85,7 +85,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_ValidRequest_SendSuccessEvent()
+    public async Task Run_ValidRequest_SendEvent()
     {
         // Arrange
         var message = new EventGridEvent(
@@ -101,13 +101,36 @@ public class UpdateParticipantFromScreeningProviderTests
         // Assert
         _eventGridPublisherClientMock
             .Verify(x => x.SendEventAsync(
-                It.Is<EventGridEvent>(e => e.EventType == "Success"),
+                It.Is<EventGridEvent>(e => e.EventType == "NSP.ParticipantUpdateReceived"),
                 It.IsAny<CancellationToken>()
             ));
     }
 
     [TestMethod]
-    public async Task Run_ParticipantDoesNotExist_ThrowKeyNotFoundException()
+    public async Task Run_RequestDataIsOlder_SendEvent()
+    {
+        // Arrange
+        _reqParticipant.SrcSysProcessedDateTime = DateTime.Now.AddDays(-2);
+        var message = new EventGridEvent(
+            subject: "IDK",
+            eventType: "IDK",
+            dataVersion: "1.0",
+            data: _reqParticipant
+        );
+
+        // Act
+        await _sut.Run(message);
+
+        // Assert
+        _eventGridPublisherClientMock
+            .Verify(x => x.SendEventAsync(
+                It.Is<EventGridEvent>(e => e.EventType == "NSP.ParticipantUpdateReceived"),
+                It.IsAny<CancellationToken>()
+            ));
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantDoesNotExist_SendKeyNotFoundException()
     {
         // Arrange
         _participantManagementDataServiceMock
@@ -127,7 +150,7 @@ public class UpdateParticipantFromScreeningProviderTests
         // Assert
         _handleExceptionMock
             .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-                It.Is<KeyNotFoundException>(ex => ex.Message == "Participant not found"),
+                It.Is<KeyNotFoundException>(ex => ex.Message == "Could not find participant"),
                 It.IsAny<string>(),
                 It.IsAny<String>(),
                 It.IsAny<String>(),
@@ -136,7 +159,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantUpdateFails_ThrowIOException()
+    public async Task Run_ParticipantUpdateFails_SendIOException()
     {
         // Arrange
         _participantManagementDataServiceMock
@@ -156,7 +179,7 @@ public class UpdateParticipantFromScreeningProviderTests
         // Assert
         _handleExceptionMock
             .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-                It.Is<IOException>(ex => ex.Message == "Updating participant management object failed"),
+                It.Is<IOException>(ex => ex.Message == "Failed to update participant management table"),
                 It.IsAny<string>(),
                 It.IsAny<String>(),
                 It.IsAny<String>(),
@@ -165,33 +188,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_RequestDataIsOlder_ThrowInvalidOperationException()
-    {
-        // Arrange
-        _reqParticipant.SrcSysProcessedDateTime = DateTime.Now.AddDays(-2);
-        var message = new EventGridEvent(
-            subject: "IDK",
-            eventType: "IDK",
-            dataVersion: "1.0",
-            data: _reqParticipant
-        );
-
-        // Act
-        await _sut.Run(message);
-
-        // Assert
-        _handleExceptionMock
-            .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-                It.Is<InvalidOperationException>(ex => ex.Message == "Request participant data is older than database participant data"),
-                It.IsAny<string>(),
-                It.IsAny<String>(),
-                It.IsAny<String>(),
-                It.IsAny<String>()),
-            Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_ReferenceDataLookupFailed_ThrowException()
+    public async Task Run_ReferenceDataLookupFailed_SendException()
     {
         // Arrange
         _geneCodeDataServiceMock
@@ -220,7 +217,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_SendToEventGridFails_ThrowIOException()
+    public async Task Run_SendToEventGridFails_SendIOException()
     {
         // Arrange
         _eventGridResponseMock
@@ -243,7 +240,7 @@ public class UpdateParticipantFromScreeningProviderTests
         // Assert
         _handleExceptionMock
             .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-                It.Is<IOException>(ex => ex.Message == "Sending event failed"),
+                It.Is<IOException>(ex => ex.Message == "Failed to send event to Event Grid"),
                 It.IsAny<string>(),
                 It.IsAny<String>(),
                 It.IsAny<String>(),

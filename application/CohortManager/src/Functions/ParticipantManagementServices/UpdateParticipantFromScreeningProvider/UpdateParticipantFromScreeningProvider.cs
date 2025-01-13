@@ -59,7 +59,7 @@ public class UpdateParticipantFromScreeningProvider
             if (dbParticipant == null)
             {
                 _logger.LogError("Participant update failed, participant could not be found");
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new KeyNotFoundException("Update participant from screening provider failed, could not find participant"),
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new KeyNotFoundException("Could not find participant"),
                                                                             reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
                 return;
             }
@@ -112,8 +112,8 @@ public class UpdateParticipantFromScreeningProvider
 
             if (result.Status != 200)
             {
-                _logger.LogError("Failed to send event");
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new IOException("Failed to send event"),
+                _logger.LogError("Failed to send event to Event Grid");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new IOException("Failed to send event to Event Grid"),
                                                                             reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
                 return;
             }
