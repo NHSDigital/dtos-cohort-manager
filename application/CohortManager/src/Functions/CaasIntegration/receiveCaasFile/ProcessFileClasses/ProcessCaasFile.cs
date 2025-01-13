@@ -179,9 +179,8 @@ public class ProcessCaasFile : IProcessCaasFile
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
 
-            var participantRecord = await _participantDemographic.GetByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
 
-            var participant = participantRecord.FirstOrDefault();
             if (participant != null)
             {
                 await _participantDemographic.Delete(participant.ParticipantId.ToString());

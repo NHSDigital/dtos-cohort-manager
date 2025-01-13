@@ -2,7 +2,7 @@ namespace Model.Enums;
 
 
 /// <summary>
-/// this enum is used to get the status of any given status response from the durable function
+/// this enum is used to get the status of any given status response from the demographic durable function
 /// </summary>
 public enum WorkFlowStatus
 {

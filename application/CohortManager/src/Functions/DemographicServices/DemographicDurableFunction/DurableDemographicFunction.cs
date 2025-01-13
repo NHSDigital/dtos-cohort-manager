@@ -109,12 +109,10 @@ public class DurableDemographicFunction
     /// <summary>
     /// Handles HTTP requests to initiate the Durable Demographic Function orchestration.
     /// </summary>
-    /// </summary>
     /// <param name="req"></param>
     /// <param name="client"></param>
     /// <param name="executionContext"></param>
     /// <returns></returns>
-
     [Function("DurableDemographicFunction_HttpStart")]
     public async Task<HttpResponseData> HttpStart(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,

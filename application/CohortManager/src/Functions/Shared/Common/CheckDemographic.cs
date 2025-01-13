@@ -59,7 +59,6 @@ public class CheckDemographic : ICheckDemographic
     /// </remarks>
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
     {
-        HttpResponseMessage? response = new HttpResponseMessage();
         var responseContent = "";
         if (participants.Count == 0)
         {
@@ -76,7 +75,7 @@ public class CheckDemographic : ICheckDemographic
 
             var content = new StreamContent(memoryStream);
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            response = await _httpClient.PostAsync(DemographicFunctionURI, content);
+            var response = await _httpClient.PostAsync(DemographicFunctionURI, content);
 
             responseContent = response.Headers.Location.ToString();
 
