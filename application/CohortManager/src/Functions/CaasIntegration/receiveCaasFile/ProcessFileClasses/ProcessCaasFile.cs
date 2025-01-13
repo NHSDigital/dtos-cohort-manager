@@ -13,6 +13,8 @@ public class ProcessCaasFile : IProcessCaasFile
 {
 
     private readonly ILogger<ProcessCaasFile> _logger;
+    private readonly IBlobStorageHelper _blobStorageHelper;
+    private readonly IStateStore _stateStore;
     private readonly ICallFunction _callFunction;
 
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
@@ -31,13 +33,6 @@ public class ProcessCaasFile : IProcessCaasFile
     private const int BaseDelayMilliseconds = 2000;
     private const string FailedBlobContainerName = "failed-files";
 
-    public class FileHandlingException : Exception
-    {
-        public FileHandlingException(string message, Exception innerException = null)
-            : base(message, innerException)
-        {
-        }
-    }
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
      , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
@@ -55,98 +50,154 @@ public class ProcessCaasFile : IProcessCaasFile
         _validateDates = validateDates;
     }
 
+/// <summary>
+/// Processes a file containing participant data with retry logic in case of failures.
+/// Tracks the processing state to ensure records are not reprocessed unnecessarily.
+/// </summary>
+/// <param name="filePath">The path to the file being processed.</param>
+/// <param name="values">The list of participant records to be processed.</param>
+/// <param name="options">Options for parallel processing.</param>
+/// <param name="screeningService">The service used for participant screening and validation.</param>
+/// <param name="fileName">The name of the file being processed.</param>
+/// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+/// <exception cref="Exception">
+/// Thrown when the maximum number of retry attempts is reached and the file cannot be processed successfully.
+/// </exception>
     public async Task ProcessRecordsWithRetry(
         string filePath,
         List<ParticipantsParquetMap> values,
         ParallelOptions options,
         ScreeningService screeningService,
-        string name)
+        string fileName)
     {
-        const int MaxRetryAttempts  = 3; // Define maximum retries
+        const int MaxRetryAttempts  = 3;
         int retryCount = 0;
         bool isSuccessful = false;
+        int lastProcessedIndex = await _stateStore.GetLastProcessedRecordIndex(fileName) ?? 0;
 
-        // Loop until retries are exhausted or successful processing
-        while (retryCount < MaxRetryAttempts)
+        while (retryCount < MaxRetryAttempts && !isSuccessful)
         {
             try
             {
                 _logger.LogInformation(
-                    "Starting to process file {FilePath}, attempt {RetryAttempt}",
-                    filePath,
-                    retryCount + 1);
+                    "Starting to process file {FilePath}, attempt {RetryAttempt}, resuming from index {LastProcessedIndex}",
+                    filePath, retryCount + 1, lastProcessedIndex);
 
-                // Call the main processing logic
-                await ProcessRecords(values, options, screeningService, name);
+                // Skip already processed records
+                var remainingRecords = values.Skip(lastProcessedIndex).ToList();
 
-                _logger.LogInformation(
-                    "File {FilePath} processed successfully.",
-                    filePath);
-
-                isSuccessful = true; // Mark as successful
-                break; // Exit the loop
-            }
-            catch (Exception ex)
-            {
-                retryCount++;
-
-                _logger.LogError(
-                    ex,
-                    "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}",
-                    filePath,
-                    retryCount,
-                    MaxRetries);
-
-                if (retryCount >= MaxRetries)
+                foreach (var record in remainingRecords)
                 {
-                    _logger.LogCritical(
-                        "Max retries reached. File {FilePath} processing failed.",
-                        filePath);
+                    try
+                    {
+                    var participant = await _receiveCaasFileHelper.MapParticipant(record, screeningService.ScreeningId, screeningService.ScreeningName, fileName);
 
-                    await HandleFileFailure(filePath, name);
-                    break; // Exit the loop after failure handling
+                        if (participant == null)
+                        {
+                            _logger.LogWarning("Skipping record as participant mapping failed.");
+                            continue; // Skip if participant mapping fails
+                        }
+
+                        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+                        {
+                            await _exceptionHandler.CreateSystemExceptionLog(
+                                new Exception($"Invalid NHS Number for participant {participant.ParticipantId}"),
+                                participant,
+                                fileName);
+                            continue; // Skip invalid participant
+                        }
+
+                        if (!_validateDates.ValidateAllDates(participant))
+                        {
+                            await _exceptionHandler.CreateSystemExceptionLog(
+                                new Exception($"Invalid effective date for participant {participant.ParticipantId}"),
+                                participant,
+                                fileName);
+                            continue; // Skip invalid participant
+                        }
+
+                        // Successfully process the record
+                        _logger.LogInformation("Successfully processed record for participant {ParticipantId}.", participant.ParticipantId);
+
+                        // Update state after processing
+                        int currentIndex = values.IndexOf(record) + 1;
+                        await _stateStore.UpdateLastProcessedRecordIndex(fileName, currentIndex);
+                    }
+                    catch (Exception recordEx)
+                    {
+                        // Log record-level processing errors
+                        _logger.LogError(recordEx, "Error processing record for file {FileName}.", fileName);
+                    }
                 }
 
-                // Exponential backoff for retry
-                int delay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
-                _logger.LogInformation("Retrying in {RetryDelay} seconds...", delay / 1000);
+                _logger.LogInformation("File {FilePath} processed successfully.", filePath);
+                isSuccessful = true; // Mark as successful if no errors occur
+            }
+            catch (Exception batchEx)
+            {
+                retryCount++;
+                _logger.LogError(
+                    batchEx,
+                    "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}",
+                    filePath, retryCount, MaxRetryAttempts);
 
-                await Task.Delay(delay);
+                if (retryCount >= MaxRetryAttempts)
+                {
+                    _logger.LogWarning("Max retry attempts reached for file {FileName}. Handling failure.", fileName);
+                    await HandleFileFailure(filePath, fileName, batchEx.Message);
+                    break;
+                }
+
+                // Delay before retry
+                int retryDelay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
+                _logger.LogInformation("Retrying in {RetryDelay} milliseconds...", retryDelay);
+                await Task.Delay(retryDelay);
             }
         }
 
-        if (!isSuccessful)
+        // Clear processing state after successful processing
+        if (isSuccessful)
         {
-            // Handle any additional cleanup if needed after all retries fail
-            _logger.LogWarning("Processing ultimately failed for file {FilePath}.", filePath);
+            await _stateStore.ClearProcessingState(fileName);
         }
     }
-
-     private async Task HandleFileFailure(string filePath, string fileName)
+    private async Task HandleFileFailure(string filePath, string fileName, string errorMessage, Participant participant = null)
     {
         try
         {
-            // Move file to blob storage
-            await MoveFileToBlobStorage(filePath, FailedBlobContainerName, fileName);
-            _logger.LogInformation("File {FileName} handled after max retries.", fileName);
+            byte[] fileData = await File.ReadAllBytesAsync(filePath);
+
+            var blobFile = new BlobFile(fileData, fileName);
+
+            bool isUploaded = await _blobStorageHelper.UploadFileToBlobStorage(
+                connectionString: Environment.GetEnvironmentVariable("AzureBlobConnectionString"),
+                containerName: "FailedFilesContainer",
+                blobFile: blobFile,
+                overwrite: true);
+
+            if (isUploaded)
+            {
+                _logger.LogInformation("File {FileName} successfully moved to blob storage after max retries.", fileName);
+            }
+            else
+            {
+                _logger.LogWarning("Failed to move file {FileName} to blob storage after max retries.", fileName);
+            }
+
+        await _exceptionHandler.CreateSystemExceptionLog(
+            new Exception(errorMessage),
+            participant,
+            fileName);
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "Error while handling file failure for FilePath: {FilePath}, FileName: {FileName}", filePath, fileName);
-           throw new FileHandlingException($"Error while handling file failure for FileName: {fileName}", ex);
+            _logger.LogError(ex, "Error while handling file failure for FilePath: {FilePath}, FileName: {FileName}", filePath, fileName);
+            await _exceptionHandler.CreateSystemExceptionLog(
+                ex,
+                participant,
+                fileName);
+            throw;
         }
-    }
-
-    private async Task MoveFileToBlobStorage(string filePath, string blobContainerName, string blobName)
-    {
-        var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("AzureBlobConnectionString"));
-        var containerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
-
-        await containerClient.CreateIfNotExistsAsync();
-        var blobClient = containerClient.GetBlobClient(blobName);
-
-        await blobClient.UploadAsync(filePath, overwrite: true);
-        _logger.LogInformation("File {BlobName} moved to blob storage in {BlobContainerName}.", blobName, blobContainerName);
     }
 
 
