@@ -29,9 +29,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly IValidateDates _validateDates;
 
-    private const int MaxRetries = 5;
     private const int BaseDelayMilliseconds = 2000;
-    private const string FailedBlobContainerName = "failed-files";
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
