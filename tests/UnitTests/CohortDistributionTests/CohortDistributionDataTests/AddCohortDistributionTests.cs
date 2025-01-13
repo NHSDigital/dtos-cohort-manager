@@ -14,7 +14,6 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
 {
     private static readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private const int serviceProviderId = (int)ServiceProvider.BSS;
     private readonly string _requestId = new Guid().ToString();
     private Dictionary<string, string> columnToClassPropertyMapping;
     private List<CohortDistributionParticipantDto> _cohortDistributionList;
@@ -128,7 +127,7 @@ columnToClassPropertyMapping = new Dictionary<string, string>
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -147,7 +146,7 @@ columnToClassPropertyMapping = new Dictionary<string, string>
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
@@ -167,7 +166,7 @@ columnToClassPropertyMapping = new Dictionary<string, string>
         var rowCount = 0;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         Assert.IsNotNull(result);
