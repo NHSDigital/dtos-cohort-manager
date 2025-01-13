@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: feat/DTOSS-5599-Pipeline-to-transfer-images
+      ref: 7dd6e83de82475570a27e172b95be8d30f488695
       endpoint: NHSDigital
 
 parameters:
