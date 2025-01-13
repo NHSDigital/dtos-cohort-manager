@@ -83,7 +83,6 @@ public class ProcessCaasFile : IProcessCaasFile
                     "Starting to process file {FilePath}, attempt {RetryAttempt}, resuming from index {LastProcessedIndex}",
                     filePath, retryCount + 1, lastProcessedIndex);
 
-                // Skip already processed records
                 var remainingRecords = values.Skip(lastProcessedIndex).ToList();
 
                 foreach (var record in remainingRecords)
@@ -95,7 +94,7 @@ public class ProcessCaasFile : IProcessCaasFile
                         if (participant == null)
                         {
                             _logger.LogWarning("Skipping record as participant mapping failed.");
-                            continue; // Skip if participant mapping fails
+                            continue;
                         }
 
                         if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
@@ -104,7 +103,7 @@ public class ProcessCaasFile : IProcessCaasFile
                                 new Exception($"Invalid NHS Number for participant {participant.ParticipantId}"),
                                 participant,
                                 fileName);
-                            continue; // Skip invalid participant
+                            continue;
                         }
 
                         if (!_validateDates.ValidateAllDates(participant))
@@ -113,25 +112,23 @@ public class ProcessCaasFile : IProcessCaasFile
                                 new Exception($"Invalid effective date for participant {participant.ParticipantId}"),
                                 participant,
                                 fileName);
-                            continue; // Skip invalid participant
+                            continue;
                         }
 
-                        // Successfully process the record
                         _logger.LogInformation("Successfully processed record for participant {ParticipantId}.", participant.ParticipantId);
 
-                        // Update state after processing
                         int currentIndex = values.IndexOf(record) + 1;
                         await _stateStore.UpdateLastProcessedRecordIndex(fileName, currentIndex);
                     }
                     catch (Exception recordEx)
                     {
-                        // Log record-level processing errors
+
                         _logger.LogError(recordEx, "Error processing record for file {FileName}.", fileName);
                     }
                 }
 
                 _logger.LogInformation("File {FilePath} processed successfully.", filePath);
-                isSuccessful = true; // Mark as successful if no errors occur
+                isSuccessful = true;
             }
             catch (Exception batchEx)
             {
@@ -148,14 +145,12 @@ public class ProcessCaasFile : IProcessCaasFile
                     break;
                 }
 
-                // Delay before retry
                 int retryDelay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
                 _logger.LogInformation("Retrying in {RetryDelay} milliseconds...", retryDelay);
                 await Task.Delay(retryDelay);
             }
         }
 
-        // Clear processing state after successful processing
         if (isSuccessful)
         {
             await _stateStore.ClearProcessingState(fileName);
