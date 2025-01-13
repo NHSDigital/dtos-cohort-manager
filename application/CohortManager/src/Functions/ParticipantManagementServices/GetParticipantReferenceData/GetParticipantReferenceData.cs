@@ -69,8 +69,8 @@ public class GetParticipantReferenceData
 
 public class ParticipantReferenceData
 {
-    public Dictionary<string, string> _geneCodeDescriptions;
-    public Dictionary<string, string> _higherRiskReferralReasonCodeDescriptions;
+    public Dictionary<string, string> _geneCodeDescriptions { get; set; }
+    public Dictionary<string, string> _higherRiskReferralReasonCodeDescriptions { get; set; }
 
     public ParticipantReferenceData(Dictionary<string, string> geneCodeDescriptions, Dictionary<string, string> higherRiskReferralReasonCodeDescriptions)
     {

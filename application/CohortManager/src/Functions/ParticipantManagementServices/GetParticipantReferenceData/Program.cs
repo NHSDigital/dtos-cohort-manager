@@ -19,4 +19,4 @@ var host = new HostBuilder()
     })
     .Build();
 
-host.RunAsync();
+host.Run();
