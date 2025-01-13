@@ -4,7 +4,6 @@ using System.Data;
 using Data.Database;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 using Moq;
 [TestClass]
 public class AddCohortDistributionTests
@@ -17,9 +16,7 @@ public class AddCohortDistributionTests
     private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private const int serviceProviderId = (int)ServiceProvider.BSS;
     private readonly string _requestId = new Guid().ToString();
-    private const int _rowCount = 1;
 
     public AddCohortDistributionTests()
     {
@@ -95,7 +92,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -116,7 +113,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
@@ -136,7 +133,7 @@ public class AddCohortDistributionTests
         var rowCount = 0;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(serviceProviderId, rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
 
         // Assert
         Assert.IsNotNull(result);
