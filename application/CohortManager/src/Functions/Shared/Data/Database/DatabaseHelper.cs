@@ -65,10 +65,21 @@ public class DatabaseHelper : IDatabaseHelper
     public static T? GetValue<T>(IDataReader reader, string columnName)
     {
         object value = reader[columnName];
-
         if (value == DBNull.Value || value == null) return default;
 
-        return (T)Convert.ChangeType(value, typeof(T));
+        Type targetType = typeof(T);
+
+        if (targetType.IsEnum)
+        {
+            if (value.GetType() == targetType)
+                return (T)value;
+
+            var enumUnderlyingType = Enum.GetUnderlyingType(targetType);
+            object underlyingValue = Convert.ChangeType(value, enumUnderlyingType);
+            return (T)Enum.ToObject(targetType, underlyingValue);
+        }
+
+        return (T)Convert.ChangeType(value, targetType);
     }
     public static object ConvertBoolStringToBoolByType(string environmentVariableName, string dataType)
     {
