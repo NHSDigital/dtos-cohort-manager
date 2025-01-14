@@ -16,9 +16,6 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     public AddCohortDistributionTests() : base((conn, logger, transaction, command, response) =>
         new CreateCohortDistributionData(conn, _databaseHelperMock.Object, logger))
     {
-        _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-        _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
-
         _createCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _databaseHelperMock.Object,
@@ -167,9 +164,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     public void GetParticipant_NoParticipants_ReturnsEmptyCollection()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(false);
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _mockDataReader.SetupSequence(reader => reader.Read()).Returns(false);
         var rowCount = 0;
 
         // Act
@@ -197,10 +192,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     public void GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(false);
-
-        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+        _mockDataReader.SetupSequence(reader => reader.Read()).Returns(false);
 
         // Act
         var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
