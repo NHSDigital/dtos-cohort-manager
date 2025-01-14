@@ -45,7 +45,7 @@ using Microsoft.Extensions.Logging;
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while retrieving last processed record index for file {FileName}.", fileName);
-                throw;
+                return 0;
             }
         }
 
@@ -75,7 +75,7 @@ using Microsoft.Extensions.Logging;
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while updating last processed record index for file {FileName}.", fileName);
-                throw;
+                return;
             }
         }
 
@@ -97,7 +97,8 @@ using Microsoft.Extensions.Logging;
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while clearing processing state for file {FileName}.", fileName);
-                throw;
+                return;
+
             }
         }
     }

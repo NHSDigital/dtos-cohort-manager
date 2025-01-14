@@ -15,6 +15,8 @@ using NHS.Screening.ReceiveCaasFile;
 public class ProcessCaasFileTests
 {
     private Mock<ILogger<ProcessCaasFile>> _loggerMock;
+    private Mock<IBlobStorageHelper> _blobStorageHelper;
+    private Mock<IStateStore> _stateStore;
     private Mock<ICallFunction> _callFunctionMock;
     private Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock;
     private Mock<ICheckDemographic> _checkDemographicMock;
@@ -38,6 +40,9 @@ public class ProcessCaasFileTests
         _addBatchToQueueMock = new Mock<IAddBatchToQueue>();
         _recordsProcessedTrackerMock = new Mock<RecordsProcessedTracker>();
         _validateDates = new Mock<IValidateDates>();
+        _blobStorageHelper = new Mock<IBlobStorageHelper>();
+        _stateStore = new Mock<IStateStore>();
+
 
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
@@ -49,7 +54,9 @@ public class ProcessCaasFileTests
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
             _recordsProcessedTrackerMock.Object,
-            _validateDates.Object
+            _validateDates.Object,
+            _blobStorageHelper.Object,
+            _stateStore.Object
         );
     }
 
@@ -324,6 +331,6 @@ public class ProcessCaasFileTests
           Times.Once);
     }
 
-    
+
 
 }
