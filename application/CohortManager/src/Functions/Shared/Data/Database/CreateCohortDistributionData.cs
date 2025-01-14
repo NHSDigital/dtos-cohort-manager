@@ -482,34 +482,46 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
-        var sqlToExecute = new List<SQLReturnModel>();
+        var cohortParamList = string.Join(", ", cohortParticipants.Select((_, i) => $"@param{i}"));
+
+        var SQL = $@"
+        WITH cte_lastestParticipants AS (
+        SELECT cd.PARTICIPANT_ID,
+        RANK() OVER(PARTITION BY PARTICIPANT_ID
+        ORDER BY RECORD_UPDATE_DATETIME DESC) as rank
+        FROM BS_COHORT_DISTRIBUTION cd
+        WHERE PARTICIPANT_ID IN ({cohortParamList}))
+        UPDATE cd
+        SET IS_EXTRACTED = @Extracted,
+        REQUEST_ID = @RequestId
+        FROM BS_COHORT_DISTRIBUTION cd
+        INNER JOIN cte_lastestParticipants cte
+        ON cd.PARTICIPANT_ID = cte.PARTICIPANT_ID
+        WHERE cte.rank = 1";
+
+        var parameters = new Dictionary<string, object>
+        {
+            {"@Extracted", 1 },
+            {"@RequestId", requestId }
+        };
+
+        for (int i = 0; i < cohortParticipants.Count; i++)
+        {
+            parameters.Add($"@param{i}", cohortParticipants[i].ParticipantId);
+        }
+
+        var sqlToExecute = new List<SQLReturnModel>
+        {
+            new SQLReturnModel
+            {
+                Parameters = parameters,
+                SQL = SQL
+            }
+        };
 
         foreach (var participant in cohortParticipants)
         {
-            var SQL = "UPDATE TOP (1) [dbo].[BS_COHORT_DISTRIBUTION] " +
-                      " SET IS_EXTRACTED = @Extracted, REQUEST_ID = @RequestId" +
-                      " WHERE PARTICIPANT_ID = @ParticipantId" +
-                      " AND (RECORD_UPDATE_DATETIME IS NULL OR RECORD_UPDATE_DATETIME = (" +
-                      " SELECT MAX(RECORD_UPDATE_DATETIME)" +
-                      " FROM [dbo].[BS_COHORT_DISTRIBUTION]" +
-                      " WHERE PARTICIPANT_ID = @ParticipantId))";
-
-            var parameters = new Dictionary<string, object>
-        {
-            {"@Extracted", 1 },
-            {"@RequestId", requestId },
-            {"@ParticipantId", participant.ParticipantId}
-        };
-            sqlToExecute.Add(new SQLReturnModel
-            {
-                Parameters = parameters,
-                SQL = SQL,
-            });
-
-            participant.Extracted = "1";
             participant.RequestId = requestId;
-            participant.ScreeningAcronym = nameof(ServiceProvider.BSS);
-            participant.ScreeningName = EnumHelper.GetDisplayName(ServiceProvider.BSS);
         }
 
         return UpdateRecords(sqlToExecute);
