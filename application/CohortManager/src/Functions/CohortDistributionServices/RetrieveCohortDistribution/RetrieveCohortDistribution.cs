@@ -43,7 +43,6 @@ public class RetrieveCohortDistributionData
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var requestId = req.Query["requestId"];
-        int screeningServiceId = _httpParserHelper.GetQueryParameterAsInt(req, "screeningServiceId");
         int rowCount = _httpParserHelper.GetQueryParameterAsInt(req, "rowCount");
         var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
 
@@ -61,7 +60,7 @@ public class RetrieveCohortDistributionData
             if (cohortDistributionParticipants.Count == 0)
             {
                 cohortDistributionParticipants = _createCohortDistributionData
-                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(screeningServiceId, rowCount);
+                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
             }
 
             return cohortDistributionParticipants.Count == 0
