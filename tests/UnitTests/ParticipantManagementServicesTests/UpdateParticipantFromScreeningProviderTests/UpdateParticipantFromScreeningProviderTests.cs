@@ -66,11 +66,13 @@ public class UpdateParticipantFromScreeningProviderTests
 
         _geneCodeDataServiceMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GeneCodeLkp, bool>>>()))
-            .ReturnsAsync(new GeneCodeLkp {GeneCodeId = 0000});
+            .ReturnsAsync(new GeneCodeLkp {GeneCodeId = 0000, GeneCode = "blorg", GeneCodeDescription = "Blorgen"});
 
         _higherRiskReferralDataServiceMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<HigherRiskReferralReasonLkp, bool>>>()))
-            .ReturnsAsync(new HigherRiskReferralReasonLkp {HigherRiskReferralReasonId = 1111});
+            .ReturnsAsync(new HigherRiskReferralReasonLkp {HigherRiskReferralReasonId = 1111,
+                                                        HigherRiskReferralReasonCode = "Blerg",
+                                                        HigherRiskReferralReasonCodeDescription = "Blergen"});
 
         _eventGridResponseMock
             .Setup(x => x.Status)

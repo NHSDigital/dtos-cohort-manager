@@ -14,7 +14,7 @@ public class UpdateParticipantFromScreeningProvider
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IDataServiceClient<HigherRiskReferralReasonLkp> _higherRiskReferralReasonClient;
     private readonly IDataServiceClient<GeneCodeLkp> _geneCodeClient;
-    private BiAnalyticsParticipantDto reqParticipant;
+    private BiAnalyticsParticipantDto _reqParticipant;
     private readonly EventGridPublisherClient _eventGridPublisherClient;
     private readonly IExceptionHandler _exceptionHandler;
 
@@ -44,49 +44,50 @@ public class UpdateParticipantFromScreeningProvider
 
         try
         {
-            reqParticipant = JsonSerializer.Deserialize<BiAnalyticsParticipantDto>(eventGridEvent.Data.ToString());
+            _reqParticipant = JsonSerializer.Deserialize<BiAnalyticsParticipantDto>(eventGridEvent.Data.ToString());
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Request participant is invalid");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, _reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
             return;
         }
         try
         {
-            ParticipantManagement dbParticipant = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == reqParticipant.NhsNumber
-                                                                                                        && p.ScreeningId == reqParticipant.ScreeningId);
+            ParticipantManagement dbParticipant = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == _reqParticipant.NhsNumber
+                                                                                                        && p.ScreeningId == _reqParticipant.ScreeningId);
             if (dbParticipant == null)
             {
                 _logger.LogError("Participant update failed, participant could not be found");
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new KeyNotFoundException("Could not find participant"),
-                                                                            reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+                                                                            _reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
                 return;
             }
 
+            var participantManagement = _reqParticipant.ToParticipantManagement(dbParticipant);
+
             // Replace Gene Code & Higher Risk Reason Code with relevant foreign key
-            long? higherRiskReasonPk = null;
-            long? geneCodePk= null;
+            GeneCodeLkp? geneCode = null;
+            HigherRiskReferralReasonLkp? higherRiskReason = null;
 
-            if (reqParticipant.GeneCode != null)
+            if (_reqParticipant.GeneCode != null)
             {
-                GeneCodeLkp geneCode = await _geneCodeClient.GetSingleByFilter(x => x.GeneCode == reqParticipant.GeneCode);
-                geneCodePk = geneCode.GeneCodeId;
+                geneCode = await _geneCodeClient.GetSingleByFilter(x => x.GeneCode == _reqParticipant.GeneCode);
+                participantManagement.GeneCodeId = geneCode.GeneCodeId;
             }
 
-            if (reqParticipant.HigherRiskReferralReasonCode != null)
+            if (_reqParticipant.HigherRiskReferralReasonCode != null)
             {
-                HigherRiskReferralReasonLkp higherRiskReason = await _higherRiskReferralReasonClient
-                    .GetSingleByFilter(x => x.HigherRiskReferralReasonCode == reqParticipant.HigherRiskReferralReasonCode);
-                higherRiskReasonPk = higherRiskReason.HigherRiskReferralReasonId;
+                higherRiskReason = await _higherRiskReferralReasonClient
+                    .GetSingleByFilter(x => x.HigherRiskReferralReasonCode == _reqParticipant.HigherRiskReferralReasonCode);
+                participantManagement.HigherRiskReferralReasonId = higherRiskReason.HigherRiskReferralReasonId;
             }
 
-            var participantManagement = reqParticipant.ToParticipantManagement(dbParticipant, geneCodePk, higherRiskReasonPk);
 
             // Update data (only when the request data is newer)
             bool updateSuccessful = true;
             bool reqDataNewer = true;
-            if (dbParticipant.SrcSysProcessedDateTime != null && dbParticipant.SrcSysProcessedDateTime > reqParticipant.SrcSysProcessedDateTime)
+            if (dbParticipant.SrcSysProcessedDateTime != null && dbParticipant.SrcSysProcessedDateTime > _reqParticipant.SrcSysProcessedDateTime)
                 reqDataNewer = false;
             else
             {
@@ -94,19 +95,25 @@ public class UpdateParticipantFromScreeningProvider
                 updateSuccessful = await _participantManagementClient.Update(participantManagement);
             }
 
-            if (!updateSuccessful || !reqDataNewer)
+            if (reqDataNewer && !updateSuccessful)
             {
                 _logger.LogError("Failed to update participant management table");
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new IOException("Failed to update participant management table"),
-                                                                            reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+                                                                            _reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
                 return;
             }
+
+            UpdateFromScreeningProviderReturnModel returnParticipant = new(_reqParticipant, geneCode, higherRiskReason)
+            {
+                ReasonForRemoval = dbParticipant.ReasonForRemoval,
+                ReasonForRemovalDate = dbParticipant.ReasonForRemovalDate
+            };
 
             var message = new EventGridEvent(
                 subject: "ParticipantUpdate",
                 eventType: "NSP.ParticipantUpdateReceived",
                 dataVersion: "1.0",
-                data: reqParticipant
+                data: returnParticipant
             );
 
             var result = await _eventGridPublisherClient.SendEventAsync(message);
@@ -115,14 +122,14 @@ public class UpdateParticipantFromScreeningProvider
             {
                 _logger.LogError("Failed to send event to Event Grid");
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new IOException("Failed to send event to Event Grid"),
-                                                                            reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+                                                                            _reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
                 return;
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant failed.");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, _reqParticipant.NhsNumber.ToString(), "", "BSS", eventGridEvent.Data.ToString());
         }
     }
 }

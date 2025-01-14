@@ -27,7 +27,7 @@ public class BiAnalyticsParticipantDto
     /// <param name="higherRiskReasonFk">The foreign key of the higher risk reason</param>
     /// <returns>A ParticipantManagment object</returns>
     /// <exception cref="ArgumentException"></exception>
-    public ParticipantManagement ToParticipantManagement(ParticipantManagement dbParticipant, long? geneCodeFk, long? higherRiskReasonFk)
+    public ParticipantManagement ToParticipantManagement(ParticipantManagement dbParticipant)
     {
         dbParticipant.NextTestDueDate = ConvertDateToDateTime(NextTestDueDate);
         dbParticipant.NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod;
@@ -37,9 +37,7 @@ public class BiAnalyticsParticipantDto
         dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? dbParticipant.IsHigherRiskActive;
         dbParticipant.RecordUpdateDateTime = SrcSysProcessedDateTime;
         dbParticipant.HigherRiskNextTestDueDate = ConvertDateToDateTime(HigherRiskNextTestDueDate);
-        dbParticipant.HigherRiskReferralReasonId = higherRiskReasonFk ?? dbParticipant.HigherRiskReferralReasonId;
         dbParticipant.DateIrradiated = ConvertDateToDateTime(DateIrradiated);
-        dbParticipant.GeneCodeId = geneCodeFk ?? dbParticipant.GeneCodeId;
 
         return dbParticipant;
     }
