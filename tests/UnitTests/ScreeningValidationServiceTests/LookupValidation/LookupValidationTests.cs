@@ -30,7 +30,7 @@ public class LookupValidationTests
     private LookupValidation _sut;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
     private readonly Mock<IReadRules> _readRules = new();
-    private readonly Mock<IDataLookupFacade> _lookupValidation = new();
+    private readonly Mock<IDataLookupFacadeBreastScreening> _lookupValidation = new();
 
     private readonly Mock<IOptions<LookupValidationConfig>> _lookupValidationConfig = new();
 
