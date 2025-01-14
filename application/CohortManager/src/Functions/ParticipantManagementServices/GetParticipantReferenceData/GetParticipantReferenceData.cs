@@ -49,9 +49,9 @@ public class GetParticipantReferenceData
 
             if(higherRiskReferralReasonLkpResult != null && higherRiskReferralReasonLkpResult.Any())
             {
-                foreach (var higherRiskReferralReasonLkp in higherRiskReferralReasonLkpResult)
+                foreach (var higherRiskReferralReason in higherRiskReferralReasonLkpResult)
                 {
-                    higherRiskReferralReasonCodeDescriptions.Add(higherRiskReferralReasonLkp.HigherRiskReferralReasonCode, higherRiskReferralReasonLkp.HigherRiskReferralReasonCodeDescription);
+                    higherRiskReferralReasonCodeDescriptions.Add(higherRiskReferralReason.HigherRiskReferralReasonCode, higherRiskReferralReason.HigherRiskReferralReasonCodeDescription);
                 }
             }
 
