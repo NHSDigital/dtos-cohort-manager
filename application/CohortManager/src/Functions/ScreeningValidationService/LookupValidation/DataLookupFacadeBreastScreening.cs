@@ -3,9 +3,9 @@ namespace NHS.CohortManager.ScreeningValidationService;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
-public class DataLookupFacade : IDataLookupFacade
+public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
 {
-    private readonly ILogger<DataLookupFacade> _logger;
+    private readonly ILogger<DataLookupFacadeBreastScreening> _logger;
     private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
@@ -14,9 +14,9 @@ public class DataLookupFacade : IDataLookupFacade
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
 
 
-    public DataLookupFacade
+    public DataLookupFacadeBreastScreening
     (
-        ILogger<DataLookupFacade> logger,
+        ILogger<DataLookupFacadeBreastScreening> logger,
         IDataServiceClient<BsSelectGpPractice> gpPracticeClient,
         IDataServiceClient<BsSelectOutCode> outcodeClient,
         IDataServiceClient<LanguageCode> languageCodeClient,

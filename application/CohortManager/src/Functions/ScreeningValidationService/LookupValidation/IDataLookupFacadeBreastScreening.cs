@@ -1,14 +1,12 @@
-namespace Data.Database;
-
-[Obsolete("Deprecated, use the LookupFacade instead",true)]
-public interface IDbLookupValidationBreastScreening
+namespace NHS.CohortManager.ScreeningValidationService;
+public interface IDataLookupFacadeBreastScreening
 {
     bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);
     bool ValidateOutcode(string postcode);
     bool ValidateLanguageCode(string languageCode);
     bool CheckIfCurrentPostingExists(string currentPosting);
     bool ValidatePostingCategories(string currentPosting);
-    string RetrieveBSOCode(string postcode);
-    string RetrievePostingCategory(string currentPosting);
     bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider);
+    string RetrievePostingCategory(string currentPosting);
 }
+

@@ -24,7 +24,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
-        services.AddSingleton<IDataLookupFacade, DataLookupFacade>();
+        services.AddSingleton<IDataLookupFacadeBreastScreening, DataLookupFacadeBreastScreening>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
