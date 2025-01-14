@@ -23,8 +23,6 @@ public class BiAnalyticsParticipantDto
     /// <summary>
     /// Converts the current object to a participant management EF model object
     /// </summary>
-    /// <param name="geneCodeFk">The foreign key of the gene code</param>
-    /// <param name="higherRiskReasonFk">The foreign key of the higher risk reason</param>
     /// <returns>A ParticipantManagment object</returns>
     /// <exception cref="ArgumentException"></exception>
     public ParticipantManagement ToParticipantManagement(ParticipantManagement dbParticipant)
