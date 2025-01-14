@@ -18,6 +18,7 @@ declare -A docker_functions_map=(
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/addParticipant"]="add-participant"
     ["ParticipantManagementServices/updateParticipant"]="update-participant"
+    ["ParticipantManagementServices/GetParticipantReferenceData"]="get-participant-reference-data"
     ["screeningDataServices/BsSelectGpPractice"]="bs-select-gp-practice-data-service"
     ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
     ["screeningDataServices/createParticipant"]="create-participant"
