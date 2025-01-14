@@ -62,11 +62,8 @@ public class MarkParticipantAsIneligible
         try
         {
             var updated = false;
-
-            if (participantData != null)
-            {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
-            }
+            updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
+            
             if (updated)
             {
                 _logger.LogInformation("Record updated for participant {NhsNumber}", participantData.NhsNumber);
@@ -74,13 +71,16 @@ public class MarkParticipantAsIneligible
             }
 
             _logger.LogError("An error occurred while updating data for {NhsNumber}", participantData.NhsNumber);
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
-        {
-            _logger.LogError(ex, "an error occurred: {Ex}", ex);
-            await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
+        { 
+            if (ex is NullReferenceException) {
+                _logger.LogError("An error occured when trying to retrieve the participant data");
+            } else {
+                _logger.LogError(ex, "an error occurred: {Ex}", ex);
+                await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
+            }
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
     }
