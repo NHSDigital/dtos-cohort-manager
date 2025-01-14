@@ -219,14 +219,14 @@ public class ProcessCaasFileTests
         var jsonResponse = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
 
-        var response = new List<ParticipantDemographic>();
-        response.Add(new ParticipantDemographic()
+
+        var response = new ParticipantDemographic()
         {
             ParticipantId = 1,
             GivenName = ""
 
-        });
-        _databaseClientParticipantMock.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(response);
+        };
+        _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
         _callFunctionMock
             .Setup(c => c.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
