@@ -84,16 +84,17 @@ public class UpdateParticipantFromScreeningProvider
             var participantManagement = reqParticipant.ToParticipantManagement(dbParticipant, geneCodePk, higherRiskReasonPk);
 
             // Update data (only when the request data is newer)
-            bool updated = false;
+            bool updateSuccessful = true;
+            bool reqDataNewer = true;
             if (dbParticipant.SrcSysProcessedDateTime != null && dbParticipant.SrcSysProcessedDateTime > reqParticipant.SrcSysProcessedDateTime)
-                updated = true;
+                reqDataNewer = false;
             else
             {
                 participantManagement.ParticipantId = dbParticipant.ParticipantId;
-                updated = await _participantManagementClient.Update(participantManagement);
+                updateSuccessful = await _participantManagementClient.Update(participantManagement);
             }
 
-            if (!updated)
+            if (!updateSuccessful || !reqDataNewer)
             {
                 _logger.LogError("Failed to update participant management table");
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new IOException("Failed to update participant management table"),
