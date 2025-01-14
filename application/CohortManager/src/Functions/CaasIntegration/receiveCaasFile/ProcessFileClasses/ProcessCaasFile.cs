@@ -32,7 +32,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates, IBlobStorageHelper blobStorageHelper, IStateStore stateStore
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
      )
     {
         _logger = logger;
@@ -45,8 +45,6 @@ public class ProcessCaasFile : IProcessCaasFile
         _exceptionHandler = exceptionHandler;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _blobStorageHelper = blobStorageHelper;
-        _stateStore = stateStore;
     }
 
     /// <summary>
