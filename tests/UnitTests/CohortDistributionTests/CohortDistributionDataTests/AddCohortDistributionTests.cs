@@ -1,11 +1,7 @@
 namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
-using System.Data;
 using Data.Database;
-using Microsoft.Extensions.Logging;
 using Model;
-using Model.DTO;
-using Model.Enums;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 
@@ -14,13 +10,11 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
 {
     private static readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private readonly string _requestId = new Guid().ToString();
-    private Dictionary<string, string> columnToClassPropertyMapping;
-    private List<CohortDistributionParticipantDto> _cohortDistributionList;
-    // private readonly int _requestId = 1;
-
-public AddCohortDistributionTests(): base((conn, logger, transaction, command, response) =>
-    new CreateCohortDistributionData(conn, _databaseHelperMock.Object, logger))
+    private readonly string _requestId = Guid.NewGuid().ToString();
+    private readonly Dictionary<string, string> columnToClassPropertyMapping;
+    private List<CohortDistributionParticipant> _cohortDistributionList;
+    public AddCohortDistributionTests() : base((conn, logger, transaction, command, response) =>
+        new CreateCohortDistributionData(conn, _databaseHelperMock.Object, logger))
     {
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
         _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
@@ -31,58 +25,64 @@ public AddCohortDistributionTests(): base((conn, logger, transaction, command, r
             _loggerMock.Object);
 
 
-columnToClassPropertyMapping = new Dictionary<string, string>
-        {
-            { "REQUEST_ID", "RequestId" },
-            { "PARTICIPANT_ID", "ParticipantId" },
-            { "NHS_NUMBER", "NhsNumber" },
-            { "SUPERSEDED_NHS_NUMBER", "SupersededNhsNumber" },
-            { "PRIMARY_CARE_PROVIDER", "PrimaryCareProvider" },
-            { "PRIMARY_CARE_PROVIDER_FROM_DT", "PrimaryCareProviderFromDt" },
-            { "NAME_PREFIX", "NamePrefix" },
-            { "GIVEN_NAME", "GivenName" },
-            { "OTHER_GIVEN_NAME", "OtherGivenName" },
-            { "FAMILY_NAME", "FamilyName" },
-            { "PREVIOUS_FAMILY_NAME", "PreviousFamilyName" },
-            { "DATE_OF_BIRTH", "DateOfBirth" },
-            { "GENDER", "Gender" },
-            { "ADDRESS_LINE_1", "AddressLine1" },
-            { "ADDRESS_LINE_2", "AddressLine2" },
-            { "ADDRESS_LINE_3", "AddressLine3" },
-            { "ADDRESS_LINE_4", "AddressLine4" },
-            { "ADDRESS_LINE_5", "AddressLine5" },
-            { "POST_CODE", "PostCode" },
-            { "USUAL_ADDRESS_FROM_DT", "UsualAddressFromDt" },
-            { "CURRENT_POSTING", "CurrentPosting" },
-            { "CURRENT_POSTING_FROM_DT", "CurrentPostingFromDt" },
-            { "DATE_OF_DEATH", "DateOfDeath" },
-            { "TELEPHONE_NUMBER_HOME", "TelephoneNumberHome" },
-            { "TELEPHONE_NUMBER_HOME_FROM_DT", "TelephoneNumberHomeFromDt" },
-            { "TELEPHONE_NUMBER_MOB", "TelephoneNumberMob" },
-            { "TELEPHONE_NUMBER_MOB_FROM_DT", "TelephoneNumberMobFromDt" },
-            { "EMAIL_ADDRESS_HOME", "EmailAddressHome" },
-            { "EMAIL_ADDRESS_HOME_FROM_DT", "EmailAddressHomeFromDt" },
-            { "PREFERRED_LANGUAGE", "PreferredLanguage" },
-            { "INTERPRETER_REQUIRED", "InterpreterRequired" },
-            { "REASON_FOR_REMOVAL", "ReasonForRemoval" },
-            { "REASON_FOR_REMOVAL_FROM_DT", "ReasonForRemovalFromDt" },
-            { "RECORD_INSERT_DATETIME", "RecordInsertDatetime" },
-            { "RECORD_UPDATE_DATETIME", "RecordUpdateDatetime" },
-            { "IS_EXTRACTED", "IsExtracted" }
-        };
+        columnToClassPropertyMapping = new Dictionary<string, string>
+{
+    { "REQUEST_ID", "RequestId" },
+    { "PARTICIPANT_ID", "ParticipantId" },
+    { "NHS_NUMBER", "NhsNumber" },
+    { "IS_EXTRACTED", "Extracted" },
+    { "SUPERSEDED_NHS_NUMBER", "SupersededByNhsNumber" },
+    { "PRIMARY_CARE_PROVIDER", "PrimaryCareProvider" },
+    { "PRIMARY_CARE_PROVIDER_FROM_DT", "PrimaryCareProviderEffectiveFromDate" },
+    { "NAME_PREFIX", "NamePrefix" },
+    { "GIVEN_NAME", "FirstName" },
+    { "OTHER_GIVEN_NAME", "OtherGivenNames" },
+    { "FAMILY_NAME", "FamilyName" },
+    { "PREVIOUS_FAMILY_NAME", "PreviousFamilyName" },
+    { "DATE_OF_BIRTH", "DateOfBirth" },
+    { "GENDER", "Gender" },
+    { "ADDRESS_LINE_1", "AddressLine1" },
+    { "ADDRESS_LINE_2", "AddressLine2" },
+    { "ADDRESS_LINE_3", "AddressLine3" },
+    { "ADDRESS_LINE_4", "AddressLine4" },
+    { "ADDRESS_LINE_5", "AddressLine5" },
+    { "POST_CODE", "Postcode" },
+    { "USUAL_ADDRESS_FROM_DT", "UsualAddressEffectiveFromDate" },
+    { "CURRENT_POSTING", "CurrentPosting" },
+    { "CURRENT_POSTING_FROM_DT", "CurrentPostingEffectiveFromDate" },
+    { "DATE_OF_DEATH", "DateOfDeath" },
+    { "TELEPHONE_NUMBER_HOME", "TelephoneNumber" },
+    { "TELEPHONE_NUMBER_HOME_FROM_DT", "TelephoneNumberEffectiveFromDate" },
+    { "TELEPHONE_NUMBER_MOB", "MobileNumber" },
+    { "TELEPHONE_NUMBER_MOB_FROM_DT", "MobileNumberEffectiveFromDate" },
+    { "EMAIL_ADDRESS_HOME", "EmailAddress" },
+    { "EMAIL_ADDRESS_HOME_FROM_DT", "EmailAddressEffectiveFromDate" },
+    { "PREFERRED_LANGUAGE", "PreferredLanguage" },
+    { "INTERPRETER_REQUIRED", "IsInterpreterRequired" },
+    { "REASON_FOR_REMOVAL", "ReasonForRemoval" },
+    { "REASON_FOR_REMOVAL_FROM_DT", "ReasonForRemovalEffectiveFromDate" },
+    { "RECORD_INSERT_DATETIME", "RecordInsertDateTime" },
+    { "RECORD_UPDATE_DATETIME", "RecordUpdateDateTime" },
+    { "SCREENING_ACRONYM", "ScreeningAcronym" },
+    { "SCREENING_SERVICE_ID", "ScreeningServiceId" },
+    { "SCREENING_NAME", "ScreeningName" },
+    { "ELIGIBILITY_FLAG", "EligibilityFlag" },
+    { "RECORD_TYPE", "RecordType" }
+};
 
-        _cohortDistributionList = new List<CohortDistributionParticipantDto>
+        _cohortDistributionList = new List<CohortDistributionParticipant>
         {
-            new CohortDistributionParticipantDto
+            new CohortDistributionParticipant
             {
                 RequestId = _requestId,
                 ParticipantId = "1",
-                NhsNumber = "123456",
-                IsExtracted = "0"
+                NhsNumber = "1234567890",
+                Extracted = "0",
+                RecordType = "ADD"
             }
         };
-                    SetupDataReader(_cohortDistributionList, columnToClassPropertyMapping);
-        }
+        SetupDataReader(_cohortDistributionList, columnToClassPropertyMapping);
+    }
 
     [TestMethod]
     public void InsertCohortDistributionData_ValidData_ReturnsSuccess()
@@ -119,11 +119,7 @@ columnToClassPropertyMapping = new Dictionary<string, string>
     public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(true)
-            .Returns(false);
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
-
+         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         var rowCount = 1;
 
         // Act
@@ -131,19 +127,30 @@ columnToClassPropertyMapping = new Dictionary<string, string>
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
-        Assert.AreEqual(1, result.Count());
+        Assert.AreEqual(1, result.Count);
     }
 
     [TestMethod]
     public void ExtractCohortDistributionParticipants_AfterExtraction_MarksBothParticipantsAsExtracted()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(true)
-            .Returns(true)
-            .Returns(false);
+        _cohortDistributionList = new List<CohortDistributionParticipant>
+    {
+        new CohortDistributionParticipant
+        {
+            ParticipantId = "1",
+            Extracted = "0"
+        },
+        new CohortDistributionParticipant
+        {
+            ParticipantId = "2",
+            Extracted = "0"
+        }
+    };
+
+        SetupDataReader(_cohortDistributionList, columnToClassPropertyMapping);
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
-        var rowCount = 1;
+        var rowCount = 2;
 
         // Act
         var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
@@ -152,7 +159,7 @@ columnToClassPropertyMapping = new Dictionary<string, string>
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
         Assert.AreEqual("1", result[0].ParticipantId);
         Assert.AreEqual("1", result[0].IsExtracted);
-        Assert.AreEqual("1", result[1].ParticipantId);
+        Assert.AreEqual("2", result[1].ParticipantId);
         Assert.AreEqual("1", result[1].IsExtracted);
     }
 
@@ -176,14 +183,8 @@ columnToClassPropertyMapping = new Dictionary<string, string>
     [TestMethod]
     public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
     {
-        // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-        .Returns(true)
-        .Returns(false);
-
         // Act
         var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
-
         var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
 
         // Assert
@@ -225,63 +226,13 @@ columnToClassPropertyMapping = new Dictionary<string, string>
     [TestMethod]
     public void GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
-        // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(true)
-            .Returns(false);
-
-        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(_requestId);
-        _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns("participantId");
-
-        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
-
         // Act
         var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("participantId", result[0].ParticipantId);
+        Assert.AreEqual("1", result[0].ParticipantId);
         Assert.AreEqual(_requestId, result[0].RequestId);
     }
-
-    // private void SetUpReader()
-    // {
-    //     _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(() => _requestId);
-    //     _mockDataReader.Setup(reader => reader["PARTICIPANT_ID"]).Returns(() => "1");
-    //     _mockDataReader.Setup(reader => reader["NHS_NUMBER"]).Returns(() => "123456");
-    //     _mockDataReader.Setup(reader => reader["SUPERSEDED_NHS_NUMBER"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["PRIMARY_CARE_PROVIDER"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["PRIMARY_CARE_PROVIDER_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["NAME_PREFIX"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["GIVEN_NAME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["OTHER_GIVEN_NAME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["FAMILY_NAME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["PREVIOUS_FAMILY_NAME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["DATE_OF_BIRTH"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["GENDER"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["ADDRESS_LINE_1"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["ADDRESS_LINE_2"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["ADDRESS_LINE_3"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["ADDRESS_LINE_4"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["ADDRESS_LINE_5"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["POST_CODE"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["USUAL_ADDRESS_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["CURRENT_POSTING"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["CURRENT_POSTING_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["DATE_OF_DEATH"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_HOME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_HOME_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_MOB"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["TELEPHONE_NUMBER_MOB_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["EMAIL_ADDRESS_HOME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["EMAIL_ADDRESS_HOME_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["PREFERRED_LANGUAGE"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["INTERPRETER_REQUIRED"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["REASON_FOR_REMOVAL_FROM_DT"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["RECORD_INSERT_DATETIME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["RECORD_UPDATE_DATETIME"]).Returns(DBNull.Value);
-    //     _mockDataReader.Setup(reader => reader["IS_EXTRACTED"]).Returns(() => 0);
-    // }
 }
