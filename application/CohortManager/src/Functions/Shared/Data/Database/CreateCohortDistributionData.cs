@@ -522,6 +522,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         foreach (var participant in cohortParticipants)
         {
             participant.RequestId = requestId;
+            participant.Extracted = "1";
         }
 
         return UpdateRecords(sqlToExecute);
