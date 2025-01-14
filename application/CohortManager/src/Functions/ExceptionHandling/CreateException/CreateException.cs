@@ -45,15 +45,16 @@ public class CreateException
 
             if (_validationData.Create(exception))
             {
-                _logger.LogInformation("The exception has been created successfully");
+                _logger.LogInformation("The exception record has been created successfully");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "there has been an error while creating an exception record: {Message}", ex.Message);
+            _logger.LogError(ex, "There has been an error while creating an exception record: {Message}", ex.Message);
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
 
