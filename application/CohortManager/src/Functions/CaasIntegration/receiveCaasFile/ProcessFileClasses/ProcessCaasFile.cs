@@ -237,7 +237,6 @@ public class ProcessCaasFile : IProcessCaasFile
                 ex,
                 participant,
                 fileName);
-            return;
         }
     }
 
