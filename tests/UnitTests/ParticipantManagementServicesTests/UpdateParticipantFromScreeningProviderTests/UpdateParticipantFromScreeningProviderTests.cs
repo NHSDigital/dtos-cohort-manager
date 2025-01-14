@@ -87,7 +87,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_ValidRequest_SendEvent()
+    public async Task Run_ValidRequest_UpdateParticipantAndSendEvent()
     {
         // Arrange
         var message = new EventGridEvent(
@@ -101,6 +101,9 @@ public class UpdateParticipantFromScreeningProviderTests
         await _sut.Run(message);
 
         // Assert
+        _participantManagementDataServiceMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()));
+
         _eventGridPublisherClientMock
             .Verify(x => x.SendEventAsync(
                 It.Is<EventGridEvent>(e => e.EventType == "NSP.ParticipantUpdateReceived"),
@@ -109,7 +112,7 @@ public class UpdateParticipantFromScreeningProviderTests
     }
 
     [TestMethod]
-    public async Task Run_RequestDataIsOlder_SendEvent()
+    public async Task Run_RequestDataIsOlder_SendEventOnly()
     {
         // Arrange
         _reqParticipant.SrcSysProcessedDateTime = DateTime.Now.AddDays(-2);
@@ -124,6 +127,9 @@ public class UpdateParticipantFromScreeningProviderTests
         await _sut.Run(message);
 
         // Assert
+        _participantManagementDataServiceMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never());
+
         _eventGridPublisherClientMock
             .Verify(x => x.SendEventAsync(
                 It.Is<EventGridEvent>(e => e.EventType == "NSP.ParticipantUpdateReceived"),
