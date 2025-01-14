@@ -32,7 +32,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates, IBlobStorageHelper blobStorageHelper, IStateStore stateStore
      )
     {
         _logger = logger;
@@ -45,21 +45,20 @@ public class ProcessCaasFile : IProcessCaasFile
         _exceptionHandler = exceptionHandler;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+        _blobStorageHelper = blobStorageHelper;
+        _stateStore = stateStore;
     }
 
-/// <summary>
-/// Processes a file containing participant data with retry logic in case of failures.
-/// Tracks the processing state to ensure records are not reprocessed unnecessarily.
-/// </summary>
-/// <param name="filePath">The path to the file being processed.</param>
-/// <param name="values">The list of participant records to be processed.</param>
-/// <param name="options">Options for parallel processing.</param>
-/// <param name="screeningService">The service used for participant screening and validation.</param>
-/// <param name="fileName">The name of the file being processed.</param>
-/// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-/// <exception cref="Exception">
-/// Thrown when the maximum number of retry attempts is reached and the file cannot be processed successfully.
-/// </exception>
+    /// <summary>
+    /// Processes a file containing participant data with retry logic in case of failures.
+    /// Tracks the processing state to ensure records are not reprocessed unnecessarily.
+    /// </summary>
+    /// <param name="filePath">The path to the file being processed.</param>
+    /// <param name="values">The list of participant records to be processed.</param>
+    /// <param name="options">Options for parallel processing.</param>
+    /// <param name="screeningService">The service used for participant screening and validation.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task ProcessRecordsWithRetry(
         string filePath,
         List<ParticipantsParquetMap> values,
@@ -67,9 +66,10 @@ public class ProcessCaasFile : IProcessCaasFile
         ScreeningService screeningService,
         string fileName)
     {
-        const int MaxRetryAttempts  = 3;
+        const int MaxRetryAttempts = 3;
         int retryCount = 0;
         bool isSuccessful = false;
+
         int lastProcessedIndex = await _stateStore.GetLastProcessedRecordIndex(fileName) ?? 0;
 
         while (retryCount < MaxRetryAttempts && !isSuccessful)
@@ -81,70 +81,14 @@ public class ProcessCaasFile : IProcessCaasFile
                     filePath, retryCount + 1, lastProcessedIndex);
 
                 var remainingRecords = values.Skip(lastProcessedIndex).ToList();
-
-                foreach (var record in remainingRecords)
-                {
-                    try
-                    {
-                    var participant = await _receiveCaasFileHelper.MapParticipant(record, screeningService.ScreeningId, screeningService.ScreeningName, fileName);
-
-                        if (participant == null)
-                        {
-                            _logger.LogWarning("Skipping record as participant mapping failed.");
-                            continue;
-                        }
-
-                        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(
-                                new Exception($"Invalid NHS Number for participant {participant.ParticipantId}"),
-                                participant,
-                                fileName);
-                            continue;
-                        }
-
-                        if (!_validateDates.ValidateAllDates(participant))
-                        {
-                            await _exceptionHandler.CreateSystemExceptionLog(
-                                new Exception($"Invalid effective date for participant {participant.ParticipantId}"),
-                                participant,
-                                fileName);
-                            continue;
-                        }
-
-                        _logger.LogInformation("Successfully processed record for participant {ParticipantId}.", participant.ParticipantId);
-
-                        int currentIndex = values.IndexOf(record) + 1;
-                        await _stateStore.UpdateLastProcessedRecordIndex(fileName, currentIndex);
-                    }
-                    catch (Exception recordEx)
-                    {
-
-                        _logger.LogError(recordEx, "Error processing record for file {FileName}.", fileName);
-                    }
-                }
+                await ProcessRemainingRecords(remainingRecords, screeningService, fileName);
 
                 _logger.LogInformation("File {FilePath} processed successfully.", filePath);
                 isSuccessful = true;
             }
-            catch (Exception batchEx)
+            catch (Exception ex)
             {
-                retryCount++;
-                _logger.LogError(
-                    batchEx,
-                    "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}",
-                    filePath, retryCount, MaxRetryAttempts);
-
-                if (retryCount >= MaxRetryAttempts)
-                {
-                    _logger.LogWarning("Max retry attempts reached for file {FileName}. Handling failure.", fileName);
-                    await HandleFileFailure(filePath, fileName, batchEx.Message);
-                    break;
-                }
-
-                int retryDelay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
-                _logger.LogInformation("Retrying in {RetryDelay} milliseconds...", retryDelay);
-                await Task.Delay(retryDelay);
+                await HandleBatchProcessingFailure(filePath, fileName, ex, ++retryCount, MaxRetryAttempts);
             }
         }
 
@@ -152,6 +96,112 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             await _stateStore.ClearProcessingState(fileName);
         }
+    }
+
+    /// <summary>
+    /// Processes the remaining records in the file.
+    /// </summary>
+    /// <param name="remainingRecords">The list of remaining records to process.</param>
+    /// <param name="screeningService">The screening service for participant validation.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    private async Task ProcessRemainingRecords(
+        List<ParticipantsParquetMap> remainingRecords,
+        ScreeningService screeningService,
+        string fileName)
+    {
+        foreach (var record in remainingRecords)
+        {
+            try
+            {
+                var participant = await MapParticipant(record, screeningService, fileName);
+
+                if (participant == null || !ValidateParticipant(participant, fileName))
+                {
+                    continue;
+                }
+
+                _logger.LogInformation("Successfully processed record for participant {ParticipantId}.", participant.ParticipantId);
+                int currentIndex = remainingRecords.IndexOf(record) + 1;
+                await _stateStore.UpdateLastProcessedRecordIndex(fileName, currentIndex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing record for file {FileName}.", fileName);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Handles batch processing failure and retries.
+    /// </summary>
+    /// <param name="filePath">The path to the file being processed.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <param name="exception">The exception that caused the failure.</param>
+    /// <param name="retryCount">The current retry attempt.</param>
+    /// <param name="maxRetries">The maximum number of retry attempts allowed.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    private async Task HandleBatchProcessingFailure(
+        string filePath,
+        string fileName,
+        Exception exception,
+        int retryCount,
+        int maxRetries)
+    {
+        _logger.LogError(exception, "Error occurred while processing file {FilePath}. Attempt {RetryAttempt} of {MaxRetries}", filePath, retryCount, maxRetries);
+
+        if (retryCount >= maxRetries)
+        {
+            _logger.LogWarning("Max retry attempts reached for file {FileName}. Handling failure.", fileName);
+            await HandleFileFailure(filePath, fileName, exception.Message);
+        }
+        else
+        {
+            int retryDelay = BaseDelayMilliseconds * (int)Math.Pow(2, retryCount - 1);
+            _logger.LogInformation("Retrying in {RetryDelay} milliseconds...", retryDelay);
+            await Task.Delay(retryDelay);
+        }
+    }
+
+    /// <summary>
+    /// Maps a record to a participant object.
+    /// </summary>
+    /// <param name="record">The record to map.</param>
+    /// <param name="screeningService">The screening service for participant validation.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <returns>The mapped participant object, or null if mapping fails.</returns>
+    private async Task<Participant> MapParticipant(ParticipantsParquetMap record, ScreeningService screeningService, string fileName)
+    {
+        return await _receiveCaasFileHelper.MapParticipant(record, screeningService.ScreeningId, screeningService.ScreeningName, fileName);
+    }
+
+    /// <summary>
+    /// Validates a participant object.
+    /// </summary>
+    /// <param name="participant">The participant to validate.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <returns>True if the participant is valid, otherwise false.</returns>
+    private bool ValidateParticipant(Participant participant, string fileName)
+    {
+        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+        {
+            _exceptionHandler.CreateSystemExceptionLog(
+                new Exception($"Invalid NHS Number for participant {participant.ParticipantId}"),
+                participant,
+                fileName);
+            return false;
+        }
+
+        if (!_validateDates.ValidateAllDates(participant))
+        {
+            _exceptionHandler.CreateSystemExceptionLog(
+                new Exception($"Invalid effective date for participant {participant.ParticipantId}"),
+                participant,
+                fileName);
+            return false;
+        }
+
+        return true;
     }
     private async Task HandleFileFailure(string filePath, string fileName, string errorMessage, Participant participant = null)
     {
