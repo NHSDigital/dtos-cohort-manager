@@ -60,7 +60,7 @@ public class RetrieveCohortDistributionData
             if (cohortDistributionParticipants.Count == 0)
             {
                 cohortDistributionParticipants = _createCohortDistributionData
-                .GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
+                .GetUnextractedCohortDistributionParticipants(rowCount);
             }
 
             return cohortDistributionParticipants.Count == 0
