@@ -124,56 +124,49 @@ namespace NHS.Screening.ReceiveCaasFile;
                 await Task.Delay(2000 * retryCount); // Exponential backoff
             }
         }
-
         private async Task HandleFileFailure(string fileName, string errorMessage, Participant participant = null)
         {
-            _logger.LogError("Handling failure for file {FileName}.", fileName);
-            await _exceptionHandler.CreateSystemExceptionLog(
-                new Exception(errorMessage), participant, fileName);
+            try
+            {
+                string filePath = Path.Combine(Environment.GetEnvironmentVariable("FileDirectoryPath"), fileName);
+                if (!File.Exists(filePath))
+                {
+                    _logger.LogWarning("File {FileName} does not exist. Skipping upload to blob storage.", fileName);
+                    return;
+                }
+
+                byte[] fileData = await File.ReadAllBytesAsync(filePath);
+                var blobFile = new BlobFile(fileData, fileName);
+
+                bool isUploaded = await _blobStorageHelper.UploadFileToBlobStorage(
+                    connectionString: Environment.GetEnvironmentVariable("AzureBlobConnectionString"),
+                    containerName: "FailedFilesContainer",
+                    blobFile: blobFile,
+                    overwrite: true);
+
+                if (isUploaded)
+                {
+                    _logger.LogInformation("File {FileName} successfully uploaded to blob storage.", fileName);
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to upload file {FileName} to blob storage.", fileName);
+                }
+
+                await _exceptionHandler.CreateSystemExceptionLog(
+                    new Exception(errorMessage),
+                    participant,
+                    fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while handling failure for file {FileName}.", fileName);
+                await _exceptionHandler.CreateSystemExceptionLog(
+                    ex,
+                    participant,
+                    fileName);
+            }
         }
-        // private async Task HandleFileFailure(string fileName, string errorMessage, Participant participant = null)
-        // {
-        //     try
-        //     {
-        //         string filePath = Path.Combine(Environment.GetEnvironmentVariable("FileDirectoryPath"), fileName);
-        //         if (!File.Exists(filePath))
-        //         {
-        //             _logger.LogWarning("File {FileName} does not exist. Skipping upload to blob storage.", fileName);
-        //             return;
-        //         }
-
-        //         byte[] fileData = await File.ReadAllBytesAsync(filePath);
-        //         var blobFile = new BlobFile(fileData, fileName);
-
-        //         bool isUploaded = await _blobStorageHelper.UploadFileToBlobStorage(
-        //             connectionString: Environment.GetEnvironmentVariable("AzureBlobConnectionString"),
-        //             containerName: "FailedFilesContainer",
-        //             blobFile: blobFile,
-        //             overwrite: true);
-
-        //         if (isUploaded)
-        //         {
-        //             _logger.LogInformation("File {FileName} successfully uploaded to blob storage.", fileName);
-        //         }
-        //         else
-        //         {
-        //             _logger.LogWarning("Failed to upload file {FileName} to blob storage.", fileName);
-        //         }
-
-        //         await _exceptionHandler.CreateSystemExceptionLog(
-        //             new Exception(errorMessage),
-        //             participant,
-        //             fileName);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Error while handling failure for file {FileName}.", fileName);
-        //         await _exceptionHandler.CreateSystemExceptionLog(
-        //             ex,
-        //             participant,
-        //             fileName);
-        //     }
-        // }
         private bool ValidateParticipant(Participant participant, string fileName)
         {
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
