@@ -62,34 +62,34 @@ public class DatabaseHelper : IDatabaseHelper
         return reader[columnName] == DBNull.Value ? null : reader[columnName].ToString();
     }
 
-public static T? GetValue<T>(IDataReader reader, string columnName)
-{
-    object value = reader[columnName];
-    if (value == DBNull.Value || value == null) return default;
-    Type targetType = typeof(T);
-    switch (targetType)
+    public static T? GetValue<T>(IDataReader reader, string columnName)
     {
-        case Type t when t == typeof(string):
-        if (value.GetType() == typeof(DateTime))
+        object value = reader[columnName];
+        if (value == DBNull.Value || value == null) return default;
+        Type targetType = typeof(T);
+        switch (targetType)
         {
-            return (T)(object)((DateTime)value).ToString();
+            case Type t when t == typeof(string):
+                if (value.GetType() == typeof(DateTime))
+                {
+                    return (T)(object)((DateTime)value).ToString();
+                }
+                if (value.GetType() == typeof(Guid))
+                {
+                    return (T)(object)value.ToString();
+                }
+                return (T)(object)value.ToString();
+            case Type t when t == typeof(Guid):
+                return (T)value;
+            case Type t when t == typeof(DateTime):
+                return (T)value;
+            case Type t when t.IsEnum:
+                short shortValue = Convert.ToInt16(value);
+                return (T)Enum.ToObject(targetType, shortValue);
+            default:
+                return (T)Convert.ChangeType(value, targetType);
         }
-        if (value.GetType() == typeof(Guid))
-        {
-            return (T)(object)value.ToString();
-        }
-            return (T)(object)value.ToString();
-        case Type t when t == typeof(Guid):
-            return (T)value;
-        case Type t when t == typeof(DateTime):
-            return (T)value;
-        case Type t when t.IsEnum:
-            short shortValue = Convert.ToInt16(value);
-            return (T)Enum.ToObject(targetType, shortValue);
-        default:
-            return (T)Convert.ChangeType(value, targetType);
     }
-}
 
     public static object ConvertBoolStringToBoolByType(string environmentVariableName, string dataType)
     {
