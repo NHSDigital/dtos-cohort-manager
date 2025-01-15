@@ -569,7 +569,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var parameters = new Dictionary<string, object>
         {
             {"@RequestId", requestIdGuid},
-            {"@StatusCode", "204"}
+            {"@StatusCode", HttpStatusCode.NoContent.ToString()}
         };
 
         using var command = CreateCommand(parameters);
