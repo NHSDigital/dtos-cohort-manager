@@ -17,6 +17,7 @@ public class ProcessCaasFileTests
     private Mock<ILogger<ProcessCaasFile>> _loggerMock;
     private Mock<IBlobStorageHelper> _blobStorageHelper;
     private Mock<IStateStore> _stateStore;
+    private Mock<ILogger<ProcessRecordsManager>> _loggerRecordsMock;
     private Mock<ICallFunction> _callFunctionMock;
     private Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock;
     private Mock<ICheckDemographic> _checkDemographicMock;
@@ -28,10 +29,12 @@ public class ProcessCaasFileTests
     private Mock<IValidateDates> _validateDates;
 
     private ProcessCaasFile _processCaasFile;
+    private ProcessRecordsManager _processRecordsManager;
 
     public ProcessCaasFileTests()
     {
         _loggerMock = new Mock<ILogger<ProcessCaasFile>>();
+        _loggerRecordsMock = new Mock<ILogger<ProcessRecordsManager>>();
         _callFunctionMock = new Mock<ICallFunction>();
         _receiveCaasFileHelperMock = new Mock<IReceiveCaasFileHelper>();
         _checkDemographicMock = new Mock<ICheckDemographic>();
@@ -54,9 +57,16 @@ public class ProcessCaasFileTests
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
             _recordsProcessedTrackerMock.Object,
+            _validateDates.Object
+        );
+
+        _processRecordsManager = new ProcessRecordsManager(
+            _loggerRecordsMock.Object,
+            _stateStore.Object,
+            _exceptionHandlerMock.Object,
+            _receiveCaasFileHelperMock.Object,
             _validateDates.Object,
-            _blobStorageHelper.Object,
-            _stateStore.Object
+            _blobStorageHelper.Object
         );
     }
 

@@ -16,19 +16,22 @@ public class ReceiveCaasFile
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
+    private readonly IProcessRecordsManager _processRecordsManager;
     private readonly IScreeningServiceData _screeningServiceData;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        IScreeningServiceData screeningServiceData
+        IScreeningServiceData screeningServiceData,
+        IProcessRecordsManager processRecordsManager
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
         _screeningServiceData = screeningServiceData;
+        _processRecordsManager = processRecordsManager;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -86,6 +89,9 @@ public class ReceiveCaasFile
                         allTasks.Add(
                             _processCaasFile.ProcessRecords(batch, options, screeningService, name)
                         );
+                        allTasks.Add(
+                            _processRecordsManager.ProcessRecordsWithRetry(batch, options, screeningService, name)
+                        );
                     }
                     // process each batches
                     Task.WaitAll(allTasks.ToArray());
@@ -109,7 +115,7 @@ public class ReceiveCaasFile
             {
                 _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
             }
-            //We want to release the file from temporary storage no matter what 
+            //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }
