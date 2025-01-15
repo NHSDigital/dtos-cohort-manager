@@ -128,7 +128,6 @@ namespace NHS.Screening.ReceiveCaasFile;
         {
             try
             {
-                // Read file data directly using the fileName
                 string filePath = Path.Combine(Environment.GetEnvironmentVariable("FileDirectoryPath"), fileName);
                 if (!File.Exists(filePath))
                 {
@@ -154,7 +153,6 @@ namespace NHS.Screening.ReceiveCaasFile;
                     _logger.LogWarning("Failed to upload file {FileName} to blob storage.", fileName);
                 }
 
-                // Log the failure to the database
                 await _exceptionHandler.CreateSystemExceptionLog(
                     new Exception(errorMessage),
                     participant,
@@ -163,8 +161,6 @@ namespace NHS.Screening.ReceiveCaasFile;
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while handling failure for file {FileName}.", fileName);
-
-                // Log the failure to the database in case of an additional exception
                 await _exceptionHandler.CreateSystemExceptionLog(
                     ex,
                     participant,
