@@ -25,11 +25,11 @@ public class DemographicDataFunction
     [Function("DemographicDataFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var participantData = new Participant();
         try
         {
             if (req.Method == "POST")
             {
+                Participant participantData;
                 using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
                 {
                     var requestBody = await reader.ReadToEndAsync();
