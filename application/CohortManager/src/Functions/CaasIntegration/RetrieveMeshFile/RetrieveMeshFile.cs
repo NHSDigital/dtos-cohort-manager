@@ -2,6 +2,7 @@ namespace NHS.Screening.RetrieveMeshFile;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ public class RetrieveMeshFile
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
         _mailboxId = options.Value.BSSMailBox;
-        _blobConnectionString =  Environment.GetEnvironmentVariable("caasfolder_STORAGE");
+        _blobConnectionString = Environment.GetEnvironmentVariable("caasfolder_STORAGE");
     }
     /// <summary>
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
@@ -39,40 +40,40 @@ public class RetrieveMeshFile
     [Function("RetrieveMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}",DateTime.Now);
+        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.Now);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
-        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID,".parquet");
+        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID, ".parquet");
 
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId,_blobConnectionString,"inbound",shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, "inbound", shouldExecuteHandShake);
 
-            if(!result)
+            if (!result)
             {
                 _logger.LogError("An error was encountered while moving files from Mesh to Blob");
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex,"An error encountered while moving files from Mesh to Blob");
+            _logger.LogError(ex, "An error encountered while moving files from Mesh to Blob");
         }
 
         if (myTimer.ScheduleStatus is not null)
         {
-            _logger.LogInformation("Next timer schedule at: {scheduleStatus}",myTimer.ScheduleStatus.Next);
+            _logger.LogInformation("Next timer schedule at: {scheduleStatus}", myTimer.ScheduleStatus.Next);
         }
     }
 
     private async Task<bool> ShouldExecuteHandShake()
     {
 
-        Dictionary<string,string> configValues;
+        Dictionary<string, string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString,"config",ConfigFileName);
-        if(meshState == null)
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, "config", ConfigFileName);
+        if (meshState == null)
         {
 
             _logger.LogInformation("MeshState File did not exist, Creating new MeshState File in blob Storage");
@@ -85,15 +86,16 @@ public class RetrieveMeshFile
             return true;
 
         }
-        using(StreamReader reader = new StreamReader(meshState.Data)){
-            meshState.Data.Seek(0,SeekOrigin.Begin);
+        using (StreamReader reader = new StreamReader(meshState.Data))
+        {
+            meshState.Data.Seek(0, SeekOrigin.Begin);
             string jsonData = await reader.ReadToEndAsync();
-            configValues = JsonSerializer.Deserialize<Dictionary<string,string>>(jsonData);
+            configValues = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonData);
         }
 
         string nextHandShakeDateString;
         //config value doenst exist
-        if(!configValues.TryGetValue(NextHandShakeTimeConfigKey, out nextHandShakeDateString))
+        if (!configValues.TryGetValue(NextHandShakeTimeConfigKey, out nextHandShakeDateString))
         {
             _logger.LogInformation("NextHandShakeTime config item does not exist, creating new config item");
             configValues.Add(NextHandShakeTimeConfigKey, DateTime.UtcNow.Add(handShakeInterval).ToString());
@@ -104,7 +106,7 @@ public class RetrieveMeshFile
         }
         DateTime nextHandShakeDateTime;
         //date cannot be parsed
-        if(!DateTime.TryParse(nextHandShakeDateString, out nextHandShakeDateTime))
+        if (!DateTime.TryParse(nextHandShakeDateString, CultureInfo.InvariantCulture, out nextHandShakeDateTime))
         {
             _logger.LogInformation("Unable to Parse NextHandShakeTime, Updating config value");
             configValues[NextHandShakeTimeConfigKey] = DateTime.UtcNow.Add(handShakeInterval).ToString();
@@ -112,7 +114,8 @@ public class RetrieveMeshFile
             return true;
         }
 
-        if(DateTime.Compare(nextHandShakeDateTime,DateTime.UtcNow) <= 0){
+        if (DateTime.Compare(nextHandShakeDateTime, DateTime.UtcNow) <= 0)
+        {
             _logger.LogInformation("Next HandShakeTime was in the past, will execute handshake");
             var NextHandShakeTimeConfig = DateTime.UtcNow.Add(handShakeInterval).ToString();
 
@@ -127,20 +130,21 @@ public class RetrieveMeshFile
     }
 
 
-    private async Task<bool> SetConfigState(Dictionary<string,string> state)
+    private async Task<bool> SetConfigState(Dictionary<string, string> state)
     {
-        try{
+        try
+        {
             string jsonString = JsonSerializer.Serialize(state);
-            using(var stream = GenerateStreamFromString(jsonString))
+            using (var stream = GenerateStreamFromString(jsonString))
             {
-                var blobFile = new BlobFile(stream,ConfigFileName);
-                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,"config",blobFile,true);
+                var blobFile = new BlobFile(stream, ConfigFileName);
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, "config", blobFile, true);
                 return result;
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex,"Unable To set Config State");
+            _logger.LogError(ex, "Unable To set Config State");
             return false;
         }
     }
