@@ -34,6 +34,12 @@ public interface IDataServiceClient<TEntity>
     /// <returns>a boolean representing if the record was inserted successfully</returns>
     Task<bool> Add(TEntity entity);
     /// <summary>
+    /// Adds a given records to the database
+    /// </summary>
+    /// <param name="entity">object of type TEntity to be updated in the database</param>
+    /// <returns>a boolean representing if the record was Updated successfully</returns>
+    Task<bool> Update(TEntity entity);
+    /// <summary>
     /// Adds an IEnumerable of type TEntity to the database
     /// </summary>
     /// <param name="entities">IEnumerable<TEntity> of items to be added to the database</param>

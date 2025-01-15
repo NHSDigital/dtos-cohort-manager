@@ -7,7 +7,7 @@ public class GeneCodeLkp
 {
     [Key]
     [Column("GENE_CODE_ID")]
-    public long GeneCodeId { get; set; }
+    public int GeneCodeId { get; set; }
 
     [Column("GENE_CODE")]
     public string GeneCode { get; set; }
