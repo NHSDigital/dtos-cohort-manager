@@ -10,22 +10,22 @@ using Model;
 using Common;
 using Data.Database;
 
-public class CreateException
+public class CreateExceptionRecord
 {
-    private readonly ILogger<CreateException> _logger;
+    private readonly ILogger<CreateExceptionRecord> _logger;
     private readonly IValidationExceptionData _validationData;
     private readonly ICreateResponse _createResponse;
-    public CreateException(ILogger<CreateException> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
+    public CreateExceptionRecord(ILogger<CreateExceptionRecord> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
     {
         _logger = logger;
         _validationData = validationExceptionData;
         _createResponse = createResponse;
     }
 
-    [Function("CreateException")]
+    [Function("CreateExceptionRecord")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        var exception = new ValidationException();
+        ValidationException exception;
 
         try
         {
