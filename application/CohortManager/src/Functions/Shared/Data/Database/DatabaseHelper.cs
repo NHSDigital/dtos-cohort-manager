@@ -67,31 +67,29 @@ public class DatabaseHelper : IDatabaseHelper
         object value = reader[columnName];
         if (value == DBNull.Value || value == null) return default;
 
-        Type targetType = typeof(T);
+         Type targetType = typeof(T);
 
-        switch (targetType)
+        switch (value)
         {
-            case Type t when t == typeof(string):
+            case string:
                 if (value is DateTime time)
                 {
                     return (T)(object)time.ToString();
                 }
                 if (value is Guid)
                 {
-                    return (T)(object)value.ToString();
+                    return (T)(object)value.ToString()!;
                 }
-                return (T)(object)value.ToString();
-
-            case Type t when t == typeof(Guid):
+                return (T)(object)value.ToString()!;
+            case Guid:
             {
                 return (T)value;
             }
-
-            case Type t when t == typeof(DateTime):
+            case DateTime:
             {
                 return (T)value;
             }
-            case Type t when t.IsEnum:
+            case Enum:
             {
                 short shortValue = Convert.ToInt16(value);
                 return (T)Enum.ToObject(targetType, shortValue);
