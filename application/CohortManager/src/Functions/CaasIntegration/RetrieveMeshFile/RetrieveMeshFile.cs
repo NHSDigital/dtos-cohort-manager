@@ -105,9 +105,8 @@ public class RetrieveMeshFile
 
         }
         DateTime nextHandShakeDateTime;
-        var styles = new CultureInfo("en-GB", false);
         //date cannot be parsed
-        if (!DateTime.TryParse(nextHandShakeDateString, styles, out nextHandShakeDateTime))
+        if (!DateTime.TryParse(nextHandShakeDateString, CultureInfo.InvariantCulture, out nextHandShakeDateTime))
         {
             _logger.LogInformation("Unable to Parse NextHandShakeTime, Updating config value");
             configValues[NextHandShakeTimeConfigKey] = DateTime.UtcNow.Add(handShakeInterval).ToString();
