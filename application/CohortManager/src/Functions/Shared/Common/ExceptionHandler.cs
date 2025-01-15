@@ -8,10 +8,6 @@ using Model;
 using Model.Enums;
 using RulesEngine.Models;
 
-/// <summary>
-/// Various methods for creating an exception and writing to the exception management table.
-/// </summary>
-
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
@@ -39,12 +35,6 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    /// <summary>
-    /// Creates a system exception.
-    /// </summary>
-    /// <param name="exception">The exception to be written to the database.</param>
-    /// <param name="participant">The participant that created the exception.</param>
-    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
     {
         if (participant.NhsNumber != null)
@@ -59,12 +49,6 @@ public class ExceptionHandler : IExceptionHandler
         await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
-    /// <summary>
-    /// Overloaded method to create a system exception given BasicParticipantData.
-    /// </summary>
-    /// <param name="exception">The exception to be written to the database.</param>
-    /// <param name="participant">The participant that created the exception.</param>
-    /// <param name="fileName">The file name of the file containing the participant.</param>
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
@@ -137,13 +121,11 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    /// <summary>
-    /// Method to create a transformation exception and send it to the DB.
-    /// </summary>
-    /// <param name="tansformationErrors">RuleResultTree containing the transformations that have failed.</param>
-    /// <param name="participant">The participant that caused the exception.</param>
-    public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant) {
-        foreach (var error in transformationErrors) {
+    
+    public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant)
+    {
+        foreach (var error in transformationErrors)
+        {
             var ruleNumber = int.Parse(error.Rule.RuleName.Split('.')[0]);
 
             var exception = new ValidationException
@@ -193,7 +175,7 @@ public class ExceptionHandler : IExceptionHandler
             if (!string.IsNullOrEmpty(error.ExceptionMessage))
             {
                 errorMessage = error.ExceptionMessage;
-                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}",error.ExceptionMessage);
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}", error.ExceptionMessage);
             }
 
             var exception = new ValidationException

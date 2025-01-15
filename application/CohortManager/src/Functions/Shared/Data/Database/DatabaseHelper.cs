@@ -62,19 +62,22 @@ public class DatabaseHelper : IDatabaseHelper
         return reader[columnName] == DBNull.Value ? null : reader[columnName].ToString();
     }
 
-    public static Gender GetGenderValue(IDataReader reader, string columnName)
+public static T? GetValue<T>(IDataReader reader, string columnName)
+{
+    object value = reader[columnName];
+    if (value == DBNull.Value || value == null) return default;
+
+    Type targetType = typeof(T);
+
+    if (targetType.IsEnum)
     {
-        return reader[columnName] == DBNull.Value ? Gender.NotKnown : (Gender)(short)reader[columnName];
+        short shortValue = Convert.ToInt16(value);
+        return (T)Enum.ToObject(targetType, shortValue);
     }
 
-    public static T? GetValue<T>(IDataReader reader, string columnName)
-    {
-        object value = reader[columnName];
+    return (T)Convert.ChangeType(value, targetType);
+}
 
-        if (value == DBNull.Value || value == null) return default;
-
-        return (T)Convert.ChangeType(value, typeof(T));
-    }
     public static object ConvertBoolStringToBoolByType(string environmentVariableName, string dataType)
     {
         var value = Environment.GetEnvironmentVariable(environmentVariableName);
