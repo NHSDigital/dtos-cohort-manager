@@ -53,7 +53,7 @@ namespace NHS.Screening.ReceiveCaasFile;
         /// Thrown if the maximum number of retry attempts is reached and the file cannot be processed successfully.
         /// </exception>
         public async Task ProcessRecordsWithRetry(
-            List<ParticipantsParquetMap> value,
+            List<ParticipantsParquetMap> values,
             ParallelOptions options,
             ScreeningService screeningService,
             string name)
@@ -70,7 +70,7 @@ namespace NHS.Screening.ReceiveCaasFile;
                         "Starting processing with retry attempt {RetryAttempt}, resuming from index {LastProcessedIndex}.",
                         retryCount + 1, lastProcessedIndex);
 
-                    var remainingRecords = value.Skip(lastProcessedIndex).ToList();
+                    var remainingRecords = values.Skip(lastProcessedIndex).ToList();
 
                     foreach (var record in remainingRecords)
                     {
@@ -85,7 +85,7 @@ namespace NHS.Screening.ReceiveCaasFile;
                             }
 
                             _logger.LogInformation("Processed participant {ParticipantId}.", participant.ParticipantId);
-                            int currentIndex = value.IndexOf(record) + 1;
+                            int currentIndex = values.IndexOf(record) + 1;
                             await _stateStore.UpdateLastProcessedRecordIndex(name, currentIndex);
                         }
                         catch (Exception recordEx)
