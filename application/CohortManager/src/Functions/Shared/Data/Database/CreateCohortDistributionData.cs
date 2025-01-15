@@ -149,7 +149,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipantsByScreeningServiceId(int rowCount)
+    public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipants(int rowCount)
     {
         var SQL = "SELECT TOP (@RowCount)" +
             " bcd.[PARTICIPANT_ID], " +
@@ -189,7 +189,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[IS_EXTRACTED], " +
             " bcd.[REQUEST_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
-            " WHERE bcd.IS_EXTRACTED = @Extracted";
+            " WHERE bcd.IS_EXTRACTED = @Extracted " +
+            " AND REQUEST_ID IS NULL " +
+            " ORDER BY bcd.RECORD_INSERT_DATETIME ASC ";
 
         var parameters = new Dictionary<string, object>
         {
@@ -200,15 +202,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var command = CreateCommand(parameters);
         command.CommandText = SQL;
 
-        var listOfAllParticipants = GetParticipant(command);
+        var participantsList = GetParticipant(command);
         var requestId = Guid.NewGuid().ToString();
-        if (MarkCohortDistributionParticipantsAsExtracted(listOfAllParticipants, requestId))
+        if (MarkCohortDistributionParticipantsAsExtracted(participantsList, requestId))
         {
             LogRequestAudit(requestId, (int)HttpStatusCode.OK);
-            return CohortDistributionParticipantDto(listOfAllParticipants);
+            return CohortDistributionParticipantDto(participantsList);
         }
 
-        var statusCode = listOfAllParticipants.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
+        var statusCode = participantsList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
         LogRequestAudit(requestId, statusCode);
 
         return new List<CohortDistributionParticipantDto>();
@@ -482,33 +484,36 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
-        var cohortParamList = string.Join(", ", cohortParticipants.Select((_, i) => $"@param{i}"));
-
-        var SQL = $@"
-        WITH cte_lastestParticipants AS (
-        SELECT cd.PARTICIPANT_ID,
-        RANK() OVER(PARTITION BY PARTICIPANT_ID
-        ORDER BY RECORD_UPDATE_DATETIME DESC) as rank
-        FROM BS_COHORT_DISTRIBUTION cd
-        WHERE PARTICIPANT_ID IN ({cohortParamList}))
+        var SQL = $@" WITH AllUnextractedParticipants AS (
+        SELECT
+        PARTICIPANT_ID,
+        RECORD_INSERT_DATETIME,
+        ROW_NUMBER() OVER (
+        ORDER BY RECORD_INSERT_DATETIME ASC
+        ) AS OverallRowNum
+        FROM BS_COHORT_DISTRIBUTION
+        WHERE IS_EXTRACTED = 0
+        AND REQUEST_ID IS NULL),
+        FilteredCohortDistribution AS (
+        SELECT TOP (@RowCount)
+        PARTICIPANT_ID,
+        RECORD_INSERT_DATETIME
+        FROM AllUnextractedParticipants
+        ORDER BY OverallRowNum)
         UPDATE cd
         SET IS_EXTRACTED = @Extracted,
         REQUEST_ID = @RequestId
         FROM BS_COHORT_DISTRIBUTION cd
-        INNER JOIN cte_lastestParticipants cte
-        ON cd.PARTICIPANT_ID = cte.PARTICIPANT_ID
-        WHERE cte.rank = 1";
+        INNER JOIN FilteredCohortDistribution fcd
+        ON cd.PARTICIPANT_ID = fcd.PARTICIPANT_ID
+        AND cd.RECORD_INSERT_DATETIME = fcd.RECORD_INSERT_DATETIME";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@Extracted", 1 },
-            {"@RequestId", requestId }
+            { "@Extracted", 1 },
+            { "@RequestId", requestId },
+            { "@RowCount", cohortParticipants.Count }
         };
-
-        for (int i = 0; i < cohortParticipants.Count; i++)
-        {
-            parameters.Add($"@param{i}", cohortParticipants[i].ParticipantId);
-        }
 
         var sqlToExecute = new List<SQLReturnModel>
         {
