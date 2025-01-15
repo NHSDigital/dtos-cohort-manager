@@ -190,7 +190,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[REQUEST_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " WHERE bcd.IS_EXTRACTED = @Extracted " +
-            " AND REQUEST_ID IS NULL";
+            " AND REQUEST_ID IS NULL " +
+            " ORDER BY bcd.RECORD_INSERT_DATETIME ASC ";
 
         var parameters = new Dictionary<string, object>
         {
@@ -484,36 +485,36 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
-        var cohortParamList = string.Join(", ", cohortParticipants.Select((_, i) => $"@param{i}"));
-
-        var SQL = $@"
-        WITH cte_latestParticipants AS (
-        SELECT cd.PARTICIPANT_ID, cd.RECORD_UPDATE_DATETIME,
-        ROW_NUMBER() OVER(PARTITION BY PARTICIPANT_ID
-        ORDER BY RECORD_UPDATE_DATETIME DESC) as RowNum
-        FROM BS_COHORT_DISTRIBUTION cd
-        WHERE PARTICIPANT_ID IN ({cohortParamList})
-        AND IS_EXTRACTED = 0
-        AND REQUEST_ID IS NULL)
+        var SQL = $@" WITH AllUnextractedParticipants AS (
+        SELECT
+        PARTICIPANT_ID,
+        RECORD_INSERT_DATETIME,
+        ROW_NUMBER() OVER (
+        ORDER BY RECORD_INSERT_DATETIME ASC
+        ) AS OverallRowNum
+        FROM BS_COHORT_DISTRIBUTION
+        WHERE IS_EXTRACTED = 0
+        AND REQUEST_ID IS NULL),
+        FilteredCohortDistribution AS (
+        SELECT TOP (@RowCount)
+        PARTICIPANT_ID,
+        RECORD_INSERT_DATETIME
+        FROM AllUnextractedParticipants
+        ORDER BY OverallRowNum)
         UPDATE cd
         SET IS_EXTRACTED = @Extracted,
         REQUEST_ID = @RequestId
         FROM BS_COHORT_DISTRIBUTION cd
-        INNER JOIN cte_latestParticipants cte
-        ON cd.PARTICIPANT_ID = cte.PARTICIPANT_ID
-        AND cd.RECORD_UPDATE_DATETIME = cte.RECORD_UPDATE_DATETIME
-        WHERE cte.RowNum = 1";
+        INNER JOIN FilteredCohortDistribution fcd
+        ON cd.PARTICIPANT_ID = fcd.PARTICIPANT_ID
+        AND cd.RECORD_INSERT_DATETIME = fcd.RECORD_INSERT_DATETIME";
 
         var parameters = new Dictionary<string, object>
         {
-            {"@Extracted", 1 },
-            {"@RequestId", requestId }
+            { "@Extracted", 1 },
+            { "@RequestId", requestId },
+            { "@RowCount", cohortParticipants.Count }
         };
-
-        for (int i = 0; i < cohortParticipants.Count; i++)
-        {
-            parameters.Add($"@param{i}", cohortParticipants[i].ParticipantId);
-        }
 
         var sqlToExecute = new List<SQLReturnModel>
         {
