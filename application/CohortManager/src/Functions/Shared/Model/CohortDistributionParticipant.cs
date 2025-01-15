@@ -37,7 +37,6 @@ public class CohortDistributionParticipant
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
     public string? Extracted { get; set; }
-    public int? ServiceProviderId { get; set; }
     public string? ScreeningAcronym { get; set; }
     public string? ScreeningServiceId { get; set; }
     public string? ScreeningName { get; set; }

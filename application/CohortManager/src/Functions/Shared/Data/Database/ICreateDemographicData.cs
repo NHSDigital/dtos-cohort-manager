@@ -5,5 +5,5 @@ using Model;
 public interface ICreateDemographicData
 {
     public bool InsertDemographicData(Demographic demographic);
-    public Demographic GetDemographicData(string NhsNumber);
+    public Demographic GetDemographicData(string nhsNumber);
 }

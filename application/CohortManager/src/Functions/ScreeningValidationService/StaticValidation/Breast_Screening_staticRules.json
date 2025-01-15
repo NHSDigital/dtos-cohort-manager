@@ -63,18 +63,6 @@
         }
       },
       {
-        "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
-        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Address is missing\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NonFatal",
         "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
         "Actions": {
@@ -130,32 +118,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"GP practice code invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "66.DeathStatus.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "IsUpdateRequest",
-            "Expression": "participant.RecordType == Actions.Amended"
-          },
-          {
-            "Name": "DeathStatusFormal",
-            "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
-          },
-          {
-            "Name": "ReasonForRemovalNotDEA",
-            "Expression": "string.isNullOrEmpty(participant.ReasonForRemoval) OR participant.ReasonForRemoval  != \"DEA\""
-          }
-        ],
-        "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid death status\""
             }
           }
         }
@@ -312,6 +274,54 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid eligibility flag.\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "ADD",
+    "Rules": [
+      {
+        "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
+        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Address is missing\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "AMENDED",
+    "Rules": [
+      {
+        "RuleName": "66.DeathStatus.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "IsUpdateRequest",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "DeathStatusFormal",
+            "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
+          },
+          {
+            "Name": "ReasonForRemovalNotDEA",
+            "Expression": "string.isNullOrEmpty(participant.ReasonForRemoval) OR participant.ReasonForRemoval  != \"DEA\""
+          }
+        ],
+        "Expression": "IsUpdateRequest ? !(DeathStatusFormal && ReasonForRemovalNotDEA) : true",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid death status\""
             }
           }
         }
