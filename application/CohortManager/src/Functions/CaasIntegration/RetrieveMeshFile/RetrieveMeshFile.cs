@@ -105,7 +105,7 @@ public class RetrieveMeshFile
 
         }
         DateTime nextHandShakeDateTime;
-        var styles = new CultureInfo("en-ES", false);
+        var styles = new CultureInfo("en-GB", false);
         //date cannot be parsed
         if (!DateTime.TryParse(nextHandShakeDateString, styles, out nextHandShakeDateTime))
         {
