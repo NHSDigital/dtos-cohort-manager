@@ -14,7 +14,6 @@ public class CreateException
 {
     private readonly ILogger<CreateException> _logger;
     private readonly IValidationExceptionData _validationData;
-
     private readonly ICreateResponse _createResponse;
     public CreateException(ILogger<CreateException> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
     {
@@ -26,32 +25,30 @@ public class CreateException
     [Function("CreateException")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
+        ValidationException exception;
+
         try
         {
-            ValidationException exception;
-            var requestBody = "";
-
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                requestBody = await reader.ReadToEndAsync();
+                var requestBody = await reader.ReadToEndAsync();
                 exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
             }
-            if (!string.IsNullOrEmpty(requestBody))
-            {
-                if (_validationData.Create(exception))
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-                }
-            }
-            return req.CreateResponse(HttpStatusCode.BadRequest);
-
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "there has been an error while creating an exception record: {Message}", ex.Message);
-            return req.CreateResponse(HttpStatusCode.InternalServerError);
+            _logger.LogError(ex, ex.Message);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
+        if (_validationData.Create(exception))
+        {
+            _logger.LogInformation("The exception record has been created successfully");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+        }
+
+        _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
     }
 }
 

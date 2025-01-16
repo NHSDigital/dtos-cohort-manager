@@ -160,8 +160,16 @@ public class ParticipantManagerData : IParticipantManagerData
                 participant.ExceptionFlag = reader["EXCEPTION_FLAG"] == DBNull.Value ? null : reader["EXCEPTION_FLAG"].ToString();
                 participant.RecordInsertDateTime = reader["RECORD_INSERT_DATETIME"] == DBNull.Value ? null : reader["RECORD_INSERT_DATETIME"].ToString();
                 participant.RecordUpdateDateTime = reader["RECORD_UPDATE_DATETIME"] == DBNull.Value ? null : reader["RECORD_UPDATE_DATETIME"].ToString();
-                participant.ScreeningAcronym = withScreeningName ? (reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString()) : null;
-                participant.ScreeningName = withScreeningName ? (reader["SCREENING_NAME"] == DBNull.Value ? null : reader["SCREENING_NAME"].ToString()) : null;
+                if (withScreeningName)
+                {
+                    participant.ScreeningAcronym = reader["SCREENING_ACRONYM"] == DBNull.Value ? null : reader["SCREENING_ACRONYM"].ToString();
+                    participant.ScreeningName = reader["SCREENING_NAME"] == DBNull.Value ? null : reader["SCREENING_NAME"].ToString();
+                }
+                else
+                {
+                    participant.ScreeningAcronym = null;
+                    participant.ScreeningName = null;
+                }
             }
             return participant;
         });

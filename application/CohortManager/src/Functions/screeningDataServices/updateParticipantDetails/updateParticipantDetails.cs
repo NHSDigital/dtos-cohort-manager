@@ -19,16 +19,13 @@ public class UpdateParticipantDetails
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
 
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
-
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction, ICreateCohortDistributionData createCohortDistributionData)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
     {
         _logger = logger;
         _createResponse = createResponse;
         _participantManagerData = participantManagerData;
         _handleException = handleException;
         _callFunction = callFunction;
-        _createCohortDistributionData = createCohortDistributionData;
     }
 
     [Function("updateParticipantDetails")]
@@ -90,7 +87,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
             return null;
         }
     }

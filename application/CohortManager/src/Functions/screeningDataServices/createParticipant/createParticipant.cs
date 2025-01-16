@@ -118,7 +118,7 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
             return null;
         }
     }

@@ -62,7 +62,7 @@ public class DemographicDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An error has occurred while inserting data {ex.Message}");
+            _logger.LogError(ex, "An error has occurred while inserting data {Message}", ex.Message);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantDemographic.NhsNumber, "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
