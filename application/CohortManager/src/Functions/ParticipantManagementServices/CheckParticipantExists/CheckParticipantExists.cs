@@ -46,7 +46,7 @@ public class CheckParticipantExists
         }
         catch (Exception ex)
         {
-            _logger.LogError("{DateTime}: Request could not be deserialised: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("{DateTime}: Invalid Request: {Ex}", DateTime.UtcNow, ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         try 

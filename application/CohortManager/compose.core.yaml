@@ -101,6 +101,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:8001
       - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
@@ -113,9 +114,22 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:8002
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+    
+  get-participant-reference-data:
+    container_name: get-participant-reference-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:7999
+      - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - GeneCodeLkpDataServiceUrl=http://localhost:7991/api/GeneCodeLkpDataService
 
   # Screening Data Service
   create-participant:
@@ -256,6 +270,7 @@ services:
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
     network_mode: host
+    profiles: [bi-analytics]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
@@ -263,23 +278,13 @@ services:
       - ASPNETCORE_URLS=http://*:7991
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  get-participant-reference-data:
-    container_name: get-participant-reference-data
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7999
-      - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
-      - GeneCodeLkpDataServiceUrl=http://localhost:7991/api/GeneCodeLkpDataService
-
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
     network_mode: host
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
