@@ -72,12 +72,9 @@ public class ReceiveCaasFile
                 {
                     var values = rowReader.ReadRows(i);
                     var listOfAllValues = values.ToList();
-                    var countOfRecords = values.Length;
                     var allTasks = new List<Task>();
 
-
                     //split list of all into N amount of chunks to be processed as batches.
-
                     var chunks = listOfAllValues.Chunk(BatchSize).ToList();
 
                     foreach (var chunk in chunks)
@@ -87,12 +84,13 @@ public class ReceiveCaasFile
                             _processCaasFile.ProcessRecords(batch, options, screeningService, name)
                         );
                     }
+
                     // process each batches
                     Task.WaitAll(allTasks.ToArray());
 
                     // dispose of all lists and variables from memory because they are no longer needed
-                    listOfAllValues = null;
-                    values = null;
+                    listOfAllValues.Clear();
+                    values.ToList().Clear();
                 }
             }
         }
@@ -108,7 +106,7 @@ public class ReceiveCaasFile
             {
                 _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
             }
-            //We want to release the file from temporary storage no matter what 
+            //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }
