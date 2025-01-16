@@ -74,6 +74,7 @@ namespace NHS.Screening.ReceiveCaasFile;
 
                     foreach (var record in remainingRecords)
                     {
+
                         try
                         {
                             var participant = await _receiveCaasFileHelper.MapParticipant(
