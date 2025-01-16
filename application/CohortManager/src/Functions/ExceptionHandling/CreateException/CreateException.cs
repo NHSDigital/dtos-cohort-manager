@@ -10,12 +10,12 @@ using Model;
 using Common;
 using Data.Database;
 
-public class CreateExceptionRecord
+public class CreateException
 {
-    private readonly ILogger<CreateExceptionRecord> _logger;
+    private readonly ILogger<CreateException> _logger;
     private readonly IValidationExceptionData _validationData;
     private readonly ICreateResponse _createResponse;
-    public CreateExceptionRecord(ILogger<CreateExceptionRecord> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
+    public CreateException(ILogger<CreateException> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
     {
         _logger = logger;
         _validationData = validationExceptionData;

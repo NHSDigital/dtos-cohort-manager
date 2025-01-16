@@ -15,11 +15,11 @@ using System.Text;
 [TestClass]
 public class CreateExceptionTests
 {
-    private readonly Mock<ILogger<CreateExceptionRecord>> _logger = new();
+    private readonly Mock<ILogger<CreateException>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ValidationException _requestBody;
-    private readonly CreateExceptionRecord _function;
+    private readonly CreateException _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IValidationExceptionData> _validationExceptionData = new();
 
@@ -29,7 +29,7 @@ public class CreateExceptionTests
 
         _requestBody = new ValidationException() { ExceptionId = 1 };
 
-        _function = new CreateExceptionRecord(_logger.Object, _validationExceptionData.Object, _createResponse.Object);
+        _function = new CreateException(_logger.Object, _validationExceptionData.Object, _createResponse.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
