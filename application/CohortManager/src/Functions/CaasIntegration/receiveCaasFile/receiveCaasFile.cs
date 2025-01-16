@@ -100,7 +100,6 @@ public class ReceiveCaasFile
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
-            return;
         }
         finally
         {
