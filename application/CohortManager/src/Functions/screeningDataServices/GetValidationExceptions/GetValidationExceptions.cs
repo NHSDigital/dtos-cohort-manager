@@ -58,7 +58,7 @@ public class GetValidationExceptions
 
             var exceptionQuery = _validationData.GetAllExceptions(todayOnly).AsQueryable();
 
-            if (exceptionQuery == null || exceptionQuery.Count() == 0)
+            if (exceptionQuery.Count() == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }

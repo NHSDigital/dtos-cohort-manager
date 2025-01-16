@@ -155,7 +155,6 @@ public class CreateParticipantData : ICreateParticipantData
             command.CommandText = sql;
             _logger.LogInformation("Command text: {Sql}", sql);
 
-            var newParticipantResult = command.ExecuteNonQuery();
             var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber";
 
             command.CommandText = SQLGet;

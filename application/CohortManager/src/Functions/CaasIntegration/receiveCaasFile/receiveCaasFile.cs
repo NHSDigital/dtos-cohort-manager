@@ -75,12 +75,9 @@ public class ReceiveCaasFile
                 {
                     var values = rowReader.ReadRows(i);
                     var listOfAllValues = values.ToList();
-                    var countOfRecords = values.Length;
                     var allTasks = new List<Task>();
 
-
                     //split list of all into N amount of chunks to be processed as batches.
-
                     var chunks = listOfAllValues.Chunk(BatchSize).ToList();
 
                     foreach (var chunk in chunks)
@@ -93,12 +90,13 @@ public class ReceiveCaasFile
                             _processRecordsManager.ProcessRecordsWithRetry(batch, options, screeningService, name)
                         );
                     }
+
                     // process each batches
                     Task.WaitAll(allTasks.ToArray());
 
                     // dispose of all lists and variables from memory because they are no longer needed
-                    listOfAllValues = null;
-                    values = null;
+                    listOfAllValues.Clear();
+                    values.ToList().Clear();
                 }
             }
         }
@@ -106,7 +104,6 @@ public class ReceiveCaasFile
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
-            return;
         }
         finally
         {

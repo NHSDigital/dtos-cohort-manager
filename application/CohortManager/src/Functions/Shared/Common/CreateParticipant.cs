@@ -87,7 +87,7 @@ public class CreateParticipant : ICreateParticipant
             ReasonForRemoval = participant.ReasonForRemoval,
             ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate,
             RecordInsertDateTime = demographic.RecordInsertDateTime,
-            RecordUpdateDateTime = demographic.RecordUpdateDateTime,
+            RecordUpdateDateTime = participant.RecordUpdateDateTime,
             ScreeningAcronym = participant.ScreeningAcronym,
             ScreeningServiceId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,

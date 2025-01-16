@@ -10,7 +10,7 @@ using Microsoft.Data.SqlClient;
 public class BsTransformationLookups : IBsTransformationLookups
 {
     private IDbConnection _connection;
-    private string _connectionString;
+    private readonly string _connectionString;
 
     public BsTransformationLookups(IDbConnection IdbConnection)
     {
