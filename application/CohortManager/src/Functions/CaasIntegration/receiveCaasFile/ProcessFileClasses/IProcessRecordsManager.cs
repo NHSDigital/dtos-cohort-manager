@@ -5,7 +5,7 @@ using Model;
 public interface IProcessRecordsManager
 {
            Task ProcessRecordsWithRetry(
-           List<ParticipantsParquetMap> values,
+           List<ParticipantsParquetMap> participants,
            ParallelOptions options,
            ScreeningService screeningService,
            string name);
