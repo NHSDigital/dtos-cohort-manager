@@ -17,10 +17,6 @@ public static class ConfigurationExtension
     }
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, out T config, string? keyVaultUrl = null) where T: class
     {
-
-        var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-        var logger = loggerFactory.CreateLogger(nameof(ConfigurationExtension));
-
         var configuration = CreateConfiguration(keyVaultUrl);
 
         config = configuration.Get<T>();
