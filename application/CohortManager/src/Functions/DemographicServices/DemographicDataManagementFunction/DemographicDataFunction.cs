@@ -61,25 +61,26 @@ public class DemographicDataFunction
                     _logger.LogInformation("demographic function failed");
                     return _createResponse.CreateHttpResponse(res.StatusCode, req);
                 }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
             else
             {
                 var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
                 string Id = req.Query["Id"];
-
+                
                 var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
 
-                if (string.IsNullOrEmpty(data))
+                if (data == "Participant not found")
                 {
                     _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
                 }
 
                 // Filters out unnsecessry data for use in the BI prdoduct
                 if (externalRequest)
                 {
-                    var filterdData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
-                    data = JsonSerializer.Serialize(filterdData);
+                    var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
+                    data = JsonSerializer.Serialize(filteredData);
                 }
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
@@ -90,6 +91,5 @@ public class DemographicDataFunction
             _logger.LogError(ex, "There has been an error saving demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

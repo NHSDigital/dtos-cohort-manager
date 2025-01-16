@@ -51,13 +51,13 @@ public class DemographicDataService
                 string Id = req.Query["Id"];
 
                 var demographicData = _createDemographicData.GetDemographicData(Id);
-                if (demographicData != null)
+                if (demographicData.ParticipantId != null)
                 {
                     var responseBody = JsonSerializer.Serialize<Demographic>(demographicData);
 
                     return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
                 }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Participant not found");
             }
         }
         catch (Exception ex)
