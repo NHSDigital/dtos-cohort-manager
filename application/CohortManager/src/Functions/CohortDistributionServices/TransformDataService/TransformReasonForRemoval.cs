@@ -4,12 +4,14 @@ using Model;
 using Common;
 using Data.Database;
 using System.Text.Json;
+using Apache.Arrow.Types;
 
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformDataLookupFacade _dataLookup;
+    private const int ruleId = 1;
     public TransformReasonForRemoval(IExceptionHandler exceptionHandler, IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
@@ -41,6 +43,9 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
             participant.ReasonForRemovalEffectiveFromDate = null;
             participant.ReasonForRemoval = null;
             participant.PrimaryCareProvider = GetDummyPrimaryCareProvider(participant.Postcode ?? "", existingPrimaryCareProvider, validOutcode);
+
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant,"ReasonForRemovalRule",ruleId);
+
             return participant;
         }
         else if (rule3)

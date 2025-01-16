@@ -121,7 +121,6 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    
     public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant)
     {
         foreach (var error in transformationErrors)
@@ -153,7 +152,6 @@ public class ExceptionHandler : IExceptionHandler
             }
         }
     }
-
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
@@ -215,6 +213,49 @@ public class ExceptionHandler : IExceptionHandler
             CreatedException = true
         };
     }
+    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
+    {
+        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
+
+
+        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("There was an error while logging an exception to the database.");
+            return false;
+        }
+        return true;
+    }
+    public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
+    {
+
+
+        var exception = new ValidationException
+        {
+            RuleId = ruleId,
+            RuleDescription = $"Participant was transformed as transform rule: {ruleName} was executed",
+            FileName = DefaultFileName,
+            NhsNumber = participant.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participant),
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            ExceptionDate = DateTime.Now,
+            Category = (int)ExceptionCategory.TransformExecuted,
+            ScreeningName = participant.ScreeningName,
+            CohortName = DefaultCohortName,
+            Fatal = 0
+        };
+
+        var exceptionJson = JsonSerializer.Serialize(exception);
+        var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
+
+        if (response.StatusCode != HttpStatusCode.OK)
+        {
+            _logger.LogError("There was an error while logging a transformation exception to the database");
+        }
+
+    }
+
 
     /// <summary>
     /// Method is used to create a default validation exception for the database
@@ -273,19 +314,6 @@ public class ExceptionHandler : IExceptionHandler
         };
     }
 
-    public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
-    {
-        var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
-
-
-        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            _logger.LogError("There was an error while logging an exception to the database.");
-            return false;
-        }
-        return true;
-    }
 
     private int ParseFatalRuleType(string fatal)
     {

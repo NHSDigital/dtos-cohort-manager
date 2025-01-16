@@ -66,7 +66,7 @@ public class TransformDataService
         try
         {
             // Character transformation
-            var transformString = new TransformString();
+            var transformString = new TransformString(_exceptionHandler);
             participant = await transformString.TransformStringFields(participant);
 
             // Database lookup transformations
@@ -76,7 +76,7 @@ public class TransformDataService
             participant = await TransformParticipantAsync(participant);
 
             // Name prefix transformation
-            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant);
 
@@ -118,11 +118,12 @@ public class TransformDataService
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         await HandleExceptions(resultList, participant);
+        await CreateTransformExecutedExceptions(resultList,participant);
 
         return participant;
     }
 
-    private static async Task<string> TransformNamePrefixAsync(string namePrefix)
+    private async Task<string> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
     {
 
         // Set up rules engine
@@ -144,6 +145,8 @@ public class TransformDataService
                                                     .Select(result => result.ActionResult.Output)
                                                     .FirstOrDefault()
                                                     ?? null;
+
+        await CreateTransformExecutedExceptions(rulesList,participant);
 
 
         return namePrefix;
@@ -171,6 +174,7 @@ public class TransformDataService
         var rulesList = await re.ExecuteAllRulesAsync("LookupTransformations", ruleParameters);
 
         await HandleExceptions(rulesList, participant);
+        await CreateTransformExecutedExceptions(rulesList,participant);
 
         participant.FirstName = GetTransformedData<string>(rulesList, "FirstName", participant.FirstName);
         participant.FamilyName = GetTransformedData<string>(rulesList, "FamilyName", participant.FamilyName);
@@ -203,6 +207,7 @@ public class TransformDataService
         var result = results.Find(x => x.Rule.RuleName.Split('.')[2] == field);
         if (result == null) return currentValue;
 
+
         return result.ActionResult.Output == null ? currentValue : (T)result.ActionResult.Output;
     }
 
@@ -216,4 +221,16 @@ public class TransformDataService
             throw new TransformationException("There was an error during transformation");
         }
     }
+    private async Task CreateTransformExecutedExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant){
+        var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
+
+        foreach(var transform in executedTransforms)
+        {
+            var ruleDetails = transform.Rule.RuleName.Split('.');
+            var ruleId = int.Parse(ruleDetails[0]);
+            var ruleName = ruleDetails[1];
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
+        }
+    }
+
 }

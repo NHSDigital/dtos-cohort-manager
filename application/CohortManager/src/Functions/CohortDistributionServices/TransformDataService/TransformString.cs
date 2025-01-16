@@ -5,20 +5,29 @@ using System.Text;
 using System.Text.Json;
 using RulesEngine.Models;
 using Model;
+using Common;
+using Azure.Storage.Blobs.Models;
 
 public class TransformString
 {
     private readonly RulesEngine.RulesEngine _ruleEngine;
-
-    public TransformString()
+    private readonly IExceptionHandler _exceptionHandler;
+    private bool ParticipantUpdated;
+    public TransformString(IExceptionHandler exceptionHandler)
     {
         string json = File.ReadAllText("characterRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
         _ruleEngine = new RulesEngine.RulesEngine(rules);
+        _exceptionHandler = exceptionHandler;
+
+        ParticipantUpdated = false;
+
     }
 
     public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant)
     {
+
+
         participant.NamePrefix = await CheckParticipantCharactersAsync(participant.NamePrefix);
         participant.FirstName = await CheckParticipantCharactersAsync(participant.FirstName);
         participant.OtherGivenNames = await CheckParticipantCharactersAsync(participant.OtherGivenNames);
@@ -33,10 +42,14 @@ public class TransformString
         participant.TelephoneNumber = await CheckParticipantCharactersAsync(participant.TelephoneNumber);
         participant.MobileNumber = await CheckParticipantCharactersAsync(participant.MobileNumber);
 
+        if(ParticipantUpdated){
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant,"CharacterRules",71);
+        }
+
         return participant;
     }
 
-    public async Task<string> CheckParticipantCharactersAsync(string stringField)
+    private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
         string allowedCharacters = @"^[a-zA-Z0-9\d\s.,\-()\/='+:?!""%&;<>*]+$";
         TimeSpan matchTimeout = TimeSpan.FromSeconds(2); // Adjust timeout as needed
@@ -48,6 +61,7 @@ public class TransformString
         }
         else
         {
+            ParticipantUpdated = true;
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
             {
