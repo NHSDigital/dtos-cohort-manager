@@ -22,7 +22,7 @@ public class CreateExceptionRecord
         _createResponse = createResponse;
     }
 
-    [Function("CreateExceptionRecord")]
+    [Function("CreateException")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         ValidationException exception;
