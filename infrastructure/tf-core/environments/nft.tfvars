@@ -398,7 +398,7 @@ function_apps = {
     CreateException = {
       name_suffix            = "create-exception"
       function_endpoint_name = "CreateException"
-      app_service_plan_key   = "ExceptionHandling"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls               = []
     }
@@ -427,7 +427,7 @@ function_apps = {
     FileValidation = {
       name_suffix                  = "file-validation"
       function_endpoint_name       = "FileValidation"
-      app_service_plan_key         = "ScreeningValidationService"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       storage_containers = [
         {
@@ -450,7 +450,7 @@ function_apps = {
     StaticValidation = {
       name_suffix            = "static-validation"
       function_endpoint_name = "StaticValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -473,7 +473,7 @@ function_apps = {
     LookupValidation = {
       name_suffix            = "lookup-validation"
       function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -512,7 +512,7 @@ function_apps = {
     DemographicDataManagement = {
       name_suffix            = "demographic-data-management"
       function_endpoint_name = "DemographicDataFunction"
-      app_service_plan_key   = "DemographicServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "DemographicDataServiceURI"
