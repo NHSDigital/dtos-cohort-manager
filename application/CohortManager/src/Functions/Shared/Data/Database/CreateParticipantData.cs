@@ -71,12 +71,9 @@ public class CreateParticipantData : ICreateParticipantData
     private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
-        foreach (var SqlCommand in sqlCommands)
+        foreach (var SqlCommand in sqlCommands.Where(SqlCommand => SqlCommand != null))
         {
-            if (SqlCommand.Parameters != null)
-            {
                 AddParameters(SqlCommand.Parameters, command);
-            }
         }
 
         var transaction = BeginTransaction();
