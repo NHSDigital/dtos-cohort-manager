@@ -154,7 +154,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             return null;
         }
 
-        string fileName = string.Concat(messageId,"_-_",result.Response.FileAttachments);
+        string fileName = _fileNameFunction(result.Response.MessageMetaData);
         var meshFile = await FileHelpers.ReassembleChunkedFile(result.Response.FileAttachments);
 
         return new BlobFile(meshFile.Content,fileName);

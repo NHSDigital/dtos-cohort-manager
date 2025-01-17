@@ -353,7 +353,7 @@ public class TransformDataServiceTests
     public async Task Run_ExceptionalCharsInParticipant_RaisesException(string name)
     {
         // Arrange
-        var sut = new TransformString();
+        var sut = new TransformString(_handleException.Object);
 
         // Act & Assert
         Assert.ThrowsException<ArgumentException>(() => sut.CheckParticipantCharactersAsync(name));
