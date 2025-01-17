@@ -11,14 +11,15 @@ public class AddBatchToQueue : IAddBatchToQueue
 {
 
     public readonly ILogger<AddBatchToQueue> _logger;
-
-
     private readonly IAzureQueueStorageHelper _queueHelper;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper)
+    private readonly IStateStore _stateStore;
+
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper, IStateStore stateStore)
     {
         _logger = logger;
         _queueHelper = queueHelper;
+        _stateStore = stateStore;
     }
 
     public async Task ProcessBatch(Batch batch)
@@ -51,7 +52,14 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
     {
-        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord,Environment.GetEnvironmentVariable("AddQueueName"));
+        var recordsNotProcessed = _stateStore.GetListOfAllValues();
+        var isAdded = await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, Environment.GetEnvironmentVariable("AddQueueName"));
+        if (isAdded)
+        {
+            // consider converting NHS number to long here for better comparison
+            var recordToRemove = _stateStore.GetListOfAllValues().Where(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber).ToList().FirstOrDefault();
+            recordsNotProcessed.Remove(recordToRemove);
+        }
     }
 
     private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)

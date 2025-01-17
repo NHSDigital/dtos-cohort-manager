@@ -13,23 +13,20 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly ICallFunction _callFunction;
-
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IExceptionHandler _handleException;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
-
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
-
     private readonly IValidateDates _validateDates;
-    private const int BaseDelayMilliseconds = 2000;
+
+    private IStateStore _stateStore;
 
     public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
      IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
+     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates, IStateStore stateStore
      )
     {
         _logger = logger;
@@ -42,6 +39,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _exceptionHandler = exceptionHandler;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+        _stateStore = stateStore;
     }
 
     /// <summary>
@@ -158,6 +156,12 @@ public class ProcessCaasFile : IProcessCaasFile
                 await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
             }
             _logger.LogInformation("Called update participant");
+
+
+            //consider putting this code in a method of its own as its repeated here and in add batch the queue
+            var recordsNotProcessed = _stateStore.GetListOfAllValues();
+            var recordToRemove = _stateStore.GetListOfAllValues().Where(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber).ToList().FirstOrDefault();
+            recordsNotProcessed.Remove(recordToRemove);
 
         }
         catch (Exception ex)

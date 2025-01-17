@@ -19,12 +19,15 @@ public class ReceiveCaasFile
     private readonly IProcessRecordsManager _processRecordsManager;
     private readonly IScreeningServiceData _screeningServiceData;
 
+    private readonly IStateStore _stateStore;
+
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
         IScreeningServiceData screeningServiceData,
-        IProcessRecordsManager processRecordsManager
+        IProcessRecordsManager processRecordsManager,
+        IStateStore stateStore
         )
     {
         _logger = logger;
@@ -32,6 +35,7 @@ public class ReceiveCaasFile
         _processCaasFile = processCaasFile;
         _screeningServiceData = screeningServiceData;
         _processRecordsManager = processRecordsManager;
+        _stateStore = stateStore;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -39,6 +43,9 @@ public class ReceiveCaasFile
     {
         var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
+        var screeningService = new ScreeningService();
+        var listOfAllValues = _stateStore.GetListOfAllValues();
+
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
@@ -51,7 +58,7 @@ public class ReceiveCaasFile
                 return;
             }
 
-            var screeningService = await GetScreeningService(name, fileNameParser);
+            screeningService = await GetScreeningService(name, fileNameParser);
             if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
             {
                 _logger.LogError("the Screening id or screening name was null or empty");
@@ -74,7 +81,7 @@ public class ReceiveCaasFile
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
                     var values = rowReader.ReadRows(i);
-                    var listOfAllValues = values.ToList();
+                    listOfAllValues = values.ToList();
                     var allTasks = new List<Task>();
 
                     //split list of all into N amount of chunks to be processed as batches.
@@ -85,9 +92,6 @@ public class ReceiveCaasFile
                         var batch = chunk.ToList();
                         allTasks.Add(
                             _processCaasFile.ProcessRecords(batch, options, screeningService, name)
-                        );
-                        allTasks.Add(
-                            _processRecordsManager.ProcessRecordsWithRetry(batch, options, screeningService, name)
                         );
                     }
 
@@ -103,6 +107,7 @@ public class ReceiveCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
+            await _processRecordsManager.ProcessRecordsWithRetry(_stateStore.GetListOfAllValues(), name);
             await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
         }
         finally
