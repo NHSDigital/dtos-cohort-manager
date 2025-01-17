@@ -1,8 +1,13 @@
 from config import CAAS_SCHEMA
 import pandas as pd
+import numpy as np
 
 def to_dataframe(stream):
-    df = pd.read_parquet(stream, engine='fastparquet').astype(CAAS_SCHEMA)
+    df = pd.read_parquet(stream, engine='fastparquet')
+    df['is_interpreter_required'] = df['is_interpreter_required'].replace('', np.nan)
+    df['eligibility'] = df['eligibility'].replace('', np.nan)
+    df['invalid_flag'] = df['invalid_flag'].replace('', np.nan)
+    df = df.astype(CAAS_SCHEMA)
     df = format_dates(df)
 
     return df

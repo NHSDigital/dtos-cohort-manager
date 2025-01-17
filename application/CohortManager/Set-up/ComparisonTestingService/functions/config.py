@@ -55,9 +55,9 @@ CAAS_SCHEMA = {
     "email_address": "string",
     "email_address_effective_from_date": "string",
     "preferred_language": "string",
-    "is_interpreter_required": "int",
-    "invalid_flag": "int",
-    "eligibility": "int"
+    "is_interpreter_required": "Int64",
+    "invalid_flag": "Int64",
+    "eligibility": "Int64"
 }
 
 CAAS_COLUMN_MAPPINGS = {
