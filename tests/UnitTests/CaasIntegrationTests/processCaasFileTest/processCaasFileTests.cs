@@ -43,7 +43,6 @@ public class ProcessCaasFileTests
         _addBatchToQueueMock = new Mock<IAddBatchToQueue>();
         _recordsProcessedTrackerMock = new Mock<RecordsProcessedTracker>();
         _validateDates = new Mock<IValidateDates>();
-        _blobStorageHelper = new Mock<IBlobStorageHelper>();
         _stateStore = new Mock<IStateStore>();
 
 
@@ -57,7 +56,8 @@ public class ProcessCaasFileTests
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
             _recordsProcessedTrackerMock.Object,
-            _validateDates.Object
+            _validateDates.Object,
+            _stateStore.Object
         );
 
         _processRecordsManager = new ProcessRecordsManager(
@@ -67,6 +67,7 @@ public class ProcessCaasFileTests
             _receiveCaasFileHelperMock.Object,
             _validateDates.Object,
             _blobStorageHelper.Object
+
         );
     }
 
