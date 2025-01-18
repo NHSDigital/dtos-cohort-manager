@@ -43,6 +43,7 @@ public class ProcessCaasFileTests
         _addBatchToQueueMock = new Mock<IAddBatchToQueue>();
         _recordsProcessedTrackerMock = new Mock<RecordsProcessedTracker>();
         _validateDates = new Mock<IValidateDates>();
+        _blobStorageHelper = new Mock<IBlobStorageHelper>();
         _stateStore = new Mock<IStateStore>();
 
 
