@@ -1,46 +1,36 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
-using System.Text.Json;
-using System.Threading.Tasks.Dataflow;
 using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
-using receiveCaasFile;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
-
     private readonly ILogger<ProcessCaasFile> _logger;
-    private readonly ICallFunction _callFunction;
-
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
-    private readonly IExceptionHandler _handleException;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
-
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
-
     private readonly IValidateDates _validateDates;
+    private readonly IProcessRecord _processRecord;
 
-    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
-     )
+    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler,
+        IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates, IProcessRecord processRecord
+    )
     {
         _logger = logger;
-        _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
-        _handleException = handleException;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+        _processRecord = processRecord;
     }
 
     /// <summary>
@@ -137,62 +127,13 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             foreach (var updateRecords in currentBatch.UpdateRecords)
             {
-                await UpdateParticipant(updateRecords, name);
+                await _processRecord.UpdateParticipant(updateRecords, name);
             }
 
             foreach (var updateRecords in currentBatch.DeleteRecords)
             {
-                await RemoveParticipant(updateRecords, name);
+                await _processRecord.RemoveParticipant(updateRecords, name);
             }
         }
     }
-
-    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
-    {
-        try
-        {
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-            {
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-            }
-            _logger.LogInformation("Called update participant");
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, name);
-        }
-    }
-
-    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
-    {
-        try
-        {
-            await _handleException.CreateDeletedRecordException(basicParticipantCsvRecord);
-            _logger.LogInformation("Logged Exception for Deleted Record");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, filename);
-        }
-    }
-
-    private async Task CreateError(Participant participant, string filename)
-    {
-        try
-        {
-            _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-            var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
-        }
-    }
-
 }
