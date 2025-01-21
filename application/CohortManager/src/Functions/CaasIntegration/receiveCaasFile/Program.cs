@@ -31,7 +31,6 @@ try
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddScoped<IValidateDates, ValidateDates>();
-        services.AddScoped<IProcessRecord, ProcessRecord>();
     })
     .AddAzureQueues()
     .AddExceptionHandler()

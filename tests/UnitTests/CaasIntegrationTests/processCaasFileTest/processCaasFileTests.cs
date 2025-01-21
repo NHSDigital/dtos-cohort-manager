@@ -44,7 +44,6 @@ public class ProcessCaasFileTests
             _callFunctionMock.Object,
             _checkDemographicMock.Object,
             _createBasicParticipantDataMock.Object,
-            _exceptionHandlerMock.Object,
             _addBatchToQueueMock.Object,
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
@@ -229,9 +228,10 @@ public class ProcessCaasFileTests
     }
 
     [TestMethod]
-    public async Task RemoveParticipant_ValidRecord_LogsAndHandlesException()
+    public async Task RemoveParticipant_ValidRecordNotAllowDeleteRecords_LogsAndHandlesException()
     {
         // Arrange
+        Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
         var method = _processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
 
         var participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.Removed };
@@ -256,7 +256,37 @@ public class ProcessCaasFileTests
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Logged Exception for Deleted Record")),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is false, exception raised for delete record.")),
+               It.IsAny<Exception>(),
+               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+           Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RemoveParticipant_ValidRecordAllowDeleteRecords_LogsInformation()
+    {
+        // Arrange
+        Environment.SetEnvironmentVariable("AllowDeleteRecords", "true");
+        var method = _processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        var participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.Removed };
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
+        {
+            Participant = new BasicParticipantData() { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            FileName = "testFile",
+            participant = participant
+        };
+
+        var arguments = new object[] { basicParticipantCsvRecord, "testFile" };
+
+        // Act
+        var task = (Task)method.Invoke(_processCaasFile, arguments);
+        await task;
+
+        // Assert
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is true, delete record will be sent to removeParticipant function in a future PR.")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
            Times.Once);
@@ -323,7 +353,4 @@ public class ProcessCaasFileTests
               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
           Times.Once);
     }
-
-    
-
 }
