@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.DemographicServices;
 
+using System.ComponentModel;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -141,4 +142,46 @@ public class DurableDemographicFunction
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
         }
     }
+
+
+    [Function("GetOrchestrationStatus")]
+    public async Task<HttpResponseData> GetOrchestrationStatus(
+    [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
+    [DurableClient] DurableTaskClient client,
+    FunctionContext executionContext)
+    {
+        var instanceId = "";
+        var status = "";
+        using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+        {
+            var requestBodyJson = await reader.ReadToEndAsync();
+            instanceId = JsonSerializer.Deserialize<string>(requestBodyJson);
+        }
+
+        if (!string.IsNullOrWhiteSpace(instanceId))
+        {
+            var instance = await client.GetInstanceAsync(instanceId);
+            if (instance != null)
+            {
+                status = instance.RuntimeStatus.ToString();
+            }
+            // if the Orchestration is null then it means it means it's probably completed 
+            status = OrchestrationRuntimeStatus.Completed.ToString();
+        }
+
+        if (status == null)
+        {
+            _logger.LogWarning("No instance found with ID = {instanceId}", instanceId);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+        }
+
+        var response = req.CreateResponse(HttpStatusCode.OK);
+        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+
+        // Write the status directly as a string
+        await response.WriteStringAsync(status);
+        return response;
+
+    }
+
 }

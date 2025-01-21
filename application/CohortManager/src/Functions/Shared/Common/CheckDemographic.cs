@@ -124,20 +124,63 @@ public class CheckDemographic : ICheckDemographic
     /// </remarks>
     private async Task<WorkFlowStatus> GetStatus(string statusRequestGetUri)
     {
-        using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
-
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-
-        var data = JsonSerializer.Deserialize<WebhookResponse>(jsonResponse);
-
-        if (data != null)
+        try
         {
-            if (!Enum.TryParse(data.RuntimeStatus, out WorkFlowStatus workFlowStatus))
+            using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
+
+            var data = JsonSerializer.Deserialize<WebhookResponse>(jsonResponse);
+
+            if (data != null)
             {
-                _logger.LogError(jsonResponse);
+                if (!Enum.TryParse(data.RuntimeStatus, out WorkFlowStatus workFlowStatus))
+                {
+                    _logger.LogError(jsonResponse);
+                }
+                return workFlowStatus;
             }
-            return workFlowStatus;
+            return WorkFlowStatus.Unknown;
         }
+        //sometimes the webhook can fail for very annoying reasons but the Orchestration data still exists so we can check for its status
+        catch (Exception ex)
+        {
+            var getOrchestrationStatusURL = Environment.GetEnvironmentVariable("GetOrchestrationStatusURL");
+
+            if (string.IsNullOrWhiteSpace(getOrchestrationStatusURL))
+            {
+                _logger.LogError("The GetOrchestrationStatusURL was not found");
+            }
+
+            var instanceId = getInstanceId(statusRequestGetUri);
+            _logger.LogWarning(ex, "There has been error getting the status for instanceId {instanceId}", instanceId);
+
+            var json = JsonSerializer.Serialize(instanceId);
+            var response = await _callFunction.SendPost(getOrchestrationStatusURL, json);
+            var responseBody = await _callFunction.GetResponseText(response);
+
+            if (Enum.TryParse<WorkFlowStatus>(responseBody, out var result))
+            {
+                _logger.LogWarning("Recovered from an error while getting the status for a Orchestration. Status was: {status}", result);
+                return result;
+            }
+        }
+
         return WorkFlowStatus.Unknown;
+    }
+
+    private string getInstanceId(string statusRequestGetUri)
+    {
+        var splitStringList = statusRequestGetUri.Split('/').ToList();
+
+        for (int i = 1; i < splitStringList.Count; i++)
+        {
+            //find instance id in URL
+            if (splitStringList[i - 1] == "instances")
+            {
+                return splitStringList[i].Split('?')[0];
+            }
+        }
+
+        return "";
     }
 }
