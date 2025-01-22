@@ -24,6 +24,7 @@ public class AddBatchToQueueTest
 
     public AddBatchToQueueTest()
     {
+        _stateStore = new Mock<IStateStore>();
         _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueStorageHelper.Object, _stateStore.Object);
     }
 
