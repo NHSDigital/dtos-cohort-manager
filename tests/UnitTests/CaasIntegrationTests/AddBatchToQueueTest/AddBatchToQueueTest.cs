@@ -15,7 +15,7 @@ using NHS.Screening.ReceiveCaasFile;
 public class AddBatchToQueueTest
 {
     private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
-    private readonly Mock<IAzureQueueStorageHelper>  mockQueueStorageHelper = new();
+    private readonly Mock<IAzureQueueStorageHelper>  _queueHelper = new();
     private Mock<IStateStore> _stateStore;
     private AddBatchToQueue _addBatchToQueue;
 
@@ -25,7 +25,7 @@ public class AddBatchToQueueTest
     public AddBatchToQueueTest()
     {
         _stateStore = new Mock<IStateStore>();
-        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueStorageHelper.Object, _stateStore.Object);
+        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, _queueHelper.Object, _stateStore.Object);
     }
 
     [TestMethod]
@@ -49,7 +49,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
+        _queueHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _queueHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -83,7 +83,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null);
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _queueHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
 }
