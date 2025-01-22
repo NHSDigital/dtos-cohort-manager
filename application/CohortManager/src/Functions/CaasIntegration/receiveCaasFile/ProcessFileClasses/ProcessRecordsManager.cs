@@ -62,17 +62,9 @@ public class ProcessRecordsManager : IProcessRecordsManager
             {
                 foreach (var record in participants)
                 {
-                    // consider removing this try as the outer try catch should handle all failures
-                    try
-                    {
+                        // we need to add the remaining records to blob storage
+                        await HandleFileFailure(name, "Adding the remaining records to blob storage", record);
 
-                        // we need to add the remaining records to blob storage 
-                        HandleFileFailure(name, "", record);
-                    }
-                    catch (Exception recordEx)
-                    {
-                        _logger.LogError(recordEx, "Error processing participant record in file {FileName}.", name);
-                    }
                 }
 
                 _logger.LogInformation("File processed successfully.");
