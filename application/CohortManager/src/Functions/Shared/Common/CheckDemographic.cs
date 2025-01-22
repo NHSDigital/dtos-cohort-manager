@@ -168,7 +168,7 @@ public class CheckDemographic : ICheckDemographic
         return WorkFlowStatus.Unknown;
     }
 
-    private string getInstanceId(string statusRequestGetUri)
+    private static string getInstanceId(string statusRequestGetUri)
     {
         var splitStringList = statusRequestGetUri.Split('/').ToList();
 
