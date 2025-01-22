@@ -3,63 +3,37 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceProviderAllocationServiceTest
 using System.Net;
 using System.Text.Json;
 using Common;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NHS.CohortManager.ServiceProviderAllocationService;
 using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
-public class AllocateServiceProviderToParticipantByServiceTests
+public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBaseSetup<AllocateServiceProviderToParticipantByService>
 {
-    private readonly Mock<ILogger<AllocateServiceProviderToParticipantByService>> _logger = new();
-    private readonly Mock<FunctionContext> _context = new();
-    private Mock<HttpRequestData> _request;
-    private readonly ServiceCollection _serviceCollection = new();
-    private readonly Mock<ICreateResponse> _response = new();
-    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private readonly AllocateServiceProviderToParticipantByService _function;
-    private AllocationConfigRequestBody _cohortDistributionData;
-    private readonly SetupRequest _setupRequest = new();
+    private static readonly Mock<IExceptionHandler> _exceptionHandler = new();
+    private AllocationConfigRequestBody _cohortDistributionData = new();
+    private string? _configFilePath;
 
-    public AllocateServiceProviderToParticipantByServiceTests()
+    public AllocateServiceProviderToParticipantByServiceTests() : base((conn, logger, transaction, command, response) =>
+    new AllocateServiceProviderToParticipantByService(logger, response, _exceptionHandler.Object))
     {
         Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
+        SetupConfigFile();
+        CreateHttpResponseMock();
+    }
 
-        _request = new Mock<HttpRequestData>(_context.Object);
-
-        var serviceProvider = _serviceCollection.BuildServiceProvider();
-
-        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
-
-        _function = new AllocateServiceProviderToParticipantByService(_logger.Object, _response.Object, _exceptionHandler.Object);
-
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var request = new Mock<HttpResponseData>(_context.Object);
-            request.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            request.SetupProperty(r => r.StatusCode);
-            request.SetupProperty(r => r.Body, new MemoryStream());
-            return request.Object;
-        });
-
-        _response.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-        {
-            var response = req.CreateResponse(statusCode);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-            response.WriteString(responseBody);
-            return response;
-        });
-
-        _cohortDistributionData = new AllocationConfigRequestBody();
-
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        _exceptionHandler.Reset();
+        _service = new AllocateServiceProviderToParticipantByService(
+            _loggerMock.Object,
+            _createResponseMock.Object,
+            _exceptionHandler.Object);
     }
 
     [TestMethod]
-    public async Task Run_With_Required_Allocation_Information_Should_Return_Success_And_Service_Provider()
+    public async Task Run_CorrectAllocationInformation_ReturnsSuccessAndServiceProvider()
     {
         //Arrange
         _cohortDistributionData = new AllocationConfigRequestBody
@@ -70,11 +44,10 @@ public class AllocateServiceProviderToParticipantByServiceTests
         };
 
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
-
-        _request = _setupRequest.Setup(allocationData);
+        _request = SetupRequest(allocationData);
 
         // Act
-        var result = await _function.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
 
         // Assert
@@ -83,79 +56,137 @@ public class AllocateServiceProviderToParticipantByServiceTests
         _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never());
     }
 
-    // Code under test not being used yet
-    [Ignore]
     [TestMethod]
-    public async Task Run_With_No_Allocation_Information_Should_Return_BadRequest_And_Create_Validation_Entry()
+    [DataRow("1234567890", null, null)]
+    [DataRow("1234567890", null, "BSS")]
+    [DataRow("1234567890", "NE63", null)]
+    public async Task Run_MissingRequiredData_ReturnsBadRequestAndCreateSystemExceptionLog(
+    string nhsNumber,
+    string postcode,
+    string screeningAcronym)
     {
         //Arrange
         _cohortDistributionData = new AllocationConfigRequestBody
         {
-            NhsNumber = "1234567890",
-            Postcode = null,
-            ScreeningAcronym = null
+            NhsNumber = nhsNumber,
+            Postcode = postcode,
+            ScreeningAcronym = screeningAcronym
         };
-
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
-
-        _request = _setupRequest.Setup(allocationData);
+        _request = SetupRequest(allocationData);
 
         // Act
-        var result = await _function.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<Exception>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once());
     }
 
-    // Code under test not being used yet
-    [Ignore]
     [TestMethod]
-    public async Task Run_With_Missing_Postcode_Should_Return_BadRequest_And_Create_Validation_Entry()
+    public async Task Run_NoMatchingEntryFound_ReturnsOkWithDefaultServiceProvider()
     {
         //Arrange
         _cohortDistributionData = new AllocationConfigRequestBody
         {
             NhsNumber = "1234567890",
-            Postcode = null,
+            Postcode = "ZX",
             ScreeningAcronym = "BSS"
         };
-
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
-
-        _request = _setupRequest.Setup(allocationData);
+        _request = SetupRequest(allocationData);
 
         // Act
-        var result = await _function.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual("BS SELECT", await AssertionHelper.ReadResponseBodyAsync(result));
     }
 
-    // Code under test not being used yet
-    [Ignore]
     [TestMethod]
-    public async Task Run_With_Missing_Screening_Service_Should_Return_BadRequest_And_Create_Validation_Entry()
+    public async Task Run_ConfigFileNotFound_ReturnsBadRequestAndCreateSystemExceptionLogFromNhsNumber()
     {
         //Arrange
         _cohortDistributionData = new AllocationConfigRequestBody
         {
             NhsNumber = "1234567890",
             Postcode = "NE63",
-            ScreeningAcronym = null
+            ScreeningAcronym = "BSS"
         };
-
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
+        _request = SetupRequest(allocationData);
 
-        _request = _setupRequest.Setup(allocationData);
+        var currentConfigPath = Path.Combine(Environment.CurrentDirectory, "ConfigFiles", "allocationConfig.json");
+        if (File.Exists(currentConfigPath))
+        {
+            File.Delete(currentConfigPath);
+        }
+        var configDir = Path.GetDirectoryName(currentConfigPath);
+        if (Directory.Exists(configDir))
+        {
+            Directory.Delete(configDir, true);
+        }
 
         // Act
-        var result = await _function.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.Is<Exception>(e => e.Message.Contains("Cannot find allocation configuration file")),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once());
     }
 
+    [TestMethod]
+    public async Task Run_ExceptionThrown_IsCaughtReturnsInternalServerErrorAndCreateSystemExceptionLogFromNhsNumber()
+    {
+        //Arrange
+        SetupRequest(string.Empty);
+        _request.Setup(r => r.Body).Throws(new Exception("Test Exception"));
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.Is<Exception>(e => e.Message == "Test Exception"),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once());
+    }
+
+    private void SetupConfigFile()
+    {
+        var configDir = Path.Combine(Environment.CurrentDirectory, "ConfigFiles");
+        Directory.CreateDirectory(configDir);
+        _configFilePath = Path.Combine(configDir, "allocationConfig.json");
+
+        var configContent = new AllocationConfigDataList
+        {
+            ConfigDataList =
+            [
+                new AllocationConfigData
+                {
+                    Postcode = "NE63",
+                    ScreeningService = "BSS",
+                    ServiceProvider = "BS Select - NE63"
+                }
+            ]
+        };
+        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(configContent));
+    }
 }
