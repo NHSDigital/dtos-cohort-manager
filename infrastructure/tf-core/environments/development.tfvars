@@ -190,19 +190,18 @@ function_apps = {
           function_app_key = "UpdateParticipant"
         },
         {
-          env_var_name     = "DemographicURI"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         }
       ]
       env_vars_static = {
-        BatchSize                  = "3500"
+        BatchSize                  = "2000"
         AddQueueName               = "add-participant-queue"
         recordThresholdForBatching = "3"
-        batchDivisionFactor        = "5"
+        batchDivisionFactor        = "2"
+        CheckTimer                 = "100"
+        DemographicURI             = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/GetOrchestrationStatus"
       }
 
     }
@@ -420,6 +419,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }
@@ -617,8 +620,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortQueueName       = "cohort-distribution-queue"
-        CohortQueueNamePoison = "cohort-distribution-queue-poison"
+        CohortQueueName             = "cohort-distribution-queue"
+        CohortQueueNamePoison       = "cohort-distribution-queue-poison"
+        IgnoreParticipantExceptions = "true"
+        IsExtractedToBSSelect       = "false"
       }
     }
 
@@ -764,6 +769,23 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    DurableDemographicFunction = {
+      name_suffix            = "durable-demographic-data-service"
+      function_endpoint_name = "DurableDemographicFunction"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }
