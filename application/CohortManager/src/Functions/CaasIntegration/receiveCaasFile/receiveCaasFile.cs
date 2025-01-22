@@ -103,6 +103,7 @@ public class ReceiveCaasFile
                     values.ToList().Clear();
                 }
             }
+            //  throw new Exception("Test exception 2");
         }
         catch (Exception ex)
         {

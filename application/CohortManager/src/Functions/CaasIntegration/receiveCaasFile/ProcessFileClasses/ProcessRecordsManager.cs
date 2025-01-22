@@ -69,6 +69,7 @@ public class ProcessRecordsManager : IProcessRecordsManager
 
                 _logger.LogInformation("File processed successfully.");
                 isSuccessful = true;
+                // throw new Exception("Test exception 1");
             }
             catch (Exception ex)
             {
