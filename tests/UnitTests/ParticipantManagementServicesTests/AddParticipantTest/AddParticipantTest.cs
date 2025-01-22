@@ -9,6 +9,7 @@ using System.Text.Json;
 using Model;
 using addParticipant;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Text;
 
 [TestClass]
 public class AddNewParticipantTest
@@ -103,7 +104,10 @@ public class AddNewParticipantTest
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
+
+
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+
 
         // Act
         await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
@@ -297,7 +301,7 @@ public class AddNewParticipantTest
 
 
         // Act
-        await sut.Run(participantJson);
+        await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
 
 
         //Assert

@@ -23,47 +23,27 @@ public class DemographicDataFunction
     }
 
     [Function("DemographicDataFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         try
         {
-            if (req.Method == "POST")
+
+            var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
+            string Id = req.Query["Id"];
+
+            var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
+
+            if (string.IsNullOrEmpty(data))
             {
-                Participant participantData;
-                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-                {
-                    var requestBody = await reader.ReadToEndAsync();
-                    participantData = JsonSerializer.Deserialize<Participant>(requestBody);
-                }
-
-                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataServiceURI"), JsonSerializer.Serialize(participantData));
-
-                if (res.StatusCode != HttpStatusCode.OK)
-                {
-                    _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(res.StatusCode, req);
-                }
+                _logger.LogInformation("Demographic function failed");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
-            else
-            {
-                var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
-                string Id = req.Query["Id"];
-
-                var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
-
-                if (string.IsNullOrEmpty(data))
-                {
-                    _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
-                }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
-            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "There has been an error saving demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

@@ -1,7 +1,9 @@
 ﻿namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
+using System.Collections.Concurrent;
 using Azure.Storage.Queues;
 using Common;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
@@ -33,21 +35,22 @@ public class AddBatchToQueueTest
         //arrange
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
-
-        Batch batch = new Batch();
         BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
         basicParticipantCsvRecord.FileName = "TestFile";
         basicParticipantCsvRecord.Participant = new BasicParticipantData() { NhsNumber = "1234567890" };
         basicParticipantCsvRecord.participant = new Participant() { NhsNumber = "1234567890" };
-        batch.AddRecords.Enqueue(basicParticipantCsvRecord);
+
+        var queue = new ConcurrentQueue<BasicParticipantCsvRecord>();
+
+        queue.Enqueue(basicParticipantCsvRecord);
 
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
-        await _addBatchToQueue.ProcessBatch(batch);
+        await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Once);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -57,14 +60,14 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
-        Batch batch = new Batch();
+        var queue = new ConcurrentQueue<BasicParticipantCsvRecord>();
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
-        await _addBatchToQueue.ProcessBatch(batch);
+        await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -81,7 +84,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(),It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
 }

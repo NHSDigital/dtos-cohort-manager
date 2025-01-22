@@ -5,6 +5,7 @@ using System.Data;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
@@ -85,6 +86,7 @@ public class ValidationExceptionData : IValidationExceptionData
                         GivenName = DatabaseHelper.GetValue<string>(reader, "GIVEN_NAME"),
                         FamilyName = DatabaseHelper.GetValue<string>(reader, "FAMILY_NAME"),
                         DateOfBirth = DatabaseHelper.GetValue<string>(reader, "DATE_OF_BIRTH"),
+                        Gender = DatabaseHelper.GetValue<Gender>(reader, "GENDER"),
                         ParticipantAddressLine1 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_1"),
                         ParticipantAddressLine2 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_2"),
                         ParticipantAddressLine3 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_3"),
@@ -126,6 +128,7 @@ public class ValidationExceptionData : IValidationExceptionData
                     pd.TELEPHONE_NUMBER_HOME,
                     pd.EMAIL_ADDRESS_HOME,
                     pd.PRIMARY_CARE_PROVIDER,
+                    pd.GENDER,
                     gp.GP_PRACTICE_CODE,
                     gp.ADDRESS_LINE_1 AS GP_ADDRESS_LINE_1,
                     gp.ADDRESS_LINE_2 AS GP_ADDRESS_LINE_2,

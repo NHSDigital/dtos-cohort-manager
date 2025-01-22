@@ -87,6 +87,7 @@ public class CallFunction : ICallFunction
         var request = (HttpWebRequest)WebRequest.Create(url);
         var data = Encoding.ASCII.GetBytes(dataToSend);
         request.Method = Method;
+        request.Timeout = 999999999;
         request.ContentType = "application/x-www-form-urlencoded";
         request.ContentLength = data.Length;
 
