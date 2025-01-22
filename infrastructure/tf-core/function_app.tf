@@ -9,9 +9,6 @@ module "functionapp" {
 
   app_settings = each.value.app_settings
 
-  #To enable health checks for function apps
-  health_check_path = var.health_check_path
-
   log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
   monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
@@ -55,6 +52,10 @@ module "functionapp" {
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
+
+  site_config {
+    health_check_path = var.health_check_path #To enable health checks for function apps
+  }
 
   function_app_slots = var.function_app_slots
 
