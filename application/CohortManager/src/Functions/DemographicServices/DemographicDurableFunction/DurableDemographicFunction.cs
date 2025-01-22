@@ -165,8 +165,11 @@ public class DurableDemographicFunction
             {
                 status = instance.RuntimeStatus.ToString();
             }
-            // if the Orchestration is null then it means it means it's probably completed 
-            status = OrchestrationRuntimeStatus.Completed.ToString();
+            else
+            {
+                // if the Orchestration is null then it means it means it's probably completed 
+                status = OrchestrationRuntimeStatus.Completed.ToString();
+            }
         }
 
         if (status == null)
