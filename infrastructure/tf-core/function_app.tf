@@ -8,6 +8,9 @@ module "functionapp" {
   location            = each.value.region
 
   app_settings = each.value.app_settings
+  
+  #To enable health checks for function apps
+  health_check_path = var.health_check_path
 
   log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
