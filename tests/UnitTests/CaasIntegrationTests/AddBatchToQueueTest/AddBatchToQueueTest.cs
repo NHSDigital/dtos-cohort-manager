@@ -16,7 +16,7 @@ public class AddBatchToQueueTest
 {
     private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
     private readonly Mock<IAzureQueueStorageHelper>  mockQueueStorageHelper = new();
-     private Mock<IStateStore> _stateStore = new();
+    private Mock<IStateStore> _stateStore = new();
     private AddBatchToQueue _addBatchToQueue;
 
 
@@ -24,8 +24,6 @@ public class AddBatchToQueueTest
 
     public AddBatchToQueueTest()
     {
-
-
         _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueStorageHelper.Object, _stateStore.Object);
     }
 
