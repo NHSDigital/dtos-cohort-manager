@@ -50,6 +50,7 @@ public class ReceiveCaasFile
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
+            // throw new Exception("Test exception 2");
             FileNameParser fileNameParser = new FileNameParser(name);
             var fileNameErrorMessage = "File name is invalid. File name: " + name;
             if (!await _receiveCaasFileHelper.CheckFileName(name, fileNameParser, fileNameErrorMessage))

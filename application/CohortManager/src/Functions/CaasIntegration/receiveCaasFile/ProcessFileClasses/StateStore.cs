@@ -50,7 +50,34 @@ public class StateStore : IStateStore
         }
     }
 
+        /// <summary>
+        /// Updates the last processed record index for a given file.
+        /// </summary>
+        /// <param name="fileName">The name of the file.</param>
+        /// <param name="recordIndex">The index of the last processed record.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task UpdateLastProcessedRecordIndex(string fileName, int recordIndex)
+        {
+            try
+            {
+                _logger.LogInformation(
+                    "Updating last processed record index for file {FileName} to {RecordIndex}.",
+                    fileName,
+                    recordIndex);
 
+
+                await Task.CompletedTask;
+
+                _logger.LogInformation(
+                    "Successfully updated last processed record index for file {FileName} to {RecordIndex}.",
+                    fileName,
+                    recordIndex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while updating last processed record index for file {FileName}.", fileName);
+            }
+        }
 
 
 

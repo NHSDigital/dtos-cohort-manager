@@ -54,16 +54,21 @@ public class ProcessRecordsManager : IProcessRecordsManager
     {
         var retryCount = 0;
         var isSuccessful = false;
+        int lastProcessedIndex = await _stateStore.GetLastProcessedRecordIndex(name) ?? 0;
 
 
         while (retryCount < MaxRetryAttempts && !isSuccessful)
         {
+            var remainingRecords = participants.Skip(lastProcessedIndex).ToList();
             try
             {
-                foreach (var record in participants)
+                foreach (var record in remainingRecords)
                 {
                         // we need to add the remaining records to blob storage
                         await HandleFileFailure(name, "Adding the remaining records to blob storage", record);
+
+                        int currentIndex = participants.IndexOf(record) + 1;
+                        await _stateStore.UpdateLastProcessedRecordIndex(name, currentIndex);
 
                 }
 
