@@ -50,6 +50,8 @@ public class ProcessCaasFileTests
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object
         );
+
+        Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
     }
 
     [TestMethod]
@@ -231,7 +233,6 @@ public class ProcessCaasFileTests
     public async Task RemoveParticipant_ValidRecordNotAllowDeleteRecords_LogsAndHandlesException()
     {
         // Arrange
-        Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
         var method = _processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
 
         var participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.Removed };
