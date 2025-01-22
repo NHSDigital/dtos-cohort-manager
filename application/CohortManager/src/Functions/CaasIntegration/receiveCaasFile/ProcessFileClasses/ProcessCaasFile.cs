@@ -6,6 +6,7 @@ using Common;
 using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
 
 public class ProcessCaasFile : IProcessCaasFile
@@ -56,7 +57,7 @@ public class ProcessCaasFile : IProcessCaasFile
         if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant))
         {
             _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
-            throw (new Exception("Required environment variables DemographicURI and PMSUpdateParticipant are missing."));
+            throw (new InvalidConfigurationException("Required environment variables DemographicURI and PMSUpdateParticipant are missing."));
         }
 
     }
