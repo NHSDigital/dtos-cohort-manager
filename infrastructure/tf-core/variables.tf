@@ -177,6 +177,7 @@ variable "function_apps" {
     docker_img_prefix             = string
     enable_appsrv_storage         = bool
     ftps_state                    = string
+    health_check_path             = string
     https_only                    = bool
     remote_debugging_enabled      = bool
     storage_uses_managed_identity = bool
