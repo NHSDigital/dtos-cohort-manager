@@ -28,6 +28,9 @@ module "functionapp" {
   # Connection string for Application Insights:
   ai_connstring = data.azurerm_application_insights.ai.connection_string
 
+  #To enable health checks for function apps
+  health_check_path = var.function_apps.health_check_path
+
   # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
@@ -52,10 +55,6 @@ module "functionapp" {
     private_endpoint_resource_group_name = azurerm_resource_group.rg_private_endpoints[each.value.region].name
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
-
-  site_config {
-    health_check_path = var.health_check_path #To enable health checks for function apps
-  }
 
   function_app_slots = var.function_app_slots
 
