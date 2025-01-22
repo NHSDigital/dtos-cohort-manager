@@ -15,7 +15,7 @@ using NHS.Screening.ReceiveCaasFile;
 public class AddBatchToQueueTest
 {
     private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
-    private readonly Mock<IAzureQueueStorageHelper> mockQueueStorageHelper = new();
+    private readonly Mock<IAzureQueueStorageHelper> _mockQueueStorageHelper = new();
     private AddBatchToQueue _addBatchToQueue;
 
 
@@ -24,7 +24,7 @@ public class AddBatchToQueueTest
     {
 
 
-        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, mockQueueStorageHelper.Object);
+        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, _mockQueueStorageHelper.Object);
     }
 
     [TestMethod]
@@ -48,7 +48,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -65,7 +65,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -82,7 +82,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null);
 
         //Assert
-        mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
     }
 
 }

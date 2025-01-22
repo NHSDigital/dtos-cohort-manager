@@ -86,15 +86,15 @@ public class DurableDemographicFunction
     /// <summary>
     /// Inserts demographic data into the data store.
     /// </summary>
-    /// <param name="DemographicJsonData"></param>
+    /// <param name="demographicJsonData"></param>
     /// <param name="executionContext"></param>
     /// <returns></returns>
     [Function(nameof(InsertDemographicData))]
-    public async Task<bool> InsertDemographicData([ActivityTrigger] string DemographicJsonData, FunctionContext executionContext)
+    public async Task<bool> InsertDemographicData([ActivityTrigger] string demographicJsonData, FunctionContext executionContext)
     {
         try
         {
-            var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(DemographicJsonData);
+            var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
             var res = await _participantDemographic.AddRange(participantData);
             return res;
 
