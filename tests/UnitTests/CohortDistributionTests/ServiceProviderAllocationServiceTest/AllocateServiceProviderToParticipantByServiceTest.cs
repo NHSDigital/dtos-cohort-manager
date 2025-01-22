@@ -10,20 +10,22 @@ using NHS.CohortManager.Tests.TestUtils;
 [TestClass]
 public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBaseSetup<AllocateServiceProviderToParticipantByService>
 {
-    private static Mock<IExceptionHandler> _exceptionHandler = new();
+    private static readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private AllocationConfigRequestBody _cohortDistributionData = new();
+    private string? _configFilePath;
 
     public AllocateServiceProviderToParticipantByServiceTests() : base((conn, logger, transaction, command, response) =>
     new AllocateServiceProviderToParticipantByService(logger, response, _exceptionHandler.Object))
     {
         Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
+        SetupConfigFile();
         CreateHttpResponseMock();
     }
 
     [TestInitialize]
     public void TestInitialize()
     {
-        _exceptionHandler = new Mock<IExceptionHandler>();
+        _exceptionHandler.Reset();
         _service = new AllocateServiceProviderToParticipantByService(
             _loggerMock.Object,
             _createResponseMock.Object,
@@ -112,7 +114,6 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
     public async Task Run_ConfigFileNotFound_ReturnsBadRequestAndLogsError()
     {
         //Arrange
-        Environment.CurrentDirectory = Path.Combine(Path.GetTempPath());
         _cohortDistributionData = new AllocationConfigRequestBody
         {
             NhsNumber = "1234567890",
@@ -121,6 +122,17 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
         };
         var allocationData = JsonSerializer.Serialize(_cohortDistributionData);
         _request = SetupRequest(allocationData);
+
+        var currentConfigPath = Path.Combine(Environment.CurrentDirectory, "ConfigFiles", "allocationConfig.json");
+        if (File.Exists(currentConfigPath))
+        {
+            File.Delete(currentConfigPath);
+        }
+        var configDir = Path.GetDirectoryName(currentConfigPath);
+        if (Directory.Exists(configDir))
+        {
+            Directory.Delete(configDir, true);
+        }
 
         // Act
         var result = await _service.Run(_request.Object);
@@ -155,5 +167,26 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
             It.IsAny<string>(),
             It.IsAny<string>()),
             Times.Once());
+    }
+
+    private void SetupConfigFile()
+    {
+        var configDir = Path.Combine(Environment.CurrentDirectory, "ConfigFiles");
+        Directory.CreateDirectory(configDir);
+        _configFilePath = Path.Combine(configDir, "allocationConfig.json");
+
+        var configContent = new AllocationConfigDataList
+        {
+            ConfigDataList =
+            [
+                new AllocationConfigData
+                {
+                    Postcode = "NE63",
+                    ScreeningService = "BSS",
+                    ServiceProvider = "BS Select - NE63"
+                }
+            ]
+        };
+        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(configContent));
     }
 }
