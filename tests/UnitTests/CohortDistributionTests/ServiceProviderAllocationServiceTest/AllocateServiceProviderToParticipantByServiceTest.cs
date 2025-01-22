@@ -111,7 +111,7 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
     }
 
     [TestMethod]
-    public async Task Run_ConfigFileNotFound_ReturnsBadRequestAndLogsError()
+    public async Task Run_ConfigFileNotFound_ReturnsBadRequestAndCreateSystemExceptionLogFromNhsNumber()
     {
         //Arrange
         _cohortDistributionData = new AllocationConfigRequestBody
@@ -149,7 +149,7 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
     }
 
     [TestMethod]
-    public async Task Run_ExceptionThrown_ReturnsInternalServerError()
+    public async Task Run_ExceptionThrown_IsCaughtReturnsInternalServerErrorAndCreateSystemExceptionLogFromNhsNumber()
     {
         //Arrange
         SetupRequest(string.Empty);
