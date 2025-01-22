@@ -218,8 +218,6 @@ public class ProcessCaasFileTests
 
         var jsonResponse = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
-
-
         var response = new ParticipantDemographic()
         {
             ParticipantId = 1,

@@ -15,8 +15,8 @@ public class CheckDemographic : ICheckDemographic
     private readonly ILogger<CheckDemographic> _logger;
     private readonly HttpClient _httpClient;
 
-    private const int maxNumberOfChecks = 50;
-    private TimeSpan delayBetweenChecks = TimeSpan.FromSeconds(3);
+    private const int _maxNumberOfChecks = 50;
+    private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
 
     public CheckDemographic(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient)
@@ -82,10 +82,10 @@ public class CheckDemographic : ICheckDemographic
             // this is not retrying the function if it fails but checking if it has done yet. 
             var retryPolicy = Policy
                 .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed)
-                .WaitAndRetryAsync(maxNumberOfChecks, check => delayBetweenChecks,
+                .WaitAndRetryAsync(_maxNumberOfChecks, check => _delayBetweenChecks,
                     (result, timeSpan, checkCount, context) =>
                     {
-                        _logger.LogWarning("Status: {result}, checking status: ({checkCount} / {maxNumberOfChecks})...", result.Result, checkCount, maxNumberOfChecks);
+                        _logger.LogWarning("Status: {result}, checking status: ({checkCount} / {maxNumberOfChecks})...", result.Result, checkCount, _maxNumberOfChecks);
                     });
 
             var finalStatus = await retryPolicy.ExecuteAsync(async () =>
