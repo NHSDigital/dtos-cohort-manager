@@ -19,10 +19,17 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
 
-    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
-     )
+    public ProcessCaasFile(
+        ILogger<ProcessCaasFile> logger,
+        ICallFunction callFunction,
+        ICheckDemographic checkDemographic,
+        ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue,
+        IReceiveCaasFileHelper receiveCaasFileHelper,
+        IExceptionHandler exceptionHandler,
+        IRecordsProcessedTracker recordsProcessedTracker,
+        IValidateDates validateDates
+    )
     {
         _logger = logger;
         _callFunction = callFunction;
