@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "INT"
+environment           = "DEV"
 
 features = {
   acr_enabled                          = false
@@ -18,7 +18,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.105.0.0/16"
+    address_space     = "10.101.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -51,8 +51,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.105.0.0/16"]
-        destination_addresses = ["10.106.0.0/16"]
+        source_addresses      = ["10.101.0.0/16"]
+        destination_addresses = ["10.102.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -61,8 +61,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.106.0.0/16"]
-        destination_addresses = ["10.105.0.0/16"]
+        source_addresses      = ["10.102.0.0/16"]
+        destination_addresses = ["10.101.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -70,14 +70,14 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "10.106.0.0/16"
+        address_prefix         = "10.102.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
     route_table_routes_from_audit = [{
       name                   = "AuditToCohman"
-      address_prefix         = "10.105.0.0/16"
+      address_prefix         = "10.101.0.0/16"
       next_hop_type          = "VirtualAppliance"
       next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -120,7 +120,7 @@ app_service_plan = {
   }
 
   instances = {
-    CaasIntegration = {
+    DefaultPlan = {
       autoscale_override = {
         memory_percentage = {
           metric = "MemoryPercentage"
@@ -131,12 +131,6 @@ app_service_plan = {
         }
       }
     }
-    CohortDistributionServices    = {}
-    DemographicServices           = {}
-    ExceptionHandling             = {}
-    ParticipantManagementServices = {}
-    ScreeningValidationService    = {}
-    screeningDataServices         = {}
   }
 }
 
@@ -149,15 +143,15 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-int-uks-cohman"
-  app_insights_rg_name = "rg-cohman-int-uks-audit"
+  app_insights_name    = "appi-dev-uks-cohman"
+  app_insights_rg_name = "rg-cohman-dev-uks-audit"
 
   always_on = true
 
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "integration"
+  docker_env_tag    = "development"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -171,7 +165,7 @@ function_apps = {
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
-      app_service_plan_key         = "CaasIntegration"
+      app_service_plan_key         = "DefaultPlan"
       db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -216,7 +210,7 @@ function_apps = {
     RetrieveMeshFile = {
       name_suffix                  = "retrieve-mesh-file"
       function_endpoint_name       = "RetrieveMeshFile"
-      app_service_plan_key         = "CaasIntegration"
+      app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -234,7 +228,7 @@ function_apps = {
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
-      app_service_plan_key         = "ParticipantManagementServices"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
@@ -273,7 +267,7 @@ function_apps = {
     RemoveParticipant = {
       name_suffix            = "remove-participant"
       function_endpoint_name = "RemoveParticipant"
-      app_service_plan_key   = "ParticipantManagementServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "markParticipantAsIneligible"
@@ -293,7 +287,7 @@ function_apps = {
     UpdateParticipant = {
       name_suffix            = "update-participant"
       function_endpoint_name = "updateParticipant"
-      app_service_plan_key   = "ParticipantManagementServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "UpdateParticipant"
@@ -332,7 +326,7 @@ function_apps = {
     CreateParticipant = {
       name_suffix            = "create-participant"
       function_endpoint_name = "CreateParticipant"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -353,7 +347,7 @@ function_apps = {
     MarkParticipantAsEligible = {
       name_suffix            = "mark-participant-as-eligible"
       function_endpoint_name = "markParticipantAsEligible"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -370,7 +364,7 @@ function_apps = {
     MarkParticipantAsIneligible = {
       name_suffix            = "mark-participant-as-ineligible"
       function_endpoint_name = "markParticipantAsIneligible"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -387,7 +381,7 @@ function_apps = {
     UpdateParticipantDetails = {
       name_suffix            = "update-participant-details"
       function_endpoint_name = "updateParticipantDetails"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -404,7 +398,7 @@ function_apps = {
     CreateException = {
       name_suffix            = "create-exception"
       function_endpoint_name = "CreateException"
-      app_service_plan_key   = "ExceptionHandling"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls               = []
     }
@@ -412,7 +406,7 @@ function_apps = {
     GetValidationExceptions = {
       name_suffix            = "get-validation-exceptions"
       function_endpoint_name = "GetValidationExceptions"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls               = []
     }
@@ -420,7 +414,7 @@ function_apps = {
     DemographicDataService = {
       name_suffix            = "demographic-data-service"
       function_endpoint_name = "DemographicDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -433,7 +427,7 @@ function_apps = {
     FileValidation = {
       name_suffix                  = "file-validation"
       function_endpoint_name       = "FileValidation"
-      app_service_plan_key         = "ScreeningValidationService"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       storage_containers = [
         {
@@ -456,7 +450,7 @@ function_apps = {
     StaticValidation = {
       name_suffix            = "static-validation"
       function_endpoint_name = "StaticValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -479,7 +473,7 @@ function_apps = {
     LookupValidation = {
       name_suffix            = "lookup-validation"
       function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -518,7 +512,7 @@ function_apps = {
     DemographicDataManagement = {
       name_suffix            = "demographic-data-management"
       function_endpoint_name = "DemographicDataFunction"
-      app_service_plan_key   = "DemographicServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "DemographicDataServiceURI"
@@ -534,7 +528,7 @@ function_apps = {
     AddCohortDistributionData = {
       name_suffix            = "add-cohort-distribution-data"
       function_endpoint_name = "AddCohortDistributionData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -547,7 +541,7 @@ function_apps = {
     RetrieveCohortDistributionData = {
       name_suffix            = "retrieve-cohort-distribution-data"
       function_endpoint_name = "RetrieveCohortDistributionData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -560,7 +554,7 @@ function_apps = {
     TransformDataService = {
       name_suffix            = "transform-data-service"
       function_endpoint_name = "TransformDataService"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -577,7 +571,7 @@ function_apps = {
     AllocateServiceProvider = {
       name_suffix            = "allocate-service-provider"
       function_endpoint_name = "AllocateServiceProviderToParticipantByService"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -593,7 +587,7 @@ function_apps = {
     CreateCohortDistribution = {
       name_suffix                  = "create-cohort-distribution"
       function_endpoint_name       = "CreateCohortDistribution"
-      app_service_plan_key         = "CohortDistributionServices"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       db_connection_string         = "DtOsDatabaseConnectionString"
       app_urls = [
@@ -631,7 +625,7 @@ function_apps = {
     RetrieveParticipantData = {
       name_suffix            = "retrieve-participant-data"
       function_endpoint_name = "RetrieveParticipantData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -644,7 +638,7 @@ function_apps = {
     ValidateCohortDistributionRecord = {
       name_suffix            = "validate-cohort-distribution-record"
       function_endpoint_name = "ValidateCohortDistributionRecord"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -661,7 +655,7 @@ function_apps = {
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -674,7 +668,7 @@ function_apps = {
     RetrieveCohortRequestAudit = {
       name_suffix            = "retrieve-cohort-request-audit"
       function_endpoint_name = "RetrieveCohortRequestAudit"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -686,7 +680,7 @@ function_apps = {
     LanguageCodeDataService = {
       name_suffix            = "language-code-data-service"
       function_endpoint_name = "LanguageCodeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -699,7 +693,7 @@ function_apps = {
     CurrentPostingDataService = {
       name_suffix            = "current-posting-data-service"
       function_endpoint_name = "CurrentPostingDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -712,7 +706,7 @@ function_apps = {
     BsSelectOutcodeDataService = {
       name_suffix            = "bs-select-outcode-data-service"
       function_endpoint_name = "BsSelectOutcodeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -725,7 +719,7 @@ function_apps = {
     BsSelectGpPracticeDataService = {
       name_suffix            = "bs-select-gp-practice-data-service"
       function_endpoint_name = "BsSelectGpPracticeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -738,7 +732,7 @@ function_apps = {
     ExcludedSMUDataService = {
       name_suffix            = "excluded-smu-data-service"
       function_endpoint_name = "ExcludedSMUDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -751,7 +745,7 @@ function_apps = {
     ParticipantManagementDataService = {
       name_suffix            = "participant-management-data-service"
       function_endpoint_name = "ParticipantManagementDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -764,7 +758,7 @@ function_apps = {
     ParticipantDemographicDataService = {
       name_suffix            = "participant-demographic-data-service"
       function_endpoint_name = "ParticipantDemographicDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -788,7 +782,7 @@ key_vault = {
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
-  sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"
+  sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
