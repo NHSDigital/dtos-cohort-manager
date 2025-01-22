@@ -8,7 +8,7 @@ module "functionapp" {
   location            = each.value.region
 
   app_settings = each.value.app_settings
-  
+
   #To enable health checks for function apps
   health_check_path = var.health_check_path
 
