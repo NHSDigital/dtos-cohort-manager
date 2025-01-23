@@ -87,7 +87,7 @@ routes = {
 
 app_service_plan = {
   os_type                  = "Linux"
-  sku_name                 = "P2v3"
+  sku_name                 = "P3v3"
   vnet_integration_enabled = true
 
   autoscale = {
@@ -841,7 +841,7 @@ storage_accounts = {
     name_suffix                   = "fnappstor"
     account_tier                  = "Standard"
     replication_type              = "LRS"
-    public_network_access_enabled = false
+    public_network_access_enabled = true
     containers                    = {}
   }
   file_exceptions = {
