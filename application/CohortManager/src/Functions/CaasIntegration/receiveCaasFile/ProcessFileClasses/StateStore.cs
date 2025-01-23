@@ -28,27 +28,27 @@ public class StateStore : IStateStore
     /// </summary>
     /// <param name="fileName">The name of the file.</param>
     /// <returns>The last processed record index, or null if not found.</returns>
-    public async Task<int?> GetLastProcessedRecordIndex(string fileName)
-    {
-        try
-        {
-            _logger.LogInformation("Retrieving last processed record index for file {FileName}.", fileName);
+    // public async Task<int?> GetLastProcessedRecordIndex(string fileName)
+    // {
+    //     try
+    //     {
+    //         _logger.LogInformation("Retrieving last processed record index for file {FileName}.", fileName);
 
-            int? lastIndex = await Task.FromResult<int?>(null);
+    //         int? lastIndex = await Task.FromResult<int?>(null);
 
-            _logger.LogInformation(
-                "Successfully retrieved last processed record index for file {FileName}: {LastIndex}.",
-                fileName,
-                lastIndex);
+    //         _logger.LogInformation(
+    //             "Successfully retrieved last processed record index for file {FileName}: {LastIndex}.",
+    //             fileName,
+    //             lastIndex);
 
-            return lastIndex;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error while retrieving last processed record index for file {FileName}.", fileName);
-            return 0;
-        }
-    }
+    //         return lastIndex;
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         _logger.LogError(ex, "Error while retrieving last processed record index for file {FileName}.", fileName);
+    //         return 0;
+    //     }
+    // }
 
         /// <summary>
         /// Updates the last processed record index for a given file.
@@ -56,28 +56,28 @@ public class StateStore : IStateStore
         /// <param name="fileName">The name of the file.</param>
         /// <param name="recordIndex">The index of the last processed record.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public async Task UpdateLastProcessedRecordIndex(string fileName, int recordIndex)
-        {
-            try
-            {
-                _logger.LogInformation(
-                    "Updating last processed record index for file {FileName} to {RecordIndex}.",
-                    fileName,
-                    recordIndex);
+        // public async Task UpdateLastProcessedRecordIndex(string fileName, int recordIndex)
+        // {
+        //     try
+        //     {
+        //         _logger.LogInformation(
+        //             "Updating last processed record index for file {FileName} to {RecordIndex}.",
+        //             fileName,
+        //             recordIndex);
 
 
-                await Task.CompletedTask;
+        //         await Task.CompletedTask;
 
-                _logger.LogInformation(
-                    "Successfully updated last processed record index for file {FileName} to {RecordIndex}.",
-                    fileName,
-                    recordIndex);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error while updating last processed record index for file {FileName}.", fileName);
-            }
-        }
+        //         _logger.LogInformation(
+        //             "Successfully updated last processed record index for file {FileName} to {RecordIndex}.",
+        //             fileName,
+        //             recordIndex);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "Error while updating last processed record index for file {FileName}.", fileName);
+        //     }
+        // }
 
 
 
