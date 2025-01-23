@@ -87,7 +87,7 @@ routes = {
 
 app_service_plan = {
   os_type                  = "Linux"
-  sku_name                 = "P2v3"
+  sku_name                 = "P3v3"
   vnet_integration_enabled = true
 
   autoscale = {
@@ -190,19 +190,22 @@ function_apps = {
           function_app_key = "UpdateParticipant"
         },
         {
-          env_var_name     = "DemographicURI"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
-        BatchSize                  = "3500"
+        BatchSize                  = "2000"
         AddQueueName               = "add-participant-queue"
         recordThresholdForBatching = "3"
-        batchDivisionFactor        = "5"
+        batchDivisionFactor        = "2"
+        CheckTimer                 = "100"
+        DemographicURI             = "https://nft-uks-durable-demographic-data-service.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://nft-uks-durable-demographic-data-service.azurewebsites.net/api/GetOrchestrationStatus"
       }
 
     }
@@ -420,6 +423,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }
@@ -617,8 +624,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortQueueName       = "cohort-distribution-queue"
-        CohortQueueNamePoison = "cohort-distribution-queue-poison"
+        CohortQueueName             = "cohort-distribution-queue"
+        CohortQueueNamePoison       = "cohort-distribution-queue-poison"
+        IgnoreParticipantExceptions = "true"
+        IsExtractedToBSSelect       = "false"
       }
     }
 
@@ -768,6 +777,23 @@ function_apps = {
       ]
     }
 
+    DurableDemographicFunction = {
+      name_suffix            = "durable-demographic-data-service"
+      function_endpoint_name = "DurableDemographicFunction"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
+
   }
 }
 
@@ -799,9 +825,9 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 5
+      max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S4"
       storage_account_type = "Local"
       zone_redundant       = false
     }
@@ -815,7 +841,7 @@ storage_accounts = {
     name_suffix                   = "fnappstor"
     account_tier                  = "Standard"
     replication_type              = "LRS"
-    public_network_access_enabled = false
+    public_network_access_enabled = true
     containers                    = {}
   }
   file_exceptions = {
