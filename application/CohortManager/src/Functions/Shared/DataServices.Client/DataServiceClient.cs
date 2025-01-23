@@ -2,17 +2,13 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Linq.Dynamic.Core;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
-using FastExpressionCompiler;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Reflection;
-using Azure.Storage.Blobs.Models;
+
 
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
 {
@@ -25,7 +21,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         _baseUrl = dataServiceResolver.GetDataServiceUrl(typeof(TEntity));
 
-        if( string.IsNullOrEmpty(_baseUrl))
+        if (string.IsNullOrEmpty(_baseUrl))
         {
             throw new InvalidDataException($"Unable to resolve DataServiceUrl for Data Service of type: {typeof(TEntity).FullName}");
         }
@@ -43,7 +39,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return result;
     }
 
-    public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate)
+    public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
 
 
@@ -59,28 +55,29 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public virtual async Task<TEntity> GetSingle(string id)
     {
-        try{
+        try
+        {
 
-            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl,id));
+            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl, id));
 
-            if(string.IsNullOrEmpty(jsonString))
+            if (string.IsNullOrEmpty(jsonString))
             {
-                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty" ,typeof(TEntity).FullName);
+                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty", typeof(TEntity).FullName);
                 return null;
             }
 
             TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
             return result;
         }
-        catch(WebException wex)
+        catch (WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if (response.StatusCode! == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            _logger.LogError(wex, "An Exception Happened while calling data service API");
             throw;
         }
     }
@@ -99,22 +96,23 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl,id));
+        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl, id));
         return result;
     }
     public async Task<bool> AddRange(IEnumerable<TEntity> entities)
     {
         var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entities);
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl,jsonString);
+        var result = await _callFunction.SendPost(_baseUrl, jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
@@ -124,15 +122,16 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         var jsonString = JsonSerializer.Serialize<TEntity>(entity);
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl,jsonString);
+        var result = await _callFunction.SendPost(_baseUrl, jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK){
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
             return false;
         }
         return true;
@@ -143,15 +142,15 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var jsonString = JsonSerializer.Serialize<TEntity>(entity);
         var key = _keyInfo.GetValue(entity).ToString();
 
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             _logger.LogWarning("Unable to serialize put request body for creating entity of type {entityType}", typeof(TEntity).FullName);
             return false;
         }
 
-        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl,key),jsonString);
+        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl, key), jsonString);
 
-        if(result.StatusCode != HttpStatusCode.OK)
+        if (result.StatusCode != HttpStatusCode.OK)
         {
             return false;
         }

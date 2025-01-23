@@ -67,22 +67,6 @@ public class DemographicDataFunctionTests
                         .Returns(Task.FromResult<string>(""));
     }
 
-    [TestMethod]
-    public async Task Run_return_DemographicDataSavedPostRequest_OK()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunction.Object);
-
-        _request = _setupRequest.Setup(json);
-
-        // Act
-        _request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
 
     [TestMethod]
     public async Task Run_return_DemographicDataSavedPostRequest_InternalServerEver()

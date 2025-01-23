@@ -12,7 +12,6 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
 {
     private static readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private AllocationConfigRequestBody _cohortDistributionData = new();
-    private string? _configFilePath;
 
     public AllocateServiceProviderToParticipantByServiceTests() : base((conn, logger, transaction, command, response) =>
     new AllocateServiceProviderToParticipantByService(logger, response, _exceptionHandler.Object))
@@ -169,11 +168,11 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
             Times.Once());
     }
 
-    private void SetupConfigFile()
+    private static void SetupConfigFile()
     {
         var configDir = Path.Combine(Environment.CurrentDirectory, "ConfigFiles");
         Directory.CreateDirectory(configDir);
-        _configFilePath = Path.Combine(configDir, "allocationConfig.json");
+        var configFilePath = Path.Combine(configDir, "allocationConfig.json");
 
         var configContent = new AllocationConfigDataList
         {
@@ -187,6 +186,6 @@ public class AllocateServiceProviderToParticipantByServiceTests : DatabaseTestBa
                 }
             ]
         };
-        File.WriteAllText(_configFilePath, JsonSerializer.Serialize(configContent));
+        File.WriteAllText(configFilePath, JsonSerializer.Serialize(configContent));
     }
 }

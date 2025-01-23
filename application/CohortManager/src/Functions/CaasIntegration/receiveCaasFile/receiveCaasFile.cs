@@ -36,6 +36,7 @@ public class ReceiveCaasFile
     {
         var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
+        // for larger batches use size of 5000 - this works the best
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
@@ -65,6 +66,7 @@ public class ReceiveCaasFile
             }
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.

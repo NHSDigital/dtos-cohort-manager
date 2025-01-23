@@ -1,5 +1,6 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
@@ -21,17 +22,17 @@ public class AddBatchToQueue : IAddBatchToQueue
         _queueHelper = queueHelper;
     }
 
-    public async Task ProcessBatch(Batch batch)
+    public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch)
     {
-        if (batch != null && batch.AddRecords.Any())
+        if (batch != null && batch.Any())
         {
             await AddMessagesAsync(batch);
         }
     }
 
-    private async Task AddMessagesAsync(Batch currentBatch)
+    private async Task AddMessagesAsync(ConcurrentQueue<BasicParticipantCsvRecord> currentBatch)
     {
-        var itemsToAdd = currentBatch.AddRecords;
+        var itemsToAdd = currentBatch;
 
         // List of tasks to handle messages
         List<Task> tasks = new List<Task>();
