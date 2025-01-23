@@ -1,15 +1,11 @@
 namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Xml;
 using Common;
 using Common.Interfaces;
-using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
