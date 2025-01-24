@@ -151,7 +151,6 @@ function_apps = {
 
   app_insights_name    = "appi-int-uks-cohman"
   app_insights_rg_name = "rg-cohman-int-uks-audit"
-  #app_service_logs_retention_period_days = 7
 
   always_on = true
 
@@ -161,10 +160,9 @@ function_apps = {
   docker_env_tag    = "integration"
   docker_img_prefix = "cohort-manager"
 
-  enable_appsrv_storage = "false"
-  ftps_state            = "Disabled"
-  health_check_path     = "/api/health"
-  #disk_quota_mb                 = 35
+  enable_appsrv_storage         = "false"
+  ftps_state                    = "Disabled"
+  health_check_path             = "/api/health"
   https_only                    = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
