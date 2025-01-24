@@ -173,7 +173,7 @@ variable "function_apps" {
     app_insights_rg_name                   = string
     app_service_logs_retention_period_days = optional(string, "")
     cont_registry_use_mi                   = bool
-    disk_quota_mb                          = optional(string, "")
+    disk_quota_mb                          = optional(number)
     docker_CI_enable                       = string
     docker_env_tag                         = string
     docker_img_prefix                      = string
