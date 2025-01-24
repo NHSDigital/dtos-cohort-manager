@@ -171,7 +171,7 @@ variable "function_apps" {
     always_on                              = bool
     app_insights_name                      = string
     app_insights_rg_name                   = string
-    app_service_logs_retention_period_days = optional(string, "")
+    app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
     disk_quota_mb                          = optional(number)
     docker_CI_enable                       = string
