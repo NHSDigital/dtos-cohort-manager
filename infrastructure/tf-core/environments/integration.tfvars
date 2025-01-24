@@ -149,8 +149,9 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-int-uks-cohman"
-  app_insights_rg_name = "rg-cohman-int-uks-audit"
+  app_insights_name                      = "appi-int-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-int-uks-audit"
+  app_service_logs_retention_period_days = 7
 
   always_on = true
 
@@ -163,6 +164,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   health_check_path             = "/api/health"
+  disk_quota_mb                 = 35
   https_only                    = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
