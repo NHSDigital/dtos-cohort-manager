@@ -12,7 +12,6 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddTransient<ICreateParticipantData, CreateParticipantData>();
         services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IDatabaseHelper, DatabaseHelper>();
