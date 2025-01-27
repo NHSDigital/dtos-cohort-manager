@@ -39,7 +39,7 @@ public class UpdateParticipantFromScreeningProvider
     /// </summary>
     [Function("UpdateParticipantFromScreeningProvider")]
     public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
-    {   
+    {
         _logger.LogInformation("Update participant from screening provider called.");
 
         try
@@ -88,7 +88,9 @@ public class UpdateParticipantFromScreeningProvider
             bool updateSuccessful = true;
             bool reqDataNewer = true;
             if (dbParticipant.SrcSysProcessedDateTime != null && dbParticipant.SrcSysProcessedDateTime > _reqParticipant.SrcSysProcessedDateTime)
+            {
                 reqDataNewer = false;
+            }
             else
             {
                 participantManagement.ParticipantId = dbParticipant.ParticipantId;
