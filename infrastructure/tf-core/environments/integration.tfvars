@@ -149,8 +149,8 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-int-uks-cohman"
-  app_insights_rg_name = "rg-cohman-int-uks-audit"
+  app_insights_name                      = "appi-int-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-int-uks-audit"
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 0
 
@@ -162,9 +162,9 @@ function_apps = {
   docker_env_tag    = "integration"
   docker_img_prefix = "cohort-manager"
 
-  enable_appsrv_storage = "false"
-  ftps_state            = "Disabled"
-  health_check_path     = "/api/health"
+  enable_appsrv_storage         = "false"
+  ftps_state                    = "Disabled"
+  health_check_path             = "/api/health"
   https_only                    = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
