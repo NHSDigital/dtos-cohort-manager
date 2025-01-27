@@ -23,67 +23,21 @@ public class DemographicDataFunction
     }
 
     [Function("DemographicDataFunction")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
-    {
-        return await Main(req, false);
-    }
-
-
-    /// <summary>
-    /// Gets filtered demographic data from the demographic data service,
-    /// this endpoint is used by the external BI product
-    /// </summary>
-    /// <param name="Id">The NHS number to get the demographic data for.</param>
-    /// <returns>JSON response containing the Primary Care Provider & Preferred Language</returns>
-    [Function("DemographicDataFunctionExternal")]
-    public async Task<HttpResponseData> RunExternal([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
-    {
-        return await Main(req, true);
-    }
-
-    private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         try
         {
-            if (req.Method == "POST")
+            var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
+            string Id = req.Query["Id"];
+
+            var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
+
+            if (string.IsNullOrEmpty(data))
             {
-                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-                {
-                    var requestBody = await reader.ReadToEndAsync();
-                    participantData = JsonSerializer.Deserialize<Participant>(requestBody);
-                }
-
-                var res = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DemographicDataServiceURI"), JsonSerializer.Serialize(participantData));
-
-                if (res.StatusCode != HttpStatusCode.OK)
-                {
-                    _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(res.StatusCode, req);
-                }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                _logger.LogInformation("Demographic function failed");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
-            else
-            {
-                var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
-                string Id = req.Query["Id"];
-
-                var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
-
-                if (data == "Participant not found")
-                {
-                    _logger.LogInformation("demographic function failed");
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
-                }
-
-                // Filters out unnsecessry data for use in the BI prdoduct
-                if (externalRequest)
-                {
-                    var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
-                    data = JsonSerializer.Serialize(filteredData);
-                }
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
-            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
         catch (Exception ex)
         {
