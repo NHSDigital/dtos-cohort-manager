@@ -289,6 +289,18 @@ services:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
+  durable-demographic-data-service:
+    container_name: durable-demographic-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7997
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     network_mode: host

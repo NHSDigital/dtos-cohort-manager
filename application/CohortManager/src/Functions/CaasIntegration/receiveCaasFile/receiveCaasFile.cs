@@ -36,6 +36,7 @@ public class ReceiveCaasFile
     {
         var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
+        // for larger batches use size of 5000 - this works the best
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
@@ -65,6 +66,7 @@ public class ReceiveCaasFile
             }
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
@@ -72,12 +74,9 @@ public class ReceiveCaasFile
                 {
                     var values = rowReader.ReadRows(i);
                     var listOfAllValues = values.ToList();
-                    var countOfRecords = values.Length;
                     var allTasks = new List<Task>();
 
-
                     //split list of all into N amount of chunks to be processed as batches.
-
                     var chunks = listOfAllValues.Chunk(BatchSize).ToList();
 
                     foreach (var chunk in chunks)
@@ -87,12 +86,13 @@ public class ReceiveCaasFile
                             _processCaasFile.ProcessRecords(batch, options, screeningService, name)
                         );
                     }
+
                     // process each batches
                     Task.WaitAll(allTasks.ToArray());
 
                     // dispose of all lists and variables from memory because they are no longer needed
-                    listOfAllValues = null;
-                    values = null;
+                    listOfAllValues.Clear();
+                    values.ToList().Clear();
                 }
             }
         }
@@ -100,7 +100,6 @@ public class ReceiveCaasFile
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
             await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
-            return;
         }
         finally
         {
@@ -109,7 +108,7 @@ public class ReceiveCaasFile
             {
                 _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
             }
-            //We want to release the file from temporary storage no matter what 
+            //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }

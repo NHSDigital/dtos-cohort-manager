@@ -1,46 +1,61 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
 using System.Text.Json;
-using System.Threading.Tasks.Dataflow;
 using Common;
 using Common.Interfaces;
+using Data.Database;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
-using receiveCaasFile;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
-
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly ICallFunction _callFunction;
-
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
-    private readonly IExceptionHandler _handleException;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
-
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
-
     private readonly IValidateDates _validateDates;
+    private readonly string DemographicURI;
+    private readonly string PMSUpdateParticipant;
 
-    public ProcessCaasFile(ILogger<ProcessCaasFile> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateBasicParticipantData createBasicParticipantData,
-     IExceptionHandler handleException, IAddBatchToQueue addBatchToQueue, IReceiveCaasFileHelper receiveCaasFileHelper, IExceptionHandler exceptionHandler
-     , IRecordsProcessedTracker recordsProcessedTracker, IValidateDates validateDates
-     )
+    public ProcessCaasFile(
+        ILogger<ProcessCaasFile> logger,
+        ICallFunction callFunction,
+        ICheckDemographic checkDemographic,
+        ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue,
+        IReceiveCaasFileHelper receiveCaasFileHelper,
+        IExceptionHandler exceptionHandler,
+        IDataServiceClient<ParticipantDemographic> participantDemographic,
+        IRecordsProcessedTracker recordsProcessedTracker,
+        IValidateDates validateDates
+    )
     {
         _logger = logger;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
-        _handleException = handleException;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
+        _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+
+        DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
+        PMSUpdateParticipant = Environment.GetEnvironmentVariable("PMSUpdateParticipant");
+
+        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant))
+        {
+            _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
+            throw new InvalidConfigurationException("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
+        }
     }
 
     /// <summary>
@@ -66,13 +81,11 @@ public class ProcessCaasFile : IProcessCaasFile
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
-
                 return; // skip current participant
             }
 
             if (!_validateDates.ValidateAllDates(participant))
             {
-
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
                 return; // Skip current participant
             }
@@ -84,9 +97,12 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             await AddRecordToBatch(participant, currentBatch, name);
-
         });
-        await AddBatchToQueue(currentBatch, name);
+
+        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        {
+            await AddBatchToQueue(currentBatch, name);
+        }
     }
 
     /// <summary>
@@ -104,15 +120,12 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             participant = participant
         };
-
+        // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                //  we do this check in here because we can't do it in AddBatchToQueue with the rest of the calls
-                if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
-                {
-                    currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                }
+                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -131,7 +144,8 @@ public class ProcessCaasFile : IProcessCaasFile
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch);
+
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
@@ -145,6 +159,8 @@ public class ProcessCaasFile : IProcessCaasFile
                 await RemoveParticipant(updateRecords, name);
             }
         }
+        // this used to release memory from being used
+        currentBatch = null;
     }
 
     private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
@@ -152,12 +168,26 @@ public class ProcessCaasFile : IProcessCaasFile
         try
         {
             var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            if (await _checkDemographic.PostDemographicDataAsync(basicParticipantCsvRecord.participant, Environment.GetEnvironmentVariable("DemographicURI")))
+            var listOfData = new List<ParticipantDemographic>()
             {
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
-            }
-            _logger.LogInformation("Called update participant");
+                basicParticipantCsvRecord.participant.ToParticipantDemographic()
+            };
 
+            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+
+            if (participant != null)
+            {
+                await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                if (await _checkDemographic.PostDemographicDataAsync(listOfData, DemographicURI))
+                {
+                    await _callFunction.SendPost(PMSUpdateParticipant, json);
+                }
+                _logger.LogInformation("Called update participant");
+            }
+            else
+            {
+                _logger.LogInformation("The participant could not be found, preventing updates from being applied");
+            }
         }
         catch (Exception ex)
         {
@@ -168,10 +198,18 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
     {
+        var allowDeleteRecords = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("AllowDeleteRecords", DataTypes.Boolean);
         try
         {
-            await _handleException.CreateDeletedRecordException(basicParticipantCsvRecord);
-            _logger.LogInformation("Logged Exception for Deleted Record");
+            if (allowDeleteRecords)
+            {
+                _logger.LogInformation("AllowDeleteRecords flag is true, delete record will be sent to removeParticipant function in a future PR.");
+            }
+            else
+            {
+                await _exceptionHandler.CreateDeletedRecordException(basicParticipantCsvRecord);
+                _logger.LogInformation("AllowDeleteRecords flag is false, exception raised for delete record.");
+            }
         }
         catch (Exception ex)
         {
@@ -186,13 +224,12 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
             var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
-            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            _handleException.CreateSystemExceptionLog(ex, participant, filename);
+            await _exceptionHandler.CreateSystemExceptionLog(ex, participant, filename);
         }
     }
-
 }

@@ -7,13 +7,9 @@ using Newtonsoft.Json;
 
 public class CreateResponse : ICreateResponse
 {
-    /// <summary>
-    /// Creates a HTTP response.
-    /// NOTE: adding a response body does not work, use CreateHttpResponseWithBodyAsync if you need to return a body.
-    /// </summary>
-    public HttpResponseData CreateHttpResponse(HttpStatusCode statusCode, HttpRequestData requestData, string responseBody = "")
+    public HttpResponseData CreateHttpResponse(HttpStatusCode statusCode, HttpRequestData httpRequestData, string responseBody = "")
     {
-        var response = requestData.CreateResponse(statusCode);
+        var response = httpRequestData.CreateResponse(statusCode);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
         byte[] data = Encoding.UTF8.GetBytes(responseBody);

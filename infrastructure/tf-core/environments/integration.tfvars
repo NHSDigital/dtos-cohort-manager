@@ -70,14 +70,14 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "10.6.0.0/16"
+        address_prefix         = "10.106.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
     route_table_routes_from_audit = [{
       name                   = "AuditToCohman"
-      address_prefix         = "10.5.0.0/16"
+      address_prefix         = "10.105.0.0/16"
       next_hop_type          = "VirtualAppliance"
       next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -162,6 +162,7 @@ function_apps = {
 
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
+  health_check_path             = "/api/health"
   https_only                    = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
@@ -807,7 +808,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 5
       read_scale           = false
-      sku                  = "S0"
+      sku                  = "S1"
       storage_account_type = "Local"
       zone_redundant       = false
     }

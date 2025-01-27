@@ -20,13 +20,13 @@ public interface IDataServiceClient<TEntity>
     /// </summary>
     /// <param name="predicate">linq query defining the filter on the table</param>
     /// <returns>Returns a task with the result type of TEntity</returns>
-    Task<TEntity> GetSingleByFilter(Expression<Func<TEntity,bool>> predicate);
+    Task<TEntity> GetSingleByFilter(Expression<Func<TEntity, bool>> predicate);
     /// <summary>
     /// Get a list of items where they meet the given predicate
     /// </summary>
     /// <param name="predicate">linq query defining the filter on the table</param>
     /// <returns>Returns a task with the result type of IEnumerable<TEntity></returns>
-    Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity,bool>> predicate);
+    Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate);
     /// <summary>
     /// Adds a given records to the database
     /// </summary>
@@ -45,5 +45,11 @@ public interface IDataServiceClient<TEntity>
     /// <param name="entities">IEnumerable<TEntity> of items to be added to the database</param>
     /// <returns>a boolean representing if the record was inserted successfully</returns>
     Task<bool> AddRange(IEnumerable<TEntity> entities);
+    /// <summary>
+    /// Deletes a single record
+    /// </summary>
+    /// <param name="id">the id of the record to be deleted</param>
+    /// <returns>a boolean representing if the record was deleted successfully</returns>
+    Task<bool> Delete(string id);
 
 }

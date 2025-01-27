@@ -120,7 +120,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
         var rowCount = 1;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -150,7 +150,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
         var rowCount = 2;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
         _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
@@ -168,7 +168,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
         var rowCount = 0;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipantsByScreeningServiceId(rowCount);
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
         Assert.IsNotNull(result);

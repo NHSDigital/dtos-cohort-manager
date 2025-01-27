@@ -26,29 +26,13 @@ public class DemographicDataService
     }
 
     [Function("DemographicDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        Demographic participantDemographic = new Demographic();
+        var participantDemographic = new List<Demographic>();
 
         try
         {
-            if (req.Method == "POST")
-            {
-                using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-                {
-                    var requestBody = await reader.ReadToEndAsync();
-                    participantDemographic = JsonSerializer.Deserialize<Demographic>(requestBody);
-                }
-
-                var created = _createDemographicData.InsertDemographicData(participantDemographic);
-                if (!created)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-                }
-            }
-            else
-            {
-                string Id = req.Query["Id"];
+            string Id = req.Query["Id"];
 
                 var demographicData = _createDemographicData.GetDemographicData(Id);
                 if (demographicData.ParticipantId != null)
@@ -62,11 +46,9 @@ public class DemographicDataService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"An error has occurred while inserting data {ex.Message}");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participantDemographic.NhsNumber, "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
+            _logger.LogError(ex, "An error has occurred while inserting data {Message}", ex.Message);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "N/A", "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }

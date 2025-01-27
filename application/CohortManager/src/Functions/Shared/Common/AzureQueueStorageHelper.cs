@@ -9,7 +9,6 @@ using Model;
 
 public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 {
-    private QueueClient _queueClient;
 
     private readonly string storageConnectionString;
 
@@ -23,7 +22,7 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 
     public async Task<bool> AddItemToQueueAsync<T>(T participantCsvRecord, string queueName)
     {
-        _queueClient = new QueueClient(storageConnectionString, queueName);
+        var _queueClient = new QueueClient(storageConnectionString, queueName);
         await _queueClient.CreateIfNotExistsAsync();
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var bytes = Encoding.UTF8.GetBytes(json);

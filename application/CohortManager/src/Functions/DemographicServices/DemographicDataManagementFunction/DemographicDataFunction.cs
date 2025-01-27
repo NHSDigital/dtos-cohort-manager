@@ -43,7 +43,6 @@ public class DemographicDataFunction
 
     private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
     {
-        var participantData = new Participant();
         try
         {
             if (req.Method == "POST")
@@ -67,7 +66,7 @@ public class DemographicDataFunction
             {
                 var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
                 string Id = req.Query["Id"];
-                
+
                 var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
 
                 if (data == "Participant not found")

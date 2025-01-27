@@ -71,12 +71,9 @@ public class CreateParticipantData : ICreateParticipantData
     private bool ExecuteBulkCommand(List<SQLReturnModel> sqlCommands, Dictionary<string, object> commonParams)
     {
         var command = CreateCommand(commonParams);
-        foreach (var SqlCommand in sqlCommands)
+        foreach (var SqlCommand in sqlCommands.Where(SqlCommand => SqlCommand != null))
         {
-            if (SqlCommand.Parameters != null)
-            {
                 AddParameters(SqlCommand.Parameters, command);
-            }
         }
 
         var transaction = BeginTransaction();
@@ -155,7 +152,6 @@ public class CreateParticipantData : ICreateParticipantData
             command.CommandText = sql;
             _logger.LogInformation("Command text: {Sql}", sql);
 
-            var newParticipantResult = command.ExecuteNonQuery();
             var SQLGet = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_MANAGEMENT] WHERE NHS_NUMBER = @NHSNumber";
 
             command.CommandText = SQLGet;
