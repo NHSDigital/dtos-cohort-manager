@@ -31,6 +31,15 @@ module "functionapp" {
   #To enable health checks for function apps
   health_check_path = var.function_apps.health_check_path
 
+
+  variable "app_service_logs" {
+    type = object({
+      disk_quota_mb         = number
+      retention_period_days = number
+    })
+    default = null
+  }
+
   #To enable app service log for function apps
   app_service_logs_retention_period_days = var.function_apps.app_service_logs_retention_period_days
   app_service_logs_disk_quota_mb         = var.function_apps.app_service_logs_disk_quota_mb

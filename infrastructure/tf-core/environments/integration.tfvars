@@ -85,6 +85,17 @@ routes = {
   }
 }
 
+variable "app_service_logs" {
+  type = object({
+    disk_quota_mb         = 0
+    retention_period_days = 0
+  })
+  default = null
+}
+
+app_service_logs_disk_quota_mb         = 35
+app_service_logs_retention_period_days = 7
+
 app_service_plan = {
   os_type                  = "Linux"
   sku_name                 = "P2v3"
@@ -149,10 +160,8 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name                      = "appi-int-uks-cohman"
-  app_insights_rg_name                   = "rg-cohman-int-uks-audit"
-  app_service_logs_disk_quota_mb         = 35
-  app_service_logs_retention_period_days = 7
+  app_insights_name    = "appi-int-uks-cohman"
+  app_insights_rg_name = "rg-cohman-int-uks-audit"
 
   always_on = true
 
