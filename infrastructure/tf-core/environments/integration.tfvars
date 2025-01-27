@@ -85,14 +85,6 @@ routes = {
   }
 }
 
-variable "app_service_logs" {
-  type = object({
-    disk_quota_mb         = 0
-    retention_period_days = 0
-  })
-  default = null
-}
-
 app_service_logs_disk_quota_mb         = 35
 app_service_logs_retention_period_days = 7
 
