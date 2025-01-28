@@ -32,8 +32,10 @@ module "functionapp" {
   health_check_path = var.function_apps.health_check_path
 
   #To enable app service log for function apps
-  retention_period_days = var.app_service_logs.logs_retention_period_days
-  disk_quota_mb         = var.app_service_logs.disk_quota_mb
+  app_service_logs = var.app_service_logs
+
+  # retention_period_days = var.app_service_logs.logs_retention_period_days
+  # disk_quota_mb         = var.app_service_logs.disk_quota_mb
 
   # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
