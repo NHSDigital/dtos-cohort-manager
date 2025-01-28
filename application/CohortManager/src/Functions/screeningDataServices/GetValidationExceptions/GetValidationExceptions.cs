@@ -54,7 +54,7 @@ public class GetValidationExceptions
         {
             if (exceptionId != 0)
             {
-                return GetExceptionById(req, exceptionId);
+                return await GetExceptionById(req, exceptionId);
             }
 
             var exceptionQuery = await _validationData.GetAllExceptions(todayOnly);
@@ -75,9 +75,9 @@ public class GetValidationExceptions
         }
     }
 
-    private HttpResponseData GetExceptionById(HttpRequestData req, int exceptionId)
+    private async Task<HttpResponseData> GetExceptionById(HttpRequestData req, int exceptionId)
     {
-        var exceptionById = _validationData.GetExceptionById(exceptionId);
+        var exceptionById = await _validationData.GetExceptionById(exceptionId);
         if (exceptionById == null)
         {
             _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
