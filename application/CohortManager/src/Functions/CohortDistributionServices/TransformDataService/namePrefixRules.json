@@ -1,427 +1,62 @@
 [
   {
+    "NamePrefixListCorrectAsIs":
+    [
+      "A.ML",
+      "ADM",
+      "BRIG",
+      "BRO",
+      "CAN",
+      "CAPT",
+      "CMDR",
+      "COL",
+      "DAME",
+      "DEAN",
+      "DR",
+      "EARL",
+      "FR",
+      "G.C",
+      "GEN",
+      "HON",
+      "HRH",
+      "LADY",
+      "LORD",
+      "LT.C",
+      "MJR",
+      "MISS",
+      "MR",
+      "MRS",
+      "MS",
+      "MX",
+      "PROF",
+      "R.RN",
+      "R.HV",
+      "REV",
+      "SIR",
+      "SQLD",
+      "SR",
+      "VISC",
+      "WCOM"
+    ],
+
+    "WorkflowName": "NoTransform",
+    "Rules":
+      {
+        "RuleName": "0.No transfromation required",
+        "Expression":"NamePrefixListCorrectAsIs.!Contains(namePrefix)",
+        "Actions": {
+          "OnFailure": {
+            "Name":"OutputExpression",
+            "Context": {
+              "Expression": "namePrefix"
+            }
+          }
+        }
+      }
+  },
+  {
     "WorkflowName": "NamePrefix",
     "Rules": [
-      {
-        "RuleName": "1.NamePrefix.A.ML",
-        "Expression": "namePrefix == \"A.ML\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"A.ML\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "2.NamePrefix.ADM",
-        "Expression": "namePrefix == \"ADM\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"ADM\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "3.NamePrefix.BRIG",
-        "Expression": "namePrefix == \"BRIG\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"BRIG\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "4.NamePrefix.BRO",
-        "Expression": "namePrefix == \"BRO\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"BRO\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "5.NamePrefix.CAN",
-        "Expression": "namePrefix == \"CAN\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"CAN\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "6.NamePrefix.CAPT",
-        "Expression": "namePrefix == \"CAPT\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"CAPT\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "7.NamePrefix.CMDR",
-        "Expression": "namePrefix == \"CMDR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"CMDR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "8.NamePrefix.COL",
-        "Expression": "namePrefix == \"COL\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"COL\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "9.NamePrefix.DAME",
-        "Expression": "namePrefix == \"DAME\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"DAME\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "10.NamePrefix.DEAN",
-        "Expression": "namePrefix == \"DEAN\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"DEAN\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "11.NamePrefix.DR",
-        "Expression": "namePrefix == \"DR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"DR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "12.NamePrefix.EARL",
-        "Expression": "namePrefix == \"EARL\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"EARL\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "13.NamePrefix.FR",
-        "Expression": "namePrefix == \"FR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"FR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "14.NamePrefix.G.C",
-        "Expression": "namePrefix == \"G.C\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"G.C\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "15.NamePrefix.GEN",
-        "Expression": "namePrefix == \"GEN\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"GEN\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "16.NamePrefix.HON",
-        "Expression": "namePrefix == \"HON\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"HON\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "17.NamePrefix.HRH",
-        "Expression": "namePrefix == \"HRH\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"HRH\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "18.NamePrefix.LADY",
-        "Expression": "namePrefix == \"LADY\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"LADY\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "19.NamePrefix.LORD",
-        "Expression": "namePrefix == \"LORD\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"LORD\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "20.NamePrefix.LT.C",
-        "Expression": "namePrefix == \"LT.C\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"LT.C\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "21.NamePrefix.MAJ",
-        "Expression": "namePrefix == \"MAJ\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MAJ\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "22.NamePrefix.MISS",
-        "Expression": "namePrefix == \"MISS\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MISS\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "23.NamePrefix.MR",
-        "Expression": "namePrefix == \"MR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "24.NamePrefix.MRS",
-        "Expression": "namePrefix == \"MRS\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MRS\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "25.NamePrefix.MS",
-        "Expression": "namePrefix == \"MS\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MS\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "26.NamePrefix.MX",
-        "Expression": "namePrefix == \"MX\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"MX\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "27.NamePrefix.PROF",
-        "Expression": "namePrefix == \"PROF\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"PROF\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "28.NamePrefix.R.HN",
-        "Expression": "namePrefix == \"R.HN\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"R.HN\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "29.NamePrefix.R.RV",
-        "Expression": "namePrefix == \"R.RV\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"R.RV\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "30.NamePrefix.REV",
-        "Expression": "namePrefix == \"REV\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"REV\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "31.NamePrefix.SIR",
-        "Expression": "namePrefix == \"SIR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"SIR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "32.NamePrefix.SQLD",
-        "Expression": "namePrefix == \"SQLD\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"SQLD\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "33.NamePrefix.SR",
-        "Expression": "namePrefix == \"SR\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"SR\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "34.NamePrefix.VISC",
-        "Expression": "namePrefix == \"VISC\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"VISC\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "35.NamePrefix.WCOM",
-        "Expression": "namePrefix == \"WCOM\"",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"WCOM\""
-            }
-          }
-        }
-      },
       {
         "RuleName": "37.NamePrefix.AirMarshal",
         "Expression": "namePrefix == \"AIR MARSHAL\"",
@@ -975,5 +610,21 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "NotAPrefix",
+    "Rules":
+      {
+        "RuleName": "999. Not a prefix",
+        "Expression": "True",
+        "Actions": {
+          "OnSuccess": {
+            "Name":"OutputExpression",
+            "Context": {
+              "Expression": "Null"
+            }
+          }
+        }
+      }
   }
 ]
