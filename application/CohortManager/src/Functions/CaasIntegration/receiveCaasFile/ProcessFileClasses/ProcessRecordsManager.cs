@@ -71,10 +71,10 @@ public class ProcessRecordsManager : IProcessRecordsManager
                         // await _stateStore.UpdateLastProcessedRecordIndex(name, currentIndex);
 
                 }
-
+                // throw new Exception("Test exception 1");
                 _logger.LogInformation("File processed successfully.");
                 isSuccessful = true;
-                // throw new Exception("Test exception 1");
+
             }
             catch (Exception ex)
             {
@@ -108,19 +108,28 @@ public class ProcessRecordsManager : IProcessRecordsManager
     {
         try
         {
-            string filePath = Path.Combine(Environment.GetEnvironmentVariable("FileDirectoryPath"), fileName);
+
+            string directoryPath = Environment.GetEnvironmentVariable("FileDirectoryPath");
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                _logger.LogError("Environment variable 'FileDirectoryPath' is not set or is empty.");
+                return;
+            }
+
+            string filePath =  Path.Combine(directoryPath, fileName);
             if (!File.Exists(filePath))
             {
                 _logger.LogWarning("File {FileName} does not exist. Skipping upload to blob storage.", fileName);
                 return;
             }
 
+
             byte[] fileData = await File.ReadAllBytesAsync(filePath);
             var blobFile = new BlobFile(fileData, fileName);
 
             bool isUploaded = await _blobStorageHelper.UploadFileToBlobStorage(
-                connectionString: Environment.GetEnvironmentVariable("AzureBlobConnectionString"),
-                containerName: "FailedFilesContainer",
+                connectionString: Environment.GetEnvironmentVariable("AzureWebJobsStorage"),
+                containerName: "file-exceptions",
                 blobFile: blobFile,
                 overwrite: true);
 
