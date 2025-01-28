@@ -73,7 +73,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         }
         using var transaction = await _context.Database.BeginTransactionAsync();
         _context.Update(entity);
-        var rowsEffected = await _context.SaveChangesAsync();
+        var rowsEffected  = await _context.SaveChangesAsync();
 
 
         if (rowsEffected == 1)
@@ -92,4 +92,5 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     }
 
 }
+
 
