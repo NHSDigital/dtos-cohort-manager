@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
-using FluentValidation;
 
 using Microsoft.Extensions.Logging;
 using Model;
@@ -21,11 +20,10 @@ public class ValidationExceptionData : IValidationExceptionData
     private readonly IDataServiceClient<GPPractice> _gpPracticeDataServiceClient;
 
     public ValidationExceptionData(
-    ILogger<ValidationExceptionData> logger,
-    IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
-    IDataServiceClient<ParticipantDemographic> demographicDataServiceClient,
-    IDataServiceClient<GPPractice> gpPracticeDataServiceClient
-
+        ILogger<ValidationExceptionData> logger,
+        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
+        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient,
+        IDataServiceClient<GPPractice> gpPracticeDataServiceClient
     )
     {
 
@@ -35,7 +33,7 @@ public class ValidationExceptionData : IValidationExceptionData
         _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<Model.ValidationException>> GetAllExceptions(bool todayOnly)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly)
     {
         var today = DateTime.Today.Date;
 
@@ -52,7 +50,43 @@ public class ValidationExceptionData : IValidationExceptionData
         .OrderBy(x => x.DateCreated).ToList();
     }
 
-    private Model.ValidationException? GetExceptionDetails(Model.ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
+    public async Task<ValidationException?> GetExceptionById(int exceptionId)
+    {
+        var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber.ToString() == exception.NhsNumber);
+        var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
+
+        return GetExceptionDetails(exception.ToValidationException(), participantDemographic, gpPracticeDetails);
+    }
+
+    public async Task<bool> Create(ValidationException exception)
+    {
+        var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
+        return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
+    }
+
+    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
+    {
+        var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
+        if (exceptions == null)
+        {
+            return false;
+        }
+
+        // we only need to get the last unresolved exception for the nhs number and screening service
+        var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
+        .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+
+        if (validationExceptionToUpdate != null)
+        {
+            validationExceptionToUpdate.DateResolved = DateTime.Today;
+
+            return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
+        }
+        return false;
+    }
+
+    private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
     {
         if (exception == null || participantDemographic == null || gPPractice == null)
         {
@@ -85,41 +119,6 @@ public class ValidationExceptionData : IValidationExceptionData
         };
         return exception;
     }
-    public async Task<Model.ValidationException?> GetExceptionById(int exceptionId)
-    {
-        var exception = await _validationExceptionDataServiceClient.GetSingleByFilter(x => x.ExceptionId == exceptionId);
-        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber.ToString() == exception.NhsNumber);
-        var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
-
-        return GetExceptionDetails(exception.ToValidationException(), participantDemographic, gpPracticeDetails);
-    }
-
-    public async Task<bool> Create(Model.ValidationException exception)
-    {
-        var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
-        return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
-    }
-
-    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
-    {
-        var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
-        if (exceptions == null)
-        {
-            return false;
-        }
-
-        // we only need to get the last unresolved exception for the nhs number and screening service
-        var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
-        .OrderByDescending(x => x.DateCreated).FirstOrDefault();
-
-        if (validationExceptionToUpdate != null)
-        {
-            validationExceptionToUpdate.DateResolved = DateTime.Today;
-
-            return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
-        }
-        return false;
-    }
 
     private async Task<List<ExceptionManagement>?> GetExceptionRecords(string nhsNumber, string screeningName)
     {
@@ -137,6 +136,6 @@ public class ValidationExceptionData : IValidationExceptionData
             return NonNullableDateTime.ToString("yyyy-MM-dd");
         }
         // we throw here to stop processing as the date should never be null
-        throw new Exception("Failed to parse null datetime");
+        throw new ArgumentNullException("Failed to parse null datetime");
     }
 }

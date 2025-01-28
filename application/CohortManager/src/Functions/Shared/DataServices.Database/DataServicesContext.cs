@@ -10,10 +10,9 @@ public class DataServicesContext : DbContext
     DbSet<LanguageCode> languageCodes { get; set; }
     DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
-
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
-
     DbSet<GPPractice> gPPractices { get; set; }
+
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
@@ -41,11 +40,10 @@ public class DataServicesContext : DbContext
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo");
 
         modelBuilder.Entity<ExceptionManagement>()
-                    .ToTable("EXCEPTION_MANAGEMENT", "dbo");
+            .ToTable("EXCEPTION_MANAGEMENT", "dbo");
 
         modelBuilder.Entity<GPPractice>()
             .ToTable("GP_PRACTICES", "dbo");
 
     }
-
 }
