@@ -1,7 +1,5 @@
 namespace Model;
 
-using System.Security.Cryptography;
-
 public class ValidationException
 {
     public int? ExceptionId { get; set; }

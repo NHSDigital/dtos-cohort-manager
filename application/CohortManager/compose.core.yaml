@@ -321,3 +321,27 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+GPPratice-data-service:
+    container_name: gppratice-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GPPratice/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7910
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+exception-management-data-service:
+    container_name: exception-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ExceptionManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7911
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
