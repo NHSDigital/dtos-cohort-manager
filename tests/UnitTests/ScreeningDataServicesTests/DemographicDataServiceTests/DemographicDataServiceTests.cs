@@ -63,7 +63,7 @@ public class DemographicDataServiceTests
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
         {
-            NhsNumber = "1"
+            ParticipantId = "1"
         });
 
         // Act
@@ -93,7 +93,10 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns((Demographic)null);
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
+        {
+            ParticipantId = null
+        });
 
         // Act
         _request.Setup(x => x.Method).Returns("GET");
