@@ -50,11 +50,19 @@ public class DemographicDataFunction
 
             var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
 
-            if (string.IsNullOrEmpty(data))
+            if (data == "Participant not found")
             {
-                _logger.LogInformation("Demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
+                _logger.LogInformation("demographic function failed");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
+
+            // Filters out unnecessary data for use in the BI product
+            if (externalRequest)
+            {
+                var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
+                data = JsonSerializer.Serialize(filteredData);
+            }
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
         catch (Exception ex)
