@@ -60,8 +60,12 @@ public class ValidationExceptionData : IValidationExceptionData
         .OrderBy(x => x.DateCreated).ToList();
     }
 
-    private Model.ValidationException GetExceptionDetails(Model.ValidationException exception, ParticipantDemographic participantDemographic, GPPractice gPPractice)
+    private Model.ValidationException? GetExceptionDetails(Model.ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
     {
+        if (exception == null || participantDemographic == null || gPPractice == null)
+        {
+            return null;
+        }
         exception.ExceptionDetails = new ExceptionDetails
         {
             GivenName = participantDemographic.GivenName,
@@ -88,7 +92,7 @@ public class ValidationExceptionData : IValidationExceptionData
         };
         return exception;
     }
-    public async Task<Model.ValidationException> GetExceptionById(int exceptionId)
+    public async Task<Model.ValidationException?> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingleByFilter(x => x.ExceptionId == exceptionId);
         var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber.ToString() == exception.NhsNumber);
