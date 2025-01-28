@@ -46,27 +46,6 @@ services:
       - PASSWORD=${PASSWORD}
       - DB_NAME=${DB_NAME}
 
-  # Data Insertion Service
-  insert-caas-data:
-    container_name: insert-caas-data
-    network_mode: host
-    build:
-      context: ./Set-up/DataInsertionService
-      dockerfile: Dockerfile_Caas_Data
-    environment:
-      - PASSWORD=${PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
-      - ENVIRONMENT=Local
-      - AzureFunctionsJobHost__http__port=7057
-
-  # data-loader-csv:
-  #   container_name: data-loader-csv
-  #   network_mode: host
-  #   build:
-  #     context: ./Set-up/DataLoaders/DataLoader1
-  #     dockerfile: Dockerfile_csv
-
   # CaaS Integration Service
   retrieve-mesh-file:
     container_name: retrieve-mesh-file

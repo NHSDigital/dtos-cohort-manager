@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 import pandas as pd
 import numpy as np
 
@@ -44,11 +44,11 @@ def initialze_categorisation_columns(df: pd.DataFrame):
     df['discrepancy_category_id'] = 0
     df['date_of_birth'] = pd.to_datetime(df['date_of_birth'])
 
-    today = date.today()
+    reference_date = datetime(2025, 1, 15)
 
     df['age'] = df['date_of_birth'].apply(
-               lambda x: today.year - x.year - 
-               ((today.month, today.day) < (x.month, x.day)))
+               lambda x: reference_date.year - x.year - 
+               ((reference_date.month, reference_date.day) < (x.month, x.day)))
     df['eligible_age'] = (df['age'] >= 44) & (df['age'] < 74)
 
     df['death_rfr'] = (df['reason_for_removal'].isin(['DEATH', 'DEA', 'UNCERTIFIED_DEATH']))

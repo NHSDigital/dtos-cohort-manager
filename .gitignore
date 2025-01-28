@@ -53,6 +53,7 @@ application/CohortManager/SampleData/
 
 # Python
 *.pyc
+env/
 
 
 recreate_local_settings.sh
