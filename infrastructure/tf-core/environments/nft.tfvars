@@ -404,7 +404,7 @@ function_apps = {
       function_endpoint_name = "CreateException"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = [
+      app_urls = [
         {
           env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
@@ -425,7 +425,7 @@ function_apps = {
       function_endpoint_name = "GetValidationExceptions"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = [
+      app_urls = [
         {
           env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
