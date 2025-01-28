@@ -63,7 +63,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     public async Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
 
-        var existingEntity = _context.Set<TEntity>().SingleOrDefault(predicate);
+        var existingEntity = _context.Set<TEntity>().AsNoTracking().SingleOrDefault(predicate);
         await Task.CompletedTask;
 
         if (existingEntity == null)
@@ -71,13 +71,14 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             return null;
         }
         using var transaction = await _context.Database.BeginTransactionAsync();
-        TEntity updatedEntity =  _context.Entry(existingEntity).CurrentValues.SetValues(entity);
+        _context.Update(entity);
         var rowsEffected  = await _context.SaveChangesAsync();
 
 
         if(rowsEffected == 1)
         {
-            return updatedEntity;
+            await _context.Database.CommitTransactionAsync();
+            return entity;
         }
         else if(rowsEffected > 1)
         {
@@ -85,10 +86,9 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
-
         _logger.LogError("No records were updated despite a record being found");
         throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-
     }
 }
+
 
