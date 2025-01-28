@@ -158,6 +158,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
+      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
+      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
 
   get-validation-exceptions:
     container_name: get-validation-exceptions
@@ -168,6 +171,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
+      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
+      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
 
   demographic-data-service:
     container_name: demographic-data-service
@@ -291,6 +297,7 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - RemoveOldValidationRecord=http://localhost:7085/api/RemoveValidationExceptionData
+      
 
   lookup-validation:
     container_name: lookup-validation
@@ -331,8 +338,6 @@ GPPratice-data-service:
     environment:
       - ASPNETCORE_URLS=http://*:7910
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
 exception-management-data-service:
     container_name: exception-management-data-service
@@ -343,5 +348,3 @@ exception-management-data-service:
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
