@@ -2,15 +2,10 @@ namespace Data.Database;
 
 using System;
 using System.Data;
-using System.Globalization;
-using System.Linq.Dynamic.Core.Exceptions;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using DataServices.Client;
 using FluentValidation;
-using Google.Protobuf.WellKnownTypes;
-using Microsoft.Data.SqlClient;
+
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
@@ -64,6 +59,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         if (exception == null || participantDemographic == null || gPPractice == null)
         {
+            _logger.LogWarning("A object was returned from the database for exception. exception {exception}, participantDemographic {participantDemographic}, gPPractice {gPPractice}", exception, participantDemographic, gPPractice);
             return null;
         }
         exception.ExceptionDetails = new ExceptionDetails
@@ -144,6 +140,8 @@ public class ValidationExceptionData : IValidationExceptionData
             DateTime NonNullableDateTime = datetime.Value;
             return NonNullableDateTime.ToString("yyyy-MM-dd");
         }
+
+        _logger.LogWarning("the data was not in the correct format {datetime}", datetime);
         throw new Exception("Failed to parse null datetime");
     }
 }
