@@ -28,6 +28,9 @@ module "functionapp" {
   # Connection string for Application Insights:
   ai_connstring = data.azurerm_application_insights.ai.connection_string
 
+  #To enable health checks for function apps
+  health_check_path = var.function_apps.health_check_path
+
   # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
