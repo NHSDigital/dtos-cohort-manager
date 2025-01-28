@@ -850,7 +850,7 @@ function_apps = {
       ]
     }
 
-    ExceptionManagementDataService: = {
+    ExceptionManagementDataService = {
       name_suffix            = "exception-management-data-service"
       function_endpoint_name = "ExceptionManagementDataService"
       app_service_plan_key   = "DefaultPlan"
