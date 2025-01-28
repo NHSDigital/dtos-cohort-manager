@@ -176,4 +176,33 @@ public class DemographicDataFunctionTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()
         ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
     }
+
+    [TestMethod]
+    public async Task RunExternal_ValidRequest_ReturnOk()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_participant);
+
+        _request = _setupRequest.Setup(json);
+
+        Demographic DataServiceResponse = new()
+        {
+            PrimaryCareProvider = "Blerg",
+            PreferredLanguage = "Francais"
+        };
+
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+
+        _callFunctionMock.Setup(call => call.SendGet(It.IsAny<string>()))
+                        .ReturnsAsync(JsonSerializer.Serialize(DataServiceResponse));
+
+        _request.Setup(r => r.Method).Returns("GET");
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _callFunctionMock.Object);
+
+        // Act
+        var result = await sut.RunExternal(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
 }
