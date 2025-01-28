@@ -107,6 +107,9 @@ services:
       - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
       - GeneCodeLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
       - HigherRiskReferralReasonLkpUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - topicEndpoint=${EVENTGRID_URL}
+      - topicKey=${EVENTGRID_KEY}
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   check-participant-exists:
     container_name: check-participant-exists
@@ -118,7 +121,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8002
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
-    
+
   get-participant-reference-data:
     container_name: get-participant-reference-data
     network_mode: host
