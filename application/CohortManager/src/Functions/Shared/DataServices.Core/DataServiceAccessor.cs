@@ -19,7 +19,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
         var result = _context.Set<TEntity>().Where(predicate).ToList();
-        if(result.Count > 1){
+        if (result.Count > 1)
+        {
             throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
         }
         await Task.CompletedTask;
@@ -63,7 +64,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     public async Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
 
-        var existingEntity = _context.Set<TEntity>().SingleOrDefault(predicate);
+        var existingEntity = _context.Set<TEntity>().AsNoTracking().SingleOrDefault(predicate);
         await Task.CompletedTask;
 
         if (existingEntity == null)
@@ -71,24 +72,24 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             return null;
         }
         using var transaction = await _context.Database.BeginTransactionAsync();
-        TEntity updatedEntity =  _context.Entry(existingEntity).CurrentValues.SetValues(entity);
-        var rowsEffected  = await _context.SaveChangesAsync();
+        _context.Update(entity);
+        var rowsEffected = await _context.SaveChangesAsync();
 
 
-        if(rowsEffected == 1)
+        if (rowsEffected == 1)
         {
-            return updatedEntity;
+            await _context.Database.CommitTransactionAsync();
+            return entity;
         }
-        else if(rowsEffected > 1)
+        else if (rowsEffected > 1)
         {
             await transaction.RollbackAsync();
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
-
         _logger.LogError("No records were updated despite a record being found");
         throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-
     }
+
 }
 

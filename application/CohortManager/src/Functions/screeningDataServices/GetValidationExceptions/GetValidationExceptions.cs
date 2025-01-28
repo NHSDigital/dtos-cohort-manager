@@ -3,6 +3,7 @@ namespace NHS.CohortManager.ScreeningDataServices;
 using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Common;
 using Common.Interfaces;
 using Data.Database;
@@ -42,7 +43,7 @@ public class GetValidationExceptions
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
@@ -56,14 +57,14 @@ public class GetValidationExceptions
                 return GetExceptionById(req, exceptionId);
             }
 
-            var exceptionQuery = _validationData.GetAllExceptions(todayOnly).AsQueryable();
+            var exceptionQuery = await _validationData.GetAllExceptions(todayOnly);
 
             if (exceptionQuery.Count() == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptionQuery, lastId, pageSize, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptionQuery.AsQueryable(), lastId, pageSize, e => e.ExceptionId.Value);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }

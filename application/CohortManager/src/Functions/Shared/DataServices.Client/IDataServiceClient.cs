@@ -45,5 +45,10 @@ public interface IDataServiceClient<TEntity>
     /// <param name="id">the id of the record to be deleted</param>
     /// <returns>a boolean representing if the record was deleted successfully</returns>
     Task<bool> Delete(string id);
-
+    /// <summary>
+    /// Updates a single entity
+    /// </summary>
+    /// <param name="entity">A single TEntity/param>
+    /// <returns></returns>
+    Task<bool> Update(TEntity entity);
 }
