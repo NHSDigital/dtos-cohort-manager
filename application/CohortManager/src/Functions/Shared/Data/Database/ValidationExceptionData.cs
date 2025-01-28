@@ -37,20 +37,17 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<List<Model.ValidationException>> GetAllExceptions(bool todayOnly)
     {
-        List<ExceptionManagement> validationResult = new List<ExceptionManagement>();
-        IEnumerable<ExceptionManagement>? exceptions;
         var today = DateTime.Today.Date;
 
-        exceptions = await _validationExceptionDataServiceClient.GetAll();
-        validationResult = exceptions.ToList();
+        var exceptions = await _validationExceptionDataServiceClient.GetAll();
+        var validationResult = exceptions.ToList();
 
         if (todayOnly)
         {
-            //WHERE [DATE_CREATED] >= @today AND [DATE_CREATED] < @today + 1");
+            // get the exceptions from the list of all exceptions where the date created is today and no greater than today
             validationResult = validationResult.Where(x => x.DateCreated >= today && x.DateCreated < today.AddDays(1)).ToList();
         }
 
-        // "ORDER BY [DATE_CREATED] DESC"
         return validationResult.Select(x => x.ToValidationException())
         .OrderBy(x => x.DateCreated).ToList();
     }
@@ -117,7 +114,6 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (validationExceptionToUpdate != null)
         {
-            // SET DATE_RESOLVED = @todaysDate
             validationExceptionToUpdate.DateResolved = DateTime.Today;
 
             return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
@@ -133,15 +129,14 @@ public class ValidationExceptionData : IValidationExceptionData
 
     }
 
-    private string DateToString(DateTime? datetime)
+    private static string DateToString(DateTime? datetime)
     {
         if (datetime != null)
         {
             DateTime NonNullableDateTime = datetime.Value;
             return NonNullableDateTime.ToString("yyyy-MM-dd");
         }
-
-        _logger.LogWarning("the data was not in the correct format {datetime}", datetime);
+        // we throw here to stop processing as the date should never be null
         throw new Exception("Failed to parse null datetime");
     }
 }
