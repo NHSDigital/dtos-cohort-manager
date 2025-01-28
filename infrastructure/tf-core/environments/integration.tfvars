@@ -85,8 +85,8 @@ routes = {
   }
 }
 
-app_service_logs_disk_quota_mb         = 35
-app_service_logs_retention_period_days = 7
+# app_service_logs_disk_quota_mb         = 35
+# app_service_logs_retention_period_days = 7
 
 app_service_plan = {
   os_type                  = "Linux"
