@@ -833,7 +833,7 @@ function_apps = {
       ]
     }
 
-    GPPraticeDataService: = {
+    GPPraticeDataService = {
       name_suffix            = "gppratice-data-service"
       function_endpoint_name = "GPPraticeDataService"
       app_service_plan_key   = "DefaultPlan"

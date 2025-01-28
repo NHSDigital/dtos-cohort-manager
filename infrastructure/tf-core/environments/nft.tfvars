@@ -833,7 +833,7 @@ function_apps = {
       ]
     }
 
-    GPPraticeDataService: = {
+    GPPraticeDataService = {
       name_suffix            = "gppratice-data-service"
       function_endpoint_name = "GPPraticeDataService"
       app_service_plan_key   = "DefaultPlan"
@@ -850,7 +850,7 @@ function_apps = {
       ]
     }
 
-    ExceptionManagementDataService: = {
+    ExceptionManagementDataService = {
       name_suffix            = "exception-management-data-service"
       function_endpoint_name = "ExceptionManagementDataService"
       app_service_plan_key   = "DefaultPlan"
