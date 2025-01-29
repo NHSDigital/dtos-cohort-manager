@@ -40,8 +40,7 @@ public class DemographicDataFunction
         return await Main(req, true);
     }
 
-    [Function("DemographicDataFunction")]
-     private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
+    private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
     {
         try
         {
