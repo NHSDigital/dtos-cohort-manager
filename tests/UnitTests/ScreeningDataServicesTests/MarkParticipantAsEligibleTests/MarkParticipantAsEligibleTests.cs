@@ -10,6 +10,8 @@ using Model;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
+using System.Text.Json;
+using Google.Protobuf.WellKnownTypes;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
@@ -23,12 +25,18 @@ public class MarkParticipantAsEligibleTests
     public async Task Run_MarkParticipantAsEligible_ValidRequest_ReturnsSuccess()
     {
         // Arrange
-        string requestBody = @"{
-            ""isActive"": 1
-        }";
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
+        var requestBody = new Participant
+        {
+            NhsNumber = "NHS1234567",
+            ParticipantId = "123"
+        };
+        var json = JsonSerializer.Serialize(requestBody);
+        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
-        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
+
+        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
@@ -42,12 +50,18 @@ public class MarkParticipantAsEligibleTests
     public async Task Run_MarkParticipantAsEligible_InvalidRequest_ReturnsBadRequest()
     {
         // Arrange
-        string requestBody = @"{
-            ""isActive"": 0
-        }";
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
+        var requestBody = new Participant
+        {
+            NhsNumber = "NHS1234567",
+            ParticipantId = "123"
+        };
+        var json = JsonSerializer.Serialize(requestBody);
+        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
-        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
+
+        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
