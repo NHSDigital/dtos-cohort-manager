@@ -149,8 +149,10 @@ function_apps = {
   acr_name    = "acrukshubprodcohman"
   acr_rg_name = "rg-hub-prod-uks-cohman"
 
-  app_insights_name    = "appi-pre-uks-cohman"
-  app_insights_rg_name = "rg-cohman-pre-uks-audit"
+  app_insights_name                      = "appi-pre-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-pre-uks-audit"
+  app_service_logs_disk_quota_mb         = 35
+  app_service_logs_retention_period_days = 7
 
   always_on = true
 
