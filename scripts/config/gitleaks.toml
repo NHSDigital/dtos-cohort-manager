@@ -29,7 +29,8 @@ paths = [
   '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
   '''tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj''',
   '''tests/IntegrationTests/integration.csproj''',
-  '''application/CohortManager/src/Functions/Shared/Model/Model.csproj'''
+  '''application/CohortManager/src/Functions/Shared/Model/Model.csproj''',
+  '''tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'''
 ]
 
 
