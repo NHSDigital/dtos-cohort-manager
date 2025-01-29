@@ -81,3 +81,6 @@ infrastructure/.terraform.lock.hcl
 infrastructure/tf-core/.terraform.lock.hcl
 infrastructure/tf-audit/.terraform.lock.hcl
 application/CohortManager/.vscode/
+
+# Ignore generated feature bindings
+*.feature.cs
