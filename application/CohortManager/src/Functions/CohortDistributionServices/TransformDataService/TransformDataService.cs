@@ -76,7 +76,8 @@ public class TransformDataService
             participant = await TransformParticipantAsync(participant);
 
             // Name prefix transformation
-            participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+            if (participant.NamePrefix != null)
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant);
 

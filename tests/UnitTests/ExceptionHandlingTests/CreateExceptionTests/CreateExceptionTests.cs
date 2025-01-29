@@ -71,7 +71,7 @@ public class CreateExceptionTests
     public async Task Run_ExceptionRecordCreated_ReturnsCreated()
     {
         // Arrange
-        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).Returns(true);
+        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).ReturnsAsync(true);
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -86,7 +86,7 @@ public class CreateExceptionTests
     public async Task Run_ExceptionRecordFailedToCreate_ReturnsInternalServerError()
     {
         // Arrange
-        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).Returns(false);
+        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).ReturnsAsync(false);
 
         // Act
         var result = await _function.RunAsync(_request.Object);

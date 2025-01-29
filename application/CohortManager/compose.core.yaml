@@ -36,6 +36,9 @@ services:
       - DemographicURI=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+      - DemographicURI=http://localhost:7079/api/DurableDemographicFunction_HttpStart
+      - GetOrchestrationStatusURL=http://localhost:7079/api/GetOrchestrationStatus
       - AddQueueName=add-participant-queue
       - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -158,6 +161,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
+      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
+      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
 
   get-validation-exceptions:
     container_name: get-validation-exceptions
@@ -168,6 +174,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
+      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
+      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
 
   demographic-data-service:
     container_name: demographic-data-service
@@ -241,18 +250,6 @@ services:
       - ASPNETCORE_URLS=http://*:7994
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  durable-demographic-data-service:
-    container_name: durable-demographic-data-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7997
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     network_mode: host
@@ -291,6 +288,7 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - RemoveOldValidationRecord=http://localhost:7085/api/RemoveValidationExceptionData
+      
 
   lookup-validation:
     container_name: lookup-validation
@@ -321,3 +319,37 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+  durable-demographic-function:
+    container_name: durable-demographic-function
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7079
+      - WEBSITE_HOSTNAME=localhost:7079
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+
+  GPPratice-data-service:
+    container_name: Gppratice-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GPPratice/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7910
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  exception-management-data-service:
+    container_name: exception-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ExceptionManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7911
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

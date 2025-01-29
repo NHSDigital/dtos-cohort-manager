@@ -4,8 +4,8 @@ using Model;
 
 public interface IValidationExceptionData
 {
-    bool Create(ValidationException exception);
-    List<ValidationException> GetAllExceptions(bool todayOnly);
-    ValidationException GetExceptionById(int exceptionId);
-    bool RemoveOldException(string nhsNumber, string screeningName);
+    Task<bool> Create(ValidationException exception);
+    Task<List<ValidationException>> GetAllExceptions(bool todayOnly);
+    Task<ValidationException> GetExceptionById(int exceptionId);
+    Task<bool> RemoveOldException(string nhsNumber, string screeningName);
 }
