@@ -1,62 +1,25 @@
 [
   {
-    "NamePrefixListCorrectAsIs":
-    [
-      "A.ML",
-      "ADM",
-      "BRIG",
-      "BRO",
-      "CAN",
-      "CAPT",
-      "CMDR",
-      "COL",
-      "DAME",
-      "DEAN",
-      "DR",
-      "EARL",
-      "FR",
-      "G.C",
-      "GEN",
-      "HON",
-      "HRH",
-      "LADY",
-      "LORD",
-      "LT.C",
-      "MJR",
-      "MISS",
-      "MR",
-      "MRS",
-      "MS",
-      "MX",
-      "PROF",
-      "R.RN",
-      "R.HV",
-      "REV",
-      "SIR",
-      "SQLD",
-      "SR",
-      "VISC",
-      "WCOM"
-    ],
-
-    "WorkflowName": "NoTransform",
-    "Rules":
+    "WorkflowName": "NamePrefix",
+    "GlobalParams": [
+        {
+          "Name":"NamePrefixListCorrectAsIs",
+          "Expression": "new List<String>() {\"A.ML\",\"ADM\",\"BRIG\",\"BRO\",\"CAN\",\"CAPT\",\"CMDR\",\"COL\",\"DAME\",\"DEAN\",\"DR\",\"EARL\",\"FR\",\"G.C\",\"GEN\",\"HON\",\"HRH\",\"LADY\",\"LORD\",\"LT.C\",\"MJR\",\"MISS\",\"MR\",\"MRS\",\"MS\",\"MX\",\"PROF\",\"R.RN\",\"R.HV\",\"REV\",\"SIR\",\"SQLD\",\"SR\",\"VISC\",\"WCOM\"}"
+        }
+      ],
+    "Rules": [
       {
         "RuleName": "0.No transfromation required",
-        "Expression":"NamePrefixListCorrectAsIs.!Contains(namePrefix)",
+        "Expression": "NamePrefixListCorrectAsIs.!Contains(namePrefix)",
         "Actions": {
           "OnFailure": {
-            "Name":"OutputExpression",
+            "Name": "OutputExpression",
             "Context": {
               "Expression": "namePrefix"
             }
           }
         }
-      }
-  },
-  {
-    "WorkflowName": "NamePrefix",
-    "Rules": [
+      },
       {
         "RuleName": "37.NamePrefix.AirMarshal",
         "Expression": "namePrefix == \"AIR MARSHAL\"",
@@ -216,7 +179,7 @@
       {
         "RuleName": "50.NamePrefix.Fath",
         "Expression": "namePrefix == \"FATH\"",
-              "Actions": {
+        "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
@@ -608,23 +571,19 @@
             }
           }
         }
-      }
-    ]
-  },
-  {
-    "WorkflowName": "NotAPrefix",
-    "Rules":
+      },
       {
-        "RuleName": "999. Not a prefix",
+        "RuleName": "999. Not a valid prefix",
         "Expression": "True",
         "Actions": {
           "OnSuccess": {
-            "Name":"OutputExpression",
+            "Name": "OutputExpression",
             "Context": {
               "Expression": "Null"
             }
           }
         }
       }
+    ]
   }
 ]
