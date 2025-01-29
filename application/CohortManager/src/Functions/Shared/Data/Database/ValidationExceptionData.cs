@@ -134,6 +134,6 @@ public class ValidationExceptionData : IValidationExceptionData
             return NonNullableDateTime.ToString("yyyy-MM-dd");
         }
         // we throw here to stop processing as the date should never be null
-        throw new ArgumentNullException("Failed to parse null datetime");
+        throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 }
