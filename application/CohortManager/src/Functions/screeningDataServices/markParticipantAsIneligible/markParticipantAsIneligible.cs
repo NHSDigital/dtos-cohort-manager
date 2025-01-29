@@ -50,29 +50,25 @@ public class MarkParticipantAsIneligible
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
         var participantData = requestBody.Participant;
-        var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantData.NhsNumber && i.ScreeningId.ToString() == participantData.ScreeningId);
 
+        // Check if a participant with the supplied NHS Number already exists
+        var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantData.NhsNumber && i.ScreeningId.ToString() == participantData.ScreeningId);
         if (existingParticipantResult != null && existingParticipantResult.Any())
         {
             existingParticipant = new Participant(existingParticipantResult.First());
         }
-
-        // Check if a participant with the supplied NHS Number already exists
         var response = await ValidateData(existingParticipant, participantData, requestBody.FileName);
         if (response.IsFatal)
         {
             _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
         try
         {
             var updated = false;
-            // updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
             var updtParticipantManagement = _participantManagementClient.GetSingle(participantData.ParticipantId).Result;
             updtParticipantManagement.EligibilityFlag = 1;
-
             updated = _participantManagementClient.Update(updtParticipantManagement).Result;
 
             if (updated)
