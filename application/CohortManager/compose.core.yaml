@@ -39,6 +39,7 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://localhost:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://localhost:7079/api/GetOrchestrationStatus
+      - AllowDeleteRecords=true
       - AddQueueName=add-participant-queue
       - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
