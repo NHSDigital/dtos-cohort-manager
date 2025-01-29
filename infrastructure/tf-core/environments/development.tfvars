@@ -143,8 +143,10 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-dev-uks-cohman"
-  app_insights_rg_name = "rg-cohman-dev-uks-audit"
+  app_insights_name                      = "appi-dev-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-dev-uks-audit"
+  app_service_logs_disk_quota_mb         = 35
+  app_service_logs_retention_period_days = 7
 
   always_on = true
 
@@ -404,7 +406,20 @@ function_apps = {
       function_endpoint_name = "CreateException"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = []
+      app_urls = [
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPraticeDataService"
+        }
+      ]
     }
 
     GetValidationExceptions = {
@@ -412,7 +427,20 @@ function_apps = {
       function_endpoint_name = "GetValidationExceptions"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = []
+      app_urls = [
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPraticeDataService"
+        }
+      ]
     }
 
     DemographicDataService = {
@@ -671,6 +699,18 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPraticeDataService"
         }
       ]
     }
@@ -791,6 +831,40 @@ function_apps = {
         {
           env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
+
+    GPPraticeDataService = {
+      name_suffix            = "gppratice-data-service"
+      function_endpoint_name = "GPPraticeDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURI"
+          function_app_key = "DemographicDataService"
+        }
+      ]
+    }
+
+    ExceptionManagementDataService = {
+      name_suffix            = "exception-management-data-service"
+      function_endpoint_name = "ExceptionManagementDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURI"
+          function_app_key = "DemographicDataService"
         }
       ]
     }
