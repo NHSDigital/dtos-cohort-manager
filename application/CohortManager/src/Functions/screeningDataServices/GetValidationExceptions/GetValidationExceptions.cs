@@ -57,14 +57,14 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptionQueryFromToday = await _validationData.GetAllExceptions(todayOnly);
+            var todaysExceptions = await _validationData.GetAllExceptions(todayOnly);
 
-            if (!exceptionQueryFromToday.Any())
+            if (!todaysExceptions.Any())
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptionQueryFromToday.AsQueryable(), lastId, pageSize, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(todaysExceptions.AsQueryable(), lastId, pageSize, e => e.ExceptionId.Value);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }

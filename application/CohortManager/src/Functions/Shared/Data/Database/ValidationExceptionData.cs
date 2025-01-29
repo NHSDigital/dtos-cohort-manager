@@ -35,16 +35,15 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly)
     {
-        var today = DateTime.Today.Date;
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated >= DateTime.Today && x.DateCreated < DateTime.Today.AddDays(1));
 
-        var exceptions = await _validationExceptionDataServiceClient.GetAll();
-        var validationResult = exceptions.ToList();
-
-        if (todayOnly)
+        if (!todayOnly)
         {
             // get the exceptions from the list of all exceptions where the date created is today and no greater than today
-            validationResult = validationResult.Where(x => x.DateCreated >= today && x.DateCreated < today.AddDays(1)).ToList();
+            exceptions = await _validationExceptionDataServiceClient.GetAll();
+            //validationResult = validationResult.Where(x => x.DateCreated >= today && x.DateCreated < today.AddDays(1)).ToList();
         }
+        var validationResult = exceptions.ToList();
 
         return validationResult.Select(x => x.ToValidationException())
         .OrderBy(x => x.DateCreated).ToList();

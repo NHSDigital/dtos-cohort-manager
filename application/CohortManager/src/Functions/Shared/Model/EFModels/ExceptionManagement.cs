@@ -19,11 +19,11 @@ public class ExceptionManagement
     [Column("NHS_NUMBER")]
     public string? NhsNumber { get; set; }
 
-    [Column("DATE_CREATED")]
-    public DateTime? DateCreated { get; set; }
+    [Column("DATE_CREATED", TypeName = "datetime")]
+    public DateTime DateCreated { get; set; }
 
-    [Column("DATE_RESOLVED")]
-    public DateTime? DateResolved { get; set; }
+    [Column("DATE_RESOLVED", TypeName = "datetime")]
+    public DateTime DateResolved { get; set; }
 
     [Column("RULE_ID")]
     public int? RuleId { get; set; }
@@ -41,8 +41,8 @@ public class ExceptionManagement
     [Column("SCREENING_NAME")]
     public string? ScreeningName { get; set; }
 
-    [Column("EXCEPTION_DATE")]
-    public DateTime? ExceptionDate { get; set; }
+    [Column("EXCEPTION_DATE", TypeName = "datetime")]
+    public DateTime ExceptionDate { get; set; }
 
     [MaxLength(100)]
     [Column("COHORT_NAME")]
@@ -81,14 +81,14 @@ public class ExceptionManagement
             ExceptionId = validationException.ExceptionId ?? 0,
             FileName = validationException.FileName,
             NhsNumber = validationException.NhsNumber,
-            DateCreated = validationException.DateCreated,
-            DateResolved = validationException.DateResolved,
+            DateCreated = validationException.DateCreated ?? DateTime.MinValue,
+            DateResolved = validationException.DateResolved ?? DateTime.MaxValue,
             RuleId = validationException.RuleId,
             RuleDescription = validationException.RuleDescription,
             ErrorRecord = validationException.ErrorRecord,
             Category = validationException.Category,
             ScreeningName = validationException.ScreeningName,
-            ExceptionDate = validationException.ExceptionDate,
+            ExceptionDate = validationException.ExceptionDate ?? DateTime.Now,
             CohortName = validationException.CohortName,
             IsFatal = short.TryParse(input, out short result) ? result : new short()
         };
