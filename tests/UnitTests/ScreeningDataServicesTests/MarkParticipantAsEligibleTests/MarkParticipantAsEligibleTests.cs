@@ -9,13 +9,14 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
+using DataServices.Client;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
 {
     private readonly Mock<ILogger<MarkParticipantAsEligible>> _mockLogger = new();
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
-    private readonly Mock<IParticipantManagerData> _mockUpdateParticipantData = new();
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
 
     [TestMethod]
@@ -26,8 +27,8 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": 1
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(true);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
+        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
@@ -45,8 +46,8 @@ public class MarkParticipantAsEligibleTests
             ""isActive"": 0
         }";
         var mockRequest = MockHelpers.CreateMockHttpRequestData(requestBody);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockUpdateParticipantData.Object, _handleException.Object);
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(false);
+        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
+        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
         await markParticipantAsEligible.Run(mockRequest);
