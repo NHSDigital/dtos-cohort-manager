@@ -8,22 +8,23 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using DataServices.Client;
 using Model;
 
 
 public class MarkParticipantAsIneligible
 {
     private readonly ILogger<MarkParticipantAsIneligible> _logger;
-    private readonly IParticipantManagerData _participantManagerData;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
 
     private readonly ICallFunction _callFunction;
 
-    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, ICallFunction callFunction, IExceptionHandler handleException)
+    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantManagement> participantManagementClient, ICallFunction callFunction, IExceptionHandler handleException)
     {
         _logger = logger;
-        _participantManagerData = participantManagerData;
+        _participantManagementClient = participantManagementClient;
         _createResponse = createResponse;
         _handleException = handleException;
         _callFunction = callFunction;
@@ -33,6 +34,7 @@ public class MarkParticipantAsIneligible
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         ParticipantCsvRecord requestBody;
+        var existingParticipant = new Participant();
 
         try
         {
@@ -40,18 +42,23 @@ public class MarkParticipantAsIneligible
             {
                 var requestBodyJson = await reader.ReadToEndAsync();
                 requestBody = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
+;
             }
         }
         catch
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
-
         var participantData = requestBody.Participant;
+        var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantData.NhsNumber && i.ScreeningId.ToString() == participantData.ScreeningId);
+
+        if (existingParticipantResult != null && existingParticipantResult.Any())
+        {
+            existingParticipant = new Participant(existingParticipantResult.First());
+        }
 
         // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantData = _participantManagerData.GetParticipant(participantData.NhsNumber, participantData.ScreeningId);
-        var response = await ValidateData(existingParticipantData, participantData, requestBody.FileName);
+        var response = await ValidateData(existingParticipant, participantData, requestBody.FileName);
         if (response.IsFatal)
         {
             _logger.LogInformation("Validation found that there was a rule that caused a fatal error to occur meaning the cohort distribution record cannot be added to the database");
@@ -62,8 +69,12 @@ public class MarkParticipantAsIneligible
         try
         {
             var updated = false;
-            updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
-            
+            // updated = _participantManagerData.UpdateParticipantAsEligible(participantData);
+            var updtParticipantManagement = _participantManagementClient.GetSingle(participantData.ParticipantId).Result;
+            updtParticipantManagement.EligibilityFlag = 1;
+
+            updated = _participantManagementClient.Update(updtParticipantManagement).Result;
+
             if (updated)
             {
                 _logger.LogInformation("Record updated for participant {NhsNumber}", participantData.NhsNumber);
@@ -74,7 +85,7 @@ public class MarkParticipantAsIneligible
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
-        { 
+        {
             if (ex is NullReferenceException) {
                 _logger.LogError("An error occured when trying to retrieve the participant data");
             } else {
