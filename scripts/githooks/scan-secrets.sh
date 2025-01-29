@@ -39,12 +39,20 @@ function main() {
 # Get Gitleaks command to execute and configuration.
 # Arguments (provided as environment variables):
 #   dir=[project's top-level directory]
+# Get Gitleaks command to execute and configuration.
+# Arguments (provided as environment variables):
+#   dir=[project's top-level directory]
 function get-cmd-to-run() {
 
   check=${check:-staged-changes}
+  branch=$(git rev-parse --abbrev-ref HEAD)  # Get the current branch
+
   case $check in
     "whole-history")
       cmd="detect --source $dir --verbose --redact"
+      ;;
+    "current-branch")
+      cmd="detect --source $dir --verbose --redact --log-opts=origin/$branch"
       ;;
     "last-commit")
       cmd="detect --source $dir --verbose --redact --log-opts -1"
