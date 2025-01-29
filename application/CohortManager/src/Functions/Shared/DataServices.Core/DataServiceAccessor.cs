@@ -86,10 +86,9 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
-
         _logger.LogError("No records were updated despite a record being found");
         throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-
     }
 }
+
 
