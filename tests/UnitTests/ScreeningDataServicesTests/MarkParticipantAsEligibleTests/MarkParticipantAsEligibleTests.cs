@@ -2,7 +2,6 @@ namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 
 using System.Net;
 using Common;
-using Data.Database;
 using markParticipantAsEligible;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,7 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Text.Json;
-using Google.Protobuf.WellKnownTypes;
+
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
