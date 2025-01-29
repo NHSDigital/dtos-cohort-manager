@@ -41,7 +41,6 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             // get the exceptions from the list of all exceptions where the date created is today and no greater than today
             exceptions = await _validationExceptionDataServiceClient.GetAll();
-            //validationResult = validationResult.Where(x => x.DateCreated >= today && x.DateCreated < today.AddDays(1)).ToList();
         }
         var validationResult = exceptions.ToList();
 
