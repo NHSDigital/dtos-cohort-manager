@@ -19,7 +19,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
     public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
         var result = _context.Set<TEntity>().Where(predicate).ToList();
-        if(result.Count > 1){
+        if (result.Count > 1)
+        {
             throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
         }
         await Task.CompletedTask;
@@ -75,12 +76,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         var rowsEffected  = await _context.SaveChangesAsync();
 
 
-        if(rowsEffected == 1)
+        if (rowsEffected == 1)
         {
             await _context.Database.CommitTransactionAsync();
             return entity;
         }
-        else if(rowsEffected > 1)
+        else if (rowsEffected > 1)
         {
             await transaction.RollbackAsync();
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
@@ -89,6 +90,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         _logger.LogError("No records were updated despite a record being found");
         throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
     }
+
 }
 
 

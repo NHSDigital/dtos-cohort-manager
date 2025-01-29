@@ -8,6 +8,7 @@ using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using NHS.CohortManager.ScreeningDataServices;
 using Common;
+using System.Threading.Tasks;
 
 [TestClass]
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
@@ -41,16 +42,16 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     }
 
     [TestMethod]
-    public void Run_NoExceptionIdQueryParameter_ReturnsAllExceptions()
+    public async Task Run_NoExceptionIdQueryParameter_ReturnsAllExceptions()
     {
         // Arrange
         var exceptionId = 0;
-        _validationDataMock.Setup(s => s.GetAllExceptions(false)).Returns(_exceptionList);
+        _validationDataMock.Setup(s => s.GetAllExceptions(false)).ReturnsAsync(_exceptionList);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
         SetupRequestWithQueryParams([]);
 
         // Act
-        var result = _service.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
         Assert.IsNotNull(result);
@@ -59,16 +60,16 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     }
 
     [TestMethod]
-    public void Run_ValidExceptionId_ReturnsExceptionById()
+    public async Task Run_ValidExceptionId_ReturnsExceptionById()
     {
         // Arrange
         var exceptionId = 1;
-        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).Returns(_exceptionList.First(f => f.ExceptionId == exceptionId));
+        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).ReturnsAsync(_exceptionList.First(f => f.ExceptionId == exceptionId));
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "exceptionId", exceptionId.ToString() } });
 
         // Act
-        var result = _service.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -76,17 +77,17 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     }
 
     [TestMethod]
-    public void Run_ExceptionIdIsOutOfRange_ReturnsNoContent()
+    public async Task Run_ExceptionIdIsOutOfRange_ReturnsNoContent()
     {
         // Arrange
         var exceptionId = 999;
-        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).Returns((ValidationException)null);
+        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).ReturnsAsync((ValidationException)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
 
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "exceptionId", exceptionId.ToString() } });
 
         // Act
-        var result = _service.Run(_request.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
