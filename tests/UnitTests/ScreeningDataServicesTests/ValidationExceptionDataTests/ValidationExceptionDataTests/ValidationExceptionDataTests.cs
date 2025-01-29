@@ -68,7 +68,7 @@ public class ValidationExceptionDataTests
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.DateCreated == DateTime.Today).ToList();
-        _validationExceptionDataServiceClient.Setup(x => x.GetAll()).ReturnsAsync(filteredList);
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(filteredList);
 
         // Act
         var result = await validationExceptionData.GetAllExceptions(true);
