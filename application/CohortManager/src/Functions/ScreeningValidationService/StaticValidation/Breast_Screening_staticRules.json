@@ -299,14 +299,24 @@
   },
   {
     "WorkflowName": "AMENDED",
+    "GlobalParams": [
+        {
+          "Name": "IsUpdateRequest",
+          "Expression": "participant.RecordType == Actions.Amended"
+        },
+        {
+          "Name": "DeathStatusFormal",
+          "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
+        },
+        {
+          "Name": "DeathStatusInformal",
+          "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.inFormal"
+        }
+      ],
     "Rules": [
       {
         "RuleName": "66.DeathStatus.NonFatal",
         "LocalParams": [
-          {
-            "Name": "IsUpdateRequest",
-            "Expression": "participant.RecordType == Actions.Amended"
-          },
           {
             "Name": "DeathStatusFormal",
             "Expression": "participant.DeathStatus != null && participant.DeathStatus == Status.Formal"
@@ -325,7 +335,26 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "66a.DeathStatus.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "IsUpdateRequest",
+            "Expression": "participant.RecordType == Actions.Amended"
+          }
+        ],
+        "Expression": "IsUpdateRequest ? (participant.DeathStatus != null || (!DeathStatusFormal && !DeathStatusInformal)) : true",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid death status\""
+            }
+          }
+        }
       }
+
     ]
   }
 ]

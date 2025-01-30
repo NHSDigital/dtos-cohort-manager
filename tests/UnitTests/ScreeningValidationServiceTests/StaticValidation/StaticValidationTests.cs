@@ -696,6 +696,29 @@ public class StaticValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
+
+    [TestMethod]
+    [DataRow("AMENDED", null, "")]
+    [DataRow("AMENDED", 6, "")]
+    public async Task Run_Should_Return_Created_And_Create_Exception_When_DeathStatus_Is_Null_or_Invalid(string recordType, Status deathStatus, string reasonForRemoval)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.DeathStatus = deathStatus;
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66a.DeathStatus.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
     #endregion
 
     #region Reason For Removal Effective From Date (Rule 19)
