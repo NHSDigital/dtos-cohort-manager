@@ -36,17 +36,21 @@ public class MarkParticipantAsEligible
         }
 
         var participant = JsonSerializer.Deserialize<Participant>(postData);
-        var participantId = participant?.ParticipantId;
+        long nhsNumber;
 
         try
         {
             var updated = false;
             if (participant != null)
             {
-                var updtParticipantManagement = _participantManagementClient.GetSingle(participantId).Result;
-                updtParticipantManagement.EligibilityFlag = 1;
+                if (!long.TryParse(participant.NhsNumber, out nhsNumber))
+                {
+                    throw new FormatException("Could not parse NhsNumber");
+                }
+                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber).Result;
+                updatedParticipantManagement.EligibilityFlag = 1;
 
-                updated = _participantManagementClient.Update(updtParticipantManagement).Result;
+                updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
             }
 
             if (updated)

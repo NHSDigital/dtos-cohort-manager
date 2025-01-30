@@ -10,7 +10,7 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Text.Json;
-
+using System.Linq.Expressions;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
@@ -26,15 +26,15 @@ public class MarkParticipantAsEligibleTests
         // Arrange
         var requestBody = new Participant
         {
-            NhsNumber = "NHS1234567",
+            NhsNumber = "1234567890",
             ParticipantId = "123"
         };
         var json = JsonSerializer.Serialize(requestBody);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
-        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, EligibilityFlag = 0 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         // Act
@@ -51,15 +51,15 @@ public class MarkParticipantAsEligibleTests
         // Arrange
         var requestBody = new Participant
         {
-            NhsNumber = "NHS1234567",
+            NhsNumber = "1234567890",
             ParticipantId = "123"
         };
         var json = JsonSerializer.Serialize(requestBody);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
         var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
-        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, EligibilityFlag = 0 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
