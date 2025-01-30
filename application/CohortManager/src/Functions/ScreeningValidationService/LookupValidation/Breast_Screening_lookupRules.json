@@ -5,12 +5,16 @@
       {
         "Name": "ValidCurrentPosting",
         "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+      },
+      {
+        "Name": "ValidPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)"
       }
     ],
     "Rules": [
       {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "Expression": "ValidPrimaryCareProvider",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -21,18 +25,22 @@
         }
       },
       {
-        "RuleName": "3645.CurrentPostingAndPrimaryProvider.NonFatal",
+        "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "ValidPostingCategory",
-            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
-          },
-          {
-            "Name": "InvalidPrimaryCareProvider",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Name": "EnglishCurrentPosting",
+            "Expression": "new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)"
           }
         ],
-        "Expression": "!(ValidPostingCategory AND InvalidPrimaryCareProvider)"
+        "Expression": "!(EnglishCurrentPosting && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid primary care provider GP practice code\""
+            }
+          }
+        }
       },
       {
         "RuleName": "58.CurrentPosting.NonFatal",
