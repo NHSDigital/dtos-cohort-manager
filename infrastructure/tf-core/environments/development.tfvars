@@ -417,7 +417,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -438,7 +438,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -710,7 +710,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -835,9 +835,9 @@ function_apps = {
       ]
     }
 
-    GPPraticeDataService = {
-      name_suffix            = "gppratice-data-service"
-      function_endpoint_name = "GPPraticeDataService"
+    GPPracticeDataService = {
+      name_suffix            = "gppractice-data-service"
+      function_endpoint_name = "GPPracticeDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [

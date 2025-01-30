@@ -334,12 +334,12 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
-  GPPratice-data-service:
-    container_name: Gppratice-data-service
+  GPPractice-data-service:
+    container_name: GPPractice-data-service
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/GPPratice/Dockerfile
+      dockerfile: screeningDataServices/GPPractice/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7910
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
