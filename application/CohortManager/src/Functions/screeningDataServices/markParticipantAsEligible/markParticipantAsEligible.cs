@@ -56,7 +56,6 @@ public class MarkParticipantAsEligible
             }
 
             _logger.LogError("An error occurred while updating data for {NhsNumber}", participant?.NhsNumber);
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
