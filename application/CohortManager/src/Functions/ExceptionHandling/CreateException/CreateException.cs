@@ -9,13 +9,18 @@ using System.Text.Json;
 using Model;
 using Common;
 using Data.Database;
+using DataServices.Client;
 
 public class CreateException
 {
     private readonly ILogger<CreateException> _logger;
     private readonly IValidationExceptionData _validationData;
     private readonly ICreateResponse _createResponse;
-    public CreateException(ILogger<CreateException> logger, IValidationExceptionData validationExceptionData, ICreateResponse createResponse)
+
+    public CreateException(
+        ILogger<CreateException> logger,
+        IValidationExceptionData validationExceptionData,
+        ICreateResponse createResponse)
     {
         _logger = logger;
         _validationData = validationExceptionData;
@@ -41,7 +46,7 @@ public class CreateException
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
-        if (_validationData.Create(exception))
+        if (await _validationData.Create(exception))
         {
             _logger.LogInformation("The exception record has been created successfully");
             return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
