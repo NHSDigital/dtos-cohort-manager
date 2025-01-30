@@ -140,6 +140,7 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - ParticipantManagementUrl = http://localhost:7994/api/ParticipantManagementDataService
 
   update-participant-details:
     container_name: update-participant-details
