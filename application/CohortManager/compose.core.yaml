@@ -334,8 +334,8 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - AzureWebJobsStorage=UseDevelopmentStorage=true
 
-  GPPractice-data-service:
-    container_name: GPPractice-data-service
+  gppractice-data-service:
+    container_name: gppractice-data-service
     network_mode: host
     build:
       context: ./src/Functions/
