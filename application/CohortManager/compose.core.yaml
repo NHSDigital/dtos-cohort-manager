@@ -162,9 +162,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
-      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
-      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
 
   get-validation-exceptions:
@@ -176,9 +176,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
-      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
-      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
   demographic-data-service:
     container_name: demographic-data-service
