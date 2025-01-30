@@ -819,7 +819,7 @@ function_apps = {
     }
 
     DurableDemographicFunction = {
-      name_suffix            = "durable-demographic-data-service"
+      name_suffix            = "durable-demographic-function"
       function_endpoint_name = "DurableDemographicFunction"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
