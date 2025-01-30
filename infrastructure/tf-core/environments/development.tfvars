@@ -361,6 +361,10 @@ function_apps = {
           function_app_key = "LookupValidation"
         },
         {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         }
