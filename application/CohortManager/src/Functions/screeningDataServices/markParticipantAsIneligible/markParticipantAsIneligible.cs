@@ -42,7 +42,6 @@ public class MarkParticipantAsIneligible
             {
                 var requestBodyJson = await reader.ReadToEndAsync();
                 requestBody = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
-;
             }
         }
         catch
@@ -68,7 +67,7 @@ public class MarkParticipantAsIneligible
         {
             var updated = false;
             var updtParticipantManagement = _participantManagementClient.GetSingle(participantData.ParticipantId).Result;
-            updtParticipantManagement.EligibilityFlag = 1;
+            updtParticipantManagement.EligibilityFlag = 0;
             updated = _participantManagementClient.Update(updtParticipantManagement).Result;
 
             if (updated)

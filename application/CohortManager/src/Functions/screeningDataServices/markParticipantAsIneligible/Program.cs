@@ -13,10 +13,8 @@ var host = new HostBuilder()
     .Build()
     .ConfigureServices(services =>
     {
-        services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddTransient<IGetParticipantData, GetParticipantData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.TryAddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
     })

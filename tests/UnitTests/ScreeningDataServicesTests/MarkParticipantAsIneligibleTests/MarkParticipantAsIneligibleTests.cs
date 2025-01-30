@@ -109,7 +109,7 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 1 };
+        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
         _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
