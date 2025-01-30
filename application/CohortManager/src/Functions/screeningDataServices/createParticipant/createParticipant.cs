@@ -40,6 +40,8 @@ public class CreateParticipant
     {
         ParticipantCsvRecord participantCsvRecord = null;
         var existingParticipant = new Participant();
+        long screeningId;
+        long nhsNumber;
         try
         {
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -48,7 +50,17 @@ public class CreateParticipant
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantCsvRecord.Participant.NhsNumber && i.ScreeningId.ToString() == participantCsvRecord.Participant.ScreeningId);
+            if (!long.TryParse(participantCsvRecord.Participant.ScreeningId, out screeningId))
+            {
+                throw new FormatException("Could not parse ScreeningId");
+            }
+
+            if (!long.TryParse(participantCsvRecord.Participant.NhsNumber, out nhsNumber))
+            {
+                throw new FormatException("Could not parse NhsNumber");
+            }
+
+            var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
 
             if (existingParticipantResult != null && existingParticipantResult.Any())
             {

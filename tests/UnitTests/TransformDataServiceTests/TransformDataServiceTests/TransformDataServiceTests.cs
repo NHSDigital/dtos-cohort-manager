@@ -96,7 +96,7 @@ public class TransformDataServiceTests
     [TestMethod]
     [DataRow("ADMIRAL", "ADM")]
     [DataRow("AIR MARSHAL", "A.ML")]
-    [DataRow("HIS ROYAL HGHNESS", "HRH")]
+    [DataRow("HIS ROYAL HIGHNESS", "HRH")]
     [DataRow("BRIG", "BRIG")]
     public async Task Run_TransformNamePrefix_ReturnTransformedPrefix(string namePrefix, string expectedTransformedPrefix)
     {

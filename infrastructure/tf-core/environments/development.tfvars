@@ -207,8 +207,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
       }
 
     }
@@ -361,6 +361,10 @@ function_apps = {
           function_app_key = "LookupValidation"
         },
         {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         }
@@ -380,6 +384,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -417,7 +425,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -438,7 +446,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -710,7 +718,7 @@ function_apps = {
         },
         {
           env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPraticeDataService"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -819,7 +827,7 @@ function_apps = {
     }
 
     DurableDemographicFunction = {
-      name_suffix            = "durable-demographic-data-service"
+      name_suffix            = "durable-demographic-function"
       function_endpoint_name = "DurableDemographicFunction"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
@@ -835,9 +843,9 @@ function_apps = {
       ]
     }
 
-    GPPraticeDataService = {
-      name_suffix            = "gppratice-data-service"
-      function_endpoint_name = "GPPraticeDataService"
+    GPPracticeDataService = {
+      name_suffix            = "gppractice-data-service"
+      function_endpoint_name = "GPPracticeDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
