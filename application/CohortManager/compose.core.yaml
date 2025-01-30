@@ -288,8 +288,7 @@ services:
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - RemoveOldValidationRecord=http://localhost:7085/api/RemoveValidationExceptionData
-      
+      - RemoveOldValidationRecord=http://localhost:7085/api/RemoveValidationExceptionData      
 
   lookup-validation:
     container_name: lookup-validation
