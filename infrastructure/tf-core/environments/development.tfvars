@@ -207,8 +207,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
       }
 
     }
@@ -384,6 +384,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
