@@ -140,6 +140,7 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - ParticipantManagementUrl = http://localhost:7994/api/ParticipantManagementDataService
 
   update-participant-details:
     container_name: update-participant-details
@@ -162,9 +163,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
-      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
-      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
 
   get-validation-exceptions:
@@ -176,9 +177,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURL="http://localhost:7993/api/ParticipantDemographicDataService/"
-      - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
-      - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
   demographic-data-service:
     container_name: demographic-data-service
