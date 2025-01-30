@@ -35,6 +35,6 @@ stages:
       TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
     steps:
       - checkout: self
-      - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml
+      - template: ../.azuredevops/templates/steps/run-post-deployment-tests.yaml
         parameters:
           serviceConnection: sc-cohort-manager-dev
