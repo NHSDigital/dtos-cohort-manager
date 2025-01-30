@@ -52,4 +52,4 @@ namespace dtos_cohort_manager_specflow.Hook
             Logger?.LogInformation("All critical configurations and services are set correctly.");
         }
     }
-}
+} 
