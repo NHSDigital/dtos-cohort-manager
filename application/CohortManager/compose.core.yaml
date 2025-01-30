@@ -165,6 +165,7 @@ services:
       - ExceptionManagementDataServiceURL="http://localhost:7910/api/ExceptionManagementDataService/"
       - GPPracticeDataServiceURL="http://localhost:7999/api/GPPracticeDataService/"
 
+
   get-validation-exceptions:
     container_name: get-validation-exceptions
     network_mode: host
@@ -299,11 +300,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectGpPracticeUrl=http://localhost:7998/api/
-      - BsSelectOutCodeUrl=http://localhost:7881/api/
-      - LanguageCodeUrl=http://localhost:7997/api/
-      - CurrentPostingUrl=http://localhost:7996/api/
-      - ExcludedSMULookupUrl=http://localhost:7995/api/
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService
+      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
+      - LanguageCodeUrl=http://localhost:7997/api/LanguageCodeDataService
+      - CurrentPostingUrl=http://localhost:7996/api/CurrentPostingDataService
+      - ExcludedSMULookupUrl=http://localhost:7995/api/ExcludedSMUDataService
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
