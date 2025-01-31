@@ -13,6 +13,7 @@ using Model;
 using Moq;
 using Google.Protobuf.Reflection;
 using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class MarkParticipantAsIneligibleTests
@@ -40,7 +41,8 @@ public class MarkParticipantAsIneligibleTests
             FileName = "test.csv",
             Participant = new Participant()
             {
-                NhsNumber = "1",
+                NhsNumber = "1234567890",
+                ScreeningId = "1",
                 ParticipantId = "123"
             }
         };
@@ -109,10 +111,9 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
+       var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, ScreeningId = 1, EligibilityFlag = 0 };
         _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
-        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
-
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         // Act
         var result = await _function.RunAsync(_request.Object);
 
