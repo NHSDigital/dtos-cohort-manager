@@ -1,10 +1,6 @@
-variables:
-- group: DEV_automation_testing_pipeline
-
 parameters:
  - name: serviceConnection
    type: string
-
 
 
 steps:
@@ -25,8 +21,8 @@ steps:
      fileType: 'json'
      targetFiles: '**/appsettings.json'
    env:
-     AzureWebJobsStorage: "$(AzureWebJobsStorage)"
-     AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: "$(SqlServerConnectionString)"
+     AzureWebJobsStorage: $(AzureWebJobsStorage)
+     AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(SqlServerConnectionString)
 
  - task: DotNetCoreCLI@2
    displayName: 'Build Smoke Tests Solution'

@@ -22,6 +22,7 @@ parameters:
 
 variables:
   - group: DEV_hub_backend_remote_state
+  - group: DEV_automation_testing_pipeline
 
 stages:
 - stage: post_deployment_tests_stage
