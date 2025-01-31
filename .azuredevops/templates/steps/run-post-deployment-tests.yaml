@@ -1,61 +1,51 @@
-trigger: none
-pr: none
-
-name: 'my-post-deployment-tests-pipeline'
-
 parameters:
-  - name: serviceConnection
-    type: string
-    default: 'sc-cohort-manager-dev'
+ - name: serviceConnection
+   type: string
 
-jobs:
-- job: post_deployment_tests
-  displayName: 'Run post-deployment tests'
-  pool:
-    name: 'private-pool-prod-uks'
-  variables:
-    - group: DEV_automation_testing_pipeline
-  steps:
-    - checkout: self
-      fetchDepth: 1
+variables:
+ - group: cohort-manager-dev
 
-    - task: UseDotNet@2
-      displayName: 'Use .NET 9 SDK'
-      inputs:
-        packageType: 'sdk'
-        version: '9.0'
-        includePreviewVersions: true
+steps:
+ - checkout: self
+   fetchDepth: 1
 
-    - task: FileTransform@1
-      displayName: 'Transform Configuration Files'
-      inputs:
-        folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests'
-        fileType: 'json'
-        targetFiles: '**/appsettings.json'
-      env:
-        AzureWebJobsStorage: "$(AzureWebJobsStorage)"
-        AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: "$(sql_connection_string)"
+ - task: UseDotNet@2
+   displayName: 'Use .NET 9 SDK'
+   inputs:
+     packageType: 'sdk'
+     version: '9.0.x'
+     includePreviewVersions: true
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Build Smoke Tests Solution'
-      inputs:
-        command: 'build'
-        projects: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
-        arguments: '--configuration Release'
+ - task: FileTransform@1
+   displayName: 'Transform Configuration Files'
+   inputs:
+     folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests'
+     fileType: 'json'
+     targetFiles: '**/appsettings.json'
+   env:
+     AzureWebJobsStorage: "$(AzureWebJobsStorage)"
+     AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: "$(SqlServerConnectionString)"
 
-    - task: DotNetCoreCLI@2
-      displayName: 'Run SpecFlow Tests'
-      inputs:
-        command: 'test'
-        projects: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
-        publishTestResults: true
+ - task: DotNetCoreCLI@2
+   displayName: 'Build Smoke Tests Solution'
+   inputs:
+     command: 'build'
+     projects: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
+     arguments: '--configuration Release'
 
-    - task: PublishTestResults@2
-      displayName: 'Publish Test Results'
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/SpecFlowResults.trx'
-        testRunTitle: 'SpecFlow Tests'
-        mergeTestResults: true
-        createTestRun: true
-        testResultFormat: 'VSTest'
+ - task: DotNetCoreCLI@2
+   displayName: 'Run SpecFlow Tests'
+   inputs:
+     command: 'test'
+     projects: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+     publishTestResults: true
+
+ - task: PublishTestResults@2
+   displayName: 'Publish Test Results'
+   condition: succeededOrFailed()
+   inputs:
+     testResultsFiles: '**/SpecFlowResults.trx'
+     testRunTitle: 'SpecFlow Tests'
+     mergeTestResults: true
+     createTestRun: true
+     testResultFormat: 'VSTest'
