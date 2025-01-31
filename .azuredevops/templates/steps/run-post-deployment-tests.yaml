@@ -9,6 +9,7 @@ steps:
     displayName: 'Use .NET Core sdk and install if required'
     inputs:
       packageType: 'sdk'
+      version: '9.0.x'
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
   - task: NuGetToolInstaller@1
