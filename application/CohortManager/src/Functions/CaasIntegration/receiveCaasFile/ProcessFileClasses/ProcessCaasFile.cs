@@ -173,7 +173,15 @@ public class ProcessCaasFile : IProcessCaasFile
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
 
-            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+            long nhsNumber;
+
+            if(!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
+            {
+                throw new FormatException("Unable to parse NHS Number");
+            }
+
+
+            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
             if (participant != null)
             {
