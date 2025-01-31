@@ -2,8 +2,7 @@ parameters:
  - name: serviceConnection
    type: string
 
-variables:
- - group: cohort-manager-dev
+
 
 steps:
  - checkout: self
