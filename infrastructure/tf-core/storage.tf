@@ -13,9 +13,11 @@ module "storage" {
   monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
   monitor_diagnostic_setting_storage_account_metrics      = local.monitor_diagnostic_setting_storage_account_metrics
 
-  account_replication_type      = each.value.replication_type
-  account_tier                  = each.value.account_tier
-  public_network_access_enabled = each.value.public_network_access_enabled
+  account_replication_type                = each.value.replication_type
+  account_tier                            = each.value.account_tier
+  blob_properties_delete_retention_policy = var.blob_properties_delete_retention_policy
+  blob_properties_versioning_enabled      = var.blob_properties_versioning_enabledr
+  public_network_access_enabled           = each.value.public_network_access_enabled
 
   rbac_roles = local.rbac_roles_storage
 
