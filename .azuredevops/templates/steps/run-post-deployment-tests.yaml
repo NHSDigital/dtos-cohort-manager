@@ -1,0 +1,29 @@
+---
+
+parameters:
+  - name: serviceConnection
+    type: string
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk and install if required'
+    inputs:
+      packageType: 'sdk'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Restore dependencies'
+  #   inputs:
+  #     command: 'restore'
+  #     projects: '**/*.csproj'
+
+  # - task: DotNetCoreCLI@2
+  #   displayName: 'Build the .NET project'
+  #   inputs:
+  #     command: 'build'
+  #     projects: '**/*.csproj'
+  #     arguments: '--configuration Release'
+
+  # - script: |
+  #     dotnet run --project <path-to-your-project-file>
+  #   displayName: 'Run .NET Application'

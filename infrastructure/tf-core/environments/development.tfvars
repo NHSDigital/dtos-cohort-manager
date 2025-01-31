@@ -207,8 +207,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-data-service.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
       }
 
     }
@@ -361,6 +361,10 @@ function_apps = {
           function_app_key = "LookupValidation"
         },
         {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         }
@@ -380,6 +384,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -902,7 +910,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S4"
+      sku                  = "S7"
       storage_account_type = "Local"
       zone_redundant       = false
     }
