@@ -37,6 +37,7 @@ public class MarkParticipantAsEligible
 
         var participant = JsonSerializer.Deserialize<Participant>(postData);
         long nhsNumber;
+        long screeningId;
 
         try
         {
@@ -47,7 +48,12 @@ public class MarkParticipantAsEligible
                 {
                     throw new FormatException("Could not parse NhsNumber");
                 }
-                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber).Result;
+                if (!long.TryParse(participant.ScreeningId, out screeningId))
+                {
+                    throw new FormatException("Could not parse ScreeningId");
+                }
+
+                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
                 updatedParticipantManagement.EligibilityFlag = 1;
 
                 updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
