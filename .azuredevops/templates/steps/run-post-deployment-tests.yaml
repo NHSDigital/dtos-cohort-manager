@@ -32,13 +32,13 @@ steps:
   - task: FileTransform@1
     displayName: 'Replace Connection Strings in appsettings.json'
     inputs:
-      folderPath: '$(Build.SourcesDirectory)'
+      folderPath: '$(System.DefaultWorkingDirectory)'
       jsonTargetFiles: '**/dtos-cohort-manager-smoke-tests/Config/appsettings.json'
 
   - task: DotNetCoreCLI@2
     displayName: 'Run SpecFlow Tests'
     inputs:
       command: 'test'
-      projects: '$$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+      projects: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
       arguments: '--filter Category=PostDeployment --logger trx --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
       
