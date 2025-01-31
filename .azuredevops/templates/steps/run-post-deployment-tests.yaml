@@ -4,9 +4,6 @@ parameters:
   - name: serviceConnection
     type: string
 
-variables:
-  smokeTestsSolutionPath: '$(Build.SourcesDirectory)/tests/smoke-tests/'
-
 steps:
   - task: UseDotNet@2
     displayName: 'Use .NET Core sdk and install if required'
@@ -21,14 +18,14 @@ steps:
     displayName: 'Restore NuGet Packages'
     inputs:
       command: 'restore'
-      restoreSolution: '$(smokeTestsSolutionPath)/dtos-cohort-manager-smoke-tests.sln'
+      restoreSolution: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
       feedsToUse: 'select'
 
   - task: DotNetCoreCLI@2
     displayName: 'Build smoke tests'
     inputs:
         command: 'build'
-        projects: '$(smokeTestsSolutionPath)/dtos-cohort-manager-smoke-tests.sln'
+        projects: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
         arguments: '--configuration Release'
     
   - task: FileTransform@1
@@ -41,6 +38,6 @@ steps:
     displayName: 'Run SpecFlow Tests'
     inputs:
       command: 'test'
-      projects: '$(smokeTestsSolutionPath)/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+      projects: '$$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
       arguments: '--filter Category=PostDeployment --logger trx --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
       
