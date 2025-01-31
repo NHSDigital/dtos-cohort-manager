@@ -1,10 +1,6 @@
-variables:
-- group: DEV_automation_testing_pipeline
-
 parameters:
  - name: serviceConnection
    type: string
-
 
 
 steps:

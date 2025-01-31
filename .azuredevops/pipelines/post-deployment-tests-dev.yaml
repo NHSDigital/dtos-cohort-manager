@@ -33,6 +33,7 @@ stages:
     displayName: Run post-deployment tests
     variables:
       TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+       - group: DEV_automation_testing_pipeline
     steps:
       - checkout: self
       - template: ../templates/steps/run-post-deployment-tests.yaml
