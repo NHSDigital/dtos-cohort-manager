@@ -40,5 +40,5 @@ steps:
     inputs:
       command: 'test'
       projects: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
-      arguments: '--filter Category=PostDeployment --logger trx --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+      arguments: '--filter Category=PostDeployment --logger trx --results-directory "$(Build.ArtifactStagingDirectory)/TestResults"'
       
