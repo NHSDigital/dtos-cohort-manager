@@ -6,6 +6,7 @@ parameters:
 
 variables:
   smokeTestsSolutionPath: '$(Build.SourcesDirectory)/tests/smoke-tests/'
+
 steps:
   - task: UseDotNet@2
     displayName: 'Use .NET Core sdk and install if required'
@@ -25,7 +26,7 @@ steps:
 
   - task: DotNetCoreCLI@2
     displayName: 'Build smoke tests'
-      inputs:
+    inputs:
         command: 'build'
         projects: '$(smokeTestsSolutionPath)/dtos-cohort-manager-smoke-tests.sln'
         arguments: '--configuration Release'
@@ -33,8 +34,8 @@ steps:
   - task: FileTransform@1
     displayName: 'Replace Connection Strings in appsettings.json'
     inputs:
-    folderPath: '$(Build.SourcesDirectory)'
-    jsonTargetFiles: '**/dtos-cohort-manager-smoke-tests/Config/appsettings.json'
+      folderPath: '$(Build.SourcesDirectory)'
+      jsonTargetFiles: '**/dtos-cohort-manager-smoke-tests/Config/appsettings.json'
 
   - task: DotNetCoreCLI@2
     displayName: 'Run SpecFlow Tests'
@@ -42,4 +43,4 @@ steps:
       command: 'test'
       projects: '$(smokeTestsSolutionPath)/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
       arguments: '--filter Category=PostDeployment --logger trx --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
-        
+      
