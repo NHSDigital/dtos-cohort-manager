@@ -46,7 +46,7 @@ public class ValidationExceptionDataTests
     [TestMethod]
     public async Task GetAllExceptions_NoExceptionId_ReturnsAllExceptions()
     {
-        //arrange 
+        //arrange
         _validationExceptionDataServiceClient.Setup(x => x.GetAll()).ReturnsAsync(_exceptionList);
 
         // Act
@@ -90,8 +90,8 @@ public class ValidationExceptionDataTests
     [TestMethod]
     public async Task GetExceptionById_ValidExceptionId_ReturnsExpectedException(int exceptionId)
     {
-        //arrange 
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId });
+        //arrange
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId, NhsNumber="123456789" });
         _demographicDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
         _gpPracticeDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GPPractice, bool>>>())).ReturnsAsync(new GPPractice());
 
@@ -111,7 +111,7 @@ public class ValidationExceptionDataTests
     public async Task GetExceptionById_InvalidId_ReturnsNull(int exceptionId)
     {
         // Arrange
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId });
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId, NhsNumber="123456789" });
         _demographicDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic)null);
         _gpPracticeDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GPPractice, bool>>>())).ReturnsAsync((GPPractice)null);
 
