@@ -11,7 +11,7 @@ public class ParticipantDemographic
     public long ParticipantId { get; set; }
 
     [Column("NHS_NUMBER")]
-    public long? NhsNumber { get; set; }
+    public long NhsNumber { get; set; }
 
     [Column("SUPERSEDED_BY_NHS_NUMBER")]
     public long? SupersededByNhsNumber { get; set; }
