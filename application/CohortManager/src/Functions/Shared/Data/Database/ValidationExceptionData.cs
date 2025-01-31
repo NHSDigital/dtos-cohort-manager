@@ -36,7 +36,7 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly)
     {
         IEnumerable<ExceptionManagement?> exceptions;
-        // we do  this check so that we only call the database when it is needed  
+        // we do  this check so that we only call the database when it is needed
         if (!todayOnly)
         {
             // get the exceptions from the list of all exceptions where the date created is today and no greater than today
@@ -55,7 +55,16 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<ValidationException?> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
-        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber.ToString() == exception.NhsNumber);
+
+        long nhsNumber;
+
+        if(!long.TryParse(exception.NhsNumber, out nhsNumber))
+        {
+            throw new FormatException("Unable to parse NHS Number");
+        }
+
+
+        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
         var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
 
         return GetExceptionDetails(exception.ToValidationException(), participantDemographic, gpPracticeDetails);
