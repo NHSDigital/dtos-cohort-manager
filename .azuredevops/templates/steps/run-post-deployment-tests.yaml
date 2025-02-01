@@ -21,8 +21,8 @@ steps:
      fileType: 'json'
      targetFiles: '**/appsettings.json'
    env:
-     AzureWebJobsStorage: $(STORAGE_CONNECTION_STRING)
-     AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DATABASE_CONNECTION_STRING)
+     AppSettings__AzureWebJobsStorage: $(STORAGE_CONNECTION_STRING)
+     AppSettings__ConnectionStrings__DtOsDatabaseConnectionString: $(DATABASE_CONNECTION_STRING)
 
  - task: DotNetCoreCLI@2
    displayName: 'Build Smoke Tests Solution'
