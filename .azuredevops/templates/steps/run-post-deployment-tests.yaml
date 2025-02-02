@@ -20,7 +20,7 @@ steps:
       fileType: 'json'
       targetFiles: 'appsettings.json'
 
-  - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+  - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config
     displayName: "Print appsettings.json after variable substitution"
 
   - task: DotNetCoreCLI@2
