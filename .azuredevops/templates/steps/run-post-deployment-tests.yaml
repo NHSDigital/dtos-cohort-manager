@@ -15,14 +15,16 @@ steps:
      includePreviewVersions: true
 
  - task: FileTransform@1
-   displayName: 'Transform Configuration Files'
-   inputs:
-     folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests'
-     fileType: 'json'
-     targetFiles: '**/appsettings.json'
-   env:
-     AppSettings__AzureWebJobsStorage: $(STORAGE_CONNECTION_STRING)
-     AppSettings__ConnectionStrings__DtOsDatabaseConnectionString: $(DATABASE_CONNECTION_STRING)
+  displayName: "Transform Configuration Files"
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests'
+    fileType: 'json'
+    targetFiles: '**/appsettings.json'
+
+
+- script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/appsettings.json
+  displayName: "Print appsettings.json after variable substitution"
+
 
  - task: DotNetCoreCLI@2
    displayName: 'Build Smoke Tests Solution'
