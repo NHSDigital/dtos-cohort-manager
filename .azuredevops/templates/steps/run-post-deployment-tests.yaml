@@ -20,8 +20,8 @@ steps:
       fileType: 'json'
       targetFiles: '**/appsettings.json'
     env:
-      AppSettings__AzureWebJobsStorage: $(STORAGE_CONNECTION_STRING)
-      AppSettings__ConnectionStrings__DtOsDatabaseConnectionString: $(DATABASE_CONNECTION_STRING)
+      STORAGE_CONNECTION_STRING: $(STORAGE_CONNECTION_STRING)
+      DATABASE_CONNECTION_STRING: $(DATABASE_CONNECTION_STRING)
 
   - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
     displayName: "Print appsettings.json after variable substitution"
