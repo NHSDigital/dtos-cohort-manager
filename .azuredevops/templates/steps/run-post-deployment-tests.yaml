@@ -16,11 +16,11 @@ steps:
   - task: FileTransform@1
     displayName: "Transform Configuration Files"
     inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests'
+      folderPath: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json'
       fileType: 'json'
       targetFiles: '**/appsettings.json'
 
-  - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/appsettings.json
+  - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
     displayName: "Print appsettings.json after variable substitution"
 
   - task: DotNetCoreCLI@2
