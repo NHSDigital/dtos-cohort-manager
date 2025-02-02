@@ -18,7 +18,10 @@ steps:
     inputs:
       folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
       fileType: 'json'
-      targetFiles: 'appsettings.json'
+      targetFiles: '**/appsettings.json'
+    env:
+      AppSettings__AzureWebJobsStorage: $(STORAGE_CONNECTION_STRING)
+      AppSettings__ConnectionStrings__DtOsDatabaseConnectionString: $(DATABASE_CONNECTION_STRING)
 
   - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
     displayName: "Print appsettings.json after variable substitution"
