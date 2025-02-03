@@ -17,13 +17,13 @@ steps:
     displayName: "Transform Configuration Files"
     inputs:
       folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-      fileType: 'json'
       targetFiles: '**/appsettings.json'
-      transformations: |
-        {
-          "STORAGE_CONNECTION_STRING": "#{STORAGE_CONNECTION_STRING}#",
-          "DATABASE_CONNECTION_STRING": "#{DATABASE_CONNECTION_STRING}#"
-        }
+      fileType: 'json'
+      enableXmlTransform: false
+      enableTransformationPreview: true
+      xmlTransformationRules: ''
+      jsonTargetFiles: '**/appsettings.json'
+      variableSubstitutionFileFormat: 'json'
 
   - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
     displayName: "Print appsettings.json after variable substitution"
