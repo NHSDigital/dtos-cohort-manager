@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using Google.Protobuf.Reflection;
+using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class MarkParticipantAsIneligibleTests
@@ -22,7 +24,7 @@ public class MarkParticipantAsIneligibleTests
     private readonly MarkParticipantAsIneligible _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<ILogger<MarkParticipantAsIneligible>> _mockLogger = new();
-    private readonly Mock<IParticipantManagerData> _mockUpdateParticipantData = new();
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
 
@@ -39,13 +41,15 @@ public class MarkParticipantAsIneligibleTests
             FileName = "test.csv",
             Participant = new Participant()
             {
-                NhsNumber = "1",
+                NhsNumber = "1234567890",
+                ScreeningId = "1",
+                ParticipantId = "123"
             }
         };
 
-        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockUpdateParticipantData.Object, _callFunction.Object, _handleException.Object);
+        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockParticipantManagementClient.Object, _callFunction.Object, _handleException.Object);
 
-        _mockUpdateParticipantData.Setup(x => x.GetParticipant(It.IsAny<string>(), It.IsAny<string>())).Returns(new Participant());
+        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
             {
@@ -107,8 +111,9 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(true);
-
+       var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, ScreeningId = 1, EligibilityFlag = 0 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         // Act
         var result = await _function.RunAsync(_request.Object);
 
@@ -160,7 +165,7 @@ public class MarkParticipantAsIneligibleTests
                 CreatedException = false
             })));
 
-        _mockUpdateParticipantData.Setup(x => x.UpdateParticipantAsEligible(It.IsAny<Participant>())).Returns(false);
+        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
         var result = await _function.RunAsync(_request.Object);

@@ -22,22 +22,22 @@ public class ValidateDates : IValidateDates
         }
         if (!IsValidDate(participant.EmailAddressEffectiveFromDate))
         {
-            _logger.LogWarning("Invalid {EmailAddressEffectiveFromDate} found in participant data", nameof(participant.EmailAddressEffectiveFromDate));
+            _logger.LogWarning("Invalid EmailAddressEffectiveFromDate: REDACTED found in participant data");
             return false;
         }
         if (!IsValidDate(participant.MobileNumberEffectiveFromDate))
         {
-            _logger.LogWarning("Invalid {MobileNumberEffectiveFromDate} found in participant data", nameof(participant.MobileNumberEffectiveFromDate));
+            _logger.LogWarning("Invalid MobileNumberEffectiveFromDate: REDACTED found in participant data");
             return false;
         }
         if (!IsValidDate(participant.UsualAddressEffectiveFromDate))
         {
-            _logger.LogWarning("Invalid {UsualAddressEffectiveFromDate} found in participant data", nameof(participant.UsualAddressEffectiveFromDate));
+            _logger.LogWarning("Invalid UsualAddressEffectiveFromDate: REDACTED found in participant data");
             return false;
         }
         if (!IsValidDate(participant.TelephoneNumberEffectiveFromDate))
         {
-            _logger.LogWarning("Invalid {TelephoneNumberEffectiveFromDate} found in participant data", nameof(participant.TelephoneNumberEffectiveFromDate));
+            _logger.LogWarning("Invalid TelephoneNumberEffectiveFromDate: REDACTED found in participant data");
             return false;
         }
         if (!IsValidDate(participant.PrimaryCareProviderEffectiveFromDate))

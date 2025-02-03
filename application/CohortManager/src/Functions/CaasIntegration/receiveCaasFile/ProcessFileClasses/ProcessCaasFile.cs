@@ -173,7 +173,15 @@ public class ProcessCaasFile : IProcessCaasFile
                 basicParticipantCsvRecord.participant.ToParticipantDemographic()
             };
 
-            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber.ToString() == basicParticipantCsvRecord.participant.NhsNumber);
+            long nhsNumber;
+
+            if(!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
+            {
+                throw new FormatException("Unable to parse NHS Number");
+            }
+
+
+            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
             if (participant != null)
             {
@@ -223,7 +231,7 @@ public class ProcessCaasFile : IProcessCaasFile
         try
         {
             _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-            var errorDescription = $"a record has failed to process with the NHS Number : {participant.NhsNumber} because the of an incorrect record type";
+            var errorDescription = $"a record has failed to process with the NHS Number: REDACTED because of an incorrect record type";
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
         }
         catch (Exception ex)

@@ -18,6 +18,16 @@
 *.pem
 *.key
 
+# User-specific files
+*.suo
+*.user
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# Visual Studio 2017 auto generated files
+Generated\ Files/
+
 # Text Editors
 .vscode/*
 !.vscode/tasks.json
@@ -69,3 +79,6 @@ infrastructure/.terraform.lock.hcl
 infrastructure/tf-core/.terraform.lock.hcl
 infrastructure/tf-audit/.terraform.lock.hcl
 application/CohortManager/.vscode/
+
+# Ignore generated feature bindings
+*.feature.cs
