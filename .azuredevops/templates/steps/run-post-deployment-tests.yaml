@@ -1,80 +1,80 @@
 ---
 
 parameters:
-  - name: serviceConnection
-    type: string
+- name: serviceConnection
+  type: string
 
 steps:
-  # Add a Bash task to output a pipeline variable
-  - task: Bash@3
-    displayName: 'Output Pipeline Variables for Debugging'
-    inputs:
-      targetType: 'inline'
-      script: |
-        echo "Value of DTOS_DATABASE_CONNECTION_STRING is $(DTOS_DATABASE_CONNECTION_STRING)"
-        echo "Value of CAASFOLDER_STORAGE_CONNECTION_STRING is $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
-        echo "Show contents of $(System.DefaultWorkingDirectory):"
-        dir $(System.DefaultWorkingDirectory)
+# Add a Bash task to output a pipeline variable
+- task: Bash@3
+  displayName: 'Output Pipeline Variables for Debugging'
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Value of DTOS_DATABASE_CONNECTION_STRING is $(DTOS_DATABASE_CONNECTION_STRING)"
+      echo "Value of CAASFOLDER_STORAGE_CONNECTION_STRING is $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
+      echo "Show contents of $(System.DefaultWorkingDirectory):"
+      dir $(System.DefaultWorkingDirectory)
 
-  - task: UseDotNet@2
-    displayName: 'Use .NET 9 SDK'
-    inputs:
-      packageType: 'sdk'
-      version: '9.0.x'
-      includePreviewVersions: true
+- task: UseDotNet@2
+  displayName: 'Use .NET 9 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    includePreviewVersions: true
 
-  - task: DeleteFiles@1
-    displayName: 'Clean Build Directory'
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: |
-        **/bin/*
-        **/obj/*
-        **/TestResults/*
-        **/drop/*
-      RemoveSourceFolder: false
+- task: DeleteFiles@1
+  displayName: 'Clean Build Directory'
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/bin/*
+      **/obj/*
+      **/TestResults/*
+      **/drop/*
+    RemoveSourceFolder: false
 
-  - task: Bash@3
-    displayName: 'Print appsettings.json before variable substitution'
-    inputs:
-      targetType: 'inline'
-      script: |
-        cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+- task: Bash@3
+  displayName: 'Print appsettings.json before variable substitution'
+  inputs:
+    targetType: 'inline'
+    script: |
+      cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
-  - task: FileTransform@1
-    displayName: 'Transform Configuration Files'
-    inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-      fileType: 'json'
-      targetFiles: '*.json'
+- task: FileTransform@1
+  displayName: 'Transform Configuration Files'
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
+    fileType: 'json'
+    targetFiles: '*.json'
 
-  - task: Bash@3
-    displayName: 'Print appsettings.json after variable substitution'
-    inputs:
-      targetType: 'inline'
-      script: |
-        cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+- task: Bash@3
+  displayName: 'Print appsettings.json after variable substitution'
+  inputs:
+    targetType: 'inline'
+    script: |
+      cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build Smoke Tests Solution'
-    inputs:
-      command: 'build'
-      projects: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
-      arguments: '--configuration Release'
+- task: DotNetCoreCLI@2
+  displayName: 'Build Smoke Tests Solution'
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
+    arguments: '--configuration Release'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Run SpecFlow Tests'
-    inputs:
-      command: 'test'
-      projects: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
-      publishTestResults: true
+- task: DotNetCoreCLI@2
+  displayName: 'Run SpecFlow Tests'
+  inputs:
+    command: 'test'
+    projects: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+    publishTestResults: true
 
-  - task: PublishTestResults@2
-    displayName: 'Publish Test Results'
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFiles: '**/SpecFlowResults.trx'
-      testRunTitle: 'SpecFlow Tests'
-      mergeTestResults: true
-      createTestRun: true
-      testResultFormat: VSTest
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/SpecFlowResults.trx'
+    testRunTitle: 'SpecFlow Tests'
+    mergeTestResults: true
+    createTestRun: true
+    testResultFormat: VSTest
