@@ -13,13 +13,15 @@ public class EndToEndFileUploadService
     private readonly BlobStorageHelper _blobStorageHelper;
     private readonly string _connectionString;
     //public string LocalFilePath => _appSettings.FilePaths.Local;
-    
+    private readonly string _managedIdentityClientId;
+
     public EndToEndFileUploadService(ILogger<EndToEndFileUploadService> logger, AppSettings appSettings, BlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _appSettings = appSettings;
         _blobStorageHelper = blobStorageHelper;
         _connectionString = _appSettings.ConnectionStrings.DtOsDatabaseConnectionString;
+        _managedIdentityClientId = _appSettings.ManagedIdentityClientId;
     }
 
     public async Task CleanDatabaseAsync(IEnumerable<string> nhsNumbers)
@@ -31,19 +33,19 @@ public class EndToEndFileUploadService
             foreach (var nhsNumber in nhsNumbers)
             {
                 //  parameterized queries to prevent SQL injection
-                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString,
+                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, _managedIdentityClientId,
                     "DELETE FROM PARTICIPANT_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString,
+                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, _managedIdentityClientId,
                     "DELETE FROM PARTICIPANT_DEMOGRAPHIC WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString,
+                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, _managedIdentityClientId,
                     "DELETE FROM BS_COHORT_DISTRIBUTION WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString,
+                await DatabaseHelper.ExecuteNonQueryAsync(_connectionString, _managedIdentityClientId,
                     "DELETE FROM EXCEPTION_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
             }
@@ -151,7 +153,7 @@ public class EndToEndFileUploadService
         _logger.LogInformation("Validation of NHS number count completed successfully.");
     }
 
-   
+
     public async Task VerifyFieldUpdateAsync(string tableName, string nhsNumber, string fieldName, string expectedValue)
     {
         Func<Task> act = async () =>
@@ -164,6 +166,6 @@ public class EndToEndFileUploadService
         await act.Should().NotThrowAfterAsync(TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5));
 
     }
-    
+
 
 }
