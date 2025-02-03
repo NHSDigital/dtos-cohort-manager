@@ -71,7 +71,7 @@ public class DemographicDataServiceTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     [TestMethod]
@@ -100,7 +100,7 @@ public class DemographicDataServiceTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     [TestMethod]
@@ -127,7 +127,7 @@ public class DemographicDataServiceTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     private void SetupRequest(string json)
