@@ -1,9 +1,14 @@
 using Common;
 using Data.Database;
+using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Model;
 
 var host = new HostBuilder()
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
@@ -11,7 +16,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
+        services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
     .AddDatabaseConnection()

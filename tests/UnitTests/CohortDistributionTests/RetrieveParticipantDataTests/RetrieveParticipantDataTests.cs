@@ -90,7 +90,7 @@ public class RetrieveParticipantDataTests
         SetUpRequestBody(json);
 
         _updateParticipantData.Setup(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>())).Throws(new Exception("there has been an error")).Verifiable();
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()).Verifiable();
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync(new Demographic()).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -145,7 +145,7 @@ public class RetrieveParticipantDataTests
         };
 
         _updateParticipantData.Setup(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>())).Returns(participant).Verifiable();
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(demographic).Verifiable();
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync(demographic).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
