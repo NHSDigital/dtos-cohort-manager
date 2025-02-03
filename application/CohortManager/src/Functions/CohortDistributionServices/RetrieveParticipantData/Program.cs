@@ -7,7 +7,7 @@ using Model;
 
 var host = new HostBuilder()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataService"))
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL"))
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
