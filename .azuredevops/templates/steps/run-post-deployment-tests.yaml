@@ -15,6 +15,7 @@ steps:
       echo "Value of CAASFOLDER_STORAGE_CONNECTION_STRING is $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
       echo "Show contents of $(System.DefaultWorkingDirectory):"
       dir $(System.DefaultWorkingDirectory)
+      ssh sqlsvr-cohman-dev-uks.database.windows.net -p 1433
 
 - task: UseDotNet@2
   displayName: 'Use .NET 9 SDK'
