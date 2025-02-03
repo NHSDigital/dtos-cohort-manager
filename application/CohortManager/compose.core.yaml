@@ -321,6 +321,7 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
 
   durable-demographic-function:
     container_name: durable-demographic-function

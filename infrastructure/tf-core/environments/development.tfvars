@@ -565,6 +565,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }
@@ -677,6 +681,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }

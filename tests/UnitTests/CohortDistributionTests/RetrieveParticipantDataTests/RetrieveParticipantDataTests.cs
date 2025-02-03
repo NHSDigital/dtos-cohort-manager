@@ -13,6 +13,7 @@ using NHS.CohortManager.CohortDistribution;
 using Model;
 using Data.Database;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Runtime.CompilerServices;
 
 [TestClass]
 public class RetrieveParticipantDataTests
@@ -24,21 +25,22 @@ public class RetrieveParticipantDataTests
     private readonly Mock<HttpRequestData> _request;
     private readonly RetrieveParticipantRequestBody _requestBody;
     private readonly Mock<IParticipantManagerData> _updateParticipantData = new();
-    private readonly Mock<ICreateDemographicData> _createDemographicData = new();
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
+
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     public RetrieveParticipantDataTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
-
         _requestBody = new RetrieveParticipantRequestBody()
         {
             NhsNumber = "1234567890",
             ScreeningService = "BSS"
         };
 
-        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createDemographicData.Object, _createParticipant, _exceptionHandler.Object);
+
+        _function = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _updateParticipantData.Object, _createParticipant, _exceptionHandler.Object, _callFunction.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -90,14 +92,13 @@ public class RetrieveParticipantDataTests
         SetUpRequestBody(json);
 
         _updateParticipantData.Setup(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>())).Throws(new Exception("there has been an error")).Verifiable();
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()).Verifiable();
+
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
         _updateParticipantData.Verify(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>()), Times.Once);
-        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Never);
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
@@ -109,15 +110,17 @@ public class RetrieveParticipantDataTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
+        var demographic = new Demographic();
+
+        _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ThrowsAsync(new Exception("there has been an error")).Verifiable();
         _updateParticipantData.Setup(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>())).Returns(new Participant()).Verifiable();
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Throws(new Exception("there has been an error")).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
         _updateParticipantData.Verify(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>()), Times.Once);
-        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
+        _callFunction.Verify(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
@@ -145,7 +148,7 @@ public class RetrieveParticipantDataTests
         };
 
         _updateParticipantData.Setup(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>())).Returns(participant).Verifiable();
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(demographic).Verifiable();
+        _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).Returns(Task.FromResult(JsonSerializer.Serialize(demographic))).Verifiable();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -154,7 +157,6 @@ public class RetrieveParticipantDataTests
 
         // Assert
         _updateParticipantData.Verify(x => x.GetParticipantFromIDAndScreeningService(It.IsAny<RetrieveParticipantRequestBody>()), Times.Once);
-        _createDemographicData.Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
 
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.IsNotNull(response);
