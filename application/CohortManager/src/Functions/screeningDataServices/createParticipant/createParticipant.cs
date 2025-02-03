@@ -72,7 +72,7 @@ public class CreateParticipant
             var response = await ValidateData(existingParticipant, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
-                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
@@ -130,7 +130,7 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }
