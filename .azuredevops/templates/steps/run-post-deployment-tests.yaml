@@ -6,7 +6,6 @@ steps:
 - checkout: self
   fetchDepth: 1
 
-# Add a Bash task to output a pipeline variable
 - task: Bash@3
   displayName: 'Set and Output Pipeline Variable'
   inputs:
@@ -33,20 +32,18 @@ steps:
     RemoveSourceFolder: false
 
 - task: FileTransform@1
-    displayName: 'Transform Configuration Files'
-    inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-      fileType: 'json'
-      targetFiles: '*.json'
+  displayName: 'Transform Configuration Files'
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
+    fileType: 'json'
+    targetFiles: '*.json'
 
-
-  - task: Bash@3
-    displayName: 'Print appsettings.json after variable substitution'
-    inputs:
-      targetType: 'inline'
-      script: |
-        cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
-
+- task: Bash@3
+  displayName: 'Print appsettings.json after variable substitution'
+  inputs:
+    targetType: 'inline'
+    script: |
+      cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
 - task: DotNetCoreCLI@2
   displayName: 'Build Smoke Tests Solution'
