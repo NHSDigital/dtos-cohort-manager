@@ -96,7 +96,7 @@ public class CreateCohortDistribution
             var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
             if (!validationRecordCreated || ignoreParticipantExceptions)
             {
-                _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
+                _logger.LogInformation("Validation has passed the record with NHS number: REDACTED will be added to the database");
                 var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
                 if (transformedParticipant == null)
                 {

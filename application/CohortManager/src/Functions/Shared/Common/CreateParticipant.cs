@@ -48,6 +48,7 @@ public class CreateParticipant : ICreateParticipant
             RecordInsertDateTime = demographic.RecordInsertDateTime,
             //Accepting null for eligibility flag is a temporary behavior until eligibility flag is included in the test files.
             EligibilityFlag = participant.EligibilityFlag
+
         };
     }
 
@@ -94,7 +95,8 @@ public class CreateParticipant : ICreateParticipant
             Extracted = null,
             RecordType = participant.RecordType,
             CurrentPosting = demographic.CurrentPosting,
-            CurrentPostingEffectiveFromDate = demographic.CurrentPostingEffectiveFromDate
+            CurrentPostingEffectiveFromDate = demographic.CurrentPostingEffectiveFromDate,
+            InvalidFlag = demographic.InvalidFlag
         };
     }
 }

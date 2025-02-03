@@ -61,11 +61,11 @@ public class MarkParticipantAsEligible
 
             if (updated)
             {
-                _logger.LogInformation("Record updated for participant {NhsNumber}", participant.NhsNumber);
+                _logger.LogInformation("Record updated for participant for NHS Number: REDACTED}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError("An error occurred while updating data for {NhsNumber}", participant?.NhsNumber);
+            _logger.LogError("An error occurred while updating data for NHS Number: REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)

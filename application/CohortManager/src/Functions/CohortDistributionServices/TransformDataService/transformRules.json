@@ -274,7 +274,7 @@
       },
       {
         "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
-        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) && transformLookups.ParticipantIsInvalid(participant.NhsNumber)",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\"",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",

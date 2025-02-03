@@ -427,7 +427,6 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _transformationLookups.Setup(x => x.ParticipantIsInvalid(It.IsAny<string>())).Returns(true);
         var expectedResponse = new CohortDistributionParticipant
         {
             NhsNumber = "1",
@@ -437,7 +436,8 @@ public class TransformDataServiceTests
             Gender = Gender.Male,
             ReasonForRemoval = "ORR",
             ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString(),
-            PrimaryCareProvider = ""
+            PrimaryCareProvider = "",
+            InvalidFlag = "1"
         };
         _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
 

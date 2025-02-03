@@ -4,5 +4,5 @@ using Model;
 
 public interface ICreateDemographicData
 {
-    Demographic GetDemographicData(string nhsNumber);
+    Task<Demographic> GetDemographicData(string nhsNumber);
 }
