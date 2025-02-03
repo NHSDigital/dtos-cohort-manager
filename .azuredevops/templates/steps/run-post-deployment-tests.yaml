@@ -46,7 +46,7 @@ steps:
     inputs:
       targetType: 'inline'
       script: |
-        cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+        cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
   - task: DotNetCoreCLI@2
     displayName: 'Build Smoke Tests Solution'
