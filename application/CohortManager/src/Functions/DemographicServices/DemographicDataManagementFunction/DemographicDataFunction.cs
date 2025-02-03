@@ -31,9 +31,9 @@ public class DemographicDataFunction
     {
         try
         {
-            string id = req.Query["Id"];
+            string NHSNumber = req.Query["Id"];
 
-            var demographicData = await _createDemographicData.GetDemographicData(id);
+            var demographicData = await _createDemographicData.GetDemographicData(NHSNumber);
             var data = JsonSerializer.Serialize(demographicData);
 
             if (string.IsNullOrEmpty(data))

@@ -6,9 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Model;
 
 var host = new HostBuilder()
-    .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL"))
-        .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
@@ -16,7 +13,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
+        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
     .AddDatabaseConnection()
