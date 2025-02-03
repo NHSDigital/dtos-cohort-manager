@@ -22,7 +22,14 @@ parameters:
 
 variables:
 - group: DEV_automation_testing_pipeline
-
+variables:
+  - group: DEV_automation_testing_pipeline
+  - name: TARGET_ENVIRONMENT
+    value: ${{ parameters.destEnvironmentShortName }}
+  - name: ConnectionStrings__DtOsDatabaseConnectionString
+    value: $(DATABASE_CONNECTION_STRING)
+  - name: AzureWebJobsStorage
+    value: $(STORAGE_CONNECTION_STRING)
 stages:
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
