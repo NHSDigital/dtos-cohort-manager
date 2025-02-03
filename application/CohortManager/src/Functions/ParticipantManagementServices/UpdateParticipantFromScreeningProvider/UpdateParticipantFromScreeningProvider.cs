@@ -83,7 +83,6 @@ public class UpdateParticipantFromScreeningProvider
                 participantManagement.HigherRiskReferralReasonId = higherRiskReason.HigherRiskReferralReasonId;
             }
 
-
             // Update data (only when the request data is newer)
             bool updateSuccessful = true;
             bool reqDataNewer = true;

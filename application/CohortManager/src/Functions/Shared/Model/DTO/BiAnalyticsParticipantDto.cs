@@ -27,17 +27,19 @@ public class BiAnalyticsParticipantDto
     /// <exception cref="ArgumentException"></exception>
     public ParticipantManagement ToParticipantManagement(ParticipantManagement dbParticipant)
     {
-        dbParticipant.NextTestDueDate = ConvertDateToDateTime(NextTestDueDate);
-        dbParticipant.NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod;
-        dbParticipant.ParticipantScreeningStatus = ParticipantScreeningStatus;
-        dbParticipant.ScreeningCeasedReason = ScreeningCeasedReason;
-        dbParticipant.IsHigherRisk = IsHigherRisk ?? dbParticipant.IsHigherRisk;
-        dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? dbParticipant.IsHigherRiskActive;
-        dbParticipant.SrcSysProcessedDateTime = SrcSysProcessedDateTime;
-        dbParticipant.HigherRiskNextTestDueDate = ConvertDateToDateTime(HigherRiskNextTestDueDate);
-        dbParticipant.DateIrradiated = ConvertDateToDateTime(DateIrradiated);
+        return new ParticipantManagement
+        {
+            NextTestDueDate = ConvertDateToDateTime(NextTestDueDate),
+            NextTestDueDateCalcMethod = NextTestDueDateCalculationMethod,
+            ParticipantScreeningStatus = ParticipantScreeningStatus,
+            ScreeningCeasedReason = ScreeningCeasedReason,
+            IsHigherRisk = IsHigherRisk ?? dbParticipant.IsHigherRisk,
+            IsHigherRiskActive = IsHigherRiskActive ?? dbParticipant.IsHigherRiskActive,
+            SrcSysProcessedDateTime = SrcSysProcessedDateTime,
+            HigherRiskNextTestDueDate = ConvertDateToDateTime(HigherRiskNextTestDueDate),
+            DateIrradiated = ConvertDateToDateTime(DateIrradiated)
 
-        return dbParticipant;
+        };
     }
 
     /// <summary>

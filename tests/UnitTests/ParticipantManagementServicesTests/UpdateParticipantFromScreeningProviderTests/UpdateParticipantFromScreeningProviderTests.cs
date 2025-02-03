@@ -31,8 +31,7 @@ public class UpdateParticipantFromScreeningProviderTests
             ScreeningId = 1,
             GeneCode = "BRCA1",
             HigherRiskReferralReasonCode = "AT_HETEROZYGOTES",
-            SrcSysProcessedDateTime = DateTime.Now,
-
+            SrcSysProcessedDateTime = DateTime.Now
         };
 
         var dbParticipant = new ParticipantManagement
@@ -116,6 +115,7 @@ public class UpdateParticipantFromScreeningProviderTests
     {
         // Arrange
         _reqParticipant.SrcSysProcessedDateTime = DateTime.Now.AddDays(-2);
+
         var message = new EventGridEvent(
             subject: "IDK",
             eventType: "IDK",
