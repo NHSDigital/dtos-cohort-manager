@@ -8,20 +8,21 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using DataServices.Client;
 using Model;
 
 public class MarkParticipantAsEligible
 {
     private readonly ILogger<MarkParticipantAsEligible> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IParticipantManagerData _participantManagerData;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IExceptionHandler _handleException;
 
-    public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException)
+    public MarkParticipantAsEligible(ILogger<MarkParticipantAsEligible> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantManagement> participantManagementClient, IExceptionHandler handleException)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _participantManagerData = participantManagerData;
+        _participantManagementClient = participantManagementClient;
         _handleException = handleException;
     }
 
@@ -35,23 +36,36 @@ public class MarkParticipantAsEligible
         }
 
         var participant = JsonSerializer.Deserialize<Participant>(postData);
+        long nhsNumber;
+        long screeningId;
 
         try
         {
             var updated = false;
             if (participant != null)
             {
-                updated = _participantManagerData.UpdateParticipantAsEligible(participant);
+                if (!long.TryParse(participant.NhsNumber, out nhsNumber))
+                {
+                    throw new FormatException("Could not parse NhsNumber");
+                }
+                if (!long.TryParse(participant.ScreeningId, out screeningId))
+                {
+                    throw new FormatException("Could not parse ScreeningId");
+                }
 
+                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
+                updatedParticipantManagement.EligibilityFlag = 1;
+
+                updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
             }
+
             if (updated)
             {
-                _logger.LogInformation("Record updated for participant {NhsNumber}", participant.NhsNumber);
+                _logger.LogInformation("Record updated for participant for NHS Number: REDACTED}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError("An error occurred while updating data for {NhsNumber}", participant?.NhsNumber);
-
+            _logger.LogError("An error occurred while updating data for NHS Number: REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)

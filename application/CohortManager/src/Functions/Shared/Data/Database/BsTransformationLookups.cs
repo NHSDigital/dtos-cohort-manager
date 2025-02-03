@@ -97,30 +97,6 @@ public class BsTransformationLookups : IBsTransformationLookups
     }
 
     /// <summary>
-    /// Used in
-    /// </summary>
-    /// <param name="participant">The participant.</param>
-    /// <returns>CohortDistributionParticipant, the transformed participant.<returns>
-    public bool ParticipantIsInvalid(string nhsNumber)
-    {
-        string sql = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
-                    $"WHERE NHS_NUMBER = @NhsNumber AND INVALID_FLAG = 1";
-
-        using (_connection = new SqlConnection(_connectionString))
-        {
-            _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    return reader.Read();
-                }
-            }
-        }
-    }
-
-    /// <summary>
     /// Used in the 4 chained ParticipantNotRegisteredToGPWithReasonForRemoval rules.
     /// Gets the participant's primary care provider.
     /// </summary>
