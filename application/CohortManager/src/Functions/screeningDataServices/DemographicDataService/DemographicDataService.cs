@@ -28,26 +28,6 @@ public class DemographicDataService
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var participantDemographic = new List<Demographic>();
-
-        try
-        {
-            string Id = req.Query["Id"];
-
-            var demographicData = await _createDemographicData.GetDemographicData(Id);
-            if (demographicData != null)
-            {
-                var responseBody = JsonSerializer.Serialize<Demographic>(demographicData);
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
-            }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error has occurred while inserting data {Message}", ex.Message);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "N/A", "N/A", "N/A", JsonSerializer.Serialize(participantDemographic));
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-        }
+        return _createResponse.CreateHttpResponse(HttpStatusCode.Gone, req, "Participant not found");
     }
 }

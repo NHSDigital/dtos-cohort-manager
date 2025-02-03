@@ -15,7 +15,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IDatabaseHelper, DatabaseHelper>();
-        // services.AddTransient<ICreateDemographicData, CreateDemographicData>();
+        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
     })
     .AddExceptionHandler()
     .AddDatabaseConnection()

@@ -31,7 +31,6 @@ public class DemographicDataFunction
     {
         try
         {
-            var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
             string id = req.Query["Id"];
 
             var demographicData = await _createDemographicData.GetDemographicData(id);
