@@ -22,8 +22,6 @@ parameters:
 
 variables:
 - group: DEV_automation_testing_pipeline
-- name: TARGET_ENVIRONMENT
-  value: ${{ parameters.destEnvironmentShortName }}
 
 stages:
 - stage: post_deployment_tests_stage
