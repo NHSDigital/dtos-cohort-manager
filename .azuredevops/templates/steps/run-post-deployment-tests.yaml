@@ -6,6 +6,14 @@ steps:
 - checkout: self
   fetchDepth: 1
 
+# Add a Bash task to output a pipeline variable
+- task: Bash@3
+  displayName: 'Set and Output Pipeline Variable'
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo "Value of DATABASE_CONNECTION_STRING is $(DATABASE_CONNECTION_STRING)"
+
 - task: UseDotNet@2
   displayName: 'Use .NET 9 SDK'
   inputs:
