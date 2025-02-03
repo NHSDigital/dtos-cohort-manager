@@ -47,7 +47,7 @@ public class DemographicDataServiceTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
 
         SetupRequest(json);
 
@@ -61,7 +61,7 @@ public class DemographicDataServiceTests
             });
         _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
 
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync(new Demographic()
         {
             ParticipantId = "1"
         });
@@ -71,14 +71,14 @@ public class DemographicDataServiceTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_ReturnDemographicData_NotFound()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
@@ -93,24 +93,20 @@ public class DemographicDataServiceTests
                 return response;
             });
 
-        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).Returns(new Demographic()
-        {
-            ParticipantId = null
-        });
-
+        _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync((Demographic)null);
         // Act
         _request.Setup(x => x.Method).Returns("GET");
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     [TestMethod]
     public async Task Run_DemographicData_InternalServerError()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
@@ -130,7 +126,7 @@ public class DemographicDataServiceTests
         var result = await sut.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.Gone, result.StatusCode);
     }
 
     private void SetupRequest(string json)

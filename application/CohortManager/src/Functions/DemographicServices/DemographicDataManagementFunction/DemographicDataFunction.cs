@@ -4,8 +4,11 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Data.Database;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -13,13 +16,14 @@ public class DemographicDataFunction
 {
     private readonly ILogger<DemographicDataFunction> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICallFunction _callFunction;
 
-    public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, ICallFunction callFunction)
+    private readonly ICreateDemographicData _createDemographicData;
+
+    public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, ICreateDemographicData createDemographicData)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _callFunction = callFunction;
+        _createDemographicData = createDemographicData;
     }
 
     [Function("DemographicDataFunction")]
@@ -44,12 +48,12 @@ public class DemographicDataFunction
     {
         try
         {
-            var functionUrl = Environment.GetEnvironmentVariable("DemographicDataServiceURI");
-            string Id = req.Query["Id"];
+            string NHSNumber = req.Query["Id"];
 
-            var data = await _callFunction.SendGet($"{functionUrl}?Id={Id}");
+            var demographicData = await _createDemographicData.GetDemographicData(NHSNumber);
+            var data = JsonSerializer.Serialize(demographicData);
 
-            if (data == "Participant not found")
+            if (data == null)
             {
                 _logger.LogInformation("demographic function failed");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
