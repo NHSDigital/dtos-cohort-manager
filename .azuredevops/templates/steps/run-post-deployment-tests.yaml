@@ -16,13 +16,13 @@ steps:
   - task: DeleteFiles@1
     displayName: 'Clean Build Directory'
     inputs:
-    SourceFolder: '$(System.DefaultWorkingDirectory)'
-    Contents: |
-      **/bin/*
-      **/obj/*
-      **/TestResults/*
-      **/drop/*
-    RemoveSourceFolder: false
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: |
+        **/bin/*
+        **/obj/*
+        **/TestResults/*
+        **/drop/*
+      RemoveSourceFolder: false
 
   - task: FileTransform@2
     displayName: "Transform Configuration Files"
