@@ -33,7 +33,7 @@ public class BiAnalyticsParticipantDto
         dbParticipant.ScreeningCeasedReason = ScreeningCeasedReason;
         dbParticipant.IsHigherRisk = IsHigherRisk ?? dbParticipant.IsHigherRisk;
         dbParticipant.IsHigherRiskActive = IsHigherRiskActive ?? dbParticipant.IsHigherRiskActive;
-        dbParticipant.RecordUpdateDateTime = SrcSysProcessedDateTime;
+        dbParticipant.SrcSysProcessedDateTime = SrcSysProcessedDateTime;
         dbParticipant.HigherRiskNextTestDueDate = ConvertDateToDateTime(HigherRiskNextTestDueDate);
         dbParticipant.DateIrradiated = ConvertDateToDateTime(DateIrradiated);
 
