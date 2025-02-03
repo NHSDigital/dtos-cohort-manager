@@ -6,24 +6,24 @@ pr: none
 
 resources:
   repositories:
-    - repository: dtos-devops-templates
-      type: github
-      name: NHSDigital/dtos-devops-templates
-      ref: 7dd6e83de82475570a27e172b95be8d30f488695
-      endpoint: NHSDigital
+  - repository: dtos-devops-templates
+    type: github
+    name: NHSDigital/dtos-devops-templates
+    ref: 7dd6e83de82475570a27e172b95be8d30f488695
+    endpoint: NHSDigital
 
 parameters:
-  - name: destEnvironmentShortName
-    displayName: Destination Environment Short Name
-    type: string
-    values:
-      - dev
-    default: dev
+- name: destEnvironmentShortName
+  displayName: Destination Environment Short Name
+  type: string
+  values:
+  - dev
+  default: dev
 
 variables:
-  - group: DEV_automation_testing_pipeline
-  - name: TARGET_ENVIRONMENT
-    value: ${{ parameters.destEnvironmentShortName }}
+- group: DEV_automation_testing_pipeline
+- name: TARGET_ENVIRONMENT
+  value: ${{ parameters.destEnvironmentShortName }}
 
 stages:
 - stage: post_deployment_tests_stage
@@ -36,7 +36,7 @@ stages:
     displayName: Run post-deployment tests
 
     steps:
-      - checkout: self
-      - template: ../templates/steps/run-post-deployment-tests.yaml
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
+    - checkout: self
+    - template: ../templates/steps/run-post-deployment-tests.yaml
+      parameters:
+        serviceConnection: sc-cohort-manager-dev
