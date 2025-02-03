@@ -13,6 +13,8 @@ steps:
       script: |
         echo "Value of DTOS_DATABASE_CONNECTION_STRING is $(DTOS_DATABASE_CONNECTION_STRING)"
         echo "Value of CAASFOLDER_STORAGE_CONNECTION_STRING is $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
+        echo "Show contents of $(System.DefaultWorkingDirectory):"
+        dir $(System.DefaultWorkingDirectory)
 
   - task: UseDotNet@2
     displayName: 'Use .NET 9 SDK'
