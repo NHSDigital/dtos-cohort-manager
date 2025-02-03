@@ -10,22 +10,25 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using DataServices.Client;
 
 public class UpdateParticipantDetails
 {
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse,
+                                    IExceptionHandler handleException, ICallFunction callFunction,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _participantManagerData = participantManagerData;
         _handleException = handleException;
         _callFunction = callFunction;
+        _participantManagementClient = participantManagementClient;
     }
 
     [Function("updateParticipantDetails")]
@@ -42,9 +45,12 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+            Participant reqParticipant = participantCsvRecord.Participant;
+ 
+            var existingParticipantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == long.Parse(reqParticipant.NhsNumber)
+                                                                                        && p.ScreeningId == long.Parse(reqParticipant.ParticipantId));
 
-            var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
+            var response = await ValidateData(new Participant(existingParticipantData), participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
                 _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
@@ -57,7 +63,7 @@ public class UpdateParticipantDetails
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
             }
 
-            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
+            var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)
             {

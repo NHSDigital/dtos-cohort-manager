@@ -52,12 +52,12 @@ public class CreateParticipant : ICreateParticipant
     }
 
 
-    public CohortDistributionParticipant CreateCohortDistributionParticipantModel(Participant participant, Demographic demographic)
+    public CohortDistributionParticipant CreateCohortDistributionParticipantModel(ParticipantManagement participant, Demographic demographic)
     {
         return new CohortDistributionParticipant
         {
-            ParticipantId = participant.ParticipantId,
-            NhsNumber = participant.NhsNumber,
+            ParticipantId = participant.ParticipantId.ToString(),
+            NhsNumber = participant.NHSNumber.ToString(),
             SupersededByNhsNumber = demographic.SupersededByNhsNumber,
             PrimaryCareProvider = demographic.PrimaryCareProvider,
             PrimaryCareProviderEffectiveFromDate = demographic.PrimaryCareProviderEffectiveFromDate,
@@ -85,12 +85,10 @@ public class CreateParticipant : ICreateParticipant
             PreferredLanguage = demographic.PreferredLanguage,
             IsInterpreterRequired = demographic.IsInterpreterRequired,
             ReasonForRemoval = participant.ReasonForRemoval,
-            ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate,
+            ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString(),
             RecordInsertDateTime = demographic.RecordInsertDateTime,
-            RecordUpdateDateTime = participant.RecordUpdateDateTime,
-            ScreeningAcronym = participant.ScreeningAcronym,
-            ScreeningServiceId = participant.ScreeningId,
-            ScreeningName = participant.ScreeningName,
+            RecordUpdateDateTime = participant.RecordUpdateDateTime.ToString(),
+            ScreeningServiceId = participant.ScreeningId.ToString(),
             Extracted = null,
             RecordType = participant.RecordType,
             CurrentPosting = demographic.CurrentPosting,

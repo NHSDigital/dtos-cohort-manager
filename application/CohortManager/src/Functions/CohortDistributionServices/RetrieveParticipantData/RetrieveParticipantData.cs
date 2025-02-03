@@ -10,24 +10,27 @@ using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
 using Data.Database;
+using DataServices.Client;
 
 public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly ICreateDemographicData _createDemographicData;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
-    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger, IParticipantManagerData participantManagerData, ICreateDemographicData createDemographicData, ICreateParticipant createParticipant, IExceptionHandler exceptionHandler)
+    public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger,
+                                ICreateDemographicData createDemographicData, ICreateParticipant createParticipant,
+                                IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantManagement> participantManagementClient)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _participantManagerData = participantManagerData;
         _createDemographicData = createDemographicData;
         _createParticipant = createParticipant;
         _exceptionHandler = exceptionHandler;
+        _participantManagementClient = participantManagementClient;
     }
 
     [Function("RetrieveParticipantData")]
@@ -52,8 +55,10 @@ public class RetrieveParticipantData
 
         try
         {
-            var participantData = _participantManagerData.GetParticipantFromIDAndScreeningService(requestBody);
+            var participantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber.ToString() == requestBody.NhsNumber &&
+                                                                            p.ScreeningId.ToString() == requestBody.ScreeningService);
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
+
             var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
             participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
             var responseBody = JsonSerializer.Serialize(participant);

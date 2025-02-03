@@ -9,6 +9,7 @@ using NHS.CohortManager.CohortDistribution;
 using Model;
 using Model.Enums;
 using Data.Database;
+using DataServices.Client;
 
 public class CreateCohortDistribution
 {
@@ -16,22 +17,22 @@ public class CreateCohortDistribution
     private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
            ICallFunction callFunction,
            ICohortDistributionHelper CohortDistributionHelper,
            IExceptionHandler exceptionHandler,
-           IParticipantManagerData participantManagerData,
+           IDataServiceClient<ParticipantManagement> participantManagementClient,
            IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
-        _participantManagerData = participantManagerData;
         _azureQueueStorageHelper = azureQueueStorageHelper;
+        _participantManagementClient = participantManagementClient;
     }
 
     [Function(nameof(CreateCohortDistribution))]
@@ -79,7 +80,9 @@ public class CreateCohortDistribution
 
             var ignoreParticipantExceptions = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("IgnoreParticipantExceptions", DataTypes.Boolean);
 
-            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
+            bool participantHasException = await ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId);
+
+            if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
                 var ParticipantExceptionErrorMessage = $"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it";
                 _logger.LogInformation(ParticipantExceptionErrorMessage, participantData.ParticipantId);
@@ -149,10 +152,9 @@ public class CreateCohortDistribution
         return response;
     }
 
-    private bool ParticipantHasException(string nhsNumber, string screeningId)
+    private async Task<bool> ParticipantHasException(string nhsNumber, string screeningId)
     {
-        var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
-        var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
-        return exceptionFlag == Exists.Yes;
+        var participant = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber.ToString() == nhsNumber && p.ScreeningId.ToString() == screeningId);
+        return participant.ExceptionFlag == 1;
     }
 }

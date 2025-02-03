@@ -109,6 +109,26 @@ public class Participant
         };
     }
 
+    public ParticipantManagement ToParticipantManagement()
+    {
+        var participantManagement = new ParticipantManagement
+        {
+            ParticipantId = long.TryParse(ParticipantId, out var participantId) ? participantId : 0,
+            ScreeningId = long.TryParse(ScreeningId, out var screeningId) ? screeningId : 0,
+            NHSNumber = long.TryParse(NhsNumber, out var nhsNumber) ? nhsNumber : 0,
+            RecordType = RecordType ?? string.Empty,
+            EligibilityFlag = short.TryParse(EligibilityFlag, out var eligibilityFlag) ? eligibilityFlag : (short)0,
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = DateTime.TryParse(ReasonForRemovalEffectiveFromDate, out var removalDate) ? removalDate : null,
+            BusinessRuleVersion = BusinessRuleVersion,
+            ExceptionFlag = short.TryParse(ExceptionFlag, out var exceptionFlag) ? exceptionFlag : (short)0,
+            RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, out var insertDate) ? insertDate : null,
+            RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, out var updateDate) ? updateDate : null,
+        };
+
+        return participantManagement;
+    }
+
     private int GetInvalidFlag()
     {
         int result = 0;
