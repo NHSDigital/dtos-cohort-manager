@@ -25,14 +25,26 @@ steps:
     RemoveSourceFolder: false
 
 - task: FileTransform@1
-  displayName: "Transform Configuration Files"
-  inputs:
-    folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-    fileType: 'json'
-    targetFiles: '*.json'
+    displayName: 'Transform Configuration Files'
+    inputs:
+      folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
+      fileType: 'json'
+      targetFiles: '*.json'
+      variables: |
+        {
+          "ConnectionStrings": {
+            "DtOsDatabaseConnectionString": "$(DATABASE_CONNECTION_STRING)"
+          },
+          "AzureWebJobsStorage": "$(STORAGE_CONNECTION_STRING)"
+        }
 
-- script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
-  displayName: "Print appsettings.json after variable substitution"
+  - task: Bash@3
+    displayName: 'Print appsettings.json after variable substitution'
+    inputs:
+      targetType: 'inline'
+      script: |
+        cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+
 
 - task: DotNetCoreCLI@2
   displayName: 'Build Smoke Tests Solution'
