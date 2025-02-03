@@ -1,16 +1,16 @@
 import Card from "@/app/components/card";
 
 interface CardProps {
-  value: number;
-  label: string;
-  url: string;
+  readonly value: number;
+  readonly label: string;
+  readonly url: string;
 }
 
 interface CardGroupProps {
-  items: CardProps[];
+  readonly items: readonly CardProps[];
 }
 
-export default function CardGroup({ items }: CardGroupProps) {
+export default function CardGroup({ items }: Readonly<CardGroupProps>) {
   return (
     <ul className="nhsuk-grid-row nhsuk-card-group">
       {items.map((card, index) => (

@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 interface CardProps {
-  value: number;
-  label: string;
-  url: string;
+  readonly value: number;
+  readonly label: string;
+  readonly url: string;
 }
 
-export default function Card({ value, label, url }: CardProps) {
+export default function Card({ value, label, url }: Readonly<CardProps>) {
   return (
     <div className="nhsuk-card nhsuk-card--clickable">
       <div className="nhsuk-card__content">

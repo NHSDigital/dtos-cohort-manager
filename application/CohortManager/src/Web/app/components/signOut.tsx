@@ -3,10 +3,10 @@
 import { signOut } from "next-auth/react";
 
 interface SignOutProps {
-  className?: string;
+  readonly className?: string;
 }
 
-export default function SignOut({ className }: SignOutProps) {
+export default function SignOut({ className }: Readonly<SignOutProps>) {
   const handleSignOut = async (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     await signOut({
@@ -15,10 +15,8 @@ export default function SignOut({ className }: SignOutProps) {
   };
 
   return (
-    <>
-      <a href="" className={className} onClick={handleSignOut}>
-        Sign out
-      </a>
-    </>
+    <a href="" className={className} onClick={handleSignOut}>
+      Sign out
+    </a>
   );
 }

@@ -1,15 +1,15 @@
 import Link from "next/link";
 
 interface BreadcrumbItem {
-  label: string;
-  url: string;
+  readonly label: string;
+  readonly url: string;
 }
 
 interface BreadcrumbProps {
-  items: BreadcrumbItem[];
+  readonly items: readonly BreadcrumbItem[];
 }
 
-export default function Breadcrumb({ items }: BreadcrumbProps) {
+export default function Breadcrumb({ items }: Readonly<BreadcrumbProps>) {
   return (
     <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
       <ol className="nhsuk-breadcrumb__list">

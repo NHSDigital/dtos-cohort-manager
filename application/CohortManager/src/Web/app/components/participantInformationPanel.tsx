@@ -7,12 +7,12 @@ import {
 } from "@/app/lib/utils";
 
 interface ParticipantInformationPanelProps {
-  exceptionDetails: ExceptionDetails;
+  readonly exceptionDetails: ExceptionDetails;
 }
 
 export default function ParticipantInformationPanel({
   exceptionDetails,
-}: ParticipantInformationPanelProps) {
+}: Readonly<ParticipantInformationPanelProps>) {
   return (
     <>
       <div className="nhsuk-card nhsuk-u-margin-bottom-4">

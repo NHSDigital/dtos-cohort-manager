@@ -13,7 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default async function Page(props: {
-  params: Promise<{ exceptionId: string }>;
+  readonly params: Promise<{
+    readonly exceptionId: string;
+  }>;
 }) {
   const session = await auth();
   const isCohortManager = session?.user

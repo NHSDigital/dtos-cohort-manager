@@ -9,7 +9,7 @@ interface SignInProps {
 export default function SignIn({
   serviceName = process.env.SERVICE_NAME,
   headingLevel = 1,
-}: SignInProps) {
+}: Readonly<SignInProps>) {
   const HeadingTag = `h${headingLevel}` as keyof JSX.IntrinsicElements;
 
   return (
