@@ -5,7 +5,7 @@ parameters:
     type: string
 
 steps:
-# Add a Bash task to output a pipeline variable
+  # Add a Bash task to output a pipeline variable
   - task: Bash@3
     displayName: 'Output Pipeline Variables for Debugging'
     inputs:
@@ -36,9 +36,6 @@ steps:
 
   - task: FileTransform@2
     displayName: 'Transform Configuration Files'
-    variables:
-      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.AzureWebJobsStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
     inputs:
       folderPath: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
       fileType: 'json'
