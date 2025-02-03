@@ -20,3 +20,5 @@ winget
 uid
 Dev
 dev
+npm
+Smartcard
