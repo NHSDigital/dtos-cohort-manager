@@ -13,17 +13,25 @@ steps:
       version: '9.0.x'
       includePreviewVersions: true
 
+  - task: DeleteFiles@1
+    displayName: 'Clean Build Directory'
+    inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/bin/*
+      **/obj/*
+      **/TestResults/*
+      **/drop/*
+    RemoveSourceFolder: false
+
   - task: FileTransform@2
     displayName: "Transform Configuration Files"
     inputs:
       folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
       targetFiles: '**/appsettings.json'
-      fileType: 'json'
       enableXmlTransform: false
-      enableTransformationPreview: true
-      xmlTransformationRules: ''
+      enableJsonTransform: true
       jsonTargetFiles: '**/appsettings.json'
-      variableSubstitutionFileFormat: 'json'
 
   - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
     displayName: "Print appsettings.json after variable substitution"
