@@ -47,7 +47,7 @@ public class DemographicDataServiceTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
 
         SetupRequest(json);
 
@@ -78,7 +78,7 @@ public class DemographicDataServiceTests
     public async Task Run_ReturnDemographicData_NotFound()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 
@@ -107,7 +107,7 @@ public class DemographicDataServiceTests
     public async Task Run_DemographicData_InternalServerError()
     {
         // Arrange
-        var sut = new DemographicDataService(_logger.Object, _createResponse.Object, _createDemographicData.Object, _exceptionHandler.Object);
+        var sut = new DemographicDataService(_createResponse.Object);
         var json = JsonSerializer.Serialize(_participant);
         SetupRequest(json);
 

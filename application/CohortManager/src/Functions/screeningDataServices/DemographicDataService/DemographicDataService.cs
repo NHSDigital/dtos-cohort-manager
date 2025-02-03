@@ -12,6 +12,14 @@ using Model;
 
 public class DemographicDataService
 {
+
+    private readonly ICreateResponse _createResponse;
+
+    public DemographicDataService(ICreateResponse createResponse)
+    {
+        _createResponse = createResponse;
+    }
+
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
