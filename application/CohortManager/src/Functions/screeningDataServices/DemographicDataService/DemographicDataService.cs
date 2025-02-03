@@ -23,6 +23,6 @@ public class DemographicDataService
     [Function("DemographicDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        return _createResponse.CreateHttpResponse(HttpStatusCode.Gone, req, "Participant not found");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.Gone, req, "demographic data not found");
     }
 }

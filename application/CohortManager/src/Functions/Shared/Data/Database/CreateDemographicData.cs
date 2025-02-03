@@ -11,11 +11,9 @@ public class CreateDemographicData : ICreateDemographicData
 {
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
-
     public CreateDemographicData(IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
         _participantDemographic = participantDemographic;
-
     }
 
     public async Task<Demographic> GetDemographicData(string nhsNumber)
@@ -28,6 +26,4 @@ public class CreateDemographicData : ICreateDemographicData
         var result = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
         return result.ToDemographic();
     }
-
-
 }
