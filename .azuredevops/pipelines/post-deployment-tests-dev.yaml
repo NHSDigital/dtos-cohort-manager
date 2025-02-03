@@ -12,6 +12,9 @@ resources:
     ref: 7dd6e83de82475570a27e172b95be8d30f488695
     endpoint: NHSDigital
 
+variables:
+- group: DEV_automation_testing_pipeline
+
 parameters:
 - name: destEnvironmentShortName
   displayName: Destination Environment Short Name
@@ -20,18 +23,13 @@ parameters:
   - dev
   default: dev
 
-variables:
-- group: DEV_automation_testing_pipeline
-- name: TARGET_ENVIRONMENT
-  value: ${{ parameters.destEnvironmentShortName }}
-- name: ConnectionStrings.DtOsDatabaseConnectionString
-  value: $(DTOS_DATABASE_CONNECTION_STRING)
-- name: AzureWebJobsStorage
-  value: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
-
 stages:
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
+
+  variables:
+  - name: TARGET_ENVIRONMENT
+    value: ${{ parameters.destEnvironmentShortName }}
 
   jobs:
   - job: post_deployment_tests
