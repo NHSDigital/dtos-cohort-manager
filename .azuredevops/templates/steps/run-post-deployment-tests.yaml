@@ -1,61 +1,59 @@
 parameters:
-  - name: serviceConnection
-    type: string
+- name: serviceConnection
+  type: string
 
 steps:
-  - checkout: self
-    fetchDepth: 1
+- checkout: self
+  fetchDepth: 1
 
-  - task: UseDotNet@2
-    displayName: 'Use .NET 9 SDK'
-    inputs:
-      packageType: 'sdk'
-      version: '9.0.x'
-      includePreviewVersions: true
+- task: UseDotNet@2
+  displayName: 'Use .NET 9 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    includePreviewVersions: true
 
-  - task: DeleteFiles@1
-    displayName: 'Clean Build Directory'
-    inputs:
-      SourceFolder: '$(System.DefaultWorkingDirectory)'
-      Contents: |
-        **/bin/*
-        **/obj/*
-        **/TestResults/*
-        **/drop/*
-      RemoveSourceFolder: false
+- task: DeleteFiles@1
+  displayName: 'Clean Build Directory'
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/bin/*
+      **/obj/*
+      **/TestResults/*
+      **/drop/*
+    RemoveSourceFolder: false
 
-  - task: FileTransform@2
-    displayName: "Transform Configuration Files"
-    inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-      targetFiles: '**/appsettings.json'
-      enableXmlTransform: false
-      enableJsonTransform: true
-      jsonTargetFiles: '**/appsettings.json'
+- task: FileTransform@1
+  displayName: "Transform Configuration Files"
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
+    fileType: 'json'
+    targetFiles: '*.json'
 
-  - script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
-    displayName: "Print appsettings.json after variable substitution"
+- script: cat $(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
+  displayName: "Print appsettings.json after variable substitution"
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Build Smoke Tests Solution'
-    inputs:
-      command: 'build'
-      projects: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
-      arguments: '--configuration Release'
+- task: DotNetCoreCLI@2
+  displayName: 'Build Smoke Tests Solution'
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
+    arguments: '--configuration Release'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'Run SpecFlow Tests'
-    inputs:
-      command: 'test'
-      projects: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
-      publishTestResults: true
+- task: DotNetCoreCLI@2
+  displayName: 'Run SpecFlow Tests'
+  inputs:
+    command: 'test'
+    projects: '$(System.DefaultWorkingDirectory)/dtos-cohort-manager/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+    publishTestResults: true
 
-  - task: PublishTestResults@2
-    displayName: 'Publish Test Results'
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFiles: '**/SpecFlowResults.trx'
-      testRunTitle: 'SpecFlow Tests'
-      mergeTestResults: true
-      createTestRun: true
-      testResultFormat: VSTest
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/SpecFlowResults.trx'
+    testRunTitle: 'SpecFlow Tests'
+    mergeTestResults: true
+    createTestRun: true
+    testResultFormat: VSTest
