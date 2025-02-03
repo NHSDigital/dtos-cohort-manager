@@ -169,7 +169,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
+            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }
