@@ -88,7 +88,7 @@ services:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
+      - ParticipantDemographicDataService=http://localhost:7072/api/DemographicDataService
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record

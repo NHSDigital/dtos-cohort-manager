@@ -7,14 +7,14 @@ using Model;
 
 var host = new HostBuilder()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL"))
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
+        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
     })
     .Build();
 

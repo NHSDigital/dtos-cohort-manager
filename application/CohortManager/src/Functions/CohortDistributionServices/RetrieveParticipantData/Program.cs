@@ -7,7 +7,7 @@ using Model;
 
 var host = new HostBuilder()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataService"))
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
@@ -16,7 +16,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICreateDemographicData, CreateDemographicData>();
+        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
     .AddDatabaseConnection()
