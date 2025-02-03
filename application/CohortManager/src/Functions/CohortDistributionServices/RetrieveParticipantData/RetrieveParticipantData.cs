@@ -69,7 +69,7 @@ public class RetrieveParticipantData
             {
                 _logger.LogError("the demographicData was null the {RetrieveParticipantData}  function", nameof(RetrieveParticipantData));
 
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"the demographicData was null the {nameof(RetrieveParticipantData)}  function");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, $"the demographicData was null the {nameof(RetrieveParticipantData)}  function");
             }
 
             participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
