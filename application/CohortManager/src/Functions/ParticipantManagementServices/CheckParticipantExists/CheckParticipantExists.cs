@@ -41,12 +41,12 @@ public class CheckParticipantExists
         }
         catch (ArgumentNullException ex)
         {
-            _logger.LogError("{DateTime}: Request is missing required parameters: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("Request is missing required parameters: {Ex}", ex);
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Request is missing required parameters");
         }
         catch (Exception ex)
         {
-            _logger.LogError("{DateTime}: Invalid Request: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("Invalid Request: {Ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         try 
@@ -59,7 +59,7 @@ public class CheckParticipantExists
         }
         catch (Exception ex)
         {
-            _logger.LogError("{DateTime}: Request could not be processed: {Ex}", DateTime.UtcNow, ex);
+            _logger.LogError("Request could not be processed: {Ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
