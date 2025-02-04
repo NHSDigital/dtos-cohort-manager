@@ -16,7 +16,7 @@ public class CohortDistributionDataService
     private readonly IRequestHandler<CohortDistribution> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public CohortDistributionDataService(ILogger<CohortDistributionDataService> logger, IRequestHandler<ParticipantManagement> requestHandler, ICreateResponse createResponse)
+    public CohortDistributionDataService(ILogger<CohortDistributionDataService> logger, IRequestHandler<CohortDistribution> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
