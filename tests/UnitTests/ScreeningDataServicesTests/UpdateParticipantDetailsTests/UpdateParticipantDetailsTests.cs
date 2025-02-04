@@ -12,6 +12,7 @@ using DataServices.Client;
 using Common;
 using System.Linq.Expressions;
 using NHS.CohortManager.Tests.TestUtils;
+using Microsoft.Azure.Functions.Worker;
 using System.Text.Json;
 
 [TestClass]
@@ -24,7 +25,8 @@ public class UpdateParticipantDetailsTests
     private readonly Mock<CreateResponse> _createResponseMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly SetupRequest _setupRequest = new();
-    private readonly Mock<HttpWebResponse> _webResponse = new();
+    private readonly Mock<HttpWebResponse> _LookupValidationWebResponse = new();
+    private ValidationExceptionLog _lookupValidationResponseBody = new();
 
     public UpdateParticipantDetailsTests()
     {
@@ -73,24 +75,27 @@ public class UpdateParticipantDetailsTests
             }
         };
 
-        _webResponse
+        _LookupValidationWebResponse
             .Setup(m => m.StatusCode)
             .Returns(HttpStatusCode.OK);
 
         _callFunctionMock
             .Setup(m => m.SendPost("LookupValidationURL", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
+            .ReturnsAsync(_LookupValidationWebResponse.Object);
 
+        _lookupValidationResponseBody.CreatedException = false;
+        _lookupValidationResponseBody.IsFatal = false;
+        string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
+
+        _callFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(lookupResponseJson);
     }
 
     [TestMethod]
     public async Task Run_ValidRequest_ReturnOk()
     {
         // Arrange
-        _participantManagementClientMock
-            .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync((ParticipantManagement)null);
-
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
                                                 _callFunctionMock.Object, _participantManagementClientMock.Object);
         
@@ -108,6 +113,10 @@ public class UpdateParticipantDetailsTests
     public async Task Run_GetOldParticipantFails_ReturnInternalServerError()
     {
         // Arrange
+        _participantManagementClientMock
+            .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .Throws(new Exception());
+
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
                                                 _callFunctionMock.Object, _participantManagementClientMock.Object);
 
@@ -121,24 +130,77 @@ public class UpdateParticipantDetailsTests
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
-    // [TestMethod]
-    // public void Run_LookupValidationFails_ReturnInternalServerError()
-    // {
-    //     // Arrange
-    //     _moqDataReader.SetupSequence(reader => reader.Read())
-    //     .Returns(true)
-    //     .Returns(false);
+    [TestMethod]
+    public async Task Run_LookupValidationFails_ReturnInternalServerError()
+    {
+        // Arrange
+        _callFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .Throws(new Exception());
 
+        var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
 
-    //     _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
+        string json = JsonSerializer.Serialize(_participantCsvRecord);
+        var request = _setupRequest.Setup(json);
 
+        // Act
+        var response = await sut.Run(request.Object);
 
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
 
-    //     // Act
-    //     var result = sut.UpdateParticipantDetails(_participantCsvRecord);
-    //     // Assert
-    //     Assert.IsFalse(result);
-    //     _commandMock.Verify(command => command.ExecuteNonQuery(), Times.AtMost(2));
-    //     //We still update the participant, but only set the Exception Flag.
-    // }
+    [TestMethod]
+    public async Task Run_FatalValidationRuleTriggered_ReturnCreatedAndDoNotUpdate()
+    {
+        // Arrange
+        _lookupValidationResponseBody.CreatedException = true;
+        _lookupValidationResponseBody.IsFatal = true;
+        string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
+
+        _callFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(lookupResponseJson);
+
+        var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+
+        string json = JsonSerializer.Serialize(_participantCsvRecord);
+        var request = _setupRequest.Setup(json);
+
+        // Act
+        var response = await sut.Run(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task Run_NonFatalValidationRuleTriggered_SetExceptionFlagAndUpdate()
+    {
+        // Arrange
+        _lookupValidationResponseBody.CreatedException = true;
+        _lookupValidationResponseBody.IsFatal = false;
+        string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
+
+        _callFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(lookupResponseJson);
+
+        var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+
+        string json = JsonSerializer.Serialize(_participantCsvRecord);
+        var request = _setupRequest.Setup(json);
+
+        // Act
+        var response = await sut.Run(request.Object);
+
+        // Assert
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(p => p.ExceptionFlag == 1)), Times.Once());
+    }
 }

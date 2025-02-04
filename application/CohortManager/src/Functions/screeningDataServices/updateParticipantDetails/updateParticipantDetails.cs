@@ -60,7 +60,7 @@ public class UpdateParticipantDetails
             if (response.CreatedException)
             {
                 _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
-                participantCsvRecord.Participant.ExceptionFlag = "Y";
+                reqParticipant.ExceptionFlag = "1";
             }
 
             var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
@@ -93,6 +93,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
+            System.Console.WriteLine(ex);
             _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
             return null;
         }

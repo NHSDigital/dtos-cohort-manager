@@ -121,7 +121,7 @@ public class Participant
             ReasonForRemoval = ReasonForRemoval,
             ReasonForRemovalDate = DateTime.TryParse(ReasonForRemovalEffectiveFromDate, out var removalDate) ? removalDate : null,
             BusinessRuleVersion = BusinessRuleVersion,
-            ExceptionFlag = short.TryParse(ExceptionFlag, out var exceptionFlag) ? exceptionFlag : (short)0,
+            ExceptionFlag = short.Parse(ExceptionFlag ?? "0"),
             RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, out var insertDate) ? insertDate : null,
             RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, out var updateDate) ? updateDate : null,
         };
