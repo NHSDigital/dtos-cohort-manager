@@ -8,8 +8,8 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
-        .AddDataService<GeneCodeLkp>(Environment.GetEnvironmentVariable("GeneCodeLkpUrl"))
-        .AddDataService<HigherRiskReferralReasonLkp>(Environment.GetEnvironmentVariable("HigherRiskReferralReasonLkpUrl"))
+        .AddCachedDataService<GeneCodeLkp>(Environment.GetEnvironmentVariable("GeneCodeLkpUrl"))
+        .AddCachedDataService<HigherRiskReferralReasonLkp>(Environment.GetEnvironmentVariable("HigherRiskReferralReasonLkpUrl"))
         .Build()
     .ConfigureServices(services =>
     {

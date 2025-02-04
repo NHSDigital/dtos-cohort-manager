@@ -9,8 +9,8 @@ using DataServices.Client;
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddDataService<HigherRiskReferralReasonLkp>(Environment.GetEnvironmentVariable("HigherRiskReferralReasonLkpDataServiceUrl"))
-        .AddDataService<GeneCodeLkp>(Environment.GetEnvironmentVariable("GeneCodeLkpDataServiceUrl"))
+        .AddDataCachedService<HigherRiskReferralReasonLkp>(Environment.GetEnvironmentVariable("HigherRiskReferralReasonLkpDataServiceUrl"))
+        .AddDataCachedService<GeneCodeLkp>(Environment.GetEnvironmentVariable("GeneCodeLkpDataServiceUrl"))
         .Build()
     .ConfigureServices(services =>
     {
