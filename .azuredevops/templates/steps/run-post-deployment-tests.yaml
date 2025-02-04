@@ -17,6 +17,7 @@ steps:
       dir $(System.DefaultWorkingDirectory)
       nslookup sqlsvr-cohman-dev-uks.database.windows.net
       ssh sqlsvr-cohman-dev-uks.database.windows.net -p 1433
+      ssh 10.101.1.8 -p 1433
 
 - task: UseDotNet@2
   displayName: 'Use .NET 9 SDK'
