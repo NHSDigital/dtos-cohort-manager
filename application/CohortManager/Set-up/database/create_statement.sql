@@ -52,6 +52,8 @@ BEGIN
     );
 END
 
+CREATE INDEX [Index_BS_COHORT_DISTRIBUTION_NhsNumber] ON [dbo].[BS_COHORT_DISTRIBUTION] ([NHS_NUMBER]);
+
 /*==============================================================*/
 /* Table: GENDER_MASTER                                         */
 /*==============================================================*/
@@ -125,6 +127,7 @@ BEGIN
     );
 END
 
+CREATE INDEX [Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber] ON [dbo].[PARTICIPANT_DEMOGRAPHIC] ([NHS_NUMBER]);
 
 /*==============================================================*/
 /* Table: SCREENING_LKP                                         */
@@ -221,6 +224,9 @@ BEGIN
         IS_FATAL SMALLINT NULL
     );
 END
+
+CREATE INDEX [Index_EXCEPTION_MANAGEMENT_NhsNumber] ON [dbo].[EXCEPTION_MANAGEMENT] ([NHS_NUMBER]);
+CREATE INDEX [Index_EXCEPTION_MANAGEMENT_Screening] ON [dbo].[EXCEPTION_MANAGEMENT] ([SCREENING_NAME]);
 
 /*==============================================================*/
 /* Table: BS_SELECT_GP_PRACTICE_LKP                             */
