@@ -46,8 +46,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticValidation", "Screeni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileValidation", "ScreeningValidationService\FileValidation\FileValidation.csproj", "{15E7492F-ACCE-4267-A52A-2ABF44690F64}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataServiceTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\DemographicDataServiceTests\DemographicDataServiceTests.csproj", "{D3CF4C1D-9D0E-414E-8A3D-08291B891805}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemographicDataFunctionTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\DemographicDataFunctionTests\DemographicDataFunctionTests.csproj", "{A99A0090-6DDF-45D7-B387-025C986DF078}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningValidationServiceTests", "ScreeningValidationServiceTests", "{2E941CDF-4D51-4DB2-AEED-B4C44F9918CA}"
@@ -262,10 +260,6 @@ Global
 		{15E7492F-ACCE-4267-A52A-2ABF44690F64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15E7492F-ACCE-4267-A52A-2ABF44690F64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15E7492F-ACCE-4267-A52A-2ABF44690F64}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D3CF4C1D-9D0E-414E-8A3D-08291B891805}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D3CF4C1D-9D0E-414E-8A3D-08291B891805}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D3CF4C1D-9D0E-414E-8A3D-08291B891805}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D3CF4C1D-9D0E-414E-8A3D-08291B891805}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A99A0090-6DDF-45D7-B387-025C986DF078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A99A0090-6DDF-45D7-B387-025C986DF078}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A99A0090-6DDF-45D7-B387-025C986DF078}.Release|Any CPU.ActiveCfg = Release|Any CPU
