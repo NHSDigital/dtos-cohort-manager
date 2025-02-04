@@ -31,7 +31,7 @@ public class DataServicesContext : DbContext
             .ToTable("CURRENT_POSTING_LKP", "dbo");
 
         modelBuilder.Entity<ExcludedSMULookup>()
-            .ToTable("EXCLUDED_SMU_LKP", "dbo");
+            .ToTable("EXCLUDED_SMU_LKP","dbo");
 
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT", "dbo");
@@ -39,6 +39,11 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo");
 
+        modelBuilder.Entity<GeneCodeLkp>()
+            .ToTable("GENE_CODE_LKP", "dbo");
+
+        modelBuilder.Entity<HigherRiskReferralReasonLkp>()
+            .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo");
 
