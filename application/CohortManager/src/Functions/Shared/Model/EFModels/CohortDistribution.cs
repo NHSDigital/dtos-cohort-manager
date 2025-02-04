@@ -8,7 +8,7 @@ public class CohortDistribution
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("BS_COHORT_DISTRIBUTION_ID")]
-    public Int64 CohortDistributionId {get;set;}
+    public Int32 CohortDistributionId {get;set;}
     [Column("PARTICIPANT_ID")]
     public Int64 ParticipantId {get;set;}
     [Column("NHS_NUMBER")]
@@ -101,6 +101,5 @@ public class CohortDistribution
     [Column("REQUEST_ID")]
     public Guid RequestId { get; set; }
 
-    //TODO add additonal columns to Model When needed
 
 }
