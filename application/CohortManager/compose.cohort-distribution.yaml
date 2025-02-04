@@ -44,7 +44,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://localhost:7881/api/
+      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   allocate-service-provider:
