@@ -1,8 +1,6 @@
 namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 
-using System.Data;
 using System.Net;
-using Data.Database;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
@@ -12,7 +10,6 @@ using DataServices.Client;
 using Common;
 using System.Linq.Expressions;
 using NHS.CohortManager.Tests.TestUtils;
-using Microsoft.Azure.Functions.Worker;
 using System.Text.Json;
 
 [TestClass]
