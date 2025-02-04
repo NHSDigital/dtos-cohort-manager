@@ -63,7 +63,7 @@ public class DemographicDataServiceTests
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync(new Demographic()
         {
-            NhsNumber = "1"
+            ParticipantId = "1"
         });
 
         // Act
@@ -94,7 +94,6 @@ public class DemographicDataServiceTests
             });
 
         _createDemographicData.Setup(x => x.GetDemographicData(It.IsAny<string>())).ReturnsAsync((Demographic)null);
-
         // Act
         _request.Setup(x => x.Method).Returns("GET");
         var result = await sut.Run(_request.Object);

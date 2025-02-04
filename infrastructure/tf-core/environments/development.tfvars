@@ -209,6 +209,7 @@ function_apps = {
         CheckTimer                 = "100"
         DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        AllowDeleteRecords         = true
       }
 
     }
@@ -885,6 +886,93 @@ function_apps = {
         {
           env_var_name     = "DemographicDataServiceURI"
           function_app_key = "DemographicDataService"
+        }
+      ]
+    }
+
+    UpdateParticipantFromScreeningProvider = {
+      name_suffix            = "update-participant-from-screening-provider"
+      function_endpoint_name = "UpdateParticipantFromScreeningProvider"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "GeneCodeLkpUrl"
+          function_app_key = "GeneCodeLkpDataService"
+        },
+
+        {
+          env_var_name     = "HigherRiskReferralReasonLkpUrl"
+          function_app_key = "HigherRiskReferralReasonLkpDataService"
+        }
+      ]
+    }
+
+    CheckParticipantExists = {
+      name_suffix            = "check-participant-exists"
+      function_endpoint_name = "CheckParticipantExists"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+    }
+
+    GetParticipantReferenceData = {
+      name_suffix            = "get-participant-reference-data"
+      function_endpoint_name = "GetParticipantReferenceData"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "HigherRiskReferralReasonLkpDataServiceUrl"
+          function_app_key = "HigherRiskReferralReasonLkpDataService"
+        },
+        {
+          env_var_name     = "GeneCodeLkpDataServiceUrl"
+          function_app_key = "GeneCodeLkpDataService"
+        }
+      ]
+    }
+
+    GeneCodeLkpDataService = {
+      name_suffix            = "gene-code-lkp-data-service"
+      function_endpoint_name = "GeneCodeLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    HigherRiskReferralReasonLkpDataService = {
+      name_suffix            = "higher-risk-referral-reason-lkp-data-service"
+      function_endpoint_name = "HigherRiskReferralReasonLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
     }
