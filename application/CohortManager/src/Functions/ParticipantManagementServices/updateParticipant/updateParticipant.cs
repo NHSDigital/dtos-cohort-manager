@@ -2,9 +2,7 @@ namespace updateParticipant;
 
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
@@ -31,16 +29,11 @@ public class UpdateParticipantFunction
     }
 
     [Function("updateParticipant")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task Run([QueueTrigger("%UpdateQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
         _logger.LogInformation("Update participant called.");
 
-        string postData = "";
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            postData = await reader.ReadToEndAsync();
-        }
-        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
         try
         {
@@ -48,7 +41,7 @@ public class UpdateParticipantFunction
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return;
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
@@ -63,7 +56,7 @@ public class UpdateParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                return;
             }
 
             var responseDataFromCohort = false;
@@ -78,7 +71,9 @@ public class UpdateParticipantFunction
                 _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
-                return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
+                LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
+                return;
             }
 
             updateResponse = await updateParticipant(participantCsvRecord);
@@ -86,14 +81,27 @@ public class UpdateParticipantFunction
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-
+            LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
+            return;
         }
         catch (Exception ex)
         {
             _logger.LogInformation(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return;
+        }
+    }
+
+    private void LogResultFromUpdating(bool updateResponse, bool responseDataFromCohort, bool participantEligibleResponse)
+    {
+        if (updateResponse && responseDataFromCohort && participantEligibleResponse)
+        {
+            _logger.LogInformation("successfully updated records");
+        }
+        else
+        {
+            _logger.LogError("Unsuccessfully updated records with one of the functions failing. UpdateResponse: {updateResponse},ResponseDataFromCohort {responseDataFromCohort}, ParticipantEligibleResponse {participantEligibleResponse} ",
+            updateResponse, responseDataFromCohort, participantEligibleResponse);
         }
     }
 

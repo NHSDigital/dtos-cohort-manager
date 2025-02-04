@@ -23,6 +23,9 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IValidateDates _validateDates;
     private readonly string DemographicURI;
     private readonly string PMSUpdateParticipant;
+    private readonly string AddParticipantQueueName;
+    private readonly string UpdateParticipantQueueName;
+
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
@@ -50,8 +53,11 @@ public class ProcessCaasFile : IProcessCaasFile
 
         DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
         PMSUpdateParticipant = Environment.GetEnvironmentVariable("PMSUpdateParticipant");
+        AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
+        UpdateParticipantQueueName = Environment.GetEnvironmentVariable("UpdateQueueName");
 
-        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant))
+
+        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
         {
             _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
             throw new InvalidConfigurationException("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
@@ -128,7 +134,16 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
+
+                var deleted = await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                if (!deleted)
+                {
+                    _logger.LogError("Could not delete old demographic participant with participant Id: {ParticipantId}", basicParticipantCsvRecord.participant.ParticipantId);
+                    break;
+                }
+                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
+
                 break;
             case Actions.Removed:
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
@@ -145,14 +160,12 @@ public class ProcessCaasFile : IProcessCaasFile
     {
         _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
 
-        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords);
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
-            foreach (var updateRecords in currentBatch.UpdateRecords)
-            {
-                await UpdateParticipant(updateRecords, name);
-            }
+            _logger.LogInformation("sending Update Records {count} to queue", currentBatch.UpdateRecords.Count);
+            await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
 
             foreach (var updateRecords in currentBatch.DeleteRecords)
             {
@@ -163,7 +176,7 @@ public class ProcessCaasFile : IProcessCaasFile
         currentBatch = null;
     }
 
-    private async Task UpdateParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -175,26 +188,23 @@ public class ProcessCaasFile : IProcessCaasFile
 
             long nhsNumber;
 
-            if(!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
+            if (!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
             {
                 throw new FormatException("Unable to parse NHS Number");
             }
-
 
             var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
             if (participant != null)
             {
-                await _participantDemographic.Delete(participant.ParticipantId.ToString());
-                if (await _checkDemographic.PostDemographicDataAsync(listOfData, DemographicURI))
-                {
-                    await _callFunction.SendPost(PMSUpdateParticipant, json);
-                }
-                _logger.LogInformation("Called update participant");
+                var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
+
+                _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
+                return deleted;
             }
             else
             {
-                _logger.LogInformation("The participant could not be found, preventing updates from being applied");
+                _logger.LogWarning("The participant could not be found, preventing updates from being applied");
             }
         }
         catch (Exception ex)
@@ -202,6 +212,7 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
+        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)

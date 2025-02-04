@@ -100,10 +100,10 @@ public class UpdateParticipantTests
         })));
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Once());
     }
 
@@ -148,10 +148,10 @@ public class UpdateParticipantTests
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
 
         _logger.Verify(log =>
             log.Log(
@@ -168,7 +168,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        
+
         _request = _setupRequest.Setup(json);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -204,10 +204,11 @@ public class UpdateParticipantTests
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        
+        //Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     [TestMethod]
@@ -238,10 +239,10 @@ public class UpdateParticipantTests
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
@@ -278,10 +279,9 @@ public class UpdateParticipantTests
 
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
         //Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
@@ -334,10 +334,9 @@ public class UpdateParticipantTests
         var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
         _logger.Verify(log =>
             log.Log(
