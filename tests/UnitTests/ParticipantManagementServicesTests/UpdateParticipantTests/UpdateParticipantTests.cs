@@ -102,7 +102,6 @@ public class UpdateParticipantTests
         await sut.Run(json);
 
         // Assert
-        // The participant has not been updated but a validation Exception was raised
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
@@ -215,7 +214,6 @@ public class UpdateParticipantTests
         await sut.Run(json);
 
         // Assert
-        //Update participant failed
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Error,

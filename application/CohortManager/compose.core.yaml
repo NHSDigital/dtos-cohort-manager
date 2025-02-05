@@ -79,7 +79,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - RemoveCohortDistributionURL=http://localhost:7079/api/RemoveCohortDistributionData
-      - CohortQueueName=cohort-distribution-queue
+      - CohortQueueName=update-participant-queue
 
   update-participant:
     container_name: update-participant
@@ -98,7 +98,7 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
-      - UpdateQueueName=update-distribution-queue
+      - UpdateQueueName=update-participant-queue
 
   update-participant-from-screening-provider:
     container_name: update-participant-from-screening-provider
