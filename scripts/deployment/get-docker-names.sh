@@ -40,6 +40,7 @@ declare -A docker_functions_map=(
     ["screeningDataServices/ParticipantManagementDataService"]="participant-management-data-service"
     ["screeningDataServices/ParticipantDemographicDataService"]="participant-demographic-data-service"
     ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
+    ["screeningDataServices/CohortDistributionDataService"]="cohort-distribution-data-service"
     ["ScreeningValidationService/FileValidation"]="file-validation"
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
