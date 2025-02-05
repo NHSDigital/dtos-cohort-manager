@@ -14,7 +14,6 @@ var host = new HostBuilder()
     {
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
     })
     .Build();
 
