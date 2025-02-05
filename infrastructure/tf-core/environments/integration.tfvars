@@ -1051,6 +1051,44 @@ key_vault = {
   sku_name          = "standard"
 }
 
+linux_web_app = {
+  acr_mi_name = "dtos-cohort-manager-acr-push"
+  acr_name    = "acrukshubdevcohman"
+  acr_rg_name = "rg-hub-dev-uks-cohman"
+
+  app_insights_name    = "appi-int-uks-cohman"
+  app_insights_rg_name = "rg-cohman-int-uks-audit"
+
+  always_on = true
+
+  cont_registry_use_mi = true
+
+  docker_CI_enable  = "true"
+  docker_img_prefix = "cohort-manager"
+  docker_image_name = "front-end-ui"
+
+  enable_appsrv_storage    = "false"
+  ftps_state               = "Disabled"
+  https_only               = true
+  remote_debugging_enabled = false
+  worker_32bit             = false
+  storage_name             = "st1"
+  storage_type             = "AzureBlob"
+  share_name               = "st2"
+
+  linux_web_app_config = {
+    FrontEndUi = {
+      name_suffix                 = "front-end-ui"
+      linux_web_app_endpoint_name = "FrontEndUi"
+      app_service_plan_key        = "DefaultPlan"
+      env_vars_static = {
+      }
+    }
+  }
+}
+
+linux_web_app_slots = []
+
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"
@@ -1082,6 +1120,15 @@ sqlserver = {
 }
 
 storage_accounts = {
+  webapp = {
+    name_suffix                             = "webappstor"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = true
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = false
+    containers                              = {}
+  }
   fnapp = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
