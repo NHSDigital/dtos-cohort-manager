@@ -300,7 +300,7 @@ public class ProcessCaasFileTests
         // Assert
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is true, delete record will be sent to removeParticipant function in a future PR.")),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is true")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
            Times.Once);
