@@ -49,5 +49,9 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<GPPractice>()
             .ToTable("GP_PRACTICES", "dbo");
+
+        modelBuilder.Entity<CohortDistribution>()
+            .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
+
     }
 }

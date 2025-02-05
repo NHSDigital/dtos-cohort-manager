@@ -729,6 +729,7 @@ function_apps = {
         }
       ]
     }
+
     LanguageCodeDataService = {
       name_suffix            = "language-code-data-service"
       function_endpoint_name = "LanguageCodeDataService"
@@ -940,6 +941,19 @@ function_apps = {
     HigherRiskReferralReasonLkpDataService = {
       name_suffix            = "higher-risk-referral-reason-lkp-data-service"
       function_endpoint_name = "HigherRiskReferralReasonLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    CohortDistributionDataService = {
+      name_suffix            = "cohort-distribution-data-service"
+      function_endpoint_name = "CohortDistributionDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
