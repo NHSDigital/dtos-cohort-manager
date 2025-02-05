@@ -23,6 +23,7 @@ public class ProcessCaasFileTests
     private Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock;
     private Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock;
     private Mock<IValidateDates> _validateDates;
+    private Mock<ICallFunction> _callFunction = new();
     private ProcessCaasFile _processCaasFile;
 
     public ProcessCaasFileTests()
@@ -56,7 +57,8 @@ public class ProcessCaasFileTests
             _exceptionHandlerMock.Object,
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
-            _validateDates.Object
+            _validateDates.Object,
+            _callFunction.Object
         );
     }
 

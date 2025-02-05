@@ -80,13 +80,11 @@ public class UpdateParticipantFunction
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
             LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
-            return;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return;
         }
     }
 

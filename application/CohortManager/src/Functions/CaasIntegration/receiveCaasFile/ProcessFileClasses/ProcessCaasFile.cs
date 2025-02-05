@@ -20,6 +20,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
+    private readonly ICallFunction _callFunction;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
     private readonly string UpdateParticipantQueueName;
@@ -34,7 +35,8 @@ public class ProcessCaasFile : IProcessCaasFile
         IExceptionHandler exceptionHandler,
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
-        IValidateDates validateDates
+        IValidateDates validateDates,
+        ICallFunction callFunction
     )
     {
         _logger = logger;
@@ -46,6 +48,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
+        _callFunction = callFunction;
 
         DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
         AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
