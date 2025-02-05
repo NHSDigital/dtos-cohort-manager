@@ -111,7 +111,7 @@ public class CreateCohortDistribution
                 var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
                 if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
                 {
-                    await HandleErrorResponseAsync("The transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
+                    await HandleErrorResponseAsync("Failed to add the participant to the Cohort Distribution table", transformedParticipant, basicParticipantCsvRecord.FileName);
                     return;
                 }
                 _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
@@ -155,6 +155,7 @@ public class CreateCohortDistribution
     private async Task<bool> ParticipantHasException(string nhsNumber, string screeningId)
     {
         var participant = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber.ToString() == nhsNumber && p.ScreeningId.ToString() == screeningId);
+        System.Console.WriteLine("participant has exception:", participant.ExceptionFlag == 1);
         return participant.ExceptionFlag == 1;
     }
 }
