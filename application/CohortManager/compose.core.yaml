@@ -45,7 +45,7 @@ services:
       - AddQueueName=add-participant-queue
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
-      - UpdateQueueName=update-distribution-queue
+      - UpdateQueueName=update-participant-queue
 
   # Participant Management Service
   add-participant:
@@ -79,7 +79,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DemographicURIGet=http://localhost:7076/api/DemographicDataFunction
       - RemoveCohortDistributionURL=http://localhost:7079/api/RemoveCohortDistributionData
-      - CohortQueueName=update-participant-queue
+      - CohortQueueName=cohort-distribution-queue
 
   update-participant:
     container_name: update-participant
