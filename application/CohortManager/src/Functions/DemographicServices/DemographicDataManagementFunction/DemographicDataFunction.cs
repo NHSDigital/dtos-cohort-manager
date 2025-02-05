@@ -17,13 +17,13 @@ public class DemographicDataFunction
     private readonly ILogger<DemographicDataFunction> _logger;
     private readonly ICreateResponse _createResponse;
 
-    private readonly ICreateDemographicData _createDemographicData;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
-    public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, ICreateDemographicData createDemographicData)
+    public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _createDemographicData = createDemographicData;
+        _participantDemographic = participantDemographic;
     }
 
     [Function("DemographicDataFunction")]
@@ -50,7 +50,7 @@ public class DemographicDataFunction
         {
             string NHSNumber = req.Query["Id"];
 
-            var demographicData = await _createDemographicData.GetDemographicData(NHSNumber);
+            var demographicData = await GetDemographicData(NHSNumber);
             var data = JsonSerializer.Serialize(demographicData);
 
             if (data == null)
@@ -73,5 +73,16 @@ public class DemographicDataFunction
             _logger.LogError(ex, "There has been an error saving demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task<Demographic> GetDemographicData(string nhsNumber)
+    {
+        long nhsNumberLong;
+        if (!long.TryParse(nhsNumber, out nhsNumberLong))
+        {
+            throw new FormatException("Could not parse NhsNumber");
+        }
+        var result = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+        return result.ToDemographic();
     }
 }
