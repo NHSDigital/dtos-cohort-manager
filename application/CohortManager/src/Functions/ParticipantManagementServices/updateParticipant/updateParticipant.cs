@@ -2,9 +2,7 @@ namespace updateParticipant;
 
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using System.Text;
 using Model;
 using System.Text.Json;
 using Common;
@@ -12,17 +10,15 @@ using Common;
 public class UpdateParticipantFunction
 {
     private readonly ILogger<UpdateParticipantFunction> _logger;
-    private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
+    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
     {
         _logger = logger;
-        _createResponse = createResponse;
         _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
@@ -31,16 +27,11 @@ public class UpdateParticipantFunction
     }
 
     [Function("updateParticipant")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task Run([QueueTrigger("%UpdateQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
         _logger.LogInformation("Update participant called.");
 
-        string postData = "";
-        using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-        {
-            postData = await reader.ReadToEndAsync();
-        }
-        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
         try
         {
@@ -48,7 +39,7 @@ public class UpdateParticipantFunction
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+                return;
             }
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
@@ -63,7 +54,7 @@ public class UpdateParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+                return;
             }
 
             var responseDataFromCohort = false;
@@ -75,25 +66,38 @@ public class UpdateParticipantFunction
                 updateResponse = await UpdateParticipant(participantCsvRecord);
                 participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
 
-                _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
+                _logger.LogInformation("The participant has been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
-                return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+
+                LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
+                return;
             }
 
             updateResponse = await UpdateParticipant(participantCsvRecord);
             participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
-            _logger.LogInformation("Participant sent to Cohort Distribution Service");
-            return updateResponse && responseDataFromCohort && participantEligibleResponse ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req) : _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-
+            _logger.LogInformation("participant sent to Cohort Distribution Service");
+            LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+
+    private void LogResultFromUpdating(bool updateResponse, bool responseDataFromCohort, bool participantEligibleResponse)
+    {
+        if (updateResponse && responseDataFromCohort && participantEligibleResponse)
+        {
+            _logger.LogInformation("successfully updated records");
+        }
+        else
+        {
+            _logger.LogError("Unsuccessfully updated records with one of the functions failing. UpdateResponse: {updateResponse},ResponseDataFromCohort {responseDataFromCohort}, ParticipantEligibleResponse {participantEligibleResponse} ",
+            updateResponse, responseDataFromCohort, participantEligibleResponse);
         }
     }
 

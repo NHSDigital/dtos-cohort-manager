@@ -22,15 +22,15 @@ public class AddBatchToQueue : IAddBatchToQueue
         _queueHelper = queueHelper;
     }
 
-    public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch)
+    public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
     {
         if (batch != null && batch.Any())
         {
-            await AddMessagesAsync(batch);
+            await AddMessagesAsync(batch, queueName);
         }
     }
 
-    private async Task AddMessagesAsync(ConcurrentQueue<BasicParticipantCsvRecord> currentBatch)
+    private async Task AddMessagesAsync(ConcurrentQueue<BasicParticipantCsvRecord> currentBatch, string queueName)
     {
         var itemsToAdd = currentBatch;
 
@@ -41,7 +41,7 @@ public class AddBatchToQueue : IAddBatchToQueue
             // Process messages while there are items in the queue
             while (itemsToAdd.TryDequeue(out var item))
             {
-                AddMessage(item);
+                AddMessage(item, queueName);
             }
         }));
 
@@ -50,9 +50,9 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     }
 
-    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
+    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
-        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord,Environment.GetEnvironmentVariable("AddQueueName"));
+        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
 
     private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)

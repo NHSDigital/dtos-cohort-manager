@@ -45,6 +45,7 @@ services:
       - AddQueueName=add-participant-queue
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
+      - UpdateQueueName=update-participant-queue
 
   # Participant Management Service
   add-participant:
@@ -97,6 +98,7 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
+      - UpdateQueueName=update-participant-queue
 
   update-participant-from-screening-provider:
     container_name: update-participant-from-screening-provider
