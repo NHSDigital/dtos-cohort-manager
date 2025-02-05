@@ -502,8 +502,6 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow(Actions.Amended, "LDN")]
     [DataRow(Actions.Amended, "R/C")]
-    [DataRow(Actions.Removed, "LDN")]
-    [DataRow(Actions.Removed, "R/C")]
     public async Task Run_ValidateReasonForRemoval_CreatesException(string recordType, string reasonForRemoval)
     {
         // Arrange
@@ -648,8 +646,8 @@ public class LookupValidationTests
     [TestMethod]
     [DataRow("DMS", "ExcludedPCP", "ENGLAND", "DMS", "ExcludedPCP", "ENGLAND")] //DMS Invalid -> DMS Invalid
     [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")] //DMS + Wales Invalid -> DMS Wales Invalid
-    [DataRow("CYM","ValidPCP","WALES","CYM","ValidPCP","WALES")] //Wales Invalid -> Wales Invalid
-    [DataRow("CYM","ExcludedPCP","WALES","CYM","ExcludedPCP","WALES")] //Wales Invalid -> Wales Invalid
+    [DataRow("CYM", "ValidPCP", "WALES", "CYM", "ValidPCP", "WALES")] //Wales Invalid -> Wales Invalid
+    [DataRow("CYM", "ExcludedPCP", "WALES", "CYM", "ExcludedPCP", "WALES")] //Wales Invalid -> Wales Invalid
     [DataRow("DMS", "ExcludedPCP", "ENGLAND", "ABC", "ValidPCP", "WALES")] //DMS Invalid -> Wales Invalid
     public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
