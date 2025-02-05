@@ -13,7 +13,7 @@
     ],
     "Rules": [
       {
-        "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
+        "RuleName": "36-1.ValidatePrimaryCareProvider.NonFatal",
         "Expression": "ValidPrimaryCareProvider",
         "Actions": {
           "OnFailure": {
@@ -25,7 +25,7 @@
         }
       },
       {
-        "RuleName": "36.CurrentPostingAndPrimaryProvider.NonFatal",
+        "RuleName": "36-2.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
             "Name": "EnglishCurrentPosting",
