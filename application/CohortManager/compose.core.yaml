@@ -33,7 +33,6 @@ services:
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
-      - DemographicURI=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService

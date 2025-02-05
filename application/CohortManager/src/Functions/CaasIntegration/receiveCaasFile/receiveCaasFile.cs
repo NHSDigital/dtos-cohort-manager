@@ -9,7 +9,6 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
-using Common;
 
 public class ReceiveCaasFile
 {
@@ -52,7 +51,7 @@ public class ReceiveCaasFile
             var screeningService = await GetScreeningService(name, fileNameParser);
             if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
             {
-                _logger.LogError("the Screening id or screening name was null or empty");
+                _logger.LogError("The Screening id or screening name was null or empty");
                 ErrorOccurred = true;
                 return;
             }
@@ -106,7 +105,7 @@ public class ReceiveCaasFile
             //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
             if (!ErrorOccurred)
             {
-                _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
+                _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
             }
             //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
@@ -136,9 +135,8 @@ public class ReceiveCaasFile
     /// <returns></returns>
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
-
         var ScreeningWorkflow = fileNameParser.GetScreeningService();
-        _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
+        _logger.LogInformation("Screening Acronym {ScreeningAcronym}", ScreeningWorkflow);
         var res = _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
         return res;
     }

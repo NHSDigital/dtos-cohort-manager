@@ -6,12 +6,9 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Data.Database;
 using Common;
 using Model;
 using DataServices.Client;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 public class CreateParticipant
 {
