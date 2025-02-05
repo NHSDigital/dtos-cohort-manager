@@ -56,13 +56,15 @@ public class DemographicDataFunction
             string NHSNumber = req.Query["Id"]!;
 
             var demographicData = await GetDemographicData(NHSNumber);
-            var data = JsonSerializer.Serialize(demographicData);
 
-            if (data == null)
+
+            if (demographicData == null)
             {
-                _logger.LogInformation("demographic function failed");
+                _logger.LogInformation("Participant Not found");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
+
+            var data = JsonSerializer.Serialize(demographicData);
 
             // Filters out unnecessary data for use in the BI product
             if (externalRequest)
