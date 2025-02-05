@@ -210,6 +210,7 @@ function_apps = {
         DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
+        UpdateQueueName            = "update-participant-queue"
       }
 
     }
@@ -327,6 +328,7 @@ function_apps = {
       ]
       env_vars_static = {
         CohortQueueName = "cohort-distribution-queue"
+        UpdateQueueName = "update-participant-queue"
       }
     }
 
@@ -452,23 +454,6 @@ function_apps = {
       ]
     }
 
-    DemographicDataService = {
-      name_suffix            = "demographic-data-service"
-      function_endpoint_name = "DemographicDataService"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "DemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        }
-      ]
-    }
-
     FileValidation = {
       name_suffix                  = "file-validation"
       function_endpoint_name       = "FileValidation"
@@ -559,10 +544,6 @@ function_apps = {
       function_endpoint_name = "DemographicDataFunction"
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
-        {
-          env_var_name     = "DemographicDataServiceURI"
-          function_app_key = "DemographicDataService"
-        },
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
@@ -866,10 +847,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "DemographicDataServiceURI"
-          function_app_key = "DemographicDataService"
         }
       ]
     }
@@ -883,10 +860,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "DemographicDataServiceURI"
-          function_app_key = "DemographicDataService"
         }
       ]
     }

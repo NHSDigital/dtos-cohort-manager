@@ -15,7 +15,6 @@ using NHS.Screening.ReceiveCaasFile;
 public class ProcessCaasFileTests
 {
     private Mock<ILogger<ProcessCaasFile>> _loggerMock;
-    private Mock<ICallFunction> _callFunctionMock;
     private Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock;
     private Mock<ICheckDemographic> _checkDemographicMock;
     private Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock;
@@ -24,6 +23,7 @@ public class ProcessCaasFileTests
     private Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock;
     private Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock;
     private Mock<IValidateDates> _validateDates;
+    private Mock<ICallFunction> _callFunction = new();
     private ProcessCaasFile _processCaasFile;
 
     public ProcessCaasFileTests()
@@ -32,7 +32,6 @@ public class ProcessCaasFileTests
         Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
 
         _loggerMock = new Mock<ILogger<ProcessCaasFile>>();
-        _callFunctionMock = new Mock<ICallFunction>();
         _receiveCaasFileHelperMock = new Mock<IReceiveCaasFileHelper>();
         _checkDemographicMock = new Mock<ICheckDemographic>();
         _createBasicParticipantDataMock = new Mock<ICreateBasicParticipantData>();
@@ -43,9 +42,14 @@ public class ProcessCaasFileTests
         _validateDates = new Mock<IValidateDates>();
         _databaseClientParticipantMock = new Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>>();
 
+        Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
+        Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
+        Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
+        Environment.SetEnvironmentVariable("UpdateQueueName", "UpdateQueueName");
+        Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
+
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
-            _callFunctionMock.Object,
             _checkDemographicMock.Object,
             _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
@@ -53,10 +57,9 @@ public class ProcessCaasFileTests
             _exceptionHandlerMock.Object,
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
-            _validateDates.Object
+            _validateDates.Object,
+            _callFunction.Object
         );
-
-        Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
     }
 
     [TestMethod]
@@ -82,7 +85,7 @@ public class ProcessCaasFileTests
         await _processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
 
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -142,7 +145,7 @@ public class ProcessCaasFileTests
         _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
-        var updateParticipant = _processCaasFile.GetType().GetMethod("UpdateParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
+        var updateParticipant = _processCaasFile.GetType().GetMethod("DeleteOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
@@ -158,9 +161,8 @@ public class ProcessCaasFileTests
         await task;
 
         _checkDemographicMock.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
-        _callFunctionMock.Verify(sendPost => sendPost.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
                It.IsAny<EventId>(),
                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant could not be found, preventing updates from being applied")),
                It.IsAny<Exception>(),
@@ -220,15 +222,11 @@ public class ProcessCaasFileTests
         };
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
-        _callFunctionMock
-            .Setup(c => c.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(jsonResponse);
-
         _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("some exception"));
 
 
-        var updateParticipant = _processCaasFile.GetType().GetMethod("UpdateParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
+        var updateParticipant = _processCaasFile.GetType().GetMethod("DeleteOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
 
         var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
 
@@ -237,10 +235,10 @@ public class ProcessCaasFileTests
         await task;
 
         // Assert
-        _checkDemographicMock.Verify(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Once);
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
               It.IsAny<EventId>(),
-              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Update participant function")),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deleting old Demographic record was not successful")),
               It.IsAny<Exception>(),
               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
           Times.Once);
