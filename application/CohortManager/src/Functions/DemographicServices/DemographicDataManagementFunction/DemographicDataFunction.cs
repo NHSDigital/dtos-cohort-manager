@@ -48,7 +48,12 @@ public class DemographicDataFunction
     {
         try
         {
-            string NHSNumber = req.Query["Id"];
+
+            if(req.Query["Id"] == null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req,"No NHS Number Provided");
+            }
+            string NHSNumber = req.Query["Id"]!;
 
             var demographicData = await GetDemographicData(NHSNumber);
             var data = JsonSerializer.Serialize(demographicData);
@@ -70,12 +75,12 @@ public class DemographicDataFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There has been an error saving demographic data: {Message}", ex.Message);
+            _logger.LogError(ex, "There has been an error getting demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
-    private async Task<Demographic> GetDemographicData(string nhsNumber)
+    private async Task<Demographic?> GetDemographicData(string nhsNumber)
     {
         long nhsNumberLong;
         if (!long.TryParse(nhsNumber, out nhsNumberLong))
@@ -83,6 +88,11 @@ public class DemographicDataFunction
             throw new FormatException("Could not parse NhsNumber");
         }
         var result = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+
+        if(result == null)
+        {
+            return null;
+        }
         return result.ToDemographic();
     }
 }
