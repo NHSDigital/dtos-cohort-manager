@@ -2,6 +2,7 @@ namespace Common;
 
 using System.Net;
 using System.Text;
+using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,6 @@ public class CallFunction : ICallFunction
     {
         return await GetHttpWebRequest(url, postData, "PUT");
     }
-
 
     public async Task<string> SendGet(string url)
     {
@@ -69,12 +69,21 @@ public class CallFunction : ICallFunction
     {
         var request = (HttpWebRequest)WebRequest.Create(url);
 
-        using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+
+        try
         {
-            if (response.StatusCode == HttpStatusCode.OK)
+            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
             {
-                return await GetResponseText(response);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return await GetResponseText(response);
+                }
             }
+        }
+        catch (WebException wex)
+        {
+            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",url,wex.Message);
+            return await HandleWebException(wex);
         }
 
         return null;
@@ -108,6 +117,27 @@ public class CallFunction : ICallFunction
         }
 
     }
+
+    private async Task<string?> HandleWebException(WebException wex)
+    {
+        try
+        {
+            var response = (HttpWebResponse)wex.Response;
+            if(response == null)
+            {
+                return null;
+            }
+
+            _logger.LogInformation("Web Exception Caught with response body. Http Reponse Code {Response Code}",response!.StatusCode);
+            return await GetResponseText(response);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogWarning(ex,"Couldn't Deserialize web exception response");
+            return null;
+        }
+    }
+
 
 
 }
