@@ -65,8 +65,8 @@ public class UpdateParticipantFunction
             if (response.CreatedException)
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
-                updateResponse = await updateParticipant(participantCsvRecord);
-                participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
+                updateResponse = await UpdateParticipant(participantCsvRecord);
+                participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
@@ -76,8 +76,8 @@ public class UpdateParticipantFunction
                 return;
             }
 
-            updateResponse = await updateParticipant(participantCsvRecord);
-            participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
+            updateResponse = await UpdateParticipant(participantCsvRecord);
+            participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
@@ -109,13 +109,13 @@ public class UpdateParticipantFunction
     {
         if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, participant))
         {
-            _logger.LogInformation("participant failed to send to Cohort Distribution Service");
+            _logger.LogInformation("Participant failed to send to Cohort Distribution Service");
             return false;
         }
         return true;
     }
 
-    private async Task<bool> updateParticipant(ParticipantCsvRecord participantCsvRecord)
+    private async Task<bool> UpdateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
@@ -128,7 +128,7 @@ public class UpdateParticipantFunction
         return false;
     }
 
-    private async Task<bool> markParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
+    private async Task<bool> MarkParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
     {
         HttpWebResponse eligibilityResponse;
 
