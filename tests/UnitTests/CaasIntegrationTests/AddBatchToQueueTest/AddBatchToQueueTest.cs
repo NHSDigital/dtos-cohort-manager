@@ -45,7 +45,7 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
-        await _addBatchToQueue.ProcessBatch(queue);
+        await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
         _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
@@ -62,7 +62,7 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
-        await _addBatchToQueue.ProcessBatch(queue);
+        await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
         _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
@@ -79,7 +79,7 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
-        await _addBatchToQueue.ProcessBatch(null);
+        await _addBatchToQueue.ProcessBatch(null, "AddQueueName");
 
         //Assert
         _mockQueueStorageHelper.Verify(x => x.AddItemToQueueAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);

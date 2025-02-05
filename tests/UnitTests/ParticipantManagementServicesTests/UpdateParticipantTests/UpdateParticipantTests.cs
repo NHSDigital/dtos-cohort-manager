@@ -62,7 +62,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantValidationFails_ReturnBadRequest()
+    public async Task Run_ParticipantValidationFails_LogsExceptionRaised()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -103,12 +103,21 @@ public class UpdateParticipantTests
         await sut.Run(json);
 
         // Assert
+        // The participant has not been updated but a validation Exception was raised
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("The participant has been updated but a validation Exception was raised")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
 
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Once());
     }
 
     [TestMethod]
-    public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ReturnOk()
+    public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ParticipantUpdated()
     {
         // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -164,7 +173,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantUpdateFails_ReturnBadRequest()
+    public async Task Run_ParticipantUpdateFails_LogsParticipantFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -187,7 +196,7 @@ public class UpdateParticipantTests
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+            .ThrowsAsync(new Exception("some new exception"));
 
 
 
@@ -207,12 +216,19 @@ public class UpdateParticipantTests
         await sut.Run(json);
 
         // Assert
-        
-        //Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        //Update participant failed
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Error,
+                0,
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Update participant failed");
     }
 
     [TestMethod]
-    public async Task Run_ParticipantUpdateThrowsException_ReturnInternalServerError()
+    public async Task Run_ParticipantUpdateThrowsException_ParticipantFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -254,7 +270,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_DemographicDataIsNull_ReturnBadRequest()
+    public async Task Run_DemographicDataIsNull_DemographicFunctionFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -293,7 +309,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantEligibleAndUpdateSuccessful_ReturnOk()
+    public async Task Run_ParticipantEligibleAndUpdateSuccessful_ParticipantUpdated()
     {
         _participantCsvRecord.Participant.NhsNumber = "9727890016";
         _participantCsvRecord.Participant.ScreeningName = "BSS";

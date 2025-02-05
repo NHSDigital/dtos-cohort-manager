@@ -68,7 +68,7 @@ public class UpdateParticipantFunction
                 updateResponse = await updateParticipant(participantCsvRecord);
                 participantEligibleResponse = await markParticipantAsEligible(participantCsvRecord);
 
-                _logger.LogInformation("The participant has not been updated but a validation Exception was raised");
+                _logger.LogInformation("The participant has been updated but a validation Exception was raised");
                 responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
 
@@ -86,7 +86,7 @@ public class UpdateParticipantFunction
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            _logger.LogError(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return;
         }
