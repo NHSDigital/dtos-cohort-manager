@@ -12,7 +12,6 @@ using Model;
 public class ProcessCaasFile : IProcessCaasFile
 {
     private readonly ILogger<ProcessCaasFile> _logger;
-    private readonly ICallFunction _callFunction;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
@@ -22,15 +21,12 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
     private readonly string DemographicURI;
-    private readonly string PMSUpdateParticipant;
     private readonly string AddParticipantQueueName;
-
     private readonly string UpdateParticipantQueueName;
 
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
-        ICallFunction callFunction,
         ICheckDemographic checkDemographic,
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
@@ -42,7 +38,6 @@ public class ProcessCaasFile : IProcessCaasFile
     )
     {
         _logger = logger;
-        _callFunction = callFunction;
         _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
@@ -53,12 +48,11 @@ public class ProcessCaasFile : IProcessCaasFile
         _validateDates = validateDates;
 
         DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
-        PMSUpdateParticipant = Environment.GetEnvironmentVariable("PMSUpdateParticipant");
         AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
         UpdateParticipantQueueName = Environment.GetEnvironmentVariable("UpdateQueueName");
 
 
-        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(PMSUpdateParticipant) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
+        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
         {
             _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
             throw new InvalidConfigurationException("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
@@ -106,7 +100,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), Environment.GetEnvironmentVariable("DemographicURI")))
+        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
         {
             await AddBatchToQueue(currentBatch, name);
         }
@@ -181,14 +175,7 @@ public class ProcessCaasFile : IProcessCaasFile
     {
         try
         {
-            var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-            var listOfData = new List<ParticipantDemographic>()
-            {
-                basicParticipantCsvRecord.participant.ToParticipantDemographic()
-            };
-
             long nhsNumber;
-
             if (!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
             {
                 throw new FormatException("Unable to parse NHS Number");

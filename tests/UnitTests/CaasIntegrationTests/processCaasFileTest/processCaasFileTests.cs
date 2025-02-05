@@ -15,7 +15,6 @@ using NHS.Screening.ReceiveCaasFile;
 public class ProcessCaasFileTests
 {
     private Mock<ILogger<ProcessCaasFile>> _loggerMock;
-    private Mock<ICallFunction> _callFunctionMock;
     private Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock;
     private Mock<ICheckDemographic> _checkDemographicMock;
     private Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock;
@@ -32,7 +31,6 @@ public class ProcessCaasFileTests
         Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
 
         _loggerMock = new Mock<ILogger<ProcessCaasFile>>();
-        _callFunctionMock = new Mock<ICallFunction>();
         _receiveCaasFileHelperMock = new Mock<IReceiveCaasFileHelper>();
         _checkDemographicMock = new Mock<ICheckDemographic>();
         _createBasicParticipantDataMock = new Mock<ICreateBasicParticipantData>();
@@ -51,7 +49,6 @@ public class ProcessCaasFileTests
 
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
-            _callFunctionMock.Object,
             _checkDemographicMock.Object,
             _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
@@ -162,7 +159,6 @@ public class ProcessCaasFileTests
         await task;
 
         _checkDemographicMock.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
-        _callFunctionMock.Verify(sendPost => sendPost.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
                It.IsAny<EventId>(),
@@ -223,10 +219,6 @@ public class ProcessCaasFileTests
 
         };
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
-
-        _callFunctionMock
-            .Setup(c => c.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(jsonResponse);
 
         _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("some exception"));

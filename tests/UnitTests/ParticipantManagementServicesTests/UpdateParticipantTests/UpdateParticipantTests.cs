@@ -18,7 +18,6 @@ public class UpdateParticipantTests
     private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
     private readonly Mock<ILogger<CohortDistributionHandler>> _cohortDistributionLogger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly CreateResponse _createResponse = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<HttpWebResponse> _webResponseSuccess = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
@@ -69,7 +68,7 @@ public class UpdateParticipantTests
         _request = _setupRequest.Setup(json);
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _webResponseSuccess.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -154,7 +153,7 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         await sut.Run(json);
@@ -210,7 +209,7 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         await sut.Run(json);
@@ -252,7 +251,7 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         await sut.Run(json);
@@ -293,7 +292,7 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
         //Act
         await sut.Run(json);
 
@@ -347,7 +346,7 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
         await sut.Run(json);
