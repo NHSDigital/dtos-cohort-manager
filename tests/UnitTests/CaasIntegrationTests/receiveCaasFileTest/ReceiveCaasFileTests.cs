@@ -116,7 +116,7 @@ public class ReceiveCaasFileTests
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
 
         _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
-        .Throws(new Exception("there was a problem checking file name"));
+        .Throws(new Exception("There was a problem checking file name"));
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
@@ -156,7 +156,7 @@ public class ReceiveCaasFileTests
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("the Screening id or screening name was null or empty")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The Screening id or screening name was null or empty")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);

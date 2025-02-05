@@ -2,7 +2,6 @@ namespace Data.Database;
 
 using System.Data;
 using System.Net;
-using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
