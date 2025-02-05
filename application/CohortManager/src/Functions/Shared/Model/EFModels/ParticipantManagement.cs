@@ -48,11 +48,11 @@ public class ParticipantManagement
     [Column("HIGHER_RISK_NEXT_TEST_DUE_DATE")]
     public DateTime? HigherRiskNextTestDueDate {get; set;}
     [Column("HIGHER_RISK_REFERRAL_REASON_ID")]
-    public Int64? HigherRiskReferralReasonId {get; set;}
+    public int? HigherRiskReferralReasonId {get; set;}
     [Column("DATE_IRRADIATED")]
     public DateTime? DateIrradiated {get; set;}
     [Column("GENE_CODE_ID")]
-    public Int64? GeneCodeId {get; set;}
+    public int? GeneCodeId {get; set;}
     [Column("SRC_SYSTEM_PROCESSED_DATETIME")]
     public DateTime? SrcSysProcessedDateTime {get; set;}
 }
