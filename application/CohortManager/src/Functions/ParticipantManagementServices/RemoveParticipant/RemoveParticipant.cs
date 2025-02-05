@@ -14,24 +14,18 @@ public class RemoveParticipant
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
-    private readonly ICheckDemographic _checkDemographic;
-    private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
         ICallFunction callFunction,
-        ICheckDemographic checkDemographic,
-        ICreateParticipant createParticipant,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
-        _checkDemographic = checkDemographic;
-        _createParticipant = createParticipant;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
     }
@@ -57,17 +51,9 @@ public class RemoveParticipant
 
         try
         {
-            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
-            if (demographicData == null)
-            {
-                _logger.LogInformation("GetDemographicAsync request has failed.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-            }
-
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
             {
-                Participant = participant,
+                Participant = basicParticipantCsvRecord.participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
 
@@ -79,7 +65,7 @@ public class RemoveParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            var cohortDistributionResponse = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
+            var cohortDistributionResponse = await SendToCohortDistribution(basicParticipantCsvRecord.participant, participantCsvRecord.FileName);
 
             if (!cohortDistributionResponse)
             {
@@ -94,8 +80,8 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, basicParticipantCsvRecord.FileName);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
