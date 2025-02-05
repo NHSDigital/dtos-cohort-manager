@@ -61,9 +61,8 @@ public class DemographicDataFunctionTests
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
     }
 
-
     [TestMethod]
-    public async Task Run_return_DemographicDataSavedPostRequest_InternalServerEver()
+    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -81,7 +80,7 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataGetRequest_OK()
+    public async Task RunGet_ValidRequest_ReturnOk()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
@@ -91,7 +90,6 @@ public class DemographicDataFunctionTests
 
         // Act
         _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
-
         _request.Setup(r => r.Method).Returns("GET");
         var result = await sut.Run(_request.Object);
 
@@ -127,12 +125,11 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_Return_DemographicFunctionThrows_InternalServerError()
+    public async Task RunPost_CallFunctionThrowsError_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _createDemographicData.Object);
-
         _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
@@ -159,5 +156,31 @@ public class DemographicDataFunctionTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()
         ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
+    }
+
+    [TestMethod]
+    public async Task RunExternal_ValidRequest_ReturnOk()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_participant);
+
+        _request = _setupRequest.Setup(json);
+
+        Demographic DataServiceResponse = new()
+        {
+            PrimaryCareProvider = "Blerg",
+            PreferredLanguage = "Francais"
+        };
+
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "1" } });
+
+        _request.Setup(r => r.Method).Returns("GET");
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _createDemographicData.Object);
+
+        // Act
+        var result = await sut.RunExternal(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 }

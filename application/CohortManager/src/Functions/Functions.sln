@@ -180,6 +180,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionManagementDataServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPPracticeDataService", "screeningDataServices\GPPractice\GPPracticeDataService.csproj", "{E726B719-2170-4ABE-9635-B3470E22C056}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExists", "ParticipantManagementServices\CheckParticipantExists\CheckParticipantExists.csproj", "{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceData", "ParticipantManagementServices\GetParticipantReferenceData\GetParticipantReferenceData.csproj", "{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreeningProvider", "ParticipantManagementServices\UpdateParticipantFromScreeningProvider\UpdateParticipantFromScreeningProvider.csproj", "{F879AA70-34DA-4A57-9989-101154B57208}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "screeningDataServices", "screeningDataServices", "{3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneCodeLkpDataService", "screeningDataServices\GeneCodeLkpDataService\GeneCodeLkpDataService.csproj", "{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HigherRiskReferralReasonLkpDataService", "screeningDataServices\HigherRiskReferralReasonLkpDataService\HigherRiskReferralReasonLkpDataService.csproj", "{F84896FB-F172-402B-9340-BF3F159D3C68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreeningProviderTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\UpdateParticipantFromScreeningProviderTests\UpdateParticipantFromScreeningProviderTests.csproj", "{0FB89D43-7C78-4609-BD29-58A24CB6E710}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -490,6 +506,34 @@ Global
 		{E726B719-2170-4ABE-9635-B3470E22C056}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E726B719-2170-4ABE-9635-B3470E22C056}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E726B719-2170-4ABE-9635-B3470E22C056}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F879AA70-34DA-4A57-9989-101154B57208}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F879AA70-34DA-4A57-9989-101154B57208}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F879AA70-34DA-4A57-9989-101154B57208}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F879AA70-34DA-4A57-9989-101154B57208}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F84896FB-F172-402B-9340-BF3F159D3C68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F84896FB-F172-402B-9340-BF3F159D3C68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F84896FB-F172-402B-9340-BF3F159D3C68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F84896FB-F172-402B-9340-BF3F159D3C68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FB89D43-7C78-4609-BD29-58A24CB6E710}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FB89D43-7C78-4609-BD29-58A24CB6E710}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FB89D43-7C78-4609-BD29-58A24CB6E710}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FB89D43-7C78-4609-BD29-58A24CB6E710}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -527,6 +571,11 @@ Global
 		{6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109} = {7D2ACE1A-2691-484E-B227-392B2CDEF2EA}
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3} = {6AC1E1EF-9B6F-43A2-BE49-3E5B2DDB3109}
 		{51D1B89F-E323-4C4F-AEDB-6494474CD65C} = {8546F1DA-6055-4224-8A2B-36CDE94CBD07}
+		{A7185B04-28F0-432A-9E8C-3ABEE8F1C2DC} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
+		{29EAC697-EFC9-4BDD-89A1-F9DD808F65E7} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
+		{F879AA70-34DA-4A57-9989-101154B57208} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
+		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
+		{F84896FB-F172-402B-9340-BF3F159D3C68} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

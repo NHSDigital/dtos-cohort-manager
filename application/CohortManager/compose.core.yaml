@@ -38,6 +38,7 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://localhost:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://localhost:7079/api/GetOrchestrationStatus
+      - AllowDeleteRecords=true
       - AddQueueName=add-participant-queue
       - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -96,6 +97,45 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
+
+  update-participant-from-screening-provider:
+    container_name: update-participant-from-screening-provider
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:8001
+      - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
+      - GeneCodeLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
+      - HigherRiskReferralReasonLkpUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - topicEndpoint=${EVENTGRID_URL}
+      - topicKey=${EVENTGRID_KEY}
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+  check-participant-exists:
+    container_name: check-participant-exists
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:8002
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+
+  get-participant-reference-data:
+    container_name: get-participant-reference-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:7999
+      - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - GeneCodeLkpDataServiceUrl=http://localhost:7991/api/GeneCodeLkpDataService
 
   # Screening Data Service
   create-participant:
@@ -242,14 +282,26 @@ services:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  participant-management-data-service:
-    container_name: participant-management-data-service
+  gene-code-lkp-data-service:
+    container_name: gene-code-lkp-data-service
+    network_mode: host
+    profiles: [bi-analytics]
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7991
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  higher-risk-referral-reason-lkp-data-service:
+    container_name: higher-risk-referral-reason-lkp-data-service
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+      dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
+    profiles: [bi-analytics]
     environment:
-      - ASPNETCORE_URLS=http://*:7994
+      - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   participant-demographic-data-service:
@@ -260,6 +312,16 @@ services:
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7993
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  participant-management-data-service:
+    container_name: participant-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7994
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service
