@@ -1,22 +1,17 @@
 
 namespace DataServices.Core;
 
-using System.ComponentModel.DataAnnotations;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Common;
-using FluentValidation.Validators;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Common;
 
 public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : class
 {
@@ -42,8 +37,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
     {
-        _logger.LogInformation("Http Request Method of type {method} has been received", req.Method);
-        _logger.LogInformation("DataService of type {type} has been called",typeof(TEntity) );
+        _logger.LogInformation("Http Request Method of type {Method} has been received", req.Method);
+        _logger.LogInformation("DataService of type {Type} has been called",typeof(TEntity) );
 
         switch (req.Method)
         {
@@ -119,7 +114,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         catch(MultipleRecordsFoundException mre)
         {
-            _logger.LogWarning(mre,"Multiple Records were returned from filter expression when only one was expected: {message}",mre.Message);
+            _logger.LogWarning(mre,"Multiple Records were returned from filter expression when only one was expected: {Message}",mre.Message);
             return CreateErrorResponse(req,"Multiple rows met filter condition when only one row was expected",HttpStatusCode.BadRequest);
 
 
@@ -222,6 +217,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
 
             var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
+            if (entityData == null)
+                return CreateErrorResponse(req, "Couldn't deserialise body", HttpStatusCode.NotFound);
             var keyPredicate = CreateGetByKeyExpression(key);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
@@ -299,7 +296,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
             if (!ReflectionUtilities.PropertyExists(typeof(TEntity), item))
             {
-                _logger.LogWarning("Query Item: '{item}' does not exist in TEntity: '{entityName}'", item, typeof(TEntity).Name);
+                _logger.LogWarning("Query Item: '{Item}' does not exist in TEntity: '{EntityName}'", item, typeof(TEntity).Name);
                 continue;
             }
             var entityKey = Expression.Property(entityParameter, item);

@@ -3,7 +3,6 @@ namespace Data.Database;
 using System.Data;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
-using Model.Enums;
 
 public class DatabaseHelper : IDatabaseHelper
 {
@@ -28,7 +27,12 @@ public class DatabaseHelper : IDatabaseHelper
     {
         if (string.IsNullOrEmpty(dateString)) return DBNull.Value;
 
-        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "MM/dd/yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ"];
+        if (dateString.Length == 4 || dateString.Length == 6)
+        {
+            dateString = HandlePartialDates(dateString);
+        }
+
+        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "MM/dd/yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ", "yyyy-MM-ddTHH:mm:ss.fffffff"];
         bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
 
         if (!success)
@@ -38,6 +42,21 @@ public class DatabaseHelper : IDatabaseHelper
         }
 
         return tempDate;
+    }
+
+    private static string HandlePartialDates(string dateString)
+    {
+        if (dateString.Length == 4)
+        {
+            return $"{dateString}0101";
+        }
+
+        if (dateString.Length == 6)
+        {
+            return $"{dateString}01";
+        }
+
+        return dateString;
     }
 
     public static string? FormatDateAPI(string date)
@@ -56,7 +75,6 @@ public class DatabaseHelper : IDatabaseHelper
     {
         return string.IsNullOrEmpty(value) ? DBNull.Value : value;
     }
-
     public static string GetStringValue(IDataReader reader, string columnName)
     {
         return reader[columnName] == DBNull.Value ? null : reader[columnName].ToString();
@@ -82,23 +100,23 @@ public class DatabaseHelper : IDatabaseHelper
                 return (T)(object)value.ToString();
 
             case Type t when t == typeof(Guid):
-            {
-                return (T)value;
-            }
+                {
+                    return (T)value;
+                }
 
             case Type t when t == typeof(DateTime):
-            {
-                return (T)value;
-            }
+                {
+                    return (T)value;
+                }
             case Type t when t.IsEnum:
-            {
-                short shortValue = Convert.ToInt16(value);
-                return (T)Enum.ToObject(targetType, shortValue);
-            }
+                {
+                    short shortValue = Convert.ToInt16(value);
+                    return (T)Enum.ToObject(targetType, shortValue);
+                }
             default:
-            {
-                return (T)Convert.ChangeType(value, targetType);
-            }
+                {
+                    return (T)Convert.ChangeType(value, targetType);
+                }
         }
     }
 
@@ -114,7 +132,6 @@ public class DatabaseHelper : IDatabaseHelper
             _ => throw new NotImplementedException()
         };
     }
-
     public int ParseExceptionFlag(object exception)
     {
         return exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0;
