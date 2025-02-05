@@ -1,10 +1,8 @@
 namespace Data.Database;
 
-using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
 using Model;
-using Model.Enums;
 
 
 public class CreateDemographicData : ICreateDemographicData

@@ -2,8 +2,6 @@ namespace ParticipantManagementDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using DataServices.Database;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;
@@ -28,7 +26,7 @@ public class ParticipantManagementDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {dataType} " ,req.Method,typeof(CurrentPosting));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(CurrentPosting));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
