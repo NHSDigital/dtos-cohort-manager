@@ -87,7 +87,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
