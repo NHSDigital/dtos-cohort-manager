@@ -15,6 +15,7 @@ using Microsoft.Data.SqlClient;
 using System.Data;
 using Data.Database;
 using Model.Enums;
+using DataServices.Client;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -28,6 +29,8 @@ public class TransformDataServiceTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
     private readonly Mock<ITransformReasonForRemoval> _transformReasonForRemoval = new();
+
+    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
 
     public TransformDataServiceTests()
     {
@@ -49,7 +52,7 @@ public class TransformDataServiceTests
         _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
         _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _transformReasonForRemoval.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -112,7 +115,7 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Gender.Male
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -138,7 +141,7 @@ public class TransformDataServiceTests
             NamePrefix = null,
             Gender = Gender.Male
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -164,7 +167,7 @@ public class TransformDataServiceTests
             NamePrefix = "DR",
             Gender = Gender.Male,
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -182,6 +185,7 @@ public class TransformDataServiceTests
         // Arrange
         _requestBody.Participant = new CohortDistributionParticipant
         {
+            NhsNumber = "123456789",
             NamePrefix = new string('A', 36),
             FirstName = new string('A', 36),
             FamilyName = new string('A', 36),
@@ -217,7 +221,7 @@ public class TransformDataServiceTests
             EmailAddress = new string('A', 90),
             Gender = Gender.NotSpecified
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -243,7 +247,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.NotSpecified,
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -271,7 +275,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -335,7 +339,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -350,7 +354,7 @@ public class TransformDataServiceTests
     [DataRow("Bob\\E\\")]
     [DataRow("Bob\\T\\")]
     [DataRow("Bob€")]
-    public async Task Run_ExceptionalCharsInParticipant_RaisesException(string name)
+    public void Run_ExceptionalCharsInParticipant_RaisesException(string name)
     {
         // Arrange
         var sut = new TransformString();
@@ -379,7 +383,7 @@ public class TransformDataServiceTests
             ReasonForRemovalEffectiveFromDate = "2/10/2024",
             DateOfDeath = "2/10/2024"
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -408,7 +412,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -439,7 +443,7 @@ public class TransformDataServiceTests
             PrimaryCareProvider = "",
             InvalidFlag = "1"
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -489,7 +493,7 @@ public class TransformDataServiceTests
             ReasonForRemoval = null,
             ReasonForRemovalEffectiveFromDate = null,
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -541,7 +545,7 @@ public class TransformDataServiceTests
         };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -572,7 +576,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Throws<TransformationException>();
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Throws<TransformationException>();
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -608,7 +612,7 @@ public class TransformDataServiceTests
             ReasonForRemoval = "NOTDEA",
             DateOfDeath = null,
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -638,7 +642,7 @@ public class TransformDataServiceTests
             ReasonForRemoval = "DEA",
             DateOfDeath = "2024-01-01",
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);
