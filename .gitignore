@@ -59,7 +59,7 @@ local.settings.json
 # sample data
 application/CohortManager/SampleData/
 *.csv
-*.parquet
+
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 
 # csv to sql statement scripts
