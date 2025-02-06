@@ -3,6 +3,7 @@ namespace Data.Database;
 using System.Data;
 using Model;
 using Microsoft.Data.SqlClient;
+using DataServices.Client;
 
 /// <summary>
 /// Various methods used for transformations the require looking up data from the database.
@@ -12,10 +13,14 @@ public class BsTransformationLookups : IBsTransformationLookups
     private IDbConnection _connection;
     private readonly string _connectionString;
 
-    public BsTransformationLookups(IDbConnection IdbConnection)
+    private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
+
+
+    public BsTransformationLookups(IDbConnection IdbConnection, IDataServiceClient<BsSelectGpPractice> bsSelectGPPractice)
     {
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
         _connection = IdbConnection;
+        _bsSelectGPPracticeClient = bsSelectGPPractice;
     }
 
     public string GetGivenName(string participantId)
@@ -97,30 +102,6 @@ public class BsTransformationLookups : IBsTransformationLookups
     }
 
     /// <summary>
-    /// Used in
-    /// </summary>
-    /// <param name="participant">The participant.</param>
-    /// <returns>CohortDistributionParticipant, the transformed participant.<returns>
-    public bool ParticipantIsInvalid(string nhsNumber)
-    {
-        string sql = $"SELECT PARTICIPANT_ID FROM [dbo].[PARTICIPANT_DEMOGRAPHIC] " +
-                    $"WHERE NHS_NUMBER = @NhsNumber AND INVALID_FLAG = 1";
-
-        using (_connection = new SqlConnection(_connectionString))
-        {
-            _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    return reader.Read();
-                }
-            }
-        }
-    }
-
-    /// <summary>
     /// Used in the 4 chained ParticipantNotRegisteredToGPWithReasonForRemoval rules.
     /// Gets the participant's primary care provider.
     /// </summary>
@@ -156,23 +137,13 @@ public class BsTransformationLookups : IBsTransformationLookups
     /// <returns>string, the participant's BSO code.<returns>
     public string GetBsoCodeUsingPCP(string primaryCareProvider)
     {
-        string sql = $"SELECT TOP 1 BSO FROM [dbo].[BS_SELECT_GP_PRACTICE_LKP] WHERE GP_PRACTICE_CODE = @PrimaryCareProvider";
 
-        using (_connection = new SqlConnection(_connectionString))
+        var gpPractice  = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
+
+        if(gpPractice == null)
         {
-            _connection.Open();
-            using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
-            {
-                command.Parameters.AddWithValue("@PrimaryCareProvider", primaryCareProvider);
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        return reader["BSO"].ToString() ?? string.Empty;
-                    }
-                }
-            }
+            return string.Empty;
         }
-        return string.Empty;
+        return gpPractice.BsoCode;
     }
 }

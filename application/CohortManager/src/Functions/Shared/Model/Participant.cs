@@ -74,7 +74,7 @@ public class Participant
     {
         return new ParticipantDemographic
         {
-            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? long.Parse(NhsNumber) : null,
+            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? long.Parse(NhsNumber) : throw new FormatException("Cannot parse nhs number to Long"),
             SupersededByNhsNumber = !string.IsNullOrEmpty(SupersededByNhsNumber) ? long.Parse(SupersededByNhsNumber) : null,
             PrimaryCareProvider = PrimaryCareProvider,
             PrimaryCareProviderFromDate = PrimaryCareProviderEffectiveFromDate,

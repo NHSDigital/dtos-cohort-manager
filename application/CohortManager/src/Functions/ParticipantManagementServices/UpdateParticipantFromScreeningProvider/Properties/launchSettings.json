@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "screeningDataServices": {
+    "updateParticipant": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7196",
+      "commandLineArgs": "--port 7253",
       "launchBrowser": false
     }
   }

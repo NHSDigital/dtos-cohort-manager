@@ -46,4 +46,5 @@ public class CohortDistributionParticipant
     public string? CurrentPostingEffectiveFromDate { get; set; }
     public string? ParticipantId { get; set; }
     public string RecordType { get; set; }
+    public string? InvalidFlag { get; set; }
 }

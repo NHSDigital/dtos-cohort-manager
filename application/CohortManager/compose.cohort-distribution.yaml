@@ -44,7 +44,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://localhost:7881/api/
+      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   allocate-service-provider:
@@ -88,6 +89,7 @@ services:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - DemographicDataFunctionURL=http://localhost:7076/api/DemographicDataFunction
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
@@ -114,3 +116,14 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  cohort-distribution-data-service:
+    container_name: cohort-distribution-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/CohortDistributionDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7992
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+

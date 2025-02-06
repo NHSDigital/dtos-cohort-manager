@@ -5,9 +5,14 @@
             "samplingSettings": {
                 "isEnabled": true
             },
+            "enableDependencyTracking": true,
             "enableLiveMetricsFilters": true
         },
         "logLevel": {
+          "default": "Information",
+          "Function": "Information",
+          "Host.Aggregator": "Trace",
+          "Host.Results": "Information",
           "DataServices.Client": "Information"
         }
     }

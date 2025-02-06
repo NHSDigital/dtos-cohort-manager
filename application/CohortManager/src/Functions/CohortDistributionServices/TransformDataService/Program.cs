@@ -15,6 +15,7 @@ hostBuilder.AddConfiguration<TransformDataServiceConfig>(out TransformDataServic
 var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddCachedDataService<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
         .Build()
     .ConfigureServices(services =>
     {

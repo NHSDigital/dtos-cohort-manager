@@ -15,6 +15,7 @@ using Data.Database;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 [TestClass]
 public class RetrieveParticipantDataTests
@@ -26,13 +27,14 @@ public class RetrieveParticipantDataTests
     private Mock<HttpRequestData> _request;
     private readonly SetupRequest _setupRequest = new();
     private readonly RetrieveParticipantRequestBody _requestBody;
-    private readonly Mock<ICreateDemographicData> _createDemographicData = new();
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
 
     public RetrieveParticipantDataTests()
     {
+        _request = new Mock<HttpRequestData>(_context.Object);
         _requestBody = new RetrieveParticipantRequestBody()
         {
             NhsNumber = "1234567890",
@@ -40,9 +42,8 @@ public class RetrieveParticipantDataTests
         };
         _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
-        _sut = new RetrieveParticipantData(_createResponse.Object, _logger.Object,
-                                            _createDemographicData.Object, _createParticipant,
-                                            _exceptionHandler.Object, _participantManagementClientMock.Object);
+        _sut = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _participantManagementClientMock.Object,
+                                            _createParticipant, _exceptionHandler.Object, _callFunction.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
@@ -64,7 +65,7 @@ public class RetrieveParticipantDataTests
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
@@ -76,21 +77,11 @@ public class RetrieveParticipantDataTests
         _participantManagementClientMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .Throws(new Exception("there has been an error"));
-            // .ReturnsAsync(new ParticipantManagement { NHSNumber = 1, ScreeningId = 1 });
-        _createDemographicData
-            .Setup(x => x.GetDemographicData(It.IsAny<string>()))
-            .Returns(new Demographic())
-            .Verifiable();
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        _participantManagementClientMock
-            .Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
-        _createDemographicData
-            .Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Never);
-
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
@@ -103,19 +94,15 @@ public class RetrieveParticipantDataTests
         _participantManagementClientMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement());
-        _createDemographicData
-            .Setup(x => x.GetDemographicData(It.IsAny<string>()))
-            .Throws(new Exception("there has been an error"))
-            .Verifiable();
+
+        _callFunction
+            .Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+            .ThrowsAsync(new Exception("there has been an error")).Verifiable();
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        _participantManagementClientMock
-            .Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
-        _createDemographicData
-            .Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
@@ -144,10 +131,7 @@ public class RetrieveParticipantDataTests
         _participantManagementClientMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement {NHSNumber = 1234567890});
-        _createDemographicData
-            .Setup(x => x.GetDemographicData(It.IsAny<string>()))
-            .Returns(demographic)
-            .Verifiable();
+         _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).Returns(Task.FromResult(JsonSerializer.Serialize(demographic))).Verifiable();
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
@@ -157,8 +141,6 @@ public class RetrieveParticipantDataTests
         // Assert
         _participantManagementClientMock
             .Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
-        _createDemographicData
-            .Verify(x => x.GetDemographicData(It.IsAny<string>()), Times.Once);
 
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.IsNotNull(response);

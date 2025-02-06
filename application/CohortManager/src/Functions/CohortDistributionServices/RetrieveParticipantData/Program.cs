@@ -1,8 +1,8 @@
 using Common;
 using Data.Database;
+using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DataServices.Client;
 using Model;
 
 var host = new HostBuilder()
@@ -15,7 +15,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<ICreateDemographicData, CreateDemographicData>();
+        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
     .AddDatabaseConnection()

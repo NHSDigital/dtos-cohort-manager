@@ -53,15 +53,13 @@ public class UpdateParticipantDetails
             var response = await ValidateData(new Participant(existingParticipantData), participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
-                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
-                System.Console.WriteLine("validation error - fatal");
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
             if (response.CreatedException)
             {
-                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
-                System.Console.WriteLine("validation error - not fatal");
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Participant Id: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
                 reqParticipant.ExceptionFlag = "1";
             }
 
@@ -75,7 +73,6 @@ public class UpdateParticipantDetails
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message, ex);
-            System.Console.WriteLine(ex);
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -94,8 +91,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex);
-            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }

@@ -48,12 +48,19 @@ public class MarkParticipantAsIneligible
         {
             return req.CreateResponse(HttpStatusCode.BadRequest);
         }
+
         var participantData = requestBody.Participant;
+
         long nhsNumber;
         long screeningId;
 
+        if (!long.TryParse(participantData.NhsNumber, out nhsNumber) || !long.TryParse(participantData.ScreeningId, out screeningId) )
+        {
+            throw new FormatException("Could not parse NhsNumber or screeningID");
+        }
+
         // Check if a participant with the supplied NHS Number already exists
-        var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantData.NhsNumber && i.ScreeningId.ToString() == participantData.ScreeningId);
+        var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
         if (existingParticipantResult != null && existingParticipantResult.Any())
         {
             existingParticipant = new Participant(existingParticipantResult.First());
@@ -68,21 +75,17 @@ public class MarkParticipantAsIneligible
         try
         {
             var updated = false;
-            if (!long.TryParse(participantData.NhsNumber, out nhsNumber) || !long.TryParse(participantData.ScreeningId, out screeningId) )
-            {
-                throw new FormatException("Could not parse NhsNumber or screeningID");
-            }
             var updatedParticipantManagement =  _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
             updatedParticipantManagement.EligibilityFlag = 0;
             updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
 
             if (updated)
             {
-                _logger.LogInformation("Record updated for participant {NhsNumber}", participantData.NhsNumber);
+                _logger.LogInformation("Record updated for participant NHS Number: REDACTED}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError("An error occurred while updating data for {NhsNumber}", participantData.NhsNumber);
+            _logger.LogError("An error occurred while updating data for NHS Number: REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -111,7 +114,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
+            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }

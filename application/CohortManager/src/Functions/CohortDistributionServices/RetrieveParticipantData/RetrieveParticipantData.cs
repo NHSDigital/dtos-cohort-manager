@@ -16,18 +16,19 @@ public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
-    private readonly ICreateDemographicData _createDemographicData;
+    private readonly ICallFunction _callFunction;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
     public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger,
-                                ICreateDemographicData createDemographicData, ICreateParticipant createParticipant,
-                                IExceptionHandler exceptionHandler, IDataServiceClient<ParticipantManagement> participantManagementClient)
+                                IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                ICreateParticipant createParticipant, IExceptionHandler exceptionHandler,
+                                ICallFunction callFunction)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _createDemographicData = createDemographicData;
+        _callFunction = callFunction;
         _createParticipant = createParticipant;
         _exceptionHandler = exceptionHandler;
         _participantManagementClient = participantManagementClient;
@@ -59,7 +60,21 @@ public class RetrieveParticipantData
                                                                             p.ScreeningId == long.Parse(requestBody.ScreeningService));
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
 
-            var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
+            var demographicFunctionParams = new Dictionary<string, string>()
+            {
+                {"Id", requestBody.NhsNumber }
+            };
+
+            var demographicDataJson = await _callFunction.SendGet(Environment.GetEnvironmentVariable("DemographicDataFunctionURL"), demographicFunctionParams);
+
+            var demographicData = JsonSerializer.Deserialize<Demographic>(demographicDataJson);
+            if (demographicData == null)
+            {
+                _logger.LogError("the demographicData was null the {RetrieveParticipantData}  function", nameof(RetrieveParticipantData));
+
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, $"the demographicData was null the {nameof(RetrieveParticipantData)}  function");
+            }
+
             participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
             var responseBody = JsonSerializer.Serialize(participant);
             _logger.LogInformation("ParticipantScreeningID: {ScreeningServiceId}", participant.ScreeningServiceId);
