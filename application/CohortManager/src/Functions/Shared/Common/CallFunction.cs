@@ -2,7 +2,6 @@ namespace Common;
 
 using System.Net;
 using System.Text;
-using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
