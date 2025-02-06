@@ -128,7 +128,7 @@ public class CallFunction : ICallFunction
                 return null;
             }
 
-            _logger.LogInformation("Web Exception Caught with response body. Http Reponse Code {Response Code}",response!.StatusCode);
+            _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}",response!.StatusCode);
             return await GetResponseText(response);
         }
         catch(Exception ex)
