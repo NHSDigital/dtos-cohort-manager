@@ -82,7 +82,8 @@ public class CallFunction : ICallFunction
         }
         catch (WebException wex)
         {
-            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",url,wex.Message);
+
+            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),wex.Message);
             return await HandleWebException(wex);
         }
 
@@ -112,7 +113,7 @@ public class CallFunction : ICallFunction
         }
         catch (WebException ex)
         {
-            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",url,ex.Message);
+            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),ex.Message);
             return (HttpWebResponse)ex.Response;
         }
 
@@ -138,6 +139,20 @@ public class CallFunction : ICallFunction
         }
     }
 
+    /// <summary>
+    /// Removes the Query String from the URL for logging to prevent us logging Sensitive Information.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    private static string RemoveURLQueryString(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return url;
+        }
 
+        int queryIndex = url.IndexOf('?');
+        return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
+    }
 
 }
