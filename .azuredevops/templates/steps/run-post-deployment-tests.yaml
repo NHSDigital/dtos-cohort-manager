@@ -46,18 +46,34 @@ steps:
     fileType: 'json'
     targetFiles: '*.json'
 
+- task: PowerShell@2
+  displayName: 'Copy Test Files'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $sourcePath = '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles'
+      $targetPath = '$(Build.ArtifactStagingDirectory)/TestFiles'
+
+      # Check if the source directory exists
+      if (!(Test-Path -Path $sourcePath)) {
+        Write-Error "Source directory not found: $sourcePath"
+        exit 1
+      }
+
+      # Create the target directory if it doesn't exist
+      if (!(Test-Path -Path $targetPath)) {
+        New-Item -ItemType Directory -Path $targetPath
+      }
+
+      # Copy the files
+      Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+
 - task: Bash@3
   displayName: 'Print appsettings.json after variable substitution'
   inputs:
     targetType: 'inline'
     script: |
       cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
-
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles'
-    Contents: '**/*'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)/TestFiles'
 
 - task: PublishBuildArtifacts@1
   inputs:
