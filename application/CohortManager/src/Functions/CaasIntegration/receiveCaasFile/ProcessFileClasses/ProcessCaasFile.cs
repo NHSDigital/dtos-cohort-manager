@@ -156,13 +156,13 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count);
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
-            _logger.LogInformation("sending Update Records {count} to queue", currentBatch.UpdateRecords.Count);
+            _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
             await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
 
             foreach (var updateRecords in currentBatch.DeleteRecords)
@@ -213,9 +213,9 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             if (allowDeleteRecords)
             {
-                _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to updateParticipant function. A future PR will send the record to PMSRemoveParticipant once the new logic for it is implemented.");
+                _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
             }
             else
             {
