@@ -15,9 +15,6 @@ resources:
 variables:
 - group: DEV_automation_testing_pipeline
 
-variables:
-- group: DEV_automation_testing_pipeline
-
 parameters:
 - name: destEnvironmentShortName
   displayName: Destination Environment Short Name
@@ -29,10 +26,6 @@ parameters:
 stages:
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
-
-  variables:
-  - name: TARGET_ENVIRONMENT
-    value: ${{ parameters.destEnvironmentShortName }}
 
   variables:
   - name: TARGET_ENVIRONMENT
