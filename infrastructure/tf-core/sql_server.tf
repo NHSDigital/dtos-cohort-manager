@@ -33,7 +33,7 @@ module "azure_sql_server" {
   security_alert_policy_retention_days = var.sqlserver.security_alert_policy_retention_days
   auditing_policy_retention_in_days    = var.sqlserver.auditing_policy_retention_in_days
 
-  public_network_access_enabled = var.sqlserver.server.public_network_access_enabled
+  public_network_access_enabled = var.sqlserver.public_network_access_enabled
 
 
   # Default database
