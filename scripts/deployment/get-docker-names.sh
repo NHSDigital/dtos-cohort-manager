@@ -27,7 +27,6 @@ declare -A docker_functions_map=(
     ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
     ["screeningDataServices/createParticipant"]="create-participant"
     ["screeningDataServices/CurrentPostingDataService"]="current-posting-data-service"
-    ["screeningDataServices/DemographicDataService"]="demographic-data-service"
     ["screeningDataServices/ExceptionManagementDataService"]="exception-management-data-service"
     ["screeningDataServices/ExcludedSMULookupDataService"]="excluded-smu-data-service"
     ["screeningDataServices/GeneCodeLkpDataService"]="gene-code-lkp-data-service"
