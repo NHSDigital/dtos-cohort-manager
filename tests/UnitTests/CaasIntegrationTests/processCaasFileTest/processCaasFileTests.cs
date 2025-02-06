@@ -3,7 +3,6 @@ namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text.Json;
 using Common;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
@@ -14,39 +13,26 @@ using NHS.Screening.ReceiveCaasFile;
 [TestClass]
 public class ProcessCaasFileTests
 {
-    private Mock<ILogger<ProcessCaasFile>> _loggerMock;
-    private Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock;
-    private Mock<ICheckDemographic> _checkDemographicMock;
-    private Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock;
-    private Mock<IExceptionHandler> _exceptionHandlerMock;
-    private Mock<IAddBatchToQueue> _addBatchToQueueMock;
-    private Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock;
-    private Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock;
-    private Mock<IValidateDates> _validateDates;
-    private Mock<ICallFunction> _callFunction = new();
-    private ProcessCaasFile _processCaasFile;
+    private readonly Mock<ILogger<ProcessCaasFile>> _loggerMock = new();
+    private readonly Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock = new();
+    private readonly Mock<ICheckDemographic> _checkDemographicMock = new();
+    private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
+    private readonly Mock<IAddBatchToQueue> _addBatchToQueueMock = new();
+    private readonly Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock = new();
+    private readonly Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock = new();
+    private readonly Mock<IValidateDates> _validateDates = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly ProcessCaasFile _processCaasFile;
 
     public ProcessCaasFileTests()
     {
         Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
         Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
-
-        _loggerMock = new Mock<ILogger<ProcessCaasFile>>();
-        _receiveCaasFileHelperMock = new Mock<IReceiveCaasFileHelper>();
-        _checkDemographicMock = new Mock<ICheckDemographic>();
-        _createBasicParticipantDataMock = new Mock<ICreateBasicParticipantData>();
-
-        _exceptionHandlerMock = new Mock<IExceptionHandler>();
-        _addBatchToQueueMock = new Mock<IAddBatchToQueue>();
-        _recordsProcessedTrackerMock = new Mock<RecordsProcessedTracker>();
-        _validateDates = new Mock<IValidateDates>();
-        _databaseClientParticipantMock = new Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>>();
-
-        Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
-        Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
         Environment.SetEnvironmentVariable("UpdateQueueName", "UpdateQueueName");
         Environment.SetEnvironmentVariable("AllowDeleteRecords", "false");
+        Environment.SetEnvironmentVariable("PMSRemoveParticipant", "PMSRemoveParticipant");
 
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
@@ -139,9 +125,6 @@ public class ProcessCaasFileTests
     public async Task AddRecordToBatch_UpdateRecord_addsRecordToBatch()
     {
         // Arrange
-        Environment.SetEnvironmentVariable("DemographicURI", "DemographicURI");
-        Environment.SetEnvironmentVariable("PMSUpdateParticipant", "PMSUpdateParticipant");
-
         _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
@@ -178,12 +161,6 @@ public class ProcessCaasFileTests
 
         var participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.New };
         var currentBatch = new Batch();
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
-        {
-            Participant = new BasicParticipantData() { NhsNumber = "1234567890", RecordType = Actions.New },
-            FileName = "testFile",
-            participant = participant
-        };
 
         _checkDemographicMock.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -211,8 +188,6 @@ public class ProcessCaasFileTests
             Participant = new BasicParticipantData() { NhsNumber = "1234567890", RecordType = Actions.Amended },
             participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.Amended }
         };
-
-        var jsonResponse = JsonSerializer.Serialize(basicParticipantCsvRecord);
 
         var response = new ParticipantDemographic()
         {
@@ -269,7 +244,7 @@ public class ProcessCaasFileTests
 
         // Assert
         _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
-
+        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()), Times.Never);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is false, exception raised for delete record.")),
@@ -300,6 +275,7 @@ public class ProcessCaasFileTests
         await task;
 
         // Assert
+        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()), Times.Once);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("AllowDeleteRecords flag is true")),
