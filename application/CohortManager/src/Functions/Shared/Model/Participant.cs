@@ -113,9 +113,6 @@ public class Participant
 
     public ParticipantManagement ToParticipantManagement()
     {
-        // string format = "yyyy-MM-dd HH:mm:ss"; // Matches the exact format
-        // CultureInfo culture = CultureInfo.InvariantCulture;
-
         var participantManagement = new ParticipantManagement
         {
             ParticipantId = long.Parse(ParticipantId),
