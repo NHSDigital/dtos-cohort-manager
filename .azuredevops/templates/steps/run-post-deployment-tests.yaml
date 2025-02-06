@@ -5,7 +5,7 @@ parameters:
   type: string
 
 steps:
-# Add a Bash task to output a pipeline variable
+
 - task: Bash@3
   displayName: 'Output Pipeline Variables for Debugging'
   inputs:
@@ -53,6 +53,24 @@ steps:
     script: |
       cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles'
+    Contents: '**/*'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/TestFiles'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'TestFiles'
+
+- task: DownloadBuildArtifacts@0
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'TestFiles'
+    downloadPath: '$(System.DefaultWorkingDirectory)'
+
 - task: DotNetCoreCLI@2
   displayName: 'Build Smoke Tests Solution'
   inputs:
@@ -64,7 +82,7 @@ steps:
   displayName: 'Run SpecFlow Tests'
   inputs:
     command: 'test'
-    projects: '$(Build.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+    projects: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
     publishTestResults: true
     azureSubscription: sc-cohort-manager-dev
 
