@@ -46,6 +46,13 @@ steps:
     fileType: 'json'
     targetFiles: '*.json'
 
+  - task: PowerShell@2
+  displayName: 'List Directory Contents'
+  inputs:
+    targetType: 'inline'
+    script: |
+      Get-ChildItem -Path $(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests -Recurse
+
 - task: PowerShell@2
   displayName: 'Copy Test Files'
   inputs:
