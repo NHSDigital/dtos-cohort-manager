@@ -16,9 +16,6 @@ module "storage" {
   account_replication_type = each.value.replication_type
   account_tier             = each.value.account_tier
 
-  blob_properties_delete_retention_policy = each.value.blob_properties_delete_retention_policy
-  blob_properties_versioning_enabled      = each.value.blob_properties_versioning_enabled
-
   public_network_access_enabled = each.value.public_network_access_enabled
 
   rbac_roles = local.rbac_roles_storage
