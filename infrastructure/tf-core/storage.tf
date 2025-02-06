@@ -48,8 +48,6 @@ locals {
         replication_type                        = storage_val.replication_type
         account_tier                            = storage_val.account_tier
         public_network_access_enabled           = storage_val.public_network_access_enabled
-        blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
-        blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
         containers                              = storage_val.containers
       }
     ]
