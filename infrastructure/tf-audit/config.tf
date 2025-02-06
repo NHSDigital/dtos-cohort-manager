@@ -9,6 +9,9 @@ resource "azurerm_resource_group" "audit" {
   }
 }
 
+# Add a role assignment to the audit resource group for each role defined in locals:
+# - log_analytics_contributor
+
 module "regions_config" {
   for_each = var.regions
 

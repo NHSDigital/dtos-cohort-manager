@@ -30,7 +30,7 @@ module "app-service-plan" {
   os_type  = var.app_service_plan.os_type
   sku_name = var.app_service_plan.sku_name
 
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id
+  vnet_integration_subnet_id = var.features.private_endpoints_enabled ? module.subnets["${module.regions_config[each.value.region_key].names.subnet}-apps"].id : null
 
   tags = var.tags
 

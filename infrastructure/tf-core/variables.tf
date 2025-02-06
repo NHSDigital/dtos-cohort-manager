@@ -94,6 +94,18 @@ variable "regions" {
 }
 
 ### Cohort Manager specific variables ###
+
+# Populate the following variables to create a project-specific ACR
+variable "acr" {
+  description = "Configuration for the Azure Container Registry"
+  type = object({
+    admin_enabled = bool
+    sku           = string
+    uai_name      = string
+  })
+  default = null
+}
+
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -166,16 +178,16 @@ variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
     acr_mi_name                            = string
-    acr_name                               = string
-    acr_rg_name                            = string
+    acr_name                               = optional(string, "") # Use calculated value if not provided
+    acr_rg_name                            = optional(string, "") # Use calculated value if not provided
     always_on                              = bool
-    app_insights_name                      = string
-    app_insights_rg_name                   = string
+    app_insights_name                      = optional(string, "") # Use calculated value if not provided
+    app_insights_rg_name                   = optional(string, "") # Use calculated value if not provided
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
     docker_CI_enable                       = string
-    docker_env_tag                         = string
+    docker_env_tag                         = optional(string, "") # Use calculated value if not provided
     docker_img_prefix                      = string
     enable_appsrv_storage                  = bool
     ftps_state                             = string
@@ -321,6 +333,7 @@ variable "sqlserver" {
     sql_admin_group_name                 = optional(string)
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
+    public_network_access_enabled        = optional(bool, false)
     security_alert_policy_retention_days = optional(number)
 
     # Server Instance
@@ -355,12 +368,10 @@ variable "sqlserver" {
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
   type = map(object({
-    name_suffix                             = string
-    account_tier                            = optional(string, "Standard")
-    blob_properties_delete_retention_policy = optional(number, 7)
-    blob_properties_versioning_enabled      = optional(bool, false)
-    replication_type                        = optional(string, "LRS")
-    public_network_access_enabled           = optional(bool, false)
+    name_suffix                   = string
+    account_tier                  = optional(string, "Standard")
+    replication_type              = optional(string, "LRS")
+    public_network_access_enabled = optional(bool, false)
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")

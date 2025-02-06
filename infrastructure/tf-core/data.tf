@@ -32,7 +32,7 @@ data "azurerm_virtual_network" "vnet_audit" {
 }
 
 data "azurerm_subnet" "subnet_audit_pep" {
-  for_each = var.regions
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
   provider = azurerm.audit
 
@@ -42,7 +42,7 @@ data "azurerm_subnet" "subnet_audit_pep" {
 }
 
 data "azuread_group" "sql_admin_group" {
-  display_name = var.sqlserver.sql_admin_group_name
+  display_name = local.sql_admin_group_name
 }
 
 data "azurerm_container_registry" "acr" {
@@ -57,11 +57,4 @@ data "azurerm_user_assigned_identity" "acr_mi" {
 
   name                = var.function_apps.acr_mi_name
   resource_group_name = var.function_apps.acr_rg_name
-}
-
-data "azurerm_application_insights" "ai" {
-  provider = azurerm.audit
-
-  name                = var.function_apps.app_insights_name
-  resource_group_name = var.function_apps.app_insights_rg_name
 }

@@ -8,7 +8,7 @@ on:
   workflow_call:
     inputs:
       environment_tag:
-        description: "Environment of the deployement"
+        description: "Environment of the deployment"
         required: true
         type: string
 
@@ -98,7 +98,7 @@ jobs:
           echo "Commit hash tag: $SHORT_COMMIT_HASH"
           echo "COMMIT_HASH_TAG=$SHORT_COMMIT_HASH" >> $GITHUB_ENV
 
-          echo "ENVIRONMENT_TAG=development" >> $GITHUB_ENV
+          echo "ENVIRONMENT_TAG=${{ inputs.environment_tag }}" >> $GITHUB_ENV
 
       - name: Build and Push Image
         working-directory: ./application/CohortManager
@@ -127,13 +127,15 @@ jobs:
           export PR_NUM_TAG=$PR_NUM_TAG
           echo "PR_NUM_TAG=$PR_NUM_TAG" >> $GITHUB_ENV
 
-          export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
-          echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
-          ../../scripts/reports/create-sbom-report.sh
+          if [ "$ENVIRONMENT_TAG" == 'development' ]; then
+            export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
+            echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
+            ../../scripts/reports/create-sbom-report.sh
 
-          export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
-          echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
-          ../../scripts/reports/scan-vulnerabilities.sh
+            export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
+            echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
+            ../../scripts/reports/scan-vulnerabilities.sh
+          fi
 
           # Push the image to the repository
           if [ "$GITHUB_REF" == 'refs/heads/main' ]; then

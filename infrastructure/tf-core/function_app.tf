@@ -14,7 +14,7 @@ module "functionapp" {
   monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
 
   public_network_access_enabled = var.features.public_network_access_enabled
-  vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
+  vnet_integration_subnet_id    = var.features.private_endpoints_enabled ? module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id : null
 
   rbac_role_assignments = each.value.rbac_role_assignments
 
@@ -26,7 +26,7 @@ module "functionapp" {
   storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
 
   # Connection string for Application Insights:
-  ai_connstring = data.azurerm_application_insights.ai.connection_string
+  ai_connstring = data.terraform_remote_state.audit.outputs.application_insights[local.primary_region].connection_string
 
   #To enable health checks for function apps
   health_check_path = var.function_apps.health_check_path
@@ -42,13 +42,16 @@ module "functionapp" {
   always_on    = var.function_apps.always_on
   worker_32bit = var.function_apps.worker_32bit
 
-  acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
-  acr_login_server = data.azurerm_container_registry.acr.login_server
+  # Use local ACR if present:
+  acr_mi_client_id = var.acr != {} ? module.acr[0].mi_client_id : data.azurerm_user_assigned_identity.acr_mi.client_id
+  acr_login_server = var.acr != {} ? module.acr[0].login_server : data.azurerm_container_registry.acr.login_server
 
   # Use the ACR assigned identity for the Function Apps too:
-  assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+  assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [
+    var.acr != {} ? module.acr[0].mi_id : data.azurerm_user_assigned_identity.acr_mi.id
+  ] : []
 
-  image_tag  = var.function_apps.docker_env_tag
+  image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.environment
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled
