@@ -11,11 +11,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      echo "Value of DTOS_DATABASE_CONNECTION_STRING is $(DTOS_DATABASE_CONNECTION_STRING)"
-      echo "Value of CAASFOLDER_STORAGE_CONNECTION_STRING is $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
-      echo "Show contents of $(System.DefaultWorkingDirectory):"
-      dir $(System.DefaultWorkingDirectory)
-      nslookup sqlsvr-cohman-dev-uks.database.windows.net 10.100.7.4
+      echo "Performing debugging steps"
+      # nslookup sqlsvr-cohman-dev-uks.database.windows.net 10.100.7.4
 
 - task: UseDotNet@2
   displayName: 'Use .NET 9 SDK'
@@ -69,6 +66,7 @@ steps:
     command: 'test'
     projects: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
     publishTestResults: true
+    azureSubscription: sc-cohort-manager-dev
 
 - task: PublishTestResults@2
   displayName: 'Publish Test Results'
@@ -79,3 +77,4 @@ steps:
     mergeTestResults: true
     createTestRun: true
     testResultFormat: VSTest
+    azureSubscription: sc-cohort-manager-dev
