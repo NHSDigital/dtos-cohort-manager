@@ -47,12 +47,6 @@ stages:
       AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
       AppSettings.AzureWebJobsStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
-    displayName: Run post-deployment tests
-    pool:
-      name: private-pool-prod-uks
-    variables:
-      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.AzureWebJobsStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
 
     steps:
     - template: ../templates/steps/run-post-deployment-tests.yaml
