@@ -43,7 +43,7 @@ public class AddCohortDistributionDataFunction
                 participantCsvRecord = JsonSerializer.Deserialize<CohortDistributionParticipant>(requestBody);
             }
 
-            var isAdded = _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
+            var isAdded = await _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

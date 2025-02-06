@@ -5,7 +5,7 @@ using Model.DTO;
 
 public interface ICreateCohortDistributionData
 {
-    bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant);
+    Task<bool> InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant);
     List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipants(int rowCount);
     bool UpdateCohortParticipantAsInactive(string NhsNumber);
     CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber);

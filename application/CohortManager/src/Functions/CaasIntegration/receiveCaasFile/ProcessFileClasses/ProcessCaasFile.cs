@@ -116,7 +116,7 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="currentBatch"></param>
     /// <param name="FileName"></param>
     /// <returns></returns>
-    private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
+    private async Task AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
@@ -150,13 +150,12 @@ public class ProcessCaasFile : IProcessCaasFile
                 await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord, "RecordType was not set to an expected value");
                 break;
         }
-        return currentBatch;
 
     }
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        _logger.LogInformation("sending {count} records to Add queue", currentBatch.AddRecords.Count);
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 

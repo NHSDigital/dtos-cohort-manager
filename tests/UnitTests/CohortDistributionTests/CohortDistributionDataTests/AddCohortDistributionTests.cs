@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
+using System.Threading.Tasks;
 using Data.Database;
 using Model;
 using Moq;
@@ -82,14 +83,14 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void InsertCohortDistributionData_ValidData_ReturnsSuccess()
+    public async Task InsertCohortDistributionData_ValidData_ReturnsSuccess()
     {
         // Arrange
         var cohortDistributionParticipant = new CohortDistributionParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
 
         // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
+        var result = await _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
         Assert.IsTrue(result);
@@ -97,14 +98,14 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void InsertCohortDistributionData_InvalidData_ReturnsFailure()
+    public async Task InsertCohortDistributionData_InvalidData_ReturnsFailure()
     {
         // Arrange
         var cohortDistributionParticipant = new CohortDistributionParticipant();
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
 
         // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
+        var result = await _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
 
         // Assert
         Assert.IsFalse(result);
@@ -116,7 +117,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
     {
         // Arrange
-         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         var rowCount = 1;
 
         // Act
