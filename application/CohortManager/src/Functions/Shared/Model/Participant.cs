@@ -113,17 +113,17 @@ public class Participant
     {
         var participantManagement = new ParticipantManagement
         {
-            ParticipantId = long.TryParse(ParticipantId, out var participantId) ? participantId : 0,
-            ScreeningId = long.TryParse(ScreeningId, out var screeningId) ? screeningId : 0,
-            NHSNumber = long.TryParse(NhsNumber, out var nhsNumber) ? nhsNumber : 0,
-            RecordType = RecordType ?? string.Empty,
-            EligibilityFlag = short.TryParse(EligibilityFlag, out var eligibilityFlag) ? eligibilityFlag : (short)0,
+            ParticipantId = long.Parse(ParticipantId),
+            ScreeningId = long.Parse(ScreeningId),
+            NHSNumber = long.Parse(NhsNumber),
+            RecordType = RecordType,
+            EligibilityFlag = short.Parse(EligibilityFlag),
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = DateTime.TryParse(ReasonForRemovalEffectiveFromDate, out var removalDate) ? removalDate : null,
+            ReasonForRemovalDate = DateTime.Parse(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = short.Parse(ExceptionFlag ?? "0"),
-            RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, out var insertDate) ? insertDate : null,
-            RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, out var updateDate) ? updateDate : null,
+            RecordInsertDateTime = DateTime.Parse(RecordInsertDateTime),
+            RecordUpdateDateTime = DateTime.Parse(RecordUpdateDateTime),
         };
 
         return participantManagement;

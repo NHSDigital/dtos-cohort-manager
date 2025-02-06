@@ -172,7 +172,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_TransformDataServiceRequestFails_ReturnsBadRequest()
+    public async Task RunAsync_TransformDataServiceRequestFails_LogError()
     {
         // Arrange
         _cohortDistributionHelper
@@ -194,14 +194,14 @@ public class CreateCohortDistributionTests
 
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transform participant returned null in cohort distribution")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transformed participant returned null from the transform participant function")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
     }
 
     [TestMethod]
-    public async Task RunAsync_AddCohortDistributionRequestFails_ReturnsBadRequest()
+    public async Task RunAsync_AddCohortDistributionRequestFails_LogError()
     {
         // Arrange
         Exception caughtException = null;
@@ -319,7 +319,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ValidationFailed_CreatesValidationExceptionLog()
+    public async Task RunAsync_ValidationRequestFailed_CreateValidationExceptionLog()
     {
         // Arrange
         _cohortDistributionHelper
@@ -356,9 +356,10 @@ public class CreateCohortDistributionTests
     {
         // Arrange
         Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "false");
-        _participantManagementClientMock
-            .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement() { ExceptionFlag = 1 });
+        _cohortDistributionParticipant.ExceptionFlag = 1;
+        _cohortDistributionHelper
+            .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
+            .ReturnsAsync(_cohortDistributionParticipant);
         _cohortDistributionHelper
             .Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("");
@@ -368,9 +369,9 @@ public class CreateCohortDistributionTests
 
         // Assert
         _logger.Verify(x => x.Log(
-         LogLevel.Information,
+         LogLevel.Error,
          It.IsAny<EventId>(),
-         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Unable to add to cohort distribution.")),
+         It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Unable to add to cohort distribution")),
          It.IsAny<Exception>(),
          It.IsAny<Func<It.IsAnyType, Exception, string>>()));
     }

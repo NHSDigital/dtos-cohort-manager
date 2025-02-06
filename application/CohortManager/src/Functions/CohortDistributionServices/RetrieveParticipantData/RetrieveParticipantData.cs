@@ -55,8 +55,8 @@ public class RetrieveParticipantData
 
         try
         {
-            var participantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber.ToString() == requestBody.NhsNumber &&
-                                                                            p.ScreeningId.ToString() == requestBody.ScreeningService);
+            var participantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == long.Parse(requestBody.NhsNumber) &&
+                                                                            p.ScreeningId == long.Parse(requestBody.ScreeningService));
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
 
             var demographicData = _createDemographicData.GetDemographicData(requestBody.NhsNumber);
