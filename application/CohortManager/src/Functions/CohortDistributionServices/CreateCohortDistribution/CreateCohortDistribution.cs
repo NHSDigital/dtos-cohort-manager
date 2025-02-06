@@ -18,7 +18,6 @@ public class CreateCohortDistribution
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
-    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
            ICallFunction callFunction,
@@ -32,7 +31,6 @@ public class CreateCohortDistribution
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
-        _participantManagementClient = participantManagementClient;
     }
 
     [Function(nameof(CreateCohortDistribution))]
@@ -53,8 +51,6 @@ public class CreateCohortDistribution
                 await HandleErrorResponseAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
-
-            _logger.LogInformation("Participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
 
             // Allocate service provider
             var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
@@ -108,7 +104,6 @@ public class CreateCohortDistribution
                 return;
             }
             _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
-            return;
         }
         catch (Exception ex)
         {

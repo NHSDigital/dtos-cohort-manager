@@ -54,27 +54,28 @@ public class UpdateParticipantDetails
             if (response.IsFatal)
             {
                 _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                System.Console.WriteLine("validation error - fatal");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
             if (response.CreatedException)
             {
                 _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                System.Console.WriteLine("validation error - not fatal");
                 reqParticipant.ExceptionFlag = "1";
             }
 
             var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)
-            {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message, ex);
+            System.Console.WriteLine(ex);
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }

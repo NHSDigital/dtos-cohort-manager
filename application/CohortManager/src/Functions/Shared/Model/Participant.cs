@@ -1,6 +1,8 @@
 namespace Model;
 
 using Model.Enums;
+using System;
+using System.Globalization;
 
 public class Participant
 {
@@ -111,19 +113,25 @@ public class Participant
 
     public ParticipantManagement ToParticipantManagement()
     {
+        // string format = "yyyy-MM-dd HH:mm:ss"; // Matches the exact format
+        // CultureInfo culture = CultureInfo.InvariantCulture;
+
         var participantManagement = new ParticipantManagement
         {
             ParticipantId = long.Parse(ParticipantId),
             ScreeningId = long.Parse(ScreeningId),
             NHSNumber = long.Parse(NhsNumber),
             RecordType = RecordType,
-            EligibilityFlag = short.Parse(EligibilityFlag),
+            EligibilityFlag = short.Parse(EligibilityFlag ?? "1"),
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = DateTime.Parse(ReasonForRemovalEffectiveFromDate),
+            ReasonForRemovalDate = string.IsNullOrWhiteSpace(ReasonForRemovalEffectiveFromDate) ?
+                                    null : DateTime.Parse(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = short.Parse(ExceptionFlag ?? "0"),
-            RecordInsertDateTime = DateTime.Parse(RecordInsertDateTime),
-            RecordUpdateDateTime = DateTime.Parse(RecordUpdateDateTime),
+            RecordInsertDateTime = string.IsNullOrWhiteSpace(RecordInsertDateTime)
+                                    ? null : DateTime.Parse(RecordInsertDateTime),
+            RecordUpdateDateTime = string.IsNullOrWhiteSpace(RecordUpdateDateTime)
+                                    ? null : DateTime.Parse(RecordUpdateDateTime),
         };
 
         return participantManagement;
