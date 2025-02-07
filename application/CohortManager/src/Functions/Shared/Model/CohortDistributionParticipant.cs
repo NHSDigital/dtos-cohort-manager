@@ -71,25 +71,30 @@ public class CohortDistributionParticipant
             AddressLine4 = AddressLine4,
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
-            UsualAddressFromDt = DateTime.TryParseExact(UsualAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var uaDate) ? uaDate : null,
-            DateOfDeath = DateTime.TryParse(DateOfDeath, null, out var dod) ? dod : null,
+            UsualAddressFromDt = ParseDateTime(UsualAddressEffectiveFromDate ?? ""),
+            DateOfDeath = ParseDateTime(DateOfDeath ?? ""),
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDt = DateTime.TryParseExact(TelephoneNumberEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var telDate) ? telDate : null,
+            TelephoneNumberHomeFromDt = ParseDateTime(TelephoneNumberEffectiveFromDate ?? ""),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDt = DateTime.TryParseExact(MobileNumberEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var mobDate) ? mobDate : null,
+            TelephoneNumberMobFromDt = ParseDateTime(MobileNumberEffectiveFromDate ?? ""),
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDt = DateTime.TryParseExact(EmailAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var emailDate) ? emailDate : null,
+            EmailAddressHomeFromDt = ParseDateTime(EmailAddressEffectiveFromDate ?? ""),
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = short.TryParse(IsInterpreterRequired, out var interpreter) ? interpreter : (short)0,
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = DateTime.TryParseExact(ReasonForRemovalEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var remDate) ? remDate : null,
+            ReasonForRemovalDate = ParseDateTime(ReasonForRemovalEffectiveFromDate ?? ""),
             IsExtracted = short.TryParse(Extracted, out var extracted) ? extracted : (short)0,
-            RecordInsertDateTime = DateTime.TryParseExact(RecordInsertDateTime, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var ridt) ? ridt : null,
-            RecordUpdateDateTime = DateTime.TryParseExact(RecordUpdateDateTime, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var rudt) ? rudt : null,
+            RecordInsertDateTime = ParseDateTime(RecordInsertDateTime ?? ""),
+            RecordUpdateDateTime = ParseDateTime(RecordUpdateDateTime ?? ""),
             CurrentPosting = CurrentPosting,
-            CurrentPostingFromDt = DateTime.TryParseExact(CurrentPostingEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var cpd) ? cpd : null,
+            CurrentPostingFromDt = ParseDateTime(CurrentPostingEffectiveFromDate ?? ""),
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
+    }
+
+    private DateTime? ParseDateTime(string dateTimeToParse)
+    {
+        return DateTime.TryParseExact(UsualAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
     }
 
     private Guid GetRequestId()
