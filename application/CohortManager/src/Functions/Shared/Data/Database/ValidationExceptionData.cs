@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
-
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
@@ -12,11 +11,8 @@ using Model.Enums;
 public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly ILogger<ValidationExceptionData> _logger;
-
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
-
     private readonly IDataServiceClient<ParticipantDemographic> _demographicDataServiceClient;
-
     private readonly IDataServiceClient<GPPractice> _gpPracticeDataServiceClient;
 
     public ValidationExceptionData(
@@ -26,43 +22,45 @@ public class ValidationExceptionData : IValidationExceptionData
         IDataServiceClient<GPPractice> gpPracticeDataServiceClient
     )
     {
-
         _logger = logger;
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
         _demographicDataServiceClient = demographicDataServiceClient;
         _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
     {
-        IEnumerable<ExceptionManagement?> exceptions;
-        // we do  this check so that we only call the database when it is needed
-        if (!todayOnly)
-        {
-            // get the exceptions from the list of all exceptions where the date created is today and no greater than today
-            exceptions = await _validationExceptionDataServiceClient.GetAll();
-        }
-        else
-        {
-            exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated >= DateTime.Today && x.DateCreated < DateTime.Today.AddDays(1));
-        }
-        var validationResult = exceptions.ToList();
+        var exceptions = todayOnly
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated >= DateTime.Today && x.DateCreated < DateTime.Today.AddDays(1))
+            : await _validationExceptionDataServiceClient.GetAll();
 
-        return validationResult.Select(x => x.ToValidationException())
-        .OrderBy(x => x.DateCreated).ToList();
+        return exceptions.Select(s => s.ToValidationException()).OrderBy(o => GetPropertyValue(o, orderByProperty)).ToList();
     }
 
-    public async Task<ValidationException?> GetExceptionById(int exceptionId)
+    private static string? GetPropertyValue(ValidationException exception, ExceptionSort? orderByProperty)
+    {
+        var property = orderByProperty switch
+        {
+            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
+            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
+            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
+            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
+            _ => nameof(ValidationException.DateCreated)
+        };
+
+        return exception.GetType().GetProperty(property)?.GetValue(exception)?.ToString();
+    }
+
+    public async Task<ValidationException> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
 
         long nhsNumber;
 
-        if(!long.TryParse(exception.NhsNumber, out nhsNumber))
+        if (!long.TryParse(exception.NhsNumber, out nhsNumber))
         {
             throw new FormatException("Unable to parse NHS Number");
         }
-
 
         var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
         var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
@@ -109,7 +107,7 @@ public class ValidationExceptionData : IValidationExceptionData
             GivenName = participantDemographic.GivenName,
             FamilyName = participantDemographic.FamilyName,
             DateOfBirth = participantDemographic.DateOfBirth,
-            Gender = System.Enum.TryParse(participantDemographic.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
+            Gender = Enum.TryParse(participantDemographic.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
             ParticipantAddressLine1 = participantDemographic.AddressLine1,
             ParticipantAddressLine2 = participantDemographic.AddressLine2,
             ParticipantAddressLine3 = participantDemographic.AddressLine3,
@@ -149,4 +147,6 @@ public class ValidationExceptionData : IValidationExceptionData
         // we throw here to stop processing as the date should never be null
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
+
+
 }
