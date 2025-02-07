@@ -18,6 +18,7 @@ using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using RulesEngine.Actions;
+using DataServices.Client;
 
 public class TransformDataService
 {
@@ -26,12 +27,14 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
+    private readonly IDataServiceClient<CohortDistribution> _CohortDistributionClient;
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         IBsTransformationLookups transformationLookups,
-        ITransformReasonForRemoval transformReasonForRemoval
+        ITransformReasonForRemoval transformReasonForRemoval,
+        IDataServiceClient<CohortDistribution> cohortDistributionClient
     )
     {
         _createResponse = createResponse;
@@ -39,6 +42,7 @@ public class TransformDataService
         _logger = logger;
         _transformationLookups = transformationLookups;
         _transformReasonForRemoval = transformReasonForRemoval;
+        _CohortDistributionClient = cohortDistributionClient;
     }
 
     [Function("TransformDataService")]
@@ -65,6 +69,15 @@ public class TransformDataService
 
         try
         {
+            if (!long.TryParse(participant.NhsNumber, out long nhsNumberLong))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS Number couldn't be parsed to long");
+            }
+
+            var existingParticipantsList = await _CohortDistributionClient.GetByFilter(x => x.NHSNumber == nhsNumberLong);
+
+            var lastParticipant = existingParticipantsList.OrderByDescending(x => x.CohortDistributionId).FirstOrDefault();
+
             // Character transformation
             var transformString = new TransformString();
             participant = await transformString.TransformStringFields(participant);
@@ -79,7 +92,7 @@ public class TransformDataService
             if (participant.NamePrefix != null)
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
-            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant);
+            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant,lastParticipant);
 
             var response = JsonSerializer.Serialize(participant);
 

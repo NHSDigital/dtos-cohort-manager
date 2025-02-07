@@ -46,7 +46,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var jsonString = await GetJsonStringByFilter(predicate);
         if(string.IsNullOrEmpty(jsonString))
         {
-            return null;
+            return [];
         }
         IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
         return result;

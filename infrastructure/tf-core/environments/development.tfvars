@@ -598,6 +598,10 @@ function_apps = {
           env_var_name     = "BsSelectGpPracticeUrl"
           function_app_key = "BsSelectGpPracticeDataService"
         },
+        {
+          env_var_name     = "CohortDistributionDataServiceUrl"
+          function_app_key = "CohortDistributionDataService"
+        }
       ]
     }
 
