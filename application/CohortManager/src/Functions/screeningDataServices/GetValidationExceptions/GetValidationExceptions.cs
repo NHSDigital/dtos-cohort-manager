@@ -48,7 +48,7 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "today");
+        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
         var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
 
         try
