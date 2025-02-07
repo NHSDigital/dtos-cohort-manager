@@ -38,7 +38,7 @@ public class RetrieveParticipantDataTests
         _requestBody = new RetrieveParticipantRequestBody()
         {
             NhsNumber = "1234567890",
-            ScreeningService = "BSS"
+            ScreeningService = "1"
         };
         _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
