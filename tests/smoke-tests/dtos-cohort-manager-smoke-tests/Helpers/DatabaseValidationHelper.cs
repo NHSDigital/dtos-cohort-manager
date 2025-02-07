@@ -2,6 +2,8 @@ using ChoETL;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Azure.Identity;
+using Azure.Core;
 
 namespace dtos_cohort_manager_specflow.Helpers;
 
