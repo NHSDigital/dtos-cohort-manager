@@ -35,23 +35,17 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<IEnumerable<TEntity>> GetAll()
     {
         var jsonString = await _callFunction.SendGet(_baseUrl);
-
         if (string.IsNullOrEmpty(jsonString)) return [];
+
         return JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
     }
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
-
-
         var jsonString = await GetJsonStringByFilter(predicate);
-        if (string.IsNullOrEmpty(jsonString))
-        {
-            return null;
-        }
-        IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
-        return result;
+        if (string.IsNullOrEmpty(jsonString)) return [];
 
+        return JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
     }
 
     public virtual async Task<TEntity> GetSingle(string id)

@@ -31,7 +31,7 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
     {
         var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated >= DateTime.Today && x.DateCreated < DateTime.Today.AddDays(1))
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
             : await _validationExceptionDataServiceClient.GetAll();
 
         return exceptions.Select(s => s.ToValidationException()).OrderBy(o => GetPropertyValue(o, orderByProperty)).ToList();
