@@ -19,15 +19,13 @@ public class AddCohortDistributionDataFunction
 {
     private readonly ILogger<AddCohortDistributionDataFunction> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
 
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
 
-    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
+    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
     {
         _logger = logger;
-        _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _cohortDistributionDataService = cohortDistributionDataService;

@@ -13,14 +13,12 @@ using Model.Enums;
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
     private readonly IDbConnection _dbConnection;
-    private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateCohortDistributionData> _logger;
 
-    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger)
+    public CreateCohortDistributionData(IDbConnection IdbConnection, ILogger<CreateCohortDistributionData> logger)
     {
         _dbConnection = IdbConnection;
-        _databaseHelper = databaseHelper;
         _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }

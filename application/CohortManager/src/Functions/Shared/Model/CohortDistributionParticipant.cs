@@ -52,11 +52,11 @@ public class CohortDistributionParticipant
     {
         return new CohortDistribution
         {
-            RequestId = Guid.TryParse(RequestId, out var requestId) ? requestId : Guid.Empty,
+            RequestId = GetRequestId(),
             NHSNumber = long.Parse(NhsNumber),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
             PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
-            PrimaryCareProviderDate = DateTime.TryParse(PrimaryCareProviderEffectiveFromDate, out var pcpDate) ? pcpDate : null,
+            PrimaryCareProviderDate = DateTime.TryParse(PrimaryCareProviderEffectiveFromDate, null, out var pcpDate) ? pcpDate : null,
             NamePrefix = NamePrefix,
             GivenName = FirstName,
             OtherGivenName = OtherGivenNames,
@@ -70,24 +70,33 @@ public class CohortDistributionParticipant
             AddressLine4 = AddressLine4,
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
-            UsualAddressFromDt = DateTime.TryParse(UsualAddressEffectiveFromDate, out var uaDate) ? uaDate : null,
-            DateOfDeath = DateTime.TryParse(DateOfDeath, out var dod) ? dod : null,
+            UsualAddressFromDt = DateTime.TryParse(UsualAddressEffectiveFromDate, null, out var uaDate) ? uaDate : null,
+            DateOfDeath = DateTime.TryParse(DateOfDeath, null, out var dod) ? dod : null,
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDt = DateTime.TryParse(TelephoneNumberEffectiveFromDate, out var telDate) ? telDate : null,
+            TelephoneNumberHomeFromDt = DateTime.TryParse(TelephoneNumberEffectiveFromDate, null, out var telDate) ? telDate : null,
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDt = DateTime.TryParse(MobileNumberEffectiveFromDate, out var mobDate) ? mobDate : null,
+            TelephoneNumberMobFromDt = DateTime.TryParse(MobileNumberEffectiveFromDate, null, out var mobDate) ? mobDate : null,
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDt = DateTime.TryParse(EmailAddressEffectiveFromDate, out var emailDate) ? emailDate : null,
+            EmailAddressHomeFromDt = DateTime.TryParse(EmailAddressEffectiveFromDate, null, out var emailDate) ? emailDate : null,
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = short.TryParse(IsInterpreterRequired, out var interpreter) ? interpreter : (short)0,
             ReasonForRemoval = ReasonForRemoval,
             ReasonForRemovalDate = DateTime.TryParse(ReasonForRemovalEffectiveFromDate, out var remDate) ? remDate : null,
             IsExtracted = short.TryParse(Extracted, out var extracted) ? extracted : (short)0,
-            RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, out var ridt) ? ridt : null,
-            RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, out var rudt) ? rudt : null,
+            RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, null, out var ridt) ? ridt : null,
+            RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, null, out var rudt) ? rudt : null,
             CurrentPosting = CurrentPosting,
-            CurrentPostingFromDt = DateTime.TryParse(CurrentPostingEffectiveFromDate, out var cpd) ? cpd : null,
+            CurrentPostingFromDt = DateTime.TryParse(CurrentPostingEffectiveFromDate, null, out var cpd) ? cpd : null,
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
+    }
+
+    private Guid GetRequestId()
+    {
+        if (Guid.TryParse(RequestId, out var requestId))
+        {
+            return requestId;
+        }
+        return Guid.Empty;
     }
 }
