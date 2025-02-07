@@ -42,6 +42,7 @@ public class CohortDistributionParticipant
     public string? ScreeningServiceId { get; set; }
     public string? ScreeningName { get; set; }
     public string? EligibilityFlag { get; set; }
+    public short? ExceptionFlag { get; set; }
     public string? CurrentPosting { get; set; }
     public string? CurrentPostingEffectiveFromDate { get; set; }
     public string? ParticipantId { get; set; }
