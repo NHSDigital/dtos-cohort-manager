@@ -158,7 +158,7 @@ public static class DatabaseValidationHelper
         ValidateTableName(tableName);
 
         int retryCount = 0;
-        const int maxRetries = 5;
+        const int maxRetries = 8;
         TimeSpan delay = TimeSpan.FromSeconds(3); // Initial delay
 
         while (retryCount < maxRetries)
