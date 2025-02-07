@@ -189,10 +189,6 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -553,8 +549,8 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
+          env_var_name     = "DemographicDataServiceURI"
+          function_app_key = "DemographicDataService"
         }
       ]
     }
@@ -975,7 +971,6 @@ function_apps = {
         }
       ]
     }
-
   }
 }
 

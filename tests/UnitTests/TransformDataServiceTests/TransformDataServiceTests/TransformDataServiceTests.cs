@@ -419,11 +419,16 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields()
+    [DataRow("G82650", "1", Actions.New)]
+    [DataRow("G82650", "1", Actions.Amended)]
+    [DataRow("", "0", Actions.Removed)]
+    public async Task Run_InvalidParticipantHasPrimaryCareProvider_TransformFields(string primaryCareProvider, string invalidFlag, string recordType)
     {
         // Arrange
-        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+        _requestBody.Participant.InvalidFlag = invalidFlag;
+        _requestBody.Participant.RecordType = recordType;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
