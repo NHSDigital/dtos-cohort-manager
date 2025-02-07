@@ -2,7 +2,6 @@ namespace Model;
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Security.Cryptography;
 
 public class ExceptionManagement
 {
@@ -20,10 +19,10 @@ public class ExceptionManagement
     public string? NhsNumber { get; set; }
 
     [Column("DATE_CREATED", TypeName = "datetime")]
-    public DateTime DateCreated { get; set; }
+    public DateTime? DateCreated { get; set; }
 
     [Column("DATE_RESOLVED", TypeName = "datetime")]
-    public DateTime DateResolved { get; set; }
+    public DateTime? DateResolved { get; set; }
 
     [Column("RULE_ID")]
     public int? RuleId { get; set; }
@@ -42,7 +41,7 @@ public class ExceptionManagement
     public string? ScreeningName { get; set; }
 
     [Column("EXCEPTION_DATE", TypeName = "datetime")]
-    public DateTime ExceptionDate { get; set; }
+    public DateTime? ExceptionDate { get; set; }
 
     [MaxLength(100)]
     [Column("COHORT_NAME")]

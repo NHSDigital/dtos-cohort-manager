@@ -99,7 +99,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         if (exception == null || participantDemographic == null || gPPractice == null)
         {
-            _logger.LogWarning("A object was returned from the database for exception. exception {exception}, participantDemographic {participantDemographic}, gPPractice {gPPractice}", exception, participantDemographic, gPPractice);
+            _logger.LogWarning("A object was returned from the database for exception. exception {Exception}, participantDemographic {ParticipantDemographic}, gPPractice {GPPractice}", exception, participantDemographic, gPPractice);
             return null;
         }
         exception.ExceptionDetails = new ExceptionDetails
