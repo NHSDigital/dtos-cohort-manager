@@ -7,7 +7,6 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
-using NHS.CohortManager.CohortDistribution;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
@@ -125,7 +124,7 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
         }
-        
+
         return exception;
     }
 
