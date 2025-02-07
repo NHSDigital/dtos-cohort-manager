@@ -67,9 +67,7 @@ public class ExceptionManagement
             ExceptionDate = ExceptionDate,
             CohortName = CohortName,
             Fatal = IsFatal
-
         };
-
     }
 
     public ExceptionManagement FromValidationException(ValidationException validationException)

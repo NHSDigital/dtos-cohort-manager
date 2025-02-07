@@ -92,35 +92,39 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
     {
-        if (exception == null || participantDemographic == null || gPPractice == null)
+        if (exception == null)
         {
-            _logger.LogWarning("A object was returned from the database for exception. exception {Exception}, participantDemographic {ParticipantDemographic}, gPPractice {GPPractice}", exception, participantDemographic, gPPractice);
+            _logger.LogWarning("Exception not found");
             return null;
         }
         exception.ExceptionDetails = new ExceptionDetails
         {
-            GivenName = participantDemographic.GivenName,
-            FamilyName = participantDemographic.FamilyName,
-            DateOfBirth = participantDemographic.DateOfBirth,
-            Gender = Enum.TryParse(participantDemographic.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
-            ParticipantAddressLine1 = participantDemographic.AddressLine1,
-            ParticipantAddressLine2 = participantDemographic.AddressLine2,
-            ParticipantAddressLine3 = participantDemographic.AddressLine3,
-            ParticipantAddressLine4 = participantDemographic.AddressLine4,
-            ParticipantAddressLine5 = participantDemographic.AddressLine5,
-            ParticipantPostCode = participantDemographic.PostCode,
-            TelephoneNumberHome = participantDemographic.TelephoneNumberHome,
-            EmailAddressHome = participantDemographic.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic.PrimaryCareProvider,
-            GpPracticeCode = gPPractice.GPPracticeCode,
-            GpAddressLine1 = gPPractice.AddressLine1,
-            GpAddressLine2 = gPPractice.AddressLine2,
-            GpAddressLine3 = gPPractice.AddressLine3,
-            GpAddressLine4 = gPPractice.AddressLine4,
-            GpAddressLine5 = gPPractice.AddressLine5,
-            GpPostCode = gPPractice.Postcode
-
+            GivenName = participantDemographic?.GivenName,
+            FamilyName = participantDemographic?.FamilyName,
+            DateOfBirth = participantDemographic?.DateOfBirth,
+            Gender = Enum.TryParse(participantDemographic?.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
+            ParticipantAddressLine1 = participantDemographic?.AddressLine1,
+            ParticipantAddressLine2 = participantDemographic?.AddressLine2,
+            ParticipantAddressLine3 = participantDemographic?.AddressLine3,
+            ParticipantAddressLine4 = participantDemographic?.AddressLine4,
+            ParticipantAddressLine5 = participantDemographic?.AddressLine5,
+            ParticipantPostCode = participantDemographic?.PostCode,
+            TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
+            EmailAddressHome = participantDemographic?.EmailAddressHome,
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
+            GpPracticeCode = gPPractice?.GPPracticeCode,
+            GpAddressLine1 = gPPractice?.AddressLine1,
+            GpAddressLine2 = gPPractice?.AddressLine2,
+            GpAddressLine3 = gPPractice?.AddressLine3,
+            GpAddressLine4 = gPPractice?.AddressLine4,
+            GpAddressLine5 = gPPractice?.AddressLine5,
+            GpPostCode = gPPractice?.Postcode
         };
+
+        if (participantDemographic == null || gPPractice == null)
+        {
+            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
+        }
         return exception;
     }
 
