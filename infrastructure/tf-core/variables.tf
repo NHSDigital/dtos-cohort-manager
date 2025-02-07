@@ -76,6 +76,12 @@ variable "features" {
   type        = map(bool)
 }
 
+variable "rbac_principal_name" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
 variable "regions" {
   type = map(object({
     address_space     = optional(string)

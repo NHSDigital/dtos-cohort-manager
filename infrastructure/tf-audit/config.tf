@@ -10,7 +10,6 @@ resource "azurerm_resource_group" "audit" {
 }
 
 # Add a role assignment to the audit resource group for each role defined in locals:
-# First create a map of all roles for all resource groups defined in var.regions:
 module "rbac_assignments" {
   for_each = length(var.rbac_principal_name) != 0 ? local.rbac_roles_resource_groups_map : {}
 
@@ -25,6 +24,7 @@ data "azuread_group" "rbac_principal" {
   display_name = var.rbac_principal_name
 }
 
+# First create a map of all roles for all resource groups defined in var.regions:
 locals {
   rbac_roles_resource_groups_flatlist = flatten([
     for region_key, region_val in var.regions : [
