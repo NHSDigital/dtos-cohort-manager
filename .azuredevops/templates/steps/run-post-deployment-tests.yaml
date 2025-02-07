@@ -24,11 +24,11 @@ steps:
       **/drop/*
     RemoveSourceFolder: false
 
-- task: FileTransform@2
+- task: FileTransform@1
   displayName: 'Transform Configuration Files'
   inputs:
     folderPath: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
-    enableXmlTransform: false
+    fileType: 'json'
     targetFiles: '*.json'
 
 - task: PowerShell@2
