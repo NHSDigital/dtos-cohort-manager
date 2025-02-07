@@ -38,19 +38,12 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionList = exceptions.Select(s => s.ToValidationException());
         var propertyName = GetPropertyName(orderByProperty);
 
-        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
-    }
-
-    private static string GetPropertyName(ExceptionSort? orderByProperty)
-    {
-        return orderByProperty switch
+        if (propertyName == nameof(ValidationException.DateCreated)) //WP - not a fan of this, but it works, dictionary and tuple were the alternative
         {
-            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
-            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
-            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
-            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
-            _ => nameof(ValidationException.DateCreated)
-        };
+            return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
+        }
+
+        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
     }
 
     public async Task<ValidationException> GetExceptionById(int exceptionId)
@@ -150,5 +143,16 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
+    private static string GetPropertyName(ExceptionSort? orderByProperty)
+    {
+        return orderByProperty switch
+        {
+            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
+            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
+            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
+            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
+            _ => nameof(ValidationException.DateCreated)
+        };
+    }
 
 }
