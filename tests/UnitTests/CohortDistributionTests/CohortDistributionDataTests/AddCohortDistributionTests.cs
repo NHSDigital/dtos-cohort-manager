@@ -83,37 +83,6 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public async Task InsertCohortDistributionData_ValidData_ReturnsSuccess()
-    {
-        // Arrange
-        var cohortDistributionParticipant = new CohortDistributionParticipant();
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
-
-        // Act
-        var result = await _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
-
-        // Assert
-        Assert.IsTrue(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task InsertCohortDistributionData_InvalidData_ReturnsFailure()
-    {
-        // Arrange
-        var cohortDistributionParticipant = new CohortDistributionParticipant();
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
-
-        // Act
-        var result = await _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
-
-        // Assert
-        Assert.IsFalse(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
-        _mockTransaction.Verify(t => t.Rollback(), Times.Once);
-    }
-
-    [TestMethod]
     public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
     {
         // Arrange

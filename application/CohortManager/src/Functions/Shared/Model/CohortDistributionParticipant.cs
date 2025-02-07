@@ -53,7 +53,7 @@ public class CohortDistributionParticipant
         return new CohortDistribution
         {
             RequestId = Guid.TryParse(RequestId, out var requestId) ? requestId : Guid.Empty,
-            NHSNumber = long.TryParse(NhsNumber, out var nhsNum) ? nhsNum : 0,
+            NHSNumber = long.Parse(NhsNumber),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
             PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
             PrimaryCareProviderDate = DateTime.TryParse(PrimaryCareProviderEffectiveFromDate, out var pcpDate) ? pcpDate : null,

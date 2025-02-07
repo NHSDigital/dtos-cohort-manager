@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,15 @@ public class AddCohortDistributionDataFunction
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
 
-    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
+
+    public AddCohortDistributionDataFunction(ILogger<AddCohortDistributionDataFunction> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
+        _cohortDistributionDataService = cohortDistributionDataService;
     }
 
     [Function("AddCohortDistributionData")]
@@ -43,7 +47,7 @@ public class AddCohortDistributionDataFunction
                 participantCsvRecord = JsonSerializer.Deserialize<CohortDistributionParticipant>(requestBody);
             }
 
-            var isAdded = await _createCohortDistributionData.InsertCohortDistributionData(participantCsvRecord);
+            var isAdded = await InsertCohortDistributionData(participantCsvRecord);
             if (isAdded)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -56,5 +60,13 @@ public class AddCohortDistributionDataFunction
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task<bool> InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
+    {
+        var cohortDistributionParticipantToAdd = cohortDistributionParticipant.ToCohortDistributionParticipant();
+        var isAdded = await _cohortDistributionDataService.Add(cohortDistributionParticipantToAdd);
+
+        return isAdded;
     }
 }

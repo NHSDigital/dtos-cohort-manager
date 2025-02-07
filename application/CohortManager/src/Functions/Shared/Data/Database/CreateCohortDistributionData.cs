@@ -17,24 +17,14 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     private readonly string _connectionString;
     private readonly ILogger<CreateCohortDistributionData> _logger;
 
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
-
-
-    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
+    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger)
     {
         _dbConnection = IdbConnection;
         _databaseHelper = databaseHelper;
         _logger = logger;
-        _cohortDistributionDataService = cohortDistributionDataService;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
-    public async Task<bool> InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
-    {
-        var cohortDistributionParticipantToAdd = cohortDistributionParticipant.ToCohortDistributionParticipant();
-        var isAdded = await _cohortDistributionDataService.Add(cohortDistributionParticipantToAdd);
 
-        return isAdded;
-    }
 
     public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipants(int rowCount)
     {
