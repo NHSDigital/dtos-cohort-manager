@@ -137,7 +137,7 @@ public class EndToEndFileUploadService
     public async Task VerifyNhsNumbersAsync(string tableName, List<string> nhsNumbers)
     {
         _logger.LogInformation("Validating NHS numbers in table {TableName}.", tableName);
-        await DatabaseValidationHelper.VerifyNhsNumbersAsync(_connectionString, tableName, nhsNumbers, _logger);
+        await DatabaseValidationHelper.VerifyNhsNumbersAsync(_connectionString, tableName, nhsNumbers, _logger,_managedIdentityClientId);
         _logger.LogInformation("Validation of NHS numbers completed successfully.");
     }
 
