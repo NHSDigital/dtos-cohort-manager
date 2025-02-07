@@ -82,6 +82,7 @@ public class CallFunction : ICallFunction
         catch (WebException wex)
         {
 
+
             _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),wex.Message);
             return await HandleWebException(wex);
         }
