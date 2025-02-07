@@ -6,14 +6,6 @@ parameters:
 
 steps:
 
-- task: Bash@3
-  displayName: 'Output Pipeline Variables for Debugging'
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Performing debugging steps"
-      # nslookup sqlsvr-cohman-dev-uks.database.windows.net 10.100.7.4
-
 - task: UseDotNet@2
   displayName: 'Use .NET 9 SDK'
   inputs:
@@ -31,13 +23,6 @@ steps:
       **/TestResults/*
       **/drop/*
     RemoveSourceFolder: false
-
-- task: Bash@3
-  displayName: 'Print appsettings.json before variable substitution'
-  inputs:
-    targetType: 'inline'
-    script: |
-      cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
 - task: FileTransform@1
   displayName: 'Transform Configuration Files'
@@ -74,13 +59,6 @@ steps:
 
       # Copy the files
       Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
-
-- task: Bash@3
-  displayName: 'Print appsettings.json after variable substitution'
-  inputs:
-    targetType: 'inline'
-    script: |
-      cat $(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings.json
 
 - task: PublishBuildArtifacts@1
   inputs:
