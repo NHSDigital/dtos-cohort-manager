@@ -37,7 +37,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionList = exceptions.Select(s => s.ToValidationException());
         var propertyName = GetPropertyName(orderByProperty);
 
-        if (propertyName == nameof(ValidationException.DateCreated)) 
+        if (propertyName == nameof(ValidationException.DateCreated))
         {
             return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
         }
@@ -48,6 +48,12 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<ValidationException> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+
+        if (exception == null)
+        {
+            _logger.LogInformation("Exception not found");
+            return null;
+        }
 
         long nhsNumber;
 
@@ -67,8 +73,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
         return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
     }
-
-    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
+s    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
     {
         var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
         if (exceptions == null)
@@ -93,9 +98,10 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         if (exception == null)
         {
-            _logger.LogWarning("Exception not found");
+            _logger.LogInformation("Exception not found");
             return null;
         }
+
         exception.ExceptionDetails = new ExceptionDetails
         {
             GivenName = participantDemographic?.GivenName,
