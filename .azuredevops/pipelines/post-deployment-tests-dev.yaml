@@ -38,7 +38,7 @@ stages:
       name: private-pool-dev-uks
     variables:
       AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.AzureWebJobsStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
+      AppSettings.caasFileStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
 
     steps:
