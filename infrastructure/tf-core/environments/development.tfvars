@@ -189,10 +189,6 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -408,6 +404,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -549,8 +549,8 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
+          env_var_name     = "DemographicDataServiceURI"
+          function_app_key = "DemographicDataService"
         }
       ]
     }
@@ -652,6 +652,10 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
@@ -671,6 +675,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         },
         {
           env_var_name     = "DemographicDataFunctionURL"
@@ -967,7 +975,6 @@ function_apps = {
         }
       ]
     }
-
   }
 }
 
