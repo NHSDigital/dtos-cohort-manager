@@ -18,7 +18,6 @@ public class UpdateParticipantTests
     private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
     private readonly Mock<ILogger<CohortDistributionHandler>> _cohortDistributionLogger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly CreateResponse _createResponse = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<HttpWebResponse> _webResponseSuccess = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
@@ -62,14 +61,14 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantValidationFails_ReturnBadRequest()
+    public async Task Run_ParticipantValidationFails_LogsExceptionRaised()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         _request = _setupRequest.Setup(json);
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _webResponseSuccess.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -100,15 +99,23 @@ public class UpdateParticipantTests
         })));
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Information,
+                0,
+                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("The participant has been updated but a validation Exception was raised")),
+                null,
+                (Func<object, Exception, string>)It.IsAny<object>()
+            ));
+
         _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Once());
     }
 
     [TestMethod]
-    public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ReturnOk()
+    public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ParticipantUpdated()
     {
         // Arrange
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -145,13 +152,13 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
 
         _logger.Verify(log =>
             log.Log(
@@ -164,11 +171,11 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantUpdateFails_ReturnBadRequest()
+    public async Task Run_ParticipantUpdateFails_LogsParticipantFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
-        
+
         _request = _setupRequest.Setup(json);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -187,7 +194,7 @@ public class UpdateParticipantTests
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
+            .ThrowsAsync(new Exception("some new exception"));
 
 
 
@@ -201,17 +208,24 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _logger.Verify(log =>
+            log.Log(
+                LogLevel.Error,
+                0,
+                It.IsAny<It.IsAnyType>(),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Update participant failed");
     }
 
     [TestMethod]
-    public async Task Run_ParticipantUpdateThrowsException_ReturnInternalServerError()
+    public async Task Run_ParticipantUpdateThrowsException_ParticipantFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -235,13 +249,13 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
@@ -253,7 +267,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_DemographicDataIsNull_ReturnBadRequest()
+    public async Task Run_DemographicDataIsNull_DemographicFunctionFailed()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -276,12 +290,11 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
         //Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _logger.Verify(log =>
             log.Log(
                 LogLevel.Information,
@@ -293,7 +306,7 @@ public class UpdateParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantEligibleAndUpdateSuccessful_ReturnOk()
+    public async Task Run_ParticipantEligibleAndUpdateSuccessful_ParticipantUpdated()
     {
         _participantCsvRecord.Participant.NhsNumber = "9727890016";
         _participantCsvRecord.Participant.ScreeningName = "BSS";
@@ -331,13 +344,12 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _createResponse, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        await sut.Run(json);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
         _logger.Verify(log =>
             log.Log(

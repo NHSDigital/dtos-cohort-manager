@@ -1,13 +1,10 @@
-
-using Common;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Data.Database;
-using DataServices.Client;
-using Model;
+using DataServices.Core;
+using DataServices.Database;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler<DataServicesContext>()
     .Build();
 
 await host.RunAsync();

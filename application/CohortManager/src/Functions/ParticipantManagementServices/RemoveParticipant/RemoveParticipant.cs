@@ -14,90 +14,95 @@ public class RemoveParticipant
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
-    private readonly ICheckDemographic _checkDemographic;
-    private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
-
-    public RemoveParticipant(ILogger<RemoveParticipant> logger, ICreateResponse createResponse, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException)
+    private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    public RemoveParticipant(
+        ILogger<RemoveParticipant> logger,
+        ICreateResponse createResponse,
+        ICallFunction callFunction,
+        IExceptionHandler handleException,
+        ICohortDistributionHandler cohortDistributionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
-        _checkDemographic = checkDemographic;
-        _createParticipant = createParticipant;
         _handleException = handleException;
+        _cohortDistributionHandler = cohortDistributionHandler;
     }
 
     [Function("RemoveParticipant")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        BasicParticipantCsvRecord basicParticipantCsvRecord = null;
+        BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
         try
         {
-            _logger.LogInformation("C# RemoveParticipant called.");
-            HttpWebResponse createResponse;
-
-            string postData = "";
-            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
-                postData = await reader.ReadToEndAsync();
+                var requestBodyJson = await reader.ReadToEndAsync();
+                basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(requestBodyJson);
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
 
-            basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(postData);
-
-            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
-            if (demographicData == null)
-            {
-                _logger.LogInformation("demographic function failed");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-            }
-
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+        try
+        {
             var participantCsvRecord = new ParticipantCsvRecord
             {
-                Participant = participant,
+                Participant = basicParticipantCsvRecord.participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
-            var json = JsonSerializer.Serialize(participantCsvRecord);
 
-            createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
+            var ineligibleResponse = await MarkParticipantAsIneligible(participantCsvRecord);
 
-            if (createResponse.StatusCode != HttpStatusCode.OK)
+            if (!ineligibleResponse)
             {
+                _logger.LogInformation("MarkParticipantAsIneligible request has failed.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            if (!await RemoveParticipantFromCohort(participant.NhsNumber))
+            var cohortDistributionResponse = await SendToCohortDistribution(basicParticipantCsvRecord.participant, participantCsvRecord.FileName);
+
+            if (!cohortDistributionResponse)
             {
+                _logger.LogInformation("SendToCohortDistribution request has failed.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            _logger.LogInformation("participant deleted");
+            _logger.LogInformation("Participant successfully removed.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
 
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord!.Participant, basicParticipantCsvRecord.FileName);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            _logger.LogError(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, basicParticipantCsvRecord.FileName);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
-    private async Task<bool> RemoveParticipantFromCohort(string nhsNumber)
+    private async Task<bool> SendToCohortDistribution(Participant participant, string fileName)
     {
-        var parameters = new Dictionary<string, string>
+        if (!await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, fileName, participant))
         {
-            { "NhsNumber", nhsNumber }
-        };
-        var result = await _callFunction.SendGet(Environment.GetEnvironmentVariable("RemoveCohortDistributionURL"), parameters);
-        if (result == null)
-        {
-            _logger.LogInformation($"Participant was not removed from Cohort Distribution");
             return false;
         }
-        _logger.LogWarning("Participant was removed from Cohort Distribution");
         return true;
+    }
 
+    private async Task<bool> MarkParticipantAsIneligible(ParticipantCsvRecord participantCsvRecord)
+    {
+        var json = JsonSerializer.Serialize(participantCsvRecord);
+        var ineligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
+
+        if (ineligibleResponse.StatusCode != HttpStatusCode.OK)
+        {
+            return false;
+        }
+        return true;
     }
 }

@@ -66,6 +66,10 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
                 _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
                 return null;
             }
+            if(jsonString == "No Data Found")
+            {
+                return null;
+            }
 
             TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
             return result;

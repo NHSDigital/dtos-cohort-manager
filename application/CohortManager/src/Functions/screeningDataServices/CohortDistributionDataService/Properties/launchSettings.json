@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "screeningDataServices": {
+    "BsSelectGpPractice": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7196",
+      "commandLineArgs": "--port 7084",
       "launchBrowser": false
     }
   }
