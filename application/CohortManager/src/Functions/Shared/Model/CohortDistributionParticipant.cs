@@ -94,7 +94,7 @@ public class CohortDistributionParticipant
 
     private DateTime? ParseDateTime(string dateTimeToParse)
     {
-        return DateTime.TryParseExact(UsualAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
+        return DateTime.TryParseExact(dateTimeToParse, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
     }
 
     private Guid GetRequestId()
