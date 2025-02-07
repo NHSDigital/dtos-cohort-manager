@@ -15,11 +15,10 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
     private List<CohortDistributionParticipant> _cohortDistributionList;
     public AddCohortDistributionTests() : base((conn, logger, transaction, command, response) =>
-        new CreateCohortDistributionData(conn, _databaseHelperMock.Object, logger))
+        new CreateCohortDistributionData(conn, logger))
     {
         _createCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
-            _databaseHelperMock.Object,
             _loggerMock.Object);
 
 
