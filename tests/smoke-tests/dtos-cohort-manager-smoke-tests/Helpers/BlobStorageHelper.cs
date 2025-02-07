@@ -14,22 +14,28 @@ public class BlobStorageHelper
         _logger = logger;
     }
 
-    public async Task UploadFileToBlobStorageAsync(string filePath, string blobContainerName)
+    public async Task UploadFileToBlobStorageAsync(string filePath, string blobContainerName, string managedIdentityClientId)
     {
-        if (!File.Exists(filePath))
+    if (!File.Exists(filePath))
+    {
+        _logger.LogError($"File not found at {filePath}");
+        return;
+    }
+
+    _logger.LogInformation("Uploading file {FilePath} to blob storage", filePath);
+
+    var credential = new DefaultAzureCredential(
+        new DefaultAzureCredentialOptions
         {
-            _logger.LogError($"File not found at {filePath}");
-            return;
-        }
+            ManagedIdentityClientId = managedIdentityClientId
+        });
 
-        _logger.LogInformation("Uploading file {FilePath} to blob storage", filePath);
+    var blobContainerClient = new BlobContainerClient(new Uri($"https://{_storageAccountName}.blob.core.windows.net/{blobContainerName}"), credential);
+    await blobContainerClient.CreateIfNotExistsAsync();
 
-        var blobContainerClient = _blobServiceClient.GetBlobContainerClient(blobContainerName);
-        await blobContainerClient.CreateIfNotExistsAsync();
+    var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(filePath));
+    await blobClient.UploadAsync(File.OpenRead(filePath), true);
 
-        var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(filePath));
-        await blobClient.UploadAsync(File.OpenRead(filePath), true);
-
-        _logger.LogInformation("File uploaded successfully");
+    _logger.LogInformation("File uploaded successfully");
     }
 }
