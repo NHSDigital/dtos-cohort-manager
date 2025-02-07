@@ -7,6 +7,7 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
+using NHS.CohortManager.CohortDistribution;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
@@ -34,12 +35,15 @@ public class ValidationExceptionData : IValidationExceptionData
             ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
             : await _validationExceptionDataServiceClient.GetAll();
 
-        return exceptions.Select(s => s.ToValidationException()).OrderBy(o => GetPropertyValue(o, orderByProperty)).ToList();
+        var exceptionList = exceptions.Select(s => s.ToValidationException());
+        var propertyName = GetPropertyName(orderByProperty);
+
+        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
     }
 
-    private static string? GetPropertyValue(ValidationException exception, ExceptionSort? orderByProperty)
+    private static string GetPropertyName(ExceptionSort? orderByProperty)
     {
-        var property = orderByProperty switch
+        return orderByProperty switch
         {
             ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
             ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
@@ -47,8 +51,6 @@ public class ValidationExceptionData : IValidationExceptionData
             ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
             _ => nameof(ValidationException.DateCreated)
         };
-
-        return exception.GetType().GetProperty(property)?.GetValue(exception)?.ToString();
     }
 
     public async Task<ValidationException> GetExceptionById(int exceptionId)
