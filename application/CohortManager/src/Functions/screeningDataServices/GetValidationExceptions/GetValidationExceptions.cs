@@ -48,7 +48,7 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var todayOnly = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
+        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "today");
         var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
 
         try
@@ -58,7 +58,7 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptions = await _validationData.GetAllExceptions(todayOnly, orderByProperty);
+            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty);
 
             if (exceptions.Count == 0)
             {
