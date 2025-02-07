@@ -73,7 +73,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
         return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
     }
-s    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
+    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
     {
         var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
         if (exceptions == null)
