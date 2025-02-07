@@ -63,8 +63,8 @@ public class CreateCohortDistributionTests
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
             .ReturnsAsync(_cohortDistributionParticipant);
 
-        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object, _exceptionHandler.Object,
-                                            _participantManagementClientMock.Object, _azureQueueStorageHelper.Object);
+        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
+                                            _exceptionHandler.Object, _azureQueueStorageHelper.Object);
 
     }
 
