@@ -1,5 +1,6 @@
 namespace Model;
 
+using System.Globalization;
 using Enums;
 
 public class CohortDistributionParticipant
@@ -56,7 +57,7 @@ public class CohortDistributionParticipant
             NHSNumber = long.Parse(NhsNumber),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
             PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
-            PrimaryCareProviderDate = DateTime.TryParse(PrimaryCareProviderEffectiveFromDate, null, out var pcpDate) ? pcpDate : null,
+            PrimaryCareProviderDate = DateTime.TryParseExact(PrimaryCareProviderEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var pcpDate) ? pcpDate : null,
             NamePrefix = NamePrefix,
             GivenName = FirstName,
             OtherGivenName = OtherGivenNames,
@@ -70,23 +71,23 @@ public class CohortDistributionParticipant
             AddressLine4 = AddressLine4,
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
-            UsualAddressFromDt = DateTime.TryParse(UsualAddressEffectiveFromDate, null, out var uaDate) ? uaDate : null,
+            UsualAddressFromDt = DateTime.TryParseExact(UsualAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var uaDate) ? uaDate : null,
             DateOfDeath = DateTime.TryParse(DateOfDeath, null, out var dod) ? dod : null,
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDt = DateTime.TryParse(TelephoneNumberEffectiveFromDate, null, out var telDate) ? telDate : null,
+            TelephoneNumberHomeFromDt = DateTime.TryParseExact(TelephoneNumberEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var telDate) ? telDate : null,
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDt = DateTime.TryParse(MobileNumberEffectiveFromDate, null, out var mobDate) ? mobDate : null,
+            TelephoneNumberMobFromDt = DateTime.TryParseExact(MobileNumberEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var mobDate) ? mobDate : null,
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDt = DateTime.TryParse(EmailAddressEffectiveFromDate, null, out var emailDate) ? emailDate : null,
+            EmailAddressHomeFromDt = DateTime.TryParseExact(EmailAddressEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var emailDate) ? emailDate : null,
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = short.TryParse(IsInterpreterRequired, out var interpreter) ? interpreter : (short)0,
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = DateTime.TryParse(ReasonForRemovalEffectiveFromDate, out var remDate) ? remDate : null,
+            ReasonForRemovalDate = DateTime.TryParseExact(ReasonForRemovalEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var remDate) ? remDate : null,
             IsExtracted = short.TryParse(Extracted, out var extracted) ? extracted : (short)0,
-            RecordInsertDateTime = DateTime.TryParse(RecordInsertDateTime, null, out var ridt) ? ridt : null,
-            RecordUpdateDateTime = DateTime.TryParse(RecordUpdateDateTime, null, out var rudt) ? rudt : null,
+            RecordInsertDateTime = DateTime.TryParseExact(RecordInsertDateTime, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var ridt) ? ridt : null,
+            RecordUpdateDateTime = DateTime.TryParseExact(RecordUpdateDateTime, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var rudt) ? rudt : null,
             CurrentPosting = CurrentPosting,
-            CurrentPostingFromDt = DateTime.TryParse(CurrentPostingEffectiveFromDate, null, out var cpd) ? cpd : null,
+            CurrentPostingFromDt = DateTime.TryParseExact(CurrentPostingEffectiveFromDate, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var cpd) ? cpd : null,
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
     }
