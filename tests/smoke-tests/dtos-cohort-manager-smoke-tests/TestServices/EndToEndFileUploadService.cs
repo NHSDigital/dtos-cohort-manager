@@ -96,7 +96,7 @@ public class EndToEndFileUploadService
             try
             {
                 _logger.LogInformation("Uploading file {FilePath} to Blob Storage (Attempt {AttemptNumber}).", filePath, retryCount + 1);
-                await _blobStorageHelper.UploadFileToBlobStorageAsync(filePath, _appSettings.BlobContainerName);
+                await _blobStorageHelper.UploadFileToBlobStorageAsync(filePath, _appSettings.BlobContainerName, _managedIdentityClientId);
                 _logger.LogInformation("File uploaded successfully.");
                 return; // Exit the loop if successful
             }
