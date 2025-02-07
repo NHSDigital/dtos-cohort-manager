@@ -37,7 +37,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionList = exceptions.Select(s => s.ToValidationException());
         var propertyName = GetPropertyName(orderByProperty);
 
-        if (propertyName == nameof(ValidationException.DateCreated)) //WP - not a fan of this, but it works, dictionary and tuple were the alternative
+        if (propertyName == nameof(ValidationException.DateCreated)) 
         {
             return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
         }
