@@ -57,7 +57,7 @@ public class RetrieveParticipantData
         try
         {
             var longNhsNumber = long.Parse(requestBody.NhsNumber);
-            var longScreeningId = long.Parse(requestBody.ScreeningService)
+            var longScreeningId = long.Parse(requestBody.ScreeningService);
             var participantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == longNhsNumber &&
                                                                             p.ScreeningId == longScreeningId);
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
