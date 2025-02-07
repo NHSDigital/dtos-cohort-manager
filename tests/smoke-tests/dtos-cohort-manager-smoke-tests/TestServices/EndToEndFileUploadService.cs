@@ -146,7 +146,7 @@ public class EndToEndFileUploadService
         _logger.LogInformation("Validating NHS number count in table {TableName}.", tableName);
         Func<Task> act = async () =>
         {
-            var nhsNumberCount = await DatabaseValidationHelper.GetNhsNumberCount(_connectionString, tableName, nhsNumber, _logger);
+            var nhsNumberCount = await DatabaseValidationHelper.GetNhsNumberCount(_connectionString, tableName, nhsNumber, _logger, _managedIdentityClientId);
             nhsNumberCount.Should().Be(expectedCount);
         };
 
@@ -159,7 +159,7 @@ public class EndToEndFileUploadService
     {
         Func<Task> act = async () =>
         {
-            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_connectionString, tableName, nhsNumber,
+            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_connectionString, tableName, nhsNumber,_managedIdentityClientId
                 fieldName, expectedValue, _logger);
             result.Should().BeTrue();
         };
