@@ -23,7 +23,6 @@ public class CreateCohortDistribution
            ICallFunction callFunction,
            ICohortDistributionHelper CohortDistributionHelper,
            IExceptionHandler exceptionHandler,
-           IDataServiceClient<ParticipantManagement> participantManagementClient,
            IAzureQueueStorageHelper azureQueueStorageHelper)
     {
         _logger = logger;
