@@ -1,5 +1,6 @@
 namespace Model;
 
+using System.Globalization;
 using Enums;
 
 public class CohortDistributionParticipant
@@ -47,4 +48,62 @@ public class CohortDistributionParticipant
     public string? ParticipantId { get; set; }
     public string RecordType { get; set; }
     public string? InvalidFlag { get; set; }
+
+
+    public CohortDistribution ToCohortDistributionParticipant()
+    {
+        return new CohortDistribution
+        {
+            RequestId = GetRequestId(),
+            NHSNumber = long.Parse(NhsNumber),
+            SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
+            PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
+            PrimaryCareProviderDate = ParseDateTime(PrimaryCareProviderEffectiveFromDate ?? ""),
+            NamePrefix = NamePrefix,
+            GivenName = FirstName,
+            OtherGivenName = OtherGivenNames,
+            FamilyName = FamilyName,
+            PreviousFamilyName = PreviousFamilyName,
+            DateOfBirth = ParseDateTime(DateOfBirth ?? ""),
+            Gender = (short?)Gender ?? 0,
+            AddressLine1 = AddressLine1,
+            AddressLine2 = AddressLine2,
+            AddressLine3 = AddressLine3,
+            AddressLine4 = AddressLine4,
+            AddressLine5 = AddressLine5,
+            PostCode = Postcode,
+            UsualAddressFromDt = ParseDateTime(UsualAddressEffectiveFromDate ?? ""),
+            DateOfDeath = ParseDateTime(DateOfDeath ?? ""),
+            TelephoneNumberHome = TelephoneNumber,
+            TelephoneNumberHomeFromDt = ParseDateTime(TelephoneNumberEffectiveFromDate ?? ""),
+            TelephoneNumberMob = MobileNumber,
+            TelephoneNumberMobFromDt = ParseDateTime(MobileNumberEffectiveFromDate ?? ""),
+            EmailAddressHome = EmailAddress,
+            EmailAddressHomeFromDt = ParseDateTime(EmailAddressEffectiveFromDate ?? ""),
+            PreferredLanguage = PreferredLanguage,
+            InterpreterRequired = short.TryParse(IsInterpreterRequired, out var interpreter) ? interpreter : (short)0,
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = ParseDateTime(ReasonForRemovalEffectiveFromDate ?? ""),
+            IsExtracted = short.TryParse(Extracted, out var extracted) ? extracted : (short)0,
+            RecordInsertDateTime = ParseDateTime(RecordInsertDateTime ?? ""),
+            RecordUpdateDateTime = ParseDateTime(RecordUpdateDateTime ?? ""),
+            CurrentPosting = CurrentPosting,
+            CurrentPostingFromDt = ParseDateTime(CurrentPostingEffectiveFromDate ?? ""),
+            ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
+        };
+    }
+
+    private static DateTime? ParseDateTime(string dateTimeToParse)
+    {
+        return DateTime.TryParseExact(dateTimeToParse, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
+    }
+
+    private Guid GetRequestId()
+    {
+        if (Guid.TryParse(RequestId, out var requestId))
+        {
+            return requestId;
+        }
+        return Guid.Empty;
+    }
 }

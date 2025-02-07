@@ -54,12 +54,4 @@ public class AddBatchToQueue : IAddBatchToQueue
     {
         await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
-
-    private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)
-    {
-        var json = JsonSerializer.Serialize(ParticipantCsvRecord);
-        var bytes = Encoding.UTF8.GetBytes(json);
-
-        return Convert.ToBase64String(bytes);
-    }
 }
