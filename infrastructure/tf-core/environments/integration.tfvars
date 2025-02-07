@@ -196,6 +196,10 @@ function_apps = {
         {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
