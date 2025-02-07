@@ -130,12 +130,15 @@ public class RetrieveParticipantDataTests
 
         _participantManagementClientMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement {NHSNumber = 1234567890});
-         _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).Returns(Task.FromResult(JsonSerializer.Serialize(demographic))).Verifiable();
+            .ReturnsAsync(new ParticipantManagement {NHSNumber = 1234567890, ScreeningId = 1});
+         _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(JsonSerializer.Serialize(demographic))
+            .Verifiable();
 
         // Act
         var result = await _sut.RunAsync(_request.Object);
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        System.Console.WriteLine("response body: " + responseBody);
         var response = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
         // Assert

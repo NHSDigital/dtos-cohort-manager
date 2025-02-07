@@ -37,6 +37,7 @@ public class RetrieveParticipantData
     [Function("RetrieveParticipantData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
+        long? screeningIdLong;
         RetrieveParticipantRequestBody requestBody;
         var participant = new CohortDistributionParticipant();
         try
@@ -47,6 +48,12 @@ public class RetrieveParticipantData
                 requestBodyJson = await reader.ReadToEndAsync();
             }
             requestBody = JsonSerializer.Deserialize<RetrieveParticipantRequestBody>(requestBodyJson);
+
+            // Temporary, will be replaced with a lookup to the SCREENING_LOOKUP table
+            if (requestBody.ScreeningService == "BSS")
+                screeningIdLong = 1;
+            else
+                throw new ArgumentNullException("Screening Service cannot be null");
         }
         catch (Exception ex)
         {
@@ -57,9 +64,8 @@ public class RetrieveParticipantData
         try
         {
             var longNhsNumber = long.Parse(requestBody.NhsNumber);
-            var longScreeningId = long.Parse(requestBody.ScreeningService);
             var participantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == longNhsNumber &&
-                                                                            p.ScreeningId == longScreeningId);
+                                                                            p.ScreeningId == screeningIdLong);
             _logger.LogInformation("Got the participant. ScreeningId: {ScreeningServiceId}", participantData.ScreeningId);
 
             var demographicFunctionParams = new Dictionary<string, string>()
@@ -78,6 +84,8 @@ public class RetrieveParticipantData
             }
 
             participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
+            // Hardcoded for now
+            participant.ScreeningAcronym = "BSS";
             var responseBody = JsonSerializer.Serialize(participant);
             _logger.LogInformation("ParticipantScreeningID: {ScreeningServiceId}", participant.ScreeningServiceId);
 
@@ -85,6 +93,7 @@ public class RetrieveParticipantData
         }
         catch (Exception ex)
         {
+            System.Console.WriteLine(ex);
             _logger.LogError(ex, "Retrieve participant data failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "", "", JsonSerializer.Serialize(participant) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
