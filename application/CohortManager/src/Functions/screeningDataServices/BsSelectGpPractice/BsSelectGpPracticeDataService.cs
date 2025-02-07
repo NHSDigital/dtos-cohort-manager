@@ -11,10 +11,10 @@ using DataServices.Core;
 public class BsSelectGpPracticeDataService
 {
     private readonly ILogger<BsSelectGpPracticeDataService> _logger;
-    private readonly IRequestHandler<GPPractice> _requestHandler;
+    private readonly IRequestHandler<BsSelectGpPractice> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public BsSelectGpPracticeDataService(ILogger<BsSelectGpPracticeDataService> logger, IRequestHandler<GPPractice> requestHandler, ICreateResponse createResponse)
+    public BsSelectGpPracticeDataService(ILogger<BsSelectGpPracticeDataService> logger, IRequestHandler<BsSelectGpPractice> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
