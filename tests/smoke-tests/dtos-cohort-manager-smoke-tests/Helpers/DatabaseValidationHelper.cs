@@ -51,7 +51,7 @@ public static class DatabaseValidationHelper
         });
 
       using (var connection = new SqlConnection(connectionString))
-    {
+       {
         connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
         await connection.OpenAsync();
 
@@ -63,6 +63,7 @@ public static class DatabaseValidationHelper
                 logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
                 Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
             }
+        }
         }
     }
 
@@ -285,7 +286,7 @@ public static class DatabaseValidationHelper
     }
 
    public static async Task<int> GetNhsNumberCount(string connectionString, string tableName, string nhsNumber, ILogger logger, string managedIdentityClientId)
-{
+    {
     var nhsNumberCount = 0;
 
     var credential = new DefaultAzureCredential(
@@ -308,7 +309,7 @@ public static class DatabaseValidationHelper
     }
 
     return nhsNumberCount;
-}
+    }
 
     private static List<IDictionary<string, object>> ReadParquetFile(string parquetFilePath)
     {
@@ -322,4 +323,6 @@ public static class DatabaseValidationHelper
         }
         return records;
     }
+
+
 }

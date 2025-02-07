@@ -159,8 +159,7 @@ public class EndToEndFileUploadService
     {
         Func<Task> act = async () =>
         {
-            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_connectionString, tableName, nhsNumber,_managedIdentityClientId
-                fieldName, expectedValue, _logger);
+            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_connectionString, tableName, nhsNumber,fieldName,_managedIdentityClientId, expectedValue, _logger);
             result.Should().BeTrue();
         };
 
