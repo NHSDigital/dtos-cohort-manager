@@ -92,7 +92,7 @@ public class CohortDistributionParticipant
         };
     }
 
-    private DateTime? ParseDateTime(string dateTimeToParse)
+    private static DateTime? ParseDateTime(string dateTimeToParse)
     {
         return DateTime.TryParseExact(dateTimeToParse, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
     }
