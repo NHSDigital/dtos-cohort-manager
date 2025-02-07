@@ -125,6 +125,7 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
         }
+        
         return exception;
     }
 
