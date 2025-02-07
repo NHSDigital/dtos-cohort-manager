@@ -9,6 +9,17 @@ resource "azurerm_resource_group" "core" {
   }
 }
 
+# Add a role assignment to the audit resource group for each role defined in locals:
+module "rbac_assignments" {
+  for_each = length(var.rbac_principal_name) != 0 ? local.rbac_roles_resource_groups_map : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = data.azuread_group.rbac_principal.id
+  role_definition_name = each.value.role_name
+  scope                = azurerm_resource_group.core[each.value.region_key].id
+}
+
 data "azuread_group" "rbac_principal" {
   display_name = var.rbac_principal_name
 }
