@@ -37,7 +37,7 @@ public class RetrieveParticipantData
     [Function("RetrieveParticipantData")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        long? screeningIdLong;
+        long screeningIdLong;
         RetrieveParticipantRequestBody requestBody;
         var participant = new CohortDistributionParticipant();
         try
@@ -49,11 +49,7 @@ public class RetrieveParticipantData
             }
             requestBody = JsonSerializer.Deserialize<RetrieveParticipantRequestBody>(requestBodyJson);
 
-            // Temporary, will be replaced with a lookup to the SCREENING_LOOKUP table
-            if (requestBody.ScreeningService == "BSS")
-                screeningIdLong = 1;
-            else
-                throw new ArgumentNullException("Screening Service cannot be null");
+            screeningIdLong = long.Parse(requestBody.ScreeningService);
         }
         catch (Exception ex)
         {
@@ -84,8 +80,10 @@ public class RetrieveParticipantData
             }
 
             participant = _createParticipant.CreateCohortDistributionParticipantModel(participantData, demographicData);
-            // Hardcoded for now
+            //TODO, This needs to happen elsewhere Hardcoded for now
+            participant.ScreeningName = "Breast Screening";
             participant.ScreeningAcronym = "BSS";
+
             var responseBody = JsonSerializer.Serialize(participant);
             _logger.LogInformation("ParticipantScreeningID: {ScreeningServiceId}", participant.ScreeningServiceId);
 
