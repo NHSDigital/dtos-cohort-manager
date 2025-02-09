@@ -9,25 +9,26 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
+using DataServices.Client;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
-    private readonly IScreeningServiceData _screeningServiceData;
+    private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        IScreeningServiceData screeningServiceData
+        IDataServiceClient<ScreeningLkp> screeningLkpClient
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
-        _screeningServiceData = screeningServiceData;
+        _screeningLkpClient = screeningLkpClient;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -102,7 +103,7 @@ public class ReceiveCaasFile
         }
         finally
         {
-            //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
+            //We do not want to log here that we have processed all rows as this might be misleading when looking in the logs in azure
             if (!ErrorOccurred)
             {
                 _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
@@ -135,9 +136,15 @@ public class ReceiveCaasFile
     /// <returns></returns>
     private ScreeningService GetScreeningService(FileNameParser fileNameParser)
     {
-        var ScreeningWorkflow = fileNameParser.GetScreeningService();
-        _logger.LogInformation("Screening Acronym {ScreeningAcronym}", ScreeningWorkflow);
-        var res = _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
-        return res;
+        var screeningAcronym = fileNameParser.GetScreeningService();
+        _logger.LogInformation("Screening Acronym {ScreeningAcronym}", screeningAcronym);
+        var res = _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningAcronym).Result;
+        ScreeningService screeningWorkflow = new ScreeningService
+        {
+            ScreeningName = res.ScreeningName,
+            ScreeningId = res.ScreeningId.ToString(),
+            ScreeningWorkflowId = res.ScreeningWorkflowId
+        };
+        return screeningWorkflow;
     }
 }
