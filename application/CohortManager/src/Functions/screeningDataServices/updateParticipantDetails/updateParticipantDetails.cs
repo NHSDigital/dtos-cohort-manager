@@ -10,22 +10,25 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using DataServices.Client;
 
 public class UpdateParticipantDetails
 {
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse,
+                                    IExceptionHandler handleException, ICallFunction callFunction,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _participantManagerData = participantManagerData;
         _handleException = handleException;
         _callFunction = callFunction;
+        _participantManagementClient = participantManagementClient;
     }
 
     [Function("updateParticipantDetails")]
@@ -42,27 +45,42 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+            Participant reqParticipant = participantCsvRecord.Participant;
 
-            var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
+
+            long nhsNumberLong;
+            if (!long.TryParse(reqParticipant.NhsNumber, out nhsNumberLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            long ScreeningIdLong;
+            if (!long.TryParse(reqParticipant.ScreeningId, out ScreeningIdLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            var existingParticipantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumberLong
+                                                                                        && p.ScreeningId == ScreeningIdLong);
+
+            var response = await ValidateData(new Participant(existingParticipantData), participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
-                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with NHS Number: REDACTED");
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
             if (response.CreatedException)
             {
-                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with NHS Number: REDACTED");
-                participantCsvRecord.Participant.ExceptionFlag = "Y";
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Participant Id: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
+                reqParticipant.ExceptionFlag = "1";
             }
 
-            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
+            reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
+            var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)
-            {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }

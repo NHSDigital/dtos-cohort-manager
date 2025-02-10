@@ -1,6 +1,8 @@
 namespace Model;
 
 using Model.Enums;
+using System;
+using System.Globalization;
 
 public class Participant
 {
@@ -107,6 +109,38 @@ public class Participant
             RecordInsertDateTime = DateTime.Now,
             RecordUpdateDateTime = null,
         };
+    }
+
+    public ParticipantManagement ToParticipantManagement()
+    {
+        var participantManagement = new ParticipantManagement
+        {
+            ParticipantId = long.Parse(ParticipantId),
+            ScreeningId = long.Parse(ScreeningId),
+            NHSNumber = long.Parse(NhsNumber),
+            RecordType = RecordType,
+            EligibilityFlag = short.Parse(EligibilityFlag ?? "1"),
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = string.IsNullOrWhiteSpace(ReasonForRemovalEffectiveFromDate) ?
+                                    null : DateTime.Parse(ReasonForRemovalEffectiveFromDate),
+            BusinessRuleVersion = BusinessRuleVersion,
+            ExceptionFlag = ParseExceptionFlag(ExceptionFlag ?? "0"),
+            RecordInsertDateTime = string.IsNullOrWhiteSpace(RecordInsertDateTime)
+                                    ? null : DateTime.Parse(RecordInsertDateTime),
+            RecordUpdateDateTime = string.IsNullOrWhiteSpace(RecordUpdateDateTime)
+                                    ? null : DateTime.Parse(RecordUpdateDateTime),
+        };
+
+        return participantManagement;
+    }
+
+    private static short ParseExceptionFlag(string ExceptionFlag)
+    {
+        if (ExceptionFlag == "N" || ExceptionFlag == "n" || ExceptionFlag == "NO")
+        {
+            return 0;
+        }
+        return short.Parse(ExceptionFlag ?? "0");
     }
 
     private int GetInvalidFlag()

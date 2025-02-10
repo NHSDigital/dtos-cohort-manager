@@ -45,6 +45,7 @@ services:
       - AddQueueName=add-participant-queue
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
+      - UpdateQueueName=update-participant-queue
 
   # Participant Management Service
   add-participant:
@@ -97,6 +98,7 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
+      - UpdateQueueName=update-participant-queue
 
   update-participant-from-screening-provider:
     container_name: update-participant-from-screening-provider
@@ -219,17 +221,6 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
-
-  demographic-data-service:
-    container_name: demographic-data-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/DemographicDataService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7072
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
 
   # Data Services
   bs-select-gp-practice-data-service:

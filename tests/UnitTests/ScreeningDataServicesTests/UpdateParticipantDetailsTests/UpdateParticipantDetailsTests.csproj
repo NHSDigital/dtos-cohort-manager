@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\screeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj" />
+    <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
