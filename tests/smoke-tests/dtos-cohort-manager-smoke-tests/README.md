@@ -21,6 +21,7 @@ Update the appsettings.json file with your environment-specific settings:
     "BlobContainerName": "inbound",
     "ManagedIdentityClientId": ""
   }
+
 ## Running Tests
 To execute the tests:
 
@@ -35,7 +36,7 @@ To execute the tests:
 
 ## Best Practices
  1.Keep Scenarios independent for each journey in respective folders
- 2.Use jira reference numbers as tags for test categorization
+ 2.Use story reference numbers as tags for test categorization
  3.Keep file indentation consistent across the solution
  4.Use common steps for repeated actions
  5.Implement proper clean up after tests
