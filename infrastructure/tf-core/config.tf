@@ -30,7 +30,7 @@ locals {
     for region_key, region_val in var.regions : [
       for role in local.rbac_roles_resource_group : {
         key        = "${role}-${region_key}"
-        role_name = role
+        role_name  = role
         region_key = region_key
       }
     ]
