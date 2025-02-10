@@ -1,47 +1,61 @@
 # SpecFlow Test Automation Framework
 
 ## Overview
-This test automation framework uses SpecFlow for behavior-driven development (BDD) testing.These are smoke tests for Cohort Manager application
+This test automation framework utilizes SpecFlow, a behavior-driven development (BDD) tool, to create and execute smoke tests for the Cohort Manager application. SpecFlow allows defining test scenarios using a natural language syntax, making tests more readable and maintainable.
 
 ## Prerequisites
-.NET Core SDK (version X.X or higher)
-Visual Studio 2022 or VS code
-SpecFlow VS Extension
-SQL Server (for database testing)
-Azure Storage Explorer (for blob storage tests)
+To set up and run this test automation framework, ensure you have the following prerequisites installed:
+
+- .NET Core SDK (version X.X or higher)
+- Visual Studio 2022 or Visual Studio Code
+- SpecFlow Visual Studio Extension
+- SQL Server (for database testing)
+- Azure Storage Explorer (for blob storage tests)
 
 ## Configuration
-Update the appsettings.json file with your environment-specific settings:
- {
+Before running the tests, update the `appsettings.json` file with your environment-specific settings. Modify the following values:
 
+```json
+{
   "ConnectionStrings": {
-      "DtOsDatabaseConnectionString": ""
-    },
-    "caasFileStorage": "",
-    "BlobContainerName": "inbound",
-    "ManagedIdentityClientId": ""
-  }
+    "DtOsDatabaseConnectionString": ""
+  },
+  "caasFileStorage": "",
+  "BlobContainerName": "inbound",
+  "ManagedIdentityClientId": ""
+}
+```
+
+Replace the empty strings with the appropriate connection strings, storage account details, and managed identity client ID for your environment.
 
 ## Running Tests
-To execute the tests:
+To execute the tests using Visual Studio:
 
-1.Open the solution in Visual Studio
-2.Build the solution
-3.Open Test Explorer (Test > Test Explorer)
-4.Click "Run All" or select specific tests to run
+1. Open the solution in Visual Studio.
+2. Build the solution to ensure all dependencies are resolved.
+3. Open the Test Explorer window (Test > Test Explorer).
+4. Click on the "Run All" button to run all the tests, or select specific tests to run individually.
 
-### For command line execution
+Alternatively, you can run the tests from the command line using the following command:
 
--dotnet test
+```
+dotnet test
+```
+
+This command will discover and execute all the tests in the solution.
 
 ## Best Practices
- 1.Keep Scenarios independent for each journey in respective folders
- 2.Use story reference numbers as tags for test categorization
- 3.Keep file indentation consistent across the solution
- 4.Use common steps for repeated actions
- 5.Implement proper clean up after tests
+To maintain a clean and efficient test automation framework, follow these best practices:
+
+1. Keep scenarios independent for each journey and organize them in respective folders. This promotes modularity and easier maintenance.
+2. Use story reference numbers as tags for test categorization. This allows easy identification and selection of tests based on specific stories or requirements.
+3. Maintain consistent file indentation across the solution for improved readability.
+4. Utilize common steps for repeated actions to avoid duplication and improve reusability.
+5. Implement proper cleanup mechanisms after each test to ensure a clean state for subsequent tests.
 
 ## Contributing
- 1.Follow existing naming convention
- 2.Comment code if necessary and document it
- 3.Update README file accordingly
+When contributing to this test automation framework, adhere to the following guidelines:
+
+1. Follow the existing naming conventions for files, variables, and methods to maintain consistency.
+2. Provide comments and documentation for any complex or non-obvious code segments.
+3. Update the README file with any relevant changes or additions made to the framework.
