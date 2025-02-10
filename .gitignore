@@ -59,6 +59,8 @@ local.settings.json
 # sample data
 application/CohortManager/SampleData/
 *.csv
+*.parquet
+!TestFiles/**/*.parquet
 
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 
