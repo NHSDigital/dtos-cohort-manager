@@ -21,11 +21,11 @@ This test automation framework utilizes SpecFlow, a behavior-driven development 
 
 To set up and run this test automation framework, ensure you have the following prerequisites installed:
 
-* . NET Core SDK (version X. X or higher)
-* Visual Studio 2022 or Visual Studio Code
-* SpecFlow Visual Studio Extension
-* SQL Server (for database testing)
-* Azure Storage Explorer (for blob storage tests)
+- . NET Core SDK (version X. X or higher)
+- Visual Studio 2022 or Visual Studio Code
+- SpecFlow Visual Studio Extension
+- SQL Server (for database testing)
+- Azure Storage Explorer (for blob storage tests)
 
 ## Configuration
 
