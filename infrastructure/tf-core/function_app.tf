@@ -43,12 +43,12 @@ module "functionapp" {
   worker_32bit = var.function_apps.worker_32bit
 
   # Use local ACR if present:
-  acr_mi_client_id = var.acr != {} ? module.acr[0].mi_client_id : data.azurerm_user_assigned_identity.acr_mi.client_id
-  acr_login_server = var.acr != {} ? module.acr[0].login_server : data.azurerm_container_registry.acr.login_server
+  acr_mi_client_id = var.acr != null ? module.acr[0].mi_client_id : data.azurerm_user_assigned_identity.acr_mi.client_id
+  acr_login_server = var.acr != null ? module.acr[0].login_server : data.azurerm_container_registry.acr.login_server
 
   # Use the ACR assigned identity for the Function Apps too:
   assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [
-    var.acr != {} ? module.acr[0].mi_id : data.azurerm_user_assigned_identity.acr_mi.id
+    var.acr != null ? module.acr[0].mi_id : data.azurerm_user_assigned_identity.acr_mi.id
   ] : []
 
   image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.environment
