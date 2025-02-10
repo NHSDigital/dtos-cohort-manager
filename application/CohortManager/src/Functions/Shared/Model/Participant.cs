@@ -124,7 +124,7 @@ public class Participant
             ReasonForRemovalDate = string.IsNullOrWhiteSpace(ReasonForRemovalEffectiveFromDate) ?
                                     null : DateTime.Parse(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
-            ExceptionFlag = short.Parse(ExceptionFlag ?? "0"),
+            ExceptionFlag = ParseExceptionFlag(ExceptionFlag ?? "0"),
             RecordInsertDateTime = string.IsNullOrWhiteSpace(RecordInsertDateTime)
                                     ? null : DateTime.Parse(RecordInsertDateTime),
             RecordUpdateDateTime = string.IsNullOrWhiteSpace(RecordUpdateDateTime)
@@ -132,6 +132,15 @@ public class Participant
         };
 
         return participantManagement;
+    }
+
+    private static short ParseExceptionFlag(string ExceptionFlag)
+    {
+        if (ExceptionFlag == "N" || ExceptionFlag == "n" || ExceptionFlag == "NO")
+        {
+            return 0;
+        }
+        return short.Parse(ExceptionFlag ?? "0");
     }
 
     private int GetInvalidFlag()

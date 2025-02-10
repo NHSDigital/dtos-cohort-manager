@@ -46,9 +46,22 @@ public class UpdateParticipantDetails
             }
 
             Participant reqParticipant = participantCsvRecord.Participant;
- 
-            var existingParticipantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == long.Parse(reqParticipant.NhsNumber)
-                                                                                        && p.ScreeningId == long.Parse(reqParticipant.ParticipantId));
+
+
+            long nhsNumberLong;
+            if (!long.TryParse(reqParticipant.NhsNumber, out nhsNumberLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            long ScreeningIdLong;
+            if (!long.TryParse(reqParticipant.ScreeningId, out ScreeningIdLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            var existingParticipantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumberLong
+                                                                                        && p.ScreeningId == ScreeningIdLong);
 
             var response = await ValidateData(new Participant(existingParticipantData), participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
@@ -63,6 +76,7 @@ public class UpdateParticipantDetails
                 reqParticipant.ExceptionFlag = "1";
             }
 
+            reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
             var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)
