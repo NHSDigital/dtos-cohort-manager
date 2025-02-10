@@ -54,7 +54,6 @@ public class DurableDemographicTests
     public async Task RunOrchestrator_ValidInput_ReturnsTrue()
     {
         // Arrange
-        var mockCreateDemographicData = new Mock<ICreateDemographicData>();
         var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
 
         var mockContext = new Mock<TaskOrchestrationContext>();

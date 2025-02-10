@@ -81,11 +81,11 @@ public class MarkParticipantAsIneligible
 
             if (updated)
             {
-                _logger.LogInformation("Record updated for participant {NhsNumber}", participantData.NhsNumber);
+                _logger.LogInformation("Record updated for participant NHS Number: REDACTED}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError("An error occurred while updating data for {NhsNumber}", participantData.NhsNumber);
+            _logger.LogError("An error occurred while updating data for NHS Number: REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -114,7 +114,7 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
+            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }

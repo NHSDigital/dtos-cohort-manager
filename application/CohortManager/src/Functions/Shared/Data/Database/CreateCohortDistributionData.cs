@@ -2,8 +2,9 @@ namespace Data.Database;
 
 using System.Data;
 using System.Net;
-using Common;
+using System.Threading.Tasks;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
@@ -12,142 +13,16 @@ using Model.Enums;
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
     private readonly IDbConnection _dbConnection;
-    private readonly IDatabaseHelper _databaseHelper;
     private readonly string _connectionString;
     private readonly ILogger<CreateCohortDistributionData> _logger;
 
-    public CreateCohortDistributionData(IDbConnection IdbConnection, IDatabaseHelper databaseHelper, ILogger<CreateCohortDistributionData> logger)
+    public CreateCohortDistributionData(IDbConnection IdbConnection, ILogger<CreateCohortDistributionData> logger)
     {
         _dbConnection = IdbConnection;
-        _databaseHelper = databaseHelper;
         _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
     }
-    public bool InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
-    {
-        var SQLToExecuteInOrder = new List<SQLReturnModel>();
-        string insertParticipant = "INSERT INTO [dbo].[BS_COHORT_DISTRIBUTION] ( " +
-            " PARTICIPANT_ID, " +
-            " NHS_NUMBER," +
-            " SUPERSEDED_NHS_NUMBER," +
-            " PRIMARY_CARE_PROVIDER," +
-            " PRIMARY_CARE_PROVIDER_FROM_DT," +
-            " NAME_PREFIX, " +
-            " GIVEN_NAME, " +
-            " OTHER_GIVEN_NAME, " +
-            " FAMILY_NAME, " +
-            " PREVIOUS_FAMILY_NAME, " +
-            " DATE_OF_BIRTH, " +
-            " GENDER," +
-            " ADDRESS_LINE_1," +
-            " ADDRESS_LINE_2," +
-            " ADDRESS_LINE_3," +
-            " ADDRESS_LINE_4," +
-            " ADDRESS_LINE_5," +
-            " POST_CODE," +
-            " USUAL_ADDRESS_FROM_DT," +
-            " DATE_OF_DEATH," +
-            " TELEPHONE_NUMBER_HOME," +
-            " TELEPHONE_NUMBER_HOME_FROM_DT," +
-            " TELEPHONE_NUMBER_MOB," +
-            " TELEPHONE_NUMBER_MOB_FROM_DT," +
-            " EMAIL_ADDRESS_HOME," +
-            " EMAIL_ADDRESS_HOME_FROM_DT," +
-            " PREFERRED_LANGUAGE," +
-            " INTERPRETER_REQUIRED," +
-            " REASON_FOR_REMOVAL," +
-            " REASON_FOR_REMOVAL_FROM_DT," +
-            " RECORD_INSERT_DATETIME, " +
-            " RECORD_UPDATE_DATETIME, " +
-            " IS_EXTRACTED, " +
-            " CURRENT_POSTING, " +
-            " CURRENT_POSTING_FROM_DT" +
-            " ) VALUES( " +
-            " @participantId, " +
-            " @nhsNumber, " +
-            " @supersededByNhsNumber, " +
-            " @primaryCareProvider, " +
-            " @primaryCareProviderFromDate, " +
-            " @namePrefix, " +
-            " @givenName, " +
-            " @otherGivenNames, " +
-            " @familyName," +
-            " @previousFamilyName, " +
-            " @dateOfBirth, " +
-            " @gender, " +
-            " @addressLine1, " +
-            " @addressLine2, " +
-            " @addressLine3, " +
-            " @addressLine4, " +
-            " @addressLine5, " +
-            " @postCode, " +
-            " @usualAddressFromDate, " +
-            " @dateOfDeath, " +
-            " @telephoneNumberHome, " +
-            " @telephoneNumberHomeFromDate, " +
-            " @telephoneNumberMob, " +
-            " @telephoneNumberMobFromDate, " +
-            " @emailAddressHome," +
-            " @emailAddressFromDate," +
-            " @preferredLanguage," +
-            " @interpreterRequired," +
-            " @reasonForRemoval," +
-            " @reasonForRemovalFromDate," +
-            " @recordInsertDateTime," +
-            " @recordUpdateDateTime," +
-            " @extracted," +
-            " @currentPosting," +
-            " @currentPostingFromDate" +
-            " ) ";
 
-        var parameters = new Dictionary<string, object>
-        {
-            {"@participantId", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.ParticipantId) ? DBNull.Value : cohortDistributionParticipant.ParticipantId}  ,
-            {"@nhsNumber", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.NhsNumber) ? DBNull.Value : cohortDistributionParticipant.NhsNumber},
-            {"@supersededByNhsNumber", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.SupersededByNhsNumber) ? DBNull.Value : cohortDistributionParticipant.SupersededByNhsNumber},
-            {"@primaryCareProvider", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PrimaryCareProvider)},
-            {"@primaryCareProviderFromDate", _databaseHelper.ParseDates(cohortDistributionParticipant.PrimaryCareProviderEffectiveFromDate)},
-            {"@namePrefix",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.NamePrefix) },
-            {"@givenName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.FirstName) },
-            {"@otherGivenNames", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.OtherGivenNames) },
-            {"@familyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.FamilyName) },
-            {"@previousFamilyName", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreviousFamilyName) },
-            {"@dateOfBirth", _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfBirth)},
-            {"@gender", cohortDistributionParticipant.Gender.HasValue ? cohortDistributionParticipant.Gender : DBNull.Value},
-            {"@addressLine1", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine1)},
-            {"@addressLine2", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine2)},
-            {"@addressLine3", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine3)},
-            {"@addressLine4", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine4)},
-            {"@addressLine5", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.AddressLine5)},
-            {"@postCode", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.Postcode)},
-            {"@usualAddressFromDate", _databaseHelper.ParseDates(cohortDistributionParticipant.UsualAddressEffectiveFromDate)},
-            {"@dateOfDeath", _databaseHelper.ParseDates(cohortDistributionParticipant.DateOfDeath)},
-            {"@telephoneNumberHome", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.TelephoneNumber)},
-            {"@telephoneNumberHomeFromDate", _databaseHelper.ParseDates(cohortDistributionParticipant.TelephoneNumberEffectiveFromDate)},
-            {"@telephoneNumberMob", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.MobileNumber)},
-            {"@telephoneNumberMobFromDate", _databaseHelper.ParseDates(cohortDistributionParticipant.MobileNumberEffectiveFromDate)},
-            {"@emailAddressHome", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.EmailAddress) },
-            {"@emailAddressFromDate", _databaseHelper.ParseDates(cohortDistributionParticipant.EmailAddressEffectiveFromDate) },
-            {"@preferredLanguage", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.PreferredLanguage)},
-            {"@interpreterRequired", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.IsInterpreterRequired) ? 0 : cohortDistributionParticipant.IsInterpreterRequired},
-            {"@reasonForRemoval", _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.ReasonForRemoval) },
-            {"@reasonForRemovalFromDate",  _databaseHelper.ParseDates(cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate)},
-            {"@recordInsertDateTime", _databaseHelper.ParseDates(cohortDistributionParticipant.RecordInsertDateTime)},
-            {"@recordUpdateDateTime", _databaseHelper.ParseDates(cohortDistributionParticipant.RecordUpdateDateTime)},
-            {"@extracted", _databaseHelper.CheckIfNumberNull(cohortDistributionParticipant.Extracted) ? 0 : cohortDistributionParticipant.Extracted},
-            {"@currentPosting",  _databaseHelper.ConvertNullToDbNull(cohortDistributionParticipant.CurrentPosting) },
-            {"@currentPostingFromDate",  _databaseHelper.ParseDates(cohortDistributionParticipant.CurrentPostingEffectiveFromDate)},
-        };
-
-        SQLToExecuteInOrder.Add(new SQLReturnModel()
-        {
-            CommandType = CommandType.Scalar,
-            SQL = insertParticipant,
-            Parameters = parameters
-        });
-
-        return UpdateRecords(SQLToExecuteInOrder);
-    }
 
     public List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipants(int rowCount)
     {

@@ -46,7 +46,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var jsonString = await GetJsonStringByFilter(predicate);
         if(string.IsNullOrEmpty(jsonString))
         {
-            return null;
+            return [];
         }
         IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
         return result;
@@ -62,7 +62,11 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
             if (string.IsNullOrEmpty(jsonString))
             {
-                _logger.LogWarning("Response for get single from data service of type: {typeName} was empty", typeof(TEntity).FullName);
+                _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
+                return null;
+            }
+            if(jsonString == "No Data Found")
+            {
                 return null;
             }
 
@@ -105,7 +109,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         if (string.IsNullOrEmpty(jsonString))
         {
-            _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
+            _logger.LogWarning("Unable to serialize post request body for creating entity of type {EntityType}", typeof(TEntity).FullName);
             return false;
         }
 
@@ -124,7 +128,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         if (string.IsNullOrEmpty(jsonString))
         {
-            _logger.LogWarning("Unable to serialize post request body for creating entity of type {entityType}", typeof(TEntity).FullName);
+            _logger.LogWarning("Unable to serialize post request body for creating entity of type {EntityType}", typeof(TEntity).FullName);
             return false;
         }
 
@@ -144,7 +148,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
         if (string.IsNullOrEmpty(jsonString))
         {
-            _logger.LogWarning("Unable to serialize put request body for creating entity of type {entityType}", typeof(TEntity).FullName);
+            _logger.LogWarning("Unable to serialize put request body for creating entity of type {EntityType}", typeof(TEntity).FullName);
             return false;
         }
 
@@ -178,7 +182,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         catch(WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if(response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
