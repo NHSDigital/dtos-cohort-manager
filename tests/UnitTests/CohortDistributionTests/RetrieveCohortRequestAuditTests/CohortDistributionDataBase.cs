@@ -37,16 +37,12 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
                 .Returns(_mockDataReader.Object);
             _mockDBConnection.Setup(conn => conn.Open());
 
-            _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-            _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
-
             _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
             .Returns(false);
 
             _createCohortDistributionDataService = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
-                _databaseHelperMock.Object,
                 _loggerMock.Object);
         }
     }
