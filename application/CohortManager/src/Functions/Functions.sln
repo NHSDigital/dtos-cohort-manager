@@ -194,9 +194,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
 EndProject
+<<<<<<< HEAD
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataService", "screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj", "{5AEBC8F8-3920-4A64-B9A5-A1898859C746}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningWorkflow", "screeningDataServices\ScreeningWorkflowDataService\ScreeningWorkflow.csproj", "{3E51D76F-4A90-4EC2-AF80-74E6EE94C257}"
+=======
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningLkpDataService", "screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj", "{3E51D76F-4A90-4EC2-AF80-74E6EE94C257}"
+>>>>>>> c047a727 (feat: environment variables and new dataservices added to teraform code)
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

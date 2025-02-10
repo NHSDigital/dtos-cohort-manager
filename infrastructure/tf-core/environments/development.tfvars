@@ -978,6 +978,23 @@ function_apps = {
         }
       ]
     }
+<<<<<<< HEAD
+=======
+
+    ScreeningLkpDataService = {
+      name_suffix            = "screening-lkp-data-service"
+      function_endpoint_name = "ScreeningLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+>>>>>>> c047a727 (feat: environment variables and new dataservices added to teraform code)
   }
 }
 

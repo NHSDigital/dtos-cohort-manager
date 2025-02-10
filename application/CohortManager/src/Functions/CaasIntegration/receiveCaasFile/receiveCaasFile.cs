@@ -3,7 +3,6 @@ namespace NHS.Screening.ReceiveCaasFile;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Data.Database;
 using System;
 using System.IO;
 using ParquetSharp.RowOriented;
