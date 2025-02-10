@@ -773,13 +773,13 @@ sqlserver = {
 
 storage_accounts = {
   fnapp = {
-    name_suffix                   = "fnappstor"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = true
+    name_suffix                             = "fnappstor"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = true
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
-    containers                    = {}
+    containers                              = {}
   }
   file_exceptions = {
     name_suffix                             = "filexptns"
