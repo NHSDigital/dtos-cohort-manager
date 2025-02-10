@@ -23,7 +23,6 @@ public class CallFunction : ICallFunction
         return await GetHttpWebRequest(url, postData, "PUT");
     }
 
-
     public async Task<string> SendGet(string url)
     {
         return await GetAsync(url);
@@ -69,12 +68,23 @@ public class CallFunction : ICallFunction
     {
         var request = (HttpWebRequest)WebRequest.Create(url);
 
-        using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+
+        try
         {
-            if (response.StatusCode == HttpStatusCode.OK)
+            using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
             {
-                return await GetResponseText(response);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    return await GetResponseText(response);
+                }
             }
+        }
+        catch (WebException wex)
+        {
+
+
+            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),wex.Message);
+            return await HandleWebException(wex);
         }
 
         return null;
@@ -103,11 +113,46 @@ public class CallFunction : ICallFunction
         }
         catch (WebException ex)
         {
-            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",url,ex.Message);
+            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),ex.Message);
             return (HttpWebResponse)ex.Response;
         }
 
     }
 
+    private async Task<string?> HandleWebException(WebException wex)
+    {
+        try
+        {
+            var response = (HttpWebResponse)wex.Response;
+            if(response == null)
+            {
+                return null;
+            }
+
+            _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}",response!.StatusCode);
+            return await GetResponseText(response);
+        }
+        catch(Exception ex)
+        {
+            _logger.LogWarning(ex,"Couldn't Deserialize web exception response");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Removes the Query String from the URL for logging to prevent us logging Sensitive Information.
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
+    private static string RemoveURLQueryString(string url)
+    {
+        if (string.IsNullOrEmpty(url))
+        {
+            return url;
+        }
+
+        int queryIndex = url.IndexOf('?');
+        return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
+    }
 
 }

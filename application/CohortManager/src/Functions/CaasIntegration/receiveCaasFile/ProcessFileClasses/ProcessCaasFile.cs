@@ -116,7 +116,7 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="currentBatch"></param>
     /// <param name="FileName"></param>
     /// <returns></returns>
-    private async Task<Batch> AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
+    private async Task AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
@@ -150,19 +150,18 @@ public class ProcessCaasFile : IProcessCaasFile
                 await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord, "RecordType was not set to an expected value");
                 break;
         }
-        return currentBatch;
 
     }
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {count} records to queue", currentBatch.AddRecords.Count);
+        _logger.LogInformation("sending {Count} records to Add queue", currentBatch.AddRecords.Count);
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 
         if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
         {
-            _logger.LogInformation("sending Update Records {count} to queue", currentBatch.UpdateRecords.Count);
+            _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
             await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
 
             foreach (var updateRecords in currentBatch.DeleteRecords)
@@ -213,9 +212,9 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             if (allowDeleteRecords)
             {
-                _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to updateParticipant function. A future PR will send the record to PMSRemoveParticipant once the new logic for it is implemented.");
+                _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSUpdateParticipant"), json);
+                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
             }
             else
             {
