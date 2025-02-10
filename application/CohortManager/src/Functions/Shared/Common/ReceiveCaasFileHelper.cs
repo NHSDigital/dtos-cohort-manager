@@ -130,4 +130,34 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         }
         return true;
     }
+
+    /// <summary>
+    /// gets the screening service data for a screening work flow
+    /// </summary>
+    /// <param name="fileNameParser"></param>
+    /// <returns></returns>
+    public async Task<ScreeningService?> GetScreeningService(FileNameParser fileNameParser)
+    {
+        var screeningLkpUrl = GetUrlFromEnvironment("ScreeningLpkDataServiceURL");
+        var screeningWorkflow = fileNameParser.GetScreeningService();
+        _logger.LogInformation("Screening Acronym {ScreeningAcronym}", screeningWorkflow);
+
+        var url = $"{screeningLkpUrl}/{screeningWorkflow}";
+
+        var response = await _callFunction.SendGet(url);
+        if (string.IsNullOrEmpty(response))
+        {
+            return null;
+        }
+        var screeningLkp = JsonSerializer.Deserialize<ScreeningLkp>(response);
+
+        var screeningData = new ScreeningService
+        {
+            ScreeningName = screeningLkp?.ScreeningName,
+            ScreeningId = screeningLkp?.ScreeningId.ToString(),
+            ScreeningWorkflowId = screeningLkp?.ScreeningWorkflowId
+        };
+
+        return screeningData;
+    }
 }

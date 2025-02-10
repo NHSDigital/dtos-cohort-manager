@@ -9,26 +9,22 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
-using DataServices.Client;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
-    private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
-        IProcessCaasFile processCaasFile,
-        IDataServiceClient<ScreeningLkp> screeningLkpClient
+        IProcessCaasFile processCaasFile
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
-        _screeningLkpClient = screeningLkpClient;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -103,7 +99,7 @@ public class ReceiveCaasFile
         }
         finally
         {
-            //We do not want to log here that we have processed all rows as this might be misleading when looking in the logs in azure
+            //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
             if (!ErrorOccurred)
             {
                 _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
@@ -116,7 +112,7 @@ public class ReceiveCaasFile
     private async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
     {
         // get screening service name and id
-        var screeningService = GetScreeningService(fileNameParser);
+        var screeningService = await _receiveCaasFileHelper.GetScreeningService(fileNameParser);
         if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
         {
             string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
@@ -127,24 +123,5 @@ public class ReceiveCaasFile
         }
 
         return screeningService;
-    }
-
-    /// <summary>
-    /// gets the screening service data for a screening work flow
-    /// </summary>
-    /// <param name="fileNameParser"></param>
-    /// <returns></returns>
-    private ScreeningService GetScreeningService(FileNameParser fileNameParser)
-    {
-        var screeningAcronym = fileNameParser.GetScreeningService();
-        _logger.LogInformation("Screening Acronym {ScreeningAcronym}", screeningAcronym);
-        var res = _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningAcronym).Result;
-        ScreeningService screeningWorkflow = new ScreeningService
-        {
-            ScreeningName = res.ScreeningName,
-            ScreeningId = res.ScreeningId.ToString(),
-            ScreeningWorkflowId = res.ScreeningWorkflowId
-        };
-        return screeningWorkflow;
     }
 }
