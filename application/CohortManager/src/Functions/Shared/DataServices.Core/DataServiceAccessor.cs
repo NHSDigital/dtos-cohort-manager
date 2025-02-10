@@ -43,8 +43,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<bool> InsertMany(IEnumerable<TEntity> entities)
     {
+        using var transaction = await _context.Database.BeginTransactionAsync();
+
         await _context.AddRangeAsync(entities);
         var result = await _context.SaveChangesAsync();
+
+        await transaction.CommitAsync();
         return result > 0;
     }
 
