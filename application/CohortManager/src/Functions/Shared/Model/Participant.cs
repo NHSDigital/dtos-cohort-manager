@@ -134,7 +134,7 @@ public class Participant
         return participantManagement;
     }
 
-    private short ParseExceptionFlag(string ExceptionFlag)
+    private static short ParseExceptionFlag(string ExceptionFlag)
     {
         if (ExceptionFlag == "N" || ExceptionFlag == "n" || ExceptionFlag == "NO")
         {

@@ -109,19 +109,4 @@ public class UpdateParticipantDetails
             return null;
         }
     }
-
-    private long ParseLong(string stringToParse)
-    {
-        if (!string.IsNullOrEmpty(stringToParse))
-        {
-            long nhsNumberLong;
-            if (!long.TryParse(stringToParse, out nhsNumberLong))
-            {
-                throw new FormatException("Could not parse Long in update participant details");
-            }
-            return nhsNumberLong;
-        }
-        throw new FormatException("Could not parse NhsNumber as it was null or empty");
-
-    }
 }
