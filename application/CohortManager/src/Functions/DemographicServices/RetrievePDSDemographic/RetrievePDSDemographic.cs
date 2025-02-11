@@ -17,28 +17,16 @@ public class RetrievePDSDemographic
     private readonly ILogger<RetrievePDSDemographic> _logger;
     private readonly ICreateResponse _createResponse;
 
-    private readonly ICreateDemographicData _createDemographicData;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
-    public RetrievePDSDemographic(ILogger<RetrievePDSDemographic> logger, ICreateResponse createResponse, ICreateDemographicData createDemographicData)
+    public RetrievePDSDemographic(ILogger<RetrievePDSDemographic> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _createDemographicData = createDemographicData;
+       _participantDemographic = participantDemographic;
     }
 
     [Function("RetrievePDSDemographic")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
-    {
-        return await Main(req, false);
-    }
-
-    /// <summary>
-    /// Gets filtered demographic data from the demographic data service,
-    /// this endpoint is used by the external BI product
-    /// </summary>
-    /// <param name="Id">The NHS number to get the demographic data for.</param>
-    /// <returns>JSON response containing the Primary Care Provider & Preferred Language</returns>
-    [Function("RetrievePDSDemographicExternal")]
     public async Task<HttpResponseData> RunExternal([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         return await Main(req, true);
@@ -48,20 +36,26 @@ public class RetrievePDSDemographic
     {
         try
         {
-            string NHSNumber = req.Query["Id"];
-
-            var demographicData = await _createDemographicData.GetDemographicData(NHSNumber);
-            var data = JsonSerializer.Serialize(demographicData);
-
-            if (data == null)
+             if(req.Query["Id"] == null)
             {
-                _logger.LogInformation("demographic function failed");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req,"No NHS Number Provided");
+            }
+            string NHSNumber = req.Query["Id"]!;
+
+            var demographicData = await GetDemographicData(NHSNumber);
+
+
+            if (demographicData == null)
+            {
+                _logger.LogInformation("Participant Not found");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
             else
             {
                 _logger.LogInformation($"NHS Number found");
             }
+
+            var data = JsonSerializer.Serialize(demographicData);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
@@ -71,4 +65,22 @@ public class RetrievePDSDemographic
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    private async Task<Demographic?> GetDemographicData(string nhsNumber)
+    {
+        long nhsNumberLong;
+        if (!long.TryParse(nhsNumber, out nhsNumberLong))
+        {
+            throw new FormatException("Could not parse NhsNumber");
+        }
+        var result = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+
+        if(result == null)
+        {
+            return null;
+        }
+        return result.ToDemographic();
+    }
+
+
 }
