@@ -3,16 +3,16 @@
     "WorkflowName": "NamePrefix",
     "GlobalParams": [
         {
-          "Name":"NamePrefixListCorrectAsIs",
-          "Expression": "new List<String>() {\"A.ML\",\"ADM\",\"BRIG\",\"BRO\",\"CAN\",\"CAPT\",\"CMDR\",\"COL\",\"DAME\",\"DEAN\",\"DR\",\"EARL\",\"FR\",\"G.C\",\"GEN\",\"HON\",\"HRH\",\"LADY\",\"LORD\",\"LT.C\",\"MJR\",\"MISS\",\"MR\",\"MRS\",\"MS\",\"MX\",\"PROF\",\"R.RN\",\"R.HV\",\"REV\",\"SIR\",\"SQLD\",\"SR\",\"VISC\",\"WCOM\"}"
+          "Name":"ValidNamePrefixes",
+          "Expression": "new string[] {\"A.ML\",\"ADM\",\"BRIG\",\"BRO\",\"CAN\",\"CAPT\",\"CMDR\",\"COL\",\"DAME\",\"DEAN\",\"DR\",\"EARL\",\"FR\",\"G.C\",\"GEN\",\"HON\",\"HRH\",\"LADY\",\"LORD\",\"LT.C\",\"MJR\",\"MISS\",\"MR\",\"MRS\",\"MS\",\"MX\",\"PROF\",\"R.RN\",\"R.HV\",\"REV\",\"SIR\",\"SQLD\",\"SR\",\"VISC\",\"WCOM\"}"
         }
       ],
     "Rules": [
       {
-        "RuleName": "0.No transfromation required",
-        "Expression": "NamePrefixListCorrectAsIs.!Contains(namePrefix)",
+        "RuleName": "0.NamePrefix.NamePrefixValid",
+        "Expression": "ValidNamePrefixes.Contains(namePrefix)",
         "Actions": {
-          "OnFailure": {
+          "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
               "Expression": "namePrefix"
@@ -568,18 +568,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"WCOM\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "999. Not a valid prefix",
-        "Expression": "True",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "Null"
             }
           }
         }
