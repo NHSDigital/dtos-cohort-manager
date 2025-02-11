@@ -100,9 +100,7 @@ export default async function Page(props: {
             <div className="nhsuk-grid-column-full">
               <h1>
                 Exception information
-                <span className="nhsuk-caption-xl">
-                  Exception ID: {exceptionDetails.exceptionId}
-                </span>
+                <span className="nhsuk-caption-xl">Exception ID: {exceptionDetails.exceptionId}</span>
               </h1>
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}

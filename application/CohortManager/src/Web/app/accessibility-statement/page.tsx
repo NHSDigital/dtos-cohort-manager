@@ -43,8 +43,7 @@ export default async function Page() {
             If you have a disability,{" "}
             <a href="https://mcmw.abilitynet.org.uk/">
               search AbilityNet for &quot;how to&quot; guides
-            </a>{" "}
-            to make your device easier to use.
+            </a> to make your device easier to use.
           </p>
           <h2>Feedback and contact information</h2>
           <p>
@@ -61,8 +60,7 @@ export default async function Page() {
             meeting accessibility requirements, please contact{" "}
             <a href="mailto:england.digitalscreening@nhs.net">
               england.digitalscreening@nhs.net
-            </a>
-            . This helps us improve.
+            </a>. This helps us improve.
           </p>
           <h2>Enforcement procedure</h2>
           <p>
@@ -70,8 +68,7 @@ export default async function Page() {
             response,{" "}
             <a href="https://www.equalityadvisoryservice.com/">
               contact the Equality Advisory and Support Service (EASS)
-            </a>
-            .
+            </a>.
           </p>
           <p>
             The Equality and Human Rights Commission (EHRC) is responsible for
@@ -88,8 +85,7 @@ export default async function Page() {
             <a href="http://www.w3.org/TR/WCAG21/">
               Web Content Accessibility Guidelines (WCAG) version 2.1 AA
               standard
-            </a>
-            .
+            </a>.
           </p>
           <h2>Preparation of this accessibility statement</h2>
           <p>This statement was prepared on 2 December 2024.</p>

@@ -60,9 +60,7 @@ export default async function Page(props: {
             <div className="nhsuk-grid-column-full">
               <h1>
                 Breast screening exceptions
-                <span className="nhsuk-caption-xl">
-                  Exceptions created today
-                </span>
+                <span className="nhsuk-caption-xl">Exceptions created today</span>
               </h1>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">

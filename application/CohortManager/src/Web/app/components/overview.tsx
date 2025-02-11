@@ -32,10 +32,7 @@ export default async function Overview() {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-full">
-            <h1>
-              Breast screening exceptions
-              <span className="nhsuk-caption-xl">Overview</span>
-            </h1>
+            <h1>Breast screening exceptions <span className="nhsuk-caption-xl">Overview</span></h1>
             <CardGroup items={cards} />
           </div>
         </div>

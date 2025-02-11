@@ -49,9 +49,7 @@ export default async function Page() {
             <div className="nhsuk-grid-column-full">
               <h1>
                 Breast screening exceptions
-                <span className="nhsuk-caption-xl">
-                  Complete exceptions list
-                </span>
+                <span className="nhsuk-caption-xl">Complete exceptions list</span>
               </h1>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">

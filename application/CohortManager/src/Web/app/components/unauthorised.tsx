@@ -10,8 +10,7 @@ export default async function Unauthorised() {
           <p>
             <a href="mailto:england.digitalscreening@nhs.net">
               Contact us to request access
-            </a>
-            , providing:
+            </a>, providing:
           </p>
           <ul>
             <li>your name</li>
