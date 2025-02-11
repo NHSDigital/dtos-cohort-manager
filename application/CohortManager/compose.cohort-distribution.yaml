@@ -104,6 +104,7 @@ services:
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortDistributionDataServiceURL=http://localhost:7915/api/CohortDistributionDataService/
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data

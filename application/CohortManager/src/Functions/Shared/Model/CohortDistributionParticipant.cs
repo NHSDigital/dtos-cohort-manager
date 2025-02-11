@@ -93,6 +93,56 @@ public class CohortDistributionParticipant
         };
     }
 
+    public CohortDistributionParticipant FromCohortDistribution(CohortDistribution cohortDistribution)
+    {
+        return new CohortDistributionParticipant
+        {
+            RequestId = cohortDistribution.RequestId.ToString(),
+            NhsNumber = cohortDistribution.NHSNumber.ToString(),
+            SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString(),
+            PrimaryCareProvider = cohortDistribution.PrimaryCareProvider,
+            PrimaryCareProviderEffectiveFromDate = FormatDateTime(cohortDistribution.PrimaryCareProviderDate),
+            NamePrefix = cohortDistribution.NamePrefix,
+            FirstName = cohortDistribution.GivenName,
+            OtherGivenNames = cohortDistribution.OtherGivenName,
+            FamilyName = cohortDistribution.FamilyName,
+            PreviousFamilyName = cohortDistribution.PreviousFamilyName,
+            DateOfBirth = FormatDateTime(cohortDistribution.DateOfBirth),
+            Gender = (Gender?)cohortDistribution.Gender,
+            AddressLine1 = cohortDistribution.AddressLine1,
+            AddressLine2 = cohortDistribution.AddressLine2,
+            AddressLine3 = cohortDistribution.AddressLine3,
+            AddressLine4 = cohortDistribution.AddressLine4,
+            AddressLine5 = cohortDistribution.AddressLine5,
+            Postcode = cohortDistribution.PostCode,
+            UsualAddressEffectiveFromDate = FormatDateTime(cohortDistribution.UsualAddressFromDt),
+            DateOfDeath = FormatDateTime(cohortDistribution.DateOfDeath),
+            TelephoneNumber = cohortDistribution.TelephoneNumberHome,
+            TelephoneNumberEffectiveFromDate = FormatDateTime(cohortDistribution.TelephoneNumberHomeFromDt),
+            MobileNumber = cohortDistribution.TelephoneNumberMob,
+            MobileNumberEffectiveFromDate = FormatDateTime(cohortDistribution.TelephoneNumberMobFromDt),
+            EmailAddress = cohortDistribution.EmailAddressHome,
+            EmailAddressEffectiveFromDate = FormatDateTime(cohortDistribution.EmailAddressHomeFromDt),
+            PreferredLanguage = cohortDistribution.PreferredLanguage,
+            IsInterpreterRequired = cohortDistribution.InterpreterRequired == 1 ? "1" : "0",
+            ReasonForRemoval = cohortDistribution.ReasonForRemoval,
+            ReasonForRemovalEffectiveFromDate = FormatDateTime(cohortDistribution.ReasonForRemovalDate),
+            Extracted = cohortDistribution.IsExtracted == 1 ? "1" : "0",
+            RecordInsertDateTime = FormatDateTime(cohortDistribution.RecordInsertDateTime),
+            RecordUpdateDateTime = FormatDateTime(cohortDistribution.RecordUpdateDateTime),
+            CurrentPosting = cohortDistribution.CurrentPosting,
+            CurrentPostingEffectiveFromDate = FormatDateTime(cohortDistribution.CurrentPostingFromDt),
+            ParticipantId = cohortDistribution.ParticipantId.ToString(),
+            RecordType = Actions.New,
+            InvalidFlag = "0"
+        };
+    }
+
+    private static string? FormatDateTime(DateTime? date)
+    {
+        return date?.ToString("yyyy-MM-dd");
+    }
+
     private static DateTime? ParseDateTime(string dateTimeToParse)
     {
         return DateTime.TryParseExact(dateTimeToParse, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;

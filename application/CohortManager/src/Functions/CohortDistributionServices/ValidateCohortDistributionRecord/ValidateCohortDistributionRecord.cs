@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -18,14 +19,17 @@ public class ValidateCohortDistributionRecord
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ICallFunction _callFunction;
 
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
 
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction)
+
+    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
     {
         _createResponse = createResponse;
         _createCohortDistributionData = createCohortDistributionData;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
         _logger = logger;
+        _cohortDistributionDataService = cohortDistributionDataService;
     }
     /// <summary>
     /// Deserializes a ValidateCohortDistributionRecordBody object.
@@ -57,7 +61,7 @@ public class ValidateCohortDistributionRecord
 
         try
         {
-            var existingParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
+            var existingParticipant = await GetLastCohortDistributionParticipantAsync(requestBody.NhsNumber);
             var newParticipant = requestBody.CohortDistributionParticipant;
 
             var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
@@ -74,6 +78,24 @@ public class ValidateCohortDistributionRecord
             _logger.LogError(ex, "There was an error validating the cohort distribution records {Message}", ex.Message);
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
+    }
+
+
+    private async Task<CohortDistributionParticipant> GetLastCohortDistributionParticipantAsync(string existingNhsNumber)
+    {
+        var recordToReturn = new CohortDistributionParticipant();
+        long nhsNumber;
+        if (!long.TryParse(existingNhsNumber, out nhsNumber))
+        {
+            throw new FormatException("Unable to parse NHS Number");
+        }
+
+        var cohortDistributionRecord = await _cohortDistributionDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
+        if (cohortDistributionRecord == null)
+        {
+            return recordToReturn;
+        }
+        return recordToReturn.FromCohortDistribution(cohortDistributionRecord);
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
