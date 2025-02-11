@@ -11,14 +11,13 @@ using System.Data;
 public class TransformReasonForRemovalTests
 {
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
     private readonly Mock<ITransformDataLookupFacade> _dataLookup = new();
     private readonly TransformReasonForRemoval _function;
     private readonly CohortDistributionParticipant _participant;
     public TransformReasonForRemovalTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new TransformReasonForRemoval(_exceptionHandler.Object, _transformationLookups.Object, _dataLookup.Object);
+        _function = new TransformReasonForRemoval(_exceptionHandler.Object, _dataLookup.Object);
         _participant = new CohortDistributionParticipant();
     }
 
@@ -86,7 +85,7 @@ public class TransformReasonForRemovalTests
             PrimaryCareProvider = "ABCDEF"
         };
 
-        _transformationLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ABC");
+        _dataLookup.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ABC");
 
         // Act
         var result = await _function.ReasonForRemovalTransformations(_participant,existingParticipant);
@@ -143,12 +142,11 @@ public class TransformReasonForRemovalTests
         _participant.Postcode = postcode;
 
         _dataLookup.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode == "ValidPostcode");
-        //_transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns(string.Empty);
+
         var existingParticipant = new CohortDistribution{
             PrimaryCareProvider = string.Empty
         };
-
-
+        
         // Act
         var exception = await Assert.ThrowsExceptionAsync<TransformationException>(() => _function.ReasonForRemovalTransformations(_participant, existingParticipant));
 
