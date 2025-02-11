@@ -2,6 +2,8 @@ using ChoETL;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
+using Azure.Identity;
+using Azure.Core;
 
 namespace dtos_cohort_manager_specflow.Helpers;
 
@@ -40,33 +42,49 @@ public static class DatabaseValidationHelper
         }
     }
 
-    public static async Task VerifyNhsNumbersAsync(string connectionString, string tableName, List<string> nhsNumbers, ILogger logger)
+    public static async Task VerifyNhsNumbersAsync(string connectionString, string tableName, List<string> nhsNumbers, ILogger logger, string managedIdentityClientId)
     {
-        ValidateTableName(tableName);
+      ValidateTableName(tableName);
 
-        using (var connection = new SqlConnection(connectionString))
+      var credential = new DefaultAzureCredential(
+        new DefaultAzureCredentialOptions
         {
-            await connection.OpenAsync();
-            foreach (var nhsNumber in nhsNumbers)
+            ManagedIdentityClientId = managedIdentityClientId
+        });
+
+      using (var connection = new SqlConnection(connectionString))
+       {
+        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
+        await connection.OpenAsync();
+
+        foreach (var nhsNumber in nhsNumbers)
+        {
+            var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, logger);
+            if (!isVerified)
             {
-                var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, logger);
-                if (!isVerified)
-                {
-                    logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
-                    Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
-                }
+                logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
+                Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
             }
+        }
         }
     }
 
-    public static async Task<bool> VerifyFieldUpdateAsync(string connectionString, string tableName, string nhsNumber, string fieldName, string expectedValue, ILogger logger)
+    public static async Task<bool> VerifyFieldUpdateAsync(string connectionString, string tableName, string nhsNumber, string fieldName,string managedIdentityClientId, string expectedValue, ILogger logger)
     {
         List<string> fieldValues  = new List<string>();
         ValidateTableName(tableName);
         ValidateFieldName(fieldName);
 
+         var credential = new DefaultAzureCredential(
+        new DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = managedIdentityClientId
+        });
+
+
         using (var connection = new SqlConnection(connectionString))
         {
+            connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
             await connection.OpenAsync();
             var query = $"SELECT {fieldName} FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
             using (var command = new SqlCommand(query, connection))
@@ -95,7 +113,7 @@ public static class DatabaseValidationHelper
                     return false;
                 }
 
-               
+
                 if (!fieldValues.Contains(expectedValue))
                 {
                     logger.LogError($"Field {fieldName} for NHS number {nhsNumber} does not match the expected value. Expected: {expectedValue}, Actual: {expectedValue}");
@@ -140,7 +158,7 @@ public static class DatabaseValidationHelper
         ValidateTableName(tableName);
 
         int retryCount = 0;
-        const int maxRetries = 5;
+        const int maxRetries = 8;
         TimeSpan delay = TimeSpan.FromSeconds(3); // Initial delay
 
         while (retryCount < maxRetries)
@@ -161,7 +179,7 @@ public static class DatabaseValidationHelper
             {
                 logger.LogError(ex, $"Error verifying NHS number {nhsNumber} in table {tableName} (Attempt {retryCount + 1})");
             }
-           
+
             retryCount++;
             await Task.Delay(delay);
             delay = delay * 2; // Exponential backoff (double the delay on each retry)
@@ -269,21 +287,30 @@ public static class DatabaseValidationHelper
         return true;
     }
 
-    public static async Task<int> GetNhsNumberCount(string connectionString, string tableName, string nhsNumber,ILogger logger)
+   public static async Task<int> GetNhsNumberCount(string connectionString, string tableName, string nhsNumber, ILogger logger, string managedIdentityClientId)
     {
-        var nhsNumberCount = 0;
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
-            }
-        }
+    var nhsNumberCount = 0;
 
-        return nhsNumberCount;
+    var credential = new DefaultAzureCredential(
+        new DefaultAzureCredentialOptions
+        {
+            ManagedIdentityClientId = managedIdentityClientId
+        });
+
+    using (var connection = new SqlConnection(connectionString))
+    {
+        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
+        await connection.OpenAsync();
+
+        var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
+        using (var command = new SqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+            nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
+        }
+    }
+
+    return nhsNumberCount;
     }
 
     private static List<IDictionary<string, object>> ReadParquetFile(string parquetFilePath)
@@ -298,4 +325,6 @@ public static class DatabaseValidationHelper
         }
         return records;
     }
+
+
 }

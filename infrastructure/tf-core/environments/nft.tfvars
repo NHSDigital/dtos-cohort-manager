@@ -563,6 +563,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -598,6 +602,10 @@ function_apps = {
           env_var_name     = "BsSelectGpPracticeUrl"
           function_app_key = "BsSelectGpPracticeDataService"
         },
+        {
+          env_var_name     = "CohortDistributionDataServiceUrl"
+          function_app_key = "CohortDistributionDataService"
+        }
       ]
     }
 
@@ -1017,7 +1025,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = false
+    public_network_access_enabled           = true
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}

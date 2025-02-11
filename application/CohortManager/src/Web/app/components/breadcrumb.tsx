@@ -13,8 +13,8 @@ export default function Breadcrumb({ items }: Readonly<BreadcrumbProps>) {
   return (
     <nav className="nhsuk-breadcrumb" aria-label="Breadcrumb">
       <ol className="nhsuk-breadcrumb__list">
-        {items.map((item, index) => (
-          <li key={index} className="nhsuk-breadcrumb__item">
+        {items.map((item) => (
+          <li key={item.url} className="nhsuk-breadcrumb__item">
             <Link className="nhsuk-breadcrumb__link" href={item.url}>
               {item.label}
             </Link>

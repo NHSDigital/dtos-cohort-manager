@@ -13,10 +13,10 @@ interface CardGroupProps {
 export default function CardGroup({ items }: Readonly<CardGroupProps>) {
   return (
     <ul className="nhsuk-grid-row nhsuk-card-group">
-      {items.map((card, index) => (
+      {items.map((card) => (
         <li
           className="nhsuk-grid-column-one-third nhsuk-card-group__item"
-          key={index}
+          key={card.url}
         >
           <Card value={card.value} label={card.label} url={card.url} />
         </li>

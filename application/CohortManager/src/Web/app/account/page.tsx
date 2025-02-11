@@ -38,8 +38,8 @@ export default async function Page() {
               <dt className="nhsuk-summary-list__key">Roles</dt>
               <dd className="nhsuk-summary-list__value">
                 <ul>
-                  {formatCIS2Roles(session?.user?.roles).map((role, index) => (
-                    <li key={index}>{role}</li>
+                  {formatCIS2Roles(session?.user?.roles).map((role) => (
+                    <li key={role}>{role}</li>
                   ))}
                 </ul>
               </dd>

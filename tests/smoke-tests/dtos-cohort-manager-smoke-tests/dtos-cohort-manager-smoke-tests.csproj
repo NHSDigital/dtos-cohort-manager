@@ -7,6 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <NoWarn>CS8618;CS8604;CS8605;CS8601;CS8604;CS8602</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Identity" Version="1.13.2" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
         <PackageReference Include="ChoETL" Version="1.2.1.68" />
         <PackageReference Include="ChoETL.Parquet" Version="1.0.1.34" />
