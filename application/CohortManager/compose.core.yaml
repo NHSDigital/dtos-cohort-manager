@@ -46,6 +46,7 @@ services:
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
+      - ScreeningLpkDataServiceURL=http://localhost:8996/api/ScreeningLkpDataService
 
   # Participant Management Service
   add-participant:
@@ -416,5 +417,5 @@ services:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ScreeningLkpDataService/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7996
+      - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

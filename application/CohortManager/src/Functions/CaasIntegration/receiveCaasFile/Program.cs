@@ -20,6 +20,7 @@ try
     var host = new HostBuilder()
         .AddDataServicesHandler()
         .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddCachedDataService<ScreeningLkp>(Environment.GetEnvironmentVariable("ScreeningLpkDataServiceURL"))
         .Build()
     .ConfigureFunctionsWebApplication()
 
