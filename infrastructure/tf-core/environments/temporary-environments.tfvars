@@ -4,7 +4,7 @@ application_full_name = "cohort-manager"
 
 rbac_principals = {
   keyvault = {
-    display_name = "dtos_team_select_temp_environments",
+    principal_display_name = "dtos_team_select_temp_environments",
     roles = [
       "Key Vault Certificates Officer",
       "Key Vault Certificate User",
@@ -15,13 +15,13 @@ rbac_principals = {
     ]
   }
   resource_group = {
-    display_name = "dtos_team_select_temp_environments",
+    principal_display_name = "dtos_team_select_temp_environments",
     roles = [
       "Contributor"
     ]
   }
   storage_account = {
-    display_name = "dtos_team_select_temp_environments",
+    principal_display_name = "dtos_team_select_temp_environments",
     roles = [
       "Storage Account Contributor",
       "Storage Blob Data Owner",
