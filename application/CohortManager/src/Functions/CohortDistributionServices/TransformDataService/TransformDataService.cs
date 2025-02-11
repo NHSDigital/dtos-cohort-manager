@@ -199,9 +199,6 @@ public class TransformDataService
                                                 i.IsSuccess && i.ActionResult.Output == null).ToList();
         if (failedTransforms.Any())
         {
-            foreach (var failed in failedTransforms) {
-                System.Console.WriteLine(failed.ExceptionMessage);
-            }
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
             throw new TransformationException("There was an error during transformation");
         }
