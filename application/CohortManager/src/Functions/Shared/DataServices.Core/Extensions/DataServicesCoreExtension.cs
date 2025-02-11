@@ -47,6 +47,8 @@ public static class DataServicesCoreExtension
             _.AddSingleton<ICreateResponse, CreateResponse>();
             _.TryAdd(ServiceDescriptor.Scoped(typeof(IRequestHandler<>), typeof(RequestHandler<>)));
             _.TryAdd(ServiceDescriptor.Scoped(typeof(IDataServiceAccessor<>), typeof(DataServiceAccessor<>)));
+            _.TryAdd(ServiceDescriptor.Scoped(typeof(IGetRequestAccessor<>),typeof(GetRequestAccessor<>)));
+            _.TryAdd(ServiceDescriptor.Scoped(typeof(IGetRequestHandler<>),typeof(GetRequestHandler<>)));
 
         });
     }

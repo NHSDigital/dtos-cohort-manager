@@ -20,6 +20,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     private readonly ILogger<RequestHandler<TEntity>> _logger;
     private readonly AuthenticationConfiguration _authConfig;
     private readonly PropertyInfo _keyInfo;
+    private readonly IGetRequestHandler<TEntity> _getRequestHandler;
     private static JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions
         {
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
@@ -27,12 +28,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private const string UnauthorizedErrorMessage = "Action was either Unauthorized or not enabled";
 
-    public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
+    public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration, IGetRequestHandler<TEntity> getRequestHandler)
     {
         _dataServiceAccessor = dataServiceAccessor;
         _logger = logger;
         _authConfig = authenticationConfiguration;
         _keyInfo = ReflectionUtilities.GetKey<TEntity>();
+        _getRequestHandler = getRequestHandler;
     }
 
     public async Task<HttpResponseData> HandleRequest(HttpRequestData req, string? key = null)
@@ -58,7 +60,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 }
                 else
                 {
-                    return CreateErrorResponse(req,"No Key Provided for Deletion",HttpStatusCode.BadRequest);
+                    return HttpHelpers.CreateErrorResponse(req,"No Key Provided for Deletion",HttpStatusCode.BadRequest);
                 }
             case "POST":
                 return await Post(req);
@@ -69,10 +71,10 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 }
                 else
                 {
-                    return CreateErrorResponse(req,"No Key Provided for Put",HttpStatusCode.BadRequest);
+                    return HttpHelpers.CreateErrorResponse(req,"No Key Provided for Put",HttpStatusCode.BadRequest);
                 }
             default:
-                return CreateHttpResponse(req, null, HttpStatusCode.MethodNotAllowed);
+                return HttpHelpers.CreateHttpResponse(req, null, HttpStatusCode.MethodNotAllowed);
         }
 
 
@@ -85,44 +87,46 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         if(!_authConfig.CanGet(req))
         {
             _logger.LogWarning("Unauthorized Method was called");
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            return HttpHelpers.CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
 
         try
         {
-            var predicate = CreateFilterExpression(req);
-            object result;
+            return await _getRequestHandler.Get(req);
 
-            if (GetBooleanQueryItem(req,"single"))
-            {
-                result = await _dataServiceAccessor.GetSingle(predicate);
-            }
-            else
-            {
-                result = await _dataServiceAccessor.GetRange(predicate);
-            }
+            // var predicate = CreateFilterExpression(req);
+            // object result;
 
-            if (!ResultHasContent(result))
-            {
-                return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
-            }
+            // if (HttpHelpers.GetBooleanQueryItem(req,"single"))
+            // {
+            //     result = await _dataServiceAccessor.GetSingle(predicate);
+            // }
+            // else
+            // {
+            //     result = await _dataServiceAccessor.GetRange(predicate);
+            // }
 
-            return CreateHttpResponse(req,new DataServiceResponse<string>
-            {
-                JsonData = JsonSerializer.Serialize(result)
-            });
+            // if (!ResultHasContent(result))
+            // {
+            //     return HttpHelpers.CreateErrorResponse(req,"No Data Found",HttpStatusCode.NoContent);
+            // }
+
+            // return HttpHelpers.CreateHttpResponse(req,new DataServiceResponse<string>
+            // {
+            //     JsonData = JsonSerializer.Serialize(result)
+            // });
         }
         catch(MultipleRecordsFoundException mre)
         {
             _logger.LogWarning(mre,"Multiple Records were returned from filter expression when only one was expected: {Message}",mre.Message);
-            return CreateErrorResponse(req,"Multiple rows met filter condition when only one row was expected",HttpStatusCode.BadRequest);
+            return HttpHelpers.CreateErrorResponse(req,"Multiple rows met filter condition when only one row was expected",HttpStatusCode.BadRequest);
 
 
         }
         catch(Exception ex)
         {
             _logger.LogWarning(ex,"Unable to parse filter expression");
-            return CreateErrorResponse(req,"Unable to parse filter Expression",HttpStatusCode.BadRequest);
+            return HttpHelpers.CreateErrorResponse(req,"Unable to parse filter Expression",HttpStatusCode.BadRequest);
         }
 
     }
@@ -131,19 +135,19 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanGetById(req))
         {
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            return HttpHelpers.CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
 
-        var keyPredicate = CreateGetByKeyExpression(keyValue);
+        var keyPredicate = FilterHelpers.CreateGetByKeyExpression<TEntity>(keyValue,_keyInfo.Name);
         var result = await _dataServiceAccessor.GetSingle(keyPredicate);
 
         if(result == null)
         {
-            return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NotFound);
+            return HttpHelpers.CreateErrorResponse(req,"No Data Found",HttpStatusCode.NotFound);
         }
 
 
-        return CreateHttpResponse(req,new DataServiceResponse<string>
+        return HttpHelpers.CreateHttpResponse(req,new DataServiceResponse<string>
         {
             JsonData = JsonSerializer.Serialize(result)
         });
@@ -154,7 +158,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanPost(req))
         {
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            return HttpHelpers.CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         try
         {
@@ -181,9 +185,9 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             if (!result)
             {
 
-                return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
+                return HttpHelpers.CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
             }
-            return CreateHttpResponse(req,new DataServiceResponse<string>
+            return HttpHelpers.CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = "Success"
             });
@@ -191,12 +195,12 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return HttpHelpers.CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred while trying to add data");
-            return CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
+            return HttpHelpers.CreateErrorResponse(req,"Failed to Insert Record",HttpStatusCode.InternalServerError);
         }
 
 
@@ -206,7 +210,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanPut(req))
         {
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            return HttpHelpers.CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
         try
         {
@@ -218,15 +222,15 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
             var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
             if (entityData == null)
-                return CreateErrorResponse(req, "Couldn't deserialise body", HttpStatusCode.NotFound);
-            var keyPredicate = CreateGetByKeyExpression(key);
+                return HttpHelpers.CreateErrorResponse(req, "Couldn't deserialise body", HttpStatusCode.NotFound);
+            var keyPredicate = FilterHelpers.CreateGetByKeyExpression<TEntity>(key,_keyInfo.Name);
 
             var result = await _dataServiceAccessor.Update(entityData, keyPredicate);
             if (result == null)
             {
-                return CreateErrorResponse(req,"Record not found",HttpStatusCode.NotFound);
+                return HttpHelpers.CreateErrorResponse(req,"Record not found",HttpStatusCode.NotFound);
             }
-            return CreateHttpResponse(req,new DataServiceResponse<string>
+            return HttpHelpers.CreateHttpResponse(req,new DataServiceResponse<string>
             {
                 JsonData = "Success"
             });
@@ -234,12 +238,12 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return HttpHelpers.CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to Update Record");
-            return CreateErrorResponse(req,"Failed to Update Record",HttpStatusCode.BadRequest);
+            return HttpHelpers.CreateErrorResponse(req,"Failed to Update Record",HttpStatusCode.BadRequest);
         }
     }
 
@@ -247,15 +251,15 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         if(!_authConfig.CanDelete(req))
         {
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            return HttpHelpers.CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
         }
-        var keyPredicate = CreateGetByKeyExpression(key);
+        var keyPredicate = FilterHelpers.CreateGetByKeyExpression<TEntity>(key,_keyInfo.Name);
         var result = await _dataServiceAccessor.Remove(keyPredicate);
         if(!result)
         {
-            return CreateErrorResponse(req,"Failed to delete Record",HttpStatusCode.NotFound);
+            return HttpHelpers.CreateErrorResponse(req,"Failed to delete Record",HttpStatusCode.NotFound);
         }
-        return CreateHttpResponse(req,new DataServiceResponse<string>
+        return HttpHelpers.CreateHttpResponse(req,new DataServiceResponse<string>
         {
             JsonData = "Success"
         });
@@ -268,15 +272,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return doc.RootElement.ValueKind == JsonValueKind.Array;
     }
 
-    private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
-    {
-        var entityParameter = Expression.Parameter(typeof(TEntity));
-        var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
-        var filterConstant = Expression.Constant(Convert.ChangeType(filter, ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name)));
-        var expr = Expression.Equal(entityKey, filterConstant);
 
-        return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
-    }
 
     private Expression<Func<TEntity, bool>> CreateFilterExpression(HttpRequestData req)
     {
@@ -314,16 +310,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     }
 
-    private static bool GetBooleanQueryItem(HttpRequestData req, string headerKey, bool defaultValue = false)
-    {
-        if(req.Query[headerKey] == null){
-            return defaultValue;
-        }
-        if(bool.TryParse(req.Query[headerKey],out var result)){
-            return result;
-        }
-        return defaultValue;
-    }
+
 
     private static bool ResultHasContent(Object obj)
     {
@@ -342,49 +329,5 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
         return result;
     }
-
-    private HttpResponseData CreateErrorResponse(HttpRequestData req, string message, HttpStatusCode statusCode)
-    {
-        var errorResponse = new DataServiceResponse<string> { ErrorMessage = message };
-        return CreateHttpResponse(req, errorResponse, statusCode);
-    }
-
-    private static HttpResponseData CreateHttpResponse(HttpRequestData req, DataServiceResponse<string> dataServiceResponse, HttpStatusCode httpStatusCode = HttpStatusCode.InternalServerError)
-    {
-        HttpStatusCode statusCode;
-        byte[] responseBody = null!;
-        if(httpStatusCode == HttpStatusCode.NoContent){
-            responseBody = Encoding.UTF8.GetBytes("");
-            statusCode = httpStatusCode;
-        }
-        else if (dataServiceResponse.ErrorMessage == null)
-        {
-            statusCode = HttpStatusCode.OK;
-            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.JsonData);
-        }
-        else if (dataServiceResponse.ErrorMessage != null)
-        {
-            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.ErrorMessage);
-            statusCode = httpStatusCode;
-        }
-        else if (string.IsNullOrWhiteSpace(dataServiceResponse.JsonData))
-        {
-            responseBody = Encoding.UTF8.GetBytes("");
-            statusCode = HttpStatusCode.NoContent;
-        }
-        else
-        {
-            responseBody = Encoding.UTF8.GetBytes(dataServiceResponse.ErrorMessage);
-            statusCode = httpStatusCode;
-        }
-
-        var response = req.CreateResponse(statusCode);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-
-        response.Body = new MemoryStream(responseBody);
-        return response;
-    }
-
 
 }
