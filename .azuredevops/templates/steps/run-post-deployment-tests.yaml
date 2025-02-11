@@ -1,29 +1,92 @@
 ---
 
 parameters:
-  - name: serviceConnection
-    type: string
+- name: serviceConnection
+  type: string
 
 steps:
-  - task: UseDotNet@2
-    displayName: 'Use .NET Core sdk and install if required'
-    inputs:
-      packageType: 'sdk'
-      installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  # - task: DotNetCoreCLI@2
-  #   displayName: 'Restore dependencies'
-  #   inputs:
-  #     command: 'restore'
-  #     projects: '**/*.csproj'
+- task: UseDotNet@2
+  displayName: 'Use .NET 9 SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+    includePreviewVersions: true
 
-  # - task: DotNetCoreCLI@2
-  #   displayName: 'Build the .NET project'
-  #   inputs:
-  #     command: 'build'
-  #     projects: '**/*.csproj'
-  #     arguments: '--configuration Release'
+- task: DeleteFiles@1
+  displayName: 'Clean Build Directory'
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      **/bin/*
+      **/obj/*
+      **/TestResults/*
+      **/drop/*
+    RemoveSourceFolder: false
 
-  # - script: |
-  #     dotnet run --project <path-to-your-project-file>
-  #   displayName: 'Run .NET Application'
+- task: FileTransform@1
+  displayName: 'Transform Configuration Files'
+  inputs:
+    folderPath: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config'
+    fileType: 'json'
+    targetFiles: '*.json'
+
+- task: PowerShell@2
+  displayName: 'Copy Test Files'
+  inputs:
+    targetType: 'inline'
+    script: |
+      $sourcePath = '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles'
+      $targetPath = '$(Build.ArtifactStagingDirectory)/TestFiles'
+
+      # Check if the source directory exists
+      if (!(Test-Path -Path $sourcePath)) {
+        Write-Error "Source directory not found: $sourcePath"
+        exit 1
+      }
+
+      # Create the target directory if it doesn't exist
+      if (!(Test-Path -Path $targetPath)) {
+        New-Item -ItemType Directory -Path $targetPath
+      }
+
+      # Copy the files
+      Copy-Item -Path $sourcePath -Destination $targetPath -Recurse -Force
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'TestFiles'
+
+- task: DownloadBuildArtifacts@0
+  inputs:
+    buildType: 'current'
+    downloadType: 'single'
+    artifactName: 'TestFiles'
+    downloadPath: '$(System.DefaultWorkingDirectory)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build Smoke Tests Solution'
+  inputs:
+    command: 'build'
+    projects: '$(Build.SourcesDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests.sln'
+    arguments: '--configuration Release'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run SpecFlow Tests'
+  inputs:
+    command: 'test'
+    projects: '$(System.DefaultWorkingDirectory)/tests/smoke-tests/dtos-cohort-manager-smoke-tests/dtos-cohort-manager-smoke-tests.csproj'
+    publishTestResults: true
+    azureSubscription: sc-cohort-manager-dev
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/*.trx'
+    testRunTitle: 'SpecFlow Tests'
+    mergeTestResults: true
+    createTestRun: true
+    testResultFormat: VSTest
+    azureSubscription: sc-cohort-manager-dev
