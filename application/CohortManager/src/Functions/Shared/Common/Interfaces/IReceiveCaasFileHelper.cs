@@ -8,5 +8,4 @@ public interface IReceiveCaasFileHelper
     Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord);
     string GetUrlFromEnvironment(string key);
     Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage);
-    Task<ScreeningService?> GetScreeningService(FileNameParser fileNameParser);
 }

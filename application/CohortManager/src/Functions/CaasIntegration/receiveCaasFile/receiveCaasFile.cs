@@ -8,22 +8,26 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
+using DataServices.Client;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
+    private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
-        IProcessCaasFile processCaasFile
+        IProcessCaasFile processCaasFile,
+        IDataServiceClient<ScreeningLkp> screeningLkpClient
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
+        _screeningLkpClient = screeningLkpClient;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -108,10 +112,10 @@ public class ReceiveCaasFile
         }
     }
 
-    private async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
+    public async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
     {
         // get screening service name and id
-        var screeningService = await _receiveCaasFileHelper.GetScreeningService(fileNameParser);
+        var screeningService = GetScreeningService(fileNameParser);
         if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
         {
             string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
@@ -122,5 +126,24 @@ public class ReceiveCaasFile
         }
 
         return screeningService;
+    }
+
+    /// <summary>
+    /// gets the screening service data for a screening work flow
+    /// </summary>
+    /// <param name="fileNameParser"></param>
+    /// <returns></returns>
+    public ScreeningService GetScreeningService(FileNameParser fileNameParser)
+    {
+        var screeningWorkflowId = fileNameParser.GetScreeningService();
+        _logger.LogInformation("Screening Acronym {screeningWorkflowId}", screeningWorkflowId);
+        var res = _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId).Result;
+        ScreeningService screeningWorkflow = new ScreeningService
+        {
+            ScreeningName = res?.ScreeningName,
+            ScreeningId = res?.ScreeningId.ToString(),
+            ScreeningWorkflowId = res?.ScreeningWorkflowId
+        };
+        return screeningWorkflow;
     }
 }
