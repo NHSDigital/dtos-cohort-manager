@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;
 using DataServices.Core;
-using System.Text.Json;
 
 public class ParticipantDemographicDataService
 {
@@ -37,5 +36,6 @@ public class ParticipantDemographicDataService
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"An error has occurred {ex.Message}");
         }
     }
+    
 }
 
