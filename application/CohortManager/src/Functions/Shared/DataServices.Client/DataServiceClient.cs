@@ -43,9 +43,12 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
         var jsonString = await GetJsonStringByFilter(predicate);
-        if (string.IsNullOrEmpty(jsonString)) return [];
-
-        return JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
+        if (string.IsNullOrEmpty(jsonString))
+        {
+            return [];
+        }
+        IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
+        return result;
     }
 
     public virtual async Task<TEntity> GetSingle(string id)
@@ -60,7 +63,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
                 _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
                 return null;
             }
-            if(jsonString == "No Data Found")
+            if (jsonString == "No Data Found")
             {
                 return null;
             }

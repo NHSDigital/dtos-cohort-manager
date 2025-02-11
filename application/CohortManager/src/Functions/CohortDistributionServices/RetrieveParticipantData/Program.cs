@@ -7,11 +7,13 @@ using Model;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddTransient<IParticipantManagerData, ParticipantManagerData>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
