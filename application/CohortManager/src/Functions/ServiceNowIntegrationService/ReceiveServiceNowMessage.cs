@@ -1,4 +1,4 @@
-namespace ServiceNowIntegrationService;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
