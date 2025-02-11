@@ -415,69 +415,21 @@
       }
     },
     {
-      "label": "clean (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application/CohortManager/src/Functions/screeningDataServices/ScreeningWorkflowDataService"
-      }
-    },
-    {
-      "label": "build (functions)",
-      "command": "dotnet",
-      "args": [
-        "build",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean (functions)",
-      "group": {
-        "kind": "build",
-        "isDefault": true
+      "label": "screeningDataServices/ScreeningLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 11 && func start"
       },
-      "problemMatcher": "$msCompile",
+      "windows": {
+        "command": "timeout 21 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
       "options": {
-        "cwd": "${workspaceFolder}/application/CohortManager/src/Functions/screeningDataServices/ScreeningWorkflowDataService"
-      }
-    },
-    {
-      "label": "clean release (functions)",
-      "command": "dotnet",
-      "args": [
-        "clean",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application/CohortManager/src/Functions/screeningDataServices/ScreeningWorkflowDataService"
-      }
-    },
-    {
-      "label": "publish (functions)",
-      "command": "dotnet",
-      "args": [
-        "publish",
-        "--configuration",
-        "Release",
-        "/property:GenerateFullPaths=true",
-        "/consoleloggerparameters:NoSummary"
-      ],
-      "type": "process",
-      "dependsOn": "clean release (functions)",
-      "problemMatcher": "$msCompile",
-      "options": {
-        "cwd": "${workspaceFolder}/application/CohortManager/src/Functions/screeningDataServices/ScreeningWorkflowDataService"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService"
       }
     }
   ]
