@@ -23,7 +23,7 @@ public class ParticipantDemographicDataService
     }
 
     [Function("ParticipantDemographicDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ParticipantDemographicDataService/action/{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ParticipantDemographicDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
