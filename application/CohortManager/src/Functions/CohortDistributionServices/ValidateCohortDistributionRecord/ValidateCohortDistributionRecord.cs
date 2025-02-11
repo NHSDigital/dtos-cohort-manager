@@ -15,17 +15,15 @@ public class ValidateCohortDistributionRecord
 {
     private readonly ILogger<ValidateCohortDistributionRecord> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ICallFunction _callFunction;
 
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
 
 
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
+    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
     {
         _createResponse = createResponse;
-        _createCohortDistributionData = createCohortDistributionData;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
         _logger = logger;

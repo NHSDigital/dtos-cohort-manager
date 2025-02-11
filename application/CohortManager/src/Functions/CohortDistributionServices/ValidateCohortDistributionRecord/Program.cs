@@ -16,7 +16,6 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
-        services.TryAddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
     })
