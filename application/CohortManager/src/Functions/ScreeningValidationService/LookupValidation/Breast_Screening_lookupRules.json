@@ -32,7 +32,7 @@
             "Expression": "new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)"
           }
         ],
-        "Expression": "!(EnglishCurrentPosting && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)))",
+        "Expression": "!(EnglishCurrentPosting && (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
