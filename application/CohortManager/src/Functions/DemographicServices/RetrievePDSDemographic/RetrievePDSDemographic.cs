@@ -27,7 +27,7 @@ public class RetrievePDSDemographic
     }
 
     [Function("RetrievePDSDemographic")]
-    public async Task<HttpResponseData> RunExternal([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         return await Main(req, true);
     }

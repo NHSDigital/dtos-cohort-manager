@@ -37,49 +37,5 @@ public class ParticipantDemographicDataService
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"An error has occurred {ex.Message}");
         }
     }
-
-    [Function("RetrievePDSDemographic")]
-    public async Task<HttpResponseData> RetrievePDSDemographic(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "ParticipantDemographicDataService/retrieve-pds/{*key}")] HttpRequestData req,
-        string? key)
-    {
-        _logger.LogInformation($"Received request to check NHS Number for key: {key}");
-
-        try
-        {
-            // Fetch the data based on the key
-            var result = await _requestHandler.HandleRequest(req, key);
-
-            // Convert the response to a Stream and read it as a string
-            using var reader = new StreamReader(result.Body);
-            string responseBody = await reader.ReadToEndAsync();
-
-            // Deserialize the response into a dictionary
-            var record = JsonSerializer.Deserialize<Dictionary<string, object>>(responseBody);
-
-            if (record != null && record.ContainsKey("NhsNumber") && !string.IsNullOrEmpty(record["NhsNumber"]?.ToString()))
-            {
-                _logger.LogInformation($"NHS Number found for key {key}");
-                var response = req.CreateResponse(HttpStatusCode.OK);
-                await response.WriteStringAsync($"NHS Number exists for key {key}.");
-                return response;
-            }
-            else
-            {
-                _logger.LogWarning($"No NHS Number found for key {key}");
-                var response = req.CreateResponse(HttpStatusCode.NotFound);
-                await response.WriteStringAsync($"No NHS Number exists for key {key}.");
-                return response;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, $"Error occurred while checking NHS Number for key {key}");
-            var response = req.CreateResponse(HttpStatusCode.InternalServerError);
-            await response.WriteStringAsync($"Error: {ex.Message}");
-            return response;
-        }
-    }
-
 }
 
