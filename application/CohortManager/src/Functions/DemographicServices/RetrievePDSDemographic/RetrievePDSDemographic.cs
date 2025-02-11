@@ -12,27 +12,27 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using Model;
 
-public class RetrievePDSDemographic
+public class RetrievePdsDemographic
 {
-    private readonly ILogger<RetrievePDSDemographic> _logger;
+    private readonly ILogger<RetrievePdsDemographic> _logger;
     private readonly ICreateResponse _createResponse;
 
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
-    public RetrievePDSDemographic(ILogger<RetrievePDSDemographic> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantDemographic> participantDemographic)
+    public RetrievePdsDemographic(ILogger<RetrievePdsDemographic> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
         _logger = logger;
         _createResponse = createResponse;
        _participantDemographic = participantDemographic;
     }
 
-    [Function("RetrievePDSDemographic")]
+    [Function("RetrievePdsDemographic")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        return await Main(req, true);
+        return await Main(req);
     }
 
-    private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
+    private async Task<HttpResponseData> Main(HttpRequestData req)
     {
         try
         {

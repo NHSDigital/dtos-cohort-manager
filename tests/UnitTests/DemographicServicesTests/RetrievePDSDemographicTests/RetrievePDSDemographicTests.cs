@@ -15,9 +15,9 @@ using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
-public class RetrievePDSDemographicTests
+public class RetrievePdsDemographicTests
 {
-    private readonly Mock<ILogger<RetrievePDSDemographic>> _logger = new();
+    private readonly Mock<ILogger<RetrievePdsDemographic>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<FunctionContext> _context = new();
     private Mock<HttpRequestData> _request;
@@ -27,13 +27,13 @@ public class RetrievePDSDemographicTests
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
 
-    public RetrievePDSDemographicTests()
+    public RetrievePdsDemographicTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        Environment.SetEnvironmentVariable("RetrievePDSDemographicURI", "RetrievePDSDemographicURI");
+        Environment.SetEnvironmentVariable("RetrievePdsDemographicURI", "RetrievePdsDemographicURI");
 
         _participant = new Participant()
         {
@@ -67,7 +67,7 @@ public class RetrievePDSDemographicTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePDSDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
         _request = _setupRequest.Setup(json);
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
 
@@ -90,7 +90,7 @@ public class RetrievePDSDemographicTests
         };
 
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePDSDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
 
         _request = _setupRequest.Setup("987654321");
@@ -112,7 +112,7 @@ public class RetrievePDSDemographicTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePDSDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
         _request = _setupRequest.Setup("11");
 
@@ -139,7 +139,7 @@ public class RetrievePDSDemographicTests
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePDSDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
         _request = _setupRequest.Setup(json);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
