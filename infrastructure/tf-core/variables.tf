@@ -84,11 +84,11 @@ variable "rbac_principals" {
       roles        = list(string)
     })
     resource_group = object({
-      display_name = string
+      principal_display_name = string
       roles        = list(string)
     })
     storage_account = object({
-      display_name = string
+      principal_display_name = string
       roles        = list(string)
     })
   })
