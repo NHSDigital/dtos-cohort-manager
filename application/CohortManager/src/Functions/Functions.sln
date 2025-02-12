@@ -195,9 +195,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Shared\Utilities\Utilities.csproj", "{5B584F73-BBF4-4E7A-A9F5-E02FD7E83E5C}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataService", "screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj", "{5AEBC8F8-3920-4A64-B9A5-A1898859C746}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningWorkflow", "screeningDataServices\ScreeningWorkflowDataService\ScreeningWorkflow.csproj", "{3E51D76F-4A90-4EC2-AF80-74E6EE94C257}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningWorkflow", "screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj", "{3E51D76F-4A90-4EC2-AF80-74E6EE94C257}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
