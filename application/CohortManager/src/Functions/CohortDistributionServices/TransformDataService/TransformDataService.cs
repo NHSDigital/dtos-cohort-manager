@@ -96,13 +96,11 @@ public class TransformDataService
         }
         catch (TransformationException ex)
         {
-            System.Console.WriteLine(ex);
             _logger.LogWarning(ex, "An error occurred during transformation");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", "", JsonSerializer.Serialize(participant));
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
