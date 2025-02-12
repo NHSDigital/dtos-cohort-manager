@@ -1009,9 +1009,9 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 5
+      max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S7"
       storage_account_type = "Local"
       zone_redundant       = false
     }
