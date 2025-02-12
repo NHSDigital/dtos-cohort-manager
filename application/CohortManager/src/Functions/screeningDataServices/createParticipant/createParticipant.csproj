@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="../../Shared/DataServices.Client/DataServices.Client.csproj" />
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\Shared\Utilities\Utilities.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
   </ItemGroup>
 </Project>
