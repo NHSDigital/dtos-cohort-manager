@@ -182,7 +182,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         catch(WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if(response.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }

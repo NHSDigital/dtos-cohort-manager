@@ -11,7 +11,7 @@ namespace dtos_cohort_manager_specflow.Steps;
 [Binding]
 public class FileUploadAndCohortDistributionSteps
 {
-    
+
     private readonly EndToEndFileUploadService _fileUploadService;
     private readonly AppSettings _appSettings;
     private SmokeTestsContext _smokeTestsContext;

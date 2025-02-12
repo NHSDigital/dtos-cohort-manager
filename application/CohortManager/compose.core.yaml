@@ -165,7 +165,7 @@ services:
       - ASPNETCORE_URLS=http://*:7067
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
-      - ParticipantManagementUrl = http://localhost:7994/api/ParticipantManagementDataService
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
@@ -181,7 +181,7 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
-      - ParticipantManagementUrl = http://localhost:7994/api/ParticipantManagementDataService
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   update-participant-details:
     container_name: update-participant-details
