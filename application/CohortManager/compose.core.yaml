@@ -195,6 +195,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   create-exception:
     container_name: create-exception
