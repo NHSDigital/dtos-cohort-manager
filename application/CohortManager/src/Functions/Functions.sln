@@ -194,6 +194,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BsSelectRequestAuditDataService", "screeningDataServices\BsSelectRequestAudit\BsSelectRequestAuditDataService.csproj", "{8AA0B06E-A160-4949-9419-421C4DFEE441}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -528,6 +530,10 @@ Global
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AA0B06E-A160-4949-9419-421C4DFEE441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AA0B06E-A160-4949-9419-421C4DFEE441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AA0B06E-A160-4949-9419-421C4DFEE441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AA0B06E-A160-4949-9419-421C4DFEE441}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -570,6 +576,7 @@ Global
 		{F879AA70-34DA-4A57-9989-101154B57208} = {E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}
 		{F4B14AFD-1B12-4313-BBA5-804C5EDF0FB7} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
 		{F84896FB-F172-402B-9340-BF3F159D3C68} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
+		{8AA0B06E-A160-4949-9419-421C4DFEE441} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

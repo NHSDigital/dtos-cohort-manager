@@ -12,6 +12,7 @@ public class DataServicesContext : DbContext
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
     DbSet<GPPractice> gPPractices { get; set; }
+    DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
 
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
@@ -52,6 +53,9 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
+        
+        modelBuilder.Entity<BsSelectRequestAudit>()
+            .ToTable("BS_SELECT_REQUEST_AUDIT","dbo");
 
     }
 }
