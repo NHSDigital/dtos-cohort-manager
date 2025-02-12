@@ -12,7 +12,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: feat/dtoss-7048-deploy-temp-environments
+      ref: feat/DTOSS-7048-deploy-temp-environments-post-7360
       endpoint: NHSDigital
 
 variables:
