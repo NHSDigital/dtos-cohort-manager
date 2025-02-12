@@ -78,7 +78,7 @@ module "rbac_assignments_storage" {
 
   principal_id         = data.azuread_group.rbac_principal_storage.id
   role_definition_name = each.value.role_name
-  scope                = azurerm_storage.core[each.value.region_key].id
+  scope                = azurerm_resource_group.core[each.value.region_key].id
 }
 
 data "azuread_group" "rbac_principal_storage" {
