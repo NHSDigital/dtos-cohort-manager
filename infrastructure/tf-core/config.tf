@@ -14,7 +14,7 @@ resource "azurerm_resource_group" "core" {
 locals {
   flattened_roles = {
     for region_name, region in var.regions : region_name => {
-      for principal_type, principal in var.rbac_principals : principal.principal_display_name => {
+      for principal_type, principal in var.rbac_principals : "${principal.key}-${principal.principal_display_name}" => {
         roles = flatten([
           principal_type == "keyvault" ? principal.roles : [],
           principal_type == "resource_group" ? principal.roles : [],
