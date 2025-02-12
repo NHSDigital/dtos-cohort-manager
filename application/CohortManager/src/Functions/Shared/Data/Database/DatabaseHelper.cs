@@ -6,12 +6,6 @@ using Microsoft.Extensions.Logging;
 
 public class DatabaseHelper : IDatabaseHelper
 {
-    private readonly ILogger<DatabaseHelper> _logger;
-
-    public DatabaseHelper(ILogger<DatabaseHelper> logger)
-    {
-        _logger = logger;
-    }
 
     public bool CheckIfNumberNull(string property)
     {
