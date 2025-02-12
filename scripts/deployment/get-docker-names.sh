@@ -24,6 +24,7 @@ declare -A docker_functions_map=(
     ["ParticipantManagementServices/UpdateParticipantFromScreeningProvider"]="update-participant-from-screening-provider"
     ["screeningDataServices/BsSelectGpPractice"]="bs-select-gp-practice-data-service"
     ["ParticipantManagementServices/CheckParticipantExists"]="check-participant-exists"
+    ["ServiceNowIntegrationService"]="receive-service-now-message"
     ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
     ["screeningDataServices/createParticipant"]="create-participant"
     ["screeningDataServices/CurrentPostingDataService"]="current-posting-data-service"

@@ -978,6 +978,18 @@ function_apps = {
         }
       ]
     }
+
+    ReceiveServiceNowMessage = {
+      name_suffix            = "receive-service-now-message"
+      function_endpoint_name = "ReceiveServiceNowMessage"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
   }
 }
 
