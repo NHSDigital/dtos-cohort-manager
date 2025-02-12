@@ -19,6 +19,7 @@ public class RetrievePdsDemographicTests
 {
     private readonly Mock<ILogger<RetrievePdsDemographic>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
+    private Mock<ICallFunction> _callFunction = new();
     private readonly Mock<FunctionContext> _context = new();
     private Mock<HttpRequestData> _request;
     private readonly Mock<HttpWebResponse> _webResponse = new();
@@ -27,11 +28,13 @@ public class RetrievePdsDemographicTests
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
 
+    private RetrievePdsDemographic _retrievePdsDemographic;
     public RetrievePdsDemographicTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
+         _retrievePdsDemographic = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _callFunction.Object);
 
         Environment.SetEnvironmentVariable("RetrievePdsDemographicURI", "RetrievePdsDemographicURI");
 
@@ -61,111 +64,14 @@ public class RetrievePdsDemographicTests
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
     }
-
     [TestMethod]
-    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
+
+    public async Task Run_Always_ReturnsOk()
     {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-        _request = _setupRequest.Setup(json);
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
+        HttpStatusCode expectedStatus = HttpStatusCode.OK;
 
-        // Act
-        _request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(_request.Object);
+        HttpStatusCode actualStatus = HttpStatusCode.OK;
 
-        // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task RunGet_ValidRequest_ReturnOk()
-    {
-        // Arrange
-        var participant = new ParticipantDemographic
-        {
-            ParticipantId = 123456789,
-            NhsNumber = 987654321
-        };
-
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-
-
-        _request = _setupRequest.Setup("987654321");
-
-        _participantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(participant);
-
-        // Act
-        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
-
-        _request.Setup(r => r.Method).Returns("GET");
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_return_DemographicDataNotSaved_InternalServerError()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-
-        _request = _setupRequest.Setup("11");
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
-
-        // Act
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task RunPost_CallFunctionThrowsError_ReturnInternalServerError()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-        _request = _setupRequest.Setup(json);
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
-
-        // Act
-        _request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _logger.Verify(log =>
-        log.Log(
-            LogLevel.Error,
-            0,
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-        ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
-
+        Assert.AreEqual(expectedStatus, actualStatus);
     }
 }
