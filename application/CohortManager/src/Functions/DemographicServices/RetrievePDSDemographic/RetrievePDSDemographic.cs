@@ -29,25 +29,20 @@ public class RetrievePdsDemographic
     [Function("RetrievePdsDemographic")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        return await Main(req);
-    }
-
-    private async Task<HttpResponseData> Main(HttpRequestData req)
-    {
-        try
+       try
         {
              if(req.Query["Id"] == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req,"No NHS Number Provided");
             }
-            string NHSNumber = req.Query["Id"]!;
+            var NHSNumber = req.Query["Id"]!;
 
             var demographicData = await GetDemographicData(NHSNumber);
 
 
             if (demographicData == null)
             {
-                _logger.LogInformation("Participant Not found");
+                _logger.LogError("Participant Not found");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
             else
