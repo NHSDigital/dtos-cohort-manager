@@ -44,6 +44,7 @@ declare -A docker_functions_map=(
     ["ScreeningValidationService/LookupValidation"]="lookup-validation"
     ["ScreeningValidationService/StaticValidation"]="static-validation"
     ["ScreeningValidationService/RemoveValidationException"]="remove-validation-exception-data"
+    ["screeningDataServices/ScreeningLkpDataService"]="screening-lkp-data-service"
 )
 
 changed_functions=""
