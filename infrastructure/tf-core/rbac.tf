@@ -6,6 +6,9 @@ locals {
   ]
 
   rbac_roles_key_vault_admin = [
+    "Key Vault Certificate User",
+    "Key Vault Crypto User",
+    "Key Vault Secrets User",
     "Key Vault Certificates Officer",
     "Key Vault Crypto Officer",
     "Key Vault Secrets Officer"
