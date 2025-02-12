@@ -46,7 +46,7 @@ services:
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
-      - ScreeningLpkDataServiceURL=http://localhost:8996/api/ScreeningLkpDataService
+      - ScreeningLkpDataServiceURL=http://localhost:8996/api/ScreeningLkpDataService
 
   # Participant Management Service
   add-participant:
