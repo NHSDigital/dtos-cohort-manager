@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
+using NHS.CohortManager.Shared.Utilities;
 using DataServices.Client;
 
 public class CreateParticipant
