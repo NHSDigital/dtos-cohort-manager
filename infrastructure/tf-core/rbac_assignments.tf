@@ -7,7 +7,7 @@
 #### Key Vault Permissions ####
 
 module "rbac_assignments_key_vault_admin" {
-  for_each = length(var.rbac_principal_name_key_vault) != 0 ? local.rbac_roles_key_vault : {}
+  for_each = length(var.rbac_principal_name_key_vault) != 0 ? local.rbac_roles_key_vault_map : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
@@ -40,7 +40,7 @@ locals {
 #### Additional Resource Group Permissions ####
 
 module "rbac_assignments_resource_group" {
-  for_each = length(var.rbac_principal_name_resource_group) != 0 ? local.rbac_roles_resource_group : {}
+  for_each = length(var.rbac_principal_name_resource_group) != 0 ? local.rbac_roles_resource_group_map : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
@@ -72,7 +72,7 @@ locals {
 #### Additional Storage Account Permissions ####
 
 module "rbac_assignments_storage" {
-  for_each = length(var.rbac_principal_name_storage) != 0 ? local.rbac_roles_storage : {}
+  for_each = length(var.rbac_principal_name_storage) != 0 ? local.rbac_roles_storage_map : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
