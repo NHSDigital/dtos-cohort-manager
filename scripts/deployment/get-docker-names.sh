@@ -25,6 +25,7 @@ declare -A docker_functions_map=(
     ["screeningDataServices/BsSelectGpPractice"]="bs-select-gp-practice-data-service"
     ["ParticipantManagementServices/CheckParticipantExists"]="check-participant-exists"
     ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
+    ["screeningDataServices/BsSelectRequestAudit"]="bs-request-audit-data-service"
     ["screeningDataServices/createParticipant"]="create-participant"
     ["screeningDataServices/CurrentPostingDataService"]="current-posting-data-service"
     ["screeningDataServices/ExceptionManagementDataService"]="exception-management-data-service"
