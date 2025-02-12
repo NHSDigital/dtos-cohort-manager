@@ -115,7 +115,7 @@ public class ReceiveCaasFile
     public async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
     {
         // get screening service name and id
-        var screeningService = GetScreeningService(fileNameParser);
+        var screeningService = await GetScreeningService(fileNameParser);
         if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
         {
             string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
@@ -133,11 +133,11 @@ public class ReceiveCaasFile
     /// </summary>
     /// <param name="fileNameParser"></param>
     /// <returns></returns>
-    public ScreeningService GetScreeningService(FileNameParser fileNameParser)
+    public async Task<ScreeningService> GetScreeningService(FileNameParser fileNameParser)
     {
         var screeningWorkflowId = fileNameParser.GetScreeningService();
         _logger.LogInformation("Screening Acronym {screeningWorkflowId}", screeningWorkflowId);
-        var res = _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId).Result;
+        var res = await _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId);
         ScreeningService screeningWorkflow = new ScreeningService
         {
             ScreeningName = res?.ScreeningName,
