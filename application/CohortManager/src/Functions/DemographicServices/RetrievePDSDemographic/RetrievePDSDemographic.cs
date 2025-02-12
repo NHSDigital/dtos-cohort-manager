@@ -27,31 +27,41 @@ public class RetrievePdsDemographic
         _callFunction = callFunction;
     }
 
-     [Function("RetrievePdsDemographic")]
+    [Function("RetrievePdsDemographic")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         try
         {
-            if (req.Query["Id"] == null)
+            if (req.Query["participantId"] == null)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No NHS Number Provided");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No Participant ID Provided");
             }
 
-            var NHSNumber = req.Query["Id"]!;
-            string pdsDemographicFunctionUrl = $"https://pds-api-endpoint/PDSDemographicDataFunction";
+            var participantId = req.Query["participantId"]!;
+            var pdsDemographicFunctionUrl = $"https://pds-api-endpoint/PDSDemographicDataFunction?participantId={participantId}";
 
             // Calling PDSDemographicDataFunction via ICallFunction
-            var demographicResponseJson = await _callFunction.SendGet(pdsDemographicFunctionUrl);
+            var pdsDemographicResponseJson = await _callFunction.SendGet(pdsDemographicFunctionUrl);
 
-            if (string.IsNullOrEmpty(demographicResponseJson))
+            if (string.IsNullOrEmpty(pdsDemographicResponseJson))
             {
                 _logger.LogError("Participant Not found");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
 
-            _logger.LogInformation($"NHS Number found");
+            // Deserialize response to extract NHSNumber
+            var demographicData = JsonSerializer.Deserialize<Demographic>(pdsDemographicResponseJson);
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, demographicResponseJson);
+            if (demographicData != null && !string.IsNullOrEmpty(demographicData.NhsNumber))
+            {
+                _logger.LogInformation($"NHS Number found");
+            }
+            else
+            {
+                _logger.LogWarning("NHS Number not found in demographic response.");
+            }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, pdsDemographicResponseJson);
         }
         catch (Exception ex)
         {
@@ -59,4 +69,9 @@ public class RetrievePdsDemographic
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+}
+// Model class for deserialization
+public class Demographic
+{
+    public string? NhsNumber { get; set; }
 }
