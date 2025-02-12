@@ -58,7 +58,7 @@ public class RetrievePdsDemographic
             }
             else
             {
-                _logger.LogWarning("NHS Number not found in demographic response.");
+                _logger.LogError("NHS Number not found in demographic response.");
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, pdsDemographicResponseJson);
