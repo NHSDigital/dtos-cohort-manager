@@ -413,6 +413,24 @@
       "options": {
         "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
       }
+    },
+    {
+      "label": "screeningDataServices/ScreeningLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 11 && func start"
+      },
+      "windows": {
+        "command": "timeout 21 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService"
+      }
     }
   ]
 }
