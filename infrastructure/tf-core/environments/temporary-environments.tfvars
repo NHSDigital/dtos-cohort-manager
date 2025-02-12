@@ -103,8 +103,8 @@ diagnostic_settings = {
 
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
-  acr_name    = "acrukshubdevcohman"
-  acr_rg_name = "rg-hub-dev-uks-cohman"
+  acr_name    = "acrukshubdevcohman"      # Need to leave dev defaults in to avoid changing the data lookups
+  acr_rg_name = "rg-hub-dev-uks-cohman"   # Need to leave dev defaults in to avoid changing the data lookups
 
   always_on = true
 
