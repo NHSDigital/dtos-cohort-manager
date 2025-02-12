@@ -85,7 +85,7 @@ public class CreateParticipant
                 ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
                 NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
                 ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
-                ReasonForRemovalDate = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
+                ReasonForRemovalDate = MappingUtilities.ParseDates(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
                 BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
                 ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
                 RecordInsertDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
