@@ -978,8 +978,6 @@ function_apps = {
         }
       ]
     }
-<<<<<<< HEAD
-=======
 
     ScreeningLkpDataService = {
       name_suffix            = "screening-lkp-data-service"
@@ -993,8 +991,6 @@ function_apps = {
         }
       ]
     }
-
->>>>>>> c047a727 (feat: environment variables and new dataservices added to teraform code)
   }
 }
 
