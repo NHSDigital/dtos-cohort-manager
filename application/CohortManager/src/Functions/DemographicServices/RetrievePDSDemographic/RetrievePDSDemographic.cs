@@ -59,5 +59,4 @@ public class RetrievePdsDemographic
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
-
 }
