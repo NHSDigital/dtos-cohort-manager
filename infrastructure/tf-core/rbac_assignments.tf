@@ -11,12 +11,12 @@ module "rbac_assignments_key_vault_admin" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = data.azuread_group.rbac_principal.id
+  principal_id         = data.azuread_group.rbac_principal_key_vault.id
   role_definition_name = each.value.role_name
   scope                = azurerm_resource_group.audit[each.value.region_key].id
 }
 
-data "azuread_group" "rbac_principal" {
+data "azuread_group" "rbac_principal_key_vault" {
   display_name = var.rbac_principal_name_key_vault
 }
 
@@ -44,12 +44,12 @@ module "rbac_assignments_resource_group" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = data.azuread_group.rbac_principal.id
+  principal_id         = data.azuread_group.rbac_principal_resource_group.id
   role_definition_name = each.value.role_name
   scope                = azurerm_resource_group.audit[each.value.region_key].id
 }
 
-data "azuread_group" "rbac_principal" {
+data "azuread_group" "rbac_principal_resource_group" {
   display_name = var.rbac_principal_name_resource_group
 }
 
@@ -76,12 +76,12 @@ module "rbac_assignments_storage" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = data.azuread_group.rbac_principal.id
+  principal_id         = data.azuread_group.rbac_principal_storage.id
   role_definition_name = each.value.role_name
   scope                = azurerm_storage.audit[each.value.region_key].id
 }
 
-data "azuread_group" "rbac_principal" {
+data "azuread_group" "rbac_principal_storage" {
   display_name = var.rbac_principal_name_storage
 }
 
