@@ -2,10 +2,13 @@ application           = "cohman"
 application_full_name = "cohort-manager"
 #environment           = "TEMP01"   #This comes from the pipeline
 
-rbac_principal_name = "dtos_team_select_temp_environments"
+# TODO: merge into the map definition below
+rbac_principal_name_key_vault = "dtos_team_select_temp_environments"
+rbac_principal_name_resource_group = "dtos_team_select_temp_environments"
+rbac_principal_name_storage = "dtos_team_select_temp_environments"
 
 rbac_principals = {
-  keyvault = {
+  key_vault = {
     principal_display_name = "dtos_team_select_temp_environments",
     roles = [
       "Key Vault Certificates Officer",
@@ -22,7 +25,7 @@ rbac_principals = {
       "Contributor"
     ]
   }
-  storage_account = {
+  storage = {
     principal_display_name = "dtos_team_select_temp_environments",
     roles = [
       "Storage Account Contributor",

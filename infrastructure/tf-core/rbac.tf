@@ -5,6 +5,16 @@ locals {
     "Key Vault Secrets User"
   ]
 
+  rbac_roles_key_vault_admin = [
+    "Key Vault Certificates Officer",
+    "Key Vault Crypto Officer",
+    "Key Vault Secrets Officer"
+  ]
+
+  rbac_roles_resource_group = [
+    "Contributor"
+  ]
+
   rbac_roles_storage = [
     "Storage Account Contributor",
     "Storage Blob Data Owner",
@@ -15,16 +25,4 @@ locals {
     "Contributor"
   ]
 
-  rbac_roles_resource_group = [
-    "Contributor",
-    "Key Vault Certificates Officer",
-    "Key Vault Certificate User",
-    "Key Vault Crypto Officer",
-    "Key Vault Crypto User",
-    "Key Vault Secrets Officer",
-    "Key Vault Secrets User",
-    "Storage Account Contributor",
-    "Storage Blob Data Owner",
-    "Storage Queue Data Contributor"
-  ]
 }

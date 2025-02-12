@@ -76,7 +76,19 @@ variable "features" {
   type        = map(bool)
 }
 
-variable "rbac_principal_name" {
+variable "rbac_principal_name_key_vault" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
+variable "rbac_principal_name_resource_group" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
+variable "rbac_principal_name_storage" {
   description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
   type        = string
   default     = ""
@@ -85,7 +97,7 @@ variable "rbac_principal_name" {
 variable "rbac_principals" {
   description = "The user groups to assign RBAC roles to"
   type = object({
-    keyvault = object({
+    key_vault = object({
       principal_display_name = string
       roles        = list(string)
     })
@@ -93,7 +105,7 @@ variable "rbac_principals" {
       principal_display_name = string
       roles        = list(string)
     })
-    storage_account = object({
+    storage = object({
       principal_display_name = string
       roles        = list(string)
     })
