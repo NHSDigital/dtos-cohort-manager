@@ -39,7 +39,6 @@ public class RemoveCohortDistributionTests
         _mockDBConnection.Setup(conn => conn.Open());
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-        _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
     }
 
     [TestMethod]
