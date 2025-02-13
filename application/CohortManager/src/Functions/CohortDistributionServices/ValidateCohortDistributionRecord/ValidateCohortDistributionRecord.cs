@@ -81,17 +81,15 @@ public class ValidateCohortDistributionRecord
 
     private async Task<CohortDistributionParticipant> GetLastCohortDistributionParticipantAsync(string existingNhsNumber)
     {
-        var recordToReturn = new CohortDistributionParticipant();
         long nhsNumber;
-
         nhsNumber = long.TryParse(existingNhsNumber, out long tempNhsNumber) ? tempNhsNumber : throw new FormatException("Unable to parse NHS Number");
 
         var cohortDistributionRecord = await _cohortDistributionDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
         if (cohortDistributionRecord == null)
         {
-            return recordToReturn;
+            return new CohortDistributionParticipant();
         }
-        return recordToReturn.ToCohortDistributionParticipant(cohortDistributionRecord);
+        return new CohortDistributionParticipant(cohortDistributionRecord);
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)

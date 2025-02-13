@@ -255,7 +255,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             while (reader.Read())
             {
-                var participant = new CohortDistributionParticipant
+                var participant = new CohortDistributionParticipant()
                 {
                     ParticipantId = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ID"),
                     NhsNumber = DatabaseHelper.GetValue<string>(reader, "NHS_NUMBER"),
