@@ -55,7 +55,7 @@ public class CreateParticipant : ICreateParticipant
 
     public CohortDistributionParticipant CreateCohortDistributionParticipantModel(ParticipantManagement participant, Demographic demographic)
     {
-        return new CohortDistributionParticipant
+        return new CohortDistributionParticipant()
         {
             ParticipantId = participant.ParticipantId.ToString(),
             NhsNumber = participant.NHSNumber.ToString(),
