@@ -70,7 +70,6 @@ public class RetrievePdsDemographic
         }
     }
 }
-
 // Model class for deserialization
 public class Demographic
 {
