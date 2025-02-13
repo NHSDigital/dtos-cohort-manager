@@ -93,7 +93,7 @@ public class CohortDistributionParticipant
         };
     }
 
-    public CohortDistributionParticipant FromCohortDistribution(CohortDistribution cohortDistribution)
+    public CohortDistributionParticipant ToCohortDistributionParticipant(CohortDistribution cohortDistribution)
     {
         return new CohortDistributionParticipant
         {

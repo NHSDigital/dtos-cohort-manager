@@ -91,7 +91,7 @@ public class ValidateCohortDistributionRecord
         {
             return recordToReturn;
         }
-        return recordToReturn.FromCohortDistribution(cohortDistributionRecord);
+        return recordToReturn.ToCohortDistributionParticipant(cohortDistributionRecord);
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
