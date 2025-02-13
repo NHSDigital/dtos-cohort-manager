@@ -10,6 +10,8 @@ module "rbac_assignments" {
 }
 
 data "azuread_group" "rbac_principal" {
+  count = length(var.rbac_principal_name_resource_group) != 0 ? 1 : 0
+
   display_name = var.rbac_principal_name_resource_group
 }
 
