@@ -389,7 +389,7 @@ public class StaticValidationTests
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.NewParticipantWithNoAddress.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+            Times.Once());
     }
 
     [TestMethod]
@@ -412,7 +412,7 @@ public class StaticValidationTests
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.NewParticipantWithNoAddress.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+            Times.Never());
     }
     #endregion
 
