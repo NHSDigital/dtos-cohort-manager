@@ -5,6 +5,54 @@ using NHS.CohortManager.Shared.Utilities;
 
 public class CohortDistributionParticipant
 {
+    public CohortDistributionParticipant()
+    {
+        NhsNumber = null!;
+        RecordType = null!;
+    }
+
+    public CohortDistributionParticipant(CohortDistribution cohortDistribution)
+    {
+        RequestId = cohortDistribution!.RequestId.ToString();
+        NhsNumber = cohortDistribution.NHSNumber.ToString();
+        SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString();
+        PrimaryCareProvider = cohortDistribution.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.PrimaryCareProviderDate);
+        NamePrefix = cohortDistribution.NamePrefix;
+        FirstName = cohortDistribution.GivenName;
+        OtherGivenNames = cohortDistribution.OtherGivenName;
+        FamilyName = cohortDistribution.FamilyName;
+        PreviousFamilyName = cohortDistribution.PreviousFamilyName;
+        DateOfBirth = MappingUtilities.FormatDateTime(cohortDistribution.DateOfBirth);
+        Gender = (Gender?)cohortDistribution.Gender;
+        AddressLine1 = cohortDistribution.AddressLine1;
+        AddressLine2 = cohortDistribution.AddressLine2;
+        AddressLine3 = cohortDistribution.AddressLine3;
+        AddressLine4 = cohortDistribution.AddressLine4;
+        AddressLine5 = cohortDistribution.AddressLine5;
+        Postcode = cohortDistribution.PostCode;
+        UsualAddressEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.UsualAddressFromDt);
+        DateOfDeath = MappingUtilities.FormatDateTime(cohortDistribution.DateOfDeath);
+        TelephoneNumber = cohortDistribution.TelephoneNumberHome;
+        TelephoneNumberEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.TelephoneNumberHomeFromDt);
+        MobileNumber = cohortDistribution.TelephoneNumberMob;
+        MobileNumberEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.TelephoneNumberMobFromDt);
+        EmailAddress = cohortDistribution.EmailAddressHome;
+        EmailAddressEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.EmailAddressHomeFromDt);
+        PreferredLanguage = cohortDistribution.PreferredLanguage;
+        IsInterpreterRequired = cohortDistribution.InterpreterRequired == 1 ? "1" : "0";
+        ReasonForRemoval = cohortDistribution.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.ReasonForRemovalDate);
+        Extracted = cohortDistribution.IsExtracted == 1 ? "1" : "0";
+        RecordInsertDateTime = MappingUtilities.FormatDateTime(cohortDistribution.RecordInsertDateTime);
+        RecordUpdateDateTime = MappingUtilities.FormatDateTime(cohortDistribution.RecordUpdateDateTime);
+        CurrentPosting = cohortDistribution.CurrentPosting;
+        CurrentPostingEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.CurrentPostingFromDt);
+        ParticipantId = cohortDistribution.ParticipantId.ToString();
+        // record type is not actually in the database but we need to set it as it's not nullable
+        RecordType = null!;
+    }
+
     public string? RequestId { get; set; }
     public string NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }

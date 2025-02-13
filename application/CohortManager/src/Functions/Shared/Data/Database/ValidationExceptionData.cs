@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
-
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
@@ -12,11 +11,8 @@ using Model.Enums;
 public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly ILogger<ValidationExceptionData> _logger;
-
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
-
     private readonly IDataServiceClient<ParticipantDemographic> _demographicDataServiceClient;
-
     private readonly IDataServiceClient<GPPractice> _gpPracticeDataServiceClient;
 
     public ValidationExceptionData(
@@ -26,43 +22,45 @@ public class ValidationExceptionData : IValidationExceptionData
         IDataServiceClient<GPPractice> gpPracticeDataServiceClient
     )
     {
-
         _logger = logger;
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
         _demographicDataServiceClient = demographicDataServiceClient;
         _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
     {
-        IEnumerable<ExceptionManagement?> exceptions;
-        // we do  this check so that we only call the database when it is needed
-        if (!todayOnly)
-        {
-            // get the exceptions from the list of all exceptions where the date created is today and no greater than today
-            exceptions = await _validationExceptionDataServiceClient.GetAll();
-        }
-        else
-        {
-            exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated >= DateTime.Today && x.DateCreated < DateTime.Today.AddDays(1));
-        }
-        var validationResult = exceptions.ToList();
+        var exceptions = todayOnly
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
+            : await _validationExceptionDataServiceClient.GetAll();
 
-        return validationResult.Select(x => x.ToValidationException())
-        .OrderBy(x => x.DateCreated).ToList();
+        var exceptionList = exceptions.Select(s => s.ToValidationException());
+        var propertyName = GetPropertyName(orderByProperty);
+
+        if (propertyName == nameof(ValidationException.DateCreated))
+        {
+            return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
+        }
+
+        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
     }
 
-    public async Task<ValidationException?> GetExceptionById(int exceptionId)
+    public async Task<ValidationException> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
 
+        if (exception == null)
+        {
+            _logger.LogInformation("Exception not found");
+            return null;
+        }
+
         long nhsNumber;
 
-        if(!long.TryParse(exception.NhsNumber, out nhsNumber))
+        if (!long.TryParse(exception.NhsNumber, out nhsNumber))
         {
             throw new FormatException("Unable to parse NHS Number");
         }
-
 
         var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
         var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
@@ -75,7 +73,6 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
         return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
     }
-
     public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
     {
         var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
@@ -99,35 +96,41 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
     {
-        if (exception == null || participantDemographic == null || gPPractice == null)
+        if (exception == null)
         {
-            _logger.LogWarning("A object was returned from the database for exception. exception {exception}, participantDemographic {participantDemographic}, gPPractice {gPPractice}", exception, participantDemographic, gPPractice);
+            _logger.LogInformation("Exception not found");
             return null;
         }
+
         exception.ExceptionDetails = new ExceptionDetails
         {
-            GivenName = participantDemographic.GivenName,
-            FamilyName = participantDemographic.FamilyName,
-            DateOfBirth = participantDemographic.DateOfBirth,
-            Gender = System.Enum.TryParse(participantDemographic.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
-            ParticipantAddressLine1 = participantDemographic.AddressLine1,
-            ParticipantAddressLine2 = participantDemographic.AddressLine2,
-            ParticipantAddressLine3 = participantDemographic.AddressLine3,
-            ParticipantAddressLine4 = participantDemographic.AddressLine4,
-            ParticipantAddressLine5 = participantDemographic.AddressLine5,
-            ParticipantPostCode = participantDemographic.PostCode,
-            TelephoneNumberHome = participantDemographic.TelephoneNumberHome,
-            EmailAddressHome = participantDemographic.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic.PrimaryCareProvider,
-            GpPracticeCode = gPPractice.GPPracticeCode,
-            GpAddressLine1 = gPPractice.AddressLine1,
-            GpAddressLine2 = gPPractice.AddressLine2,
-            GpAddressLine3 = gPPractice.AddressLine3,
-            GpAddressLine4 = gPPractice.AddressLine4,
-            GpAddressLine5 = gPPractice.AddressLine5,
-            GpPostCode = gPPractice.Postcode
-
+            GivenName = participantDemographic?.GivenName,
+            FamilyName = participantDemographic?.FamilyName,
+            DateOfBirth = participantDemographic?.DateOfBirth,
+            Gender = Enum.TryParse(participantDemographic?.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
+            ParticipantAddressLine1 = participantDemographic?.AddressLine1,
+            ParticipantAddressLine2 = participantDemographic?.AddressLine2,
+            ParticipantAddressLine3 = participantDemographic?.AddressLine3,
+            ParticipantAddressLine4 = participantDemographic?.AddressLine4,
+            ParticipantAddressLine5 = participantDemographic?.AddressLine5,
+            ParticipantPostCode = participantDemographic?.PostCode,
+            TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
+            EmailAddressHome = participantDemographic?.EmailAddressHome,
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
+            GpPracticeCode = gPPractice?.GPPracticeCode,
+            GpAddressLine1 = gPPractice?.AddressLine1,
+            GpAddressLine2 = gPPractice?.AddressLine2,
+            GpAddressLine3 = gPPractice?.AddressLine3,
+            GpAddressLine4 = gPPractice?.AddressLine4,
+            GpAddressLine5 = gPPractice?.AddressLine5,
+            GpPostCode = gPPractice?.Postcode
         };
+
+        if (participantDemographic == null || gPPractice == null)
+        {
+            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
+        }
+
         return exception;
     }
 
@@ -149,4 +152,17 @@ public class ValidationExceptionData : IValidationExceptionData
         // we throw here to stop processing as the date should never be null
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
+
+    private static string GetPropertyName(ExceptionSort? orderByProperty)
+    {
+        return orderByProperty switch
+        {
+            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
+            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
+            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
+            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
+            _ => nameof(ValidationException.DateCreated)
+        };
+    }
+
 }
