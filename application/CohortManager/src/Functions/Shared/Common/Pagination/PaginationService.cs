@@ -2,10 +2,11 @@ namespace Common;
 
 public class PaginationService<T> : IPaginationService<T>
 {
+        private const int pageSize = 20;
+
     public PaginationResult<T> GetPaginatedResult(
         IQueryable<T> source,
         int? lastId,
-        int pageSize,
         Func<T, int> idSelector = null)
     {
         // If no idSelector is provided, try to use a default 'Id' property
@@ -19,18 +20,16 @@ public class PaginationService<T> : IPaginationService<T>
 
         // Get the index of the lastId
         int lastIdIndex = lastId.HasValue? idList.IndexOf(lastId.Value) : -1;
-
         int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 2 : 1;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-        var query = source.OrderBy(idSelector).AsQueryable();
 
         if (lastIdIndex >= 0)
         {
-            query = query.Skip(lastIdIndex + 1);
+            source = source.Skip(lastIdIndex + 1);
         }
 
-        var items = query.Take(pageSize).ToList();
+        var items = source.Take(pageSize).ToList();
         int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
 
         return new PaginationResult<T>
