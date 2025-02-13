@@ -83,10 +83,8 @@ public class ValidateCohortDistributionRecord
     {
         var recordToReturn = new CohortDistributionParticipant();
         long nhsNumber;
-        if (!long.TryParse(existingNhsNumber, out nhsNumber))
-        {
-            throw new FormatException("Unable to parse NHS Number");
-        }
+
+        nhsNumber = long.TryParse(existingNhsNumber, out long tempNhsNumber) ? tempNhsNumber : throw new FormatException("Unable to parse NHS Number");
 
         var cohortDistributionRecord = await _cohortDistributionDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
         if (cohortDistributionRecord == null)
