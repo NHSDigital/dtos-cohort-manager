@@ -46,7 +46,6 @@ public class CreateParticipant : ICreateParticipant
             ScreeningId = participant.ScreeningId,
             ScreeningName = participant.ScreeningName,
             RecordInsertDateTime = demographic.RecordInsertDateTime,
-            RecordUpdateDateTime = demographic.RecordUpdateDateTime,
             //Accepting null for eligibility flag is a temporary behavior until eligibility flag is included in the test files.
             EligibilityFlag = participant.EligibilityFlag
 
