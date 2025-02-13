@@ -4,7 +4,7 @@ module "rbac_assignments" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = data.azuread_group.rbac_principal.id
+  principal_id         = data.azuread_group.rbac_principal[0].id
   role_definition_name = each.value.role_name
   scope                = azurerm_resource_group.audit[each.value.region_key].id
 }
