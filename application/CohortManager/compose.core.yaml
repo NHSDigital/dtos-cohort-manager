@@ -410,16 +410,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
-  receive-service-now-message:
-    container_name: receive-service-now-message
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: ServiceNowIntegrationService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7912
-
+      
   bs-request-audit-data-service:
     container_name: bs-request-audit-data-service
     network_mode: host
@@ -440,9 +431,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
-
-receive-service-now-message:
+  receive-service-now-message:
     container_name: receive-service-now-message
     network_mode: host
     build:
