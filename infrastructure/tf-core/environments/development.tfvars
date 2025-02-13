@@ -194,6 +194,10 @@ function_apps = {
         {
           env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ScreeningLkpDataServiceURL"
+          function_app_key = "ScreeningLkpDataService"
         }
       ]
       env_vars_static = {
