@@ -38,7 +38,7 @@ public class RetrievePdsDemographic
             }
 
             var participantId = req.Query["participantId"]!;
-            var pdsDemographicFunctionUrl = $"https://pds-api-endpoint/PDSDemographicDataFunction?participantId={participantId}";
+            var pdsDemographicFunctionUrl = Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL");
 
             // Calling PDSDemographicDataFunction via ICallFunction
             var pdsDemographicResponseJson = await _callFunction.SendGet(pdsDemographicFunctionUrl);
