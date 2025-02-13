@@ -6,12 +6,6 @@ using Microsoft.Extensions.Logging;
 
 public class DatabaseHelper : IDatabaseHelper
 {
-    private readonly ILogger<DatabaseHelper> _logger;
-
-    public DatabaseHelper(ILogger<DatabaseHelper> logger)
-    {
-        _logger = logger;
-    }
 
     public bool CheckIfNumberNull(string property)
     {
@@ -21,42 +15,6 @@ public class DatabaseHelper : IDatabaseHelper
         }
 
         return !long.TryParse(property, out _);
-    }
-
-    public object ParseDates(string dateString)
-    {
-        if (string.IsNullOrEmpty(dateString)) return DBNull.Value;
-
-        if (dateString.Length == 4 || dateString.Length == 6)
-        {
-            dateString = HandlePartialDates(dateString);
-        }
-
-        string[] formats = ["dd/MM/yyyy", "yyyyMMdd", "M/d/yyyy", "MM/dd/yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.fff", "yyyy-MM-ddTHH:mm:ss.fffZ", "yyyy-MM-ddTHH:mm:ss.fffffff"];
-        bool success = DateTime.TryParseExact(dateString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
-
-        if (!success)
-        {
-            _logger.LogError("Failed to parse date: {DateString}", dateString);
-            return DBNull.Value;
-        }
-
-        return tempDate;
-    }
-
-    private static string HandlePartialDates(string dateString)
-    {
-        if (dateString.Length == 4)
-        {
-            return $"{dateString}0101";
-        }
-
-        if (dateString.Length == 6)
-        {
-            return $"{dateString}01";
-        }
-
-        return dateString;
     }
 
     public static string? FormatDateAPI(string date)

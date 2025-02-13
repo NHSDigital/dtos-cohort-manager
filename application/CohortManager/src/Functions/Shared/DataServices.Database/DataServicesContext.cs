@@ -31,7 +31,7 @@ public class DataServicesContext : DbContext
             .ToTable("CURRENT_POSTING_LKP", "dbo");
 
         modelBuilder.Entity<ExcludedSMULookup>()
-            .ToTable("EXCLUDED_SMU_LKP","dbo");
+            .ToTable("EXCLUDED_SMU_LKP", "dbo");
 
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT", "dbo");
@@ -53,5 +53,7 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
 
+        modelBuilder.Entity<ScreeningLkp>()
+            .ToTable("SCREENING_LKP", "dbo");
     }
 }
