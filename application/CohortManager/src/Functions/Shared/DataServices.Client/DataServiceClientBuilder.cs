@@ -57,7 +57,7 @@ public class DataServiceClientBuilder
     {
         if(string.IsNullOrEmpty(url))
         {
-            throw new ArgumentNullException($"Failed to register data service URL for Data service of Type {type.FullName}");
+            throw new ArgumentNullException("url",$"No URL was provided when registering DataService of type {type.FullName}");
         }
         _dataServiceUrls.Add(type,url);
     }
