@@ -983,6 +983,19 @@ function_apps = {
       ]
     }
 
+    BsRequestAuditDataService = {
+      name_suffix            = "bs-request-audit-data-service"
+      function_endpoint_name = "BsRequestAuditDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
     ScreeningLkpDataService = {
       name_suffix            = "screening-lkp-data-service"
       function_endpoint_name = "ScreeningLkpDataService"
