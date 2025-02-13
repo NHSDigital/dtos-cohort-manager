@@ -43,7 +43,7 @@ stages:
             name: set_variables
             displayName: Set Terraform Variables
             inputs:
-              azureSubscription: sc-cohort-manager-dev
+              azureSubscription: $(SERVICE_CONNECTION)
               scriptLocation: inlineScript
               scriptType: bash
               workingDirectory: $(tfExecutionDir)
@@ -79,7 +79,7 @@ stages:
           - task: AzureCLI@2
             displayName: Configure Backend
             inputs:
-              azureSubscription: sc-cohort-manager-dev
+              azureSubscription: $(SERVICE_CONNECTION)
               scriptLocation: inlineScript
               scriptType: bash
               workingDirectory: $(tfExecutionDir)

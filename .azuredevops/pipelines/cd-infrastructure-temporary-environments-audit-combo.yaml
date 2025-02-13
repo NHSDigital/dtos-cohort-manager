@@ -1,0 +1,151 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  name: private-pool-dev-uks
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: feat/DTOSS-7048-deploy-temp-environments-post-7360
+      endpoint: NHSDigital
+
+variables:
+  - group: TEMP_ENVIRONMENTS_audit_backend
+  - group: DEV_hub_backend_remote_state
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: TF_VERSION
+    value: 1.9.2
+
+parameters:
+  - name: pipelineAction
+    displayName: 'Pipeline Action'
+    type: string
+    values:
+      - 'Apply'
+      - 'Destroy'
+    default: 'Apply'
+
+stages:
+  - stage: terraform_setup
+    displayName: Terraform Setup
+    jobs:
+      - job: set_variables
+        displayName: Set Terraform Variables
+        steps:
+          - task: AzureCLI@2
+            name: set_variables
+            displayName: Set Terraform Variables
+            inputs:
+              azureSubscription: $(SERVICE_CONNECTION)
+              scriptLocation: inlineScript
+              scriptType: bash
+              workingDirectory: $(tfExecutionDir)
+              inlineScript: |
+                task_number=$(echo $(Build.SourceBranchName) | cut -d'/' -f2 | awk -F'-' '{print $2}')
+                temp_environment_name="temp${task_number}"
+                storage_container_name_audit="temp-environment-${task_number}-audit"
+                tf_plan_artefact_path_audit="tf_plan_audit_${temp_environment_name}"
+                # Output the values for debugging:
+                echo "##[debug] task_number: $task_number"
+                echo "##[debug] temp_environment_name: $temp_environment_name"
+                echo "##[debug] storage_container_name_audit: $storage_container_name_audit"
+                echo "##[debug] tf_plan_artefact_path_audit: $tf_plan_artefact_path_audit"
+                # Set the output variables
+                echo "##vso[task.setvariable variable=task_number;isOutput=true]$task_number"
+                echo "##vso[task.setvariable variable=temp_environment_name;isOutput=true]$temp_environment_name"
+                echo "##vso[task.setvariable variable=storage_container_name_audit;isOutput=true]$storage_container_name_audit"
+                echo "##vso[task.setvariable variable=tf_plan_artefact_path_audit;isOutput=true]$tf_plan_artefact_path_audit"
+      - job: configure_backend
+        displayName: Configure Backend
+        dependsOn: set_variables
+        variables:
+          storage_container_name_audit: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+        steps:
+          - task: AzureCLI@2
+            displayName: Configure Backend
+            inputs:
+              azureSubscription: $(SERVICE_CONNECTION)
+              scriptLocation: inlineScript
+              scriptType: bash
+              workingDirectory: $(tfExecutionDir)
+              inlineScript: |
+                # Check if the backend configuration file exists and if not, create the container for it:
+                container_exists=$(az storage container exists --name $(storage_container_name_audit) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+                if [ "$container_exists" == "True" ]; then
+                  echo "##[debug] Container $(storage_container_name_audit) already exists"
+                else
+                  echo "##[debug] Container $(storage_container_name_audit) does not exist, creating it..."
+                  az storage container create --name $(storage_container_name_audit) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
+                fi
+
+  - stage: terraform_plan_audit
+    displayName: Terraform Plan - Audit
+    dependsOn: [terraform_setup]
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      TF_PLAN_ARTIFACT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_audit'] ]
+      ENVIRONMENT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+      BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+      tfCommandOptions: >-
+        -var=environment=$(ENVIRONMENT)
+      tfVarsFile: environments/temporary-environments.tfvars
+    jobs:
+      - job: init_and_plan
+        displayName: Init, plan, store artifact
+        steps:
+          - checkout: self
+          - checkout: dtos-devops-templates
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+
+  - stage: terraform_apply_audit
+    displayName: Terraform Apply - Audit
+    dependsOn: [terraform_setup, terraform_plan_audit]
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan_audit.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      TF_PLAN_ARTIFACT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_audit'] ]
+      ENVIRONMENT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+      BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+    jobs:
+      - deployment: terraform_apply_audit
+        displayName: Init, get plan artifact, apply
+        environment: temporary-environments
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+
+  - stage: terraform_destroy_audit
+    displayName: Terraform Destroy - Audit
+    dependsOn: [terraform_setup]
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      TF_PLAN_ARTIFACT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_audit'] ]
+      ENVIRONMENT: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+      BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+      tfCommandOptions: >-
+        -var=environment=$(ENVIRONMENT)
+      tfVarsFile: environments/temporary-environments.tfvars
+    jobs:
+      - deployment: terraform_destroy_audit
+        displayName: Init, destroy
+        environment: temporary-environments
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
+
+  # Remember to clean up other resources such as the state file and and AD groups
