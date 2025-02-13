@@ -431,6 +431,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      
   receive-service-now-message:
     container_name: receive-service-now-message
     network_mode: host
