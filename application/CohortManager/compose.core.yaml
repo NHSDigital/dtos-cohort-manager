@@ -383,7 +383,6 @@ services:
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8082
-      - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
 
