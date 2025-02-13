@@ -1,10 +1,12 @@
 namespace Data.Database;
 
 using System.Data;
+using System.Data.Common;
 using System.Net;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using DataServices.Client;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
@@ -15,12 +17,14 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     private readonly IDbConnection _dbConnection;
     private readonly string _connectionString;
     private readonly ILogger<CreateCohortDistributionData> _logger;
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistribution;
 
-    public CreateCohortDistributionData(IDbConnection IdbConnection, ILogger<CreateCohortDistributionData> logger)
+    public CreateCohortDistributionData(IDbConnection IdbConnection, ILogger<CreateCohortDistributionData> logger, IDataServiceClient<CohortDistribution>? cohortDistribution)
     {
         _dbConnection = IdbConnection;
         _logger = logger;
         _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _cohortDistribution = cohortDistribution;
     }
 
 
@@ -159,58 +163,21 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         UpdateRecords(SQLToExecuteInOrder);
     }
 
-    public List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId)
+    public async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(string requestId)
     {
-        var SQL = "SELECT " +
-            " [PARTICIPANT_ID], " +
-            " [NHS_NUMBER], " +
-            " [SUPERSEDED_NHS_NUMBER], " +
-            " [PRIMARY_CARE_PROVIDER], " +
-            " [PRIMARY_CARE_PROVIDER_FROM_DT], " +
-            " [NAME_PREFIX], " +
-            " [GIVEN_NAME], " +
-            " [OTHER_GIVEN_NAME], " +
-            " [FAMILY_NAME], " +
-            " [PREVIOUS_FAMILY_NAME], " +
-            " [DATE_OF_BIRTH], " +
-            " [GENDER], " +
-            " [ADDRESS_LINE_1], " +
-            " [ADDRESS_LINE_2], " +
-            " [ADDRESS_LINE_3], " +
-            " [ADDRESS_LINE_4], " +
-            " [ADDRESS_LINE_5], " +
-            " [POST_CODE], " +
-            " [USUAL_ADDRESS_FROM_DT], " +
-            " [CURRENT_POSTING], " +
-            " [CURRENT_POSTING_FROM_DT], " +
-            " [DATE_OF_DEATH], " +
-            " [TELEPHONE_NUMBER_HOME], " +
-            " [TELEPHONE_NUMBER_HOME_FROM_DT], " +
-            " [TELEPHONE_NUMBER_MOB], " +
-            " [TELEPHONE_NUMBER_MOB_FROM_DT], " +
-            " [EMAIL_ADDRESS_HOME], " +
-            " [EMAIL_ADDRESS_HOME_FROM_DT], " +
-            " [PREFERRED_LANGUAGE], " +
-            " [INTERPRETER_REQUIRED], " +
-            " [REASON_FOR_REMOVAL], " +
-            " [REASON_FOR_REMOVAL_FROM_DT], " +
-            " [RECORD_INSERT_DATETIME], " +
-            " [RECORD_UPDATE_DATETIME], " +
-            " [IS_EXTRACTED], " +
-            " [REQUEST_ID] " +
-            " FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
-            " WHERE REQUEST_ID = @RequestId";
+        var requestIdGuid = Guid.Parse(requestId);
+        var cohortList = await _cohortDistribution.GetByFilter(x => x.RequestId == requestIdGuid);
 
-        var parameters = new Dictionary<string, object>
+        var responseList = new List<CohortDistributionParticipantDto>();
+        //iterate over each in list 
+        foreach (CohortDistribution participant in cohortList) 
         {
-            {"@RequestId", requestId },
-        };
+            var response = new CohortDistributionParticipantDto(participant); 
+            response.RequestId = requestId;
+            responseList.Add(response);
+        }
 
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        var cohortList = GetParticipant(command);
-        return CohortDistributionParticipantDto(cohortList);
+        return responseList;
     }
 
     public CohortDistributionParticipant GetLastCohortDistributionParticipant(string NhsNumber)

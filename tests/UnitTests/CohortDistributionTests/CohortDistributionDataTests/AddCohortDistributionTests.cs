@@ -2,6 +2,7 @@ namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
 using System.Threading.Tasks;
 using Data.Database;
+using DataServices.Client;
 using Model;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
@@ -10,16 +11,19 @@ using NHS.CohortManager.Tests.TestUtils;
 public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDistributionData>
 {
     private static readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
+    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionMock;
     private readonly CreateCohortDistributionData _createCohortDistributionData;
     private readonly string _requestId = Guid.NewGuid().ToString();
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
     private List<CohortDistributionParticipant> _cohortDistributionList;
     public AddCohortDistributionTests() : base((conn, logger, transaction, command, response) =>
-        new CreateCohortDistributionData(conn, logger))
+        new CreateCohortDistributionData(conn, logger, null))
     {
         _createCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
-            _loggerMock.Object);
+            _loggerMock.Object,
+            _cohortDistributionMock.Object
+            );
 
 
         columnToClassPropertyMapping = new Dictionary<string, string>
@@ -145,11 +149,11 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
+    public async Task GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
     {
         // Act
-        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
-        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
+        var validRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var inValidRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
 
         // Assert
         Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
@@ -158,13 +162,13 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
+    public async Task GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
     {
         // Arrange
         _mockDataReader.SetupSequence(reader => reader.Read()).Returns(false);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
@@ -185,10 +189,10 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
+    public async Task GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
