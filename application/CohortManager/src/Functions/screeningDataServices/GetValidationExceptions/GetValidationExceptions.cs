@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
@@ -47,8 +48,8 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var pageSize = 20;
-        var todayOnly = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
+        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
+        var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
 
         try
         {
@@ -57,14 +58,14 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var todaysExceptions = await _validationData.GetAllExceptions(todayOnly);
+            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty);
 
-            if (!todaysExceptions.Any())
+            if (exceptions.Count == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(todaysExceptions.AsQueryable(), lastId, pageSize, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId.Value);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }
