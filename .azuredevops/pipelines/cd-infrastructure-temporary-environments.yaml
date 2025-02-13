@@ -148,66 +148,66 @@ stages:
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
 
-  - stage: terraform_apply_core
-    displayName: Terraform Apply - Core
-    dependsOn: [terraform_setup, terraform_plan_core]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan_core.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
-    variables:
-    - group: TEMP_ENVIRONMENTS_core_backend
-    - name: TF_DIRECTORY
-      value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
-    - name: TF_PLAN_ARTIFACT
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_core'] ]
-    - name: ENVIRONMENT
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
-    - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
-    - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
-    jobs:
-      - deployment: terraform_apply_core
-        displayName: Init, get plan artifact, apply
-        environment: temporary-environments
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+  # - stage: terraform_apply_core
+  #   displayName: Terraform Apply - Core
+  #   dependsOn: [terraform_setup, terraform_plan_core]
+  #   condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan_core.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+  #   variables:
+  #   - group: TEMP_ENVIRONMENTS_core_backend
+  #   - name: TF_DIRECTORY
+  #     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  #   - name: TF_PLAN_ARTIFACT
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_core'] ]
+  #   - name: ENVIRONMENT
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+  #   - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
+  #   - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+  #   jobs:
+  #     - deployment: terraform_apply_core
+  #       displayName: Init, get plan artifact, apply
+  #       environment: temporary-environments
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - checkout: dtos-devops-templates
+  #               - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
-  - stage: terraform_destroy_core
-    displayName: Terraform Destroy
-    dependsOn: [terraform_setup]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
-    variables:
-    - group: TEMP_ENVIRONMENTS_core_backend
-    - name: TF_DIRECTORY
-      value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
-    - name: TF_PLAN_ARTIFACT
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_core'] ]
-    - name: ENVIRONMENT
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
-    - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
-    - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
-      value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
-    - name: tfCommandOptions
-      value: >-
-        -var=environment=$(ENVIRONMENT)
-        -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
-    - name: tfVarsFile
-      value: environments/temporary-environments.tfvars
-    jobs:
-      - deployment: terraform_destroy_core
-        displayName: Init, destroy
-        environment: temporary-environments
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
+  # - stage: terraform_destroy_core
+  #   displayName: Terraform Destroy
+  #   dependsOn: [terraform_setup]
+  #   condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
+  #   variables:
+  #   - group: TEMP_ENVIRONMENTS_core_backend
+  #   - name: TF_DIRECTORY
+  #     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  #   - name: TF_PLAN_ARTIFACT
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.tf_plan_artefact_path_core'] ]
+  #   - name: ENVIRONMENT
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+  #   - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
+  #   - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+  #     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+  #   - name: tfCommandOptions
+  #     value: >-
+  #       -var=environment=$(ENVIRONMENT)
+  #       -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
+  #   - name: tfVarsFile
+  #     value: environments/temporary-environments.tfvars
+  #   jobs:
+  #     - deployment: terraform_destroy_core
+  #       displayName: Init, destroy
+  #       environment: temporary-environments
+  #       strategy:
+  #         runOnce:
+  #           deploy:
+  #             steps:
+  #               - checkout: self
+  #               - checkout: dtos-devops-templates
+  #               - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
 
   # Remember to clean up other resources such as the state file and SQL Server admin group
