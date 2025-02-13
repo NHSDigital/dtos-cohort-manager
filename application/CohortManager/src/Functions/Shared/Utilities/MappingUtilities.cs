@@ -1,4 +1,4 @@
-namespace Common;
+namespace NHS.CohortManager.Shared.Utilities;
 
 using System.Globalization;
 
@@ -33,6 +33,11 @@ public static class MappingUtilities
             return null;
 
         return tempDate;
+    }
+
+    public static string? FormatDateTime(DateTime? date)
+    {
+        return date?.ToString("yyyy-MM-dd hh:mm:ss");
     }
 
     private static string HandlePartialDates(string dateString)

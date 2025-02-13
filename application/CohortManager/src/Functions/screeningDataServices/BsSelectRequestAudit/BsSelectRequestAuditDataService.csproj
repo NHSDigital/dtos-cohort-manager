@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -9,8 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -26,9 +25,8 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../Shared/DataServices.Client/DataServices.Client.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Database\DataServices.Database.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Core\DataServices.Core.csproj" />
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
-    <ProjectReference Include="..\..\Shared\Utilities\Utilities.csproj" />
-    <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
   </ItemGroup>
 </Project>

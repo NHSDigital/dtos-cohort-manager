@@ -1,10 +1,58 @@
 namespace Model;
 
-using System.Globalization;
 using Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class CohortDistributionParticipant
 {
+    public CohortDistributionParticipant()
+    {
+        NhsNumber = null!;
+        RecordType = null!;
+    }
+
+    public CohortDistributionParticipant(CohortDistribution cohortDistribution)
+    {
+        RequestId = cohortDistribution!.RequestId.ToString();
+        NhsNumber = cohortDistribution.NHSNumber.ToString();
+        SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString();
+        PrimaryCareProvider = cohortDistribution.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.PrimaryCareProviderDate);
+        NamePrefix = cohortDistribution.NamePrefix;
+        FirstName = cohortDistribution.GivenName;
+        OtherGivenNames = cohortDistribution.OtherGivenName;
+        FamilyName = cohortDistribution.FamilyName;
+        PreviousFamilyName = cohortDistribution.PreviousFamilyName;
+        DateOfBirth = MappingUtilities.FormatDateTime(cohortDistribution.DateOfBirth);
+        Gender = (Gender?)cohortDistribution.Gender;
+        AddressLine1 = cohortDistribution.AddressLine1;
+        AddressLine2 = cohortDistribution.AddressLine2;
+        AddressLine3 = cohortDistribution.AddressLine3;
+        AddressLine4 = cohortDistribution.AddressLine4;
+        AddressLine5 = cohortDistribution.AddressLine5;
+        Postcode = cohortDistribution.PostCode;
+        UsualAddressEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.UsualAddressFromDt);
+        DateOfDeath = MappingUtilities.FormatDateTime(cohortDistribution.DateOfDeath);
+        TelephoneNumber = cohortDistribution.TelephoneNumberHome;
+        TelephoneNumberEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.TelephoneNumberHomeFromDt);
+        MobileNumber = cohortDistribution.TelephoneNumberMob;
+        MobileNumberEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.TelephoneNumberMobFromDt);
+        EmailAddress = cohortDistribution.EmailAddressHome;
+        EmailAddressEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.EmailAddressHomeFromDt);
+        PreferredLanguage = cohortDistribution.PreferredLanguage;
+        IsInterpreterRequired = cohortDistribution.InterpreterRequired == 1 ? "1" : "0";
+        ReasonForRemoval = cohortDistribution.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.ReasonForRemovalDate);
+        Extracted = cohortDistribution.IsExtracted == 1 ? "1" : "0";
+        RecordInsertDateTime = MappingUtilities.FormatDateTime(cohortDistribution.RecordInsertDateTime);
+        RecordUpdateDateTime = MappingUtilities.FormatDateTime(cohortDistribution.RecordUpdateDateTime);
+        CurrentPosting = cohortDistribution.CurrentPosting;
+        CurrentPostingEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.CurrentPostingFromDt);
+        ParticipantId = cohortDistribution.ParticipantId.ToString();
+        // record type is not actually in the database but we need to set it as it's not nullable
+        RecordType = null!;
+    }
+
     public string? RequestId { get; set; }
     public string NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }
@@ -58,13 +106,13 @@ public class CohortDistributionParticipant
             NHSNumber = long.Parse(NhsNumber),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
             PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
-            PrimaryCareProviderDate = ParseDateTime(PrimaryCareProviderEffectiveFromDate ?? ""),
+            PrimaryCareProviderDate = MappingUtilities.ParseDates(PrimaryCareProviderEffectiveFromDate),
             NamePrefix = NamePrefix,
             GivenName = FirstName,
             OtherGivenName = OtherGivenNames,
             FamilyName = FamilyName,
             PreviousFamilyName = PreviousFamilyName,
-            DateOfBirth = ParseDateTime(DateOfBirth ?? ""),
+            DateOfBirth = MappingUtilities.ParseDates(DateOfBirth),
             Gender = (short?)Gender ?? 0,
             AddressLine1 = AddressLine1,
             AddressLine2 = AddressLine2,
@@ -72,30 +120,25 @@ public class CohortDistributionParticipant
             AddressLine4 = AddressLine4,
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
-            UsualAddressFromDt = ParseDateTime(UsualAddressEffectiveFromDate ?? ""),
-            DateOfDeath = ParseDateTime(DateOfDeath ?? ""),
+            UsualAddressFromDt = MappingUtilities.ParseDates(UsualAddressEffectiveFromDate),
+            DateOfDeath = MappingUtilities.ParseDates(DateOfDeath),
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDt = ParseDateTime(TelephoneNumberEffectiveFromDate ?? ""),
+            TelephoneNumberHomeFromDt = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDt = ParseDateTime(MobileNumberEffectiveFromDate ?? ""),
+            TelephoneNumberMobFromDt = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate),
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDt = ParseDateTime(EmailAddressEffectiveFromDate ?? ""),
+            EmailAddressHomeFromDt = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate),
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = short.TryParse(IsInterpreterRequired, out var interpreter) ? interpreter : (short)0,
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = ParseDateTime(ReasonForRemovalEffectiveFromDate ?? ""),
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
             IsExtracted = short.TryParse(Extracted, out var extracted) ? extracted : (short)0,
-            RecordInsertDateTime = ParseDateTime(RecordInsertDateTime ?? ""),
-            RecordUpdateDateTime = ParseDateTime(RecordUpdateDateTime ?? ""),
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
+            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
             CurrentPosting = CurrentPosting,
-            CurrentPostingFromDt = ParseDateTime(CurrentPostingEffectiveFromDate ?? ""),
+            CurrentPostingFromDt = MappingUtilities.ParseDates(CurrentPostingEffectiveFromDate),
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
-    }
-
-    private static DateTime? ParseDateTime(string dateTimeToParse)
-    {
-        return DateTime.TryParseExact(dateTimeToParse, DateFormats.Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDateTime) ? parsedDateTime : null;
     }
 
     private Guid GetRequestId()

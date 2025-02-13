@@ -46,6 +46,7 @@ services:
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
+      - ScreeningLkpDataServiceURL=http://localhost:8996/api/ScreeningLkpDataService
 
   # Participant Management Service
   add-participant:
@@ -194,6 +195,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   create-exception:
     container_name: create-exception
@@ -408,6 +410,37 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  receive-service-now-message:
+    container_name: receive-service-now-message
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7912
+
+  bs-request-audit-data-service:
+    container_name: bs-request-audit-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7989
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+
+  screening-lkp-data-service:
+    container_name: screening-lkp-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ScreeningLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8996
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
 
 receive-service-now-message:
     container_name: receive-service-now-message
