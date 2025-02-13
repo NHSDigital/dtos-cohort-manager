@@ -51,7 +51,7 @@ variable "features" {
   type        = map(bool)
 }
 
-variable "rbac_principal_name" {
+variable "rbac_principal_name_resource_group" {
   description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
   type        = string
   default     = ""
