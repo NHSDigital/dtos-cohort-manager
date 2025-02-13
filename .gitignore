@@ -52,6 +52,7 @@ OutputDirectory
 
 # User Settings
 local.settings.json
+appsettings.json
 
 # Docker
 .env
