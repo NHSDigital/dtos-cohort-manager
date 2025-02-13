@@ -1,4 +1,4 @@
-namespace ParticipantManagementDataService;
+namespace BsSelectRequestAuditDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -10,25 +10,25 @@ using Common;
 using DataServices.Core;
 using Model;
 
-public class GPPracticeDataService
+public class BsSelectRequestAuditDataService
 {
-    private readonly ILogger<GPPracticeDataService> _logger;
-    private readonly IRequestHandler<GPPractice> _requestHandler;
+    private readonly ILogger<BsSelectRequestAuditDataService> _logger;
+    private readonly IRequestHandler<BsSelectRequestAudit> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public GPPracticeDataService(ILogger<GPPracticeDataService> logger, IRequestHandler<GPPractice> requestHandler, ICreateResponse createResponse)
+    public BsSelectRequestAuditDataService(ILogger<BsSelectRequestAuditDataService> logger, IRequestHandler<BsSelectRequestAudit> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
         _createResponse = createResponse;
     }
 
-    [Function("GPPracticeDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "GPPracticeDataService/{*key}")] HttpRequestData req, string? key)
+    [Function("BsSelectRequestAuditDataService")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "BsSelectRequestAuditDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(GPPractice));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(BsSelectRequestAudit));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
