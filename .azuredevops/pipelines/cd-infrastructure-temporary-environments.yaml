@@ -32,6 +32,8 @@ parameters:
 
 stages:
   - stage: terraform_setup
+    variables:
+    - group: TEMP_ENVIRONMENTS_core_backend
     displayName: Terraform Setup
     jobs:
       - job: set_variables
