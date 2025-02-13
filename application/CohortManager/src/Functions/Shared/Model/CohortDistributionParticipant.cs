@@ -133,8 +133,6 @@ public class CohortDistributionParticipant
             CurrentPosting = cohortDistribution.CurrentPosting,
             CurrentPostingEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.CurrentPostingFromDt),
             ParticipantId = cohortDistribution.ParticipantId.ToString(),
-            RecordType = Actions.New,
-            InvalidFlag = "0"
         };
     }
 
