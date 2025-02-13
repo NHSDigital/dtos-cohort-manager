@@ -95,7 +95,7 @@ public class UpdateParticipantDetailsTests
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
                                                 _callFunctionMock.Object, _participantManagementClientMock.Object);
-        
+
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
 
@@ -104,6 +104,29 @@ public class UpdateParticipantDetailsTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("2025")]
+    [DataRow("202501")]
+    public async Task Run_ParticipantHasPartialDates_TransformDatesAndUpdate(string rfrDate)
+    {
+        // Arrange
+        var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+
+        var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
+        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = rfrDate;
+        string json = JsonSerializer.Serialize(_participantCsvRecord);
+        var request = _setupRequest.Setup(json);
+
+        // Act
+        var response = await sut.Run(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        _participantManagementClientMock
+            .Verify(x => x.Update(expectedParticipant), Times.Once());
     }
 
     [TestMethod]
