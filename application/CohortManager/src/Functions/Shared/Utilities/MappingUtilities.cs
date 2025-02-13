@@ -1,4 +1,4 @@
-namespace Common;
+namespace NHS.CohortManager.Shared.Utilities;
 
 using System.Globalization;
 
