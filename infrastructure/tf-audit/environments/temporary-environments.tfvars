@@ -2,7 +2,7 @@ application           = "cohman"
 application_full_name = "cohort-manager"
 #environment           = "TEMP01"   #This comes from the pipeline
 
-rbac_principal_name = "dtos_team_select_temp_environments"
+rbac_principal_name_resource_group = "dtos_team_select_temp_environments"
 
 features = {
   private_endpoints_enabled              = false
