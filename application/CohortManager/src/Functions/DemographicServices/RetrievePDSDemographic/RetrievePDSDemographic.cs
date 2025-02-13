@@ -37,7 +37,6 @@ public class RetrievePdsDemographic
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No Participant ID Provided");
             }
 
-            var participantId = req.Query["participantId"]!;
             var pdsDemographicFunctionUrl = Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL");
 
             // Calling PDSDemographicDataFunction via ICallFunction
