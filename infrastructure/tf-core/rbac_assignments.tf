@@ -17,6 +17,8 @@ module "rbac_assignments_key_vault_admin" {
 }
 
 data "azuread_group" "rbac_principal_key_vault" {
+  count = length(var.rbac_principal_name_key_vault) != 0 ? 1 : 0
+
   display_name = var.rbac_principal_name_key_vault
 }
 
@@ -50,6 +52,8 @@ module "rbac_assignments_resource_group" {
 }
 
 data "azuread_group" "rbac_principal_resource_group" {
+  count = length(var.rbac_principal_name_resource_group) != 0 ? 1 : 0
+
   display_name = var.rbac_principal_name_resource_group
 }
 
@@ -82,6 +86,8 @@ module "rbac_assignments_storage" {
 }
 
 data "azuread_group" "rbac_principal_storage" {
+  count = length(var.rbac_principal_name_storage) != 0 ? 1 : 0
+
   display_name = var.rbac_principal_name_storage
 }
 
