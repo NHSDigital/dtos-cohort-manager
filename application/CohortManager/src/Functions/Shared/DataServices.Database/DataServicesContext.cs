@@ -44,6 +44,7 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<HigherRiskReferralReasonLkp>()
             .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
+
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo");
 

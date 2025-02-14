@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DataServices.Database;
 using Common;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 public class Program
 {
@@ -31,17 +32,18 @@ public class Program
     {
         using var scope = host.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
         try
         {
-            Console.WriteLine("Applying Migrations...");
+            logger.LogInformation("Applying Migrations...");
             dbContext.Database.Migrate();
-            Console.WriteLine("Migrations Applied Successfully!");
+            logger.LogInformation("Migrations Applied Successfully!");
             return 0;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Migration Failed: {ex.Message}");
+            logger.LogError($"Migration Failed: {ex.Message}");
             return 1;
         }
     }
