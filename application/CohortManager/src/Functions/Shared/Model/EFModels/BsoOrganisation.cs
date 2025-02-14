@@ -21,13 +21,13 @@ public class BsoOrganisation
     [Column("RISP_RECALL_INTERVAL")]
     public byte RispRecallInterval {get;set;}
     [Column("TRANSACTION_ID")]
-    public int TransactionId {get;set;}
+    public int? TransactionId {get;set;}
     [Column("TRANSACTION_APP_DATE_TIME")]
     public DateTime TransactionAppDateTime {get;set;}
     [Column("TRANSACTION_USER_ORG_ROLE_ID")]
-    public int TransactionUserOrgRoleId {get;set;}
+    public int? TransactionUserOrgRoleId {get;set;}
     [Column("TRANSACTION_DB_DATE_TIME")]
-    public Date TransactionDbDateTime {get;set;}
+    public DateTime TransactionDbDateTime {get;set;}
     [Column("IGNORE_SELF_REFERRALS")]
     public bool IgnoreSelfReferrals {get;set;}
     [Column("IGNORE_GP_REFERRALS")]
@@ -48,31 +48,31 @@ public class BsoOrganisation
     public byte BsoRecallInterval {get;set;}
     [Column("ADDRESS_LINE_1")]
     [MaxLength(35)]
-    public string AddressLine2 {get;set;}
+    public string? AddressLine2 {get;set;}
     [Column("ADDRESS_LINE_3")]
     [MaxLength(35)]
-    public string AddressLine3 {get;set;}
+    public string? AddressLine3 {get;set;}
     [Column("ADDRESS_LINE_4")]
     [MaxLength(35)]
-    public string AddressLine4 {get;set;}
+    public string? AddressLine4 {get;set;}
     [Column("ADDRESS_LINE_5")]
     [MaxLength(35)]
-    public string AddressLine5 {get;set;}
+    public string? AddressLine5 {get;set;}
     [Column("POSTCODE")]
     [MaxLength(8)]
-    public string PostCode {get;set;}
+    public string? PostCode {get;set;}
     [Column("TELEPHONE_NUMBER")]
     [MaxLength(18)]
-    public string TelephoneNumber {get;set;}
+    public string? TelephoneNumber {get;set;}
     [Column("EXTENSION")]
     [MaxLength(35)]
-    public string Extension {get;set;}
+    public string? Extension {get;set;}
     [Column("FAX_NUMBER")]
     [MaxLength(35)]
-    public string FaxNumber {get;set;}
+    public string? FaxNumber {get;set;}
     [Column("EMAIL_ADDRESS")]
     [MaxLength(35)]
-    public string EmailAddress {get;set;}
+    public string? EmailAddress {get;set;}
     [Column("OUTGOING_TRANSFER_NUMBER")]
     public int OutgoingTransferNumber {get;set;}
     [Column("INVITE_LIST_SEQUENCE_NUMBER")]
@@ -96,20 +96,20 @@ public class BsoOrganisation
     [Column("IS_AGEX_ACTIVE")]
     public bool IsAgexActive {get;set;}
     [Column("AUTO_BATCH_LAST_RUN")]
-    public DateTime AutoBatchLastRun {get;set;}
+    public DateTime? AutoBatchLastRun {get;set;}
     [Column("AUTO_BATCH_MAX_DATE_TIME_PROCESSED")]
-    public DateTime AutoBatchMaxDateTimeProcessed {get;set;}
+    public DateTime? AutoBatchMaxDateTimeProcessed {get;set;}
     [Column("BSO_REGION_ID")]
-    public int BsoRegionId {get;set;}
+    public int? BsoRegionId {get;set;}
     [Column("ADMIN_EMAIL_ADDRESS")]
     [MaxLength(100)]
-    public string AdminEmailAddress {get;set;}
+    public string? AdminEmailAddress {get;set;}
     [Column("IEP_DETAILS")]
-    public string IepDetails {get;set;}
+    public string? IepDetails {get;set;}
     [Column("NOTES")]
-    public string Notes {get;set;}
+    public string? Notes {get;set;}
     [Column("RLP_DATE_ENABLED")]
-    public DateTime RlpDateEnabled {get;set;}
+    public DateTime? RlpDateEnabled {get;set;}
 
 
 }
