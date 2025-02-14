@@ -26,6 +26,7 @@ parameters:
     displayName: 'Pipeline Action'
     type: string
     values:
+      - 'PlanOnly'
       - 'Apply'
       - 'Destroy'
     default: 'Apply'
@@ -125,7 +126,7 @@ stages:
   - stage: terraform_plan_audit
     displayName: Terraform Plan - Audit
     dependsOn: [terraform_setup]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+    condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
     - group: TEMP_ENVIRONMENTS_audit_backend
     - name: TF_DIRECTORY
@@ -178,7 +179,7 @@ stages:
   - stage: terraform_plan_core
     displayName: Terraform Plan - Core
     dependsOn: [terraform_setup, terraform_apply_audit]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+    condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
     - group: TEMP_ENVIRONMENTS_core_backend
     - name: TF_DIRECTORY
@@ -249,10 +250,6 @@ stages:
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
     - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
-    - name: tfCommandOptions
-      value: >-
-        -var=environment=$(ENVIRONMENT)
-        -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
     - name: tfVarsFile
       value: environments/temporary-environments.tfvars
     jobs:
@@ -266,6 +263,9 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
+                  tfCommandOptions: >-
+                    -var=environment=$(ENVIRONMENT)
+                    -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
 
   - stage: terraform_destroy_audit
     displayName: Terraform Destroy - Audit
@@ -297,5 +297,8 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
+                  parameters:
+                    tfCommandOptions: >-
+                      -var=environment=$(ENVIRONMENT)
 
   # Remember to clean up other resources such as the state file and SQL Server admin group
