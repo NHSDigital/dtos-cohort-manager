@@ -31,8 +31,8 @@ parameters:
     displayName: Select Image Tag
     type: string
     values:
-      - integration
-    default: integration
+      - nft
+    default: nft
 
   - name: destRegistry
     displayName: Destination Container Registry
@@ -45,8 +45,8 @@ parameters:
     displayName: Target Image Tag
     type: string
     values:
-      - int-test
-    default: int-test
+      - integration
+    default: integration
 
 variables:
   - group: DEV_hub_backend_remote_state

@@ -563,6 +563,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -598,6 +602,10 @@ function_apps = {
           env_var_name     = "BsSelectGpPracticeUrl"
           function_app_key = "BsSelectGpPracticeDataService"
         },
+        {
+          env_var_name     = "CohortDistributionDataServiceUrl"
+          function_app_key = "CohortDistributionDataService"
+        }
       ]
     }
 
@@ -1001,9 +1009,9 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 30
+      max_gb               = 5
       read_scale           = false
-      sku                  = "S4"
+      sku                  = "S1"
       storage_account_type = "Local"
       zone_redundant       = false
     }

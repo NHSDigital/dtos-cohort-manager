@@ -9,6 +9,7 @@ using System.Text.Json;
 using NHS.CohortManager.ScreeningDataServices;
 using Common;
 using System.Threading.Tasks;
+using Model.Enums;
 
 [TestClass]
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
@@ -46,7 +47,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     {
         // Arrange
         var exceptionId = 0;
-        _validationDataMock.Setup(s => s.GetAllExceptions(false)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated)).ReturnsAsync(_exceptionList);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
         SetupRequestWithQueryParams([]);
 
@@ -56,7 +57,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataMock.Verify(v => v.GetAllExceptions(false), Times.Once);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated), Times.Once);
     }
 
     [TestMethod]

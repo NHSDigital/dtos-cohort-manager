@@ -3,6 +3,7 @@ namespace Model;
 using Model.Enums;
 using System;
 using System.Globalization;
+using NHS.CohortManager.Shared.Utilities;
 
 public class Participant
 {
@@ -121,17 +122,23 @@ public class Participant
             RecordType = RecordType,
             EligibilityFlag = short.Parse(EligibilityFlag ?? "1"),
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = string.IsNullOrWhiteSpace(ReasonForRemovalEffectiveFromDate) ?
-                                    null : DateTime.Parse(ReasonForRemovalEffectiveFromDate),
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
-            ExceptionFlag = short.Parse(ExceptionFlag ?? "0"),
-            RecordInsertDateTime = string.IsNullOrWhiteSpace(RecordInsertDateTime)
-                                    ? null : DateTime.Parse(RecordInsertDateTime),
-            RecordUpdateDateTime = string.IsNullOrWhiteSpace(RecordUpdateDateTime)
-                                    ? null : DateTime.Parse(RecordUpdateDateTime),
+            ExceptionFlag = ParseExceptionFlag(ExceptionFlag ?? "0"),
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
+            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
         };
 
         return participantManagement;
+    }
+
+    private static short ParseExceptionFlag(string ExceptionFlag)
+    {
+        if (ExceptionFlag == "N" || ExceptionFlag == "n" || ExceptionFlag == "NO")
+        {
+            return 0;
+        }
+        return short.Parse(ExceptionFlag ?? "0");
     }
 
     private int GetInvalidFlag()

@@ -1,4 +1,7 @@
+using Azure.Core;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace dtos_cohort_manager_specflow.Helpers;
 
@@ -12,9 +15,17 @@ public static class DatabaseHelper
         "BS_COHORT_DISTRIBUTION",
     };
 
-    public static async Task<int> ExecuteNonQueryAsync(string connectionString, string query, params SqlParameter[] parameters)
+    public static async Task<int> ExecuteNonQueryAsync(string connectionString, string managedIdentityClientId, string query, params SqlParameter[] parameters)
     {
+        var credential = new DefaultAzureCredential(
+            new DefaultAzureCredentialOptions
+            {
+                ManagedIdentityClientId = managedIdentityClientId
+            });
+
         using var connection = new SqlConnection(connectionString);
+        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" })).ConfigureAwait(false)).Token;
+
         await connection.OpenAsync();
         using (var command = new SqlCommand(query, connection))
         {

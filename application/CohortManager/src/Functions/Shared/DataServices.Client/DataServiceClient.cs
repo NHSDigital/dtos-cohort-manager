@@ -35,22 +35,20 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<IEnumerable<TEntity>> GetAll()
     {
         var jsonString = await _callFunction.SendGet(_baseUrl);
-        IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
-        return result;
+        if (string.IsNullOrEmpty(jsonString)) return [];
+
+        return JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
     }
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
-
-
         var jsonString = await GetJsonStringByFilter(predicate);
-        if(string.IsNullOrEmpty(jsonString))
+        if (string.IsNullOrEmpty(jsonString))
         {
             return [];
         }
         IEnumerable<TEntity> result = JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
         return result;
-
     }
 
     public virtual async Task<TEntity> GetSingle(string id)
@@ -65,7 +63,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
                 _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
                 return null;
             }
-            if(jsonString == "No Data Found")
+            if (jsonString == "No Data Found")
             {
                 return null;
             }
@@ -88,8 +86,8 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<TEntity> GetSingleByFilter(Expression<Func<TEntity, bool>> predicate)
     {
 
-        var jsonString = await GetJsonStringByFilter(predicate,true);
-        if(string.IsNullOrEmpty(jsonString))
+        var jsonString = await GetJsonStringByFilter(predicate, true);
+        if (string.IsNullOrEmpty(jsonString))
         {
             return null;
         }
@@ -161,33 +159,33 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return true;
     }
 
-    private async Task<string> GetJsonStringByFilter(Expression<Func<TEntity,bool>> predicate, bool returnOneRecord = false)
+    private async Task<string> GetJsonStringByFilter(Expression<Func<TEntity, bool>> predicate, bool returnOneRecord = false)
     {
         try
         {
 
             //Resolves the constants
-            var expr  = new ClosureResolver().Visit(predicate);
+            var expr = new ClosureResolver().Visit(predicate);
 
-            var queryItems = new Dictionary<string,string>{{"query",expr.ToString()}};
+            var queryItems = new Dictionary<string, string> { { "query", expr.ToString() } };
 
-            if(returnOneRecord)
+            if (returnOneRecord)
             {
-                queryItems.Add("single","true");
+                queryItems.Add("single", "true");
             }
 
-            var jsonString = await _callFunction.SendGet(_baseUrl,queryItems);
+            var jsonString = await _callFunction.SendGet(_baseUrl, queryItems);
             return jsonString;
         }
-        catch(WebException wex)
+        catch (WebException wex)
         {
             HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if(response.StatusCode! == HttpStatusCode.NotFound)
+            if (response.StatusCode! == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            _logger.LogError(wex,"An Exception Happened while calling data service API");
+            _logger.LogError(wex, "An Exception Happened while calling data service API");
             throw;
         }
 

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using RulesEngine.Actions;
 using DataServices.Client;
+using System.Configuration;
 
 public class TransformDataService
 {
@@ -139,6 +140,7 @@ public class TransformDataService
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
         var re = new RulesEngine.RulesEngine(rules);
 
         namePrefix = namePrefix.ToUpper();
@@ -152,10 +154,14 @@ public class TransformDataService
 
         // Assign new name prefix
         namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
-                                                    .Select(result => result.ActionResult.Output)
-                                                    .FirstOrDefault()
-                                                    ?? null;
+                                        .Select(result => result.ActionResult.Output)
+                                        .FirstOrDefault()
+                                        ?? null;
 
+        bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
+
+        if (!prefixTransformed)
+            namePrefix = null;
 
         return namePrefix;
     }

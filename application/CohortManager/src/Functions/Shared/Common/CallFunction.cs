@@ -84,7 +84,7 @@ public class CallFunction : ICallFunction
 
 
             _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),wex.Message);
-            return await HandleWebException(wex);
+            throw;
         }
 
         return null;
@@ -114,7 +114,7 @@ public class CallFunction : ICallFunction
         catch (WebException ex)
         {
             _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),ex.Message);
-            return (HttpWebResponse)ex.Response;
+            throw;
         }
 
     }
@@ -130,7 +130,9 @@ public class CallFunction : ICallFunction
             }
 
             _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}",response!.StatusCode);
-            return await GetResponseText(response);
+            var data = await GetResponseText(response);
+            _logger.LogTrace("Body Of Exception {data}",data);
+            return data;
         }
         catch(Exception ex)
         {
