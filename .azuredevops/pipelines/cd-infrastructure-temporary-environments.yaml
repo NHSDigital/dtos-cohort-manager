@@ -263,9 +263,10 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
-                  tfCommandOptions: >-
-                    -var=environment=$(ENVIRONMENT)
-                    -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
+                  parameters:
+                    tfCommandOptions: >-
+                      -var=environment=$(ENVIRONMENT)
+                      -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
 
   - stage: terraform_destroy_audit
     displayName: Terraform Destroy - Audit
