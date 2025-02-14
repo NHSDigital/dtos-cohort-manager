@@ -7,33 +7,33 @@ rbac_principal_name_key_vault = "dtos_team_select_temp_environments"
 rbac_principal_name_resource_group = "dtos_team_select_temp_environments"
 rbac_principal_name_storage = "dtos_team_select_temp_environments"
 
-rbac_principals = {
-  key_vault = {
-    principal_display_name = "dtos_team_select_temp_environments",
-    roles = [
-      "Key Vault Certificates Officer",
-      "Key Vault Certificate User",
-      "Key Vault Crypto Officer",
-      "Key Vault Crypto User",
-      "Key Vault Secrets Officer",
-      "Key Vault Secrets User"
-    ]
-  }
-  resource_group = {
-    principal_display_name = "dtos_team_select_temp_environments",
-    roles = [
-      "Contributor"
-    ]
-  }
-  storage = {
-    principal_display_name = "dtos_team_select_temp_environments",
-    roles = [
-      "Storage Account Contributor",
-      "Storage Blob Data Owner",
-      "Storage Queue Data Contributor"
-    ]
-  }
-}
+# rbac_principals = {
+#   key_vault = {
+#     principal_display_name = "dtos_team_select_temp_environments",
+#     roles = [
+#       "Key Vault Certificates Officer",
+#       "Key Vault Certificate User",
+#       "Key Vault Crypto Officer",
+#       "Key Vault Crypto User",
+#       "Key Vault Secrets Officer",
+#       "Key Vault Secrets User"
+#     ]
+#   }
+#   resource_group = {
+#     principal_display_name = "dtos_team_select_temp_environments",
+#     roles = [
+#       "Contributor"
+#     ]
+#   }
+#   storage = {
+#     principal_display_name = "dtos_team_select_temp_environments",
+#     roles = [
+#       "Storage Account Contributor",
+#       "Storage Blob Data Owner",
+#       "Storage Queue Data Contributor"
+#     ]
+#   }
+# }
 
 features = {
   acr_enabled                          = false

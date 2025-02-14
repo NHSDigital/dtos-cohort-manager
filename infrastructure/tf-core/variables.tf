@@ -94,23 +94,24 @@ variable "rbac_principal_name_storage" {
   default     = ""
 }
 
-variable "rbac_principals" {
-  description = "The user groups to assign RBAC roles to"
-  type = object({
-    key_vault = object({
-      principal_display_name = string
-      roles        = list(string)
-    })
-    resource_group = object({
-      principal_display_name = string
-      roles        = list(string)
-    })
-    storage = object({
-      principal_display_name = string
-      roles        = list(string)
-    })
-  })
-}
+# TODO: Convert above strings to map of roles and groups
+# variable "rbac_principals" {
+#   description = "The user groups to assign RBAC roles to"
+#   type = object({
+#     key_vault = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#     resource_group = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#     storage = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#   })
+# }
 
 variable "regions" {
   type = map(object({
