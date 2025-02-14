@@ -282,8 +282,6 @@ stages:
     - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
     - name: tfCommandOptions
-      value: >-
-        -var=environment=$(ENVIRONMENT)
     - name: tfVarsFile
       value: environments/temporary-environments.tfvars
     jobs:
