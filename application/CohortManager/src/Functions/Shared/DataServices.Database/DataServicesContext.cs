@@ -10,9 +10,17 @@ public class DataServicesContext : DbContext
     DbSet<LanguageCode> languageCodes { get; set; }
     DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
+    DbSet<ParticipantManagement> participantManagements {get;set;}
+    DbSet<ParticipantDemographic> participantDemographics {get;set;}
+    DbSet<GeneCodeLkp> geneCodeLkps {get;set;}
+    DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps {get;set;}
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
     DbSet<GPPractice> gPPractices { get; set; }
+    DbSet<CohortDistribution> cohortDistributions {get;set;}
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
+    DbSet<ScreeningLkp> screeningLkps {get;set;}
+    DbSet<BsoOrganisation> bsoOrganisations {get;set;}
+    DbSet<GenderMaster> genderMasters {get;set;}
 
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
@@ -53,11 +61,17 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
-        
+
         modelBuilder.Entity<BsSelectRequestAudit>()
             .ToTable("BS_SELECT_REQUEST_AUDIT","dbo");
 
         modelBuilder.Entity<ScreeningLkp>()
             .ToTable("SCREENING_LKP", "dbo");
+
+        modelBuilder.Entity<BsoOrganisation>()
+            .ToTable("BSO_ORGANISATIONS","dbo");
+
+        modelBuilder.Entity<GenderMaster>()
+            .ToTable("GENDER_MASTER","dbo");
     }
 }
