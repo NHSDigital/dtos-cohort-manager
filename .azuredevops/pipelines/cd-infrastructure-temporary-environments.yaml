@@ -191,10 +191,6 @@ stages:
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_core'] ]
     - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
-    - name: tfCommandOptions
-      value: >-
-        -var=environment=$(ENVIRONMENT)
-        -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
     - name: tfVarsFile
       value: environments/temporary-environments.tfvars
     jobs:
@@ -204,6 +200,10 @@ stages:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            parameters:
+              tfCommandOptions: >-
+                -var=environment=$(ENVIRONMENT)
+                -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
 
   - stage: terraform_apply_core
     displayName: Terraform Apply - Core
@@ -234,7 +234,7 @@ stages:
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
   - stage: terraform_destroy_core
-    displayName: Terraform Destroy
+    displayName: Terraform Destroy - Core
     dependsOn: [terraform_setup]
     condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
     variables:
@@ -269,7 +269,7 @@ stages:
 
   - stage: terraform_destroy_audit
     displayName: Terraform Destroy - Audit
-    dependsOn: [terraform_setup]
+    dependsOn: [terraform_setup, terraform_destroy_core]
     condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
     variables:
     - group: TEMP_ENVIRONMENTS_audit_backend
