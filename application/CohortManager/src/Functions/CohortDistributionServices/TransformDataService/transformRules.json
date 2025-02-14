@@ -255,70 +255,6 @@
         }
       },
       {
-        "RuleName": "00.Other.Gender.Not-0-1-2-or-9",
-        "Expression": "participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "field": "Gender",
-                  "value": "9",
-                  "isExpression": false
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
-        "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "field": "PrimaryCareProvider",
-                  "value": "",
-                  "isExpression": false
-                },
-                {
-                  "field": "ReasonForRemoval",
-                  "value": "ORR",
-                  "isExpression": false
-                },
-                {
-                  "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
-                  "isExpression": true
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "3.Other.DateOfDeath.DoesNotExist",
-        "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "field": "DateOfDeath",
-                  "value": "participant.ReasonForRemovalEffectiveFromDate",
-                  "isExpression": true
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
         "RuleName": "01.TransformDate.DateOfBirth",
         "Expression": "participant.DateOfBirth == null ? false : (participant.DateOfBirth.Length != 8 && (participant.DateOfBirth.Length == 4 || participant.DateOfBirth.Length == 6))",
         "Actions": {
@@ -481,6 +417,70 @@
         }
       },
       {
+        "RuleName": "00.Other.Gender.Not-0-1-2-or-9",
+        "Expression": "participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "Gender",
+                  "value": "9",
+                  "isExpression": false
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
+        "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "PrimaryCareProvider",
+                  "value": "",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "3.Other.DateOfDeath.DoesNotExist",
+        "Expression": "participant.ReasonForRemoval == \"DEA\" && string.IsNullOrEmpty(participant.DateOfDeath)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "DateOfDeath",
+                  "value": "participant.ReasonForRemovalEffectiveFromDate",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
         "RuleName": "03.Other.DateOfDeath.NotDea",
         "Expression": "participant.DateOfDeath != null && participant.ReasonForRemoval != \"DEA\"",
         "Actions": {
@@ -492,6 +492,42 @@
                   "isExpression": false,
                   "field": "DateOfDeath",
                   "value": null
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "13.Other.FamilyName.DoesNotExist",
+        "Expression": "participant.RecordType == Actions.Amended && string.IsNullOrEmpty(participant.FamilyName)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                "isExpression": true,
+                "field": "FamilyName",
+                "value": "databaseParticipant.FamilyName"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "14.Other.FirstName.DoesNotExist",
+        "Expression": "participant.RecordType == Actions.Amended && string.IsNullOrEmpty(participant.FirstName)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "FirstName",
+                  "value": "databaseParticipant.GivenName"
                 }
               ]
             }
