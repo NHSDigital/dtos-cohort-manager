@@ -376,6 +376,16 @@ services:
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+  retrieve-pds-demographic:
+    container_name: retrieve-pds-demographic
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8082
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
 
   durable-demographic-function:
     container_name: durable-demographic-function
@@ -410,6 +420,17 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  bs-request-audit-data-service:
+    container_name: bs-request-audit-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7989
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
 
   screening-lkp-data-service:
     container_name: screening-lkp-data-service

@@ -35,6 +35,11 @@ public static class MappingUtilities
         return tempDate;
     }
 
+    public static string? FormatDateTime(DateTime? date)
+    {
+        return date?.ToString("yyyy-MM-dd hh:mm:ss");
+    }
+
     private static string HandlePartialDates(string dateString)
     {
         if (dateString.Length == 4)
