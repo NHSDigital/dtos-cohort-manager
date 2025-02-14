@@ -6,6 +6,7 @@ using DataServices.Database;
 using Common;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class Program
 {
@@ -47,6 +48,20 @@ public class Program
             return 1;
         }
     }
+
+    static int ExtractData(IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+        List<Type> types = new List<Type>{
+            typeof(BsSelectGpPractice)
+        };
+        return 1;
+    }
+
+
 
 
 }
