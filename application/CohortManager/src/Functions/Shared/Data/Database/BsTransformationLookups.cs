@@ -74,7 +74,8 @@ public class BsTransformationLookups : IBsTransformationLookups
         string sql = $"SELECT POST_CODE, ADDRESS_LINE_1, ADDRESS_LINE_2, ADDRESS_LINE_3, ADDRESS_LINE_4, ADDRESS_LINE_5 " +
                     $"FROM [dbo].[BS_COHORT_DISTRIBUTION] " +
                     $"WHERE PARTICIPANT_ID = @ParticipantId";
-        using (_connection)
+
+        using (_connection = new SqlConnection(_connectionString))
         {
             _connection.Open();
             using (SqlCommand command = new SqlCommand(sql, (SqlConnection)_connection))
@@ -138,9 +139,9 @@ public class BsTransformationLookups : IBsTransformationLookups
     public string GetBsoCodeUsingPCP(string primaryCareProvider)
     {
 
-        var gpPractice  = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
+        var gpPractice = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
 
-        if(gpPractice == null)
+        if (gpPractice == null)
         {
             return string.Empty;
         }
