@@ -53,35 +53,31 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     public virtual async Task<TEntity> GetSingle(string id)
     {
-        try
+
+        var httpResponse = await _callFunction.SendGetWebRequest(UrlBuilder(_baseUrl, id));
+        var jsonString = await _callFunction.GetResponseText(httpResponse);
+        if(httpResponse.StatusCode == HttpStatusCode.NotFound && jsonString == "No Data Found")
         {
-
-            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl, id));
-
-            if (string.IsNullOrEmpty(jsonString))
-            {
-                _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
-                return null;
-            }
-            if (jsonString == "No Data Found")
-            {
-                return null;
-            }
-
-            TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
-            return result;
+            return null;
         }
-        catch (WebException wex)
+        if(httpResponse.StatusCode != HttpStatusCode.OK && httpResponse.StatusCode != HttpStatusCode.NoContent)
         {
-            HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if (response.StatusCode! == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
-            _logger.LogError(wex, "An Exception Happened while calling data service API");
-            throw;
+            throw new WebException($"Call to {typeof(TEntity)} dataservice returned an bad response {httpResponse.StatusCode} {httpResponse.StatusDescription}");
         }
+
+        if (string.IsNullOrEmpty(jsonString))
+        {
+            _logger.LogWarning("Response for get single from data service of type: {TypeName} was empty", typeof(TEntity).FullName);
+            return null;
+        }
+        if (jsonString == "No Data Found")
+        {
+            return null;
+        }
+
+        TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
+        return result;
+
     }
     public async Task<TEntity> GetSingleByFilter(Expression<Func<TEntity, bool>> predicate)
     {
@@ -161,33 +157,31 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
 
     private async Task<string> GetJsonStringByFilter(Expression<Func<TEntity, bool>> predicate, bool returnOneRecord = false)
     {
-        try
+        //Resolves the constants
+        var expr = new ClosureResolver().Visit(predicate);
+
+        var queryItems = new Dictionary<string, string> { { "query", expr.ToString() } };
+
+        if (returnOneRecord)
         {
-
-            //Resolves the constants
-            var expr = new ClosureResolver().Visit(predicate);
-
-            var queryItems = new Dictionary<string, string> { { "query", expr.ToString() } };
-
-            if (returnOneRecord)
-            {
-                queryItems.Add("single", "true");
-            }
-
-            var jsonString = await _callFunction.SendGet(_baseUrl, queryItems);
-            return jsonString;
+            queryItems.Add("single", "true");
         }
-        catch (WebException wex)
+
+        var httpResponse = await _callFunction.SendGetWebRequest(_baseUrl, queryItems);
+
+        if(httpResponse.StatusCode == HttpStatusCode.NoContent){
+            return "[]";
+        }
+        if(httpResponse.StatusCode != HttpStatusCode.OK)
         {
-            HttpWebResponse response = (HttpWebResponse)wex.Response;
-            if (response.StatusCode! == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
-            _logger.LogError(wex, "An Exception Happened while calling data service API");
-            throw;
+            throw new WebException($"Call to {typeof(TEntity)} dataservice returned an bad response {httpResponse.StatusCode} {httpResponse.StatusDescription}");
         }
+
+        var jsonString = await _callFunction.GetResponseText(httpResponse);
+
+
+        return jsonString;
+
 
     }
 
