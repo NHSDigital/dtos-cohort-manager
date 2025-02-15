@@ -269,6 +269,23 @@ stages:
                       -var=environment=$(ENVIRONMENT)
                       -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
 
+                - task: AzureCLI@2
+                  displayName: Clean-up Backend - Core
+                  inputs:
+                    azureSubscription: $(SERVICE_CONNECTION)
+                    scriptLocation: inlineScript
+                    scriptType: bash
+                    workingDirectory: $(tfExecutionDir)
+                    inlineScript: |
+                      # Check if the backend configuration file exists and if it does, delete it:
+                      container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+                      if [ "$container_exists" == "True" ]; then
+                        echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) exists, deleting it..."
+                        #az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
+                      else
+                        echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist."
+                      fi
+
   - stage: terraform_destroy_audit
     displayName: Terraform Destroy - Audit
     dependsOn: [terraform_setup, terraform_destroy_core]
