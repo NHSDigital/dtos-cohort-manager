@@ -69,13 +69,14 @@ stages:
                 echo "##vso[task.setvariable variable=storage_container_name_audit;isOutput=true]$storage_container_name_audit"
                 echo "##vso[task.setvariable variable=tf_plan_artefact_path_core;isOutput=true]$tf_plan_artefact_path_core"
                 echo "##vso[task.setvariable variable=tf_plan_artefact_path_audit;isOutput=true]$tf_plan_artefact_path_audit"
+
       - job: configure_backend
         displayName: Configure Backend
         dependsOn: set_variables
         variables:
           temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
-          storage_container_name_core: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_core'] ]
-          storage_container_name_audit: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+          BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_core'] ]
+          AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_audit'] ]
         steps:
           - task: AzureCLI@2
             displayName: Configure Backend
@@ -86,21 +87,21 @@ stages:
               workingDirectory: $(tfExecutionDir)
               inlineScript: |
                 # Check if the backend configuration file exists and if not, create the container for it:
-                container_exists=$(az storage container exists --name $(storage_container_name_core) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+                container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
                 if [ "$container_exists" == "True" ]; then
-                  echo "##[debug] Container $(storage_container_name_core) already exists"
+                  echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
                 else
-                  echo "##[debug] Container $(storage_container_name_core) does not exist, creating it..."
-                  az storage container create --name $(storage_container_name_core) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
+                  echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
+                  az storage container create --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
                 fi
 
                 # Check if the backend configuration file exists and if not, create the container for it:
-                container_exists=$(az storage container exists --name $(storage_container_name_audit) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+                container_exists=$(az storage container exists --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
                 if [ "$container_exists" == "True" ]; then
-                  echo "##[debug] Container $(storage_container_name_audit) already exists"
+                  echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
                 else
-                  echo "##[debug] Container $(storage_container_name_audit) does not exist, creating it..."
-                  az storage container create --name $(storage_container_name_audit) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
+                  echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
+                  az storage container create --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
                 fi
 
                 # Check if the SQL Server admin group exists and if not, create it:
@@ -299,5 +300,23 @@ stages:
                   parameters:
                     tfCommandOptions: >-
                       -var=environment=$(ENVIRONMENT)
+
+                - task: AzureCLI@2
+                  displayName: Clean-up Backend - Audit
+                  inputs:
+                    azureSubscription: $(SERVICE_CONNECTION)
+                    scriptLocation: inlineScript
+                    scriptType: bash
+                    workingDirectory: $(tfExecutionDir)
+                    inlineScript: |
+                      # Check if the backend configuration file exists and if it does, delete it:
+                      container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+                      if [ "$container_exists" == "True" ]; then
+                        echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) exists, deleting it..."
+                        #az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
+                      else
+                        echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist."
+                      fi
+
 
   # Remember to clean up other resources such as the state file and SQL Server admin group
