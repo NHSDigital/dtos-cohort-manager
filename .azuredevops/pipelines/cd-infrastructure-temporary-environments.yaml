@@ -72,7 +72,8 @@ stages:
 
       - job: configure_backend
         displayName: Configure Backend
-        dependsOn: set_variables
+        dependsOn: [set_variables]
+        condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
         variables:
           temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
           BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_core'] ]
@@ -281,7 +282,7 @@ stages:
                       container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
                       if [ "$container_exists" == "True" ]; then
                         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) exists, deleting it..."
-                        #az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
+                        az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
                       else
                         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist."
                       fi
@@ -330,7 +331,7 @@ stages:
                       container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
                       if [ "$container_exists" == "True" ]; then
                         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) exists, deleting it..."
-                        #az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
+                        az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login --yes
                       else
                         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist."
                       fi
