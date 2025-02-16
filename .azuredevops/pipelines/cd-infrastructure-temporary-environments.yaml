@@ -30,10 +30,14 @@ parameters:
       - 'Apply'
       - 'Destroy'
     default: 'Apply'
-  - name: sourceACR
+  - name: sourceAcr
     displayName: 'Source ACR'
     type: string
     default: 'acrukshubdevcohman'
+  - name: sourceTag
+    displayName: 'Source Tag'
+    type: string
+    default: 'development'
 
 stages:
   - stage: terraform_setup
@@ -246,6 +250,7 @@ stages:
         condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
         variables:
           temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
+          sourceACR: $(sourceACR)
         steps:
           - task: AzureCLI@2
             displayName: Configure Environment
@@ -257,8 +262,11 @@ stages:
               inlineScript: |
                 echo "##[debug] Check is the docker images have been pushed to the ACR and if not push them:"
                 acrTempName="acrukscohmantemp$(temp_environment_name).azurecr.io"
-                az acr login --name $(sourceACR)
+                az acr login --name ${acrTempName}
                 az acr query -n ${acrTempName} -q "Manifests | limit 1" --output table
+
+                # Import the images from the source ACR to the temporary ACR:
+                echo "az acr import --name ${acrTempName} --source ${{ parameters.sourceAcr }} --image cohort-manager:$(temp_environment_name) --source-image cohort-manager:${{ parameters.sourceTag }} --no-wait"
 
   - stage: terraform_destroy_core
     displayName: Terraform Destroy - Core
