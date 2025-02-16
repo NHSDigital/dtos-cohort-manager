@@ -30,6 +30,10 @@ parameters:
       - 'Apply'
       - 'Destroy'
     default: 'Apply'
+  - name: sourceACR
+    displayName: 'Source ACR'
+    type: string
+    default: 'acrukshubdevcohman'
 
 stages:
   - stage: terraform_setup
@@ -127,7 +131,7 @@ stages:
 
   - stage: terraform_plan_audit
     displayName: Terraform Plan - Audit
-    dependsOn: [terraform_setup]
+    dependsOn: [terraform_setup, configure_backend]
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
     - group: TEMP_ENVIRONMENTS_audit_backend
@@ -180,7 +184,7 @@ stages:
 
   - stage: terraform_plan_core
     displayName: Terraform Plan - Core
-    dependsOn: [terraform_setup, terraform_apply_audit]
+    dependsOn: [terraform_setup, configure_backend, terraform_apply_audit]
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
     - group: TEMP_ENVIRONMENTS_core_backend
@@ -235,6 +239,25 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+      - job: configure_environment
+        displayName: Configure Environment
+        dependsOn: [set_variables, configure_backend, terraform_apply_core]
+        condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
+        variables:
+          temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
+        steps:
+          - task: AzureCLI@2
+            displayName: Configure Environment
+            inputs:
+              azureSubscription: $(SERVICE_CONNECTION)
+              scriptLocation: inlineScript
+              scriptType: bash
+              workingDirectory: $(tfExecutionDir)
+              inlineScript: |
+                echo "##[debug] Check is the docker images have been pushed to the ACR and if not push them:"
+                acrTempName="acrukscohmantemp$(temp_environment_name).azurecr.io"
+                az acr query -n ${acrTempName} -q "Manifests | limit 1" --output table
 
   - stage: terraform_destroy_core
     displayName: Terraform Destroy - Core
