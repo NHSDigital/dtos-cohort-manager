@@ -224,7 +224,7 @@ variable "function_apps" {
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
     docker_CI_enable                       = string
-    docker_env_tag                         = optional(string, "") # Use calculated value if not provided
+    docker_env_tag                         = string
     docker_img_prefix                      = string
     enable_appsrv_storage                  = bool
     ftps_state                             = string

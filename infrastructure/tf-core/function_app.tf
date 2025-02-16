@@ -51,7 +51,7 @@ module "functionapp" {
     var.acr != null ? module.acr[0].mi_id : data.azurerm_user_assigned_identity.acr_mi.id
   ] : []
 
-  image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.environment
+  image_tag  = var.function_apps.docker_env_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled

@@ -30,14 +30,20 @@ parameters:
       - 'Apply'
       - 'Destroy'
     default: 'Apply'
-  - name: sourceAcr
-    displayName: 'Source ACR'
+
+  - name: sourceRegistry
+    displayName: Source Container Registry
     type: string
-    default: 'acrukshubdevcohman'
-  - name: sourceTag
-    displayName: 'Source Tag'
+    values:
+      - acrukshubdevcohman
+    default: acrukshubdevcohman
+
+  - name: selectImageTag
+    displayName: Select Image Tag
     type: string
-    default: 'development'
+    values:
+      - development
+    default: development
 
 stages:
   - stage: terraform_setup
@@ -250,22 +256,48 @@ stages:
         displayName: Configure Environment
         dependsOn: [terraform_apply_core]
         condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
+
+      - job: re_tag_images
+        displayName: Import Docker images from source registry and re-tag
+        variables:
+          SRC_REGISTRY: ${{ parameters.sourceRegistry }}
+          DEST_REGISTRY: "acrukscohman$(temp_environment_name)"
+          SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
+          ADD_IMAGE_TAG: "temp"
         steps:
           - task: AzureCLI@2
-            displayName: Configure Environment
+            name: check_image_import_required
+            displayName: Check Image Import Required
             inputs:
               azureSubscription: $(SERVICE_CONNECTION)
               scriptLocation: inlineScript
               scriptType: bash
               workingDirectory: $(tfExecutionDir)
               inlineScript: |
-                echo "##[debug] Check is the docker images have been pushed to the ACR and if not push them:"
-                acrTempName="acrukscohman$(temp_environment_name).azurecr.io"
-                az acr login --name ${acrTempName}
-                az acr query -n ${acrTempName} -q "Manifests | limit 1" --output table
+                # Output the variables for debugging:
+                echo "##[debug] Source Registry: $(SRC_REGISTRY)"
+                echo "##[debug] Destination Registry: $(DEST_REGISTRY)"
+                echo "##[debug] Select Image Tag: $(SELECT_IMAGE_TAG)"
+                echo "##[debug] Add Image Tag: $(ADD_IMAGE_TAG)"
 
-                # Import the images from the source ACR to the temporary ACR:
-                echo "az acr import --name ${acrTempName} --source ${{ parameters.sourceAcr }} --image cohort-manager:$(temp_environment_name) --source-image cohort-manager:${{ parameters.sourceTag }} --no-wait"
+                echo "##[debug] Check if the docker images have been pushed to the Temp ACR and if not push them:"
+                az acr login --name $(DEST_REGISTRY)
+                if [ "$(az acr repository list -n $(DEST_REGISTRY) -o tsv)" == "" ]; then
+                  echo "##[debug] No images found in the Temp ACR, import them from the source registry"
+                  importImagesFromSourceRegistry="True"
+                else
+                  echo "##[debug] Images found in the Temp ACR, no need to import them"
+                  importImagesFromSourceRegistry="False"
+                fi
+                # Set the output variables
+                echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
+
+          # - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+          #   condition: and(eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True'))
+          #   parameters:
+          #     serviceConnection: sc-cohort-manager-dev
+
+
 
   - stage: terraform_destroy_core
     displayName: Terraform Destroy - Core
