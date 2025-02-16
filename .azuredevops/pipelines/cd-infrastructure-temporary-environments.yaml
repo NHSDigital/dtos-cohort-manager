@@ -250,8 +250,6 @@ stages:
         displayName: Configure Environment
         dependsOn: [terraform_apply_core]
         condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
-        variables:
-          sourceACR: $(sourceACR)
         steps:
           - task: AzureCLI@2
             displayName: Configure Environment
