@@ -240,6 +240,14 @@ stages:
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
     - name: temp_environment_name
       value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
+    - name: SRC_REGISTRY
+      value: ${{ parameters.sourceRegistry }}
+    - name: DEST_REGISTRY
+      value: "acrukscohman$(temp_environment_name)"
+    - name: SELECT_IMAGE_TAG
+      value: ${{ parameters.selectImageTag }}
+    - name: ADD_IMAGE_TAG
+      value: "temp"
     jobs:
       - deployment: terraform_apply_core
         displayName: Init, get plan artifact, apply
@@ -252,15 +260,9 @@ stages:
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
-      - job: re_tag_images
-        displayName: Import Docker images from source registry and re-tag
-        dependsOn: [terraform_apply_core]
+      - job: check_image_import_required
+        displayName: Check Image Import Required
         condition: and(in('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
-        variables:
-          SRC_REGISTRY: ${{ parameters.sourceRegistry }}
-          DEST_REGISTRY: "acrukscohman$(temp_environment_name)"
-          SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
-          ADD_IMAGE_TAG: "temp"
         steps:
           - task: AzureCLI@2
             name: check_image_import_required
@@ -289,8 +291,12 @@ stages:
                 # Set the output variables
                 echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
+      - job: import_images
+        displayName: Import Images From Source Registry
+        dependsOn: [check_image_import_required]
+        condition: eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True')
+        steps:
           - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
-            condition: and(eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True'))
             parameters:
               serviceConnection: sc-cohort-manager-dev
 
