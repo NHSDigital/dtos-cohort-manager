@@ -252,13 +252,10 @@ stages:
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
-      - job: configure_environment
-        displayName: Configure Environment
-        dependsOn: [terraform_apply_core]
-        condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
-
       - job: re_tag_images
         displayName: Import Docker images from source registry and re-tag
+        dependsOn: [terraform_apply_core]
+        condition: and(in('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
         variables:
           SRC_REGISTRY: ${{ parameters.sourceRegistry }}
           DEST_REGISTRY: "acrukscohman$(temp_environment_name)"
@@ -292,12 +289,10 @@ stages:
                 # Set the output variables
                 echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
-          # - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
-          #   condition: and(eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True'))
-          #   parameters:
-          #     serviceConnection: sc-cohort-manager-dev
-
-
+          - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+            condition: and(eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True'))
+            parameters:
+              serviceConnection: sc-cohort-manager-dev
 
   - stage: terraform_destroy_core
     displayName: Terraform Destroy - Core
