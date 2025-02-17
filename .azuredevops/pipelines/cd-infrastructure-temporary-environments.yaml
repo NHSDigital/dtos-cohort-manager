@@ -254,8 +254,9 @@ stages:
   displayName: ACR re-tag
   dependsOn: [terraform_setup, terraform_apply_core]
   variables:
+    temp_environment_name: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
     SRC_REGISTRY: ${{ parameters.sourceRegistry }}
-    DEST_REGISTRY: "acrukscohman$[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]"
+    DEST_REGISTRY: "acrukscohman$(temp_environment_name)"
     SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
     ADD_IMAGE_TAG: "temp"
   jobs:
