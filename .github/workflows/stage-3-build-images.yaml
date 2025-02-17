@@ -63,7 +63,7 @@ jobs:
           fetch-depth: 0
 
       - name: Az CLI login
-        if: github.ref == 'refs/heads/main'
+        #if: github.ref == 'refs/heads/main'
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -71,7 +71,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Azure Container Registry login
-        if: github.ref == 'refs/heads/main'
+        #if: github.ref == 'refs/heads/main'
         run: az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Create Tags
@@ -136,13 +136,13 @@ jobs:
           ../../scripts/reports/scan-vulnerabilities.sh
 
           # Push the image to the repository
-          if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
+          #if [ "$GITHUB_REF" == 'refs/heads/main' ]; then
             docker push "$repo_name:$COMMIT_HASH_TAG"
             if [ "$PR_NUM_TAG" != 'pr' ]; then
               docker push "$repo_name:$PR_NUM_TAG"
             fi
             docker push "$repo_name:$ENVIRONMENT_TAG"
-          fi
+          #fi
 
           # Remove the image
           docker rmi "$repo_name:$COMMIT_HASH_TAG"
