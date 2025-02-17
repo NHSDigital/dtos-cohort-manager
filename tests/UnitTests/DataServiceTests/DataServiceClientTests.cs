@@ -86,7 +86,7 @@ public class DataServiceClientTests
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("[]");
+        _mockCallFunction.Setup(i => i.SendGetWebRequest(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.NoContent));
 
         var participant = new ParticipantDemographic
         {
@@ -98,7 +98,7 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeEmpty();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockCallFunction.Verify(i => i.SendGetWebRequest(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
@@ -106,8 +106,8 @@ public class DataServiceClientTests
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("{}");
-
+        _mockCallFunction.Setup(i => i.SendGetWebRequest(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK,"{}"));
+        _mockCallFunction.Setup(i => i.GetResponseText(It.IsAny<HttpWebResponse>())).ReturnsAsync("{}");
         var participant = new ParticipantDemographic
         {
             ParticipantId = 123
@@ -118,7 +118,8 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeAssignableTo<ParticipantDemographic>();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockCallFunction.Verify(i => i.SendGetWebRequest(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockCallFunction.Verify(i => i.GetResponseText(It.IsAny<HttpWebResponse>()), Times.Once);
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
@@ -126,6 +127,8 @@ public class DataServiceClientTests
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
+        _mockCallFunction.Setup(i => i.SendGetWebRequest(It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK,"{}"));
+        _mockCallFunction.Setup(i => i.GetResponseText(It.IsAny<HttpWebResponse>())).ReturnsAsync("{}");
         _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>())).ReturnsAsync("{}");
 
         var participant = new ParticipantDemographic
@@ -138,7 +141,8 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeAssignableTo<ParticipantDemographic>();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
+        _mockCallFunction.Verify(i => i.SendGetWebRequest(baseUrl + "/" + "123"), Times.Once);
+        _mockCallFunction.Verify(i => i.GetResponseText(It.IsAny<HttpWebResponse>()), Times.Once);
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
@@ -146,7 +150,8 @@ public class DataServiceClientTests
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>())).Throws(MockHelpers.CreateMockWebException(HttpStatusCode.NotFound));
+        _mockCallFunction.Setup(i => i.SendGetWebRequest(It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.NotFound,"No Data Found"));
+        _mockCallFunction.Setup(i => i.GetResponseText(It.IsAny<HttpWebResponse>())).ReturnsAsync("No Data Found");
 
 
         //act
@@ -154,7 +159,8 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeNull();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
+        _mockCallFunction.Verify(i => i.SendGetWebRequest(baseUrl + "/" + "123"), Times.Once);
+        _mockCallFunction.Verify(i => i.GetResponseText(It.IsAny<HttpWebResponse>()), Times.Once);
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
