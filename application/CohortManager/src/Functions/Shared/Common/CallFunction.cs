@@ -22,16 +22,27 @@ public class CallFunction : ICallFunction
     {
         return await GetHttpWebRequest(url, postData, "PUT");
     }
-
+    [Obsolete("SendGetWebRequest should be used in place of this")]
     public async Task<string> SendGet(string url)
     {
         return await GetAsync(url);
     }
-
+    [Obsolete("SendGetWebRequest should be used in place of this")]
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         url = QueryHelpers.AddQueryString(url, parameters);
         return await GetAsync(url);
+    }
+
+
+    public async Task<HttpWebResponse> SendGetWebRequest(string url)
+    {
+        return await GetWebRequestAsync(url);
+    }
+    public async Task<HttpWebResponse> SendGetWebRequest(string url, Dictionary<string, string> parameters)
+    {
+        url = QueryHelpers.AddQueryString(url, parameters);
+        return await GetWebRequestAsync(url);
     }
 
     public async Task<bool> SendDelete(string url)
@@ -90,6 +101,27 @@ public class CallFunction : ICallFunction
         return null;
     }
 
+    private async Task<HttpWebResponse> GetWebRequestAsync(string url)
+    {
+        var request = (HttpWebRequest)WebRequest.Create(url);
+
+
+        try
+        {
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
+            return response;
+
+        }
+        catch (WebException wex)
+        {
+
+            var result = await HandleWebException(wex);
+            return result;
+
+        }
+
+    }
+
 
 
     private async Task<HttpWebResponse> GetHttpWebRequest(string url, string dataToSend, string Method)
@@ -119,7 +151,7 @@ public class CallFunction : ICallFunction
 
     }
 
-    private async Task<string?> HandleWebException(WebException wex)
+    private async Task<HttpWebResponse?> HandleWebException(WebException wex)
     {
         try
         {
@@ -129,10 +161,7 @@ public class CallFunction : ICallFunction
                 return null;
             }
 
-            _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}",response!.StatusCode);
-            var data = await GetResponseText(response);
-            _logger.LogTrace("Body Of Exception {data}",data);
-            return data;
+            return response;
         }
         catch(Exception ex)
         {
