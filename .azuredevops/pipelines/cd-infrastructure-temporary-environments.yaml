@@ -252,6 +252,7 @@ stages:
 
 - stage: re_tag_stage
   displayName: ACR re-tag
+  dependsOn: [terraform_setup, terraform_apply_core]
   variables:
     SRC_REGISTRY: ${{ parameters.sourceRegistry }}
     DEST_REGISTRY: "acrukscohman$[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]"
