@@ -104,7 +104,7 @@ jobs:
     needs: [metadata]
     #needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
-    if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
+    # if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       environment_tag: "${{ needs.metadata.outputs.environment_tag }}"
     secrets: inherit
