@@ -49,23 +49,15 @@ public class CreateParticipant
             }
 
             if (!long.TryParse(participantCsvRecord.Participant.ScreeningId, out screeningId))
-            {
                 throw new FormatException("Could not parse ScreeningId");
-            }
 
             if (!long.TryParse(participantCsvRecord.Participant.NhsNumber, out nhsNumber))
-            {
                 throw new FormatException("Could not parse NhsNumber");
-            }
 
             var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
 
             if (existingParticipantResult != null && existingParticipantResult.Any())
-            {
                 existingParticipant = new Participant(existingParticipantResult.First());
-            }
-
-
 
             var response = await ValidateData(existingParticipant, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
@@ -74,29 +66,11 @@ public class CreateParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
-            if (response.CreatedException)
-            {
+            if (response.CreatedException) 
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
-            }
 
-
-
-            var ParticipantManagementRecord = new ParticipantManagement
-            {
-                ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
-                NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
-                ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
-                ReasonForRemovalDate = MappingUtilities.ParseDates(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
-                BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
-                ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
-                RecordInsertDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
-                RecordUpdateDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
-                RecordType = participantCsvRecord.Participant.RecordType
-
-            };
+            var ParticipantManagementRecord = participantCsvRecord.Participant.ToParticipantManagement();
             var participantCreated = await _participantManagementClient.Add(ParticipantManagementRecord);
-
-
 
             if (participantCreated)
             {

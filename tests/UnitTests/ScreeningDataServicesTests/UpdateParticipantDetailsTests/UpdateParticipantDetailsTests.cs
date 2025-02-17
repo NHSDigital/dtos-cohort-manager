@@ -90,7 +90,7 @@ public class UpdateParticipantDetailsTests
     }
 
     [TestMethod]
-    public async Task Run_ValidRequest_ReturnOk()
+    public async Task Run_ValidRequest_UpdateAndReturnOk()
     {
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
@@ -104,6 +104,9 @@ public class UpdateParticipantDetailsTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(x => x.RecordUpdateDateTime != null)),
+                Times.Once());
     }
 
     [TestMethod]
@@ -115,8 +118,8 @@ public class UpdateParticipantDetailsTests
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
                                                 _callFunctionMock.Object, _participantManagementClientMock.Object);
 
-        var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = rfrDate;
+        var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
 
@@ -126,7 +129,8 @@ public class UpdateParticipantDetailsTests
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         _participantManagementClientMock
-            .Verify(x => x.Update(expectedParticipant), Times.Once());
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(x => x.ReasonForRemovalDate == expectedParticipant.ReasonForRemovalDate)),
+                Times.Once());
     }
 
     [TestMethod]

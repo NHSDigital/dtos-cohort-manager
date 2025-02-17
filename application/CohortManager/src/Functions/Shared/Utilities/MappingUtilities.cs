@@ -14,6 +14,21 @@ public static class MappingUtilities
     }
 
     /// <summary>
+    /// Parses flags that can be Y, N, 0 or 1, such as the exception flag
+    /// </summary>
+    public static short ParseStringFlag(string flag)
+    {
+        return flag.ToUpper() switch
+        {
+            "0" => 0,
+            "1" => 1,
+            "Y" => 1,
+            "N" => 0,
+            _ => throw new ArgumentException("Invalid input")
+        };
+    }
+
+    /// <summary>
     /// Parses a date string to a nullable DateTime.
     /// Can handle partial dates.
     /// </summary>

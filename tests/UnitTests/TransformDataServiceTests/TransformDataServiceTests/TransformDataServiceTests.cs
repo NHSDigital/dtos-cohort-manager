@@ -115,7 +115,9 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Gender.Male
         };
-        _transformReasonForRemoval.Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>())).Returns(Task.FromResult(expectedResponse));
+        _transformReasonForRemoval
+            .Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>()))
+            .Returns(Task.FromResult(expectedResponse));
 
         // Act
         var result = await _function.RunAsync(_request.Object);

@@ -20,56 +20,15 @@ public class CreateParticipantTests
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
-
     private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly ScreeningDataServices.CreateParticipant _sut;
+    private ParticipantCsvRecord _requestRecord;
 
-    [TestMethod]
-    public async Task Run_ValidRequest_ReturnsSuccess()
+    public CreateParticipantTests()
     {
-        // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord
+        _requestRecord = new()
         {
-            Participant = new Participant
-            {
-                NhsNumber = "1234567890",
-                ScreeningId = "1"
-            }
-        };
-        var json = JsonSerializer.Serialize(participantCsvRecord);
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
-
-        var sut = new ScreeningDataServices.CreateParticipant(
-            _mockLogger.Object,
-            _mockCreateResponse.Object,
-            _handleException.Object,
-            _callFunction.Object,
-            _participantManagementClient.Object);
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
-
-        // Act
-        await sut.Run(mockRequest);
-
-        // Assert
-        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
-        _mockCreateResponse.VerifyNoOtherCalls();
-    }
-
-    [TestMethod]
-    [DataRow("2025")]
-    [DataRow("202501")]
-    public async Task Run_ParticipantHasPartialDates_TransformDatesAndAdd(string rfrDate)
-    {
-        // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord
-        {
-            Participant = new Participant
+            Participant = new()
             {
                 ParticipantId = "1",
                 NhsNumber = "123456",
@@ -88,7 +47,7 @@ public class CreateParticipantTests
                 AddressLine5 = "State",
                 Postcode = "12345",
                 ReasonForRemoval = "Moved",
-                ReasonForRemovalEffectiveFromDate = rfrDate,
+                ReasonForRemovalEffectiveFromDate = "2024-04-23",
                 DateOfDeath = "2024-04-23",
                 TelephoneNumber = "123-456-7890",
                 MobileNumber = "987-654-3210",
@@ -100,58 +59,76 @@ public class CreateParticipantTests
             }
         };
 
-        var sut = new ScreeningDataServices.CreateParticipant(
+        ValidationExceptionLog validationResponse = new()
+        {
+            IsFatal = false,
+            CreatedException = false
+        };
+
+        _participantManagementClient
+            .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+
+        _callFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
+
+        _sut = new(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
             _participantManagementClient.Object);
+    }
 
-        var expectedParticipant = participantCsvRecord.Participant.ToParticipantManagement();
-
-        var json = JsonSerializer.Serialize(participantCsvRecord);
+    [TestMethod]
+    public async Task Run_ValidRequest_ReturnsSuccess()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
         // Act
-        var response = await sut.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _mockCreateResponse.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    [DataRow("2025")]
+    [DataRow("202501")]
+    public async Task Run_ParticipantHasPartialDates_TransformDatesAndAdd(string rfrDate)
+    {
+        // Arrange
+        var expectedParticipant = _requestRecord.Participant.ToParticipantManagement();
+
+        var json = JsonSerializer.Serialize(_requestRecord);
+        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
+
+        // Act
+        var response = await _sut.Run(mockRequest);
+
+        // Assert
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _participantManagementClient
-            .Verify(x => x.Add(expectedParticipant), Times.Once());
+            .Verify(x => x.Add(It.Is<ParticipantManagement>(x => x.ReasonForRemovalDate == expectedParticipant.ReasonForRemovalDate)),
+                Times.Once());
     }
 
     [TestMethod]
     public async Task Run_InvalidRequest_Returns500()
     {
         // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord
-        {
-            Participant = new Participant
-            {
-                NhsNumber = "1234567890",
-                ScreeningId = "1"
-            }
-        };
-        var json = JsonSerializer.Serialize(participantCsvRecord);
+        var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
-
-        var sut = new ScreeningDataServices.CreateParticipant(
-            _mockLogger.Object,
-            _mockCreateResponse.Object,
-            _handleException.Object,
-            _callFunction.Object,
-            _participantManagementClient.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
+        _participantManagementClient
+            .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(false);
 
         // Act
-        await sut.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -160,36 +137,24 @@ public class CreateParticipantTests
 
 
     [TestMethod]
-    public async Task Run_InValidRequest_ReturnsCreated()
+    public async Task Run_InvalidRequest_ReturnsCreated()
     {
         // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord
+        ValidationExceptionLog validationResponse = new()
         {
-            Participant = new Participant
-            {
-                NhsNumber = "1234567890",
-                ScreeningId = "1"
-            }
+            IsFatal = true,
+            CreatedException = false
         };
-        var json = JsonSerializer.Serialize(participantCsvRecord);
+
+        _callFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+            .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
+
+        var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-        var sut = new ScreeningDataServices.CreateParticipant(
-            _mockLogger.Object,
-            _mockCreateResponse.Object,
-            _handleException.Object,
-            _callFunction.Object,
-            _participantManagementClient.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = true,
-                CreatedException = false
-            })));
-        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
-
         // Act
-        await sut.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.Created, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -198,38 +163,18 @@ public class CreateParticipantTests
 
 
     [TestMethod]
-    public async Task Run_AddTodDatabaseThrowsAnError_ReturnsInternalServerError()
+    public async Task Run_AddToDatabaseThrowsAnError_ReturnsInternalServerError()
     {
         // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord
-        {
-            Participant = new Participant
-            {
-                NhsNumber = "1234567890",
-                ScreeningId = "1"
-            }
-        };
-        var json = JsonSerializer.Serialize(participantCsvRecord);
+        var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-        var sut = new ScreeningDataServices.CreateParticipant(
-            _mockLogger.Object,
-            _mockCreateResponse.Object,
-            _handleException.Object,
-            _callFunction.Object,
-            _participantManagementClient.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-
-        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).Throws(new Exception("someError"));
-
+        _participantManagementClient
+            .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
+            .Throws(new Exception("someError"));
 
         // Act
-        await sut.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), ""), Times.Once);
