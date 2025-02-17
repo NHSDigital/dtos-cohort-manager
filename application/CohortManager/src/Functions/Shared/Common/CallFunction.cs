@@ -83,7 +83,7 @@ public class CallFunction : ICallFunction
         {
 
 
-            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),wex.Message);
+            _logger.LogError(wex, "Failed to execute web request to url: {url}, message: {message}", RemoveURLQueryString(url), wex.Message);
             throw;
         }
 
@@ -113,10 +113,9 @@ public class CallFunction : ICallFunction
         }
         catch (WebException ex)
         {
-            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}",RemoveURLQueryString(url),ex.Message);
+            _logger.LogError(ex, "Failed to execute web request to url: {url}, message: {message}", RemoveURLQueryString(url), ex.Message);
             throw;
         }
-
     }
 
     private async Task<string?> HandleWebException(WebException wex)
@@ -124,19 +123,19 @@ public class CallFunction : ICallFunction
         try
         {
             var response = (HttpWebResponse)wex.Response;
-            if(response == null)
+            if (response == null)
             {
                 return null;
             }
 
-            _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}",response!.StatusCode);
+            _logger.LogInformation("Web Exception Caught with response body. Http Response Code {ResponseCode}", response!.StatusCode);
             var data = await GetResponseText(response);
-            _logger.LogTrace("Body Of Exception {data}",data);
+            _logger.LogTrace("Body Of Exception {data}", data);
             return data;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogWarning(ex,"Couldn't Deserialize web exception response");
+            _logger.LogWarning(ex, "Couldn't Deserialize web exception response");
             return null;
         }
     }
