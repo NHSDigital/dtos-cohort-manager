@@ -4,7 +4,7 @@
     "GlobalParams": [
         {
           "Name":"ValidNamePrefixes",
-          "Expression": "new string[] {\"A.ML\",\"ADM\",\"BRIG\",\"BRO\",\"CAN\",\"CAPT\",\"CMDR\",\"COL\",\"DAME\",\"DEAN\",\"DR\",\"EARL\",\"FR\",\"G.C\",\"GEN\",\"HON\",\"HRH\",\"LADY\",\"LORD\",\"LT.C\",\"MJR\",\"MISS\",\"MR\",\"MRS\",\"MS\",\"MX\",\"PROF\",\"R.RN\",\"R.HV\",\"REV\",\"SIR\",\"SQLD\",\"SR\",\"VISC\",\"WCOM\"}"
+          "Expression": "new string[] {\"A.ML\",\"ADM\",\"BRIG\",\"BRO\",\"CAN\",\"CAPT\",\"CMDR\",\"COL\",\"DAME\",\"DEAN\",\"DR\",\"EARL\",\"FR\",\"G.C\",\"GEN\",\"HON\",\"HRH\",\"LADY\",\"LORD\",\"LT.C\",\"MAJ\",\"MISS\",\"MR\",\"MRS\",\"MS\",\"MX\",\"PROF\",\"R.RN\",\"R.HV\",\"REV\",\"SIR\",\"SQLD\",\"SR\",\"VISC\",\"WCOM\"}"
         }
       ],
     "Rules": [

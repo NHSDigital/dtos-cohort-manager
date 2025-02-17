@@ -707,6 +707,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -1017,6 +1021,22 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    RetrievePDSDemographic = {
+      name_suffix            = "retrieve-pds-demographic"
+      function_endpoint_name = "RetrievePDSDemographic"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }
