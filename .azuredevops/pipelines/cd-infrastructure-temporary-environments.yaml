@@ -298,7 +298,7 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: terraform_destroy_core
   displayName: Terraform Destroy - Core
