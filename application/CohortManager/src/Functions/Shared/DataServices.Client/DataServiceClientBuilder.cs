@@ -39,6 +39,17 @@ public class DataServiceClientBuilder
         return this;
     }
 
+    public DataServiceClientBuilder AddDataServiceStaticCachedClient<TEntity>(string url) where TEntity : class
+    {
+        _hostBuilder.ConfigureServices(_ => {
+            _.AddSingleton<IDataServiceClient<TEntity>,DataServiceStaticCachedClient<TEntity>>();
+
+        });
+        AddDataServiceUrl(typeof(TEntity),url);
+
+        return this;
+    }
+
 
     public IHostBuilder Build()
     {

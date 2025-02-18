@@ -9,10 +9,13 @@ public class DataServiceCacheClient<TEntity> : DataServiceClient<TEntity> where 
 {
     private readonly IMemoryCache _cache;
     private readonly ILogger<DataServiceCacheClient<TEntity>> _logger;
+    private readonly string _baseUrl;
+
     public DataServiceCacheClient(ILogger<DataServiceCacheClient<TEntity>> logger, DataServiceResolver dataServiceResolver, ICallFunction callFunction, IMemoryCache memoryCache, ILogger<DataServiceCacheClient<TEntity>> cacheLogger) : base(logger, dataServiceResolver, callFunction)
     {
         _cache = memoryCache;
         _logger = cacheLogger;
+        _baseUrl = dataServiceResolver.GetDataServiceUrl(typeof(TEntity));
     }
 
     public override async Task<TEntity> GetSingle(string id)
