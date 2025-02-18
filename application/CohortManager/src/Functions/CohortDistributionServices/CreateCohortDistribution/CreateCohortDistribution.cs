@@ -90,7 +90,10 @@ public class CreateCohortDistribution
             // Transformation
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
             if (transformedParticipant == null)
+            {
+                await HandleErrorResponseAsync("The transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                 return;
+            }
 
             // Add to cohort distribution table
             var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
