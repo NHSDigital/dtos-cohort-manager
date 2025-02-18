@@ -50,17 +50,14 @@ public class TransformString
         {
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
-            {
-                throw new ArgumentException("Participant contains illegal characters");
-            }
+                throw new ArgumentException($"Participant contains illegal characters");
 
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters, RegexOptions.None, matchTimeout))
-            {
                 throw new ArgumentException("Participant contains illegal characters");
-            }
+                
             return transformedField;
         }
     }

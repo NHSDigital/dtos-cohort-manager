@@ -95,6 +95,12 @@ public class TransformDataService
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
         }
+        catch (ArgumentException ex)
+        {
+            _logger.LogWarning(ex, "An error occurred during transformation");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", "", JsonSerializer.Serialize(participant));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
+        }
         catch (TransformationException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
@@ -185,7 +191,7 @@ public class TransformDataService
             string.IsNullOrEmpty(requestParticipant.AddressLine5))
         {
             if (requestParticipant.Postcode != databaseParticipant.PostCode)
-                throw new ArgumentException("Participant has an empty address and postcode does not match existing record");
+                throw new TransformationException("Participant has an empty address and postcode does not match existing record");
 
             requestParticipant.AddressLine1 = databaseParticipant.AddressLine1;
             requestParticipant.AddressLine2 = databaseParticipant.AddressLine2;
