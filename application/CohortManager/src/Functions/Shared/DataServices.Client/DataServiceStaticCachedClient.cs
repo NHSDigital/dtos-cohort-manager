@@ -1,3 +1,5 @@
+namespace DataServices.Client;
+
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -15,10 +17,10 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
     public DataServiceStaticCachedClient(ILogger<DataServiceStaticCachedClient<TEntity>> logger,
         DataServiceResolver dataServiceResolver,
         ICallFunction callFunction,
-        ILogger<DataServiceStaticCachedClient<TEntity>> cacheLogger)
+        ILogger<DataServiceStaticCachedClient<TEntity>> logger)
     {
 
-        _logger = cacheLogger;
+        _logger = logger;
         var baseUrl = dataServiceResolver.GetDataServiceUrl(typeof(TEntity));
 
         if (string.IsNullOrEmpty(baseUrl))
@@ -30,7 +32,7 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
         _logger = logger;
 
         _keyInfo = ReflectionUtilities.GetKey<TEntity>();
-        _logger.LogInformation($"Pre-Loading data from data service {typeof(TEntity).FullName}");
+        _logger.LogInformation("Pre-Loading data from data service {EntityName}",typeof(TEntity).FullName);
         var jsonString = callFunction.SendGet(baseUrl).Result;
         if (string.IsNullOrEmpty(jsonString))
         {
@@ -43,7 +45,7 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
             throw new InvalidDataException($"No Data was available to be statically cached for the data Service Client of type: {typeof(TEntity).FullName}");
         }
 
-        _logger.LogInformation($"Pre-Loading data complete for data service {typeof(TEntity).FullName}");
+        _logger.LogInformation("Pre-Loading data complete for data service {EntityName}",typeof(TEntity).FullName);
 
     }
 
