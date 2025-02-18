@@ -1,5 +1,16 @@
 {
     "version": "2.0",
+    "concurrency": {
+      "dynamicConcurrencyEnabled": true,
+      "snapshotPersistenceEnabled": true
+    },
+    "extensions": {
+      "queues": {
+        "batchSize": 8,
+        "newBatchThreshold": 4,
+        "visibilityTimeout": "00:01:00"
+      }
+    },
     "logging": {
         "applicationInsights": {
             "samplingSettings": {
