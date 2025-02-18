@@ -18,7 +18,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
-        var result = _context.Set<TEntity>().Where(predicate).ToList();
+        var result = _context.Set<TEntity>().AsNoTracking().Where(predicate).ToList();
         if (result.Count > 1)
         {
             throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
@@ -29,7 +29,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates)
     {
-        var result = _context.Set<TEntity>().Where(predicates).ToList();
+        var result = _context.Set<TEntity>().AsNoTracking().Where(predicates).ToList();
         await Task.CompletedTask;
         return result;
     }
@@ -54,7 +54,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<bool> Remove(Expression<Func<TEntity, bool>> predicate)
     {
-        var result = _context.Set<TEntity>().SingleOrDefault(predicate);
+        var result = _context.Set<TEntity>().AsNoTracking().SingleOrDefault(predicate);
         await Task.CompletedTask;
         if (result == null)
         {
