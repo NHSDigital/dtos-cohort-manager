@@ -51,7 +51,7 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
     {
         await Task.CompletedTask;
         var predicate = CreateGetByKeyExpression(id).Compile();
-        return _data.Where(predicate).Single();
+        return _data.Where(predicate).SingleOrDefault();
     }
 
     public async Task<IEnumerable<TEntity>> GetAll()
