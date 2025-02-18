@@ -84,6 +84,7 @@ The full containerised solution does not work on Macs so you will have to run th
 Download Podman Desktop using [these instructions](https://podman-desktop.io/) and enable Docker compatibility.
 Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 You can then run and setup the SQL database using Podman (or docker) by running the following commands:
+
 ```bash
 docker machine init
 docker manchine start
@@ -105,6 +106,7 @@ docker compose up # Run the functions
 
 ## Update the submodules. 
 Run the following command from within `application/CohortManager/src` directory.
+
 ```bash 
 git submodule update --init --recursive
 ```
