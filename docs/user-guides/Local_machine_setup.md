@@ -86,8 +86,8 @@ Copy the .env.example file, rename it to just ".env", and follow the instruction
 You can then run and setup the SQL database using Podman (or docker) by running the following commands:
 
 ```bash
-docker machine init
-docker manchine start
+podman machine init
+podman manchine start
 docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YOUR_PASSWORD' -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2022-latest
 ```
 
