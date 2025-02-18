@@ -35,6 +35,10 @@ public static class MappingUtilities
         return tempDate;
     }
 
+    /// <summary>
+    /// Returns a formatted date string given a nullable DateTime.
+    /// Formatted according to the yyyy-MM-dd hh:mm:ss format.
+    /// </summary>
     public static string? FormatDateTime(DateTime? date)
     {
         return date?.ToString("yyyy-MM-dd hh:mm:ss");

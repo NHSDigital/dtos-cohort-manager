@@ -2,6 +2,7 @@ namespace NHS.CohortManager.CohortDistribution;
 
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 using Model;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
@@ -20,14 +21,16 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ParseOutcode(postcode);
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result != null;
     }
 
     public string GetBsoCode(string postcode){
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ParseOutcode(postcode);
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result?.BSO;
@@ -44,10 +47,22 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     {
         var gpPractice = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
 
-        if (gpPractice == null)
-        {
-            return string.Empty;
-        }
+        if (gpPractice == null) return string.Empty;
+
         return gpPractice.BsoCode;
+    }
+
+    /// <summary>
+    /// Gets the outcode (first half of the postcode) from a postcode.
+    /// Can handle postcodes in any format (including without spaces)
+    /// </summary>
+    private static string ParseOutcode(string postcode)
+    {
+        string pattern = @"^([A-Z]{1,2}[0-9][0-9A-Z]?)\s?[0-9][A-Z]{2}$";
+
+        Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase);
+        string outcode = match.Groups[1].Value;
+
+        return outcode;
     }
 }
