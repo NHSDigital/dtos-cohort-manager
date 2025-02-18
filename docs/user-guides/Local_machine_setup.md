@@ -81,24 +81,33 @@ The full containerised solution does not work on Macs so you will have to run th
 
 ### Dependencies
 
-Download Podman Desktop using [these instructions](https://podman-desktop.io/).
+Download Podman Desktop using [these instructions](https://podman-desktop.io/) and enable Docker compatibility.
 Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 You can then run and setup the SQL database using Podman (or docker) by running the following commands:
-    `podman machine init`
-    `podman manchine start`
-    `podman run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YOUR_PASSWORD' -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2022-latestp`
+```bash
+docker machine init
+docker manchine start
+docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YOUR_PASSWORD' -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2022-latest
+```
+
+Use the files contained within `application/CohortManager/Set-up/database` to create the database schema.
+
+Next within VS Code, press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
 ### Functions
+```bash
+# Build the functions
+docker compose -f compose.core.yaml build
+docker compose -f compose.cohort-distribution.yaml build
 
-Run the get_local_settings.sh from `application/CohortManager/Set-up/scripts/`.
-Run the following two commands:
-    - `cd application/CohortManager/Set-up/`
-    - `sh ./scripts/recreate_local_settings.sh`
+docker compose up # Run the functions
+```
 
-Next press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
-
-Finally, press command + p and type `task Run All Functions`.
-
+## Update the submodules. 
+Run the following command from within `application/CohortManager/src` directory.
+```bash 
+git submodule update --init --recursive
+```
 
 ## Appendix A: Storage
 
@@ -108,7 +117,7 @@ There is a script in `application/CohortManager/Set-up/azurite` that alllows you
 
 Before your run the script you must download the sample files from confluence (you can see which files you need to download by running the command without arguments) run the following command: `pip install azure-storage-blob python-dotenv`
 
-Run the file without arguments (`pyhton send-sample-file.py`) to see the help page
+Run the file without arguments (`python send-sample-file.py`) to see the help page
 
 ### Set-up Azure Storage Explorer
 
@@ -123,6 +132,8 @@ The required queues are:
 
 - `add-participant-queue`
 - `add-participant-queue-poison`
+- `update-participant-queue`
+- `update-participant-queue-poison`
 - `cohort-distribution-queue`
 - `cohort-distribution-queue-poison`
 - `create-cohort-distribution-queue`
