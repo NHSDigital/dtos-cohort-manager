@@ -109,7 +109,7 @@ docker compose up # Run the functions
 
 Run the following command from within `application/CohortManager/src` directory.
 
-```bash 
+```bash
 git submodule update --init --recursive
 ```
 
