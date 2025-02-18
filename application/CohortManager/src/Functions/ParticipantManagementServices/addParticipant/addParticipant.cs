@@ -11,6 +11,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
+using DataServices.Client;
+using NHS.CohortManager.Shared.Utilities;
 
 public class AddParticipantFunction
 {
@@ -21,8 +23,9 @@ public class AddParticipantFunction
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    private readonly IDataServiceClient<ParticipantManagement>  _participantManagementDataService;
 
-    public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
+    public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler, IDataServiceClient<ParticipantManagement> participantManagementDataServiceClient)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -31,6 +34,7 @@ public class AddParticipantFunction
         _createParticipant = createParticipant;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
+        _participantManagementDataService = participantManagementDataServiceClient;
     }
 
     [Function(nameof(AddParticipantFunction))]
@@ -39,10 +43,18 @@ public class AddParticipantFunction
         _logger.LogInformation("C# addParticipant called.");
         HttpWebResponse createResponse, eligibleResponse;
 
+        long screeningId;
+        long nhsNumber;
+        var existingParticipant = new Participant();
+
+
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
         try
         {
+            screeningId = long.Parse(basicParticipantCsvRecord.Participant.ScreeningId);
+            nhsNumber = long.Parse(basicParticipantCsvRecord.Participant.NhsNumber);
+
             // Get demographic data
             var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
             if (demographicData == null)
@@ -71,11 +83,34 @@ public class AddParticipantFunction
 
             if (response.CreatedException) participantCsvRecord.Participant.ExceptionFlag = "Y";
 
-            // Add participant to database
-            var json = JsonSerializer.Serialize(participantCsvRecord);
-            createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
 
-            if (createResponse.StatusCode != HttpStatusCode.OK)
+            var existingParticipantResult = await _participantManagementDataService.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
+
+            if (existingParticipantResult != null && existingParticipantResult.Any())
+            {
+                existingParticipant = new Participant(existingParticipantResult.First());
+            }
+
+
+
+            var lookupValidationResult = await RunLookupValidation(existingParticipant,participantCsvRecord.Participant,participantCsvRecord.FileName);
+
+            if (lookupValidationResult.IsFatal)
+            {
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: REDACTED");
+                return;
+            }
+
+            if (lookupValidationResult.CreatedException)
+            {
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
+            }
+
+
+
+            // Add participant to database
+            var participantCreated  = await AddParticipantToDatabase(participantCsvRecord);
+            if (!participantCreated)
             {
                 _logger.LogError("There was problem posting the participant to the database");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
@@ -83,6 +118,9 @@ public class AddParticipantFunction
 
             }
             _logger.LogInformation("Participant created");
+
+
+
 
             // Mark participant as eligible
             var participantJson = JsonSerializer.Serialize(participant);
@@ -111,6 +149,24 @@ public class AddParticipantFunction
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
         }
     }
+    private async Task<bool> AddParticipantToDatabase(ParticipantCsvRecord participantCsvRecord)
+    {
+            var ParticipantManagementRecord = new ParticipantManagement
+            {
+                ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
+                NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
+                ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
+                ReasonForRemovalDate = MappingUtilities.ParseDates(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
+                BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
+                ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
+                RecordInsertDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
+                RecordUpdateDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordUpdateDateTime),
+                RecordType = participantCsvRecord.Participant.RecordType
+
+            };
+            var participantCreated = await _participantManagementDataService.Add(ParticipantManagementRecord);
+            return participantCreated;
+    }
 
     private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
     {
@@ -135,4 +191,24 @@ public class AddParticipantFunction
         return responseBody;
 
     }
+
+    private async Task<ValidationExceptionLog> RunLookupValidation(Participant existingParticipant, Participant newParticipant, string fileName)
+    {
+        var json = JsonSerializer.Serialize(new LookupValidationRequestBody(existingParticipant, newParticipant, fileName, Model.Enums.RulesType.ParticipantManagement));
+
+        try
+        {
+            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+            return responseBody;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
+            return null;
+        }
+    }
+
 }
