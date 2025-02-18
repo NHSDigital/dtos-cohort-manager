@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Model;
 
 public class DemographicDataFunction
@@ -18,6 +19,8 @@ public class DemographicDataFunction
     private readonly ICreateResponse _createResponse;
 
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+
+    private readonly HealthCheckService _healthCheckService;
 
     public DemographicDataFunction(ILogger<DemographicDataFunction> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantDemographic> participantDemographic)
     {
@@ -81,6 +84,27 @@ public class DemographicDataFunction
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    [Function("DemographicDataHealthCheck")]
+    public async Task<HttpResponseData> HealthCheck([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")] HttpRequestData req)
+    {
+        _logger.LogInformation("Health check requested.");
+
+        var result = await _healthCheckService.CheckHealthAsync();
+
+        var response = new
+        {
+            status = result.Status.ToString(),
+            checks = result.Entries.Select(e => new { name = e.Key, status = e.Value.Status.ToString() })
+        };
+
+        string jsonResponse = JsonSerializer.Serialize(response, new JsonSerializerOptions { WriteIndented = true });
+
+        var responseStatus = result.Status == HealthStatus.Healthy ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable;
+
+        return _createResponse.CreateHttpResponse(responseStatus, req, jsonResponse);
+    }
+
 
     private async Task<Demographic?> GetDemographicData(string nhsNumber)
     {

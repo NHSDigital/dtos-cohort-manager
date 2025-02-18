@@ -14,6 +14,8 @@ var host = new HostBuilder()
     {
         services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddHealthChecks()
+            .AddCheck<DatabaseHealthCheck>("database");
     })
     .Build();
 
