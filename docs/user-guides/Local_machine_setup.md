@@ -96,6 +96,7 @@ Use the files contained within `application/CohortManager/Set-up/database` to cr
 Next within VS Code, press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
 ### Functions
+
 ```bash
 # Build the functions
 docker compose -f compose.core.yaml build
@@ -104,7 +105,8 @@ docker compose -f compose.cohort-distribution.yaml build
 docker compose up # Run the functions
 ```
 
-## Update the submodules. 
+## Update the submodules
+
 Run the following command from within `application/CohortManager/src` directory.
 
 ```bash 
