@@ -53,10 +53,10 @@ public class MarkParticipantAsEligible
                     throw new FormatException("Could not parse ScreeningId");
                 }
 
-                var updatedParticipantManagement = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
+                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
                 updatedParticipantManagement.EligibilityFlag = 1;
 
-                updated = await _participantManagementClient.Update(updatedParticipantManagement);
+                updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
             }
 
             if (updated)
