@@ -11,6 +11,7 @@ using DataServices.Client;
 using receiveCaasFile;
 using Microsoft.Extensions.Azure;
 using Azure.Identity;
+using Azure.Storage.Blobs;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -35,12 +36,22 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker,  RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
         services.AddScoped<IValidateDates, ValidateDates>();
+        // Register health checks
+        services.AddHealthChecks()
+            .AddCheck<BlobStorageHealthCheck>("blob_storage_health_check")
+            .AddCheck<DatabaseHealthCheck>("database_health_check");
+        // Register your services
+        services.AddSingleton<BlobServiceClient>(provider =>
+        {
+            var connectionString = Environment.GetEnvironmentVariable("caasfolder_STORAGE");
+            return new BlobServiceClient(connectionString);
+        });
     })
     .AddAzureQueues()
     .AddExceptionHandler()
