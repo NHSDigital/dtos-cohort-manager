@@ -8,6 +8,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/RetrieveMeshFile/Dockerfile
+    profiles: [non-essential]
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - caasfolder_STORAGE=UseDevelopmentStorage=true
@@ -217,6 +218,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
+    profiles: [ui]
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -382,6 +384,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
+    profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
@@ -427,10 +430,10 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7989
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
 
   screening-lkp-data-service:
     container_name: screening-lkp-data-service
