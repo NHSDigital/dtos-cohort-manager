@@ -290,6 +290,7 @@ stages:
             fi
 
             echo "Test login to ACR:"
+            az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
             az acr login --name $(SRC_REGISTRY)
             # Set the output variables
             echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
