@@ -14,10 +14,10 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
     private readonly PropertyInfo _keyInfo;
 
 
-    public DataServiceStaticCachedClient(ILogger<DataServiceStaticCachedClient<TEntity>> logger,
+    public DataServiceStaticCachedClient(
+        ILogger<DataServiceStaticCachedClient<TEntity>> logger,
         DataServiceResolver dataServiceResolver,
-        ICallFunction callFunction,
-        ILogger<DataServiceStaticCachedClient<TEntity>> logger)
+        ICallFunction callFunction)
     {
 
         _logger = logger;
@@ -51,26 +51,30 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
 
     public async Task<TEntity> GetSingle(string id)
     {
+        _logger.LogInformation("Getting Single from static data service {EntityName}",typeof(TEntity).FullName);
         await Task.CompletedTask;
         var predicate = CreateGetByKeyExpression(id).Compile();
-        return _data.Where(predicate).SingleOrDefault();
+        return _data.SingleOrDefault(predicate);
     }
 
     public async Task<IEnumerable<TEntity>> GetAll()
     {
+        _logger.LogInformation("Getting all Data from static data service {EntityName}",typeof(TEntity).FullName);
         await Task.CompletedTask;
         return _data.ToList();
     }
 
     public async Task<TEntity> GetSingleByFilter(Expression<Func<TEntity, bool>> predicate)
     {
+        _logger.LogInformation("Getting Single By Filter from static data service {EntityName}",typeof(TEntity).FullName);
         await Task.CompletedTask;
         var predicateFunction  = predicate.Compile();
-        return _data.Where(predicateFunction).FirstOrDefault();
+        return _data.FirstOrDefault(predicateFunction);
     }
 
     public async Task<IEnumerable<TEntity>> GetByFilter(Expression<Func<TEntity, bool>> predicate)
     {
+        _logger.LogInformation("Getting By Filter from static data service {EntityName}",typeof(TEntity).FullName);
         await Task.CompletedTask;
         var predicateFunction  = predicate.Compile();
         return _data.Where(predicateFunction).ToList();
