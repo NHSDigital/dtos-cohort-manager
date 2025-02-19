@@ -67,7 +67,7 @@ public class CallFunction : ICallFunction
     private async Task<string> GetAsync(string url)
     {
         var request = (HttpWebRequest)WebRequest.Create(url);
-
+        request.Timeout = 999999999;
 
         try
         {
