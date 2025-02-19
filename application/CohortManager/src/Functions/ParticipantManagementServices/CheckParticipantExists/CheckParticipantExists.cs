@@ -52,8 +52,10 @@ public class CheckParticipantExists
         try 
         {
             var dbParticipants = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
-            if (dbParticipants == null || !dbParticipants.Any())
+            if (dbParticipants == null || !dbParticipants.Any()) {
+                _logger.LogError("Participant not found");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant not found");
+            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
