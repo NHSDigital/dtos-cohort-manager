@@ -250,8 +250,8 @@ stages:
               - checkout: dtos-devops-templates
               - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
-- stage: re_tag_stage
-  displayName: ACR re-tag
+- stage: configure_environment
+  displayName: Configure Environment
   dependsOn: [terraform_setup, terraform_apply_core]
   variables:
     temp_environment_name: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.temp_environment_name'] ]
@@ -294,7 +294,7 @@ stages:
             # Set the output variables
             echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
-  - job: re_tag
+  - job: re_tag_images
     displayName: Update/copy Docker images with new tag
     dependsOn: [check_image_import_required]
     condition: eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'TrueX')
@@ -302,6 +302,25 @@ stages:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
+
+  - job: update_database
+    displayName: Update Database
+    dependsOn: [re_tag_images]
+    steps:
+      - task: AzureCLI@2
+        displayName: Update Database
+        inputs:
+          azureSubscription: $(SERVICE_CONNECTION)
+          scriptLocation: inlineScript
+          scriptType: bash
+          workingDirectory: $(tfExecutionDir)
+          inlineScript: |
+            # Pull the latest database image from the Temp ACR:
+            az acr login --name $(DEST_REGISTRY)
+            # docker pull db-migration:temp
+
+            # Run the database migration container:
+            # docker run --rm --network host db-migration:temp -e connectionstring=$(DTOS_DATABASE_CONNECTION_STRING)
 
 - stage: terraform_destroy_core
   displayName: Terraform Destroy - Core
