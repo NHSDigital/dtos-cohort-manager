@@ -121,7 +121,7 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    
+
     public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant)
     {
         foreach (var error in transformationErrors)
@@ -197,7 +197,7 @@ public class ExceptionHandler : IExceptionHandler
             var exceptionJson = JsonSerializer.Serialize(exception);
             var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
             {
                 _logger.LogError("There was an error while logging an exception to the database");
                 return new ValidationExceptionLog
