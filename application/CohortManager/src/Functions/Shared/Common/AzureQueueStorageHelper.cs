@@ -37,4 +37,20 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
             return false;
         }
     }
+
+    public async Task<List<T>> GetItemsFromQueue<T>(int numberOfItems, string queueName) where T : class
+    {
+        var _queueClient = new QueueClient(storageConnectionString, queueName);
+        var messages = await _queueClient.ReceiveMessagesAsync(maxMessages: numberOfItems);
+        List<T> messageList = new List<T>();
+        foreach(var message in messages.Value)
+        {
+
+            var messageJson =Convert.FromBase64String(message.Body.ToString());
+            var messageBody = JsonSerializer.Deserialize<T>(messageJson);
+            messageList.Add( messageBody);
+            await _queueClient.DeleteMessageAsync(message.MessageId,message.PopReceipt);
+        }
+        return messageList;
+    }
 }

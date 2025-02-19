@@ -1,3 +1,4 @@
+using addParticipant;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +13,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+        services.AddScoped<IAddParticipantProcessor,AddParticipantProcessor>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
