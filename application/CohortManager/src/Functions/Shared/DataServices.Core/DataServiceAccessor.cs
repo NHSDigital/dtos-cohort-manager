@@ -18,13 +18,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<TEntity> GetSingle(Expression<Func<TEntity, bool>> predicate)
     {
-        var result = _context.Set<TEntity>().AsNoTracking().Where(predicate).ToList();
-        if (result.Count > 1)
-        {
-            throw new MultipleRecordsFoundException("Multiple Records where found for filter expression when only one was expected");
-        }
-        await Task.CompletedTask;
-        return result.SingleOrDefault();
+        var result = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
+        return result;
     }
 
     public async Task<List<TEntity>> GetRange(Expression<Func<TEntity, bool>> predicates)
