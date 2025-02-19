@@ -126,7 +126,7 @@ locals {
 
             # Database connection string
             length(config.db_connection_string) > 0 ? {
-              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
+              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; MultipleActiveResultSets=True; ConnectionTimeout=30; MaxPoolSize=300;"
             } : {}
           )
 
