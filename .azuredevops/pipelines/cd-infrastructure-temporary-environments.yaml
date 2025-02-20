@@ -289,16 +289,16 @@ stages:
               importImagesFromSourceRegistry="False"
             fi
 
-            echo "Test login to ACR:"
-            az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
-            az acr login --name $(SRC_REGISTRY)
+            # echo "Test login to ACR:"
+            # az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
+            # az acr login --name $(SRC_REGISTRY)
             # Set the output variables
             echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
   - job: re_tag_images
     displayName: Update/copy Docker images with new tag
     dependsOn: [check_image_import_required]
-    condition: eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'TrueX')
+    condition: eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True')
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
