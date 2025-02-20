@@ -81,15 +81,23 @@ public class ValidateCohortDistributionRecord
 
     private async Task<CohortDistributionParticipant> GetLastCohortDistributionParticipantAsync(string existingNhsNumber)
     {
+
         long nhsNumber;
         nhsNumber = long.TryParse(existingNhsNumber, out long tempNhsNumber) ? tempNhsNumber : throw new FormatException("Unable to parse NHS Number");
 
+        _logger.LogInformation("Getting last cohort distribution record in ValidateCohortDistributionRecord");
+
         var cohortDistributionRecord = await _cohortDistributionDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
+
+        _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", cohortDistributionRecord);
+
         if (cohortDistributionRecord == null)
         {
             return new CohortDistributionParticipant();
         }
         return new CohortDistributionParticipant(cohortDistributionRecord);
+
+
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
@@ -106,11 +114,16 @@ public class ValidateCohortDistributionRecord
             RulesType.CohortDistribution
         ));
 
+        _logger.LogInformation("Sending record to validation in ValidateCohortDistributionRecord");
 
         var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
         var responseBodyJson = await _callFunction.GetResponseText(response);
+
+        _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {response}", responseBodyJson);
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
         return responseBody;
+
+
     }
 }
