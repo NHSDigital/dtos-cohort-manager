@@ -300,7 +300,7 @@ stages:
             fi
 
             echo "Test login to ACR:"
-            dig $(SRC_REGISTRY)
+            dig "$(SRC_REGISTRY).azurecr.io"
             # az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
             # az acr login --name $(SRC_REGISTRY)
             # Set the output variables
