@@ -51,93 +51,97 @@ stages:
   - group: TEMP_ENVIRONMENTS_core_backend
   displayName: Terraform Setup
   jobs:
-    - job: set_variables
-      displayName: Set Terraform Variables
-      steps:
-        - task: AzureCLI@2
-          name: set_variables
-          displayName: Set Terraform Variables
-          inputs:
-            azureSubscription: $(SERVICE_CONNECTION)
-            scriptLocation: inlineScript
-            scriptType: bash
-            workingDirectory: $(tfExecutionDir)
-            inlineScript: |
-              task_number=$(echo $(Build.SourceBranchName) | cut -d'/' -f2 | awk -F'-' '{print $2}')
-              temp_environment_name="temp${task_number}"
-              storage_container_name_core="temp-environment-${task_number}-core"
-              storage_container_name_audit="temp-environment-${task_number}-audit"
-              tf_plan_artefact_path_core="tf_plan_core_${temp_environment_name}"
-              tf_plan_artefact_path_audit="tf_plan_audit_${temp_environment_name}"
-              # Output the values for debugging:
-              echo "##[debug] task_number: $task_number"
-              echo "##[debug] temp_environment_name: $temp_environment_name"
-              echo "##[debug] storage_container_name_core: $storage_container_name_core"
-              echo "##[debug] storage_container_name_audit: $storage_container_name_audit"
-              echo "##[debug] tf_plan_artefact_path_core: $tf_plan_artefact_path_core"
-              echo "##[debug] tf_plan_artefact_path_audit: $tf_plan_artefact_path_audit"
-              # Set the output variables
-              echo "##vso[task.setvariable variable=task_number;isOutput=true]$task_number"
-              echo "##vso[task.setvariable variable=temp_environment_name;isOutput=true]$temp_environment_name"
-              echo "##vso[task.setvariable variable=storage_container_name_core;isOutput=true]$storage_container_name_core"
-              echo "##vso[task.setvariable variable=storage_container_name_audit;isOutput=true]$storage_container_name_audit"
-              echo "##vso[task.setvariable variable=tf_plan_artefact_path_core;isOutput=true]$tf_plan_artefact_path_core"
-              echo "##vso[task.setvariable variable=tf_plan_artefact_path_audit;isOutput=true]$tf_plan_artefact_path_audit"
+  - job: set_variables
+    pool:
+      name: private-pool-prod-uks
+    displayName: Set Terraform Variables
+    steps:
+      - task: AzureCLI@2
+        name: set_variables
+        displayName: Set Terraform Variables
+        inputs:
+          azureSubscription: $(SERVICE_CONNECTION)
+          scriptLocation: inlineScript
+          scriptType: bash
+          workingDirectory: $(tfExecutionDir)
+          inlineScript: |
+            task_number=$(echo $(Build.SourceBranchName) | cut -d'/' -f2 | awk -F'-' '{print $2}')
+            temp_environment_name="temp${task_number}"
+            storage_container_name_core="temp-environment-${task_number}-core"
+            storage_container_name_audit="temp-environment-${task_number}-audit"
+            tf_plan_artefact_path_core="tf_plan_core_${temp_environment_name}"
+            tf_plan_artefact_path_audit="tf_plan_audit_${temp_environment_name}"
+            # Output the values for debugging:
+            echo "##[debug] task_number: $task_number"
+            echo "##[debug] temp_environment_name: $temp_environment_name"
+            echo "##[debug] storage_container_name_core: $storage_container_name_core"
+            echo "##[debug] storage_container_name_audit: $storage_container_name_audit"
+            echo "##[debug] tf_plan_artefact_path_core: $tf_plan_artefact_path_core"
+            echo "##[debug] tf_plan_artefact_path_audit: $tf_plan_artefact_path_audit"
+            # Set the output variables
+            echo "##vso[task.setvariable variable=task_number;isOutput=true]$task_number"
+            echo "##vso[task.setvariable variable=temp_environment_name;isOutput=true]$temp_environment_name"
+            echo "##vso[task.setvariable variable=storage_container_name_core;isOutput=true]$storage_container_name_core"
+            echo "##vso[task.setvariable variable=storage_container_name_audit;isOutput=true]$storage_container_name_audit"
+            echo "##vso[task.setvariable variable=tf_plan_artefact_path_core;isOutput=true]$tf_plan_artefact_path_core"
+            echo "##vso[task.setvariable variable=tf_plan_artefact_path_audit;isOutput=true]$tf_plan_artefact_path_audit"
 
-    - job: configure_backend
-      displayName: Configure Backend
-      dependsOn: [set_variables]
-      condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
-      variables:
-        temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
-        BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_core'] ]
-        AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_audit'] ]
-      steps:
-        - task: AzureCLI@2
-          displayName: Configure Backend
-          inputs:
-            azureSubscription: $(SERVICE_CONNECTION)
-            scriptLocation: inlineScript
-            scriptType: bash
-            workingDirectory: $(tfExecutionDir)
-            inlineScript: |
-              # Check if the backend configuration file exists and if not, create the container for it:
-              container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
-              if [ "$container_exists" == "True" ]; then
-                echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
-              else
-                echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
-                az storage container create --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
-              fi
+  - job: configure_backend
+    pool:
+      name: private-pool-prod-uks
+    displayName: Configure Backend
+    dependsOn: [set_variables]
+    condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      temp_environment_name: $[ dependencies.set_variables.outputs['set_variables.temp_environment_name'] ]
+      BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_core'] ]
+      AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $[ dependencies.set_variables.outputs['set_variables.storage_container_name_audit'] ]
+    steps:
+      - task: AzureCLI@2
+        displayName: Configure Backend
+        inputs:
+          azureSubscription: $(SERVICE_CONNECTION)
+          scriptLocation: inlineScript
+          scriptType: bash
+          workingDirectory: $(tfExecutionDir)
+          inlineScript: |
+            # Check if the backend configuration file exists and if not, create the container for it:
+            container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+            if [ "$container_exists" == "True" ]; then
+              echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
+            else
+              echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
+              az storage container create --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
+            fi
 
-              # Check if the backend configuration file exists and if not, create the container for it:
-              container_exists=$(az storage container exists --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
-              if [ "$container_exists" == "True" ]; then
-                echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
-              else
-                echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
-                az storage container create --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
-              fi
+            # Check if the backend configuration file exists and if not, create the container for it:
+            container_exists=$(az storage container exists --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
+            if [ "$container_exists" == "True" ]; then
+              echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) already exists"
+            else
+              echo "##[debug] Container $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist, creating it..."
+              az storage container create --name $(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --resource-group $(BACKEND_AZURE_RESOURCE_GROUP_NAME) --auth-mode login
+            fi
 
-              # Check if the SQL Server admin group exists and if not, create it:
-              # Use generic group as a workaround as we cannot create groups via the pipeline:
-              # sql_server_admin_group_name="sqlsvr_cohman_$(temp_environment_name)_uks_admin"
-              sql_server_admin_group_name="sqlsvr_cohman_temp_uks_admin"
-              sql_server_admin_group_exists=$(az ad group show --group ${sql_server_admin_group_name} --output tsv)
-              # CHANGE the following as the "show" command will return an error if the group does not exist, so the comparison string is never empty:
-              if [ "$sql_server_admin_group_exists" == "" ]; then
-                echo "##[debug] SQL Server admin group ${sql_server_admin_group_name} does not exist, creating it..."
-                az ad group create --display-name ${sql_server_admin_group_name} --mail-nickname ${sql_server_admin_group_name}
+            # Check if the SQL Server admin group exists and if not, create it:
+            # Use generic group as a workaround as we cannot create groups via the pipeline:
+            # sql_server_admin_group_name="sqlsvr_cohman_$(temp_environment_name)_uks_admin"
+            sql_server_admin_group_name="sqlsvr_cohman_temp_uks_admin"
+            sql_server_admin_group_exists=$(az ad group show --group ${sql_server_admin_group_name} --output tsv)
+            # CHANGE the following as the "show" command will return an error if the group does not exist, so the comparison string is never empty:
+            if [ "$sql_server_admin_group_exists" == "" ]; then
+              echo "##[debug] SQL Server admin group ${sql_server_admin_group_name} does not exist, creating it..."
+              az ad group create --display-name ${sql_server_admin_group_name} --mail-nickname ${sql_server_admin_group_name}
 
-                # Add the PL managed identity to the SQL Server admin group:
-                miName='MI-COHORT-MANAGER-DEV-UKS'
-                resourceGroupMi='rg-mi-dev-uks'
-                managedIdentity=$(az identity show --name $miName --resource-group $resourceGroupMi --subscription $subscriptionIdHub)
-                managedIdentityId=$(echo $managedIdentity | jq -r '.principalId')
-                az ad group member add --group ${sql_server_admin_group_name} --member-id $managedIdentityId
-              else
-                echo "##[debug] SQL Server admin group ${sql_server_admin_group_name} already exists"
-              fi
+              # Add the PL managed identity to the SQL Server admin group:
+              miName='MI-COHORT-MANAGER-DEV-UKS'
+              resourceGroupMi='rg-mi-dev-uks'
+              managedIdentity=$(az identity show --name $miName --resource-group $resourceGroupMi --subscription $subscriptionIdHub)
+              managedIdentityId=$(echo $managedIdentity | jq -r '.principalId')
+              az ad group member add --group ${sql_server_admin_group_name} --member-id $managedIdentityId
+            else
+              echo "##[debug] SQL Server admin group ${sql_server_admin_group_name} already exists"
+            fi
 
 - stage: terraform_plan_audit
   displayName: Terraform Plan - Audit
@@ -156,15 +160,17 @@ stages:
   - name: tfVarsFile
     value: environments/temporary-environments.tfvars
   jobs:
-    - job: init_and_plan
-      displayName: Init, plan, store artifact
-      steps:
-        - checkout: self
-        - checkout: dtos-devops-templates
-        - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-          parameters:
-            tfCommandOptions: >-
-              -var=environment=$(ENVIRONMENT)
+  - job: init_and_plan
+    pool:
+      name: private-pool-prod-uks
+    displayName: Init, plan, store artifact
+    steps:
+      - checkout: self
+      - checkout: dtos-devops-templates
+      - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+        parameters:
+          tfCommandOptions: >-
+            -var=environment=$(ENVIRONMENT)
 
 - stage: terraform_apply_audit
   displayName: Terraform Apply - Audit
@@ -181,16 +187,16 @@ stages:
   - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
   jobs:
-    - deployment: terraform_apply_audit
-      displayName: Init, get plan artifact, apply
-      environment: temporary-environments
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-              - checkout: self
-              - checkout: dtos-devops-templates
-              - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+  - deployment: terraform_apply_audit
+    displayName: Init, get plan artifact, apply
+    environment: temporary-environments
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - checkout: dtos-devops-templates
+            - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
 - stage: terraform_plan_core
   displayName: Terraform Plan - Core
@@ -211,16 +217,18 @@ stages:
   - name: tfVarsFile
     value: environments/temporary-environments.tfvars
   jobs:
-    - job: init_and_plan
-      displayName: Init, plan, store artifact
-      steps:
-        - checkout: self
-        - checkout: dtos-devops-templates
-        - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-          parameters:
-            tfCommandOptions: >-
-              -var=environment=$(ENVIRONMENT)
-              -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
+  - job: init_and_plan
+    pool:
+      name: private-pool-prod-uks
+    displayName: Init, plan, store artifact
+    steps:
+      - checkout: self
+      - checkout: dtos-devops-templates
+      - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+        parameters:
+          tfCommandOptions: >-
+            -var=environment=$(ENVIRONMENT)
+            -var=AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME=$(AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME)
 
 - stage: terraform_apply_core
   displayName: Terraform Apply - Core
@@ -239,16 +247,16 @@ stages:
   - name: AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
   jobs:
-    - deployment: terraform_apply_core
-      displayName: Init, get plan artifact, apply
-      environment: temporary-environments
-      strategy:
-        runOnce:
-          deploy:
-            steps:
-              - checkout: self
-              - checkout: dtos-devops-templates
-              - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+  - deployment: terraform_apply_core
+    displayName: Init, get plan artifact, apply
+    environment: temporary-environments
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - checkout: self
+            - checkout: dtos-devops-templates
+            - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
 - stage: configure_environment
   displayName: Configure Environment
@@ -261,6 +269,8 @@ stages:
     ADD_IMAGE_TAG: "temp"
   jobs:
   - job: check_image_import_required
+    pool:
+      name: private-pool-prod-uks
     displayName: Check Image Import Required
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
     steps:
@@ -306,6 +316,8 @@ stages:
           serviceConnection: $(SERVICE_CONNECTION)
 
   - job: update_database
+    pool:
+      name: private-pool-prod-uks
     displayName: Update Database
     dependsOn: [re_tag_images]
     steps:
