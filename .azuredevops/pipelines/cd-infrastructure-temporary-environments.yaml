@@ -300,9 +300,8 @@ stages:
             fi
 
             echo "Test login to ACR:"
-            dig "$(SRC_REGISTRY).azurecr.io"
-            az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
-            az account show
+            az acr show --query networkRuleSet --name $(SRC_REGISTRY)
+            az acr show --query publicNetworkAccess --name $(SRC_REGISTRY)
             az acr login --name $(SRC_REGISTRY)
 
             # Set the output variables
