@@ -53,7 +53,7 @@ stages:
   jobs:
   - job: set_variables
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Set Terraform Variables
     steps:
       - task: AzureCLI@2
@@ -88,7 +88,7 @@ stages:
 
   - job: configure_backend
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Configure Backend
     dependsOn: [set_variables]
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
@@ -162,7 +162,7 @@ stages:
   jobs:
   - job: init_and_plan
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Init, plan, store artifact
     steps:
       - checkout: self
@@ -219,7 +219,7 @@ stages:
   jobs:
   - job: init_and_plan
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Init, plan, store artifact
     steps:
       - checkout: self
@@ -270,7 +270,7 @@ stages:
   jobs:
   - job: check_image_import_required
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Check Image Import Required
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
     steps:
@@ -301,8 +301,10 @@ stages:
 
             echo "Test login to ACR:"
             dig "$(SRC_REGISTRY).azurecr.io"
-            # az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
-            # az acr login --name $(SRC_REGISTRY)
+            az account set -s $(TF_VAR_HUB_SUBSCRIPTION_ID)
+            az account show
+            az acr login --name $(SRC_REGISTRY)
+
             # Set the output variables
             echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
@@ -317,7 +319,7 @@ stages:
 
   - job: update_database
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Update Database
     dependsOn: [re_tag_images]
     steps:
