@@ -126,8 +126,19 @@ app_service_plan = {
           metric = "MemoryPercentage"
 
           capacity_min = "2"
-          capacity_max = "10"
-          capacity_def = "2"
+          capacity_max = "30"
+          capacity_def = "10"
+        }
+      }
+    }
+    HighLoadFunctions = {
+      autoscale_override = {
+        memory_percentage = {
+          metric = "MemoryPercentage"
+
+          capacity_min = "2"
+          capacity_max = "30"
+          capacity_def = "10"
         }
       }
     }
@@ -821,7 +832,7 @@ function_apps = {
     ParticipantManagementDataService = {
       name_suffix            = "participant-management-data-service"
       function_endpoint_name = "ParticipantManagementDataService"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -834,7 +845,7 @@ function_apps = {
     ParticipantDemographicDataService = {
       name_suffix            = "participant-demographic-data-service"
       function_endpoint_name = "ParticipantDemographicDataService"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -977,7 +988,7 @@ function_apps = {
     CohortDistributionDataService = {
       name_suffix            = "cohort-distribution-data-service"
       function_endpoint_name = "CohortDistributionDataService"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -1059,9 +1070,9 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 5
+      max_gb               = 10
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S7"
       storage_account_type = "Local"
       zone_redundant       = false
     }
