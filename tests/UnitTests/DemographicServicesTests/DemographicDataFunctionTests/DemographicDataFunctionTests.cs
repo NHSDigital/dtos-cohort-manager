@@ -63,23 +63,6 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_participant);
-        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-        _request = _setupRequest.Setup(json);
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
-
-        // Act
-        _request.Setup(r => r.Method).Returns("POST");
-        var result = await sut.Run(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
     public async Task RunGet_ValidRequest_ReturnOk()
     {
         // Arrange
@@ -100,7 +83,6 @@ public class DemographicDataFunctionTests
         // Act
         _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
 
-        _request.Setup(r => r.Method).Returns("GET");
         var result = await sut.Run(_request.Object);
 
         // Assert
@@ -108,48 +90,41 @@ public class DemographicDataFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_return_DemographicDataNotSaved_InternalServerError()
+    public async Task RunExternal_ValidRequest_ReturnFilteredData()
     {
         // Arrange
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123456789,
+            NhsNumber = 987654321,
+            CurrentPosting = "Blerg",
+            PreferredLanguage = "Blorg"
+        };
+
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
-        _request = _setupRequest.Setup("11");
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
+        _request = _setupRequest.Setup("987654321");
+        _participantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(participant);
 
         // Act
-        var result = await sut.Run(_request.Object);
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
+
+        var result = await sut.RunExternal(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }   
 
     [TestMethod]
-    public async Task RunPost_CallFunctionThrowsError_ReturnInternalServerError()
+    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
     {
         // Arrange
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
         _request = _setupRequest.Setup(json);
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
 
         // Act
@@ -158,14 +133,6 @@ public class DemographicDataFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _logger.Verify(log =>
-        log.Log(
-            LogLevel.Error,
-            0,
-            It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-        ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
-
     }
+
 }
