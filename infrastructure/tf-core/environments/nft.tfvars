@@ -194,6 +194,10 @@ function_apps = {
         {
           env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ScreeningLkpDataServiceURL"
+          function_app_key = "ScreeningLkpDataService"
         }
       ]
       env_vars_static = {
@@ -703,6 +707,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -975,6 +983,48 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    BsRequestAuditDataService = {
+      name_suffix            = "bs-request-audit-data-service"
+      function_endpoint_name = "BsRequestAuditDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    ScreeningLkpDataService = {
+      name_suffix            = "screening-lkp-data-service"
+      function_endpoint_name = "ScreeningLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    RetrievePDSDemographic = {
+      name_suffix            = "retrieve-pds-demographic"
+      function_endpoint_name = "RetrievePDSDemographic"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
     }

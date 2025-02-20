@@ -16,6 +16,7 @@ using System.Data;
 using Data.Database;
 using Model.Enums;
 using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -27,32 +28,42 @@ public class TransformDataServiceTests
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
     private readonly Mock<ITransformReasonForRemoval> _transformReasonForRemoval = new();
-
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
 
     public TransformDataServiceTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
+        CohortDistributionParticipant requestParticipant = new()
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male
+        };
+
+        CohortDistribution databaseParticipant = new()
+        {
+            NHSNumber = 1,
+            GivenName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = 1
+        };
+
         _requestBody = new TransformDataRequestBody()
         {
-            Participant = new CohortDistributionParticipant
-            {
-                NhsNumber = "1",
-                FirstName = "John",
-                FamilyName = "Smith",
-                NamePrefix = "MR",
-                Gender = Gender.Male
-            },
+            Participant = requestParticipant,
             ServiceProvider = "1"
         };
 
-        _transformationLookups.Setup(x => x.GetGivenName(It.IsAny<string>())).Returns("A first name");
-        _transformationLookups.Setup(x => x.GetFamilyName(It.IsAny<string>())).Returns("A last name");
+        _cohortDistributionDataServiceClient
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync([databaseParticipant]);
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformationLookups.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -354,7 +365,7 @@ public class TransformDataServiceTests
     [DataRow("Bob\\E\\")]
     [DataRow("Bob\\T\\")]
     [DataRow("Bob€")]
-    public void Run_ExceptionalCharsInParticipant_RaisesException(string name)
+    public void CheckParticipantCharactersAsync_ExceptionalCharsInParticipant_RaisesException(string name)
     {
         // Arrange
         var sut = new TransformString();
@@ -407,7 +418,7 @@ public class TransformDataServiceTests
         {
             RecordType = Actions.Amended,
             NhsNumber = "1",
-            FirstName = "A first name",
+            FirstName = "John",
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male

@@ -77,6 +77,7 @@ public class UpdateParticipantDetails
             }
 
             reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
+            reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString();
             var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)

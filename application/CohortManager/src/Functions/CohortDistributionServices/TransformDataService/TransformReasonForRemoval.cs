@@ -8,12 +8,10 @@ using System.Text.Json;
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformDataLookupFacade _dataLookup;
-    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup)
+    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
-        _transformationLookups = transformationLookups;
         _dataLookup = dataLookup;
     }
 
@@ -75,7 +73,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         }
         else
         {
-            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
+            return dummyPrimaryCareProvider + _dataLookup.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
         }
     }
 }

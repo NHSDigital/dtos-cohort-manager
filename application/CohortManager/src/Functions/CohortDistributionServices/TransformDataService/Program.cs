@@ -14,14 +14,13 @@ hostBuilder.AddConfiguration<TransformDataServiceConfig>(out TransformDataServic
 
 var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
-        .AddCachedDataService<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
+        .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
         .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
         .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
         services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
         services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
     })

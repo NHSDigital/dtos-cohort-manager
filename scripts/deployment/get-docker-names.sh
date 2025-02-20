@@ -16,6 +16,7 @@ declare -A docker_functions_map=(
     ["CohortDistributionServices/ValidateCohortDistributionRecord"]="validate-cohort-distribution-record"
     ["DemographicServices/DemographicDataManagementFunction"]="demographic-data-management"
     ["DemographicServices/DemographicDurableFunction"]="durable-demographic-function"
+    ["DemographicServices/RetrievePDSDemographic"]="retrieve-pds-demographic"
     ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
     ["ParticipantManagementServices/addParticipant"]="add-participant"
     ["ParticipantManagementServices/updateParticipant"]="update-participant"
