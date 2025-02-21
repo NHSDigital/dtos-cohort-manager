@@ -1,3 +1,5 @@
+namespace NHS.Screening.ReceiveCaasFile;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
