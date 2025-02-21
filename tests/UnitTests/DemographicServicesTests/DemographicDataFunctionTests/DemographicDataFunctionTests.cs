@@ -13,6 +13,7 @@ using Model;
 using Moq;
 using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Collections.Specialized;
 
 [TestClass]
 public class DemographicDataFunctionTests
@@ -29,7 +30,6 @@ public class DemographicDataFunctionTests
 
     public DemographicDataFunctionTests()
     {
-        _request = new Mock<HttpRequestData>(_context.Object);
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
@@ -43,13 +43,13 @@ public class DemographicDataFunctionTests
             RecordType = Actions.New
         };
 
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123456789,
+            NhsNumber = 987654321,
+            CurrentPosting = "A8008",
+            PreferredLanguage = "en"
+        };
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
@@ -59,30 +59,25 @@ public class DemographicDataFunctionTests
                 return response;
             });
 
+        _participantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(participant);
+
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
     }
 
     [TestMethod]
-    public async Task RunGet_ValidRequest_ReturnOk()
+    public async Task Run_ValidRequest_ReturnOk()
     {
         // Arrange
-        var participant = new ParticipantDemographic
-        {
-            ParticipantId = 123456789,
-            NhsNumber = 987654321
-        };
+        _request = _setupRequest.Setup("987654321");
+        _request
+            .Setup(x => x.Query)
+            .Returns(new NameValueCollection() { { "Id", "987654321" } });
 
-        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
-
-        _request = _setupRequest.Setup("987654321");
-
-        _participantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(participant);
-
         // Act
-        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
-
         var result = await sut.Run(_request.Object);
 
         // Assert
@@ -93,42 +88,57 @@ public class DemographicDataFunctionTests
     public async Task RunExternal_ValidRequest_ReturnFilteredData()
     {
         // Arrange
-        var participant = new ParticipantDemographic
-        {
-            ParticipantId = 123456789,
-            NhsNumber = 987654321,
-            CurrentPosting = "Blerg",
-            PreferredLanguage = "Blorg"
-        };
+        _request = _setupRequest.Setup("987654321");
+        _request
+            .Setup(x => x.Query)
+            .Returns(new NameValueCollection() { { "Id", "987654321" } });
 
-        var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
-        _request = _setupRequest.Setup("987654321");
-        _participantDemographic
-            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
-            .ReturnsAsync(participant);
-
         // Act
-        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
-
         var result = await sut.RunExternal(_request.Object);
 
         // Assert
+        string json = await AssertionHelper.ReadResponseBodyAsync(result);
+
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }   
+        StringAssert.Contains("A8008", json);
+        StringAssert.Contains("en", json);
+    }
 
     [TestMethod]
-    public async Task RunPost_DataServiceReturns500_ReturnInternalServerError()
+    public async Task Run_InvalidRequest_ReturnBadRequest()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participant);
+        _request = _setupRequest.Setup("blorg");
+        _request
+            .Setup(x => x.Query)
+            .Returns(new NameValueCollection() { { "Id", "blorg" } });
+
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
-        _request = _setupRequest.Setup(json);
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
 
         // Act
-        _request.Setup(r => r.Method).Returns("POST");
+        var result = await sut.Run(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_DataServiceReturnsException_ReturnInternalServerError()
+    {
+        // Arrange
+        _request = _setupRequest.Setup("987654321");
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
+        _request.Setup(x => x.Query).Returns(new NameValueCollection() { { "Id", "987654321" } });
+
+        _participantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
+            .Throws(new Exception());
+
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+
+        // Act
         var result = await sut.Run(_request.Object);
 
         // Assert
