@@ -95,7 +95,9 @@ public class DemographicDataFunctionTests
 
         _request = _setupRequest.Setup("987654321");
 
-        _participantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(participant);
+        _participantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(participant);
 
         // Act
         _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
@@ -111,6 +113,17 @@ public class DemographicDataFunctionTests
     public async Task Run_return_DemographicDataNotSaved_InternalServerError()
     {
         // Arrange
+<<<<<<< Updated upstream
+=======
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123456789,
+            NhsNumber = 987654321,
+            PrimaryCareProvider = "PCP",
+            PreferredLanguage = "en"
+        };
+
+>>>>>>> Stashed changes
         var json = JsonSerializer.Serialize(_participant);
         var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
 
@@ -128,11 +141,25 @@ public class DemographicDataFunctionTests
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
 
         // Act
+<<<<<<< Updated upstream
         var result = await sut.Run(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
+=======
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
+
+        var result = await sut.RunExternal(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actual = JsonSerializer.Deserialize<FilteredDemographicData>(body);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual("PCP", actual.PrimaryCareProvider);
+        Assert.AreEqual("en", actual.PreferredLanguage);
+    }   
+>>>>>>> Stashed changes
 
     [TestMethod]
     public async Task RunPost_CallFunctionThrowsError_ReturnInternalServerError()
@@ -151,6 +178,12 @@ public class DemographicDataFunctionTests
             });
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
+        _request.Setup(x => x.Query)
+            .Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
+
+        _participantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>()))
+            .Throws(new Exception());
 
         // Act
         _request.Setup(r => r.Method).Returns("POST");

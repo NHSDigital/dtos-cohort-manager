@@ -66,12 +66,16 @@ public class DemographicDataFunction
 
             var data = JsonSerializer.Serialize(demographicData);
 
+<<<<<<< Updated upstream
             // Filters out unnecessary data for use in the BI product
             if (externalRequest)
             {
                 var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
                 data = JsonSerializer.Serialize(filteredData);
             }
+=======
+            System.Console.WriteLine("function return: " + data);
+>>>>>>> Stashed changes
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }

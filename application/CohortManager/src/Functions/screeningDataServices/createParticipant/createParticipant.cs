@@ -129,7 +129,7 @@ public class CreateParticipant
         catch (Exception ex)
         {
             _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
-            return null;
+            throw;
         }
     }
 
