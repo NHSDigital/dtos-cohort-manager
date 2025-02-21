@@ -8,7 +8,7 @@ using Model;
 
 var host = new HostBuilder()
 .AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceUrl"))
+        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
