@@ -290,6 +290,7 @@ stages:
             echo "##[debug] Add Image Tag: $(ADD_IMAGE_TAG)"
 
             echo "##[debug] Check if the docker images have been pushed to the Temp ACR and if not push them:"
+
             az acr login --name $(DEST_REGISTRY)
             if [ "$(az acr repository list -n $(DEST_REGISTRY) -o tsv)" == "" ]; then
               echo "##[debug] No images found in the Temp ACR, import them from the source registry"
