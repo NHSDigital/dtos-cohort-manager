@@ -1,4 +1,7 @@
 namespace Model;
+
+using Model.Enums;
+
 public class ExceptionDetails
 {
     public string? GivenName { get; set; }
@@ -20,4 +23,5 @@ public class ExceptionDetails
     public string? GpAddressLine4 { get; set; }
     public string? GpAddressLine5 { get; set; }
     public string? GpPostCode { get; set; }
+    public Gender? Gender { get; set; }
 }

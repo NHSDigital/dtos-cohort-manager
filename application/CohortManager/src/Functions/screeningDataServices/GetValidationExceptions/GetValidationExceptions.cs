@@ -3,6 +3,7 @@ namespace NHS.CohortManager.ScreeningDataServices;
 using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Common;
 using Common.Interfaces;
 using Data.Database;
@@ -10,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 /// <summary>
 /// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
@@ -42,28 +44,28 @@ public class GetValidationExceptions
     }
 
     [Function(nameof(GetValidationExceptions))]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var pageSize = 20;
-        var todayOnly = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
+        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
+        var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
 
         try
         {
             if (exceptionId != 0)
             {
-                return GetExceptionById(req, exceptionId);
+                return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptionQuery = _validationData.GetAllExceptions(todayOnly).AsQueryable();
+            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty);
 
-            if (exceptionQuery == null || exceptionQuery.Count() == 0)
+            if (exceptions.Count == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptionQuery, lastId, pageSize, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId.Value);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }
@@ -74,9 +76,9 @@ public class GetValidationExceptions
         }
     }
 
-    private HttpResponseData GetExceptionById(HttpRequestData req, int exceptionId)
+    private async Task<HttpResponseData> GetExceptionById(HttpRequestData req, int exceptionId)
     {
-        var exceptionById = _validationData.GetExceptionById(exceptionId);
+        var exceptionById = await _validationData.GetExceptionById(exceptionId);
         if (exceptionById == null)
         {
             _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);

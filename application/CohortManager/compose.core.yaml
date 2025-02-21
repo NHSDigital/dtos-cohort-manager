@@ -33,15 +33,20 @@ services:
       - PMSAddParticipant=http://localhost:7062/api/addParticipant
       - PMSRemoveParticipant=http://localhost:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://localhost:7065/api/updateParticipant
-      - DemographicURI=http://localhost:7076/api/DemographicDataFunction
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+      - DemographicURI=http://localhost:7079/api/DurableDemographicFunction_HttpStart
+      - GetOrchestrationStatusURL=http://localhost:7079/api/GetOrchestrationStatus
+      - AllowDeleteRecords=true
       - AddQueueName=add-participant-queue
       - BatchSize=3500
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AddQueueName=add-participant-queue
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
+      - UpdateQueueName=update-participant-queue
+      - ScreeningLkpDataServiceURL=http://localhost:8996/api/ScreeningLkpDataService
 
   # Participant Management Service
   add-participant:
@@ -94,6 +99,46 @@ services:
       - markParticipantAsIneligible=http://localhost:7068/api/markParticipantAsIneligible
       - CohortDistributionServiceURL=http://localhost:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
+      - UpdateQueueName=update-participant-queue
+
+  update-participant-from-screening-provider:
+    container_name: update-participant-from-screening-provider
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:8001
+      - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
+      - GeneCodeLkpUrl=http://localhost:7991/api/GeneCodeLkpDataService
+      - HigherRiskReferralReasonLkpUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - topicEndpoint=${EVENTGRID_URL}
+      - topicKey=${EVENTGRID_KEY}
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+
+  check-participant-exists:
+    container_name: check-participant-exists
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:8002
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+
+  get-participant-reference-data:
+    container_name: get-participant-reference-data
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
+    profiles: [bi-analytics]
+    environment:
+      - ASPNETCORE_URLS=http://*:7999
+      - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
+      - GeneCodeLkpDataServiceUrl=http://localhost:7991/api/GeneCodeLkpDataService
 
   # Screening Data Service
   create-participant:
@@ -120,7 +165,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7067
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
@@ -136,6 +182,7 @@ services:
       - StaticValidationURL=http://localhost:7074/api/StaticValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   update-participant-details:
     container_name: update-participant-details
@@ -148,6 +195,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
 
   create-exception:
     container_name: create-exception
@@ -158,6 +206,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
+
 
   get-validation-exceptions:
     container_name: get-validation-exceptions
@@ -168,17 +220,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7071
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
-  demographic-data-service:
-    container_name: demographic-data-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/DemographicDataService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7072
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
   # Data Services
   bs-select-gp-practice-data-service:
@@ -231,14 +275,26 @@ services:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  participant-management-data-service:
-    container_name: participant-management-data-service
+  gene-code-lkp-data-service:
+    container_name: gene-code-lkp-data-service
+    network_mode: host
+    profiles: [bi-analytics]
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7991
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  higher-risk-referral-reason-lkp-data-service:
+    container_name: higher-risk-referral-reason-lkp-data-service
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+      dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
+    profiles: [bi-analytics]
     environment:
-      - ASPNETCORE_URLS=http://*:7994
+      - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   participant-demographic-data-service:
@@ -249,6 +305,16 @@ services:
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7993
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  participant-management-data-service:
+    container_name: participant-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7994
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service
@@ -289,11 +355,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectGpPracticeUrl=http://localhost:7998/api/
-      - BsSelectOutCodeUrl=http://localhost:7881/api/
-      - LanguageCodeUrl=http://localhost:7997/api/
-      - CurrentPostingUrl=http://localhost:7996/api/
-      - ExcludedSMULookupUrl=http://localhost:7995/api/
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService
+      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
+      - LanguageCodeUrl=http://localhost:7997/api/LanguageCodeDataService
+      - CurrentPostingUrl=http://localhost:7996/api/CurrentPostingDataService
+      - ExcludedSMULookupUrl=http://localhost:7995/api/ExcludedSMUDataService
       - BlobContainerName=rules
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -309,3 +375,69 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - DemographicDataServiceURI=http://localhost:7072/api/DemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+  retrieve-pds-demographic:
+    container_name: retrieve-pds-demographic
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8082
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+
+  durable-demographic-function:
+    container_name: durable-demographic-function
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7079
+      - WEBSITE_HOSTNAME=localhost:7079
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+
+  gppractice-data-service:
+    container_name: gppractice-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GPPractice/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7910
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  exception-management-data-service:
+    container_name: exception-management-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ExceptionManagementDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7911
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  bs-request-audit-data-service:
+    container_name: bs-request-audit-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7989
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+
+  screening-lkp-data-service:
+    container_name: screening-lkp-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ScreeningLkpDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:8996
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

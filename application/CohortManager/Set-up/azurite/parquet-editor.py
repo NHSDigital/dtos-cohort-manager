@@ -67,7 +67,7 @@ schema = {
     "eligibility": "boolean"
 }
 
-df = pd.read_parquet(file_name, engine='fastparquet').astype(schema)
+df = pd.read_parquet(file_name, engine='fastparquet').astype(schema, errors="ignore")
 
 for i in range(len(args.c)):
     column_name = args.c[i]

@@ -12,6 +12,7 @@ services:
       - ASPNETCORE_URLS=http://*:7077
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
@@ -44,7 +45,9 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://localhost:7881/api/
+      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
+      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService/
+      - CohortDistributionDataServiceUrl=http://localhost:7992/api/CohortDistributionDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   allocate-service-provider:
@@ -87,19 +90,21 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - DemographicDataFunctionURL=http://localhost:7076/api/DemographicDataFunction
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
     network_mode: host
     build:
       context: ./src/Functions/
-      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/dockerfile
+      dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7084
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
@@ -109,5 +114,19 @@ services:
       dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7085
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
+      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService
+      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  cohort-distribution-data-service:
+    container_name: cohort-distribution-data-service
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/CohortDistributionDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7992
+      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+

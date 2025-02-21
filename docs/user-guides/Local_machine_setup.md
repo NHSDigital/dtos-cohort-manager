@@ -9,7 +9,9 @@
 - [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - Docker / Podman (*Note: Docker Desktop requires a licence for commercial use; Podman Desktop is an open source alternative.)
 - Member of the NHSDigital GitHub organisation
-- Signed Git commits (if you would like to contribute): <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- Signed Git commits (if you would like to contribute): \
+    [Using 1Password](https://developer.1password.com/docs/ssh/git-commit-signing/) is the easiest option if you have it, otherwise use the below link for instructions \
+    <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
 
 ## Set-up
 

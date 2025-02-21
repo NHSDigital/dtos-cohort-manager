@@ -421,13 +421,14 @@
       }
     },
     {
-      "label": "screeningDataServices/BsSelectGpPractice",
+
+      "label": "screeningDataServices/ScreeningLkpDataService",
       "type": "shell",
       "osx": {
-        "command": "sleep 11.5 && func start"
+        "command": "sleep 11 && func start"
       },
       "windows": {
-        "command": "timeout 22 && func start",
+        "command": "timeout 21 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"

@@ -2,391 +2,167 @@ namespace Data.Database;
 
 using System;
 using System.Data;
-using System.Text;
+using System.Threading.Tasks;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
-    private readonly IDbConnection _dbConnection;
-    private readonly string _connectionString;
     private readonly ILogger<ValidationExceptionData> _logger;
+    private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
+    private readonly IDataServiceClient<ParticipantDemographic> _demographicDataServiceClient;
+    private readonly IDataServiceClient<GPPractice> _gpPracticeDataServiceClient;
 
-    public ValidationExceptionData(IDbConnection IdbConnection, ILogger<ValidationExceptionData> logger)
+    public ValidationExceptionData(
+        ILogger<ValidationExceptionData> logger,
+        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
+        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient,
+        IDataServiceClient<GPPractice> gpPracticeDataServiceClient
+    )
     {
-        _dbConnection = IdbConnection;
         _logger = logger;
-        _connectionString = Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString") ?? string.Empty;
+        _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
+        _demographicDataServiceClient = demographicDataServiceClient;
+        _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public List<ValidationException> GetAllExceptions(bool todayOnly)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
     {
-        var today = DateTime.Today.Date;
+        var exceptions = todayOnly
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
+            : await _validationExceptionDataServiceClient.GetAll();
 
-        var sql = new StringBuilder(@"SELECT
-                 [EXCEPTION_ID]
-                ,[FILE_NAME]
-                ,[NHS_NUMBER]
-                ,[DATE_CREATED]
-                ,[DATE_RESOLVED]
-                ,[RULE_ID]
-                ,[RULE_DESCRIPTION]
-                ,[ERROR_RECORD]
-                ,[CATEGORY]
-                ,[SCREENING_NAME]
-                ,[EXCEPTION_DATE]
-                ,[COHORT_NAME]
-                ,[IS_FATAL]
-                FROM [dbo].[EXCEPTION_MANAGEMENT]");
+        var exceptionList = exceptions.Select(s => s.ToValidationException());
+        var propertyName = GetPropertyName(orderByProperty);
 
-        var parameters = new Dictionary<string, object>();
-
-        if (todayOnly)
+        if (propertyName == nameof(ValidationException.DateCreated))
         {
-            sql.Append(" WHERE [DATE_CREATED] >= @today AND [DATE_CREATED] < @today + 1");
-            parameters.Add("@today", today);
+            return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
         }
 
-        sql.Append(" ORDER BY [DATE_CREATED] DESC");
-
-        var command = CreateCommand(parameters);
-        command.CommandText = sql.ToString();
-        return GetException(command, false);
+        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
     }
 
-    private List<ValidationException> GetException(IDbCommand command, bool includeDetails)
+    public async Task<ValidationException> GetExceptionById(int exceptionId)
     {
-        var exceptions = new List<ValidationException>();
-        return ExecuteQuery(command, reader =>
+        var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+
+        if (exception == null)
         {
-            while (reader.Read())
-            {
-                var exception = new ValidationException
-                {
-                    ExceptionId = DatabaseHelper.GetValue<int>(reader, "EXCEPTION_ID"),
-                    FileName = DatabaseHelper.GetValue<string>(reader, "FILE_NAME"),
-                    NhsNumber = DatabaseHelper.GetValue<string>(reader, "NHS_NUMBER"),
-                    DateCreated = DatabaseHelper.GetValue<DateTime>(reader, "DATE_CREATED"),
-                    DateResolved = DatabaseHelper.GetValue<DateTime>(reader, "DATE_RESOLVED"),
-                    RuleId = DatabaseHelper.GetValue<int>(reader, "RULE_ID"),
-                    RuleDescription = DatabaseHelper.GetValue<string>(reader, "RULE_DESCRIPTION"),
-                    ErrorRecord = DatabaseHelper.GetValue<string>(reader, "ERROR_RECORD"),
-                    Category = DatabaseHelper.GetValue<int>(reader, "CATEGORY"),
-                    ScreeningName = DatabaseHelper.GetValue<string>(reader, "SCREENING_NAME"),
-                    ExceptionDate = DatabaseHelper.GetValue<DateTime>(reader, "EXCEPTION_DATE"),
-                    CohortName = DatabaseHelper.GetValue<string>(reader, "COHORT_NAME"),
-                    Fatal = DatabaseHelper.GetValue<int>(reader, "IS_FATAL")
-                };
-
-                if (includeDetails)
-                {
-                    exception.ExceptionDetails = new ExceptionDetails
-                    {
-                        GivenName = DatabaseHelper.GetValue<string>(reader, "GIVEN_NAME"),
-                        FamilyName = DatabaseHelper.GetValue<string>(reader, "FAMILY_NAME"),
-                        DateOfBirth = DatabaseHelper.GetValue<string>(reader, "DATE_OF_BIRTH"),
-                        ParticipantAddressLine1 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_1"),
-                        ParticipantAddressLine2 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_2"),
-                        ParticipantAddressLine3 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_3"),
-                        ParticipantAddressLine4 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_4"),
-                        ParticipantAddressLine5 = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_ADDRESS_LINE_5"),
-                        ParticipantPostCode = DatabaseHelper.GetValue<string>(reader, "PARTICIPANT_POSTCODE"),
-                        TelephoneNumberHome = DatabaseHelper.GetValue<string>(reader, "TELEPHONE_NUMBER_HOME"),
-                        EmailAddressHome = DatabaseHelper.GetValue<string>(reader, "EMAIL_ADDRESS_HOME"),
-                        PrimaryCareProvider = DatabaseHelper.GetValue<string>(reader, "PRIMARY_CARE_PROVIDER"),
-                        GpPracticeCode = DatabaseHelper.GetValue<string>(reader, "GP_PRACTICE_CODE"),
-                        GpAddressLine1 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_1"),
-                        GpAddressLine2 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_2"),
-                        GpAddressLine3 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_3"),
-                        GpAddressLine4 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_4"),
-                        GpAddressLine5 = DatabaseHelper.GetValue<string>(reader, "GP_ADDRESS_LINE_5"),
-                        GpPostCode = DatabaseHelper.GetValue<string>(reader, "GP_POSTCODE"),
-                    };
-                }
-
-                exceptions.Add(exception);
-            }
-            return exceptions;
-        });
-    }
-
-    public ValidationException GetExceptionById(int exceptionId)
-    {
-        var SQL = @" SELECT
-                    pd.NHS_NUMBER,
-                    pd.GIVEN_NAME,
-                    pd.FAMILY_NAME,
-                    pd.DATE_OF_BIRTH,
-                    pd.ADDRESS_LINE_1 AS PARTICIPANT_ADDRESS_LINE_1,
-                    pd.ADDRESS_LINE_2 AS PARTICIPANT_ADDRESS_LINE_2,
-                    pd.ADDRESS_LINE_3 AS PARTICIPANT_ADDRESS_LINE_3,
-                    pd.ADDRESS_LINE_4 AS PARTICIPANT_ADDRESS_LINE_4,
-                    pd.ADDRESS_LINE_5 AS PARTICIPANT_ADDRESS_LINE_5,
-                    pd.POST_CODE AS PARTICIPANT_POSTCODE,
-                    pd.TELEPHONE_NUMBER_HOME,
-                    pd.EMAIL_ADDRESS_HOME,
-                    pd.PRIMARY_CARE_PROVIDER,
-                    gp.GP_PRACTICE_CODE,
-                    gp.ADDRESS_LINE_1 AS GP_ADDRESS_LINE_1,
-                    gp.ADDRESS_LINE_2 AS GP_ADDRESS_LINE_2,
-                    gp.ADDRESS_LINE_3 AS GP_ADDRESS_LINE_3,
-                    gp.ADDRESS_LINE_4 AS GP_ADDRESS_LINE_4,
-                    gp.ADDRESS_LINE_5 AS GP_ADDRESS_LINE_5,
-                    gp.POSTCODE AS GP_POSTCODE,
-                    em.EXCEPTION_ID,
-                    em.FILE_NAME,
-                    em.DATE_CREATED,
-                    em.DATE_RESOLVED,
-                    em.RULE_ID,
-                    em.RULE_DESCRIPTION,
-                    em.ERROR_RECORD,
-                    em.CATEGORY,
-                    em.SCREENING_NAME,
-                    em.EXCEPTION_DATE,
-                    em.COHORT_NAME,
-                    em.IS_FATAL
-                    FROM
-                    [dbo].[EXCEPTION_MANAGEMENT] em
-                    JOIN
-                    [dbo].[PARTICIPANT_DEMOGRAPHIC] pd
-                    ON CAST(pd.NHS_NUMBER AS VARCHAR(50)) = em.NHS_NUMBER
-                    JOIN
-                    [dbo].[GP_PRACTICES] gp
-                    ON pd.PRIMARY_CARE_PROVIDER = gp.GP_PRACTICE_CODE
-                    WHERE
-                    em.[EXCEPTION_ID] = @ExceptionId";
-
-        var parameters = new Dictionary<string, object>
-        {
-            {"@ExceptionId", exceptionId },
-        };
-
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        return GetException(command, true).FirstOrDefault();
-    }
-
-    public bool Create(ValidationException exception)
-    {
-
-        var SQL = @"INSERT INTO [dbo].[EXCEPTION_MANAGEMENT] (
-                    FILE_NAME,
-                    NHS_NUMBER,
-                    DATE_CREATED,
-                    DATE_RESOLVED,
-                    RULE_ID,
-                    RULE_DESCRIPTION,
-                    ERROR_RECORD,
-                    CATEGORY,
-                    SCREENING_NAME,
-                    EXCEPTION_DATE,
-                    COHORT_NAME,
-                    IS_FATAL
-                    ) VALUES (
-                    @fileName,
-                    @nhsNumber,
-                    @dateCreated,
-                    @dateResolved,
-                    @ruleId,
-                    @ruleDescription,
-                    @errorRecord,
-                    @category,
-                    @screeningName,
-                    @exceptionDate,
-                    @cohortName,
-                    @fatal
-                );";
-
-        var parameters = new Dictionary<string, object>()
-        {
-            {"@fileName", exception.FileName},
-            {"@nhsNumber", exception.NhsNumber},
-            {"@dateCreated", exception.DateCreated},
-            {"@dateResolved", exception.DateResolved.HasValue ? exception.DateResolved : DBNull.Value},
-            {"@ruleId", exception.RuleId},
-            {"@ruleDescription", exception.RuleDescription},
-            {"@errorRecord", exception.ErrorRecord},
-            {"@category", exception.Category},
-            {"@screeningName", exception.ScreeningName},
-            {"@exceptionDate", exception.ExceptionDate},
-            {"@cohortName", exception.CohortName},
-            {"@fatal", exception.Fatal}
-        };
-
-        var command = CreateCommand(parameters);
-        command.CommandText = SQL;
-
-        try
-        {
-            return ExecuteCommand(command);
+            _logger.LogInformation("Exception not found");
+            return null;
         }
-        finally
+
+        long nhsNumber;
+
+        if (!long.TryParse(exception.NhsNumber, out nhsNumber))
         {
-            _dbConnection.Close();
+            throw new FormatException("Unable to parse NHS Number");
         }
+
+        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
+        var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
+
+        return GetExceptionDetails(exception.ToValidationException(), participantDemographic, gpPracticeDetails);
     }
 
-    public bool RemoveOldException(string nhsNumber, string screeningName)
+    public async Task<bool> Create(ValidationException exception)
     {
-
-        if (!RecordExists(nhsNumber, screeningName))
+        var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
+        return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
+    }
+    public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
+    {
+        var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
+        if (exceptions == null)
         {
             return false;
         }
 
         // we only need to get the last unresolved exception for the nhs number and screening service
-        var SQL = @"UPDATE [dbo].EXCEPTION_MANAGEMENT
-                    SET DATE_RESOLVED = @todaysDate
-                    WHERE NHS_NUMBER = @nhsNumber AND DATE_RESOLVED = @MaxDate AND SCREENING_NAME = @screeningName";
+        var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
+        .OrderByDescending(x => x.DateCreated).FirstOrDefault();
 
-        var command = CreateCommand(new Dictionary<string, object>()
+        if (validationExceptionToUpdate != null)
         {
-            {"@nhsNumber", nhsNumber},
-            {"@todaysDate", DateTime.Today},
-            {"@MaxDate", "9999-12-31"},
-            {"@screeningName", screeningName},
-        });
+            validationExceptionToUpdate.DateResolved = DateTime.Today;
 
-        command.CommandText = SQL;
-        try
-        {
-            var removed = ExecuteCommand(command);
-            if (removed)
-            {
-                _logger.LogInformation("Removed old exception record successfully");
-                return true;
-            }
-            _logger.LogWarning("An exception record was found but not Removed successfully");
-            return false;
-        }
-        finally
-        {
-            _dbConnection.Close();
-        }
-
-
-    }
-
-    private bool RecordExists(string nhsNumber, string screeningName)
-    {
-        try
-        {
-            var recordExists = false;
-            var SQL = "SELECT 1 FROM [dbo].[EXCEPTION_MANAGEMENT] WHERE NHS_NUMBER = @nhsNumber AND SCREENING_NAME = @screeningName";
-
-            var command = CreateCommand(new Dictionary<string, object>()
-        {
-            {"@nhsNumber", nhsNumber},
-            {"@screeningName", screeningName}
-        });
-            command.CommandText = SQL;
-            using (_dbConnection)
-            {
-                _dbConnection.ConnectionString = _connectionString;
-                _dbConnection.Open();
-                using (command)
-                {
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        // Return true if the reader has at least one row.
-                        recordExists = reader.Read();
-                    }
-                }
-            }
-
-            return recordExists;
-        }
-        finally
-        {
-            if (_dbConnection != null)
-            {
-                _dbConnection.Close();
-            }
-        }
-    }
-
-    private bool ExecuteCommand(IDbCommand command)
-    {
-        _dbConnection.ConnectionString = _connectionString;
-        _dbConnection.Open();
-        var inserted = Execute(command);
-        _dbConnection.Close();
-
-        if (inserted)
-        {
-            return true;
+            return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
         }
         return false;
     }
 
-    private bool Execute(IDbCommand command)
+    private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
     {
-        try
+        if (exception == null)
         {
-            var result = command.ExecuteNonQuery();
-            _logger.LogInformation(result.ToString());
-
-            if (result == 0)
-            {
-                return false;
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error happened: {Message}", ex.Message);
-            return false;
+            _logger.LogInformation("Exception not found");
+            return null;
         }
 
-        return true;
+        exception.ExceptionDetails = new ExceptionDetails
+        {
+            GivenName = participantDemographic?.GivenName,
+            FamilyName = participantDemographic?.FamilyName,
+            DateOfBirth = participantDemographic?.DateOfBirth,
+            Gender = Enum.TryParse(participantDemographic?.Gender.ToString(), out Gender gender) ? gender : Gender.NotKnown,
+            ParticipantAddressLine1 = participantDemographic?.AddressLine1,
+            ParticipantAddressLine2 = participantDemographic?.AddressLine2,
+            ParticipantAddressLine3 = participantDemographic?.AddressLine3,
+            ParticipantAddressLine4 = participantDemographic?.AddressLine4,
+            ParticipantAddressLine5 = participantDemographic?.AddressLine5,
+            ParticipantPostCode = participantDemographic?.PostCode,
+            TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
+            EmailAddressHome = participantDemographic?.EmailAddressHome,
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
+            GpPracticeCode = gPPractice?.GPPracticeCode,
+            GpAddressLine1 = gPPractice?.AddressLine1,
+            GpAddressLine2 = gPPractice?.AddressLine2,
+            GpAddressLine3 = gPPractice?.AddressLine3,
+            GpAddressLine4 = gPPractice?.AddressLine4,
+            GpAddressLine5 = gPPractice?.AddressLine5,
+            GpPostCode = gPPractice?.Postcode
+        };
+
+        if (participantDemographic == null || gPPractice == null)
+        {
+            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
+        }
+
+        return exception;
     }
 
-    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
+    private async Task<List<ExceptionManagement>?> GetExceptionRecords(string nhsNumber, string screeningName)
     {
-        try
-        {
-            var result = default(T);
-            using (_dbConnection)
-            {
-                _dbConnection.ConnectionString = _connectionString;
-                _dbConnection.Open();
-                using (command)
-                {
-                    using (IDataReader reader = command.ExecuteReader())
-                    {
-                        result = mapFunction(reader);
-                    }
-                }
-                return result;
-            }
-        }
-        finally
-        {
-            if (_dbConnection != null)
-            {
-                _dbConnection.Close();
-            }
-        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
+        return exceptions != null ? exceptions.ToList() : null;
+
     }
 
-    private IDbCommand CreateCommand(Dictionary<string, object> parameters)
+    private static string DateToString(DateTime? datetime)
     {
-        var dbCommand = _dbConnection.CreateCommand();
-        return AddParameters(parameters, dbCommand);
-    }
-
-    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
-    {
-        foreach (var param in parameters)
+        if (datetime != null)
         {
-            var parameter = dbCommand.CreateParameter();
-
-            parameter.ParameterName = param.Key;
-            parameter.Value = param.Value;
-
-            dbCommand.Parameters.Add(parameter);
+            DateTime NonNullableDateTime = datetime.Value;
+            return NonNullableDateTime.ToString("yyyy-MM-dd");
         }
-
-        return dbCommand;
+        // we throw here to stop processing as the date should never be null
+        throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
+
+    private static string GetPropertyName(ExceptionSort? orderByProperty)
+    {
+        return orderByProperty switch
+        {
+            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
+            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
+            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
+            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
+            _ => nameof(ValidationException.DateCreated)
+        };
+    }
+
 }

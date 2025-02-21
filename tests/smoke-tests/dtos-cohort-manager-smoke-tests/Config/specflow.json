@@ -1,0 +1,16 @@
+{
+  "bindingCulture": {
+    "language": "en"
+  },
+  "runtime": {
+    "dependencies": [
+      "SpecFlow.NUnit",
+      "SpecFlow.Tools.MsBuild.Generation"
+    ]
+  },
+    "specFlow": {
+        "unitTestProvider": {
+            "name": "NUnit" // or MSTest, xUnit
+        }
+    }
+}

@@ -1,0 +1,6 @@
+python-dotenv
+azure-storage-blob
+argparse
+pandas
+fastparquet
+nhs-number

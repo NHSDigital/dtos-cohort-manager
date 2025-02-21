@@ -28,6 +28,13 @@ module "functionapp" {
   # Connection string for Application Insights:
   ai_connstring = data.azurerm_application_insights.ai.connection_string
 
+  #To enable health checks for function apps
+  health_check_path = var.function_apps.health_check_path
+
+  #To enable app service log for function apps
+  app_service_logs_retention_period_days = var.function_apps.app_service_logs_retention_period_days
+  app_service_logs_disk_quota_mb         = var.function_apps.app_service_logs_disk_quota_mb
+
   # Use the ACR assigned identity for the Function Apps:
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
@@ -119,7 +126,7 @@ locals {
 
             # Database connection string
             length(config.db_connection_string) > 0 ? {
-              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
+              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
             } : {}
           )
 

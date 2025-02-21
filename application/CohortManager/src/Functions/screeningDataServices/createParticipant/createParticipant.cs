@@ -6,12 +6,10 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Data.Database;
 using Common;
 using Model;
+using NHS.CohortManager.Shared.Utilities;
 using DataServices.Client;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 
 public class CreateParticipant
 {
@@ -40,6 +38,8 @@ public class CreateParticipant
     {
         ParticipantCsvRecord participantCsvRecord = null;
         var existingParticipant = new Participant();
+        long screeningId;
+        long nhsNumber;
         try
         {
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -48,7 +48,17 @@ public class CreateParticipant
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber.ToString() == participantCsvRecord.Participant.NhsNumber && i.ScreeningId.ToString() == participantCsvRecord.Participant.ScreeningId);
+            if (!long.TryParse(participantCsvRecord.Participant.ScreeningId, out screeningId))
+            {
+                throw new FormatException("Could not parse ScreeningId");
+            }
+
+            if (!long.TryParse(participantCsvRecord.Participant.NhsNumber, out nhsNumber))
+            {
+                throw new FormatException("Could not parse NhsNumber");
+            }
+
+            var existingParticipantResult = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
 
             if (existingParticipantResult != null && existingParticipantResult.Any())
             {
@@ -60,7 +70,7 @@ public class CreateParticipant
             var response = await ValidateData(existingParticipant, participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
-                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
@@ -76,7 +86,7 @@ public class CreateParticipant
                 ScreeningId = long.Parse(participantCsvRecord.Participant.ScreeningId),
                 NHSNumber = long.Parse(participantCsvRecord.Participant.NhsNumber),
                 ReasonForRemoval = participantCsvRecord.Participant.ReasonForRemoval,
-                ReasonForRemovalDate = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
+                ReasonForRemovalDate = MappingUtilities.ParseDates(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate),
                 BusinessRuleVersion = participantCsvRecord.Participant.BusinessRuleVersion,
                 ExceptionFlag = participantCsvRecord.Participant.ExceptionFlag == "Y" ? Int16.Parse("1") : Int16.Parse("0"),
                 RecordInsertDateTime = MappingUtilities.ParseNullableDateTime(participantCsvRecord.Participant.RecordInsertDateTime),
@@ -118,7 +128,7 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, $"Lookup validation failed.\nMessage: {ex.Message}\nParticipant: {newParticipant}");
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }

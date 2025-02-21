@@ -39,7 +39,6 @@ public class RemoveCohortDistributionTests
         _mockDBConnection.Setup(conn => conn.Open());
 
         _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
-        _databaseHelperMock.Setup(helper => helper.ParseDates(It.IsAny<string>())).Returns(DateTime.Today);
     }
 
     [TestMethod]
@@ -48,7 +47,7 @@ public class RemoveCohortDistributionTests
         //Arrange
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
-            _databaseHelperMock.Object,
+
             _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
@@ -69,7 +68,6 @@ public class RemoveCohortDistributionTests
         //Arrange
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
-            _databaseHelperMock.Object,
             _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
@@ -89,7 +87,6 @@ public class RemoveCohortDistributionTests
         //Arrange
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
-            _databaseHelperMock.Object,
             _loggerMock.Object
         );
         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);

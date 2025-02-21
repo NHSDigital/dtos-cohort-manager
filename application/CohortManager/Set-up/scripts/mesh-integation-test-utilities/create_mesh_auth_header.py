@@ -1,7 +1,7 @@
 """ Python code to generate a valid authorization header. """
 import hmac
 import uuid
-import datetime
+from datetime import datetime, timezone
 from hashlib import sha256
 
 AUTH_SCHEMA_NAME = "NHSMESH "  # Note: Space at the end of the schema.
@@ -15,7 +15,7 @@ def build_auth_header(mailbox_id: str, password: str = "password",  nonce: str =
         nonce = str(uuid.uuid4())
     # Current time formatted as yyyyMMddHHmm
     # for example, 4th May 2020 13:05 would be 202005041305
-    timestamp = datetime.datetime.utcnow().strftime("%Y%m%d%H%M")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M")
 
     # for example, NHSMESH AMP01HC001:bd0e2bd5-218e-41d0-83a9-73fdec414803:0:202005041305
     hmac_msg = mailbox_id + ":" + nonce + ":" + str(nonce_count) + ":" + password + ":" + timestamp
@@ -38,9 +38,3 @@ MAILBOX_PASSWORD = "<MailBoxPassword>"  # Note: Don't hard code your passwords i
 
 # send a new nonce each time
 print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD))
-
-# # or reuse the nonce and increment the nonce_count
-# my_nonce = str(uuid.uuid4())
-
-# print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD, my_nonce, nonce_count=1))
-# print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD, my_nonce, nonce_count=2))

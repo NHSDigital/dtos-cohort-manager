@@ -61,6 +61,7 @@ public class AddParticipantFunction
 
             // Validation
             participantCsvRecord.Participant.ExceptionFlag = "N";
+            participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
             if (response.IsFatal)
             {
@@ -69,7 +70,11 @@ public class AddParticipantFunction
                 return;
             }
 
-            if (response.CreatedException) participantCsvRecord.Participant.ExceptionFlag = "Y";
+            if (response.CreatedException)
+            {
+                participantCsvRecord.Participant.ExceptionFlag = "Y";
+                participant.ExceptionFlag = "Y";
+            }
 
             // Add participant to database
             var json = JsonSerializer.Serialize(participantCsvRecord);
@@ -109,7 +114,6 @@ public class AddParticipantFunction
         {
             _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-            return;
         }
     }
 
@@ -117,30 +121,23 @@ public class AddParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        try
+        if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
         {
-            if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+            var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
+
+            return new ValidationExceptionLog()
             {
-                var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
-                await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
-
-                return new ValidationExceptionLog()
-                {
-                    IsFatal = false,
-                    CreatedException = true
-                };
-            }
-
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
-            var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
-
-            return responseBody;
+                IsFatal = false,
+                CreatedException = true
+            };
         }
-        catch (Exception ex)
-        {
-            _logger.LogInformation(ex, "Static validation failed.\nMessage: {Message}\nParticipant: {ParticipantCsvRecord}", ex.Message, participantCsvRecord);
-            return null;
-        }
+
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+        var responseBodyJson = await _callFunction.GetResponseText(response);
+        var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+        return responseBody;
+
     }
 }

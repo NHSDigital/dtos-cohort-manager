@@ -12,8 +12,7 @@ public static class EnumHelper
     public static string GetDisplayName(Enum enumValue)
     {
         var displayName = enumValue.GetType()
-            .GetMember(enumValue.ToString())
-            .First()
+            .GetMember(enumValue.ToString())[0]
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
 

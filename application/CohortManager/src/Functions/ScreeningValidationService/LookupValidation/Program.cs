@@ -13,18 +13,18 @@ hostBuilder.AddConfiguration<LookupValidationConfig>(out LookupValidationConfig 
 
 var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddCachedDataService<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
-        .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
-        .AddCachedDataService<LanguageCode>(config.LanguageCodeUrl)
-        .AddCachedDataService<CurrentPosting>(config.CurrentPostingUrl)
-        .AddCachedDataService<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
+        .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
+        .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
+        .AddDataServiceStaticCachedClient<CurrentPosting>(config.CurrentPostingUrl)
+        .AddDataServiceStaticCachedClient<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
         .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
-        services.AddSingleton<IDataLookupFacade, DataLookupFacade>();
+        services.AddSingleton<IDataLookupFacadeBreastScreening, DataLookupFacadeBreastScreening>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

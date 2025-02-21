@@ -1,0 +1,66 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: fa58dc978491f04e1efab73cbf8e2228a351bf81
+      endpoint: NHSDigital
+
+parameters:
+  - name: sourceRegistry
+    displayName: Source Container Registry
+    type: string
+    values:
+      - acrukshubdevcohman
+      - acrukshubprodcohman
+    default: acrukshubdevcohman
+
+  - name: selectImageTag
+    displayName: Select Image Tag
+    type: string
+    values:
+      - integration
+    default: integration
+
+  - name: destRegistry
+    displayName: Destination Container Registry
+    type: string
+    values:
+      - acrukshubdevcohman
+      - acrukshubprodcohman
+    default: acrukshubprodcohman
+
+  - name: addImageTag
+    displayName: Target Image Tag
+    type: string
+    values:
+      - preprod
+      - production
+    default: preprod
+
+variables:
+  - group: DEV_hub_backend_remote_state
+
+stages:
+- stage: re_tag_stage
+  displayName: ACR re-tag
+  jobs:
+  - job: re_tag
+    pool:
+      name: private-pool-prod-uks
+    displayName: Update/copy Docker images with new tag
+    variables:
+      SRC_REGISTRY: ${{ parameters.sourceRegistry }}
+      DEST_REGISTRY: ${{ parameters.destRegistry }}
+      SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
+      ADD_IMAGE_TAG: ${{ parameters.addImageTag }}
+    steps:
+      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-prod

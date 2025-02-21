@@ -48,10 +48,12 @@ law = {
 
 storage_accounts = {
   sqllogs = {
-    name_suffix                   = "sqllogs"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
+    name_suffix                             = "sqllogs"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = false
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = true
     containers = {
       vulnerability-assessment = {
         container_name        = "vulnerability-assessment"

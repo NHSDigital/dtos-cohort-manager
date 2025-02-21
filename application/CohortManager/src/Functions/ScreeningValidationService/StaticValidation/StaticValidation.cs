@@ -60,6 +60,14 @@ public class StaticValidation
                 new RuleParameter("participant", participantCsvRecord.Participant),
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+            {
+                _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
+                var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
+                resultList.AddRange(ActionResults);
+            }
+
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
             await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);

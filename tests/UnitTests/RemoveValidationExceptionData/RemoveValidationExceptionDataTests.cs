@@ -90,7 +90,7 @@ public class RemoveValidationExceptionDataTests
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
-        _validationExceptionData.Setup(x => x.RemoveOldException(It.IsAny<string>(), It.IsAny<string>())).Returns(true);
+        _validationExceptionData.Setup(x => x.RemoveOldException(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
         var result = await _removeValidationExceptionData.RunAsync(_request.Object);
 
         // Assert

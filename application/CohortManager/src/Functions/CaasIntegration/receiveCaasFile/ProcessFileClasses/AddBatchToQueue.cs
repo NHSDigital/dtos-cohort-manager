@@ -1,5 +1,6 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
@@ -21,17 +22,17 @@ public class AddBatchToQueue : IAddBatchToQueue
         _queueHelper = queueHelper;
     }
 
-    public async Task ProcessBatch(Batch batch)
+    public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
     {
-        if (batch != null && batch.AddRecords.Any())
+        if (batch != null && batch.Any())
         {
-            await AddMessagesAsync(batch);
+            await AddMessagesAsync(batch, queueName);
         }
     }
 
-    private async Task AddMessagesAsync(Batch currentBatch)
+    private async Task AddMessagesAsync(ConcurrentQueue<BasicParticipantCsvRecord> currentBatch, string queueName)
     {
-        var itemsToAdd = currentBatch.AddRecords;
+        var itemsToAdd = currentBatch;
 
         // List of tasks to handle messages
         List<Task> tasks = new List<Task>();
@@ -40,7 +41,7 @@ public class AddBatchToQueue : IAddBatchToQueue
             // Process messages while there are items in the queue
             while (itemsToAdd.TryDequeue(out var item))
             {
-                AddMessage(item);
+                AddMessage(item, queueName);
             }
         }));
 
@@ -49,16 +50,8 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     }
 
-    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord)
+    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
-        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord,Environment.GetEnvironmentVariable("AddQueueName"));
-    }
-
-    private static string ParseMessage(BasicParticipantCsvRecord ParticipantCsvRecord)
-    {
-        var json = JsonSerializer.Serialize(ParticipantCsvRecord);
-        var bytes = Encoding.UTF8.GetBytes(json);
-
-        return Convert.ToBase64String(bytes);
+        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
 }

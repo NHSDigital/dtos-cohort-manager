@@ -18,12 +18,12 @@ public class LookupValidation
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<LookupValidation> _logger;
     private readonly IReadRules _readRules;
-    private readonly IDataLookupFacade _dataLookup;
+    private readonly IDataLookupFacadeBreastScreening _dataLookup;
 
     public LookupValidation(
         ICreateResponse createResponse,
         IExceptionHandler handleException, ILogger<LookupValidation> logger,
-        IDataLookupFacade dataLookupFacade,
+        IDataLookupFacadeBreastScreening dataLookupFacade,
         IReadRules readRules
     )
     {
@@ -80,7 +80,12 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-            var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+            var resultList = new List<RuleResultTree>();
+
+            if (newParticipant.RecordType != Actions.Removed)
+            {
+                resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+            }
 
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
