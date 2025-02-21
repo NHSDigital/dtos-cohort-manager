@@ -1,9 +1,12 @@
+﻿namespace HealthChecks;
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using Common;
 using Model;
 
 public class BlobStorageHealthCheck : IHealthCheck
@@ -11,20 +14,19 @@ public class BlobStorageHealthCheck : IHealthCheck
     private readonly BlobServiceClient _blobServiceClient;
     private readonly ILogger<BlobStorageHealthCheck> _logger;
 
-    public BlobStorageHealthCheck(BlobServiceClient blobServiceClient, ILogger<BlobStorageHealthCheck> logger)
+    public BlobStorageHealthCheck(ILogger<BlobStorageHealthCheck> logger, BlobServiceClient blobServiceClient)
     {
-       _blobServiceClient = blobServiceClient;
         _logger = logger;
+        _blobServiceClient = blobServiceClient;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
     {
+        _logger.LogInformation("Running health check for Azure Blob Storage...");
+
         try
         {
             // Check if the blob service is accessible
-            //var blobServiceClient = new BlobServiceClient(Environment.GetEnvironmentVariable("caasfolder_STORAGE"));
-           // var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-           // var blobClient = containerClient.GetBlobClient(fileName);
             await _blobServiceClient.GetPropertiesAsync(cancellationToken: cancellationToken);
             return HealthCheckResult.Healthy("Blob storage is accessible.");
         }
