@@ -68,6 +68,7 @@ module "functionapp" {
 locals {
   app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
+    FUNCTION_WORKER_RUNTIME             = "dotnet"
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
     WEBSITE_PULL_IMAGE_OVER_VNET        = var.function_apps.pull_image_over_vnet
