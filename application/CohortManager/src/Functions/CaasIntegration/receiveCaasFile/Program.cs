@@ -14,7 +14,7 @@ using Azure.Identity;
 using Azure.Storage.Blobs;
 using DataServices.Database;
 using HealthChecks;
-using HealthChecks.Extension;
+using HealthChecks.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -48,28 +48,8 @@ try
         });
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
-        services.AddHealthChecks().AddCheck<BlobStorageHealthCheck>("blob_storage_health_check");
-        services.AddDatabaseHealthCheck<AppDbContext>();
-        // Register DbContext for health check
-        services.AddDbContext<AppDbContext>(options =>
-        {
-            options.UseSqlServer(
-                Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"),
-                sqlServerOptions =>
-                {
-                    sqlServerOptions.CommandTimeout(30); // Set command timeout to 30 seconds
-                    sqlServerOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5, // Retry up to 5 times
-                        maxRetryDelay: TimeSpan.FromSeconds(30), // Maximum delay between retries
-                        errorNumbersToAdd: null); // Optional: Specify SQL error numbers to retry
-                });
-        });
-        // Register BlobServiceClient service for health check
-        services.AddSingleton<BlobServiceClient>(provider =>
-        {
-            var connectionString = Environment.GetEnvironmentVariable("caasfolder_STORAGE");
-            return new BlobServiceClient(connectionString);
-        });
+        services.AddDatabaseHealthCheck<DataServicesContext>();
+        services.AddBlobStorageHealthCheck();
     })
     .AddAzureQueues()
     .AddExceptionHandler()

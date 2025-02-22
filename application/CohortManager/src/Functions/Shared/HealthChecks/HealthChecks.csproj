@@ -8,6 +8,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj" />
+      <ProjectReference Include="..\DataServices.Core\DataServices.Core.csproj" />
+      <ProjectReference Include="..\DataServices.Database\DataServices.Database.csproj" />
       <ProjectReference Include="..\Model\Model.csproj" />
     </ItemGroup>
 

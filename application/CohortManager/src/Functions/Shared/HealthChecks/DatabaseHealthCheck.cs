@@ -1,17 +1,19 @@
 namespace HealthChecks;
+
+using System.Diagnostics.Eventing.Reader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading;
 using System.Threading.Tasks;
+using DataServices.Database;
 using Microsoft.Extensions.Logging;
 
-public class DatabaseHealthCheck<TDbContext> : IHealthCheck
-    where TDbContext : DbContext
+public class DatabaseHealthCheck : IHealthCheck
 {
-    private readonly TDbContext _dbContext;
-    private readonly ILogger<DatabaseHealthCheck<TDbContext>> _logger;
+    private readonly DataServicesContext _dbContext;
+    private readonly ILogger<DatabaseHealthCheck> _logger;
 
-    public DatabaseHealthCheck(ILogger<DatabaseHealthCheck<TDbContext>> logger, TDbContext dbContext)
+    public DatabaseHealthCheck(ILogger<DatabaseHealthCheck> logger, DataServicesContext dbContext)
     {
         _logger = logger;
         _dbContext = dbContext;
@@ -23,15 +25,40 @@ public class DatabaseHealthCheck<TDbContext> : IHealthCheck
         try
         {
             // Use CanConnectAsync to check if the database is reachable and running online
-            bool canConnect = await _dbContext.Database.CanConnectAsync(cancellationToken);
-
-            return canConnect
-                ? HealthCheckResult.Healthy("Database is healthy.")
-                : HealthCheckResult.Unhealthy("Database is unreachable.");
+            var canConnect = await _dbContext.Database.CanConnectAsync(cancellationToken);
+            // Check latency of sql-server
+            var isDatabaseLatencyAcceptable = await CheckDatabaseLatencyAsync();
+            if (canConnect && isDatabaseLatencyAcceptable == true)
+                return HealthCheckResult.Healthy("Database is healthy.");
+            else if (canConnect && isDatabaseLatencyAcceptable == false)
+                return HealthCheckResult.Degraded("Database is very slow.");
+            else
+                return HealthCheckResult.Unhealthy("Database is inaccessible.");
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Sql-Server Database health check failed.");
             return HealthCheckResult.Unhealthy("Database health check failed.", ex);
+        }
+    }
+
+    private async Task<bool> CheckDatabaseLatencyAsync()
+    {
+        try
+        {
+            var startTime = DateTime.UtcNow;
+            await _dbContext.Database.ExecuteSqlRawAsync("SELECT 1");
+            var endTime = DateTime.UtcNow;
+
+            // Calculate the latency
+            var latency = endTime - startTime;
+
+            // Define a threshold for acceptable latency (e.g., 500ms)
+            return latency.TotalMilliseconds < 500;
+        }
+        catch (Exception)
+        {
+            return false;
         }
     }
 }
