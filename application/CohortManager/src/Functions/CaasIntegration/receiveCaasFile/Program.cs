@@ -8,14 +8,8 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
-using receiveCaasFile;
-using Microsoft.Extensions.Azure;
-using Azure.Identity;
-using Azure.Storage.Blobs;
 using DataServices.Database;
-using HealthChecks;
 using HealthChecks.Extensions;
-using Microsoft.EntityFrameworkCore;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

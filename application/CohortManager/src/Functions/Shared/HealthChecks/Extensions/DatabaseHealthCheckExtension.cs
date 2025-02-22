@@ -3,7 +3,6 @@ namespace HealthChecks.Extensions;
 using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public static class DatabaseHealthCheckExtension
 {

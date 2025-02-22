@@ -6,8 +6,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
-using Common;
-using Model;
 
 public class BlobStorageHealthCheck : IHealthCheck
 {

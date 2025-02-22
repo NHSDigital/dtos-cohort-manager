@@ -1,10 +1,7 @@
 namespace HealthChecks.Extensions;
 
 using Azure.Storage.Blobs;
-using DataServices.Database;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public static class BlobStorageHealthCheckExtension
 {

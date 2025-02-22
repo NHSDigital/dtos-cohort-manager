@@ -1,6 +1,5 @@
 namespace HealthChecks;
 
-using System.Diagnostics.Eventing.Reader;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Threading;
