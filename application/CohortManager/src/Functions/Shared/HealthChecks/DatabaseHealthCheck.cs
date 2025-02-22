@@ -27,11 +27,11 @@ public class DatabaseHealthCheck : IHealthCheck
             var canConnect = await _dbContext.Database.CanConnectAsync(cancellationToken);
             // Check latency of sql-server
             var isDatabaseLatencyAcceptable = await CheckDatabaseLatencyAsync();
-            
+
             return canConnect switch
             {
                 true when isDatabaseLatencyAcceptable => HealthCheckResult.Healthy("Database is healthy."),
-                true when isDatabaseLatencyAcceptable == false => HealthCheckResult.Degraded("Database is very slow."),
+                true when !isDatabaseLatencyAcceptable => HealthCheckResult.Degraded("Database is very slow."),
                 _ => HealthCheckResult.Unhealthy("Database is down or inaccessible.")
             };
         }
