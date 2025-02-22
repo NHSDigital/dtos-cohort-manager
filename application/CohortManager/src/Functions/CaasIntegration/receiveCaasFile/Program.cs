@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
-using DataServices.Database;
 using HealthChecks.Extensions;
 
 
@@ -42,7 +41,7 @@ try
         });
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
-        services.AddDatabaseHealthCheck<DataServicesContext>();
+        services.AddDatabaseHealthCheck();
         services.AddBlobStorageHealthCheck();
     })
     .AddAzureQueues()

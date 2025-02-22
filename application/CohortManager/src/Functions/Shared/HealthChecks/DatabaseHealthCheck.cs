@@ -27,12 +27,13 @@ public class DatabaseHealthCheck : IHealthCheck
             var canConnect = await _dbContext.Database.CanConnectAsync(cancellationToken);
             // Check latency of sql-server
             var isDatabaseLatencyAcceptable = await CheckDatabaseLatencyAsync();
-            if (canConnect && isDatabaseLatencyAcceptable == true)
-                return HealthCheckResult.Healthy("Database is healthy.");
-            else if (canConnect && isDatabaseLatencyAcceptable == false)
-                return HealthCheckResult.Degraded("Database is very slow.");
-            else
-                return HealthCheckResult.Unhealthy("Database is inaccessible.");
+            
+            return canConnect switch
+            {
+                true when isDatabaseLatencyAcceptable => HealthCheckResult.Healthy("Database is healthy."),
+                true when isDatabaseLatencyAcceptable == false => HealthCheckResult.Degraded("Database is very slow."),
+                _ => HealthCheckResult.Unhealthy("Database is down or inaccessible.")
+            };
         }
         catch (Exception ex)
         {
@@ -51,7 +52,6 @@ public class DatabaseHealthCheck : IHealthCheck
 
             // Calculate the latency
             var latency = endTime - startTime;
-
             // Define a threshold for acceptable latency (e.g., 500ms)
             return latency.TotalMilliseconds < 500;
         }

@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class DatabaseHealthCheckExtension
 {
-    public static IServiceCollection AddDatabaseHealthCheck<TDbContext>(this IServiceCollection services)
-        where TDbContext : DbContext
+    public static IServiceCollection AddDatabaseHealthCheck(this IServiceCollection services)
     {
         // Register the database health check
         services.AddHealthChecks()
