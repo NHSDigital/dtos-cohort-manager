@@ -166,7 +166,7 @@ function_apps = {
   docker_CI_enable     = "true"
   docker_env_tag       = "nft"
   docker_img_prefix    = "cohort-manager"
-  pull_image_over_vnet = false
+  pull_image_over_vnet = true
 
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
