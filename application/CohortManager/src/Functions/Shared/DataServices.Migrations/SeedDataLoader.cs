@@ -62,6 +62,6 @@ public class SeedDataLoader : ISeedDataLoader
 
     private bool IsValidTableName(string tableName)
     {
-        return Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$");
+        return Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$",RegexOptions.None, TimeSpan.FromSeconds(10));
     }
 }
