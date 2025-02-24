@@ -52,8 +52,11 @@ public class DatabaseHealthCheck : IHealthCheck
 
             // Calculate the latency
             var latency = endTime - startTime;
-            // Define a threshold for acceptable latency (e.g., 500ms)
-            return latency.TotalMilliseconds < 500;
+            // Fetch threshold for acceptable latency (e.g., 500ms) from Environment Variable
+            var value = Environment.GetEnvironmentVariable("AcceptableLatencyThresholdMs");
+            var acceptableLatencyThresholdMs = int.Parse(value ?? throw new InvalidOperationException()); 
+            _logger.LogInformation("Thresold is : {acceptableLatencyThresholdMs}",acceptableLatencyThresholdMs );
+            return latency.TotalMilliseconds < acceptableLatencyThresholdMs;
         }
         catch (Exception)
         {
