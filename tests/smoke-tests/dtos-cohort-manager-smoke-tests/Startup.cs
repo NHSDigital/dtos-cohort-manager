@@ -38,7 +38,7 @@ internal static class Startup
         // Register Azure Blob Storage helper
         services.AddSingleton(sp =>
         {
-            var connectionString = configuration["AppSettings:caasFileStorage"];
+            var connectionString = configuration["AppSettings:CloudFileStorageConnectionString"];
             return new Azure.Storage.Blobs.BlobServiceClient(connectionString);
         });
         services.AddSingleton<BlobStorageHelper>();

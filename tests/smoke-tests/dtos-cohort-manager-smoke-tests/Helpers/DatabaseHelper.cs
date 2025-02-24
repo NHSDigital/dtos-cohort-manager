@@ -15,26 +15,7 @@ public static class DatabaseHelper
         "BS_COHORT_DISTRIBUTION",
     };
 
-    public static async Task<int> ExecuteNonQueryAsync(string connectionString, string managedIdentityClientId, string query, params SqlParameter[] parameters)
-    {
-        var credential = new DefaultAzureCredential(
-            new DefaultAzureCredentialOptions
-            {
-                ManagedIdentityClientId = managedIdentityClientId
-            });
-
-        using var connection = new SqlConnection(connectionString);
-        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" })).ConfigureAwait(false)).Token;
-
-        await connection.OpenAsync();
-        using (var command = new SqlCommand(query, connection))
-        {
-            command.Parameters.AddRange(parameters); // Add the parameters to the command
-            return await command.ExecuteNonQueryAsync();
-        }
-    }
-
-    public static async Task<int> GetRecordCountAsync(string connectionString, string tableName)
+    public static async Task<int> GetRecordCountAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName)
     {
         // Check if the table name is in the whitelist
         if (!AllowedTables.Contains(tableName.ToUpper()))
@@ -42,30 +23,26 @@ public static class DatabaseHelper
             throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
         }
 
+        // Get the open connection (with token if using Managed Identity)
+        using var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync();
+
         // Check if the table actually exists in the database
-        if (!await TableExistsAsync(connectionString, tableName))
+        if (!await TableExistsAsync(connection, tableName))
         {
             throw new ArgumentException($"Table '{tableName}' does not exist in the database.");
         }
 
-        using var connection = new SqlConnection(connectionString);
-        await connection.OpenAsync();
         var query = "SELECT COUNT(*) FROM " + tableName;
         using var command = new SqlCommand(query, connection);
         return (int)await command.ExecuteScalarAsync();
     }
 
-    private static async Task<bool> TableExistsAsync(string connectionString, string tableName)
+   private static async Task<bool> TableExistsAsync(SqlConnection connection, string tableName)
+{
+    var query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName";
+    using (var command = new SqlCommand(query, connection))
     {
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@TableName", tableName);
-                return (int)await command.ExecuteScalarAsync() > 0;
-            }
-        }
+        command.Parameters.AddWithValue("@TableName", tableName);
+        return (int)await command.ExecuteScalarAsync() > 0;
     }
 }

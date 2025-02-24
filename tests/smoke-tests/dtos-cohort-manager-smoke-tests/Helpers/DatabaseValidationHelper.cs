@@ -42,55 +42,42 @@ public static class DatabaseValidationHelper
         }
     }
 
-    public static async Task VerifyNhsNumbersAsync(string connectionString, string tableName, List<string> nhsNumbers, ILogger logger, string managedIdentityClientId)
+    public static async Task VerifyNhsNumbersAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, List<string> nhsNumbers, ILogger logger)
     {
-      ValidateTableName(tableName);
+        // Validate the table name
+        ValidateTableName(tableName);
 
-      var credential = new DefaultAzureCredential(
-        new DefaultAzureCredentialOptions
+        // Get the open connection (with token if using Managed Identity)
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
-            ManagedIdentityClientId = managedIdentityClientId
-        });
-
-      using (var connection = new SqlConnection(connectionString))
-       {
-        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
-        await connection.OpenAsync();
-
-        foreach (var nhsNumber in nhsNumbers)
-        {
-            var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, logger);
-            if (!isVerified)
+            foreach (var nhsNumber in nhsNumbers)
             {
-                logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
-                Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
+                var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, logger);
+                if (!isVerified)
+                {
+                    logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
+                    Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
+                }
             }
-        }
         }
     }
 
-    public static async Task<bool> VerifyFieldUpdateAsync(string connectionString, string tableName, string nhsNumber, string fieldName,string managedIdentityClientId, string expectedValue, ILogger logger)
+    public static async Task<bool> VerifyFieldUpdateAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, string fieldName, string expectedValue, ILogger logger)
     {
-        List<string> fieldValues  = new List<string>();
+        List<string> fieldValues = new List<string>();
         ValidateTableName(tableName);
         ValidateFieldName(fieldName);
 
-         var credential = new DefaultAzureCredential(
-        new DefaultAzureCredentialOptions
+        // Get the open connection (with token if using Managed Identity)
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
-            ManagedIdentityClientId = managedIdentityClientId
-        });
-
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
-            await connection.OpenAsync();
             var query = $"SELECT {fieldName} FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
+
+            // Create SQL command and add parameter for NHS Number
             using (var command = new SqlCommand(query, connection))
             {
-
                 command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+
                 using (SqlDataReader reader = await command.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
@@ -113,10 +100,9 @@ public static class DatabaseValidationHelper
                     return false;
                 }
 
-
                 if (!fieldValues.Contains(expectedValue))
                 {
-                    logger.LogError($"Field {fieldName} for NHS number {nhsNumber} does not match the expected value. Expected: {expectedValue}, Actual: {expectedValue}");
+                    logger.LogError($"Field {fieldName} for NHS number {nhsNumber} does not match the expected value. Expected: {expectedValue}, Actual: {fieldValues.FirstOrDefault()}");
                     return false;
                 }
 
@@ -125,7 +111,6 @@ public static class DatabaseValidationHelper
             }
         }
     }
-
     public static async Task<bool> VerifyRecordCountAsync(string connectionString, string tableName, int expectedCount, ILogger logger, int maxRetries = 10, int delay = 1000)
     {
         ValidateTableName(tableName);
@@ -287,30 +272,26 @@ public static class DatabaseValidationHelper
         return true;
     }
 
-   public static async Task<int> GetNhsNumberCount(string connectionString, string tableName, string nhsNumber, ILogger logger, string managedIdentityClientId)
+    public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
     {
-    var nhsNumberCount = 0;
+        int nhsNumberCount = 0;
 
-    var credential = new DefaultAzureCredential(
-        new DefaultAzureCredentialOptions
+        // Get the open connection (with token if using Managed Identity)
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
-            ManagedIdentityClientId = managedIdentityClientId
-        });
+            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
 
-    using (var connection = new SqlConnection(connectionString))
-    {
-        connection.AccessToken = (await credential.GetTokenAsync(new TokenRequestContext(new[] { "https://database.windows.net/.default" }))).Token;
-        await connection.OpenAsync();
+            // Create SQL command and add parameter for NHS Number
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
 
-        var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-        using (var command = new SqlCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-            nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
+                // Execute the query and get the count of NHS numbers
+                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
+            }
         }
-    }
 
-    return nhsNumberCount;
+        return nhsNumberCount;
     }
 
     private static List<IDictionary<string, object>> ReadParquetFile(string parquetFilePath)
