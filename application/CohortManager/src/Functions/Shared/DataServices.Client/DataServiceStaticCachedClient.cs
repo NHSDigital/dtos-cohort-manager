@@ -12,8 +12,6 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
     private readonly ILogger<DataServiceStaticCachedClient<TEntity>> _logger;
     private readonly List<TEntity> _data;
     private readonly PropertyInfo _keyInfo;
-
-
     public DataServiceStaticCachedClient(
         ILogger<DataServiceStaticCachedClient<TEntity>> logger,
         DataServiceResolver dataServiceResolver,
