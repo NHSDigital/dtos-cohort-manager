@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "35.TooManyDemographicsFieldsChanged.NonFatal",
-        "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender== existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth))"
+        "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND newParticipant.DateOfBirth == existingParticipant.DateOfBirth))"
       },
       {
         "RuleName": "54.ValidateBsoCode.NonFatal",
