@@ -125,9 +125,9 @@ app_service_plan = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "2"
-          capacity_max = "2"
-          capacity_def = "2"
+          capacity_min = "12"
+          capacity_max = "12"
+          capacity_def = "12"
         }
       }
     }
@@ -136,9 +136,9 @@ app_service_plan = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "2"
-          capacity_max = "2"
-          capacity_def = "2"
+          capacity_min = "4"
+          capacity_max = "4"
+          capacity_def = "4"
         }
       }
     }
