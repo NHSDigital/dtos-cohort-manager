@@ -1072,7 +1072,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 5
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S7"
       storage_account_type = "Local"
       zone_redundant       = false
     }
