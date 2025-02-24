@@ -1,3 +1,4 @@
+using dtos_cohort_manager_specflow.Config;
 public class AzureSettings
 {
     public bool IsCloudEnvironment { get; set; }

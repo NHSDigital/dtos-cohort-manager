@@ -15,6 +15,19 @@ public static class DatabaseHelper
         "BS_COHORT_DISTRIBUTION",
     };
 
+    public static async Task<int> ExecuteNonQueryAsync(
+     SqlConnectionWithAuthentication sqlAuthConnection,
+     string query,
+     params SqlParameter[] parameters)
+    {
+        await using var connection = await sqlAuthConnection.GetOpenConnectionAsync();
+        await using var command = new SqlCommand(query, connection);
+
+        command.Parameters.AddRange(parameters);
+
+        return await command.ExecuteNonQueryAsync();
+    }
+
     public static async Task<int> GetRecordCountAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName)
     {
         // Check if the table name is in the whitelist

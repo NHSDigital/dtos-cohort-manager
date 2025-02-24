@@ -38,19 +38,19 @@ public class EndToEndFileUploadService
             foreach (var nhsNumber in nhsNumbers)
             {
                 //  parameterized queries to prevent SQL injection
-                await ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM PARTICIPANT_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM PARTICIPANT_DEMOGRAPHIC WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM BS_COHORT_DISTRIBUTION WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM EXCEPTION_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
             }
@@ -133,7 +133,7 @@ public class EndToEndFileUploadService
     public async Task VerifyNhsNumbersAsync(string tableName, List<string> nhsNumbers)
     {
         _logger.LogInformation("Validating NHS numbers in table {TableName}.", tableName);
-        await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, tableName, nhsNumbers, _logger, _managedIdentityClientId);
+        await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, tableName, nhsNumbers, _logger);
         _logger.LogInformation("Validation of NHS numbers completed successfully.");
     }
 
@@ -142,7 +142,7 @@ public class EndToEndFileUploadService
         _logger.LogInformation("Validating NHS number count in table {TableName}.", tableName);
         Func<Task> act = async () =>
         {
-            var nhsNumberCount = await DatabaseValidationHelper.GetNhsNumberCount(_sqlConnectionWithAuthentication, tableName, nhsNumber, _logger, _managedIdentityClientId);
+            var nhsNumberCount = await DatabaseValidationHelper.GetNhsNumberCount(_sqlConnectionWithAuthentication, tableName, nhsNumber, _logger);
             nhsNumberCount.Should().Be(expectedCount);
         };
 
@@ -155,7 +155,7 @@ public class EndToEndFileUploadService
     {
         Func<Task> act = async () =>
         {
-            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_sqlConnectionWithAuthentication, tableName, nhsNumber, fieldName, _managedIdentityClientId, expectedValue, _logger);
+            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_sqlConnectionWithAuthentication, tableName, nhsNumber, fieldName, expectedValue, _logger);
             result.Should().BeTrue();
         };
 
