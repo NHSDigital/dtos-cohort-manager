@@ -68,7 +68,8 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions)]
+                CustomTypes = [typeof(Actions)],
+                UseFastExpressionCompiler = false
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
