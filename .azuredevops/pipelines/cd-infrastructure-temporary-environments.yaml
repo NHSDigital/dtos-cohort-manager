@@ -248,6 +248,8 @@ stages:
     value: $[ stageDependencies.terraform_setup.set_variables.outputs['set_variables.storage_container_name_audit'] ]
   jobs:
   - deployment: terraform_apply_core
+    pool:
+      name: private-pool-dev-uks
     displayName: Init, get plan artifact, apply
     environment: temporary-environments
     strategy:
@@ -291,31 +293,35 @@ stages:
 
             echo "##[debug] Check if the docker images have been pushed to the Temp ACR and if not push them:"
 
+            echo "##[debug] Logging into the Temp ACR: $(DEST_REGISTRY):"
             az acr login --name $(DEST_REGISTRY)
+
             if [ "$(az acr repository list -n $(DEST_REGISTRY) -o tsv)" == "" ]; then
-              echo "##[debug] No images found in the Temp ACR, import them from the source registry"
+              echo "##[debug] No images found in the Temp ACR, import them from the source registry..."
               importImagesFromSourceRegistry="True"
             else
-              echo "##[debug] Images found in the Temp ACR, no need to import them"
+              echo "##[debug] Images found in the Temp ACR, no need to import them."
               importImagesFromSourceRegistry="False"
             fi
 
-            echo "Test login to ACR:"
-            az acr show --query networkRuleSet --name $(SRC_REGISTRY)
-            az acr show --query publicNetworkAccess --name $(SRC_REGISTRY)
+            echo "##[debug] Logging into the Source ACR: $(SRC_REGISTRY):"
+            # az acr show --query networkRuleSet --name $(SRC_REGISTRY)
+            # az acr show --query publicNetworkAccess --name $(SRC_REGISTRY)
             az acr login --name $(SRC_REGISTRY)
 
             # Set the output variables
             echo "##vso[task.setvariable variable=import_images;isOutput=true]$importImagesFromSourceRegistry"
 
   - job: re_tag_images
+    pool:
+      name: private-pool-prod-uks
     displayName: Update/copy Docker images with new tag
     dependsOn: [check_image_import_required]
     condition: eq(dependencies.check_image_import_required.outputs['check_image_import_required.import_images'], 'True')
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: $(SERVICE_CONNECTION)
+          serviceConnection: sc-cohort-manager-dev
 
   - job: update_database
     pool:
