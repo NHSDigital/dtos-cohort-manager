@@ -41,7 +41,6 @@ try
         });
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
-        services.AddDatabaseHealthCheck();
         services.AddBlobStorageHealthCheck();
     })
     .AddAzureQueues()
