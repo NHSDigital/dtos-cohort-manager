@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Apache.Arrow;
 using Azure.Messaging.EventGrid.SystemEvents;
 using DataServices.Database;
@@ -29,7 +30,14 @@ public class SeedDataLoader : ISeedDataLoader
     public async Task<bool> LoadData<TEntity>(string filePath, string tableName, bool hasIdentityColumn = true) where TEntity : class
     {
 
-        if(_context.Set<TEntity>().Count() > 0)
+        if (string.IsNullOrWhiteSpace(tableName) || !IsValidTableName(tableName))
+        {
+            _logger.LogError("Invalid table name: {TableName}", tableName);
+            throw new ArgumentException("Invalid table name.", nameof(tableName));
+        }
+
+
+        if(_context.Set<TEntity>().Any())
         {
             _logger.LogInformation("Data Already In Table Skipping Seed Data");
             return true;
@@ -58,5 +66,10 @@ public class SeedDataLoader : ISeedDataLoader
         }
         await transaction.CommitAsync();
         return true;
+    }
+
+    private bool IsValidTableName(string tableName)
+    {
+        return Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$");
     }
 }
