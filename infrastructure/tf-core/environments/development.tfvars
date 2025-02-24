@@ -679,7 +679,7 @@ function_apps = {
       env_vars_static = {
         CohortQueueName             = "cohort-distribution-queue"
         CohortQueueNamePoison       = "cohort-distribution-queue-poison"
-        IgnoreParticipantExceptions = "true"
+        IgnoreParticipantExceptions = "false"
         IsExtractedToBSSelect       = "false"
       }
     }
