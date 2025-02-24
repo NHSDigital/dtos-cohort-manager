@@ -71,7 +71,7 @@ public class BsoOrganisation
     [MaxLength(35)]
     public string? FaxNumber {get;set;}
     [Column("EMAIL_ADDRESS")]
-    [MaxLength(35)]
+    [MaxLength(100)]
     public string? EmailAddress {get;set;}
     [Column("OUTGOING_TRANSFER_NUMBER")]
     public int OutgoingTransferNumber {get;set;}

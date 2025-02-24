@@ -43,10 +43,12 @@ public class DataServicesContext : DbContext
             .ToTable("EXCLUDED_SMU_LKP", "dbo");
 
         modelBuilder.Entity<ParticipantManagement>()
-            .ToTable("PARTICIPANT_MANAGEMENT", "dbo");
+            .ToTable("PARTICIPANT_MANAGEMENT", "dbo")
+            .HasIndex(i => new {i.NHSNumber,i.ScreeningId}, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
 
         modelBuilder.Entity<ParticipantDemographic>()
-            .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo");
+            .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo")
+            .HasIndex(i => new {i.NhsNumber},"Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
 
         modelBuilder.Entity<GeneCodeLkp>()
             .ToTable("GENE_CODE_LKP", "dbo");
@@ -55,13 +57,15 @@ public class DataServicesContext : DbContext
             .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
 
         modelBuilder.Entity<ExceptionManagement>()
-            .ToTable("EXCEPTION_MANAGEMENT", "dbo");
+            .ToTable("EXCEPTION_MANAGEMENT", "dbo")
+            .HasIndex(i => new{i.NhsNumber,i.ScreeningName},"IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
 
         modelBuilder.Entity<GPPractice>()
             .ToTable("GP_PRACTICES", "dbo");
 
         modelBuilder.Entity<CohortDistribution>()
-            .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
+            .ToTable("BS_COHORT_DISTRIBUTION", "dbo")
+            .HasIndex(c => new{c.NHSNumber},"IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
         modelBuilder.Entity<BsSelectRequestAudit>()
             .ToTable("BS_SELECT_REQUEST_AUDIT","dbo");
