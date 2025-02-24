@@ -37,12 +37,13 @@ public static class DatabaseHelper
         return (int)await command.ExecuteScalarAsync();
     }
 
-   private static async Task<bool> TableExistsAsync(SqlConnection connection, string tableName)
-{
-    var query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName";
-    using (var command = new SqlCommand(query, connection))
+    private static async Task<bool> TableExistsAsync(SqlConnection connection, string tableName)
     {
-        command.Parameters.AddWithValue("@TableName", tableName);
-        return (int)await command.ExecuteScalarAsync() > 0;
+        var query = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = @TableName";
+        using (var command = new SqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@TableName", tableName);
+            return (int)await command.ExecuteScalarAsync() > 0;
+        }
     }
 }
