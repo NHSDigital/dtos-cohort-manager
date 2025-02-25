@@ -116,22 +116,29 @@ public class Participant
     {
         var participantManagement = new ParticipantManagement
         {
+            ParticipantId = long.Parse(ParticipantId),
             ScreeningId = long.Parse(ScreeningId),
             NHSNumber = long.Parse(NhsNumber),
             RecordType = RecordType,
-            EligibilityFlag = MappingUtilities.ParseStringFlag(EligibilityFlag ?? "1"),
+            EligibilityFlag = short.Parse(EligibilityFlag ?? "1"),
             ReasonForRemoval = ReasonForRemoval,
             ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
-            ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
+            ExceptionFlag = ParseExceptionFlag(ExceptionFlag ?? "0"),
             RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
             RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
         };
 
-        if (ParticipantId != null)
-            participantManagement.ParticipantId = long.Parse(ParticipantId);
-
         return participantManagement;
+    }
+
+    private static short ParseExceptionFlag(string ExceptionFlag)
+    {
+        if (ExceptionFlag == "N" || ExceptionFlag == "n" || ExceptionFlag == "NO")
+        {
+            return 0;
+        }
+        return short.Parse(ExceptionFlag ?? "0");
     }
 
     private int GetInvalidFlag()
