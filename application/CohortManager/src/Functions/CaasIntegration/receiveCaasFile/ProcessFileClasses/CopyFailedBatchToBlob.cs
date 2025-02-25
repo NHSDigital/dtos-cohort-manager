@@ -29,19 +29,17 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
 
         using (var stream = GenerateStreamFromString(jsonFromBatch))
         {
-            {
-                var blobFile = new BlobFile(stream, $"failedBatch-{randomString}.json");
-                var copied = await _blobStorageHelper.UploadFileToBlobStorage(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), "failed-batch", blobFile);
+            var blobFile = new BlobFile(stream, $"failedBatch-{randomString}.json");
+            var copied = await _blobStorageHelper.UploadFileToBlobStorage(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), "failed-batch", blobFile);
 
-                if (copied)
-                {
-                    _logger.LogInformation("adding failed batch to blob was unsuccessful");
-                    await _handleException.CreateSystemExceptionLog(invalidOperationException, new Participant(), "file name unknown but batch was copied to FailedBatch blob store");
-                    return true;
-                }
-                _logger.LogInformation("adding failed batch to blob was successful");
-                return false;
+            if (copied)
+            {
+                _logger.LogInformation("adding failed batch to blob was unsuccessful");
+                await _handleException.CreateSystemExceptionLog(invalidOperationException, new Participant(), "file name unknown but batch was copied to FailedBatch blob store");
+                return true;
             }
+            _logger.LogInformation("adding failed batch to blob was successful");
+            return false;
         }
     }
 

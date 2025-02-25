@@ -14,7 +14,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 {
 
     private readonly ICallFunction _callFunction;
-    private readonly ILogger<CheckDemographic> _logger;
+    private readonly ILogger<CallDurableDemographicFunc> _logger;
     private readonly HttpClient _httpClient;
 
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
@@ -23,7 +23,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
 
-    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob)
+    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob)
     {
         _callFunction = callFunction;
         _logger = logger;

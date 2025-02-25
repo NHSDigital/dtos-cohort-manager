@@ -13,7 +13,6 @@ public class ProcessCaasFile : IProcessCaasFile
 {
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-    private readonly ICheckDemographic _checkDemographic;
     private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
@@ -29,7 +28,6 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
-        ICheckDemographic checkDemographic,
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IReceiveCaasFileHelper receiveCaasFileHelper,
@@ -42,7 +40,6 @@ public class ProcessCaasFile : IProcessCaasFile
     )
     {
         _logger = logger;
-        _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;

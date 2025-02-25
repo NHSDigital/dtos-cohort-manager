@@ -10,12 +10,10 @@ using Polly;
 public class CheckDemographic : ICheckDemographic
 {
     private readonly ICallFunction _callFunction;
-    private readonly ILogger<CheckDemographic> _logger;
 
-    public CheckDemographic(ICallFunction callFunction, ILogger<CheckDemographic> logger, HttpClient httpClient)
+    public CheckDemographic(ICallFunction callFunction)
     {
         _callFunction = callFunction;
-        _logger = logger;
 
     }
 
