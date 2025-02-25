@@ -4,9 +4,12 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
     using Data.Database;
     using Microsoft.Extensions.Logging;
     using Moq;
+    using Model;
+    using DataServices.Client;
 
     public abstract class CohortDistributionDataBase
-    {
+    {   
+        private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionMock;
         protected readonly Mock<IDbConnection> _mockDBConnection = new();
         protected readonly Mock<IDbCommand> _commandMock = new();
         protected readonly Mock<IDataReader> _mockDataReader = new();
@@ -15,6 +18,7 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
         protected readonly Mock<IDbDataParameter> _mockParameter = new();
         protected readonly Mock<IDbTransaction> _mockTransaction = new();
         protected CreateCohortDistributionData _createCohortDistributionDataService;
+        
 
         protected CohortDistributionDataBase()
         {
@@ -43,7 +47,9 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
 
             _createCohortDistributionDataService = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _cohortDistributionMock.Object
+                );
         }
     }
 }

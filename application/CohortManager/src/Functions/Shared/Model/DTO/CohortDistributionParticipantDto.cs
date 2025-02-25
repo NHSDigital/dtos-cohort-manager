@@ -70,4 +70,61 @@ public class CohortDistributionParticipantDto
     [JsonIgnore]
     public string? IsExtracted { get; set; }
 
+    public CohortDistributionParticipantDto() {
+        
+    }
+    public CohortDistributionParticipantDto(CohortDistribution cohortDistribution) {
+        NhsNumber = cohortDistribution.NHSNumber.ToString();
+        SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString();
+        PrimaryCareProvider = cohortDistribution.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = cohortDistribution.PrimaryCareProviderDate.ToString();
+        NamePrefix = cohortDistribution.NamePrefix;
+        FirstName = cohortDistribution.GivenName;
+        OtherGivenNames = cohortDistribution.OtherGivenName;
+        FamilyName = cohortDistribution.FamilyName;
+        PreviousFamilyName = cohortDistribution.PreviousFamilyName;
+        DateOfBirth = cohortDistribution.DateOfBirth.ToString();
+        Gender = genderConverter(cohortDistribution.Gender);
+        AddressLine1 = cohortDistribution.AddressLine1;
+        AddressLine2 = cohortDistribution.AddressLine2;
+        AddressLine3 = cohortDistribution.AddressLine3;
+        AddressLine4 = cohortDistribution.AddressLine4;
+        AddressLine5 = cohortDistribution.AddressLine5;
+        Postcode = cohortDistribution.PostCode;
+        UsualAddressEffectiveFromDate = cohortDistribution.UsualAddressFromDt.ToString();
+        DateOfDeath = cohortDistribution.DateOfDeath.ToString();
+        TelephoneNumber = cohortDistribution.TelephoneNumberHome;
+        TelephoneNumberEffectiveFromDate = cohortDistribution.TelephoneNumberHomeFromDt.ToString();
+        MobileNumber = cohortDistribution.TelephoneNumberMob;
+        MobileNumberEffectiveFromDate = cohortDistribution.TelephoneNumberMobFromDt.ToString();
+        EmailAddress = cohortDistribution.EmailAddressHome;
+        EmailAddressEffectiveFromDate = cohortDistribution.EmailAddressHomeFromDt.ToString();
+        PreferredLanguage = cohortDistribution.PreferredLanguage;
+        IsInterpreterRequired = cohortDistribution.InterpreterRequired;
+        ReasonForRemoval = cohortDistribution.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = cohortDistribution.ReasonForRemovalDate.ToString();
+        ParticipantId = cohortDistribution.ParticipantId.ToString();
+        IsExtracted = cohortDistribution.IsExtracted.ToString();
+    }
+
+    private static Gender genderConverter(short gender) 
+    {
+        if (gender == 1 ) 
+        {
+            return Enums.Gender.Male;
+        } 
+        else if (gender == 2) 
+        {
+            return Enums.Gender.Female;
+        }
+        else if (gender == 9)
+        {
+            return Enums.Gender.NotSpecified;
+        } 
+        else
+        {
+            return Enums.Gender.NotKnown;
+        }
+    }
+
 }
