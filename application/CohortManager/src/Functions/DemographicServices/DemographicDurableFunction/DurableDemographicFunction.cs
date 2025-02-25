@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -15,10 +16,9 @@ using Model;
 public class DurableDemographicFunction
 {
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
-
     private readonly ILogger<DurableDemographicFunction> _logger;
-
     private readonly ICreateResponse _createResponse;
+
 
     public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
     {
@@ -46,35 +46,50 @@ public class DurableDemographicFunction
             {
                 var demographicJsonData = context.GetInput<string>();
 
-                var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
-                    maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
-                    firstRetryInterval: TimeSpan.FromSeconds(100))
-                );
-
-                // Add timeout-aware logic
-                var task = context.CallActivityAsync<bool>(
-                    nameof(InsertDemographicData),
-                    demographicJsonData,
-                    options: retryOptions
-                );
-
-                // Monitor for timeout
-                var timeoutTask = context.CreateTimer(expirationTime, cts.Token);
-                var completedTask = await Task.WhenAny(task, timeoutTask);
-
-                if (completedTask == timeoutTask)
+                if (!string.IsNullOrEmpty(demographicJsonData))
                 {
-                    _logger.LogWarning("Orchestration timed out.");
-                    throw new TimeoutException("Orchestration function exceeded its timeout.");
-                }
 
-                cts.Cancel();
-                return await task;
+                    var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
+                        maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
+                        firstRetryInterval: TimeSpan.FromSeconds(100))
+                    );
+
+                    // Add timeout-aware logic
+                    var task = context.CallActivityAsync<bool>(
+                        nameof(InsertDemographicData),
+                        demographicJsonData,
+                        options: retryOptions
+                    );
+
+                    // Monitor for timeout
+                    var timeoutTask = context.CreateTimer(expirationTime, cts.Token);
+                    var completedTask = await Task.WhenAny(task, timeoutTask);
+
+                    if (completedTask == timeoutTask)
+                    {
+                        _logger.LogWarning("Orchestration timed out.");
+                        throw new TimeoutException("Orchestration function exceeded its timeout.");
+                    }
+
+                    cts.Cancel();
+                    var recordsInserted = await task;
+
+                    if (recordsInserted)
+                    {
+                        var exception = new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
+                        throw exception;
+                    }
+                    return true;
+                }
+                else
+                {
+                    throw new InvalidDataException("demographicJsonData was null or empty in Orchestration function");
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Orchestration failed with exception.");
-                return false;
+                _logger.LogError(ex, "Orchestration failed with exception. {exception}", ex.Message);
+                throw;
             }
         }
     }
@@ -91,9 +106,7 @@ public class DurableDemographicFunction
         try
         {
             var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
-            var res = await _participantDemographic.AddRange(participantData);
-            return res;
-
+            return await _participantDemographic.AddRange(participantData);
         }
         catch (Exception ex)
         {
@@ -121,7 +134,7 @@ public class DurableDemographicFunction
             // Function input comes from the request content.
             var requestBody = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-               {
+            {
                 requestBody = await reader.ReadToEndAsync();
             }
             var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
@@ -134,7 +147,7 @@ public class DurableDemographicFunction
         }
         catch (Exception ex)
         {
-             _logger.LogError(ex, "There has been an error executing the durable demographic function");
+            _logger.LogError(ex, "There has been an error executing the durable demographic function");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
         }
     }

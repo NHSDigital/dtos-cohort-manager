@@ -14,6 +14,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly ICheckDemographic _checkDemographic;
+    private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
@@ -36,7 +37,8 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction
+        ICallFunction callFunction,
+        ICallDurableDemographicFunc callDurableDemographicFunc
     )
     {
         _logger = logger;
@@ -49,6 +51,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
         _callFunction = callFunction;
+        _callDurableDemographicFunc = callDurableDemographicFunc;
 
         DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
         AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
@@ -103,7 +106,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
         {
             await AddBatchToQueue(currentBatch, name);
         }
