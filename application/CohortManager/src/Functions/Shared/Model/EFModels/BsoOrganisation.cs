@@ -48,6 +48,9 @@ public class BsoOrganisation
     public byte BsoRecallInterval {get;set;}
     [Column("ADDRESS_LINE_1")]
     [MaxLength(35)]
+    public string? AddressLine1 {get;set;}
+    [Column("ADDRESS_LINE_2")]
+    [MaxLength(35)]
     public string? AddressLine2 {get;set;}
     [Column("ADDRESS_LINE_3")]
     [MaxLength(35)]
