@@ -15,7 +15,7 @@ public class SqlConnectionWithAuthentication
     {
         _connectionString = connectionString;
 
-        // Use Managed Identity only if running in the cloud and an ID is provided
+
         _useManagedIdentity = isCloudEnvironment && !string.IsNullOrEmpty(managedIdentityClientId);
         _managedIdentityClientId = _useManagedIdentity ? managedIdentityClientId : "";
     }

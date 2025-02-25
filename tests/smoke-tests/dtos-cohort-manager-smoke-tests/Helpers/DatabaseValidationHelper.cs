@@ -44,10 +44,10 @@ public static class DatabaseValidationHelper
 
     public static async Task VerifyNhsNumbersAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, List<string> nhsNumbers, ILogger logger)
     {
-        // Validate the table name
+
         ValidateTableName(tableName);
 
-        // Get the open connection (with token if using Managed Identity)
+
         using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
             foreach (var nhsNumber in nhsNumbers)
@@ -68,12 +68,12 @@ public static class DatabaseValidationHelper
         ValidateTableName(tableName);
         ValidateFieldName(fieldName);
 
-        // Get the open connection (with token if using Managed Identity)
+
         using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
             var query = $"SELECT {fieldName} FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
 
-            // Create SQL command and add parameter for NHS Number
+
             using (var command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
@@ -85,7 +85,7 @@ public static class DatabaseValidationHelper
                         var value = reader.IsDBNull(0) ? null : reader.GetValue(0);
                         if (value != null)
                         {
-                            // Handle conversion based on the actual type of the column
+
                             if (value is int intValue)
                                 fieldValues.Add(intValue.ToString());
                             else
@@ -171,9 +171,8 @@ public static class DatabaseValidationHelper
         }
 
         logger.LogError($"Verification failed after {maxRetries} retries for NHS number {nhsNumber} in table {tableName}");
-        return false; // NHS number not found after retries
+        return false;
     }
-
     public static async Task<bool> VerifyFieldsMatchCsvAsync(string connectionString, string tableName, string nhsNumber, string csvFilePath, ILogger logger)
     {
         ValidateTableName(tableName);
