@@ -10,11 +10,11 @@ using Model;
 using Model.Enums;
 using Polly;
 
-public class CallDurableDemographicFunc : ICallDurableDemographicFunc
+public class CalDurableDemographicFunc : ICallDurableDemographicFunc
 {
 
     private readonly ICallFunction _callFunction;
-    private readonly ILogger<CallDurableDemographicFunc> _logger;
+    private readonly ILogger<CalDurableDemographicFunc> _logger;
     private readonly HttpClient _httpClient;
 
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
@@ -23,7 +23,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
 
-    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob)
+    public CalDurableDemographicFunc(ICallFunction callFunction, ILogger<CalDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob)
     {
         _callFunction = callFunction;
         _logger = logger;
