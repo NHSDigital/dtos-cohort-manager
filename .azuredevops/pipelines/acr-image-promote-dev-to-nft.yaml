@@ -66,8 +66,8 @@ stages:
     variables:
       DEST_REGISTRY: $(destRegistry)
       ADD_IMAGE_TAG: $(addImageTag)
-      FUNCTION_NAME_PREFIX: ${{ parameters.destEnvironmentShortName }}-uks
-      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-${{ parameters.destEnvironmentShortName }}-uks
+      FUNCTION_NAME_PREFIX: $(destEnvironmentShortName)-uks
+      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-$(destEnvironmentShortName)-uks
       PROJECT_NAME: cohort-manager
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
