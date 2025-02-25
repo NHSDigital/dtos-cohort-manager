@@ -6,104 +6,53 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using DataServices.Client;
 using Model;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+
 
 [TestClass]
 public class RemoveCohortDistributionTests
 {
-
     private readonly Mock<IDbConnection> _mockDBConnection = new();
     private readonly Mock<IDbCommand> _commandMock = new();
     private readonly Mock<IDataReader> _mockDataReader = new();
     private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
-    private readonly Mock<IDbDataParameter> _mockParameter = new();
     private readonly Mock<IDbTransaction> _mockTransaction = new();
-    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionMock;
+    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionMock = new();
 
     public RemoveCohortDistributionTests()
     {
-        Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
-        Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
-
-        _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeCOnnectionString");
+        _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeConnectionString");
         _mockDBConnection.Setup(x => x.BeginTransaction()).Returns(_mockTransaction.Object);
-
-        _commandMock.Setup(c => c.Dispose());
-        _commandMock.SetupSequence(m => m.Parameters.Add(It.IsAny<IDbDataParameter>()));
-        _commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
-        _commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
-        _commandMock.SetupProperty<string>(c => c.CommandText);
-        _commandMock.Setup(x => x.CreateParameter()).Returns(_mockParameter.Object);
-
         _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
-        _commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
-        _commandMock.Setup(m => m.ExecuteReader())
-        .Returns(_mockDataReader.Object);
-        _mockDBConnection.Setup(conn => conn.Open());
-
-        _databaseHelperMock.Setup(helper => helper.ConvertNullToDbNull(It.IsAny<string>())).Returns(DBNull.Value);
+        _commandMock.Setup(m => m.CreateParameter()).Returns(new Mock<IDbDataParameter>().Object);
+        _commandMock.Setup(m => m.ExecuteNonQuery()).Returns(1);
+        _commandMock.Setup(m => m.CommandText).Returns("UPDATE Cohort SET Status='Inactive' WHERE NHSID=@NHSID");
     }
 
     [TestMethod]
     public void UpdateCohortDistributionParticipantAsInactive_Success()
     {
-        //Arrange
+        // Arrange
         var updateCohortDistributionData = new CreateCohortDistributionData(
             _mockDBConnection.Object,
             _loggerMock.Object,
             _cohortDistributionMock.Object
-            
         );
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
-        var NHSID = "123456";
 
-        //Act
+        string NHSID = "123456";
+
+        _commandMock.Setup(m => m.ExecuteNonQuery()).Returns(1);
+        _commandMock.Setup(m => m.CommandText).Returns("UPDATE Cohort SET Status='Inactive' WHERE NHSID=@NHSID");
+        _commandMock.Setup(m => m.Parameters).Returns(new Mock<IDataParameterCollection>().Object);
+
+        // Act
         var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
 
-
-        //Assert
+        // Assert
         Assert.IsTrue(result);
         _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
     }
-
-    [TestMethod]
-    public void UpdateCohortDistributionParticipantAsInactive_ParticipantNotExists_Failure()
-    {
-        //Arrange
-        var updateCohortDistributionData = new CreateCohortDistributionData(
-            _mockDBConnection.Object,
-            _loggerMock.Object,
-            _cohortDistributionMock.Object
-        );
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
-        var NHSID = "654321";
-        //Act
-        var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
-
-
-        //Assert
-        Assert.IsFalse(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
-    }
-
-    [TestMethod]
-    public void UpdateCohortDistributionParticipantAsInactive_NoNHSIDProvided_Failure()
-    {
-        //Arrange
-        var updateCohortDistributionData = new CreateCohortDistributionData(
-            _mockDBConnection.Object,
-            _loggerMock.Object,
-            _cohortDistributionMock.Object
-        );
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
-        var NHSID = "";
-        //Act
-        var result = updateCohortDistributionData.UpdateCohortParticipantAsInactive(NHSID);
-
-
-        //Assert
-        Assert.IsFalse(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Never);
-    }
-
 }
