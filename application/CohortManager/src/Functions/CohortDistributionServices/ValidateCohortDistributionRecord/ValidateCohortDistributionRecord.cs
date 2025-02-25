@@ -83,21 +83,26 @@ public class ValidateCohortDistributionRecord
     {
 
         long nhsNumber;
-        nhsNumber = long.TryParse(existingNhsNumber, out long tempNhsNumber) ? tempNhsNumber : throw new FormatException("Unable to parse NHS Number");
+        var lastCohortDistributionRecord = new CohortDistribution();
 
         _logger.LogInformation("Getting last cohort distribution record in ValidateCohortDistributionRecord");
 
-        var cohortDistributionRecord = await _cohortDistributionDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
-
-        _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", cohortDistributionRecord);
-
-        if (cohortDistributionRecord == null)
+        if (!long.TryParse(existingNhsNumber, out nhsNumber))
         {
-            return new CohortDistributionParticipant();
+            throw new FormatException("Unable to parse NHS Number");
         }
-        return new CohortDistributionParticipant(cohortDistributionRecord);
+        // using get by filter here because we can get more than one record from the database 
+        var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.NHSNumber == nhsNumber);
 
+        // we do this because get by filter will return an empty array
+        if (cohortDistributionRecords.ToList().Count != 0)
+        {
+            lastCohortDistributionRecord = cohortDistributionRecords.LastOrDefault();
 
+            _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", lastCohortDistributionRecord);
+            return new CohortDistributionParticipant(lastCohortDistributionRecord);
+        }
+        return new CohortDistributionParticipant();
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
