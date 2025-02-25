@@ -14,7 +14,8 @@ public class TransformString
     {
         string json = File.ReadAllText("characterRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        _ruleEngine = new RulesEngine.RulesEngine(rules);
+        var reSettings = new ReSettings {UseFastExpressionCompiler = false};
+        _ruleEngine = new RulesEngine.RulesEngine(rules, reSettings);
     }
 
     public async Task<CohortDistributionParticipant> TransformStringFields(CohortDistributionParticipant participant)
