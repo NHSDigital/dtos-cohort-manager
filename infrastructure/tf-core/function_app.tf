@@ -68,9 +68,10 @@ module "functionapp" {
 locals {
   app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
+    FUNCTION_WORKER_RUNTIME             = "dotnet"
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
-    WEBSITE_PULL_IMAGE_OVER_VNET        = var.features.private_endpoints_enabled
+    WEBSITE_PULL_IMAGE_OVER_VNET        = var.function_apps.pull_image_over_vnet
   }
 
   # There are multiple Function Apps and possibly multiple regions.
@@ -126,7 +127,7 @@ locals {
 
             # Database connection string
             length(config.db_connection_string) > 0 ? {
-              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
+              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
             } : {}
           )
 
