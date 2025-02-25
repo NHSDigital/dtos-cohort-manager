@@ -1,4 +1,5 @@
 {
+    "functionTimeout": "01:00:00",
     "version": "2.0",
     "concurrency": {
       "dynamicConcurrencyEnabled": true,
@@ -8,7 +9,8 @@
       "queues": {
         "batchSize": 8,
         "newBatchThreshold": 4,
-        "visibilityTimeout": "00:01:00"
+        "visibilityTimeout": "00:04:00",
+        "maxDequeueCount": 1
       }
     },
     "logging": {
