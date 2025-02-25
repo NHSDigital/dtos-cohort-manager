@@ -129,7 +129,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         }).ToList();
     }
 
-    private void LogRequestAudit(string requestId, int statusCode)
+    public void LogRequestAudit(string requestId, int statusCode)
     {
         var SQLToExecuteInOrder = new List<SQLReturnModel>();
         string requestAuditSql = "INSERT INTO [dbo].[BS_SELECT_REQUEST_AUDIT] ( " +
@@ -300,7 +300,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
     }
 
-    private bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId)
+    public bool MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, string requestId)
     {
         if (cohortParticipants == null || cohortParticipants.Count == 0) return false;
 
@@ -465,7 +465,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return cohortRequestAuditList;
     }
 
-    private bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
+    public bool UpdateRecords(List<SQLReturnModel> sqlToExecute)
     {
         var transaction = BeginTransaction();
         try

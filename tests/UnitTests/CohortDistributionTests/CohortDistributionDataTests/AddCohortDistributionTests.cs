@@ -171,6 +171,7 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
         Assert.AreEqual(0, result.Count);
     }
 
+ [TestMethod]
     public void GetNextCohortRequestAudit_GuidParseFails_ReturnsEmptyCohortRequestAudit()
     {
         // Arrange
@@ -195,5 +196,59 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("1", result[0].ParticipantId);
         Assert.AreEqual(_requestId, result[0].RequestId);
+    }
+
+        [TestMethod]
+    public void GetUnextractedCohortDistributionParticipants_ShouldHandleZeroRowCount()
+    {
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(0);
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void MarkCohortDistributionParticipantsAsExtracted_ShouldHandleEmptyList()
+    {
+        var result = _createCohortDistributionData.MarkCohortDistributionParticipantsAsExtracted(new List<CohortDistributionParticipant>(), "REQ123");
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void UpdateRecords_ShouldReturnFalse_WhenExceptionOccurs()
+    {
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Throws(new Exception("Database error"));
+        var sqlList = new List<SQLReturnModel>
+        {
+            new SQLReturnModel { SQL = "UPDATE TEST SET VALUE = 1", Parameters = new Dictionary<string, object>() }
+        };
+        var result = _createCohortDistributionData.UpdateRecords(sqlList);
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void ExecuteQuery_ShouldHandleEmptyResultSet()
+    {
+        _mockDataReader.SetupSequence(x => x.Read()).Returns(false);
+        var command = _mockDBConnection.Object.CreateCommand();
+        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(5);
+        Assert.AreEqual(0, result.Count);
+    }
+        [TestMethod]
+    public void UpdateRecords_ShouldHandleMultipleStatements()
+    {
+        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+        var sqlList = new List<SQLReturnModel>
+        {
+            new SQLReturnModel { SQL = "UPDATE TEST SET VALUE = 1", Parameters = new Dictionary<string, object>() },
+            new SQLReturnModel { SQL = "UPDATE TEST SET VALUE = 2", Parameters = new Dictionary<string, object>() }
+        };
+        var result = _createCohortDistributionData.UpdateRecords(sqlList);
+        Assert.IsTrue(result);
+    }
+    [TestMethod]
+    public void BuildCohortRequestAuditQuery_ShouldHandleNullInputs()
+    {
+        var result = _createCohortDistributionData.GetCohortRequestAudit(null, null, null);
+        Assert.IsNotNull(result);
     }
 }
