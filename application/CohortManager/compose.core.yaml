@@ -384,7 +384,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - AllocateScreeningProviderURL=http://allocate-service-provider:7081/api/AllocateServiceProviderToParticipantByService
-      - TransformDataServiceURL=http://transform:7080/api/TransformDataService
+      - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://retrieve-participant-data:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://add-cohort-distribution-data:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://validate-cohort-distribution-record:7084/api/ValidateCohortDistributionRecord
