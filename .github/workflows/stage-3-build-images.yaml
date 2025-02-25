@@ -112,7 +112,7 @@ jobs:
           fi
 
           # Build the image
-          docker compose build $function
+          docker compose build --no-cache $function
 
           repo_name="${{ secrets.ACR_NAME }}.azurecr.io/cohort-manager-$function"
 
