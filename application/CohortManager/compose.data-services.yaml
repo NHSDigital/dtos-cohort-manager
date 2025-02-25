@@ -3,132 +3,146 @@ name: cohort-manager
 services:
   gppractice-data-service:
     container_name: gppractice-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GPPractice/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7910
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   exception-management-data-service:
     container_name: exception-management-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ExceptionManagementDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7911
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   bs-request-audit-data-service:
     container_name: bs-request-audit-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7989
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   screening-lkp-data-service:
     container_name: screening-lkp-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ScreeningLkpDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8996
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
   bs-select-gp-practice-data-service:
     container_name: bs-select-gp-practice-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectGpPractice/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7998
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   bs-select-outcode-data-service:
     container_name: bs-select-outcode-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectOutCode/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7881
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   language-code-data-service:
     container_name: language-code-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/LanguageCodesDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7997
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   current-posting-data-service:
     container_name: current-posting-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/CurrentPostingDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7996
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   excluded-smu-data-service:
     container_name: excluded-smu-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ExcludedSMULookupDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7995
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
-    network_mode: host
+    networks: [cohman-network]
     profiles: [bi-analytics]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7991
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
     profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:7992
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7993
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   participant-management-data-service:
     container_name: participant-management-data-service
-    network_mode: host
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7994
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+  cohort-distribution-data-service:
+    container_name: cohort-distribution-data-service
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/CohortDistributionDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7992
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+networks:
+  cohman-network:
+    external: true
