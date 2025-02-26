@@ -9,13 +9,13 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 0a1ae809e2b5f41a1974c5490595e08f591fb8c7
+      ref: fix/dtoss-3350-fix-service-connection
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
   - name: destEnvironmentShortName
-    value: temp7048
+    value: nft
   - name: sourceRegistry
     value: acrukshubdevcohman
   - name: selectImageTag
@@ -23,7 +23,7 @@ variables:
   - name: destRegistry
     value: acrukshubdevcohman
   - name: addImageTag
-    value: dtoss3350
+    value: nft
 
 stages:
 - stage: db_changes_stage
@@ -37,7 +37,7 @@ stages:
       - checkout: self
       - template: ../templates/steps/apply-database-changes.yaml
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: sc-cohort-manager-nft
 
 - stage: re_tag_stage
   displayName: ACR re-tag
@@ -54,7 +54,7 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: sc-cohort-manager-nft
 
 - stage: deploy_image_stage
   displayName: Deploy images
@@ -72,12 +72,12 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: sc-cohort-manager-nft
 
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
   variables:
-  - group: DEV_automation_testing_pipeline
+  - group: NFT_automation_testing_pipeline
   jobs:
   - job: post_deployment_tests
     displayName: Run post-deployment tests
@@ -85,9 +85,10 @@ stages:
       name: private-pool-dev-uks
     variables:
       AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.caasFileStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
+      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
+      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-dev
+        serviceConnection: sc-cohort-manager-nft

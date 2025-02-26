@@ -1,6 +1,7 @@
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace dtos_cohort_manager_specflow.Helpers;
@@ -10,10 +11,12 @@ public class SqlConnectionWithAuthentication
     private readonly string _connectionString;
     private readonly string? _managedIdentityClientId;
     private readonly bool _useManagedIdentity;
+    private readonly ILogger _logger;
 
-    public SqlConnectionWithAuthentication(string connectionString, string? managedIdentityClientId, bool isCloudEnvironment)
+    public SqlConnectionWithAuthentication(string connectionString, string? managedIdentityClientId, bool isCloudEnvironment, ILogger logger)
     {
         _connectionString = connectionString;
+        _logger = logger;
 
         // Even if isCloudEnvironment is set to true if ManagedIdentityClientId is null or empty _useManagedIdentity will be false
         _useManagedIdentity = isCloudEnvironment && !string.IsNullOrEmpty(managedIdentityClientId);
@@ -23,6 +26,10 @@ public class SqlConnectionWithAuthentication
     public async Task<SqlConnection> GetOpenConnectionAsync()
     {
         var connection = new SqlConnection(_connectionString);
+
+        _logger.LogInformation("Connection String: {ConnectionString}", _connectionString);
+        _logger.LogInformation("Managed Identity Client ID: {ManagedIdentityClientId}", _managedIdentityClientId);
+        _logger.LogInformation("Use Managed Identity: {UseManagedIdentity}", _useManagedIdentity);
 
         if (_useManagedIdentity)
         {
@@ -36,6 +43,9 @@ public class SqlConnectionWithAuthentication
         }
 
         await connection.OpenAsync();
+
+        _logger.LogInformation("Connection opened successfully {ConnectionState}", connection.State);
+
         return connection;
     }
 }
