@@ -1,4 +1,4 @@
-namespace ScreeningWorkflowDataService;
+namespace ScreeningLkpDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -26,7 +26,7 @@ public class ScreeningLkpDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} " ,req.Method,typeof(ScreeningLkp));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(ScreeningLkp));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
