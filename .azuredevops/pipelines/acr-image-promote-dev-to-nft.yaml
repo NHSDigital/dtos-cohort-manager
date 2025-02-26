@@ -90,6 +90,22 @@ stages:
       AppSettings.caasFileStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
     steps:
+    - task: AzureCLI@2
+      name: apply_database_changes
+      displayName: Apply database changes
+      inputs:
+        azureSubscription: sc-cohort-manager-nft
+        addSpnToEnvironment: true
+        failOnStandardError: false
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          # Output variables for debugging:
+          echo "DTOS_DATABASE_CONNECTION_STRING: $(DTOS_DATABASE_CONNECTION_STRING)"
+          echo "CAASFOLDER_STORAGE_CONNECTION_STRING: $(CAASFOLDER_STORAGE_CONNECTION_STRING
+          echo "MANAGED_IDENTITY_CLIENT_ID: $(MANAGED_IDENTITY_CLIENT_ID)"
+          echo "Is_CloudEnvironment: $(Is_CloudEnvironment)"
+
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-dev
+        serviceConnection: sc-cohort-manager-nft
