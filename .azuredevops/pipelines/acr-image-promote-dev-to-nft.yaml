@@ -77,9 +77,9 @@ stages:
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
   variables:
-  - group: NFT_automation_testing_pipeline
+  - group: DEV_automation_testing_pipeline
   - name: TARGET_ENVIRONMENT
-    value: $(destEnvironmentShortName)
+    value: dev
   jobs:
   - job: post_deployment_tests
     displayName: Run post-deployment tests
@@ -95,7 +95,7 @@ stages:
       name: apply_database_changes
       displayName: Apply database changes
       inputs:
-        azureSubscription: sc-cohort-manager-nft
+        azureSubscription: sc-cohort-manager-dev
         addSpnToEnvironment: true
         failOnStandardError: false
         scriptType: bash
@@ -106,4 +106,4 @@ stages:
 
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-nft
+        serviceConnection: sc-cohort-manager-dev
