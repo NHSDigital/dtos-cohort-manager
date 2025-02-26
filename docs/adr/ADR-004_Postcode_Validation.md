@@ -2,15 +2,15 @@
 
 >|              |                                                                                                                                                                                    |
 >| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
->| Date         | `dd/mm/YYYY`                                                                                                                              |
->| Status       | `RFC by dd/mm/YYYY, Proposed, In Discussion, Pending Approval, Withdrawn, Rejected, Accepted, Deprecated, ..., Superseded by ADR-XXX or Supersedes ADR-XXX`                        |
->| Deciders     | `Tech Radar, Engineering, Architecture, Solution Assurance, Clinical Assurance, Technical Review and Governance, Information Governance, Cyber Security, Live Services Board,` ... |
->| Significance | `Structure, Nonfunctional characteristics, Dependencies, Interfaces, Construction techniques,` ...                                                                                 |
->| Owners       |                                                                                                                                                                                    |
+>| Date         | `26/02/2025`                                                                                                                              |
+>| Status       | `Proposed`                        |
+>| Deciders     | `Engineering` |
+>| Significance | `Functional`                                                                                |
+>| Owners       | `Will Larkin`                                                                                                                                                            |
 
 ---
 
-- [ADR-nnn: Any Decision Record Template](#adr-nnn-any-decision-record-template)
+- [ADR-004: Postcode Validation](#ADR-004_Postcode_Validation.md)
   - [Context](#context)
   - [Decision](#decision)
     - [Assumptions](#assumptions)
@@ -26,27 +26,21 @@
 
 ## Context
 
-Describe the context and the problem statement. Is there a relationship to other decisions previously made? Are there any dependencies and/or constraints within which the decision will be made? Do these need to be reviewed or validated? Please note that environmental limitations or restrictions such as accepted technology standards, commonly recognised and used patterns, engineering and architecture principles, organisation policies, governance and so on, may as an effect narrow down the choices. This should also be explicitly documented, as this is a point-in-time decision with the intention of being able to articulate it clearly and justify it later.
+Regex for validating/ parsing postcodes is needed at multiple points in the project. It was discovered that the existing regex we were using did not cover all scenarios. 
+
+There is a lack of NHS/ government guidance on a standard way to validate the format of postcodes programatically so this ADR has been created to document \
+the descison that has been made on how the project will validate postcodes.
 
 ## Decision
 
-### Assumptions
-
-Summarise the underlying assumptions in the environment in which you make the decision. This could be related to technology changes, forecast of the monetary and non-monetary costs, further delivery commitments, impact from external drivers etc., and any known unknowns that translate to risks.
-
-### Drivers
-
-List the decision drivers that motivate this change or course of action. This may include any identified risks and residual risks after applying the decision.
-
-### Options
-
-Consider a comprehensive set of alternative options; provide weighting if applicable.
-
 ### Outcome
+The follwoing regex will be used across the project to parse postcodes: \
+`^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$`
 
-State the decision outcome as a result of taking into account all of the above. Is it a reversible or irreversible decision?
 
 ### Rationale
+[This solution from stackoverflow](https://stackoverflow.com/a/51885364) seemed to provide the most comprehensive regex \
+It was measured using 
 
 Provide a rationale for the decision that is based on weighing the options to ensure that the same questions are not going to be asked again and again unless the decision needs to be superseded.
 
