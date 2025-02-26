@@ -1,0 +1,68 @@
+name: "CI/CD Temp Environments"
+
+# The total recommended execution time for the "CI/CD Pull Request" workflow is around 20 minutes.
+
+on:
+  push:
+    branches:
+      - "temp/**"
+
+jobs:
+  metadata:
+    name: "Set CI/CD metadata"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      pull-requests: read
+    outputs:
+      build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
+      build_datetime: ${{ steps.variables.outputs.build_datetime }}
+      build_timestamp: ${{ steps.variables.outputs.build_timestamp }}
+      build_epoch: ${{ steps.variables.outputs.build_epoch }}
+      nodejs_version: ${{ steps.variables.outputs.nodejs_version }}
+      python_version: ${{ steps.variables.outputs.python_version }}
+      terraform_version: ${{ steps.variables.outputs.terraform_version }}
+      environment_tag: ${{ steps.variables.outputs.environment_tag }}
+      version: ${{ steps.variables.outputs.version }}
+      does_pull_request_exist: ${{ steps.variables.outputs.does_pull_request_exist }}
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: "Set CI/CD variables"
+        id: variables
+        run: |
+          datetime=$(date -u +'%Y-%m-%dT%H:%M:%S%z')
+          BUILD_DATETIME=$datetime make version-create-effective-file
+          branch_name=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
+          echo "build_datetime_london=$(TZ=Europe/London date --date=$datetime +'%Y-%m-%dT%H:%M:%S%z')" >> $GITHUB_OUTPUT
+          echo "build_datetime=$datetime" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date --date=$datetime -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+          echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
+          echo "nodejs_version=$(grep "^nodejs" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "python_version=$(grep "^nodejs" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "terraform_version=$(grep "^terraform" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "version=$(head -n 1 .version 2> /dev/null || echo unknown)" >> $GITHUB_OUTPUT
+          echo "environment_tag=$(echo "$branch_name" | cut -d'/' -f2)" >> $GITHUB_OUTPUT
+          echo "does_pull_request_exist=false" >> $GITHUB_OUTPUT
+      - name: "List variables"
+        run: |
+          export BUILD_DATETIME_LONDON="${{ steps.variables.outputs.build_datetime_london }}"
+          export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
+          export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
+          export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
+          export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
+          export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
+          export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
+          export ENVIRONMENT_TAG="${{ steps.variables.outputs.environment_tag }}"
+          export VERSION="${{ steps.variables.outputs.version }}"
+          export DOES_PULL_REQUEST_EXIST="${{ steps.variables.outputs.does_pull_request_exist }}"
+          make list-variables
+  build-image-stage: # Recommended maximum execution time is 3 minutes
+    name: "Image build stage"
+    needs: [metadata]
+    uses: ./.github/workflows/stage-3-build-images.yaml
+    with:
+      environment_tag: "${{ needs.metadata.outputs.environment_tag }}"
+    secrets: inherit

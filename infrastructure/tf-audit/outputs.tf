@@ -1,3 +1,13 @@
+output "application_insights" {
+  value = {
+    for k, v in module.app_insights_audit : k => {
+      id                = v.id
+      connection_string = v.connection_string
+    }
+  }
+  sensitive = true
+}
+
 output "log_analytics_workspace_id" {
   value = { for k, v in module.log_analytics_workspace_audit : k => v.id }
 }
