@@ -64,6 +64,12 @@ public class UpdateParticipantFunction
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
                 updateResponse = await UpdateParticipant(participantCsvRecord);
+                if (!updateResponse)
+                {
+                    _logger.LogInformation("unsuccessfully updated records");
+                    return;
+                }
+                
                 participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has been updated but a validation Exception was raised");
@@ -75,6 +81,11 @@ public class UpdateParticipantFunction
             }
 
             updateResponse = await UpdateParticipant(participantCsvRecord);
+            if (!updateResponse)
+            {
+                _logger.LogInformation("unsuccessfully updated records");
+                return;
+            }
             participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
