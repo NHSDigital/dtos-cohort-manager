@@ -83,7 +83,6 @@ public class ValidateCohortDistributionRecord
     {
 
         long nhsNumber;
-        var lastCohortDistributionRecord = new CohortDistribution();
 
         _logger.LogInformation("Getting last cohort distribution record in ValidateCohortDistributionRecord");
 
@@ -95,12 +94,14 @@ public class ValidateCohortDistributionRecord
         var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.NHSNumber == nhsNumber);
 
         // we do this because get by filter will return an empty array
-        if (cohortDistributionRecords.ToList().Count != 0)
+        if (cohortDistributionRecords.Any())
         {
-            lastCohortDistributionRecord = cohortDistributionRecords.LastOrDefault();
+            CohortDistribution latestParticipant = cohortDistributionRecords
+                                                    .OrderByDescending(x => x.CohortDistributionId)
+                                                    .FirstOrDefault();
 
-            _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", lastCohortDistributionRecord);
-            return new CohortDistributionParticipant(lastCohortDistributionRecord);
+            _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", latestParticipant);
+            return new CohortDistributionParticipant(latestParticipant);
         }
         return new CohortDistributionParticipant();
     }
