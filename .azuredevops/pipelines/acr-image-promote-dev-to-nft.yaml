@@ -91,8 +91,8 @@ stages:
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
     steps:
     - task: AzureCLI@2
-      name: apply_database_changes
-      displayName: Apply database changes
+      name: debug_output
+      displayName: 'Output variables for debugging'
       inputs:
         azureSubscription: sc-cohort-manager-nft
         addSpnToEnvironment: true
@@ -102,7 +102,7 @@ stages:
         inlineScript: |
           # Output variables for debugging:
           echo "DTOS_DATABASE_CONNECTION_STRING: $(DTOS_DATABASE_CONNECTION_STRING)"
-          echo "CAASFOLDER_STORAGE_CONNECTION_STRING: $(CAASFOLDER_STORAGE_CONNECTION_STRING
+          echo "CAASFOLDER_STORAGE_CONNECTION_STRING: $(CAASFOLDER_STORAGE_CONNECTION_STRING)"
           echo "MANAGED_IDENTITY_CLIENT_ID: $(MANAGED_IDENTITY_CLIENT_ID)"
           echo "Is_CloudEnvironment: $(Is_CloudEnvironment)"
 
