@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "17.DateOfBirth.NonFatal",
-        "Expression": "ValidationHelper.ValidatePastDate(participant.DateOfBirth)",
+        "Expression": "!(string.IsNullOrEmpty(participant.DateOfBirth) || !ValidationHelper.ValidatePastDate(participant.DateOfBirth))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
