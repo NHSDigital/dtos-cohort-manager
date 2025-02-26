@@ -25,7 +25,7 @@ public class EndToEndFileUploadService
         bool isCloudEnvironment = _appSettings.AzureSettings.IsCloudEnvironment; // Instead of hardcoded AZURE_ENVIRONMENT
 
         // Pass to SqlConnectionWithAuthentication
-        _sqlConnectionWithAuthentication = new SqlConnectionWithAuthentication(connectionString, managedIdentityClientId, isCloudEnvironment);
+        _sqlConnectionWithAuthentication = new SqlConnectionWithAuthentication(connectionString, managedIdentityClientId, isCloudEnvironment, logger);
     }
 
 
