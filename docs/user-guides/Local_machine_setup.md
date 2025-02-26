@@ -7,6 +7,7 @@
 - HomeBrew (Mac Only): \
     `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
 - [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Docker / Podman (*Note: Docker Desktop requires a licence for commercial use; Podman Desktop is an open source alternative.)
 - Member of the NHSDigital GitHub organisation
 - Signed Git commits (if you would like to contribute): \
     [Using 1Password](https://developer.1password.com/docs/ssh/git-commit-signing/) is the easiest option if you have it, otherwise use the below link for instructions \
@@ -16,7 +17,7 @@
 
 ### 1. Import the NHS DToS Profile
 
-To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `Set-up/NHS_DToS.code-profile`
+To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `application/CohortManager/Set-up/NHS_DToS.code-profile`
 
 On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
 
@@ -78,20 +79,41 @@ Alternatively, you can run an individual function locally with `func start`
 
 ## Running the Application Locally (Mac)
 
-The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker
+The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker/Podman.
 
 ### Dependencies
 
-Download Colima using [these instructions](https://smallsharpsoftwaretools.com/tutorials/use-colima-to-run-docker-containers-on-macos/)
+Download Podman Desktop using [these instructions](https://podman-desktop.io/) and enable Docker compatibility.
+Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
+You can then run and setup the SQL database using Podman (or docker) by running the following commands:
 
-Add the environment variables using the instructions in the windows setup
+```bash
+podman machine init
+podman manchine start
+docker run -e 'ACCEPT_EULA=Y' -e 'MSSQL_SA_PASSWORD=<YOUR_PASSWORD' -p 1433:1433 --name sql1 --hostname sql1 -d mcr.microsoft.com/mssql/server:2022-latest
+```
 
-You can then run and setup the dependencies using docker:
-    `docker compose -f compose.deps.yaml up`
+Use the files contained within `application/CohortManager/Set-up/database` to create the database schema.
+
+Next within VS Code, press shift + command + p and type `Azurite: Start`. If you look at the bottom right of your VS Code editor you should see that the Azurite Blob Service and Queue Service are running on ports 10000 and 10001 respectively.
 
 ### Functions
 
-*Someone using a Mac please update this with instructions
+```bash
+# Build the functions
+docker compose -f compose.core.yaml build
+docker compose -f compose.cohort-distribution.yaml build
+
+docker compose up # Run the functions
+```
+
+## Update the submodules
+
+Run the following command from within `application/CohortManager/src` directory.
+
+```bash
+git submodule update --init --recursive
+```
 
 ## Appendix A: Storage
 
@@ -101,7 +123,7 @@ There is a script in `application/CohortManager/Set-up/azurite` that alllows you
 
 Before your run the script you must download the sample files from confluence (you can see which files you need to download by running the command without arguments) run the following command: `pip install azure-storage-blob python-dotenv`
 
-Run the file without arguments (`pyhton send-sample-file.py`) to see the help page
+Run the file without arguments (`python send-sample-file.py`) to see the help page
 
 ### Set-up Azure Storage Explorer
 
@@ -109,9 +131,22 @@ Alternatively, you can use the storage explorer to send files to azurite
 
 Open the Azure Storage Explorer and in the Explorer, you will see **Azurite (Key)**. Expand that and you will see 1) Blob Container 2) Queues and 3) Tables. Right click on the **Blob Container** and click on **Create Blob Container**.
 
-On Azure Storage Explorer, collapse **Emulator & Attached > Storage Accounts > Azurite (Key)** and right click on **Blob containers** and select Create Blob Container and type in `inbound` to create a container with that name.
+On Azure Storage Explorer, collapse **Emulator & Attached > Storage Accounts > Azurite (Key)** and right click on **Blob containers** and select Create Blob Container and type in `inbound` to create a container with that name. Create another Blob Container called `inbound-poison` using the same method above.
 
-![inbound blob container](../assets/azure_storage.png)
+Next, create the required queues by right clicking on **Queues** and select Create Queue and type in a name to create a queue with that name.
+The required queues are:
+
+- `add-participant-queue`
+- `add-participant-queue-poison`
+- `update-participant-queue`
+- `update-participant-queue-poison`
+- `cohort-distribution-queue`
+- `cohort-distribution-queue-poison`
+- `create-cohort-distribution-queue`
+- `create-cohort-distribution-queue-poison`
+
+The below screenshot shows how your Azure Storage Explorer should look.
+![Azure Storage Final](../assets/azure_storage.png)
 
 Once created, use the sample csv files upload it to that new inbound container.
 
