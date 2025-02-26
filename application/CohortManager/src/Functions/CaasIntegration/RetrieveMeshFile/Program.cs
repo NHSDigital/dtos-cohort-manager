@@ -9,6 +9,7 @@ using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
 using HealthChecks.Extensions;
+using Microsoft.Extensions.HealthChecks;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -52,6 +53,7 @@ try
         services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
         // Register health checks
         services.AddBlobStorageHealthCheck();
+        services.AddSingleton<HealthCheckService>();
     })
     .AddExceptionHandler();
 

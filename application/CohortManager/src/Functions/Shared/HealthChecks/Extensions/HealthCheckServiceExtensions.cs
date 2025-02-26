@@ -4,7 +4,7 @@ using System.Net;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-public class HealthCheckServiceExtensions
+public static class HealthCheckServiceExtensions
 {
     public static async Task<HttpResponseData> CreateHealthCheckResponseAsync(HttpRequestData req, HealthCheckService healthCheckService)
     {
