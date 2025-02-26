@@ -66,10 +66,10 @@ public class UpdateParticipantFunction
                 updateResponse = await UpdateParticipant(participantCsvRecord);
                 if (!updateResponse)
                 {
-                    _logger.LogInformation("unsuccessfully updated records");
+                    _logger.LogError("Unsuccessfully updated records");
                     return;
                 }
-                
+
                 participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has been updated but a validation Exception was raised");
@@ -83,7 +83,7 @@ public class UpdateParticipantFunction
             updateResponse = await UpdateParticipant(participantCsvRecord);
             if (!updateResponse)
             {
-                _logger.LogInformation("unsuccessfully updated records");
+                _logger.LogError("Unsuccessfully updated records");
                 return;
             }
             participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);

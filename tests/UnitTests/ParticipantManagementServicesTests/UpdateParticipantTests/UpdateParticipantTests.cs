@@ -221,7 +221,7 @@ public class UpdateParticipantTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ), Times.AtLeastOnce(), "Update participant failed");
+            ), Times.AtLeastOnce(), "Unsuccessfully updated records");
     }
 
     [TestMethod]
