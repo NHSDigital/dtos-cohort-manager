@@ -11,9 +11,9 @@ public class SqlConnectionWithAuthentication
     private readonly string _connectionString;
     private readonly string? _managedIdentityClientId;
     private readonly bool _useManagedIdentity;
-    private readonly ILogger<SqlConnectionWithAuthentication> _logger;
+    private readonly ILogger<EndToEndFileUploadService> _logger;
 
-    public SqlConnectionWithAuthentication(string connectionString, string? managedIdentityClientId, bool isCloudEnvironment, ILogger<SqlConnectionWithAuthentication> logger)
+    public SqlConnectionWithAuthentication(string connectionString, string? managedIdentityClientId, bool isCloudEnvironment, ILogger<EndToEndFileUploadService> logger)
     {
         _connectionString = connectionString;
         _logger = logger;
