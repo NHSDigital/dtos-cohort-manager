@@ -8,9 +8,8 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
-using receiveCaasFile;
-using Microsoft.Extensions.Azure;
-using Azure.Identity;
+using HealthChecks.Extensions;
+
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -36,12 +35,14 @@ try
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker,  RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
         services.AddScoped<IValidateDates, ValidateDates>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck();
     })
     .AddAzureQueues()
     .AddExceptionHandler()

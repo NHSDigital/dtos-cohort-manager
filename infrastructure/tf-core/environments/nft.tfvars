@@ -125,9 +125,9 @@ app_service_plan = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "2"
-          capacity_max = "30"
-          capacity_def = "10"
+          capacity_min = "12"
+          capacity_max = "12"
+          capacity_def = "12"
         }
       }
     }
@@ -136,9 +136,9 @@ app_service_plan = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "2"
-          capacity_max = "30"
-          capacity_def = "10"
+          capacity_min = "4"
+          capacity_max = "4"
+          capacity_def = "4"
         }
       }
     }
@@ -163,9 +163,10 @@ function_apps = {
 
   cont_registry_use_mi = true
 
-  docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
-  docker_img_prefix = "cohort-manager"
+  docker_CI_enable     = "true"
+  docker_env_tag       = "nft"
+  docker_img_prefix    = "cohort-manager"
+  pull_image_over_vnet = true
 
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
@@ -679,7 +680,7 @@ function_apps = {
       env_vars_static = {
         CohortQueueName             = "cohort-distribution-queue"
         CohortQueueNamePoison       = "cohort-distribution-queue-poison"
-        IgnoreParticipantExceptions = "true"
+        IgnoreParticipantExceptions = "false"
         IsExtractedToBSSelect       = "false"
       }
     }
