@@ -15,7 +15,7 @@ public class SqlConnectionWithAuthentication
     {
         _connectionString = connectionString;
 
-
+        // Even if isCloudEnvironment is set to true if ManagedIdentityClientId is null or empty _useManagedIdentity will be false
         _useManagedIdentity = isCloudEnvironment && !string.IsNullOrEmpty(managedIdentityClientId);
         _managedIdentityClientId = _useManagedIdentity ? managedIdentityClientId : "";
     }

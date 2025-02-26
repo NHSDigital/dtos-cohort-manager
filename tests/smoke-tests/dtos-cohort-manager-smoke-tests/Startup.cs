@@ -27,6 +27,8 @@ internal static class Startup
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("Config/appsettings.json", optional: false, reloadOnChange: true)
+            //settings in the local file would override those in the base file
+            .AddJsonFile("Config/appsettings-local.json", optional: true, reloadOnChange: true)
             .Build();
 
         // Bind AppSettings section to POCO
