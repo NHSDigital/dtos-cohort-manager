@@ -21,15 +21,15 @@ This test automation framework utilizes SpecFlow, a behavior-driven development 
 
 To set up and run this test automation framework, ensure you have the following prerequisites installed:
 
-* . NET Core SDK (version X. X or higher)
-* Visual Studio 2022 or Visual Studio Code
-* SpecFlow Visual Studio Extension
-* SQL Server (for database testing)
-* Azure Storage Explorer (for blob storage tests)
+- . NET Core SDK (version X. X or higher)
+- Visual Studio 2022 or Visual Studio Code
+- SpecFlow Visual Studio Extension
+- SQL Server (for database testing)
+- Azure Storage Explorer (for blob storage tests)
 
 ## Configuration
 
-Create a new file named `appsettings-local.json` in the Config directory of the smoke tests project
+Create a new file named `appsettings-local.json` in the config directory of the smoke tests project
 Copy the template below into the file:
 
 ```json

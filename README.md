@@ -77,7 +77,7 @@ After a successful installation, please follow this [User Guide](./docs/user-gui
 
 There are `make` tasks for you to configure to run your tests.  Run `make test` to see how they work.  You should be able to use the same entry points for local development as in your CI pipeline.
 
-[Specflow Smoke Tests Documentation](tests/smoke-tests/dtos-cohort-manager-smoke-tests/README.md)
+[Smoke Tests Documentation](tests/smoke-tests/dtos-cohort-manager-smoke-tests/README.md)
 
 ## Design
 
