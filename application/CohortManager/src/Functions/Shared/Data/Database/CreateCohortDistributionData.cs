@@ -523,7 +523,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         }
     }
 
-    private T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
+    public T ExecuteQuery<T>(IDbCommand command, Func<IDataReader, T> mapFunction)
     {
         var result = default(T);
         try
@@ -558,14 +558,28 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return _dbConnection.BeginTransaction();
     }
 
-    private IDbCommand CreateCommand(Dictionary<string, object> parameters)
+    public IDbCommand CreateCommand(Dictionary<string, object> parameters)
     {
+    if (parameters == null)
+    {
+        throw new ArgumentNullException(nameof(parameters), "Parameters cannot be null!");
+    }
+
         var dbCommand = _dbConnection.CreateCommand();
         return AddParameters(parameters, dbCommand);
     }
 
-    private static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
+    public static IDbCommand AddParameters(Dictionary<string, object> parameters, IDbCommand dbCommand)
     {
+    if (parameters == null)
+    {
+        throw new ArgumentNullException(nameof(parameters), "Parameters dictionary cannot be null.");
+    }
+
+    if (dbCommand == null)
+    {
+        throw new ArgumentNullException(nameof(dbCommand), "dbCommand cannot be null.");  // ✅ Proper null check
+    }
         foreach (var param in parameters)
         {
             var parameter = dbCommand.CreateParameter();
