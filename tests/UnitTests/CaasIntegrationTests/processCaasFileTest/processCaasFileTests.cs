@@ -15,7 +15,6 @@ public class ProcessCaasFileTests
 {
     private readonly Mock<ILogger<ProcessCaasFile>> _loggerMock = new();
     private readonly Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock = new();
-    private readonly Mock<ICheckDemographic> _checkDemographicMock = new();
     private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly Mock<IAddBatchToQueue> _addBatchToQueueMock = new();
@@ -23,6 +22,8 @@ public class ProcessCaasFileTests
     private readonly Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock = new();
     private readonly Mock<IValidateDates> _validateDates = new();
     private readonly Mock<ICallFunction> _callFunction = new();
+
+    private readonly Mock<ICallDurableDemographicFunc> _callDurableFunc = new();
     private readonly ProcessCaasFile _processCaasFile;
 
     public ProcessCaasFileTests()
@@ -36,7 +37,6 @@ public class ProcessCaasFileTests
 
         _processCaasFile = new ProcessCaasFile(
             _loggerMock.Object,
-            _checkDemographicMock.Object,
             _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
             _receiveCaasFileHelperMock.Object,
@@ -44,7 +44,8 @@ public class ProcessCaasFileTests
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object,
-            _callFunction.Object
+            _callFunction.Object,
+            _callDurableFunc.Object
         );
     }
 
@@ -64,7 +65,7 @@ public class ProcessCaasFileTests
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
-        _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         // Act
@@ -125,7 +126,7 @@ public class ProcessCaasFileTests
     public async Task AddRecordToBatch_UpdateRecord_addsRecordToBatch()
     {
         // Arrange
-        _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var updateParticipant = _processCaasFile.GetType().GetMethod("DeleteOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -143,7 +144,7 @@ public class ProcessCaasFileTests
 
         await task;
 
-        _checkDemographicMock.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
+        _callDurableFunc.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
                It.IsAny<EventId>(),
@@ -162,7 +163,7 @@ public class ProcessCaasFileTests
         var participant = new Participant() { NhsNumber = "1234567890", RecordType = Actions.New };
         var currentBatch = new Batch();
 
-        _checkDemographicMock.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var arguments = new object[] { participant, currentBatch, "testFile" };
@@ -197,7 +198,7 @@ public class ProcessCaasFileTests
         };
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
-        _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("some exception"));
 
 

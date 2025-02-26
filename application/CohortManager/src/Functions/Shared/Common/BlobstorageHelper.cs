@@ -28,7 +28,6 @@ public class BlobStorageHelper : IBlobStorageHelper
 
         await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
-
         try
         {
             await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
@@ -55,6 +54,8 @@ public class BlobStorageHelper : IBlobStorageHelper
         var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
         var sourceBlobClient = sourceContainerClient.GetBlobClient(blobFile.FileName);
 
+
+        await sourceContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
         try
         {
             await sourceBlobClient.UploadAsync(blobFile.Data, overwrite: overwrite);
