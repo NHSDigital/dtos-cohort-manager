@@ -9,7 +9,7 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: 7dd6e83de82475570a27e172b95be8d30f488695
+    ref: 0a1ae809e2b5f41a1974c5490595e08f591fb8c7
     endpoint: NHSDigital
 
 variables:
@@ -42,6 +42,6 @@ stages:
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
       AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
     steps:
-    - template: ../templates/steps/run-post-deployment-tests.yaml
+    - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: sc-cohort-manager-dev
