@@ -61,6 +61,9 @@
       <None Update="Config\appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Config\appsettings-local.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="TestFiles\add\ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

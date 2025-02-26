@@ -303,9 +303,11 @@ public class StaticValidationTests
     [DataRow("B33 8TH")]
     [DataRow("CR2 6XH")]
     [DataRow("LS10 1LT")]
+    [DataRow("GIR 0AA")]
+    [DataRow("GIR0AA")]
     [DataRow("")]
     [DataRow(null)]
-    public async Task Run_Should_Not_Create_Exception_When_Postcode_Rule_Passes(string postcode)
+    public async Task Run_ValidPostcode_PostcodeRulePasses(string postcode)
     {
         // Arrange
         _participantCsvRecord.Participant.Postcode = postcode;
@@ -324,8 +326,11 @@ public class StaticValidationTests
 
     [TestMethod]
     [DataRow("ABC123")]
-    [DataRow("ABC 123")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_Postcode_Rule_Fails(string postcode)
+    [DataRow("1234 AB")]
+    [DataRow("AA 12345")]
+    [DataRow("A1B 1CDE")]
+    [DataRow("A1A@1AA")]
+    public async Task Run_InvalidPostcode_PostcodeRuleFailsAndExceptionCreated(string postcode)
     {
         // Arrange
         _participantCsvRecord.Participant.Postcode = postcode;
