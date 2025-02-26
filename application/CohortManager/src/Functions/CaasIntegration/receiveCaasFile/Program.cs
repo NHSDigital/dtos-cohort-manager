@@ -18,9 +18,10 @@ var logger = loggerFactory.CreateLogger("program.cs");
 try
 {
     var host = new HostBuilder()
+        .AddConfiguration<ReceiveCaasFileConfig>(out ReceiveCaasFileConfig config)
         .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
-        .AddCachedDataService<ScreeningLkp>(Environment.GetEnvironmentVariable("ScreeningLkpDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .AddCachedDataService<ScreeningLkp>(config.ScreeningLkpDataServiceURL)
         .Build()
     .ConfigureFunctionsWebApplication()
 
