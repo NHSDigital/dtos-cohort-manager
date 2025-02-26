@@ -91,19 +91,6 @@ stages:
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
       AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
     steps:
-    - task: AzureCLI@2
-      name: apply_database_changes
-      displayName: Apply database changes
-      inputs:
-        azureSubscription: sc-cohort-manager-dev
-        addSpnToEnvironment: true
-        failOnStandardError: false
-        scriptType: bash
-        scriptLocation: inlineScript
-        inlineScript: |
-          echo "Running az account show"
-          az account show
-
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: sc-cohort-manager-nft
