@@ -117,7 +117,8 @@ public class TransformDataService
         var reSettings = new ReSettings
         {
             CustomActions = actions,
-            CustomTypes = [typeof(Actions)]
+            CustomTypes = [typeof(Actions)],
+            UseFastExpressionCompiler = false
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -140,8 +141,8 @@ public class TransformDataService
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-
-        var re = new RulesEngine.RulesEngine(rules);
+        var reSettings = new ReSettings {UseFastExpressionCompiler = false};
+        var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         namePrefix = namePrefix.ToUpper();
 
