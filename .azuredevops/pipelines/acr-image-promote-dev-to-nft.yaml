@@ -15,7 +15,7 @@ resources:
 variables:
   - group: DEV_hub_backend_remote_state
   - name: destEnvironmentShortName
-    value: temp7048
+    value: nft
   - name: sourceRegistry
     value: acrukshubdevcohman
   - name: selectImageTag
