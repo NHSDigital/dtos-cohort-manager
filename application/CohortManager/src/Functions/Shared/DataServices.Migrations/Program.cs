@@ -21,18 +21,18 @@ public class Program
         var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null,configFiles);
         using var host = CreateHostBuilder(config.ConnectionString).Build();
 
-        // var migrationsApplied = ApplyMigrations(host);
-        // if(migrationsApplied == ExitCodes.FAILURE)
-        // {
-        //     return ExitCodes.FAILURE;
-        // }
+        var migrationsApplied = ApplyMigrations(host);
+        if(migrationsApplied == ExitCodes.FAILURE)
+        {
+            return ExitCodes.FAILURE;
+        }
 
-        // var seedDataLoaded = SeedData(host).Result;
-        // if(seedDataLoaded == ExitCodes.FAILURE)
-        // {
-        //     return ExitCodes.FAILURE;
-        // }
-        ExtractData(host);
+        var seedDataLoaded = SeedData(host).Result;
+        if(seedDataLoaded == ExitCodes.FAILURE)
+        {
+            return ExitCodes.FAILURE;
+        }
+
 
         return ExitCodes.SUCCESS;
 
