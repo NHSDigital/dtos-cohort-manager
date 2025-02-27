@@ -6,9 +6,10 @@ using Data.Database;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
-using receiveCaasFile;
-using Microsoft.Extensions.Azure;
-using Azure.Identity;
+using Model;
+using DataServices.Client;
+using HealthChecks.Extensions;
+
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -16,13 +17,17 @@ var logger = loggerFactory.CreateLogger("program.cs");
 try
 {
     var host = new HostBuilder()
+        .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddCachedDataService<ScreeningLkp>(Environment.GetEnvironmentVariable("ScreeningLkpDataServiceURL"))
+        .Build()
     .ConfigureFunctionsWebApplication()
+
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddTransient<ICallFunction, CallFunction>();
-        services.AddTransient<IScreeningServiceData, ScreeningServiceData>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -30,7 +35,13 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
+        {
+            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+        });
         services.AddScoped<IValidateDates, ValidateDates>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck();
     })
     .AddAzureQueues()
     .AddExceptionHandler()

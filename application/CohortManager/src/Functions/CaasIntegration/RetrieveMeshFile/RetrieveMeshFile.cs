@@ -120,12 +120,12 @@ public class RetrieveMeshFile
             var NextHandShakeTimeConfig = DateTime.UtcNow.Add(handShakeInterval).ToString();
 
             configValues[NextHandShakeTimeConfigKey] = NextHandShakeTimeConfig;
-            _logger.LogInformation($"Next Handshake scheduled for {NextHandShakeTimeConfig}");
+            _logger.LogInformation("Next Handshake scheduled for {NextHandShakeTimeConfig}", NextHandShakeTimeConfig);
 
             return true;
 
         }
-        _logger.LogInformation($"Next handshake scheduled for {nextHandShakeDateTime}");
+        _logger.LogInformation("Next handshake scheduled for {nextHandShakeDateTime}", nextHandShakeDateTime);
         return false;
     }
 

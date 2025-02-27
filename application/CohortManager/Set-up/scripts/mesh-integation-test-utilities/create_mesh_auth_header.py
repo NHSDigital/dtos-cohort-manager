@@ -38,9 +38,3 @@ MAILBOX_PASSWORD = "<MailBoxPassword>"  # Note: Don't hard code your passwords i
 
 # send a new nonce each time
 print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD))
-
-# # or reuse the nonce and increment the nonce_count
-# my_nonce = str(uuid.uuid4())
-
-# print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD, my_nonce, nonce_count=1))
-# print(build_auth_header(MAILBOX_ID, MAILBOX_PASSWORD, my_nonce, nonce_count=2))

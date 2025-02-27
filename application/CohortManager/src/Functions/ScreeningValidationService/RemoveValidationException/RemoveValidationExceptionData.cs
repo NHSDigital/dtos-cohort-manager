@@ -37,7 +37,7 @@ public class RemoveValidationExceptionData
 
         try
         {
-            var exceptionRemoved = _validationExceptionData.RemoveOldException(removeOldException.NhsNumber, removeOldException.ScreeningName);
+            var exceptionRemoved = await _validationExceptionData.RemoveOldException(removeOldException.NhsNumber, removeOldException.ScreeningName);
             if (exceptionRemoved)
             {
                 _logger.LogInformation("The Last Exception has been removed successfully");
@@ -51,7 +51,7 @@ public class RemoveValidationExceptionData
         {
             await _handleException.CreateSystemExceptionLogFromNhsNumber(ex, removeOldException.NhsNumber, "", removeOldException.ScreeningName, "N/A");
 
-            _logger.LogError(ex, "There was exception while removing an old ValidationExceptionRecord for NHS number: {NhsNumber}. StackTrace: {Ex}", removeOldException.NhsNumber, ex);
+            _logger.LogError(ex, "There was exception while removing an old ValidationExceptionRecord for NHS Number: REDACTED. StackTrace: {Ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

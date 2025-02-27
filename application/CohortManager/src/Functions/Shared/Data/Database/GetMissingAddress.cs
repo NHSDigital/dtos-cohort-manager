@@ -6,8 +6,8 @@ using Microsoft.Data.SqlClient;
 
 public class GetMissingAddress
 {
-    private CohortDistributionParticipant _participant;
-    private IDbConnection _connection;
+    private readonly CohortDistributionParticipant _participant;
+    private readonly IDbConnection _connection;
     public GetMissingAddress(CohortDistributionParticipant participant, IDbConnection connection)
     {
         _participant = participant;

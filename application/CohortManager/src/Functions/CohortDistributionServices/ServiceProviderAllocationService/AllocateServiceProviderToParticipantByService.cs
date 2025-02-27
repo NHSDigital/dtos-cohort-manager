@@ -13,6 +13,7 @@ public class AllocateServiceProviderToParticipantByService
     private readonly ILogger _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+    private const string _defaultServiceProvider = "BS SELECT";
 
     public AllocateServiceProviderToParticipantByService(ILogger<AllocateServiceProviderToParticipantByService> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
@@ -24,15 +25,12 @@ public class AllocateServiceProviderToParticipantByService
     [Function("AllocateServiceProviderToParticipantByService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        // Currently using AllocationConfigRequest Object to deserialize and validate the incoming JSON data
-        string requestBody = "";
-        AllocationConfigRequestBody configRequest = new AllocationConfigRequestBody();
-        _logger.LogInformation("AllocateServiceProviderToParticipantByService is called...");
+        string requestBody = string.Empty;
+        var configRequest = new AllocationConfigRequestBody();
 
         try
         {
             string logMessage;
-
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 requestBody = await reader.ReadToEndAsync();
@@ -40,7 +38,6 @@ public class AllocateServiceProviderToParticipantByService
 
             configRequest = JsonSerializer.Deserialize<AllocationConfigRequestBody>(requestBody);
 
-            // check request parameters
             if (string.IsNullOrEmpty(configRequest.NhsNumber) || string.IsNullOrEmpty(configRequest.Postcode) || string.IsNullOrEmpty(configRequest.ScreeningAcronym))
             {
                 logMessage = $"One or more of the required parameters is missing. NhsNumber: REDACTED Postcode: {configRequest.Postcode} ScreeningService: {configRequest.ScreeningAcronym}";
@@ -50,11 +47,10 @@ public class AllocateServiceProviderToParticipantByService
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
             }
 
-            // check config file
             string configFilePath = Path.Combine(Environment.CurrentDirectory, "ConfigFiles", "allocationConfig.json");
             if (!File.Exists(configFilePath))
             {
-                logMessage = $"Cannot find allocation configuration file. Path may be invalid";
+                logMessage = "Cannot find allocation configuration file. Path may be invalid";
                 _logger.LogError(logMessage);
 
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
@@ -64,22 +60,9 @@ public class AllocateServiceProviderToParticipantByService
             string configFile = await File.ReadAllTextAsync(configFilePath);
             var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
-            // find the best match postcode and return the provider
             string serviceProvider = FindBestMatchProvider(allocationConfigEntries.ConfigDataList, configRequest.Postcode, configRequest.ScreeningAcronym);
-
-            // check screening provider
-            if (serviceProvider != null)
-            {
-                _logger.LogInformation("Successfully retrieved the Service Provider");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, serviceProvider);
-            }
-
-            logMessage = $"No matching entry found.";
-            _logger.LogError(logMessage);
-
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception(logMessage), configRequest.NhsNumber, "", "", configRequest.ErrorRecord);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, logMessage);
-
+            _logger.LogInformation("Successfully retrieved the Service Provider");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, serviceProvider);
         }
 
         catch (Exception ex)
@@ -90,23 +73,13 @@ public class AllocateServiceProviderToParticipantByService
         }
     }
 
-    private static string? FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
+    private static string FindBestMatchProvider(AllocationConfigData[] allocationConfigData, string postCode, string screeningService)
     {
-
-        var result = allocationConfigData
+        return allocationConfigData
         .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
-                item.ScreeningService.Equals(screeningService, StringComparison.OrdinalIgnoreCase))
+            string.Equals(item.ScreeningService, screeningService, StringComparison.OrdinalIgnoreCase))
         .OrderByDescending(item => item.Postcode.Length)
         .Select(item => item.ServiceProvider)
-        .FirstOrDefault();
-
-        if (result == null)
-        {
-            return "BS SELECT";
-        }
-        return result;
-
+        .FirstOrDefault() ?? _defaultServiceProvider;
     }
-
 }
-

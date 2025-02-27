@@ -149,8 +149,10 @@ function_apps = {
   acr_name    = "acrukshubprodcohman"
   acr_rg_name = "rg-hub-prod-uks-cohman"
 
-  app_insights_name    = "appi-pre-uks-cohman"
-  app_insights_rg_name = "rg-cohman-pre-uks-audit"
+  app_insights_name                      = "appi-pre-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-pre-uks-audit"
+  app_service_logs_disk_quota_mb         = 35
+  app_service_logs_retention_period_days = 7
 
   always_on = true
 
@@ -397,6 +399,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -620,6 +626,10 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
@@ -637,6 +647,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -823,17 +837,21 @@ sqlserver = {
 
 storage_accounts = {
   fnapp = {
-    name_suffix                   = "fnappstor"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
-    containers                    = {}
+    name_suffix                             = "fnappstor"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = false
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = false
+    containers                              = {}
   }
   file_exceptions = {
-    name_suffix                   = "filexptns"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
+    name_suffix                             = "filexptns"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = false
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = false
     containers = {
       file-exceptions = {
         container_name        = "file-exceptions"

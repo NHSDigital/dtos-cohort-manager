@@ -3,32 +3,31 @@ namespace NHS.Screening.ReceiveCaasFile;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
-using Data.Database;
 using System;
 using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
-using Common;
+using DataServices.Client;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
-    private readonly IScreeningServiceData _screeningServiceData;
+    private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        IScreeningServiceData screeningServiceData
+        IDataServiceClient<ScreeningLkp> screeningLkpClient
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
-        _screeningServiceData = screeningServiceData;
+        _screeningLkpClient = screeningLkpClient;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -36,6 +35,7 @@ public class ReceiveCaasFile
     {
         var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
+        // for larger batches use size of 5000 - this works the best
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
@@ -51,7 +51,7 @@ public class ReceiveCaasFile
             var screeningService = await GetScreeningService(name, fileNameParser);
             if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
             {
-                _logger.LogError("the Screening id or screening name was null or empty");
+                _logger.LogError("The Screening id or screening name was null or empty");
                 ErrorOccurred = true;
                 return;
             }
@@ -65,6 +65,7 @@ public class ReceiveCaasFile
             }
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
@@ -104,17 +105,17 @@ public class ReceiveCaasFile
             //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
             if (!ErrorOccurred)
             {
-                _logger.LogInformation("All rows processed for file named {Name}. time {time}", name, DateTime.Now);
+                _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
             }
             //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
     }
 
-    private async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
+    public async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
     {
         // get screening service name and id
-        var screeningService = GetScreeningService(fileNameParser);
+        var screeningService = await GetScreeningService(fileNameParser);
         if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
         {
             string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
@@ -132,12 +133,17 @@ public class ReceiveCaasFile
     /// </summary>
     /// <param name="fileNameParser"></param>
     /// <returns></returns>
-    private ScreeningService GetScreeningService(FileNameParser fileNameParser)
+    public async Task<ScreeningService> GetScreeningService(FileNameParser fileNameParser)
     {
-
-        var ScreeningWorkflow = fileNameParser.GetScreeningService();
-        _logger.LogInformation("screening Acronym {screeningAcronym}", ScreeningWorkflow);
-        var res = _screeningServiceData.GetScreeningServiceByWorkflowId(ScreeningWorkflow);
-        return res;
+        var screeningWorkflowId = fileNameParser.GetScreeningService();
+        _logger.LogInformation("Screening Acronym {screeningWorkflowId}", screeningWorkflowId);
+        var res = await _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId);
+        ScreeningService screeningWorkflow = new ScreeningService
+        {
+            ScreeningName = res?.ScreeningName,
+            ScreeningId = res?.ScreeningId.ToString(),
+            ScreeningWorkflowId = res?.ScreeningWorkflowId
+        };
+        return screeningWorkflow;
     }
 }

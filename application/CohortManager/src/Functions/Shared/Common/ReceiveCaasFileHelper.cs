@@ -82,7 +82,8 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 
     private static string? BitStringFromNullableBoolean(bool? boolValue)
     {
-        if(!boolValue.HasValue){
+        if (!boolValue.HasValue)
+        {
             return null;
         }
         return boolValue.Value ? "1" : "0";
@@ -91,7 +92,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
     public async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
     {
         var fileValidationURL = GetUrlFromEnvironment("FileValidationURL");
-        var json = JsonSerializer.Serialize<Model.ValidationException>(new Model.ValidationException()
+        var json = JsonSerializer.Serialize(new ValidationException()
         {
             FileName = fileName,
             ErrorRecord = errorRecord

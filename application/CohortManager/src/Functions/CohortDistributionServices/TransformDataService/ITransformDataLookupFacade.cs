@@ -3,4 +3,5 @@ public interface ITransformDataLookupFacade
 {
     bool ValidateOutcode(string postcode);
     string GetBsoCode(string postcode);
+    public string GetBsoCodeUsingPCP(string primaryCareProvider);
 }

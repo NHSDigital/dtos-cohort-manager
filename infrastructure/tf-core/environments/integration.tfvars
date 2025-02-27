@@ -70,14 +70,14 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "10.6.0.0/16"
+        address_prefix         = "10.106.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
     route_table_routes_from_audit = [{
       name                   = "AuditToCohman"
-      address_prefix         = "10.5.0.0/16"
+      address_prefix         = "10.105.0.0/16"
       next_hop_type          = "VirtualAppliance"
       next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -87,7 +87,7 @@ routes = {
 
 app_service_plan = {
   os_type                  = "Linux"
-  sku_name                 = "P2v3"
+  sku_name                 = "P3v3"
   vnet_integration_enabled = true
 
   autoscale = {
@@ -120,23 +120,28 @@ app_service_plan = {
   }
 
   instances = {
-    CaasIntegration = {
+    DefaultPlan = {
       autoscale_override = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "2"
-          capacity_max = "10"
-          capacity_def = "2"
+          capacity_min = "12"
+          capacity_max = "12"
+          capacity_def = "12"
         }
       }
     }
-    CohortDistributionServices    = {}
-    DemographicServices           = {}
-    ExceptionHandling             = {}
-    ParticipantManagementServices = {}
-    ScreeningValidationService    = {}
-    screeningDataServices         = {}
+    HighLoadFunctions = {
+      autoscale_override = {
+        memory_percentage = {
+          metric = "MemoryPercentage"
+
+          capacity_min = "4"
+          capacity_max = "4"
+          capacity_def = "4"
+        }
+      }
+    }
   }
 }
 
@@ -149,8 +154,10 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-int-uks-cohman"
-  app_insights_rg_name = "rg-cohman-int-uks-audit"
+  app_insights_name                      = "appi-int-uks-cohman"
+  app_insights_rg_name                   = "rg-cohman-int-uks-audit"
+  app_service_logs_disk_quota_mb         = 35
+  app_service_logs_retention_period_days = 7
 
   always_on = true
 
@@ -171,7 +178,7 @@ function_apps = {
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
-      app_service_plan_key         = "CaasIntegration"
+      app_service_plan_key         = "DefaultPlan"
       db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -192,23 +199,28 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
-        },
-        {
-          env_var_name     = "DemographicURI"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ScreeningLkpDataServiceURL"
+          function_app_key = "ScreeningLkpDataService"
         }
       ]
       env_vars_static = {
-        BatchSize                  = "3500"
+        BatchSize                  = "2000"
         AddQueueName               = "add-participant-queue"
         recordThresholdForBatching = "3"
-        batchDivisionFactor        = "5"
+        batchDivisionFactor        = "2"
+        CheckTimer                 = "100"
+        DemographicURI             = "https://int-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://int-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        AllowDeleteRecords         = true
+        UpdateQueueName            = "update-participant-queue"
       }
 
     }
@@ -216,7 +228,7 @@ function_apps = {
     RetrieveMeshFile = {
       name_suffix                  = "retrieve-mesh-file"
       function_endpoint_name       = "RetrieveMeshFile"
-      app_service_plan_key         = "CaasIntegration"
+      app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -234,7 +246,7 @@ function_apps = {
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
-      app_service_plan_key         = "ParticipantManagementServices"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
@@ -273,7 +285,7 @@ function_apps = {
     RemoveParticipant = {
       name_suffix            = "remove-participant"
       function_endpoint_name = "RemoveParticipant"
-      app_service_plan_key   = "ParticipantManagementServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "markParticipantAsIneligible"
@@ -293,7 +305,7 @@ function_apps = {
     UpdateParticipant = {
       name_suffix            = "update-participant"
       function_endpoint_name = "updateParticipant"
-      app_service_plan_key   = "ParticipantManagementServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "UpdateParticipant"
@@ -326,13 +338,14 @@ function_apps = {
       ]
       env_vars_static = {
         CohortQueueName = "cohort-distribution-queue"
+        UpdateQueueName = "update-participant-queue"
       }
     }
 
     CreateParticipant = {
       name_suffix            = "create-participant"
       function_endpoint_name = "CreateParticipant"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -353,12 +366,16 @@ function_apps = {
     MarkParticipantAsEligible = {
       name_suffix            = "mark-participant-as-eligible"
       function_endpoint_name = "markParticipantAsEligible"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "LookupValidationURL"
           function_app_key = "LookupValidation"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         },
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -370,7 +387,7 @@ function_apps = {
     MarkParticipantAsIneligible = {
       name_suffix            = "mark-participant-as-ineligible"
       function_endpoint_name = "markParticipantAsIneligible"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -380,6 +397,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -387,7 +408,7 @@ function_apps = {
     UpdateParticipantDetails = {
       name_suffix            = "update-participant-details"
       function_endpoint_name = "updateParticipantDetails"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -397,6 +418,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
     }
@@ -404,28 +429,41 @@ function_apps = {
     CreateException = {
       name_suffix            = "create-exception"
       function_endpoint_name = "CreateException"
-      app_service_plan_key   = "ExceptionHandling"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = []
+      app_urls = [
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPracticeDataService"
+        }
+      ]
     }
 
     GetValidationExceptions = {
       name_suffix            = "get-validation-exceptions"
       function_endpoint_name = "GetValidationExceptions"
-      app_service_plan_key   = "screeningDataServices"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls               = []
-    }
-
-    DemographicDataService = {
-      name_suffix            = "demographic-data-service"
-      function_endpoint_name = "DemographicDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPracticeDataService"
         }
       ]
     }
@@ -433,7 +471,7 @@ function_apps = {
     FileValidation = {
       name_suffix                  = "file-validation"
       function_endpoint_name       = "FileValidation"
-      app_service_plan_key         = "ScreeningValidationService"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       storage_containers = [
         {
@@ -456,7 +494,7 @@ function_apps = {
     StaticValidation = {
       name_suffix            = "static-validation"
       function_endpoint_name = "StaticValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -479,7 +517,7 @@ function_apps = {
     LookupValidation = {
       name_suffix            = "lookup-validation"
       function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
@@ -518,11 +556,11 @@ function_apps = {
     DemographicDataManagement = {
       name_suffix            = "demographic-data-management"
       function_endpoint_name = "DemographicDataFunction"
-      app_service_plan_key   = "DemographicServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
-          env_var_name     = "DemographicDataServiceURI"
-          function_app_key = "DemographicDataService"
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         },
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -534,12 +572,16 @@ function_apps = {
     AddCohortDistributionData = {
       name_suffix            = "add-cohort-distribution-data"
       function_endpoint_name = "AddCohortDistributionData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -547,7 +589,7 @@ function_apps = {
     RetrieveCohortDistributionData = {
       name_suffix            = "retrieve-cohort-distribution-data"
       function_endpoint_name = "RetrieveCohortDistributionData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -560,7 +602,7 @@ function_apps = {
     TransformDataService = {
       name_suffix            = "transform-data-service"
       function_endpoint_name = "TransformDataService"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -570,6 +612,14 @@ function_apps = {
         {
           env_var_name     = "BsSelectOutCodeUrl"
           function_app_key = "BsSelectOutcodeDataService"
+        },
+        {
+          env_var_name     = "BsSelectGpPracticeUrl"
+          function_app_key = "BsSelectGpPracticeDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceUrl"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -577,7 +627,7 @@ function_apps = {
     AllocateServiceProvider = {
       name_suffix            = "allocate-service-provider"
       function_endpoint_name = "AllocateServiceProviderToParticipantByService"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -593,7 +643,7 @@ function_apps = {
     CreateCohortDistribution = {
       name_suffix                  = "create-cohort-distribution"
       function_endpoint_name       = "CreateCohortDistribution"
-      app_service_plan_key         = "CohortDistributionServices"
+      app_service_plan_key         = "DefaultPlan"
       storage_account_env_var_name = "caasfolder_STORAGE"
       db_connection_string         = "DtOsDatabaseConnectionString"
       app_urls = [
@@ -620,23 +670,37 @@ function_apps = {
         {
           env_var_name     = "ValidateCohortDistributionRecordURL"
           function_app_key = "ValidateCohortDistributionRecord"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
-        CohortQueueName       = "cohort-distribution-queue"
-        CohortQueueNamePoison = "cohort-distribution-queue-poison"
+        CohortQueueName             = "cohort-distribution-queue"
+        CohortQueueNamePoison       = "cohort-distribution-queue-poison"
+        IgnoreParticipantExceptions = "false"
+        IsExtractedToBSSelect       = "false"
       }
     }
 
     RetrieveParticipantData = {
       name_suffix            = "retrieve-participant-data"
       function_endpoint_name = "RetrieveParticipantData"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "DemographicDataFunctionURL"
+          function_app_key = "DemographicDataManagement"
         }
       ]
     }
@@ -644,7 +708,7 @@ function_apps = {
     ValidateCohortDistributionRecord = {
       name_suffix            = "validate-cohort-distribution-record"
       function_endpoint_name = "ValidateCohortDistributionRecord"
-      app_service_plan_key   = "CohortDistributionServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -654,6 +718,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
@@ -661,7 +729,32 @@ function_apps = {
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
-      app_service_plan_key   = "ScreeningValidationService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        },
+        {
+          env_var_name     = "GPPracticeDataServiceURL"
+          function_app_key = "GPPracticeDataService"
+        }
+      ]
+    }
+
+    RetrieveCohortRequestAudit = {
+      name_suffix            = "retrieve-cohort-request-audit"
+      function_endpoint_name = "RetrieveCohortRequestAudit"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -671,22 +764,10 @@ function_apps = {
       ]
     }
 
-    RetrieveCohortRequestAudit = {
-      name_suffix            = "retrieve-cohort-request-audit"
-      function_endpoint_name = "RetrieveCohortRequestAudit"
-      app_service_plan_key   = "CohortDistributionServices"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-    }
     LanguageCodeDataService = {
       name_suffix            = "language-code-data-service"
       function_endpoint_name = "LanguageCodeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -699,7 +780,7 @@ function_apps = {
     CurrentPostingDataService = {
       name_suffix            = "current-posting-data-service"
       function_endpoint_name = "CurrentPostingDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -712,7 +793,7 @@ function_apps = {
     BsSelectOutcodeDataService = {
       name_suffix            = "bs-select-outcode-data-service"
       function_endpoint_name = "BsSelectOutcodeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -725,7 +806,7 @@ function_apps = {
     BsSelectGpPracticeDataService = {
       name_suffix            = "bs-select-gp-practice-data-service"
       function_endpoint_name = "BsSelectGpPracticeDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -738,7 +819,7 @@ function_apps = {
     ExcludedSMUDataService = {
       name_suffix            = "excluded-smu-data-service"
       function_endpoint_name = "ExcludedSMUDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -751,7 +832,7 @@ function_apps = {
     ParticipantManagementDataService = {
       name_suffix            = "participant-management-data-service"
       function_endpoint_name = "ParticipantManagementDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -764,7 +845,7 @@ function_apps = {
     ParticipantDemographicDataService = {
       name_suffix            = "participant-demographic-data-service"
       function_endpoint_name = "ParticipantDemographicDataService"
-      app_service_plan_key   = "screeningDataServices"
+      app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -774,6 +855,190 @@ function_apps = {
       ]
     }
 
+    DurableDemographicFunction = {
+      name_suffix            = "durable-demographic-function"
+      function_endpoint_name = "DurableDemographicFunction"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
+
+    GPPracticeDataService = {
+      name_suffix            = "gppractice-data-service"
+      function_endpoint_name = "GPPracticeDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    ExceptionManagementDataService = {
+      name_suffix            = "exception-management-data-service"
+      function_endpoint_name = "ExceptionManagementDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    UpdateParticipantFromScreeningProvider = {
+      name_suffix            = "update-participant-from-screening-provider"
+      function_endpoint_name = "UpdateParticipantFromScreeningProvider"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "GeneCodeLkpUrl"
+          function_app_key = "GeneCodeLkpDataService"
+        },
+
+        {
+          env_var_name     = "HigherRiskReferralReasonLkpUrl"
+          function_app_key = "HigherRiskReferralReasonLkpDataService"
+        }
+      ]
+    }
+
+    CheckParticipantExists = {
+      name_suffix            = "check-participant-exists"
+      function_endpoint_name = "CheckParticipantExists"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+    }
+
+    GetParticipantReferenceData = {
+      name_suffix            = "get-participant-reference-data"
+      function_endpoint_name = "GetParticipantReferenceData"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "HigherRiskReferralReasonLkpDataServiceUrl"
+          function_app_key = "HigherRiskReferralReasonLkpDataService"
+        },
+        {
+          env_var_name     = "GeneCodeLkpDataServiceUrl"
+          function_app_key = "GeneCodeLkpDataService"
+        }
+      ]
+    }
+
+    GeneCodeLkpDataService = {
+      name_suffix            = "gene-code-lkp-data-service"
+      function_endpoint_name = "GeneCodeLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    HigherRiskReferralReasonLkpDataService = {
+      name_suffix            = "higher-risk-referral-reason-lkp-data-service"
+      function_endpoint_name = "HigherRiskReferralReasonLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    CohortDistributionDataService = {
+      name_suffix            = "cohort-distribution-data-service"
+      function_endpoint_name = "CohortDistributionDataService"
+      app_service_plan_key   = "HighLoadFunctions"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    BsRequestAuditDataService = {
+      name_suffix            = "bs-request-audit-data-service"
+      function_endpoint_name = "BsRequestAuditDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    ScreeningLkpDataService = {
+      name_suffix            = "screening-lkp-data-service"
+      function_endpoint_name = "ScreeningLkpDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
+    RetrievePDSDemographic = {
+      name_suffix            = "retrieve-pds-demographic"
+      function_endpoint_name = "RetrievePDSDemographic"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
   }
 }
 
@@ -807,7 +1072,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 5
       read_scale           = false
-      sku                  = "S0"
+      sku                  = "S7"
       storage_account_type = "Local"
       zone_redundant       = false
     }
@@ -818,17 +1083,21 @@ sqlserver = {
 
 storage_accounts = {
   fnapp = {
-    name_suffix                   = "fnappstor"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
-    containers                    = {}
+    name_suffix                             = "fnappstor"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = true
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = false
+    containers                              = {}
   }
   file_exceptions = {
-    name_suffix                   = "filexptns"
-    account_tier                  = "Standard"
-    replication_type              = "LRS"
-    public_network_access_enabled = false
+    name_suffix                             = "filexptns"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    public_network_access_enabled           = false
+    blob_properties_delete_retention_policy = 7
+    blob_properties_versioning_enabled      = false
     containers = {
       file-exceptions = {
         container_name        = "file-exceptions"

@@ -9,13 +9,11 @@ using Apache.Arrow.Types;
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformDataLookupFacade _dataLookup;
     private const int ruleId = 1;
     public TransformReasonForRemoval(IExceptionHandler exceptionHandler, IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
-        _transformationLookups = transformationLookups;
         _dataLookup = dataLookup;
     }
 
@@ -26,11 +24,11 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     /// </summary>
     /// <param name="participant">The participant</param>
     /// <returns>Either a number of transformations if rules 1 or 2 are triggered, or raises an exception if rules 3 or 4 are triggered</returns>
-    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant)
+    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
     {
         var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
         var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
-        var existingPrimaryCareProvider = _transformationLookups.GetPrimaryCareProvider(participant.NhsNumber);
+        var existingPrimaryCareProvider = existingParticipant == null ? null : existingParticipant.PrimaryCareProvider;
 
         var rule1 = participantNotRegisteredToGP && validOutcode && !string.IsNullOrEmpty(participant.Postcode);
         var rule2 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && !existingPrimaryCareProvider.StartsWith("ZZZ");
@@ -80,7 +78,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         }
         else
         {
-            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
+            return dummyPrimaryCareProvider + _dataLookup.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
         }
     }
 }

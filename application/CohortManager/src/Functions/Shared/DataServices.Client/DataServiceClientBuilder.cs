@@ -39,6 +39,17 @@ public class DataServiceClientBuilder
         return this;
     }
 
+    public DataServiceClientBuilder AddDataServiceStaticCachedClient<TEntity>(string url) where TEntity : class
+    {
+        _hostBuilder.ConfigureServices(_ => {
+            _.AddSingleton<IDataServiceClient<TEntity>,DataServiceStaticCachedClient<TEntity>>();
+
+        });
+        AddDataServiceUrl(typeof(TEntity),url);
+
+        return this;
+    }
+
 
     public IHostBuilder Build()
     {
@@ -57,7 +68,7 @@ public class DataServiceClientBuilder
     {
         if(string.IsNullOrEmpty(url))
         {
-            throw new ArgumentNullException($"Failed to register data service URL for Data service of Type {type.FullName}");
+            throw new ArgumentNullException("url",$"No URL was provided when registering DataService of type {type.FullName}");
         }
         _dataServiceUrls.Add(type,url);
     }
