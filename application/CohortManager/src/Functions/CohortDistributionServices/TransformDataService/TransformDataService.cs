@@ -169,6 +169,7 @@ public class TransformDataService
         var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
         if(namePrefixRule == null)
         {
+            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
             return null;
         }
         if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
@@ -237,8 +238,9 @@ public class TransformDataService
         foreach(var transform in executedTransforms)
         {
             var ruleDetails = transform.Rule.RuleName.Split('.');
+
             var ruleId = int.Parse(ruleDetails[0]);
-            var ruleName = ruleDetails[1];
+            var ruleName = string.Concat(ruleDetails[1..]);
             await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
         }
     }
