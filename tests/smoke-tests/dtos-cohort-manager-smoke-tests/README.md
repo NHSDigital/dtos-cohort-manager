@@ -29,20 +29,37 @@ To set up and run this test automation framework, ensure you have the following 
 
 ## Configuration
 
-Before running the tests, update the `appsettings.json` file with your environment-specific settings. Modify the following values:
+Create a new file named `appsettings-local.json` in the config directory of the smoke tests project
+Copy the template below into the file:
 
 ```json
-{
-  "ConnectionStrings": {
-    "DtOsDatabaseConnectionString": ""
+"AppSettings": {
+   // please add your local DB connection string below
+    "ConnectionStrings": {
+      "DtOsDatabaseConnectionString": ""
+    },
+    // config to switch between local and cloud setup
+    "AzureSettings": {
+    "IsCloudEnvironment": true
   },
-  "caasFileStorage": "",
-  "BlobContainerName": "inbound",
-  "ManagedIdentityClientId": ""
-}
+   // Test data file paths
+ "FilePaths": {
+  "Add": "TestFiles/add/",
+  "Amended": "TestFiles/amended/",
+  "Remove": "TestFiles/remove/"
+},
+    //Blob storage connection string
+    "CloudFileStorageConnectionString": "",
+    "BlobContainerName": "inbound",
+    "ManagedIdentityClientId": ""
+  }
 ```
 
-Replace the empty strings with the appropriate connection strings, storage account details, and managed identity client ID for your environment.
+Replace the placeholders:
+
+`DtOsDatabaseConnectionString` : Your local SQL Server connection string
+`CloudFileStorageConnectionString` : For local development, use Azure Storage Emulator (UseDevelopmentStorage=true) or a connection string to your development storage account
+For local testing, keep IsCloudEnvironment set to false to avoid managed identity authentication
 
 ## Running Tests
 
