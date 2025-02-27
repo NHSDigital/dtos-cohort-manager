@@ -59,7 +59,7 @@ public class CreateCohortDistributionDataTests
         _commandMock.Setup(m => m.ExecuteNonQuery()).Returns(1);
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
-        // ✅ Mock DataReader to return expected values
+        // Mock DataReader to return expected values
         _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)  // Simulating a row exists
             .Returns(false); // Simulating end of data
@@ -149,16 +149,16 @@ public class CreateCohortDistributionDataTests
             _cohortDistributionMock.Object
         );
 
-        // ✅ Ensure the mock IDataReader is properly returned when ExecuteReader is called
+        // Ensure the mock IDataReader is properly returned when ExecuteReader is called
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
-        // ✅ Mock Read() to return false (no rows available)
+        //  Mock Read() to return false (no rows available)
         _mockDataReader.Setup(reader => reader.Read()).Returns(false);
 
-        // ✅ Ensure COLUMN1 does not cause a NullReferenceException
+        // Ensure COLUMN1 does not cause a NullReferenceException
         _mockDataReader.Setup(reader => reader["COLUMN1"]).Returns(DBNull.Value);
 
-        // ✅ FIXED: Ensure mapFunction handles null values safely
+        // FIXED: Ensure mapFunction handles null values safely
         var result = createCohortDistributionData.ExecuteQuery(
             _commandMock.Object,
             reader => reader["COLUMN1"] != DBNull.Value ? reader["COLUMN1"].ToString() : string.Empty
@@ -241,13 +241,13 @@ public class CreateCohortDistributionDataTests
             _cohortDistributionMock.Object
         );
 
-        // ✅ Ensure mock command returns a valid mock data reader
+        // Ensure mock command returns a valid mock data reader
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
-        // ✅ Ensure Read() returns false (no rows available)
+        // Ensure Read() returns false (no rows available)
         _mockDataReader.Setup(reader => reader.Read()).Returns(false);
 
-        // ✅ Ensure column access does not throw NullReferenceException
+        // Ensure column access does not throw NullReferenceException
         _mockDataReader.Setup(reader => reader["COLUMN1"]).Returns(DBNull.Value);
 
         // Call method with invalid row count
@@ -302,7 +302,7 @@ public class CreateCohortDistributionDataTests
     //Happy path component test method
     public void GetNextCohortRequestAudit_ValidRequest_ReturnsAuditRecord()
     {
-        // ✅ Arrange
+        // Arrange
             var createCohortDistributionData = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
                 _loggerMock.Object,
@@ -316,38 +316,38 @@ public class CreateCohortDistributionDataTests
             CreatedDateTime = "2024-02-26 10:30:00"
         };
 
-        // ✅ Ensure `_dbConnection.CreateCommand()` is properly mocked
+        // Ensure `_dbConnection.CreateCommand()` is properly mocked
         _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
 
-        // ✅ Ensure `ExecuteReader()` returns a mocked DataReader
+        // Ensure `ExecuteReader()` returns a mocked DataReader
         _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
 
-        // ✅ Ensure `Read()` returns at least one record
+        // Ensure `Read()` returns at least one record
         _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)  // First record exists
             .Returns(false); // No more records
 
-        // ✅ Mock column return values
+        // Mock column return values
         _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns(expectedAudit.RequestId);
         _mockDataReader.Setup(reader => reader["STATUS_CODE"]).Returns(expectedAudit.StatusCode);
         _mockDataReader.Setup(reader => reader["CREATED_DATETIME"]).Returns(expectedAudit.CreatedDateTime);
 
-        // ✅ Act: Call the method
+        // Act: Call the method
         var result = createCohortDistributionData.GetNextCohortRequestAudit(validRequestId);
 
-        // ✅ Assert: Validate output
+        // Assert: Validate output
         Assert.IsNotNull(result, "Result should not be null");
         Assert.AreEqual(expectedAudit.RequestId, result.RequestId, "RequestId does not match");
         Assert.AreEqual(expectedAudit.StatusCode, result.StatusCode, "StatusCode does not match");
         Assert.AreEqual(expectedAudit.CreatedDateTime, result.CreatedDateTime, "CreatedDateTime does not match");
 
-        // ✅ Verify that `CreateCommand(parameters)` was called once
+        // Verify that `CreateCommand(parameters)` was called once
         _mockDBConnection.Verify(m => m.CreateCommand(), Times.Once);
 
-        // ✅ Verify `ExecuteReader()` was executed exactly once
+        // Verify `ExecuteReader()` was executed exactly once
         _commandMock.Verify(m => m.ExecuteReader(), Times.Once);
 
-        // ✅ Verify that the reader accessed column values correctly
+        // Verify that the reader accessed column values correctly
         _mockDataReader.Verify(reader => reader["REQUEST_ID"], Times.Once);
         _mockDataReader.Verify(reader => reader["STATUS_CODE"], Times.Once);
         _mockDataReader.Verify(reader => reader["CREATED_DATETIME"], Times.Once);
