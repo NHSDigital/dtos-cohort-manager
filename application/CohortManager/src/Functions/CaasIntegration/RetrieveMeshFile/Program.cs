@@ -8,7 +8,8 @@ using Azure.Security.KeyVault.Certificates;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
-using System.Text.Json;
+using HealthChecks.Extensions;
+using Microsoft.Extensions.HealthChecks;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -50,6 +51,9 @@ try
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck();
+        services.AddSingleton<HealthCheckService>();
     })
     .AddExceptionHandler();
 
