@@ -13,7 +13,6 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
 
     private readonly IExceptionHandler _handleException;
 
-    const string chars = "abcdefghijklmnopqrstuvwxyz";
     public CopyFailedBatchToBlob(ILogger<CopyFailedBatchToBlob> logger, IBlobStorageHelper blobStorageHelper, IExceptionHandler handleException)
     {
         _logger = logger;
@@ -23,10 +22,6 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
 
     public async Task<bool> writeBatchToBlob(string jsonFromBatch, InvalidOperationException invalidOperationException)
     {
-        /*var randN = new Random();
-        var randomString = new string(Enumerable.Repeat(chars, 5)
-                    .Select(s => s[randN.Next(s.Length)]).ToArray());*/
-
         using (var stream = GenerateStreamFromString(jsonFromBatch))
         {
             var blobFile = new BlobFile(stream, $"failedBatch-{Guid.NewGuid()}.json");

@@ -19,7 +19,7 @@ public class CalDurableDemographicFunc : ICallDurableDemographicFunc
 
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
 
-    private int _maxNumberOfChecks;
+    private readonly int _maxNumberOfChecks;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
 
