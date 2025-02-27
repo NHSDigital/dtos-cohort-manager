@@ -137,7 +137,6 @@ public class ProcessCaasFile : IProcessCaasFile
                 if (!deleted)
                 {
                     _logger.LogError("Could not delete old demographic participant with participant Id: {ParticipantId}", basicParticipantCsvRecord.participant.ParticipantId);
-                    break;
                 }
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -159,15 +158,12 @@ public class ProcessCaasFile : IProcessCaasFile
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 
-        if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
-        {
-            _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
-            await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
+        _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
+        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
 
-            foreach (var updateRecords in currentBatch.DeleteRecords)
-            {
-                await RemoveParticipant(updateRecords, name);
-            }
+        foreach (var updateRecords in currentBatch.DeleteRecords)
+        {
+            await RemoveParticipant(updateRecords, name);
         }
         // this used to release memory from being used
         currentBatch = null;

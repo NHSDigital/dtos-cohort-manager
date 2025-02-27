@@ -10,7 +10,7 @@
   },
     "specFlow": {
         "unitTestProvider": {
-            "name": "NUnit" // or MSTest, xUnit
-        }
+            "name": "NUnit"
+      }
     }
 }
