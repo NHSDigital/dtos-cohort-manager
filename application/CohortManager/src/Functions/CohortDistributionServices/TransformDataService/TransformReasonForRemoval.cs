@@ -22,7 +22,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     /// </summary>
     /// <param name="participant">The participant</param>
     /// <returns>Either a number of transformations if rules 1 or 2 are triggered, or raises an exception if rules 3 or 4 are triggered</returns>
-    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
+    public async Task<CohortDistributionParticipant?> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
     {
         var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
         var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
@@ -44,14 +44,16 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         else if (rule3)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
-            throw new TransformationException("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
         else if (rule4)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "4.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
-            throw new TransformationException("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
-        else return participant;
+        else
+        {
+            return participant;
+        }
+        return null;
     }
 
     /// <summary>
