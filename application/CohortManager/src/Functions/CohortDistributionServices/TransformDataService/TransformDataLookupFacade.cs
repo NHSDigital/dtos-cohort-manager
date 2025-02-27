@@ -7,14 +7,11 @@ using Model;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
-    private readonly ILogger<TransformDataLookupFacade> _logger;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
-    public TransformDataLookupFacade(ILogger<TransformDataLookupFacade> logger,
-                                    IDataServiceClient<BsSelectOutCode> outcodeClient,
+    public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient)
     {
-        _logger = logger;
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
     }
@@ -58,7 +55,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     /// </summary>
     private static string ParseOutcode(string postcode)
     {
-        string pattern = @"^([A-Z]{1,2}[0-9][0-9A-Z]?)\s?[0-9][A-Z]{2}$";
+        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
         if (!match.Success) throw new TransformationException("Postcode format invalid");

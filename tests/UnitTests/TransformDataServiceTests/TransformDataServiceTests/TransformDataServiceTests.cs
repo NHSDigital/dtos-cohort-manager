@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.UnitTests.Tests.TransformDataServiceTests;
+namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
 using System.Net;
 using System.Text;
