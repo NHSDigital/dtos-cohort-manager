@@ -507,9 +507,9 @@
             "Context": {
               "transformFields": [
                 {
-                "isExpression": true,
-                "field": "FamilyName",
-                "value": "databaseParticipant.FamilyName"
+                  "isExpression": true,
+                  "field": "FamilyName",
+                  "value": "databaseParticipant.FamilyName"
                 }
               ]
             }
@@ -525,7 +525,7 @@
             "Context": {
               "transformFields": [
                 {
-                  "isExpression": false,
+                  "isExpression": true,
                   "field": "FirstName",
                   "value": "databaseParticipant.GivenName"
                 }
