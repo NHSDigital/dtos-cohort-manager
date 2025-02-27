@@ -29,7 +29,7 @@ public class CalDurableDemographicFunc : ICallDurableDemographicFunc
         _logger = logger;
         _httpClient = httpClient;
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
-        _maxNumberOfChecks = int.Parse(Environment.GetEnvironmentVariable("delayBetweenChecks") ?? "50");
+        _maxNumberOfChecks = int.Parse(Environment.GetEnvironmentVariable("maxNumberOfChecks") ?? "50");
 
         _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }
