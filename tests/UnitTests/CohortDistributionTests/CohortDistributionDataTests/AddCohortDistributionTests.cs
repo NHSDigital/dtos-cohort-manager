@@ -35,6 +35,7 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
+    //Happy path component test method
     public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
     {
         var createCohortDistributionData = new CreateCohortDistributionData(
@@ -61,7 +62,54 @@ public class AddCohortDistributionTests
         var result = createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    //UnHappy path component test method
+    public void ExtractCohortDistributionParticipants_NoDataInReader_ReturnsEmptyList()
+    {
+        // Arrange
+        _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(false); // No data at all
+
+        var createCohortDistributionData = new CreateCohortDistributionData(
+            _mockDBConnection.Object,
+            _loggerMock.Object,
+            _cohortDistributionMock.Object
+        );
+
+        // Act
+        var result = createCohortDistributionData.GetUnextractedCohortDistributionParticipants(1);
+
+        // Assert
+        Assert.IsNotNull(result, "Result should not be null even when no data is present.");
+        Assert.AreEqual(0, result.Count, "Expected empty list when no records are returned.");
+    }
+
+    [TestMethod]
+    //UnHappy path component test method
+    public void ExtractCohortDistributionParticipants_ExecuteReaderReturnsNull_ThrowsException()
+    {
+        // Arrange
+        _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
+        _commandMock.Setup(m => m.ExecuteReader()).Returns((IDataReader)null); // Simulate ExecuteReader failure
+
+        var createCohortDistributionData = new CreateCohortDistributionData(
+            _mockDBConnection.Object,
+            _loggerMock.Object,
+            _cohortDistributionMock.Object
+        );
+
+        // Act & Assert
+        Assert.ThrowsException<NullReferenceException>(() =>
+            createCohortDistributionData.GetUnextractedCohortDistributionParticipants(1));
+    }
+
+
   [TestMethod]
+  //Happy path component test method
     public void ExecuteQuery_ValidQuery_ReturnsExpectedResults()
     {
         var createCohortDistributionData = new CreateCohortDistributionData(
@@ -83,6 +131,7 @@ public class AddCohortDistributionTests
         // Assert.AreEqual("Value1", result[0]);
     }
     [TestMethod]
+    //UnHappy path component test method
     public void ExecuteQuery_NoResults_ReturnsEmptyList()
     {
         var createCohortDistributionData = new CreateCohortDistributionData(
@@ -112,6 +161,7 @@ public class AddCohortDistributionTests
 
 
     [TestMethod]
+    //UnHappy path component test method
     public void CreateCommand_NullParameters_ThrowsArgumentNullException()
     {
         var createCohortDistributionData = new CreateCohortDistributionData(
@@ -124,6 +174,48 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
+    //Happy path component test method
+    public void CreateCommand_ValidParameters_ReturnsDbCommand()
+    {
+        // Arrange
+        var createCohortDistributionData = new CreateCohortDistributionData(
+            _mockDBConnection.Object,
+            _loggerMock.Object,
+            _cohortDistributionMock.Object
+        );
+        var parameters = new Dictionary<string, object> { { "Param1", "Value1" } };
+
+        _mockDBConnection.Setup(db => db.CreateCommand()).Returns(_commandMock.Object);
+
+        // Act
+        var result = createCohortDistributionData.CreateCommand(parameters);
+
+        // Assert
+        Assert.IsNotNull(result);
+        _mockDBConnection.Verify(db => db.CreateCommand(), Times.Once);
+    }
+
+    [TestMethod]
+    //Happy path component test method
+    public void AddParameters_ValidParameters_AddsToDbCommand()
+    {
+        // Arrange
+        var parameters = new Dictionary<string, object> { { "Param1", "Value1" } };
+        var mockParameterCollection = new Mock<IDataParameterCollection>();
+
+        _commandMock.Setup(m => m.CreateParameter()).Returns(new Mock<IDbDataParameter>().Object);
+        _commandMock.Setup(m => m.Parameters).Returns(mockParameterCollection.Object);
+
+        // Act
+        var result = CreateCohortDistributionData.AddParameters(parameters, _commandMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        _commandMock.Verify(m => m.CreateParameter(), Times.Once);
+    }
+
+    [TestMethod]
+    //UnHappy path component test method
     public void AddParameters_NullDbCommand_ThrowsArgumentNullException()
     {
         var parameters = new Dictionary<string, object> { { "Param1", "Value1" } };
@@ -131,6 +223,7 @@ public class AddCohortDistributionTests
     }
 
     [TestMethod]
+    //UnHappy path component test method
     public void GetUnextractedCohortDistributionParticipants_InvalidRowCount_ReturnsEmptyList()
     {
         var createCohortDistributionData = new CreateCohortDistributionData(
@@ -249,6 +342,59 @@ public class AddCohortDistributionTests
         _mockDataReader.Verify(reader => reader["REQUEST_ID"], Times.Once);
         _mockDataReader.Verify(reader => reader["STATUS_CODE"], Times.Once);
         _mockDataReader.Verify(reader => reader["CREATED_DATETIME"], Times.Once);
+    }
+
+    [TestMethod]
+    //Happy path component test method
+    public async Task GetCohortRequestAudit_ValidRequest_ReturnsAuditList()
+    {
+        // Arrange
+        var createCohortDistributionData = new CreateCohortDistributionData(
+                _mockDBConnection.Object,
+                _loggerMock.Object,
+                _cohortDistributionMock.Object
+            );
+        _mockDataReader.SetupSequence(reader => reader.Read())
+            .Returns(true)  // First record exists
+            .Returns(true)  // Second record exists
+            .Returns(false); // No more records
+
+        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("REQ123");
+        _mockDataReader.Setup(reader => reader["STATUS_CODE"]).Returns("Completed");
+        _mockDataReader.Setup(reader => reader["CREATED_DATETIME"]).Returns(DateTime.Parse("2024-02-26 10:30:00"));
+
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var result = await createCohortDistributionData.GetCohortRequestAudit("REQ123", "Completed", DateTime.Parse("2024-02-25"));
+
+        // Assert
+        Assert.IsNotNull(result, "Result should not be null");
+        Assert.AreEqual(2, result.Count, "Expected 2 audit records, but got a different count");
+        Assert.AreEqual("REQ123", result[0].RequestId, "RequestId does not match");
+        Assert.AreEqual("Completed", result[0].StatusCode, "StatusCode does not match");
+    }
+
+    [TestMethod]
+    //Unhappy path component test method
+    public void GetNextCohortRequestAudit_InvalidRequestId_ReturnsEmptyRecord()
+    {
+        // Arrange
+        var createCohortDistributionData = new CreateCohortDistributionData(
+            _mockDBConnection.Object,
+            _loggerMock.Object,
+            _cohortDistributionMock.Object
+        );
+        _mockDataReader.Setup(reader => reader.Read()).Returns(false); // No records found
+        _commandMock.Setup(m => m.ExecuteReader()).Returns(_mockDataReader.Object);
+
+        // Act
+        var result = createCohortDistributionData.GetNextCohortRequestAudit("INVALID_REQ");
+
+        // Assert
+        Assert.IsNotNull(result, "Result should not be null");
+        Assert.IsTrue(string.IsNullOrEmpty(result.RequestId), "RequestId should be empty");
+        Assert.IsTrue(string.IsNullOrEmpty(result.StatusCode), "StatusCode should be empty");
     }
 
 }
