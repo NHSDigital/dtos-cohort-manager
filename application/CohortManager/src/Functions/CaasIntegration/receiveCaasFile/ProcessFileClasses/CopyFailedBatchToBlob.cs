@@ -23,13 +23,13 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
 
     public async Task<bool> writeBatchToBlob(string jsonFromBatch, InvalidOperationException invalidOperationException)
     {
-        var randN = new Random();
+        /*var randN = new Random();
         var randomString = new string(Enumerable.Repeat(chars, 5)
-                    .Select(s => s[randN.Next(s.Length)]).ToArray());
+                    .Select(s => s[randN.Next(s.Length)]).ToArray());*/
 
         using (var stream = GenerateStreamFromString(jsonFromBatch))
         {
-            var blobFile = new BlobFile(stream, $"failedBatch-{randomString}.json");
+            var blobFile = new BlobFile(stream, $"failedBatch-{Guid.NewGuid()}.json");
             var copied = await _blobStorageHelper.UploadFileToBlobStorage(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), "failed-batch", blobFile);
 
             if (copied)

@@ -19,7 +19,7 @@ public class CalDurableDemographicFunc : ICallDurableDemographicFunc
 
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
 
-    private const int _maxNumberOfChecks = 50;
+    private int _maxNumberOfChecks;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
 
@@ -29,6 +29,7 @@ public class CalDurableDemographicFunc : ICallDurableDemographicFunc
         _logger = logger;
         _httpClient = httpClient;
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
+        _maxNumberOfChecks = int.Parse(Environment.GetEnvironmentVariable("delayBetweenChecks") ?? "50");
 
         _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }

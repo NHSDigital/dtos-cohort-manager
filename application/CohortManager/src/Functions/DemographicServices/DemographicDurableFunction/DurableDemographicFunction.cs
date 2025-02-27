@@ -74,10 +74,9 @@ public class DurableDemographicFunction
                     cts.Cancel();
                     var recordsInserted = await task;
 
-                    if (!recordsInserted)
+                    if (recordsInserted)
                     {
-                        var exception = new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
-                        throw exception;
+                        throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
                     }
                     return true;
                 }
