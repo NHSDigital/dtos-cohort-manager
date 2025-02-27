@@ -90,12 +90,12 @@ public class TransformDataService
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
-            if (participant != null)
+            if (participant.NhsNumber != null)
             {
                 var response = JsonSerializer.Serialize(participant);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
         }
         catch (TransformationException ex)
         {

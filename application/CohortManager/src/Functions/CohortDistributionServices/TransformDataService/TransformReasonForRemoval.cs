@@ -22,7 +22,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     /// </summary>
     /// <param name="participant">The participant</param>
     /// <returns>Either a number of transformations if rules 1 or 2 are triggered, or raises an exception if rules 3 or 4 are triggered</returns>
-    public async Task<CohortDistributionParticipant?> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
+    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
     {
         var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
         var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
@@ -53,7 +53,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         {
             return participant;
         }
-        return null;
+        return new CohortDistributionParticipant();
     }
 
     /// <summary>
