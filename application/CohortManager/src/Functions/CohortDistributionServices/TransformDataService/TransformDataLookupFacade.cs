@@ -55,7 +55,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     /// </summary>
     private static string ParseOutcode(string postcode)
     {
-        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
+        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
         if (!match.Success) throw new TransformationException("Postcode format invalid");
