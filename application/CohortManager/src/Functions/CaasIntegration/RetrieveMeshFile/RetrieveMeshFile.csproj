@@ -33,5 +33,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
+        <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
     </ItemGroup>
 </Project>
