@@ -124,7 +124,7 @@ public class TransformReasonForRemovalTests
         var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
-        Assert.AreEqual(null, result);
+        Assert.AreSame(new Model.CohortDistributionParticipant().NhsNumber, result.NhsNumber);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -154,7 +154,7 @@ public class TransformReasonForRemovalTests
         var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
-        Assert.AreEqual(null, result);
+        Assert.AreEqual(new CohortDistributionParticipant().NhsNumber, result.NhsNumber);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
