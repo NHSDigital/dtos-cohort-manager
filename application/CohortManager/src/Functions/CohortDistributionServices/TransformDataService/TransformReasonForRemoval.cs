@@ -11,7 +11,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformDataLookupFacade _dataLookup;
     private const int ruleId = 1;
-    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup)
+    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
         _dataLookup = dataLookup;

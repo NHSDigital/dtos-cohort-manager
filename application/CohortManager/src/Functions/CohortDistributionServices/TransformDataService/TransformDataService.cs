@@ -87,7 +87,8 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
+
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
 
@@ -154,18 +155,39 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
-        // Assign new name prefix
-        namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
-                                        .Select(result => result.ActionResult.Output)
-                                        .FirstOrDefault()
-                                        ?? null;
+        // // Assign new name prefix
+        // namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
+        //                                 .Select(result => result.ActionResult.Output)
+        //                                 .FirstOrDefault()
+        //                                 ?? null;
+
 
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
 
-        if (!prefixTransformed)
-            namePrefix = null;
 
-        return namePrefix;
+
+        var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
+        if(namePrefixRule == null)
+        {
+            return null;
+        }
+        if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
+        {
+            return namePrefix;
+        }
+
+        var ruleNumber = int.Parse(namePrefixRule.Rule.RuleName.Split('.')[0]);
+        var ruleName = namePrefixRule.Rule.RuleName.Split('.')[2];
+        namePrefix = (string)namePrefixRule.ActionResult.Output;
+
+        if (prefixTransformed)
+        {
+            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix {ruleName}",ruleNumber);
+            return namePrefix;
+        }
+
+
+        return null;
     }
 
     /// <summary>
