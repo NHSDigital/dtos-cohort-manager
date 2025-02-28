@@ -155,18 +155,9 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
-        // // Assign new name prefix
-        // namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
-        //                                 .Select(result => result.ActionResult.Output)
-        //                                 .FirstOrDefault()
-        //                                 ?? null;
-
-
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
-
-
-
         var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
+
         if(namePrefixRule == null)
         {
             _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
