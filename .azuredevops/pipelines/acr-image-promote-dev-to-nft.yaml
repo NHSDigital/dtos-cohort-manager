@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: fix/dtoss-3350-fix-service-connection
+      ref: ce0f49a28a90aa60ac579db350dbd18971b0d5ed
       endpoint: NHSDigital
 
 variables:
