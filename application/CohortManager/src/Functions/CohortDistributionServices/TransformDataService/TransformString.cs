@@ -43,7 +43,8 @@ public class TransformString
         participant.TelephoneNumber = await CheckParticipantCharactersAsync(participant.TelephoneNumber);
         participant.MobileNumber = await CheckParticipantCharactersAsync(participant.MobileNumber);
 
-        if(ParticipantUpdated){
+        if(ParticipantUpdated)
+        {
             await _exceptionHandler.CreateTransformExecutedExceptions(participant,"CharacterRules",71);
         }
 
