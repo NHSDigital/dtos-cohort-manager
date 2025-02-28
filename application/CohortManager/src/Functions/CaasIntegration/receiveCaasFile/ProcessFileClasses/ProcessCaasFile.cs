@@ -128,14 +128,16 @@ public class ProcessCaasFile : IProcessCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
 
+                var deleted = await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                if (!deleted)
+                {
+                    _logger.LogError("Could not delete old demographic participant with participant Id: {ParticipantId}", basicParticipantCsvRecord.participant.ParticipantId);
+                }
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
 
@@ -167,7 +169,7 @@ public class ProcessCaasFile : IProcessCaasFile
         currentBatch = null;
     }
 
-    private async Task DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -184,11 +186,11 @@ public class ProcessCaasFile : IProcessCaasFile
                 var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
 
                 _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
-                return;
+                return deleted;
             }
             else
             {
-                _logger.LogWarning("The participant could not be found, when trying to delete old Participant. This could prevent updates from being applied");
+                _logger.LogWarning("The participant could not be found, preventing updates from being applied");
             }
         }
         catch (Exception ex)
@@ -196,6 +198,7 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
+        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
