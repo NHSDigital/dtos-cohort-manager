@@ -480,7 +480,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherInvalidFlagTrueAndNoPrimaryCareProvider",0),times: Times.Never);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherInvalidFlagTrueAndNoPrimaryCareProvider",0),times: Times.Once);
 
     }
 
@@ -533,7 +533,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        //_handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherInvalidFlagTrueAndNoPrimaryCareProvider",0),times: Times.Once);
+
 
     }
 
@@ -587,7 +587,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        //_handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),It.IsAny<string>(),It.IsAny<int>()),times: Times.Never);
+
     }
 
     [TestMethod]
@@ -619,13 +619,7 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
-    private void SetUpRequestBody(string json)
-    {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
 
-        _request.Setup(r => r.Body).Returns(bodyStream);
-    }
 
     [TestMethod]
     public async Task Run_DateOfDeathSuppliedAndReasonForRemovalIsNotDea_SetDateOfDeathToNull()
@@ -685,5 +679,14 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+
+    private void SetUpRequestBody(string json)
+    {
+        var byteArray = Encoding.ASCII.GetBytes(json);
+        var bodyStream = new MemoryStream(byteArray);
+
+        _request.Setup(r => r.Body).Returns(bodyStream);
     }
 }
