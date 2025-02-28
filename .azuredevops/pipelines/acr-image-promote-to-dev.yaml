@@ -15,15 +15,7 @@ resources:
 variables:
   - group: DEV_hub_backend_remote_state
   - name: destEnvironmentShortName
-    value: int
-  - name: sourceRegistry
-    value: acrukshubdevcohman
-  - name: selectImageTag
-    value: nft
-  - name: destRegistry
-    value: acrukshubdevcohman
-  - name: addImageTag
-    value: integration
+    value: dev
 
 stages:
 - stage: db_changes_stage
@@ -37,24 +29,7 @@ stages:
       - checkout: self
       - template: ../templates/steps/apply-database-changes.yaml
         parameters:
-          serviceConnection: sc-cohort-manager-int
-
-- stage: re_tag_stage
-  displayName: ACR re-tag
-  jobs:
-  - job: re_tag
-    pool:
-      name: private-pool-dev-uks
-    displayName: Update/copy Docker images with new tag
-    variables:
-      SRC_REGISTRY: $(sourceRegistry)
-      DEST_REGISTRY: $(destRegistry)
-      SELECT_IMAGE_TAG: $(selectImageTag)
-      ADD_IMAGE_TAG: $(addImageTag)
-    steps:
-      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-int
+          serviceConnection: sc-cohort-manager-dev
 
 - stage: deploy_image_stage
   displayName: Deploy images
@@ -72,12 +47,12 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-int
+          serviceConnection: sc-cohort-manager-dev
 
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
   variables:
-  - group: INT_automation_testing_pipeline
+  - group: DEV_automation_testing_pipeline
   jobs:
   - job: post_deployment_tests
     displayName: Run post-deployment tests
@@ -91,4 +66,4 @@ stages:
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-int
+        serviceConnection: sc-cohort-manager-dev
