@@ -227,6 +227,7 @@ public class ExceptionHandler : IExceptionHandler
         }
         return true;
     }
+
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
     {
         var exception = new ValidationException

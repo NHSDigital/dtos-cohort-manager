@@ -139,7 +139,7 @@ public class TransformDataService
         return participant;
     }
 
-    private async Task<string> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
+    private async Task<string?> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
     {
 
         // Set up rules engine
@@ -225,7 +225,8 @@ public class TransformDataService
             throw new TransformationException("There was an error during transformation");
         }
     }
-    private async Task CreateTransformExecutedExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant){
+    private async Task CreateTransformExecutedExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
+    {
         var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
 
         foreach(var transform in executedTransforms)
