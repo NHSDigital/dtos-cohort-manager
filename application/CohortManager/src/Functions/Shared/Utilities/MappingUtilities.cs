@@ -52,7 +52,7 @@ public static class MappingUtilities
 
     public static string? FormatDateTime(DateTime? date)
     {
-        return date?.ToString("yyyy-MM-dd hh:mm:ss");
+        return date?.ToString("yyyy-MM-dd");
     }
 
     private static string HandlePartialDates(string dateString)
