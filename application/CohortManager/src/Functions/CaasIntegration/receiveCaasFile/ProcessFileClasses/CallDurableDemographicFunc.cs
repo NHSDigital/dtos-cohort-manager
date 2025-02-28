@@ -165,17 +165,7 @@ public class CalDurableDemographicFunc : ICallDurableDemographicFunc
     private static string getInstanceId(string statusRequestGetUri)
     {
         var splitStringList = statusRequestGetUri.Split('/').ToList();
-
-        for (int i = 1; i < splitStringList.Count; i++)
-        {
-            //find instance id in URL
-            if (splitStringList[i - 1] == "instances")
-            {
-                return splitStringList[i].Split('?')[0];
-            }
-        }
-
-        return "";
+        return splitStringList[7].Split('?')[0];
     }
 
 }
