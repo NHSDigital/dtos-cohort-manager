@@ -76,7 +76,7 @@ public class TransformDataService
             var lastParticipant = existingParticipantsList.OrderByDescending(x => x.CohortDistributionId).FirstOrDefault();
 
             // Character transformation
-            var transformString = new TransformString();
+            var transformString = new TransformString(_exceptionHandler);
             participant = await transformString.TransformStringFields(participant);
 
             // Address transformation
@@ -87,7 +87,8 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix);
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
+
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
             if (participant.NhsNumber != null)
@@ -133,11 +134,12 @@ public class TransformDataService
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         await HandleExceptions(resultList, participant);
+        await CreateTransformExecutedExceptions(resultList,participant);
 
         return participant;
     }
 
-    private static async Task<string> TransformNamePrefixAsync(string namePrefix)
+    private async Task<string?> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
     {
 
         // Set up rules engine
@@ -155,18 +157,31 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
-        // Assign new name prefix
-        namePrefix = (string?)rulesList.Where(result => result.IsSuccess)
-                                        .Select(result => result.ActionResult.Output)
-                                        .FirstOrDefault()
-                                        ?? null;
-
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
+        var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
 
-        if (!prefixTransformed)
-            namePrefix = null;
+        if(namePrefixRule == null)
+        {
+            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
+            return null;
+        }
+        if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
+        {
+            return namePrefix;
+        }
 
-        return namePrefix;
+        var ruleNumber = int.Parse(namePrefixRule.Rule.RuleName.Split('.')[0]);
+        var ruleName = namePrefixRule.Rule.RuleName.Split('.')[2];
+        namePrefix = (string)namePrefixRule.ActionResult.Output;
+
+        if (prefixTransformed)
+        {
+            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix {ruleName}",ruleNumber);
+            return namePrefix;
+        }
+
+
+        return null;
     }
 
     /// <summary>
@@ -210,4 +225,18 @@ public class TransformDataService
             throw new TransformationException("There was an error during transformation");
         }
     }
+    private async Task CreateTransformExecutedExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
+    {
+        var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
+
+        foreach(var transform in executedTransforms)
+        {
+            var ruleDetails = transform.Rule.RuleName.Split('.');
+
+            var ruleId = int.Parse(ruleDetails[0]);
+            var ruleName = string.Concat(ruleDetails[1..]);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
+        }
+    }
+
 }
