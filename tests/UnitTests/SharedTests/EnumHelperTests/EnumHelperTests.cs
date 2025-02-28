@@ -5,7 +5,8 @@ using Microsoft.Identity.Client;
 using Model.Enums;
 
 [TestClass]
-public class EnumHelperTests {
+public class EnumHelperTests 
+{
 
     [TestMethod]
     public void ReturnDisplayNameWhenValidInput ()
@@ -34,7 +35,8 @@ public class EnumHelperTests {
 
     // May remove this and associated method after discussion with team
     [TestMethod]
-    public void ReturnListOfHTTPStatusCodesCorrectly() {
+    public void ReturnListOfHTTPStatusCodesCorrectly() 
+    {
         //No Arrange
         //Act
         List<string> actual = EnumHelper.GetHttpStatusCodeStringList();

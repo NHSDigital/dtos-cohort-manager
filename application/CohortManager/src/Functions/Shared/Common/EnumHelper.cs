@@ -12,13 +12,15 @@ public static class EnumHelper
     public static string GetDisplayName(Enum enumValue)
     {
         var displayName = "";
-        try {
+        try 
+        {
             displayName = enumValue.GetType()
             .GetMember(enumValue.ToString())[0]
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
 
-        } catch (Exception) {
+        } 
+        catch (Exception) {
             // There is nothing to do when catching the exception as expect output is to return empty string.
         }
         
