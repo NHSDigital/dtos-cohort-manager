@@ -21,7 +21,7 @@ public static class EnumHelper
 
         } 
         catch (Exception) {
-            // There is nothing to do when catching the exception as expect output is to return empty string.
+            // There is nothing to do when catching the exception as expected output is to return empty string.
         }
         
         return displayName;
