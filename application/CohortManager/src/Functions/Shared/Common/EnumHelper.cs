@@ -11,19 +11,21 @@ public static class EnumHelper
     /// </summary>
     public static string GetDisplayName(Enum enumValue)
     {
-        var displayName = enumValue.GetType()
+        var displayName = "";
+        try {
+            displayName = enumValue.GetType()
             .GetMember(enumValue.ToString())[0]
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
 
-        if (string.IsNullOrEmpty(displayName))
-        {
-            displayName = enumValue.ToString();
+        } catch (Exception) {
+            // There is nothing to do when catching the exception as expect output is to return empty string.
         }
-
+        
         return displayName;
     }
 
+    // TODO ? : Maybe remove this method as it appears to be unused.
     /// <summary>
     /// Gets list of all Http Status Codes
     /// </summary>
