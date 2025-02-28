@@ -229,8 +229,6 @@ public class ExceptionHandler : IExceptionHandler
     }
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
     {
-
-
         var exception = new ValidationException
         {
             RuleId = ruleId,
@@ -256,7 +254,6 @@ public class ExceptionHandler : IExceptionHandler
         }
 
     }
-
 
     /// <summary>
     /// Method is used to create a default validation exception for the database
