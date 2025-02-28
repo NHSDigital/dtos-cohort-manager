@@ -20,7 +20,8 @@ public static class EnumHelper
             .GetName();
 
         } 
-        catch (Exception) {
+        catch (Exception) 
+        {
             // There is nothing to do when catching the exception as expected output is to return empty string.
         }
         
