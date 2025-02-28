@@ -10,8 +10,7 @@ public class EnumHelperTests {
     [TestMethod]
     public void ReturnDisplayNameWhenValidInput ()
     {
-        //Arrange 
-
+        //No Arrange 
         //Act
         string result = EnumHelper.GetDisplayName(ServiceProvider.BSS);
 
@@ -24,7 +23,7 @@ public class EnumHelperTests {
     [TestMethod]
     public void ReturnEmptyStringWhenDisplayNameIsNull() 
     {
-
+        //No Arrange
         //Act
         string result = EnumHelper.GetDisplayName(null);
 
