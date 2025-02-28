@@ -91,10 +91,12 @@ public class TransformDataService
 
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
-
-            var response = JsonSerializer.Serialize(participant);
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+            if (participant.NhsNumber != null)
+            {
+                var response = JsonSerializer.Serialize(participant);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
         }
         catch (TransformationException ex)
         {
@@ -143,7 +145,7 @@ public class TransformDataService
         // Set up rules engine
         string json = await File.ReadAllTextAsync("namePrefixRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var reSettings = new ReSettings {UseFastExpressionCompiler = false};
+        var reSettings = new ReSettings { UseFastExpressionCompiler = false };
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         namePrefix = namePrefix.ToUpper();
