@@ -10,14 +10,18 @@ public static class EnumHelper
     /// </summary>
     public static string GetDisplayName(Enum enumValue)
     {
-        var displayName = enumValue.GetType()
+        var displayName = "";
+        try 
+        {
+            displayName = enumValue.GetType()
             .GetMember(enumValue.ToString())[0]
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
-
-        if (string.IsNullOrEmpty(displayName))
+        } 
+        catch (Exception) 
         {
             displayName = enumValue.ToString();
+            // There is nothing to do when catching the exception as expected output is to return empty string.
         }
 
         return displayName;
