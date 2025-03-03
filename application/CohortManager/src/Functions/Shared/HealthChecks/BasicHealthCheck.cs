@@ -12,25 +12,19 @@ public class BasicHealthCheck: IHealthCheck
         _logger = logger;
     }
     public async Task<HealthCheckResult> CheckHealthAsync(
-        HealthCheckContext context, 
+        HealthCheckContext context,
         CancellationToken cancellationToken = default)
     {
-        var isHealthy = true; 
         _logger.LogInformation("Running basic health check...");
 
         try
         {
-            if (isHealthy)
-            {
-                return await Task.FromResult(HealthCheckResult.Healthy("The service is up and running."));
-            }
-            
             return await Task.FromResult(HealthCheckResult.Healthy("The service is down."));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Basic health check failed.");
-            return await Task.FromResult(HealthCheckResult.Unhealthy("Basic health check failed.", ex));
+            return await Task.FromResult(HealthCheckResult.Unhealthy("The service is down.", ex));
         }
     }
 }
