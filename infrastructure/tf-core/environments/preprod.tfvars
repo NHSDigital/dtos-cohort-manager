@@ -680,7 +680,7 @@ function_apps = {
         CohortQueueName             = "cohort-distribution-queue"
         CohortQueueNamePoison       = "cohort-distribution-queue-poison"
         IgnoreParticipantExceptions = "false"
-        IsExtractedToBSSelect       = "false"
+        IsExtractedToBSSelect       = "true"
       }
     }
 
