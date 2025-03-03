@@ -76,6 +76,43 @@ variable "features" {
   type        = map(bool)
 }
 
+variable "rbac_principal_name_key_vault" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
+variable "rbac_principal_name_resource_group" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
+variable "rbac_principal_name_storage" {
+  description = "The user group to assign RBAC roles to (TODO: Convert to list of groups)"
+  type        = string
+  default     = ""
+}
+
+# TODO: Convert above strings to map of roles and groups
+# variable "rbac_principals" {
+#   description = "The user groups to assign RBAC roles to"
+#   type = object({
+#     key_vault = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#     resource_group = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#     storage = object({
+#       principal_display_name = string
+#       roles        = list(string)
+#     })
+#   })
+# }
+
 variable "regions" {
   type = map(object({
     address_space     = optional(string)
@@ -94,6 +131,18 @@ variable "regions" {
 }
 
 ### Cohort Manager specific variables ###
+
+# Populate the following variables to create a project-specific ACR
+variable "acr" {
+  description = "Configuration for the Azure Container Registry"
+  type = object({
+    admin_enabled = bool
+    sku           = string
+    uai_name      = string
+  })
+  default = null
+}
+
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
@@ -166,11 +215,11 @@ variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
     acr_mi_name                            = string
-    acr_name                               = string
-    acr_rg_name                            = string
+    acr_name                               = optional(string, "") # Use calculated value if not provided
+    acr_rg_name                            = optional(string, "") # Use calculated value if not provided
     always_on                              = bool
-    app_insights_name                      = string
-    app_insights_rg_name                   = string
+    app_insights_name                      = optional(string, "") # Use calculated value if not provided
+    app_insights_rg_name                   = optional(string, "") # Use calculated value if not provided
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
@@ -322,6 +371,7 @@ variable "sqlserver" {
     sql_admin_group_name                 = optional(string)
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
+    public_network_access_enabled        = optional(bool, false)
     security_alert_policy_retention_days = optional(number)
 
     # Server Instance
@@ -358,10 +408,10 @@ variable "storage_accounts" {
   type = map(object({
     name_suffix                             = string
     account_tier                            = optional(string, "Standard")
-    blob_properties_delete_retention_policy = optional(number, 7)
-    blob_properties_versioning_enabled      = optional(bool, false)
     replication_type                        = optional(string, "LRS")
     public_network_access_enabled           = optional(bool, false)
+    blob_properties_delete_retention_policy = optional(number, 7)
+    blob_properties_versioning_enabled      = optional(bool, false)
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")

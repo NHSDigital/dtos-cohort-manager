@@ -40,9 +40,9 @@ jobs:
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: "Create infractructure"
+      - name: "Create infrastructure"
         run: |
-          echo "Creating infractructure..."
+          echo "Creating infrastructure..."
       - name: "Update database"
         run: |
           echo "Updating database..."
