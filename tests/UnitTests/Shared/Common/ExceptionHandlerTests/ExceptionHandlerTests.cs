@@ -16,7 +16,7 @@ public class ExceptionHandlerTests
     private readonly ExceptionHandler _function;
 
     public ExceptionHandlerTests()
-    {
+    { 
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
         _function = new ExceptionHandler(_logger.Object, _callFunction.Object);
     }
@@ -28,7 +28,7 @@ public class ExceptionHandlerTests
     [DataRow("0")]
     [DataRow("0000000000")]
     [DataRow("N/A")]
-    public async Task Run_CreateSystemExceptionLog_IsCalled_WithParticipant_Success(string NhsNumber)
+    public async Task CreateSystemExceptionLog_IsCalledWithParticipantExceptionAndFileName_Success(string NhsNumber)
     {
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
@@ -45,7 +45,7 @@ public class ExceptionHandlerTests
 
     [TestMethod]
     [DataRow(null)]
-    public async Task Run_CreateSystemExceptionLog_IsCalled_WithParticipant_NullNhsNumber_SetsExceptionFlagToNull(string NhsNumber)
+    public async Task CreateSystemExceptionLog_IsCalledWithParticipantWithNullNhsNumber_SetsExceptionFlagToNull(string NhsNumber)
     {
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
@@ -71,7 +71,7 @@ public class ExceptionHandlerTests
     [DataRow("abc123")]
     [DataRow("9999999999")]
     [DataRow("12345678901234567890")]
-    public async Task Run_CreateValidationExceptionLog_Success_AllFatal_WithMessage(string participantId)
+    public async Task CreateValidationExceptionLog_IsCalledWithAllFatalErrorsAndParticipant_LogsFatalMessage(string participantId)
     {
         // Arrange
         var participantCsvRecord = new ParticipantCsvRecord()
@@ -117,7 +117,7 @@ public class ExceptionHandlerTests
     [DataRow("0 ", false)]          // trailing space – not exactly "0"
     [DataRow(" 0000000000", false)] // leading space – not exactly "0000000000"
     [DataRow("abc", false)]
-    public async Task Run_CreateSystemExceptionLogFromNhsNumber_CategoryTest(string nhsNumber, bool nhsNumberIsNil)
+    public async Task CreateSystemExceptionLogFromNhsNumber_IsCalledWithExceptionNhsNumberFileNameScreeningNameAndErrorRecord_NilNhsNumberReturnsCategory7InPayload(string nhsNumber, bool nhsNumberIsNil)
     {
         // Arrange
         var exception = new Exception("Test exception");
@@ -153,7 +153,7 @@ public class ExceptionHandlerTests
     [TestMethod]
     [DataRow("ScreeningTest")]
     [DataRow(null)]
-    public async Task Run_CreateSystemExceptionLog_BasicParticipantDataOverload_Success_WithNhsNumber(string? screeningName)
+    public async Task CreateSystemExceptionLog_CalledWithBasicParticipantData_SuccessWithNhsNumber(string? screeningName)
     {
         // Arrange
         var basicParticipant = new BasicParticipantData { NhsNumber = "987654321", ScreeningName = screeningName };
@@ -174,7 +174,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateSystemExceptionLog_BasicParticipantDataOverload_Success_WithNullNhsNumber()
+    public async Task CreateSystemExceptionLog_BasicParticipantDataOverload_Success_WithNullNhsNumber()
     {
         // Arrange
         var basicParticipant = new BasicParticipantData { NhsNumber = null, ScreeningName = "ScreeningTest" };
@@ -195,7 +195,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateDeletedRecordException_Success()
+    public async Task CreateDeletedRecordException_CalledWithCsvRecord_SuccessNoError()
     {
         // Arrange
         var participantCsvRecord = new BasicParticipantCsvRecord
@@ -221,7 +221,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateDeletedRecordException_Failure_LogsError()
+    public async Task CreateDeletedRecordException_CalledWithCsvRecord_FailureLogsError()
     {
         // Arrange
         var participantCsvRecord = new BasicParticipantCsvRecord
@@ -247,7 +247,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateSchemaValidationException_Success()
+    public async Task CreateSchemaValidationException_CalledWithCsvRecordAndDescription_SuccessNoErrorCorrectPayload()
     {
         // Arrange
         var participantCsvRecord = new BasicParticipantCsvRecord
@@ -282,7 +282,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateSchemaValidationException_Failure_LogsError()
+    public async Task CreateSchemaValidationException_FailureResponse_LogsError()
     {
         // Arrange
         var participantCsvRecord = new BasicParticipantCsvRecord
@@ -309,7 +309,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateTransformationExceptionLog_Success()
+    public async Task CreateTransformationExceptionLog_CalledWithTransformationErrors_EndpointCalledNoError()
     {
         // Arrange
         var rule = CreateSampleRule();
@@ -345,7 +345,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateTransformationExceptionLog_Failure_LogsError()
+    public async Task CreateTransformationExceptionLog_FailureResponse_LogsError()
     {
         // Arrange
         var rule = CreateSampleRule();
@@ -370,7 +370,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateTransformExecutedExceptions_Success()
+    public async Task CreateTransformExecutedExceptions_CalledWithCohortDistributionParticipantAndRule_NoErrorCorrectPayloadSent()
     {
         // Arrange
         var cohortDistributionParticipant = new CohortDistributionParticipant
@@ -405,7 +405,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateTransformExecutedExceptions_Failure_LogsError()
+    public async Task CreateTransformExecutedExceptions_RequestFailure_LogsError()
     {
         // Arrange
         var cohortDistributionParticipant = new CohortDistributionParticipant
@@ -432,7 +432,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateValidationExceptionLog_FatalRule_NoExceptionMessage_Success()
+    public async Task CreateValidationExceptionLog_CalledWithFatalRuleAndNoExceptionMessage_SuccessDefaultMessageLogged()
     {
         // Arrange
         var rule = CreateSampleRule(); // rule.RuleName is "1.Message.1" so fatal
@@ -467,7 +467,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateValidationExceptionLog_NonFatalRule_NoExceptionMessage_Success()
+    public async Task CreateValidationExceptionLog_NonFatalRuleNoExceptionMessage_SuccessDefaultMessageLogged()
     {
         // Arrange
         var rule = CreateSampleRule();
@@ -519,7 +519,7 @@ public class ExceptionHandlerTests
 
 
     [TestMethod]
-    public async Task Run_CreateValidationExceptionLog_ExceptionMessageOverridesOutput()
+    public async Task CreateValidationExceptionLog_ExceptionMessageSupplied_OverridesLogOutputErrorMessage()
     {
         // Arrange
         var rule = CreateSampleRule();
@@ -551,7 +551,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateValidationExceptionLog_Failure_ReturnsCreatedExceptionFalse()
+    public async Task CreateValidationExceptionLog_RequestFailure_ReturnsCreatedExceptionFalseAndSpecificErrorLog()
     {
         // Arrange
         var rule = CreateSampleRule();
@@ -584,7 +584,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateRecordValidationExceptionLog_Success()
+    public async Task CreateRecordValidationExceptionLog_OkResponse_ReturnsTrue()
     {
         // Arrange
         string nhsNumber = "123456789";
@@ -604,7 +604,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public async Task Run_CreateRecordValidationExceptionLog_Failure_LogsError()
+    public async Task CreateRecordValidationExceptionLog_RequestFailure_LogsErrorReturnsFalse()
     {
         // Arrange
         string nhsNumber = "123456789";
@@ -631,7 +631,7 @@ public class ExceptionHandlerTests
     }
 
     [TestMethod]
-    public void Constructor_ThrowsException_WhenEnvironmentVariableNotSet()
+    public void ExceptionHandlerConstructor_EnvironmentVariableNotSet_ThrowsException()
     {
         // Arrange - unset the environment variable temporarily
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", null);
