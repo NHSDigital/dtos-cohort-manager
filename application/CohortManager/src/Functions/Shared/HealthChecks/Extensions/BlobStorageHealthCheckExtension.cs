@@ -5,12 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class BlobStorageHealthCheckExtension
 {
-    public static IServiceCollection AddBlobStorageHealthCheck(this IServiceCollection services)
+    public static IServiceCollection AddBlobStorageHealthCheck(this IServiceCollection services, string name)
     {
         // Register blob storage health checks
         services.AddHealthChecks()
             .AddCheck<BlobStorageHealthCheck>(
-                "Blob HealthCheck",
+                "HealthCheck for " + name,
                 tags: new[] { "Blob", "Azure Storage" });
         // Register BlobServiceClient service for health check
         services.AddSingleton<BlobServiceClient>(provider =>

@@ -208,6 +208,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningWorkflow", "screen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecks", "Shared\HealthChecks\HealthChecks.csproj", "{EA290B1D-C07B-4B10-B7D1-F87E2629D069}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\EnumHelperTests\EnumHelperTests.csproj", "{1FCC5D88-C291-46E0-84BE-A8FD465FD509}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -578,6 +580,10 @@ Global
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x64.Build.0 = Release|Any CPU
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x86.ActiveCfg = Release|Any CPU
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x86.Build.0 = Release|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

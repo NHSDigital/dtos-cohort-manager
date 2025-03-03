@@ -1,4 +1,4 @@
-namespace NHS.Screening.RetrieveMeshFile;
+namespace NHS.CohortManager.CohortDistributionDataServices;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
