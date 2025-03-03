@@ -19,7 +19,7 @@ public class BasicHealthCheck: IHealthCheck
 
         try
         {
-            return await Task.FromResult(HealthCheckResult.Healthy("The service is down."));
+            return await Task.FromResult(HealthCheckResult.Healthy("The service is up and running fine."));
         }
         catch (Exception ex)
         {
