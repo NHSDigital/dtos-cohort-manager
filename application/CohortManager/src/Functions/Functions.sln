@@ -210,6 +210,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecks", "Shared\Heal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\EnumHelperTests\EnumHelperTests.csproj", "{1FCC5D88-C291-46E0-84BE-A8FD465FD509}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetMissingAddressTests", "..\..\..\..\tests\UnitTests\SharedTests\GetMissingAddressTests\GetMissingAddressTests.csproj", "{C9875AB0-1970-48CE-A9F8-F0C040563448}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -584,6 +586,10 @@ Global
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9875AB0-1970-48CE-A9F8-F0C040563448}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9875AB0-1970-48CE-A9F8-F0C040563448}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9875AB0-1970-48CE-A9F8-F0C040563448}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9875AB0-1970-48CE-A9F8-F0C040563448}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
