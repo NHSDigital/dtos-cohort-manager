@@ -1024,6 +1024,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     RetrievePDSDemographic = {
