@@ -1,7 +1,6 @@
 namespace Common;
 
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using System.Reflection;
 
 public static class EnumHelper
