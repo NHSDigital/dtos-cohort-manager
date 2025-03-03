@@ -17,10 +17,10 @@ public static class EnumHelper
             .GetMember(enumValue.ToString())[0]
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
-
         } 
         catch (Exception) 
         {
+            displayName = enumValue.ToString();
             // There is nothing to do when catching the exception as expected output is to return empty string.
         }
         
