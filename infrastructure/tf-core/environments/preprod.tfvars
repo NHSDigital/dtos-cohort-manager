@@ -1084,9 +1084,7 @@ sqlserver = {
       storage_account_type = "GeoZone"
       zone_redundant       = false
 
-      short_term_retention_policy = {
-        retention_days = 35
-      }
+      short_term_retention_policy = 35
       long_term_retention_policy = {
         weekly_retention  = "P4W"
         monthly_retention = "P12M"
