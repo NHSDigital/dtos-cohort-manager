@@ -14,25 +14,25 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Common;
-public class FakeDbConnection : IDbConnection
+public class MockDbConnection : IDbConnection
 {
     public ConnectionState State { get; private set; } = ConnectionState.Closed;
     public string ConnectionString { get; set; }
     public int ConnectionTimeout => 0;
-    public string Database => "FakeDatabase";
+    public string Database => "MockDatabase";
 
     public IDbTransaction BeginTransaction() => null;
     public IDbTransaction BeginTransaction(IsolationLevel il) => null;
     public void ChangeDatabase(string databaseName) { }
 
     public void Close() => State = ConnectionState.Closed;
-    public IDbCommand CreateCommand() => new FakeDbCommand();
+    public IDbCommand CreateCommand() => new MockDbCommand();
     public void Open() => State = ConnectionState.Open;
     public void Dispose() => Close();
 }
 
 
-public class FakeDbParameter : IDbDataParameter
+public class MockDbParameter : IDbDataParameter
 {
     public string ParameterName { get; set; }
     public object Value { get; set; }
@@ -47,7 +47,7 @@ public class FakeDbParameter : IDbDataParameter
     public byte Scale { get; set; }
 }
 
-public class FakeParameterCollection : IDataParameterCollection
+public class MockParameterCollection : IDataParameterCollection
 {
     private readonly List<IDataParameter> _parameters = new List<IDataParameter>();
 
@@ -84,9 +84,9 @@ public class FakeParameterCollection : IDataParameterCollection
     public bool Contains(string parameterName) => _parameters.Exists(p => p.ParameterName == parameterName);
     public void CopyTo(Array array, int index) => _parameters.CopyTo((IDataParameter[])array, index);
 
-    // ✅ Correct Implementation of GetEnumerator()
+
     public IEnumerator GetEnumerator() => _parameters.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => _parameters.GetEnumerator(); // ✅ Explicit interface implementation
+    IEnumerator IEnumerable.GetEnumerator() => _parameters.GetEnumerator();
 
     public int IndexOf(object value) => _parameters.IndexOf((IDataParameter)value);
     public int IndexOf(string parameterName) => _parameters.FindIndex(p => p.ParameterName == parameterName);
@@ -97,12 +97,12 @@ public class FakeParameterCollection : IDataParameterCollection
 }
 
 
-public class FakeDbCommand : IDbCommand
+public class MockDbCommand : IDbCommand
 {
     public string CommandText { get; set; }
     public int CommandTimeout { get; set; }
 
-    // ✅ Explicitly specify System.Data.CommandType to remove ambiguity
+
     private System.Data.CommandType _commandType = System.Data.CommandType.Text;
     public System.Data.CommandType CommandType
     {
@@ -111,22 +111,22 @@ public class FakeDbCommand : IDbCommand
     }
 
     public IDbConnection Connection { get; set; }
-    public IDataParameterCollection Parameters { get; } = new FakeParameterCollection();
+    public IDataParameterCollection Parameters { get; } = new MockParameterCollection();
     public IDbTransaction Transaction { get; set; }
     public UpdateRowSource UpdatedRowSource { get; set; }
 
     public void Cancel() { }
-    public IDbDataParameter CreateParameter() => new FakeDbParameter();
+    public IDbDataParameter CreateParameter() => new MockDbParameter();
     public int ExecuteNonQuery() => 1;
-    public IDataReader ExecuteReader() => new FakeDataReader();
-    public IDataReader ExecuteReader(CommandBehavior behavior) => new FakeDataReader();
+    public IDataReader ExecuteReader() => new MockDataReader();
+    public IDataReader ExecuteReader(CommandBehavior behavior) => new MockDataReader();
     public object ExecuteScalar() => null;
     public void Prepare() { }
     public void Dispose() { }
 }
 
 
-public class FakeDataReader : IDataReader
+public class MockDataReader : IDataReader
 {
     private bool _hasRead = false;
     private bool _isClosed = false;
@@ -178,10 +178,9 @@ public class FakeDataReader : IDataReader
     public DataTable GetSchemaTable() => new DataTable();
     public bool NextResult() => false;
 
-    // ✅ Fixed: Implement IDisposable.Dispose()
     public void Dispose()
     {
-        Close(); // Close the reader when disposing
+        Close();
     }
 }
 
@@ -208,7 +207,7 @@ public void GetAddress_ShouldExecuteSuccessfully()
         Postcode = "AB12 3CD"
     };
 
-    using (var connection = new FakeDbConnection()) // ✅ No SqlConnection!
+    using (var connection = new MockDbConnection())
     {
         var getMissingAddress = new GetMissingAddress(participant, connection);
 
@@ -216,7 +215,7 @@ public void GetAddress_ShouldExecuteSuccessfully()
         var result = getMissingAddress.GetAddress();
 
         // Assert
-        Assert.IsNotNull(result); // Ensure the method completes execution
+        Assert.IsNotNull(result);
     }
 }
 
@@ -230,7 +229,7 @@ public void GetAddress_ShouldCloseConnection()
         Postcode = "AB12 3CD"
     };
 
-    var connection = new FakeDbConnection();
+    var connection = new MockDbConnection();
 
     var getMissingAddress = new GetMissingAddress(participant, connection);
 
@@ -251,7 +250,7 @@ public void GetAddress_ShouldHandleExceptions()
         Postcode = "AB12 3CD"
     };
 
-    var connection = new FakeDbConnection();
+    var connection = new MockDbConnection();
 
     var getMissingAddress = new GetMissingAddress(participant, connection);
 
