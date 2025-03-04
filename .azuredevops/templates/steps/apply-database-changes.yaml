@@ -1,0 +1,19 @@
+---
+
+parameters:
+  - name: serviceConnection
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    name: apply_database_changes
+    displayName: Apply database changes
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      addSpnToEnvironment: true
+      failOnStandardError: false
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        # Placeholder for database changes
+        echo "Applying database changes (placeholder)..."
