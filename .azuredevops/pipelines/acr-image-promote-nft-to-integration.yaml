@@ -62,7 +62,8 @@ stages:
           scriptType: bash
           scriptLocation: inlineScript
           inlineScript: |
-            nslookup $(SRC_REGISTRY).azurecr.io
+            echo "##[debug] az acr show --query networkRuleSet --name $(SRC_REGISTRY)"
+            az acr show --query networkRuleSet --name $(SRC_REGISTRY)
             az acr login --name $(SRC_REGISTRY)
 
       # - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
