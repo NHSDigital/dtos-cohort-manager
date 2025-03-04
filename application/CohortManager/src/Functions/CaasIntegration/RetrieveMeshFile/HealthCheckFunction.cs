@@ -17,7 +17,7 @@ public class HealthCheckFunction
     }
 
     [Function("health")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
