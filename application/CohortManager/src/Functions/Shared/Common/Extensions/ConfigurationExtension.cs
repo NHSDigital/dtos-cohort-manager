@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 
 public static class ConfigurationExtension
 {
+    private static List<string> _emptyList = new List<string>();
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, string? keyVaultUrl = null) where T: class
     {
         var configuration = CreateConfiguration(keyVaultUrl);
@@ -23,7 +24,14 @@ public static class ConfigurationExtension
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
 
-    private static IConfiguration CreateConfiguration(string? keyVaultUrl = null)
+    public static T GetConfiguration<T>(string? keyVaultUrl = null, List<string>? configFilePaths = null) where T: class
+    {
+        var configuration = CreateConfiguration(keyVaultUrl, configFilePaths);
+        return configuration.Get<T>();
+
+    }
+
+    private static IConfiguration CreateConfiguration(string? keyVaultUrl = null, List<string>? configFilePaths = null)
     {
 
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -41,6 +49,14 @@ public static class ConfigurationExtension
                 logger.LogError(ex, "Unable to add Azure KeyVault");
             }
         }
+        if(configFilePaths != null)
+        {
+            foreach(var configFile in configFilePaths)
+            {
+                configBuilder.AddJsonFile(configFile);
+            }
+        }
+
         configBuilder.AddEnvironmentVariables();
         return configBuilder.Build();
     }
