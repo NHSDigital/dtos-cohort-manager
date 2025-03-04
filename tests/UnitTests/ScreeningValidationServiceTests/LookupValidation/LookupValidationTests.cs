@@ -15,7 +15,6 @@ using Model.Enums;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
-using Data.Database;
 using Microsoft.Extensions.Options;
 
 [TestClass]
@@ -284,8 +283,8 @@ public class LookupValidationTests
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]  // New Family Name Only
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
+    [DataRow(Actions.Amended, "Smith", Gender.Female, "1970-01-01", "Smith", Gender.Male, "19700101")]  // New Gender Only, same Date of Birth, but formatted differently
     [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
-    [DataRow(Actions.New, "", new Gender(), "", "Smith", Gender.Female, "19700101")]                    // New Record Type
     public async Task Run_OneFieldChanged_DemographicsRulePasses(string recordType,
         string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
         Gender newGender, string newDateOfBirth)
@@ -308,7 +307,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }

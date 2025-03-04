@@ -8,7 +8,8 @@ using Azure.Security.KeyVault.Certificates;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
-using System.Text.Json;
+using HealthChecks.Extensions;
+using Microsoft.Extensions.HealthChecks;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -22,26 +23,27 @@ try
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
-    if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
+    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
     {
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
         var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
         var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
-    else if(!string.IsNullOrEmpty(config.MeshKeyName))
+    else if (!string.IsNullOrEmpty(config.MeshKeyName))
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
-        cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);
+        cert = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
     }
 
     host.ConfigureFunctionsWebApplication();
-    host.ConfigureServices(services => {
+    host.ConfigureServices(services =>
+    {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services
             .AddMeshClient(_ => _.MeshApiBaseUrl = config.MeshApiBaseUrl)
-            .AddMailbox(config.BSSMailBox,new NHS.MESH.Client.Configuration.MailboxConfiguration
+            .AddMailbox(config.BSSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
                 Password = config.MeshPassword,
                 SharedKey = config.MeshSharedKey,
@@ -49,7 +51,9 @@ try
             })
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
-        services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
+        services.AddTransient<IMeshToBlobTransferHandler, MeshToBlobTransferHandler>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck("RetrieveMeshFile");
     })
     .AddExceptionHandler();
 
@@ -57,9 +61,9 @@ try
 
     await app.RunAsync();
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-    logger.LogCritical(ex,"Failed to start up Function");
+    logger.LogCritical(ex, "Failed to start up Function");
 }
 
 
