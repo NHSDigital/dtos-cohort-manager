@@ -52,9 +52,22 @@ stages:
       SELECT_IMAGE_TAG: $(selectImageTag)
       ADD_IMAGE_TAG: $(addImageTag)
     steps:
-      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-int
+      - task: AzureCLI@v2
+        name: re_tag_images
+        displayName: Re-tag images
+        inputs:
+          azureSubscription: $(serviceConnection)
+          addSpnToEnvironment: true
+          failOnStandardError: false
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            nslookup $(SRC_REGISTRY).azurecr.io
+            az acr login --name $(SRC_REGISTRY)
+
+      # - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+      #   parameters:
+      #     serviceConnection: sc-cohort-manager-int
 
 - stage: deploy_image_stage
   displayName: Deploy images
