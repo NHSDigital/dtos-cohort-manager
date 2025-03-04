@@ -76,7 +76,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<bool> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant)
+    public async Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant)
     {
         var lookupValidationRequestBody = new ValidateCohortDistributionRecordBody()
         {
@@ -88,13 +88,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         _logger.LogInformation("Called cohort validation service");
         var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"));
-        if (!string.IsNullOrEmpty(response))
-        {
-            var responseObj = JsonSerializer.Deserialize<ValidationExceptionLog>(response);
-            return responseObj.IsFatal;
-        }
-        _logger.LogInformation("The response from the validation for cohort distribution returned null or empty");
-        return false;
+        return JsonSerializer.Deserialize<ValidationExceptionLog>(response);
     }
 
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
