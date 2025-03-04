@@ -44,7 +44,7 @@ stages:
   jobs:
   - job: re_tag
     pool:
-      name: private-pool-dev-uks
+      name: private-pool-prod-uks
     displayName: Update/copy Docker images with new tag
     variables:
       SRC_REGISTRY: $(sourceRegistry)
