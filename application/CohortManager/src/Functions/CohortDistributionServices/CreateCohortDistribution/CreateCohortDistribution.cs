@@ -65,6 +65,7 @@ public class CreateCohortDistribution
             
             // Check if participant has exceptions
             bool ignoreParticipantExceptions = Environment.GetEnvironmentVariable("IgnoreParticipantExceptions") == "true";
+            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
             bool participantHasException = participantData.ExceptionFlag == 1;
 
             if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
@@ -90,10 +91,7 @@ public class CreateCohortDistribution
             // Transformation
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
             if (transformedParticipant == null)
-            {
-                await HandleErrorResponseAsync("The transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                 return;
-            }
 
             // Add to cohort distribution table
             var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
