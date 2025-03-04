@@ -172,7 +172,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_TransformDataServiceRequestFails_LogError()
+    public async Task RunAsync_TransformDataServiceRequestFails_ReturnEarly()
     {
         // Arrange
         _cohortDistributionHelper
@@ -192,12 +192,8 @@ public class CreateCohortDistributionTests
         // Act
         await _sut.RunAsync(_requestBody);
 
-        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transformed participant returned null from the transform participant function")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
+        // Assert
+        _callFunction.Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
