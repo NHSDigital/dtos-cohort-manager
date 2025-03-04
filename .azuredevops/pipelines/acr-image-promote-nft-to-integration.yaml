@@ -52,7 +52,7 @@ stages:
       SELECT_IMAGE_TAG: $(selectImageTag)
       ADD_IMAGE_TAG: $(addImageTag)
     steps:
-      - task: AzureCLI@v2
+      - task: AzureCLI@2
         name: re_tag_images
         displayName: Re-tag images
         inputs:
