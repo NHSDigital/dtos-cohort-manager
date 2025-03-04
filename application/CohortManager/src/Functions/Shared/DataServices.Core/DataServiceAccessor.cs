@@ -37,69 +37,81 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
     public async Task<bool> InsertMany(IEnumerable<TEntity> entities)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        var strategy = _context.Database.CreateExecutionStrategy();
+        var result = await strategy.ExecuteAsync( async () =>
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-        await _context.AddRangeAsync(entities);
-        var result = await _context.SaveChangesAsync();
+            await _context.AddRangeAsync(entities);
+            var result = await _context.SaveChangesAsync();
 
-        await transaction.CommitAsync();
-        return result > 0;
+            await transaction.CommitAsync();
+            return result > 0;
+        });
+        return result;
     }
 
     public async Task<bool> Remove(Expression<Func<TEntity, bool>> predicate)
     {
-
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        var result = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
-
-        if (result == null)
+        var strategy = _context.Database.CreateExecutionStrategy();
+        var result = await strategy.ExecuteAsync( async () =>
         {
-            return false;
-        }
-        _context.Set<TEntity>().Remove(result);
-        var rowsEffected =  await _context.SaveChangesAsync();
-        if(rowsEffected > 1)
-        {
-            await _context.Database.RollbackTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            var result = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
 
-            _logger.LogError("There was an error while trying to deleted despite a record being found");
-            throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-        }
+            if (result == null)
+            {
+                return false;
+            }
+            _context.Set<TEntity>().Remove(result);
+            var rowsEffected =  await _context.SaveChangesAsync();
+            if(rowsEffected > 1)
+            {
+                await _context.Database.RollbackTransactionAsync();
 
-        await _context.Database.CommitTransactionAsync();
-        return true;
+                _logger.LogError("There was an error while trying to deleted despite a record being found");
+                throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+            }
+
+            await _context.Database.CommitTransactionAsync();
+            return true;
+        });
+        return result;
 
     }
 
     public async Task<TEntity> Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
     {
-
-
-        using var transaction = await _context.Database.BeginTransactionAsync();
-
-        var existingEntity = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
-
-        if (existingEntity == null)
+        var strategy = _context.Database.CreateExecutionStrategy();
+        var result = await strategy.ExecuteAsync( async () =>
         {
-            return null;
-        }
-        _context.Update(entity);
-        var rowsEffected  = await _context.SaveChangesAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var existingEntity = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
+
+            if (existingEntity == null)
+            {
+                return null;
+            }
+            _context.Update(entity);
+            var rowsEffected  = await _context.SaveChangesAsync();
 
 
-        if (rowsEffected == 1)
-        {
-            await _context.Database.CommitTransactionAsync();
-            return entity;
-        }
-        else if (rowsEffected > 1)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+            if (rowsEffected == 1)
+            {
+                await _context.Database.CommitTransactionAsync();
+                return entity;
+            }
+            else if (rowsEffected > 1)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+                throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+            }
+            _logger.LogError("No records were updated despite a record being found");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-        }
-        _logger.LogError("No records were updated despite a record being found");
-        throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
+        });
+        return result;
     }
 
 }
