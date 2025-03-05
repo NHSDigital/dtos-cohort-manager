@@ -27,7 +27,7 @@ stages:
     displayName: Apply database changes
     steps:
       - checkout: self
-      - template: ../templates/steps/apply-database-changes.yaml
+      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: sc-cohort-manager-dev
 
