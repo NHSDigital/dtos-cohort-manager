@@ -7,11 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -29,6 +28,5 @@
     <ProjectReference Include="..\..\Shared\DataServices.Database\DataServices.Database.csproj" />
     <ProjectReference Include="..\..\Shared\DataServices.Core\DataServices.Core.csproj" />
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
-    <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
   </ItemGroup>
 </Project>
