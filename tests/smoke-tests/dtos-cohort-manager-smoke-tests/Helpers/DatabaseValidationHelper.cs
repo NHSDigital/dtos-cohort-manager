@@ -42,26 +42,30 @@ public static class DatabaseValidationHelper
         }
     }
 
-    public static async Task VerifyNhsNumbersAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, List<string> nhsNumbers, ILogger logger)
+    public static async Task VerifyNhsNumbersAsync(
+    SqlConnectionWithAuthentication sqlConnectionWithAuthentication,
+    string tableName,
+    List<string> nhsNumbers,
+    string recordType = null)
     {
-
         ValidateTableName(tableName);
-
-
         using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
             foreach (var nhsNumber in nhsNumbers)
             {
-                var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, logger);
+                var isVerified = await VerifyNhsNumberAsync(connection, tableName, nhsNumber, recordType);
                 if (!isVerified)
                 {
-                    logger.LogError($"Verification failed: NHS number {nhsNumber} not found in {tableName} table.");
-                    Assert.Fail($"NHS number {nhsNumber} not found in {tableName} table.");
+                    string errorMessage = $"Verification failed: NHS number {nhsNumber} not found in {tableName} table";
+                    if (!string.IsNullOrEmpty(recordType))
+                    {
+                        errorMessage += $" with record type {recordType}";
+                    }
+                    Assert.Fail(errorMessage);
                 }
             }
         }
     }
-
     public static async Task<bool> VerifyFieldUpdateAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, string fieldName, string expectedValue, ILogger logger)
     {
         List<string> fieldValues = new List<string>();
@@ -138,41 +142,63 @@ public static class DatabaseValidationHelper
         return false;
     }
 
-    private static async Task<bool> VerifyNhsNumberAsync(SqlConnection connection, string tableName, string nhsNumber, ILogger logger)
+    private static async Task<bool> VerifyNhsNumberAsync(
+    SqlConnection connection,
+    string tableName,
+    string nhsNumber,
+    string recordType = null)
     {
-        ValidateTableName(tableName);
-
         int retryCount = 0;
         const int maxRetries = 8;
-        TimeSpan delay = TimeSpan.FromSeconds(3); // Initial delay
+        TimeSpan delay = TimeSpan.FromSeconds(5); // Initial delay
 
         while (retryCount < maxRetries)
         {
             try
             {
-                using (var command = new SqlCommand($"SELECT 1 FROM {tableName} WHERE NHS_Number = @nhsNumber", connection))
+                string sql = $"SELECT 1 FROM {tableName} WHERE NHS_Number = @nhsNumber";
+                if (!string.IsNullOrEmpty(recordType))
                 {
-                    command.Parameters.AddWithValue("@nhsNumber", nhsNumber);
-                    var result = await command.ExecuteScalarAsync();
-                    if (result != null)
-                    {
-                        return true; // NHS number found
-                    }
+                    sql += " AND RECORD_TYPE = @recordType";
                 }
+                using var command = new SqlCommand(sql, connection);
+                command.Parameters.AddWithValue("@nhsNumber", nhsNumber);
+                if (!string.IsNullOrEmpty(recordType))
+                {
+                    command.Parameters.AddWithValue("@recordType", recordType);
+                }
+                var result = await command.ExecuteScalarAsync();
+
+                if (result != null)
+                {
+                    return true;
+                }
+
+
+                await Task.Delay(delay);
+                delay *= 2; // Double the delay for the next retry attempt
+                retryCount++;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, $"Error verifying NHS number {nhsNumber} in table {tableName} (Attempt {retryCount + 1})");
+                // Handle the exception and decide whether to retry
+                if (retryCount < maxRetries - 1)
+                {
+                    // Wait for the delay before retrying
+                    await Task.Delay(delay);
+                    delay *= 2; // Double the delay for the next retry attempt
+                    retryCount++;
+                }
+                else
+                {
+
+                    throw new Exception($"Failed to verify NHS number after {maxRetries} attempts.", ex);
+                }
             }
-
-            retryCount++;
-            await Task.Delay(delay);
-            delay = delay * 2; // Exponential backoff (double the delay on each retry)
         }
-
-        logger.LogError($"Verification failed after {maxRetries} retries for NHS number {nhsNumber} in table {tableName}");
         return false;
     }
+
     public static async Task<bool> VerifyFieldsMatchCsvAsync(string connectionString, string tableName, string nhsNumber, string csvFilePath, ILogger logger)
     {
         ValidateTableName(tableName);

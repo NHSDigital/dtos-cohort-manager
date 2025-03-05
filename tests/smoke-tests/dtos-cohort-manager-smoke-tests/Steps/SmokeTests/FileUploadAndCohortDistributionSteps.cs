@@ -6,7 +6,7 @@ using dtos_cohort_manager_specflow.Config;
 using dtos_cohort_manager_specflow.Contexts;
 using dtos_cohort_manager_specflow.Models;
 
-namespace dtos_cohort_manager_specflow.Steps;
+namespace dtos_cohort_manager_specflow.Steps.SmokeTests;
 
 [Binding]
 public class FileUploadAndCohortDistributionSteps
@@ -41,19 +41,19 @@ public class FileUploadAndCohortDistributionSteps
     public void GivenFileExistsAtConfiguredPath(string fileName, string? recordType, string nhsNumbersData)
     {
         var folderPath = typeof(FilePaths).GetProperty(recordType!)?.GetValue(_appSettings.FilePaths)?.ToString();
-            var filePath = Path.Combine(folderPath!, fileName);
+        var filePath = Path.Combine(folderPath!, fileName);
 
-            _smokeTestsContext.FilePath = filePath;
-           _smokeTestsContext.RecordType = (RecordTypesEnum)Enum.Parse(typeof(RecordTypesEnum), recordType, ignoreCase: true);
+        _smokeTestsContext.FilePath = filePath;
+        _smokeTestsContext.RecordType = (RecordTypesEnum)Enum.Parse(typeof(RecordTypesEnum), recordType, ignoreCase: true);
 
-           _smokeTestsContext.NhsNumbers = nhsNumbersData.Split(',', StringSplitOptions.TrimEntries).ToList();
+        _smokeTestsContext.NhsNumbers = nhsNumbersData.Split(',', StringSplitOptions.TrimEntries).ToList();
     }
 
     [Given(@"the file is uploaded to the Blob Storage container")]
     [When(@"the file is uploaded to the Blob Storage container")]
     public async Task WhenFileIsUploaded()
     {
-        var filePath =_smokeTestsContext.FilePath;
+        var filePath = _smokeTestsContext.FilePath;
         await _fileUploadService.UploadFileAsync(filePath);
     }
 
@@ -67,7 +67,7 @@ public class FileUploadAndCohortDistributionSteps
     [Then("there should be (.*) records for the NHS Number in the database")]
     public async Task ThenThereShouldBeRecordsForThe(int count)
     {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers.FirstOrDefault(),count);
+        await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
     }
 
     [Then("the database should match the amended (.*) for the NHS Number")]

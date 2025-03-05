@@ -41,8 +41,8 @@ Scenario: 03.Verify file upload handles invalid GP Practice Code Exception
         | RULE_DESCRIPTION | Invalid primary care provider GP practice code |
 
     Examples:
-	| AddFileName                                             | NhsNumbers | RULE_ID | RuleDescription                                |
-	| Exception_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612314172 | 36      | Invalid primary care provider GP practice code |
+	| AddFileName                                             | NhsNumbers |
+	| Exception_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612314172 |
 
 
 @DTOSS-6407
@@ -58,5 +58,5 @@ Scenario: 04.Verify file upload handles EmptyDOB Exception
         | RULE_DESCRIPTION | Date of birth invalid |
 
     Examples:
-	| AddFileName                                       | AmendedFileName                                       | NhsNumbers | RULE_ID | RuleDescription                                |
-	| ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612514171 | 36      | Invalid primary care provider GP practice code |
+	| AddFileName                                       | AmendedFileName                                       | NhsNumbers |
+	| ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612514171 |
