@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using Model;
 
 var host = new HostBuilder()
@@ -17,6 +18,8 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
+        // Register health checks
+        services.AddDatabaseHealthCheck("markParticipantAsIneligible");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

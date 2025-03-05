@@ -1,4 +1,4 @@
-namespace ScreeningLkpDataService;
+namespace CohortDistributionDataService;
 
 using System.Net;
 using System.Threading.Tasks;
