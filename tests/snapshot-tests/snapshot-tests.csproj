@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DiffEngine" Version="15.9.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="MSTest" Version="3.8.2" />
@@ -18,6 +19,11 @@
   <ItemGroup>
     <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/Common/Common.csproj" />
     <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Database/DataServices.Database.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
