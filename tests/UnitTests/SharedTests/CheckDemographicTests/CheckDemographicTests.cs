@@ -97,7 +97,7 @@ public class CheckDemographicTests
     public async Task GetStatus_ValidResponse_ReturnWorkflowStatus()
     {
         // Arrange
-        var uri = "http://test-uri.com/get-status"; // Use an absolute URI
+        var uri = "http://test-uri.com/get-status";
         var participants = new List<ParticipantDemographic>
         {
             new ParticipantDemographic { /* populate properties if needed */ }
@@ -125,7 +125,7 @@ public class CheckDemographicTests
     public async Task GetStatus_ResponseError_UnknownStatus()
     {
         // Arrange
-        var uri = "http://test-uri.com/get-status"; // Use an absolute URI
+        var uri = "http://test-uri.com/get-status"; 
         var participants = new List<ParticipantDemographic>
         {
             new ParticipantDemographic { /* populate properties if needed */ }
@@ -150,6 +150,10 @@ public class CheckDemographicTests
         Times.Once());
 
     }
+
+    // Missing test coverage for exception state - due to the retry logic and private const _maxNumberOfChecks it would add 150 seconds to test run
+    // Tried to use reflection to manually change value but can't as it's const. 
+    // Reccomend to refactor CheckDemographic.cs to make it more testable.
 
     private HttpClient CreateMockHttpClient(HttpStatusCode responseStatusCode)
     {
