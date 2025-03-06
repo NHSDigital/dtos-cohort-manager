@@ -54,7 +54,7 @@ using System.Diagnostics;
     public async Task GetFileFromBlobStorage_FileExists_ReturnsBlobFile()
     {
         // Arrange: Use older API version for Azurite compatibility
-        var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
+        var options = new BlobClientOptions();
         var blobServiceClient = new BlobServiceClient(_connectionString, options);
         var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
         await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
@@ -82,7 +82,7 @@ using System.Diagnostics;
     public async Task GetFileFromBlobStorage_FileDoesNotExist_ReturnsNull()
     {
         // Arrange: Use older API version for Azurite compatibility
-        var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
+        var options = new BlobClientOptions();
         var blobServiceClient = new BlobServiceClient(_connectionString, options);
         var yourClassInstance = new BlobStorageHelper(_mockLogger.Object);
 
@@ -99,7 +99,7 @@ using System.Diagnostics;
         Environment.SetEnvironmentVariable("fileExceptions", "destination-container");
 
         // Arrange: Use older API version for Azurite compatibility
-        var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
+        var options = new BlobClientOptions();
         var blobServiceClient = new BlobServiceClient(_connectionString, options);
 
         var sourceContainerClient = blobServiceClient.GetBlobContainerClient(_containerName);
