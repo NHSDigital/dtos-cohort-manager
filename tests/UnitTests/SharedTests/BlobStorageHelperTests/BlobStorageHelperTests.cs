@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.BlobStorageHelperTests;
+namespace NHS.CohortManager.Tests.UnitTests.SharedTests;
 
 
 using System;
@@ -50,35 +50,9 @@ using System.Diagnostics;
             _blobStorageHelper = new BlobStorageHelper(_mockLogger.Object);
         }
 
-    private void StartAzuriteWithSkipApiVersionCheck()
-    {
-            var processes = Process.GetProcessesByName("node");
-            if (processes.Length > 0)
-            {
-                return;
-            }
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "cmd.exe",
-                Arguments = "/C azurite --skipApiVersionCheck",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            var process = new Process { StartInfo = startInfo };
-            process.Start();
-
-
-    }
-
-
    [TestMethod]
     public async Task GetFileFromBlobStorage_FileExists_ReturnsBlobFile()
     {
-        StartAzuriteWithSkipApiVersionCheck();
         // Arrange: Use older API version for Azurite compatibility
         var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
         var blobServiceClient = new BlobServiceClient(_connectionString, options);
@@ -107,7 +81,6 @@ using System.Diagnostics;
     [TestMethod]
     public async Task GetFileFromBlobStorage_FileDoesNotExist_ReturnsNull()
     {
-         StartAzuriteWithSkipApiVersionCheck();
         // Arrange: Use older API version for Azurite compatibility
         var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
         var blobServiceClient = new BlobServiceClient(_connectionString, options);
@@ -123,7 +96,6 @@ using System.Diagnostics;
     [TestMethod]
     public async Task CopyFileAsync_SuccessfulCopy_ReturnsTrue()
     {
-         StartAzuriteWithSkipApiVersionCheck();
         Environment.SetEnvironmentVariable("fileExceptions", "destination-container");
 
         // Arrange: Use older API version for Azurite compatibility
@@ -154,7 +126,7 @@ using System.Diagnostics;
 
 
         [TestMethod]
-        public async Task UploadFileToBlobStorage_ShouldReturnFalse_WhenUploadFails()
+        public async Task UploadFileToBlobStorage_UploadFails_ReturnFalse()
         {
             // Arrange
             using var memoryStream = new MemoryStream();
