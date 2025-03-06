@@ -6,10 +6,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.CohortManager.CohortDistribution.ValidateCohortDistributionRecord;
 
-var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
+var hostBuilder = new HostBuilder();
+
+hostBuilder.AddConfiguration(out ValidateCohortDistributionConfig config);
+
+var host = hostBuilder.AddDataServicesHandler()
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
