@@ -14,6 +14,10 @@ resources:
 
 variables:
   - group: DEV_hub_backend_remote_state
+  - name: sourceRegistry
+    value: acrukshubdevcohman
+  - name: selectImageTag
+    value: development
   - name: destEnvironmentShortName
     value: dev
 
@@ -25,11 +29,14 @@ stages:
     pool:
       name: private-pool-dev-uks
     displayName: Apply database changes
+    variables:
+      - group: DEV_core_backend
     steps:
       - checkout: self
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: sc-cohort-manager-dev
+          resourceGroupName: rg-cohman-$(destEnvironmentShortName)-uks
 
 - stage: deploy_image_stage
   displayName: Deploy images
