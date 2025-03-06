@@ -24,6 +24,7 @@ services:
     network_mode: host
     depends_on:
       - azurite
+      - azurite-test
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
 
