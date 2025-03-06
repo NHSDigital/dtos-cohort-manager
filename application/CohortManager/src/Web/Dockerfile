@@ -38,17 +38,21 @@ ENV NODE_ENV=production
 # Create necessary directories and set up user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \
-    mkdir -p /app/.next/standalone /app/.next/static && \
-    chown -R nextjs:nodejs /app
+    mkdir -p /app/.next/standalone /app/.next/static
 
-# Copy files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy files from builder with secure permissions
+COPY --from=builder --chown=root:root --chmod=444 /app/public ./public
+COPY --from=builder --chown=root:root --chmod=444 /app/.next/standalone ./
+COPY --from=builder --chown=root:root --chmod=444 /app/.next/static ./.next/static
 
-# Set read-only permissions for the copied files
-RUN chmod -R 544 /app/.next/standalone && \
-    chmod -R 544 /app/.next/static
+# Set execute permissions only where needed
+RUN chown -R root:root /app && \
+    find /app -type d -exec chmod 555 {} + && \
+    find /app -type f -name '*.js' -exec chmod 555 {} + && \
+    find /app -type f -name '*.mjs' -exec chmod 555 {} + && \
+    # Give nextjs user read access to run the application
+    chown -R nextjs:nodejs /app/.next/standalone && \
+    chown -R nextjs:nodejs /app/.next/static
 
 USER nextjs
 
