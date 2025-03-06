@@ -34,39 +34,30 @@ using System.Diagnostics;
 
         public void Setup()
         {
-            // 🔹 Step 1: Initialize Mocks
             _mockBlobServiceClient = new Mock<BlobServiceClient>();
             _mockBlobContainerClient = new Mock<BlobContainerClient>();
             _mockBlobClient = new Mock<BlobClient>();
             _mockLogger = new Mock<ILogger<BlobStorageHelper>>();
 
-            // 🔹 Step 2: Mock Blob Container Retrieval
             _mockBlobServiceClient
                 .Setup(m => m.GetBlobContainerClient(It.IsAny<string>()))
                 .Returns(_mockBlobContainerClient.Object);
 
-            // 🔹 Step 3: Mock Blob Client Retrieval
             _mockBlobContainerClient
                 .Setup(m => m.GetBlobClient(It.IsAny<string>()))
                 .Returns(_mockBlobClient.Object);
 
-            // 🔹 Step 4: Instantiate Helper With Mocks
             _blobStorageHelper = new BlobStorageHelper(_mockLogger.Object);
         }
 
     private void StartAzuriteWithSkipApiVersionCheck()
     {
-        try
-        {
-            // ✅ Check if Azurite is already running
             var processes = Process.GetProcessesByName("node");
             if (processes.Length > 0)
             {
-                Console.WriteLine("✅ Azurite is already running.");
                 return;
             }
 
-            // ✅ Start Azurite with --skipApiVersionCheck flag
             var startInfo = new ProcessStartInfo
             {
                 FileName = "cmd.exe",
@@ -80,19 +71,13 @@ using System.Diagnostics;
             var process = new Process { StartInfo = startInfo };
             process.Start();
 
-            Console.WriteLine("🚀 Azurite started with --skipApiVersionCheck flag.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Failed to start Azurite: {ex.Message}");
-        }
+
     }
 
 
    [TestMethod]
     public async Task GetFileFromBlobStorage_FileExists_ReturnsBlobFile()
     {
-         // ✅ Ensure Azurite runs with --skipApiVersionCheck
         StartAzuriteWithSkipApiVersionCheck();
         // Arrange: Use older API version for Azurite compatibility
         var options = new BlobClientOptions(BlobClientOptions.ServiceVersion.V2021_06_08);
@@ -139,7 +124,6 @@ using System.Diagnostics;
     public async Task CopyFileAsync_SuccessfulCopy_ReturnsTrue()
     {
          StartAzuriteWithSkipApiVersionCheck();
-        // ✅ Set environment variable at the start of the test
         Environment.SetEnvironmentVariable("fileExceptions", "destination-container");
 
         // Arrange: Use older API version for Azurite compatibility
@@ -172,18 +156,18 @@ using System.Diagnostics;
         [TestMethod]
         public async Task UploadFileToBlobStorage_ShouldReturnFalse_WhenUploadFails()
         {
-            // 🔹 Arrange
+            // Arrange
             using var memoryStream = new MemoryStream();
-            var blobFile = new BlobFile(memoryStream, "test.txt");  // ✅ Fix applied
+            var blobFile = new BlobFile(memoryStream, "test.txt");
 
             _mockBlobClient
                 .Setup(m => m.UploadAsync(It.IsAny<Stream>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Upload failed")); // Simulate failure
 
-            // 🔹 Act
+            // Act
             var result = await _blobStorageHelper.UploadFileToBlobStorage("UseDevelopmentStorage=true", "container", blobFile);
 
-            // 🔹 Assert
+            // Assert
             Assert.IsFalse(result, "UploadFileToBlobStorage should return false when upload fails.");
         }
 
