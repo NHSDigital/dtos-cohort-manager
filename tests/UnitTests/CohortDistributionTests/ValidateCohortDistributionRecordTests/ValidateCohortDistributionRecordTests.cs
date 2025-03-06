@@ -125,7 +125,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_LookupValidationCreatesValidationError_Created()
+    public async Task Run_LookupValidationCreatesValidationError_ReturnOk()
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
@@ -145,7 +145,7 @@ public class ValidateCohortDistributionRecordTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
