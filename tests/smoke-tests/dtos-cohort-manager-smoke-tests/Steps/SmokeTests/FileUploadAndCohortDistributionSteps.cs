@@ -64,19 +64,19 @@ public class FileUploadAndCohortDistributionSteps
         await _fileUploadService.VerifyNhsNumbersAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers!);
     }
 
-    [Then("there should be (.*) records for the NHS Number in the database")]
+    [Then(@"there should be (.*) records for the NHS Number in the database")]
     public async Task ThenThereShouldBeRecordsForThe(int count)
     {
         await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
     }
 
-    [Then("the database should match the amended (.*) for the NHS Number")]
+    [Then(@"the database should match the amended (.*) for the NHS Number")]
     public async Task ThenTheDatabaseShouldMatchTheAmendedForTheNHSNumber(string expectedGivenName)
     {
         await _fileUploadService.VerifyFieldUpdateAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers.FirstOrDefault(), "GIVEN_NAME", expectedGivenName);
     }
 
-    [Then("the Exception table should contain the below details for the NHS Number")]
+    [Then(@"the Exception table should contain the below details for the NHS Number")]
     public async Task ThenTheExceptionTableShouldContainTheBelowDetails(Table table)
     {
         var fields = table.Rows.Select(row => new FieldsTable

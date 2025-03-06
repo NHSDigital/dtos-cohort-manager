@@ -23,7 +23,7 @@ public class Epic1_AutomatedRegressionSuiteSteps
 
     }
 
-    [Then("verify the NHS numbers in Participant_Management and Participant_Demographic table should match the file data")]
+    [Then(@"verify the NHS numbers in Participant_Management and Participant_Demographic table should match the file data")]
     public async Task ThenVerifyTheNHSNumbersInParticipant_ManagementAndParticipant_DemographicTableShouldMatchTheFileData()
     {
 
@@ -35,5 +35,36 @@ public class Epic1_AutomatedRegressionSuiteSteps
             "PARTICIPANT_DEMOGRAPHIC"
         );
     }
+
+
+
+    [Then(@"verify the NhsNumbers in Participant_Management table should match (.*)")]
+    public async Task ThenVerifyTheInParticipant_ManagementShouldMatchAmended(string expectedRecordType)
+    {
+
+        await _fileUploadService.VerifyNhsNumbersAsync(
+            "PARTICIPANT_MANAGEMENT",
+            _smokeTestsContext.NhsNumbers!,
+            expectedRecordType.ToUpper());
+    }
+
+    [Then(@"the Participant_Demographic table should match the (.*) for the NHS Number")]
+    public async Task ThenTheParticipant_DemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
+    {
+        await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", _smokeTestsContext.NhsNumbers.FirstOrDefault(), "GIVEN_NAME", expectedGivenName);
+    }
+
+    [Then(@"the NHS Number should have exactly (.*) record in Participant_Management")]
+    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipant_Management(int count)
+    {
+        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_MANAGEMENT", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
+    }
+
+    [Then(@"the NHS Number should have exactly (.*) record in Participant_Demographic")]
+    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipant_Demographic(int count)
+    {
+        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_DEMOGRAPHIC", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
+    }
+
 
 }
