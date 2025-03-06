@@ -33,7 +33,7 @@ stages:
       - group: DEV_core_backend
     steps:
       - checkout: self
-      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
+      - template: ../templates/steps/apply-database-changes.yaml
         parameters:
           serviceConnection: sc-cohort-manager-dev
           resourceGroupName: rg-cohman-$(destEnvironmentShortName)-uks
