@@ -98,7 +98,8 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         {
             return "";
         }
-        if (response.StatusCode == HttpStatusCode.OK)
+
+        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
         {
             var responseText = await _callFunction.GetResponseText(response);
             if (!string.IsNullOrEmpty(responseText))
@@ -107,7 +108,6 @@ public class CohortDistributionHelper : ICohortDistributionHelper
             }
 
         }
-        
 
         return "";
     }
