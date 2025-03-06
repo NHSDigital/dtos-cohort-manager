@@ -6,28 +6,34 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
-RUN \
-    if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-    elif [ -f package-lock.json ]; then npm ci; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-    else echo "Lockfile not found." && exit 1; \
+# Copy only the specific package manager files needed
+COPY package.json ./
+COPY ["package-lock.json", ".npmrc", "./"]
+
+# Remove any sensitive data from .npmrc if it exists
+RUN if [ -f .npmrc ]; then \
+    # Keep only the registry configurations, remove tokens or credentials
+    grep -i '^registry=' .npmrc > .npmrc.tmp || true && \
+    mv .npmrc.tmp .npmrc; \
     fi
+
+# Install dependencies with npm
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
 
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY tsconfig.json .
+COPY src/ ./src/
+COPY public/ ./public/
+COPY middleware/ .
+COPY next.config.mjs .
 
-RUN \
-    if [ -f yarn.lock ]; then yarn run build; \
-    elif [ -f package-lock.json ]; then npm run build; \
-    elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
-    else echo "Lockfile not found." && exit 1; \
-    fi
+# Build the application
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -44,6 +50,10 @@ COPY --from=builder /app/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set read-only permissions for the copied files
+RUN chmod -R 544 /app/.next/standalone && \
+    chmod -R 544 /app/.next/static
 
 USER nextjs
 
