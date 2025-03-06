@@ -27,6 +27,7 @@ steps:
         --name "$(destEnvironmentShortName)-uks-db-management" \
         --image "db-management:$(selectImageTag)" \
         --registry-login-server $(sourceRegistry) \
+        --registry-username dtos-cohort-manager-acr-push \
         --assign-identity $managedIdentityId \
         --restart-policy Never \
         --environment-variables \
