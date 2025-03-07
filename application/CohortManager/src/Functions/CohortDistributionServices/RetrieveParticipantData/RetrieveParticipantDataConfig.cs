@@ -6,5 +6,4 @@ public class RetrieveParticipantDataConfig
 {
     [Required]
     public string ParticipantManagementUrl {get; set;}
-
 }

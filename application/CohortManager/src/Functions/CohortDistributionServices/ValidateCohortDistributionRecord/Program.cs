@@ -1,16 +1,17 @@
 using Common;
-using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.ValidateCohortDistributionRecord;
 
 var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
-        .Build()
+    .AddConfiguration<ValidateCohortDistributionRecordConfig>(out ValidateCohortDistributionRecordConfig config)
+    .AddDataServicesHandler()
+    .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
+    .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
