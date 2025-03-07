@@ -17,15 +17,4 @@ public class CreateResponse : ICreateResponse
 
         return response;
     }
-
-    /// <summary>
-    /// Asyncronously creates a HTTP response with a body.
-    /// </summary>
-    public async Task<HttpResponseData> CreateHttpResponseWithBodyAsync(HttpStatusCode statusCode, HttpRequestData requestData, string responseBody) {
-        var response = requestData.CreateResponse(statusCode);
-        response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-        await response.WriteStringAsync(responseBody);
-        return response;
-    }
 }
