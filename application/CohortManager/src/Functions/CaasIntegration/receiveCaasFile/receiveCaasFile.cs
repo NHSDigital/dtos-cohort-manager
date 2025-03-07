@@ -124,7 +124,6 @@ public class ReceiveCaasFile
 
             return new ScreeningService();
         }
-
         return screeningService;
     }
 
