@@ -31,4 +31,4 @@ steps:
         --assign-identity $managedIdentityId \
         --restart-policy Never \
         --environment-variables \
-          "connectionstring=$(DTOS_DATABASE_CONNECTION_STRING)" \
+          "connectionstring=$(DTOS_DATABASE_CONNECTION_STRING)"
