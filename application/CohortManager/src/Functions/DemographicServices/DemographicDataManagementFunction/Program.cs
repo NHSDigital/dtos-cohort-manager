@@ -1,13 +1,14 @@
 using Common;
-using Data.Database;
 using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.DemographicDataManagementFunction;
 
 var host = new HostBuilder()
+    .AddConfiguration<DemographicDataManagementFunctionConfig>(out DemographicDataManagementFunctionConfig config)
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
