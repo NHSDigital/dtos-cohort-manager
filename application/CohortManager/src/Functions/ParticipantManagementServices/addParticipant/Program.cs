@@ -16,7 +16,7 @@ var host = new HostBuilder()
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
+            client.BaseAddress = new Uri(config.DemographicURIGet);
         });
     })
     .AddAzureQueues()
