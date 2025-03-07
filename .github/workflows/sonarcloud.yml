@@ -25,6 +25,7 @@ jobs:
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
+        working-directory: application/CohortManager/src/Functions
 
       - name: Run tests with coverage
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=TestResults/coverage.opencover.xml
