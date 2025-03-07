@@ -5,10 +5,12 @@ using Data.Database;
 using NHS.CohortManager.DemographicServices;
 using Model;
 using DataServices.Client;
+using NHS.Screening.DemographicDurableFunction;
 
 var host = new HostBuilder()
+    .AddConfiguration<DemographicDurableFunctionConfig>(out DemographicDurableFunctionConfig config)
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
         .Build()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
