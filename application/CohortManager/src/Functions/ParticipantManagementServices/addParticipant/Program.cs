@@ -1,8 +1,10 @@
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NHS.Screening.AddParticipant;
 
 var host = new HostBuilder()
+    .AddConfiguration<AddParticipantConfig>(out AddParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
