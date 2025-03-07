@@ -4,9 +4,11 @@ using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.RetrieveParticipantData;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
+    .AddConfiguration<RetrieveParticipantDataConfig>(out RetrieveParticipantDataConfig config)
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
         .Build()
