@@ -4,10 +4,12 @@ using DataServices.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.RetrievePDSDemographic;
 
 var host = new HostBuilder()
+    .AddConfiguration<RetrievePDSDemographicConfig>(out RetrievePDSDemographicConfig config)
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
