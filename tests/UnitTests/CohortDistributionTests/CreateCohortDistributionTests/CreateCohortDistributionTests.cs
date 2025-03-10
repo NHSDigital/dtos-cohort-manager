@@ -16,6 +16,8 @@ using Model.Enums;
 using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -33,15 +35,13 @@ public class CreateCohortDistributionTests
     private CohortDistributionParticipant _cohortDistributionParticipant;
     private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
 
+    private Mock<IOptions<CreateCohortDistributionConfig>> _createCohortDistributionConfig = new();
+
 
     public CreateCohortDistributionTests()
     {
-        Environment.SetEnvironmentVariable("RetrieveParticipantDataURL", "RetrieveParticipantDataURL");
-        Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
-        Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
-        Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
         Environment.SetEnvironmentVariable("IsExtractedToBSSelect", "IsExtractedToBSSelect");
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
+
 
         _requestBody = new CreateCohortDistributionRequestBody()
         {
@@ -59,12 +59,20 @@ public class CreateCohortDistributionTests
             Postcode = "AB1 2CD"
         };
 
+        _createCohortDistributionConfig.Setup(m => m.Value).Returns(new CreateCohortDistributionConfig());
+
+        _createCohortDistributionConfig.Object.Value.RetrieveParticipantDataURL = "RetrieveParticipantDataURL";
+        _createCohortDistributionConfig.Object.Value.AllocateScreeningProviderURL = "AllocateScreeningProviderURL";
+        _createCohortDistributionConfig.Object.Value.TransformDataServiceURL = "TransformDataServiceURL";
+        _createCohortDistributionConfig.Object.Value.AddCohortDistributionURL = "AddCohortDistributionURL";
+        _createCohortDistributionConfig.Object.Value.IgnoreParticipantExceptions = "IgnoreParticipantExceptions";
+
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
             .ReturnsAsync(_cohortDistributionParticipant);
 
         _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
-                                            _exceptionHandler.Object, _azureQueueStorageHelper.Object);
+                                            _exceptionHandler.Object, _azureQueueStorageHelper.Object, _createCohortDistributionConfig.Object);
 
     }
 
@@ -139,11 +147,11 @@ public class CreateCohortDistributionTests
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement {ExceptionFlag = 0});
-    
+            .ReturnsAsync(new ParticipantManagement { ExceptionFlag = 0 });
+
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
-            .ReturnsAsync(new CohortDistributionParticipant() {ScreeningServiceId = "screeningservice", Postcode = "POSTCODE"});
+            .ReturnsAsync(new CohortDistributionParticipant() { ScreeningServiceId = "screeningservice", Postcode = "POSTCODE" });
 
         _cohortDistributionHelper
             .Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -187,7 +195,7 @@ public class CreateCohortDistributionTests
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement {ExceptionFlag = 0});
+            .ReturnsAsync(new ParticipantManagement { ExceptionFlag = 0 });
 
         // Act
         await _sut.RunAsync(_requestBody);
@@ -301,7 +309,7 @@ public class CreateCohortDistributionTests
         _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement() {ExceptionFlag = 1});
+            .ReturnsAsync(new ParticipantManagement() { ExceptionFlag = 1 });
 
         // Act
         await _sut.RunAsync(_requestBody);
