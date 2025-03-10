@@ -27,14 +27,14 @@ jobs:
           dotnet-version: '8.0.x' # Change as per your project needs
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore application/CohortManager/src/Functions/Functions.sln
 
       - name: Build Solution
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build application/CohortManager/src/Functions/Functions.sln --no-restore --configuration Release
 
       - name: Run Unit Tests
         run: |
-          dotnet test --no-build --configuration Release \
+          dotnet test application/CohortManager/src/Functions/Functions.sln --no-build --configuration Release \
             --logger "trx;LogFileName=test_results.trx" \
             --results-directory TestResults
 
