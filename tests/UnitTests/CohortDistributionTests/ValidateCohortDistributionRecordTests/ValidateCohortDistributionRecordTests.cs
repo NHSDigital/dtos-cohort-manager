@@ -9,6 +9,7 @@ using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistribution.ValidateCohortDistributionRecord;
@@ -27,11 +28,16 @@ public class ValidateCohortDistributionRecordTests
     private readonly ValidateCohortDistributionRecordBody _requestBody;
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceMock = new();
 
+    private readonly Mock<IOptions<ValidateCohortDistributionConfig>> _config = new();
+
 
     public ValidateCohortDistributionRecordTests()
     {
-        Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
-        Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "SomeConnectionString");
+
+        _config.Setup(m => m.Value).Returns(new ValidateCohortDistributionConfig());
+
+        _config.Object.Value.LookupValidationURL = "TransformDataServiceURL";
+        _config.Object.Value.DtOsDatabaseConnectionString = "AddCohortDistributionURL";
 
         _request = new Mock<HttpRequestData>(_context.Object);
 
@@ -42,7 +48,7 @@ public class ValidateCohortDistributionRecordTests
             CohortDistributionParticipant = new CohortDistributionParticipant()
         };
 
-        _function = new ValidateCohortDistributionRecord(_logger.Object, _createResponse.Object, _exceptionHandler.Object, _callFunction.Object, _cohortDistributionDataServiceMock.Object);
+        _function = new ValidateCohortDistributionRecord(_logger.Object, _createResponse.Object, _exceptionHandler.Object, _callFunction.Object, _cohortDistributionDataServiceMock.Object, _config.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
                 {
