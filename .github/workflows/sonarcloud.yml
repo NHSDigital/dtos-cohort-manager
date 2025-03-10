@@ -32,7 +32,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           mkdir -p TestResults
-          dotnet test application/CohortManager/src/Functions/Tests/YourTestProject.csproj \
+          dotnet test application/CohortManager/src/Tests/TestUtils/TestUtils.csproj \
             --collect:"XPlat Code Coverage" \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=opencover \
