@@ -26,17 +26,9 @@ jobs:
         with:
           dotnet-version: '8.0.x' # Change as per your project needs
 
-      - name: Restore Dependencies
-        run: dotnet restore application/CohortManager/src/Functions/Functions.sln
-
-      - name: Build Solution
-        run: dotnet build application/CohortManager/src/Functions/Functions.sln --no-restore --configuration Release
-
       - name: Run Unit Tests
         run: |
-          dotnet test application/CohortManager/src/Functions/Functions.sln --no-build --configuration Release \
-            --logger "trx;LogFileName=test_results.trx" \
-            --results-directory TestResults
+          make test-unit
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
