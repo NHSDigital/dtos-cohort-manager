@@ -45,4 +45,4 @@ jobs:
           args: >
             -Dsonar.organization=nhsdigital
             -Dsonar.projectKey=NHSDigital_dtos-cohort-manager
-            -Dsonar.cs.opencover.reportsPaths=TestResults/coverage.opencover.xml
+            -Dsonar.cs.opencover.reportsPaths=tests/TestUtils/coverage.opencover.xml
