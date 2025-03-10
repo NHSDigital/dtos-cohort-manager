@@ -35,7 +35,7 @@ public class CheckParticipantExistsTests
                 return response;
             });
 
-        _createResponseMock.Setup(x => x.CreateHttpResponseWithBodyAsync(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+        _createResponseMock.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns(async (HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
                 var response = req.CreateResponse(statusCode);
@@ -43,9 +43,9 @@ public class CheckParticipantExistsTests
                 await response.WriteStringAsync(ResponseBody);
                 return response;
             });
-        
+
         _dataServiceMock.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-                        .ReturnsAsync(new List<ParticipantManagement> {new ParticipantManagement()});
+                        .ReturnsAsync(new List<ParticipantManagement> { new ParticipantManagement() });
 
 
         _sut = new CheckParticipantExists(_dataServiceMock.Object, _createResponseMock.Object, _loggerMock.Object);

@@ -42,18 +42,18 @@ public class CheckParticipantExists
         catch (ArgumentNullException ex)
         {
             _logger.LogError(ex, "Request is missing required parameters");
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Request is missing required parameters");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request is missing required parameters");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Invalid Request");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
-        try 
+        try
         {
             var dbParticipants = await _participantManagementClient.GetByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
             if (dbParticipants == null || !dbParticipants.Any())
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
