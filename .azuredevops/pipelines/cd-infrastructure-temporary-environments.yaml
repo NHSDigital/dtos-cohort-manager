@@ -16,7 +16,7 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: TEMP_ENVIRONMENTS_audit_backend_remote_state
+  # - group: TEMP_ENVIRONMENTS_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.9.2
