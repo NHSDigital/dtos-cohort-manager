@@ -1,9 +1,10 @@
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NHS.Screening.UpdateParticipant;
 
 var host = new HostBuilder()
-
+    .AddConfiguration<UpdateParticipantConfig>(out UpdateParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
@@ -15,7 +16,7 @@ var host = new HostBuilder()
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
+            client.BaseAddress = new Uri(config.DemographicURIGet);
         });
     })
     .AddAzureQueues()
