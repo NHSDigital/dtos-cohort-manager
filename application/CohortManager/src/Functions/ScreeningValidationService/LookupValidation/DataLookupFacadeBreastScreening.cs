@@ -75,8 +75,9 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     /// </summary>
     /// <param name="currentPosting">The participant's current posting (area code).</param>
     /// <returns>bool, whether or not the current posting is valid.<returns>
-    public bool CheckIfCurrentPostingExists(string currentPosting)
+    public bool CheckIfCurrentPostingExists(string? currentPosting)
     {
+
         var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.InUse == "Y").Result;
         if (result == null)
         {
@@ -113,6 +114,10 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     }
     public string RetrievePostingCategory(string currentPosting)
     {
+        // if(string.IsNullOrEmpty(currentPosting))
+        // {
+        //     return null;
+        // }
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
     }
