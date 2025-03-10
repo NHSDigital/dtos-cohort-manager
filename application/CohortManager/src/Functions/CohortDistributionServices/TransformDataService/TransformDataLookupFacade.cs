@@ -2,32 +2,32 @@ namespace NHS.CohortManager.CohortDistribution;
 
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions;
 using Model;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
-    private readonly ILogger<TransformDataLookupFacade> _logger;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
-    public TransformDataLookupFacade(ILogger<TransformDataLookupFacade> logger,
-                                    IDataServiceClient<BsSelectOutCode> outcodeClient,
+    public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient)
     {
-        _logger = logger;
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
     }
 
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ParseOutcode(postcode);
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result != null;
     }
 
     public string GetBsoCode(string postcode){
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ParseOutcode(postcode);
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result?.BSO;
@@ -44,10 +44,24 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     {
         var gpPractice = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
 
-        if (gpPractice == null)
-        {
-            return string.Empty;
-        }
+        if (gpPractice == null) return string.Empty;
+
         return gpPractice.BsoCode;
+    }
+
+    /// <summary>
+    /// Gets the outcode (first half of the postcode) from a postcode.
+    /// Can handle postcodes in any format (including without spaces)
+    /// </summary>
+    private static string ParseOutcode(string postcode)
+    {
+        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
+
+        Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        if (!match.Success) throw new TransformationException("Postcode format invalid");
+
+        string outcode = match.Groups[1].Value;
+
+        return outcode;
     }
 }
