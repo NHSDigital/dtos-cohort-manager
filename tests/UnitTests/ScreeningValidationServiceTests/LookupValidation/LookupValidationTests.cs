@@ -613,6 +613,9 @@ public class LookupValidationTests
 
     [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")] // Valid -> Wales Invalid
     [DataRow("CYM", "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid
+
+    [DataRow("DMS", "ValidPCP", "", null, "ExcludedPCP", "WALES")] // Valid -> Wales Invalid (Null current posting)
+    [DataRow(null, "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid (Null current posting)
     public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
     {
         // Arrange
@@ -640,6 +643,7 @@ public class LookupValidationTests
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
+        _exceptionHandler.VerifyNoOtherCalls();
     }
 
     [TestMethod]
