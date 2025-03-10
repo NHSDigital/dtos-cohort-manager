@@ -30,9 +30,13 @@ jobs:
         run: |
           make test-unit
 
+      - name: View Test Results in Logs
+        run: cat /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/tests/UnitTests/SharedTests/BlobStorageHelperTests/TestResults/*.trx
+
+
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
             name: test-results
-            path: tests/UnitTests/SharedTests/BlobStorageHelperTests/TestResults/*.trx  # ✅ Correct path
+            path: /home/runner/work/dtos-cohort-manager/dtos-cohort-manager/tests/UnitTests/SharedTests/BlobStorageHelperTests/TestResults/*.trx  # ✅ Correct path
             retention-days: 7
