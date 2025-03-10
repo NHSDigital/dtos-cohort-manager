@@ -30,7 +30,12 @@ jobs:
         working-directory: application/CohortManager/src/Functions
 
       - name: Run tests with coverage
-        run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=TestResults/coverage.opencover.xml
+        run: |
+          mkdir -p TestResults
+          dotnet test application/CohortManager/src/Functions/Tests/YourTestProject.csproj \
+            --collect:"XPlat Code Coverage" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover \
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
