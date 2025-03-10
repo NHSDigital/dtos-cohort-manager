@@ -1,10 +1,11 @@
 using dtos_cohort_manager_specflow.TestServices;
-using TechTalk.SpecFlow;
+
 using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
 using dtos_cohort_manager_specflow.Config;
 using dtos_cohort_manager_specflow.Contexts;
 using dtos_cohort_manager_specflow.Models;
+using Reqnroll;
 
 namespace dtos_cohort_manager_specflow.Steps;
 
