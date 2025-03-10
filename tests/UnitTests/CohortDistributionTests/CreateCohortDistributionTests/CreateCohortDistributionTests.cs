@@ -40,12 +40,8 @@ public class CreateCohortDistributionTests
 
     public CreateCohortDistributionTests()
     {
-        Environment.SetEnvironmentVariable("RetrieveParticipantDataURL", "RetrieveParticipantDataURL");
-        Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
-        Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
-        Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
         Environment.SetEnvironmentVariable("IsExtractedToBSSelect", "IsExtractedToBSSelect");
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
+
 
         _requestBody = new CreateCohortDistributionRequestBody()
         {
@@ -62,6 +58,14 @@ public class CreateCohortDistributionTests
             ScreeningServiceId = "Screening123",
             Postcode = "AB1 2CD"
         };
+
+        _createCohortDistributionConfig.Setup(m => m.Value).Returns(new CreateCohortDistributionConfig());
+
+        _createCohortDistributionConfig.Object.Value.RetrieveParticipantDataURL = "RetrieveParticipantDataURL";
+        _createCohortDistributionConfig.Object.Value.AllocateScreeningProviderURL = "AllocateScreeningProviderURL";
+        _createCohortDistributionConfig.Object.Value.TransformDataServiceURL = "TransformDataServiceURL";
+        _createCohortDistributionConfig.Object.Value.AddCohortDistributionURL = "AddCohortDistributionURL";
+        _createCohortDistributionConfig.Object.Value.IgnoreParticipantExceptions = "IgnoreParticipantExceptions";
 
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
