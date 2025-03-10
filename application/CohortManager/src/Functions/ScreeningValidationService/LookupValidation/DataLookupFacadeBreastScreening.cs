@@ -114,10 +114,10 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     }
     public string RetrievePostingCategory(string currentPosting)
     {
-        // if(string.IsNullOrEmpty(currentPosting))
-        // {
-        //     return null;
-        // }
+        if(string.IsNullOrEmpty(currentPosting))
+        {
+            return null;
+        }
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
     }
