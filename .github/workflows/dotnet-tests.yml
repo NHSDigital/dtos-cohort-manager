@@ -1,0 +1,53 @@
+name: .NET Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  unit-tests:
+    name: Run .NET Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x' # Change as per your project needs
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build Solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: |
+          dotnet test --no-build --configuration Release \
+            --logger "trx;LogFileName=test_results.trx" \
+            --results-directory TestResults
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/*.trx
+          retention-days: 7 # Adjust as needed
+
+      - name: Upload Test Logs (if exist)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-test-logs
+          path: TestResults/
