@@ -18,7 +18,7 @@ jobs:
     services:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
-        options: --entrypoint "azurite --silent --skipApiVersionCheck"
+        options: --name azurite-storage
         env:
           AZURITE_BLOB_HOST: 0.0.0.0
 
@@ -31,8 +31,8 @@ jobs:
 
       - name: Ensure Azurite is Running
         run: |
-            docker ps
-            curl -v http://127.0.0.1:10000/devstoreaccount1 || echo "Azurite not reachable"
+              docker ps
+              curl -v http://127.0.0.1:10000/devstoreaccount1 || echo "Azurite not reachable"
 
       - name: Verify Azurite is Running
         run: docker ps --filter "name=azurite-storage"
