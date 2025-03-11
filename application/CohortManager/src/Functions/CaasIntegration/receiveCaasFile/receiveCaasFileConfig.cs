@@ -10,4 +10,6 @@ public class ReceiveCaasFileConfig
     public string ScreeningLkpDataServiceURL {get; set;}
     [Required]
     public string DemographicURI {get; set;}
+    [Required]
+    public int BatchSize {get; set;}
 }
