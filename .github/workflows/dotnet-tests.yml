@@ -15,12 +15,36 @@ jobs:
     name: Run .NET Unit Tests
     runs-on: ubuntu-latest
 
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        options: >
+          --health-cmd "curl -f http://127.0.0.1:10000 || exit 1"
+          --health-interval 5s
+          --health-retries 10
+          --health-timeout 5s
+          --health-start-period 15s
+          -p 10000:10000
+          -p 10001:10001
+          -p 10002:10002
+
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           submodules: 'true'
+
+      - name: Wait for Azurite to Start
+        run: |
+          echo "Waiting for Azurite to be available..."
+          for i in {1..10}; do
+            curl -s http://127.0.0.1:10000/devstoreaccount1 && echo "Azurite is up!" && exit 0
+            echo "Azurite not available yet. Retrying in 5s..."
+            sleep 5
+          done
+          echo "Azurite failed to start!"
+          exit 1
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
