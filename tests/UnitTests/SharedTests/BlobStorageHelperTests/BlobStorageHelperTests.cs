@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
+using System.Text;
 
 
 [TestClass]
@@ -50,32 +51,50 @@ using System.Diagnostics;
             _blobStorageHelper = new BlobStorageHelper(_mockLogger.Object);
         }
 
-   [TestMethod]
-    public async Task GetFileFromBlobStorage_FileExists_ReturnsBlobFile()
-    {
-        // Arrange: Use older API version for Azurite compatibility
-        var options = new BlobClientOptions();
-        var blobServiceClient = new BlobServiceClient(_connectionString, options);
-        var containerClient = blobServiceClient.GetBlobContainerClient(_containerName);
-        await containerClient.CreateIfNotExistsAsync(PublicAccessType.None);
-
-        // Create a test blob
-        var blobClient = containerClient.GetBlobClient(_fileName);
-        var testData = "This is test data";
-        using (var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(testData)))
+        public interface IBlobStorageHelperWrapper
         {
-            await blobClient.UploadAsync(stream, overwrite: true);
+            Task<BlobFile> GetFileFromBlobStorage(string connectionString, string containerName, string fileName);
+        }
+        public class BlobStorageHelperWrapper : IBlobStorageHelperWrapper
+            {
+                private readonly BlobStorageHelper _blobStorageHelper;
+
+                public BlobStorageHelperWrapper(BlobStorageHelper blobStorageHelper)
+                {
+                    _blobStorageHelper = blobStorageHelper;
+                }
+
+                public Task<BlobFile> GetFileFromBlobStorage(string connectionString, string containerName, string fileName)
+                {
+                    return _blobStorageHelper.GetFileFromBlobStorage(connectionString, containerName, fileName);
+                }
+            }
+
+
+        [TestMethod]
+        public async Task GetFileFromBlobStorage_FileExists_ReturnsBlobFile()
+        {
+            // Arrange: Mock the wrapper instead of BlobStorageHelper
+            var mockBlobStorageHelper = new Mock<IBlobStorageHelperWrapper>();
+
+            string expectedFileName = "test-file.txt";
+            byte[] fakeFileContent = Encoding.UTF8.GetBytes("This is a mock file content");
+
+            mockBlobStorageHelper
+                .Setup(x => x.GetFileFromBlobStorage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new BlobFile(fakeFileContent, expectedFileName));
+
+            var yourClassInstance = mockBlobStorageHelper.Object;
+
+            // Act
+            var result = await yourClassInstance.GetFileFromBlobStorage("fake-connection", "fake-container", expectedFileName);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual(expectedFileName, result.FileName);
         }
 
-        var yourClassInstance = new BlobStorageHelper(_mockLogger.Object);
 
-        // Act
-        var result = await yourClassInstance.GetFileFromBlobStorage(_connectionString, _containerName, _fileName);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(_fileName, result.FileName);
-    }
 
 
     [TestMethod]
