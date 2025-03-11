@@ -8,6 +8,7 @@ using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 
@@ -20,14 +21,19 @@ public class ValidateCohortDistributionRecord
 
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
 
+    private readonly IOptions<ValidateCohortDistributionConfig> _config;
 
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
+
+    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse,
+    IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService,
+    IOptions<ValidateCohortDistributionConfig> config)
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
         _logger = logger;
         _cohortDistributionDataService = cohortDistributionDataService;
+        _config = config;
     }
     /// <summary>
     /// Deserializes a ValidateCohortDistributionRecordBody object.
@@ -122,7 +128,7 @@ public class ValidateCohortDistributionRecord
 
         _logger.LogInformation("Sending record to validation in ValidateCohortDistributionRecord");
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+        var response = await _callFunction.SendPost(_config.Value.LookupValidationURL, json);
         var responseBodyJson = await _callFunction.GetResponseText(response);
 
         _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {response}", responseBodyJson);
