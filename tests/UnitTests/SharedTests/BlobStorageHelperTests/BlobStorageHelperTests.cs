@@ -135,16 +135,16 @@ using System.Text;
             var mockBlobStorageHelper = new Mock<IBlobStorageHelperWrapper>();
 
             string expectedFileName = "test-file.txt";
-            byte[] fakeFileContent = Encoding.UTF8.GetBytes("This is a mock file content");
+            byte[] mockFileContent = Encoding.UTF8.GetBytes("This is a mock file content");
 
             mockBlobStorageHelper
                 .Setup(x => x.GetFileFromBlobStorage(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new BlobFile(fakeFileContent, expectedFileName));
+                .ReturnsAsync(new BlobFile(mockFileContent, expectedFileName));
 
             var yourClassInstance = mockBlobStorageHelper.Object;
 
             // Act
-            var result = await yourClassInstance.GetFileFromBlobStorage("fake-connection", "fake-container", expectedFileName);
+            var result = await yourClassInstance.GetFileFromBlobStorage("mock-connection", "mock-container", expectedFileName);
 
             // Assert
             Assert.IsNotNull(result);
@@ -169,7 +169,7 @@ using System.Text;
         var wrapperInstance = mockBlobStorageHelperWrapper.Object;
 
         // Act: Call the method on the mocked wrapper
-        var result = await wrapperInstance.GetFileFromBlobStorage("fake-connection", "fake-container", "nonexistent.txt");
+        var result = await wrapperInstance.GetFileFromBlobStorage("mock-connection", "mock-container", "nonexistent.txt");
 
         // Assert: Ensure method returns null when file does not exist
         Assert.IsNull(result);
@@ -195,7 +195,7 @@ using System.Text;
         var wrapper = new BlobStorageHelperWrapper(blobStorageHelper, mockBlobCopyService.Object);
 
         // Act: Call CopyFileAsync (Triggers Mocked Logic)
-        var result = await wrapper.CopyFileAsync("fake-connection", "fake-file.txt", "fake-container");
+        var result = await wrapper.CopyFileAsync("mock-connection", "mock-file.txt", "mock-container");
 
         // Assert: Ensure CopyFileAsync returns true
         Assert.IsTrue(result);
