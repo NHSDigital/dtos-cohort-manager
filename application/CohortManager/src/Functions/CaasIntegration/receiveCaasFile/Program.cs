@@ -38,7 +38,7 @@ try
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+            client.BaseAddress = new Uri(config.DemographicURI);
         });
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
