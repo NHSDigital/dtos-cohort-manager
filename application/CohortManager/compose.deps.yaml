@@ -7,15 +7,6 @@ services:
     command: azurite --silent
     network_mode: host
 
-    # New Azurite instance for BlobStorageHelperTests (with --skipApiVersionCheck)
-  azurite-test:
-    container_name: azurite-test
-    image: mcr.microsoft.com/azure-storage/azurite
-    command: azurite --silent --skipApiVersionCheck
-    network_mode: host
-    depends_on:
-      - azurite
-
   azurite-setup:
     container_name: azurite-setup
     build:
@@ -24,7 +15,6 @@ services:
     network_mode: host
     depends_on:
       - azurite
-      - azurite-test
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
 
