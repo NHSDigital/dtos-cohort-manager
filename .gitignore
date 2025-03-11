@@ -84,3 +84,4 @@ application/CohortManager/.vscode/
 # Ignore generated feature bindings
 *.feature.cs
 tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings-local.json
+*.crt

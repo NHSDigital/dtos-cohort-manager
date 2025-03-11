@@ -9,7 +9,6 @@ using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
 using HealthChecks.Extensions;
-using Microsoft.Extensions.HealthChecks;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -20,13 +19,16 @@ try
     var host = new HostBuilder();
 
     X509Certificate2 cert = null;
+    X509Certificate2Collection caCerts = new X509Certificate2Collection();
+
+    var KeyVaultConnectionString = Environment.GetEnvironmentVariable("KeyVaultConnectionString");
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
-    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
+    if (!string.IsNullOrEmpty(KeyVaultConnectionString))
     {
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
-        var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
+        var client = new CertificateClient(vaultUri: new Uri(KeyVaultConnectionString), credential: new DefaultAzureCredential());
         var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
@@ -35,6 +37,36 @@ try
         logger.LogInformation("Pulling Mesh Certificate from local File");
         cert = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
     }
+
+    if (!string.IsNullOrEmpty(KeyVaultConnectionString))
+    {
+        var client = new CertificateClient(new Uri(KeyVaultConnectionString), new DefaultAzureCredential());
+        var allCertificates = client.GetPropertiesOfCertificates();
+
+        foreach (var certificateProperties in allCertificates)
+        {
+            if (certificateProperties.Name.StartsWith("CaCert"))
+            {
+                var certificateWithPolicy = await client.DownloadCertificateAsync(certificateProperties.Name);
+                caCerts.Add(certificateWithPolicy.Value);
+            }
+        }
+    }
+    else if (!string.IsNullOrEmpty(config.ServerSideCerts))
+    {
+        var pemCerts = File.ReadAllText(config.ServerSideCerts)
+            .Split(new string[] { "-----END CERTIFICATE-----" }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(pem => pem + "\n-----END CERTIFICATE-----")
+            .Select(pem => new X509Certificate2(Convert.FromBase64String(
+            pem.Replace("-----BEGIN CERTIFICATE-----", "")
+                .Replace("-----END CERTIFICATE-----", "")
+                .Replace("\n", "")
+        )))
+        .ToArray();
+
+        caCerts.AddRange(pemCerts);
+    }
+
 
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services =>
@@ -47,7 +79,8 @@ try
             {
                 Password = config.MeshPassword,
                 SharedKey = config.MeshSharedKey,
-                Cert = cert
+                Cert = cert,
+                serverSideCertCollection = caCerts
             })
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
