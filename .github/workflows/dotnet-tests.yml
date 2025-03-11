@@ -19,6 +19,9 @@ jobs:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
         options: --name azurite-storage
+        env:
+          AZURITE_BLOB_HOST: 0.0.0.0
+
 
     steps:
       - name: Checkout Repository
@@ -26,8 +29,13 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Start Azurite with --skipApiVersionCheck
-        run: docker exec azurite-storage azurite --silent --skipApiVersionCheck
+      - name: Verify Azurite is Running
+        run: docker ps --filter "name=azurite-storage"
+
+      - name: Apply --skipApiVersionCheck to Running Azurite
+        run: |
+          docker exec azurite-storage pkill -f "azurite"
+          docker exec azurite-storage azurite --silent --skipApiVersionCheck &
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
