@@ -6,4 +6,6 @@ public class RetrieveParticipantDataConfig
 {
     [Required]
     public string ParticipantManagementUrl {get; set;}
+    [Required]
+    public string DemographicDataFunctionURL {get; set;}
 }
