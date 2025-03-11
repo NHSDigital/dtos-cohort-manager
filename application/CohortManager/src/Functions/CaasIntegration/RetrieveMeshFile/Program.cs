@@ -23,10 +23,10 @@ try
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
-    if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
+    if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
     {
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
-        var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
+        var client = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
         var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
         cert = certificate.Value;
     }
