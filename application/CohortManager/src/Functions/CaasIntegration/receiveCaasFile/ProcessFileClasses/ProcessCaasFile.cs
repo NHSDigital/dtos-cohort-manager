@@ -218,7 +218,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
+                await _callFunction.SendPost(_config.PMSRemoveParticipant, json);
             }
             else
             {

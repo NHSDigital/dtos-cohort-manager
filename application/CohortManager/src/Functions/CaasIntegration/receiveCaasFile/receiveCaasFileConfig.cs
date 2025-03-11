@@ -16,4 +16,6 @@ public class ReceiveCaasFileConfig
     public string AddQueueName {get; set;}
     [Required]
     public string UpdateQueueName {get; set;}
+    [Required]
+    public string PMSRemoveParticipant {get; set;}
 }
