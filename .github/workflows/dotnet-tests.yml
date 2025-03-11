@@ -15,42 +15,12 @@ jobs:
     name: Run .NET Unit Tests
     runs-on: ubuntu-latest
 
-    services:
-      azurite:
-        image: mcr.microsoft.com/azure-storage/azurite
-        options: --name azurite-storage
-        env:
-          AZURITE_BLOB_HOST: 0.0.0.0
-
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           submodules: 'true'
-
-      - name: Ensure Azurite is Running
-        run: |
-              docker ps
-              curl -v http://127.0.0.1:10000/devstoreaccount1 || echo "Azurite not reachable"
-
-      - name: Verify Azurite is Running
-        run: docker ps --filter "name=azurite-storage"
-
-      - name: Restart Azurite with --skipApiVersionCheck
-        run: |
-          docker stop azurite-storage || true
-          docker rm azurite-storage || true
-          docker run -d --name azurite-storage \
-            -p 10000:10000 \
-            mcr.microsoft.com/azure-storage/azurite \
-            azurite --silent --skipApiVersionCheck
-
-
-      - name: Ensure Azurite is Running after Restart
-        run: |
-              docker ps
-              curl -v http://127.0.0.1:10000/devstoreaccount1 || echo "Azurite not reachable"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
