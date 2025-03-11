@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
 using Model;
+using NHS.Screening.CreateCohortDistribution;
 
 var host = new HostBuilder()
+    .AddConfiguration<CreateCohortDistributionConfig>(out CreateCohortDistributionConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
