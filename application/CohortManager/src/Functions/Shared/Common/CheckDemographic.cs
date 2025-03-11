@@ -1,5 +1,6 @@
 namespace Common;
 
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -36,7 +37,7 @@ public class CheckDemographic : ICheckDemographic
     {
         var url = $"{DemographicFunctionURI}?Id={NhsNumber}";
 
-        var response = await _callFunction.SendGet(url);
+        var response = await _callFunction.SendGet(url) ?? throw new WebException("Participant not found");
         var demographicData = JsonSerializer.Deserialize<Demographic>(response);
 
         return demographicData;
