@@ -20,6 +20,8 @@ jobs:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
         options: --name azurite-storage
+        env:
+          AZURITE_BLOB_HOST: 0.0.0.0
 
 
     steps:
@@ -28,8 +30,14 @@ jobs:
         with:
           submodules: 'true'
 
-      - name: Start Azurite with --skipApiVersionCheck
-        run: docker exec azurite-storage azurite --silent --skipApiVersionCheck
+      - name: Restart Azurite with --skipApiVersionCheck
+        run: |
+            docker stop azurite-storage || true
+            docker rm azurite-storage || true
+            docker run -d --name azurite-storage \
+              -p 10000:10000 \
+              mcr.microsoft.com/azure-storage/azurite \
+              azurite --silent --skipApiVersionCheck
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
