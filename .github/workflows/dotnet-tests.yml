@@ -19,14 +19,14 @@ jobs:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
         options: >
-          --health-cmd "curl -f http://127.0.0.1:10000 || exit 1"
+          --health-cmd "curl -f http://127.0.0.1:10000/devstoreaccount1 || exit 1"
           --health-interval 5s
           --health-retries 10
           --health-timeout 5s
           --health-start-period 15s
-          -p 10000:10000
-          -p 10001:10001
-          -p 10002:10002
+          -p 10000:10000/tcp
+          -p 10001:10001/tcp
+          -p 10002:10002/tcp
 
 
     steps:
