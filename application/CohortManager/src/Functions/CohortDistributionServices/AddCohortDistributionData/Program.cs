@@ -1,3 +1,4 @@
+
 using Common;
 using Common.Interfaces;
 using Data.Database;
@@ -7,10 +8,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
 using HealthChecks.Extensions;
+using NHS.CohortManager.CohortDistributionDataServices;
 
-var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
+var hostBuilder = new HostBuilder();
+
+hostBuilder.AddConfiguration(out AddCohortDistributionDataConfig config);
+
+var host = hostBuilder.AddDataServicesHandler()
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
