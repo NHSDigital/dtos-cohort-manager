@@ -42,7 +42,7 @@ try
         });
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
-        services.AddBlobStorageHealthCheck();
+        services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
     .AddAzureQueues()
     .AddExceptionHandler()

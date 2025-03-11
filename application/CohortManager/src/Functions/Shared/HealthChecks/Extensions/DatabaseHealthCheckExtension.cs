@@ -6,12 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class DatabaseHealthCheckExtension
 {
-    public static IServiceCollection AddDatabaseHealthCheck(this IServiceCollection services)
+    public static IServiceCollection AddDatabaseHealthCheck(this IServiceCollection services, string name)
     {
         // Register the database health check
         services.AddHealthChecks()
             .AddCheck<DatabaseHealthCheck>(
-                "Sql-Server HealthCheck",
+                "HealthCheck for "+name,
                 tags: new[] { "database", "sqlserver" });
         // Register DbContext for health check
         services.AddDbContext<DataServicesContext>(options =>
