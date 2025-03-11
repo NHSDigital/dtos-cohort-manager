@@ -32,10 +32,14 @@ jobs:
       - name: Verify Azurite is Running
         run: docker ps --filter "name=azurite-storage"
 
-      - name: Apply --skipApiVersionCheck to Running Azurite
+      - name: Restart Azurite with --skipApiVersionCheck
         run: |
-          docker exec azurite-storage pkill -f "azurite"
-          docker exec azurite-storage azurite --silent --skipApiVersionCheck &
+          docker stop azurite-storage || true
+          docker rm azurite-storage || true
+          docker run -d --name azurite-storage \
+            -p 10000:10000 \
+            mcr.microsoft.com/azure-storage/azurite \
+            azurite --silent --skipApiVersionCheck
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
