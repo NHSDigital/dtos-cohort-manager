@@ -81,17 +81,31 @@ using System.Diagnostics;
     [TestMethod]
     public async Task GetFileFromBlobStorage_FileDoesNotExist_ReturnsNull()
     {
-        // Arrange: Use older API version for Azurite compatibility
-        var options = new BlobClientOptions();
-        var blobServiceClient = new BlobServiceClient(_connectionString, options);
-        var yourClassInstance = new BlobStorageHelper(_mockLogger.Object);
+        // Arrange: Mock BlobClient to return false for ExistsAsync()
+        var mockBlobClient = new Mock<BlobClient>();
+        mockBlobClient
+            .Setup(b => b.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Response.FromValue(false, new Mock<Response>().Object));
 
-        // Act
-        var result = await yourClassInstance.GetFileFromBlobStorage(_connectionString, _containerName, "nonexistent.txt");
+        var mockContainerClient = new Mock<BlobContainerClient>();
+        mockContainerClient
+            .Setup(c => c.GetBlobClient(It.IsAny<string>()))
+            .Returns(mockBlobClient.Object);
 
-        // Assert
+        var mockBlobServiceClient = new Mock<BlobServiceClient>();
+        mockBlobServiceClient
+            .Setup(s => s.GetBlobContainerClient(It.IsAny<string>()))
+            .Returns(mockContainerClient.Object);
+
+        var blobStorageHelper = new BlobStorageHelper(_mockLogger.Object);
+
+        // Act: Call method with non-existent file
+        var result = await blobStorageHelper.GetFileFromBlobStorage(_connectionString, _containerName, "nonexistent.txt");
+
+        // Assert: Ensure method returns null when file does not exist
         Assert.IsNull(result);
     }
+
 
     [TestMethod]
     public async Task CopyFileAsync_SuccessfulCopy_ReturnsTrue()
