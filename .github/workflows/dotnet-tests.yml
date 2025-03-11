@@ -46,6 +46,12 @@ jobs:
             mcr.microsoft.com/azure-storage/azurite \
             azurite --silent --skipApiVersionCheck
 
+
+      - name: Ensure Azurite is Running after Restart
+        run: |
+              docker ps
+              curl -v http://127.0.0.1:10000/devstoreaccount1 || echo "Azurite not reachable"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
