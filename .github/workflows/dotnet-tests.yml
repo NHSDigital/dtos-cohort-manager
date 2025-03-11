@@ -21,7 +21,7 @@ jobs:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
         options: --name azurite-storage
-      command: "azurite --silent --skipApiVersionCheck"
+      command: "azurite --skipApiVersionCheck"
 
     steps:
       - name: Checkout Repository
