@@ -12,4 +12,8 @@ public class ReceiveCaasFileConfig
     public string DemographicURI {get; set;}
     [Required]
     public int BatchSize {get; set;}
+    [Required]
+    public string AddQueueName {get; set;}
+    [Required]
+    public string UpdateQueueName {get; set;}
 }

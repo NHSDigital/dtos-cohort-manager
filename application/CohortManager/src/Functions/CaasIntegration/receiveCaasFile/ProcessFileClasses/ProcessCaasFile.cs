@@ -6,6 +6,7 @@ using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
 
@@ -21,6 +22,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
     private readonly ICallFunction _callFunction;
+    private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
     private readonly string UpdateParticipantQueueName;
@@ -36,7 +38,8 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction
+        ICallFunction callFunction,
+        IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
     {
         _logger = logger;
@@ -49,10 +52,11 @@ public class ProcessCaasFile : IProcessCaasFile
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
         _callFunction = callFunction;
+        _config = receiveCaasFileConfig.Value;
 
-        DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
-        AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
-        UpdateParticipantQueueName = Environment.GetEnvironmentVariable("UpdateQueueName");
+        DemographicURI = _config.DemographicURI;
+        AddParticipantQueueName = _config.AddQueueName;
+        UpdateParticipantQueueName = _config.UpdateQueueName;
 
 
         if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
