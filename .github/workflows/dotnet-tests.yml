@@ -15,19 +15,19 @@ jobs:
     name: Run .NET Unit Tests
     runs-on: ubuntu-latest
 
-
-
     services:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
         options: --name azurite-storage
-      command: "azurite --skipApiVersionCheck"
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           submodules: 'true'
+
+      - name: Start Azurite with --skipApiVersionCheck
+        run: docker exec azurite-storage azurite --silent --skipApiVersionCheck
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
