@@ -39,6 +39,13 @@ jobs:
               mcr.microsoft.com/azure-storage/azurite \
               azurite --silent --skipApiVersionCheck
 
+      - name: Wait for Azurite
+        run: |
+                for i in {1..30}; do
+                  curl -s http://127.0.0.1:10000/devstoreaccount1 && break
+                  echo "Waiting for Azurite..."
+                  sleep 2
+                done
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
