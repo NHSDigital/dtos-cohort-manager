@@ -53,7 +53,7 @@ public static class ConfigurationExtension
         {
             foreach(var configFile in configFilePaths)
             {
-                configBuilder.AddJsonFile(configFile);
+                configBuilder.AddJsonFile(configFile,true);
             }
         }
 

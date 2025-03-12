@@ -5,5 +5,5 @@ using System.ComponentModel.DataAnnotations;
 public class DatabaseConfig
 {
     [Required]
-    public string ConnectionString {get;set;}
+    public string DtOsDatabaseConnectionString {get;set;}
 }
