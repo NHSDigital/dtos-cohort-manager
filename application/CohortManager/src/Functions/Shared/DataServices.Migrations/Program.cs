@@ -19,7 +19,7 @@ public class Program
         List<string> configFiles = ["appsettings.json"]; // Only used for local
 
         var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null,configFiles);
-        using var host = CreateHostBuilder(config.ConnectionString).Build();
+        using var host = CreateHostBuilder(config.DtOsDatabaseConnectionString).Build();
 
         var migrationsApplied = ApplyMigrations(host);
         if(migrationsApplied == ExitCodes.FAILURE)
