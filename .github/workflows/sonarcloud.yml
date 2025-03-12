@@ -43,6 +43,6 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=nhsdigital
-            -Dsonar.projectKey=NHSDigital_dtos-cohort-manager
+            -Dsonar.organization=${{ vars.SONAR_ORGANISATION_KEY }}
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
             -Dsonar.cs.opencover.reportsPaths=tests/TestUtils/coverage.opencover.xml
