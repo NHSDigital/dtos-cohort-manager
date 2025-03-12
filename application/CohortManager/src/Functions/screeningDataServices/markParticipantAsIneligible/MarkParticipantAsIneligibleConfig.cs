@@ -6,4 +6,6 @@ public class MarkParticipantAsIneligibleConfig
 {
     [Required]
     public string ParticipantManagementUrl {get; set;}
+    [Required]
+    public string LookupValidationURL { get; set; }
 }
