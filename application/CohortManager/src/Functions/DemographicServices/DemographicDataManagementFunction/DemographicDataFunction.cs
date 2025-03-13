@@ -46,32 +46,39 @@ public class DemographicDataFunction
 
     private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
     {
+        long nhsNumber;
+        try 
+        {
+            nhsNumber = long.Parse(req.Query["Id"]);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "NHS Number missing or invalid: {Message}", ex.Message);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+
         try
         {
+            var participantDemographicData = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
-            if(req.Query["Id"] == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req,"No NHS Number Provided");
-            }
-            string NHSNumber = req.Query["Id"]!;
-
-            var demographicData = await GetDemographicData(NHSNumber);
-
-
-            if (demographicData == null)
+            if (participantDemographicData == null)
             {
                 _logger.LogInformation("Participant Not found");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
             }
 
-            var data = JsonSerializer.Serialize(demographicData);
-
+            string data;
             // Filters out unnecessary data for use in the BI product
-            if (externalRequest)
+            if (externalRequest) 
             {
-                var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
-                data = JsonSerializer.Serialize(filteredData);
+                FilteredDemographicData filteredDemographicData = new(participantDemographicData);
+                data = JsonSerializer.Serialize(filteredDemographicData);
+            } else
+            {
+                Demographic demographicData = participantDemographicData.ToDemographic();
+                data = JsonSerializer.Serialize(demographicData);
             }
+
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
@@ -80,21 +87,5 @@ public class DemographicDataFunction
             _logger.LogError(ex, "There has been an error getting demographic data: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task<Demographic?> GetDemographicData(string nhsNumber)
-    {
-        long nhsNumberLong;
-        if (!long.TryParse(nhsNumber, out nhsNumberLong))
-        {
-            throw new FormatException("Could not parse NhsNumber");
-        }
-        var result = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
-
-        if(result == null)
-        {
-            return null;
-        }
-        return result.ToDemographic();
     }
 }
