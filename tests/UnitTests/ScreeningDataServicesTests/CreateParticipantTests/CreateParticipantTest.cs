@@ -11,6 +11,8 @@ using Model;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using DataServices.Client;
+using Microsoft.Extensions.Options;
+using NHS.Screening.CreateParticipant;
 
 [TestClass]
 public class CreateParticipantTests
@@ -19,6 +21,7 @@ public class CreateParticipantTests
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
+    private readonly Mock<IOptions<CreateParticipantConfig>> _config = new();
 
     private readonly Mock<ICallFunction> _callFunction = new();
 
@@ -37,12 +40,21 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         var sut = new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
+            _participantManagementClient.Object,
+            _config.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
@@ -74,12 +86,21 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         var sut = new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
+            _participantManagementClient.Object,
+            _config.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
@@ -112,12 +133,21 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         var sut = new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
+            _participantManagementClient.Object,
+            _config.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
@@ -150,12 +180,21 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         var sut = new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
+            _participantManagementClient.Object,
+            _config.Object);
         _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {

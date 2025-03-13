@@ -3,10 +3,12 @@ namespace NHS.CohortManager.Tests.UnitTests.ParticipantManagementServiceTests;
 using System.Net;
 using System.Text.Json;
 using Common;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.ParticipantManagementService;
 using NHS.CohortManager.Tests.TestUtils;
+using NHS.Screening.RemoveParticipant;
 
 [TestClass]
 public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
@@ -15,6 +17,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     private static readonly Mock<IExceptionHandler> _handleException = new();
     private static readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private static readonly BasicParticipantCsvRecord _participantCsvRecord = new();
+    private static readonly Mock<IOptions<RemoveParticipantConfig>> _config = new();
 
     public RemoveParticipantTests() : base((conn, logger, transaction, command, response) =>
     new RemoveParticipant(
@@ -22,7 +25,8 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
         response,
         _callFunction.Object,
         _handleException.Object,
-        _cohortDistributionHandler.Object))
+        _cohortDistributionHandler.Object,
+        _config.Object))
     {
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
         CreateHttpResponseMock();
@@ -31,6 +35,14 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     [TestInitialize]
     public void TestInitialize()
     {
+        var testConfig = new RemoveParticipantConfig
+        {
+            DemographicURIGet = "DemographicURIGet",
+            markParticipantAsIneligible = "markParticipantAsIneligible"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _callFunction.Reset();
         _cohortDistributionHandler.Reset();
         _service = new RemoveParticipant(
@@ -38,7 +50,8 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
             _createResponseMock.Object,
             _callFunction.Object,
             _handleException.Object,
-            _cohortDistributionHandler.Object);
+            _cohortDistributionHandler.Object,
+            _config.Object);
         _participantCsvRecord.FileName = "TestFile";
         _participantCsvRecord.participant = new Participant() { NhsNumber = "1234567890", ScreeningId = "1", RecordType = Actions.Removed };
     }

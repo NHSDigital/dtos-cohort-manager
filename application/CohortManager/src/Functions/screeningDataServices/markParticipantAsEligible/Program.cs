@@ -4,12 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
 using Model;
+using NHS.Screening.MarkParticipantAsEligible;
 
 
 var host = new HostBuilder()
+    .AddConfiguration<MarkParticipantAsEligibleConfig>(out MarkParticipantAsEligibleConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-    .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+    .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
     .Build()
     .ConfigureServices(services =>
     {

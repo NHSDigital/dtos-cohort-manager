@@ -16,6 +16,8 @@ using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
+using NHS.Screening.RetrieveParticipantData;
 
 [TestClass]
 public class RetrieveParticipantDataTests
@@ -30,6 +32,7 @@ public class RetrieveParticipantDataTests
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<IOptions<RetrieveParticipantDataConfig>> _config = new();
     private readonly Mock<ICallFunction> _callFunction = new();
 
     public RetrieveParticipantDataTests()
@@ -40,10 +43,20 @@ public class RetrieveParticipantDataTests
             NhsNumber = "1234567890",
             ScreeningService = "1"
         };
+        
         _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
+        var testConfig = new RetrieveParticipantDataConfig
+        {
+            ParticipantManagementUrl = "test",
+            DemographicDataFunctionURL = "test2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _sut = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _participantManagementClientMock.Object,
-                                            _createParticipant, _exceptionHandler.Object, _callFunction.Object);
+                                            _createParticipant, _exceptionHandler.Object, _callFunction.Object,
+                                            _config.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>

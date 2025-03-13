@@ -1,20 +1,20 @@
-namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using NHS.CohortManager.ScreeningDataServices;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using Google.Protobuf.Reflection;
 using DataServices.Client;
 using System.Linq.Expressions;
+using NHS.Screening.MarkParticipantAsIneligible;
+using Microsoft.Extensions.Options;
 
+namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 [TestClass]
 public class MarkParticipantAsIneligibleTests
 {
@@ -27,6 +27,7 @@ public class MarkParticipantAsIneligibleTests
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpWebResponse> _webResponse = new();
+    private readonly Mock<IOptions<MarkParticipantAsIneligibleConfig>> _config = new();
 
     private readonly Mock<IExceptionHandler> _handleException = new();
 
@@ -47,7 +48,22 @@ public class MarkParticipantAsIneligibleTests
             }
         };
 
-        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockParticipantManagementClient.Object, _callFunction.Object, _handleException.Object);
+        var testConfig = new MarkParticipantAsIneligibleConfig
+        {
+            ParticipantManagementUrl = "test-storage",
+            LookupValidationURL = "test-inbound"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _function = new MarkParticipantAsIneligible(
+            _mockLogger.Object, 
+            _createResponse.Object, 
+            _mockParticipantManagementClient.Object, 
+            _callFunction.Object, 
+            _handleException.Object,
+            _config.Object
+        );
 
         _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
