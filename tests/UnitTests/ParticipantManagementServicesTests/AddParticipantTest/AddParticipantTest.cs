@@ -23,7 +23,7 @@ public class AddParticipantTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new Mock<ICohortDistributionHandler>();
+    private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private BasicParticipantCsvRecord _request = new();
 
     public AddParticipantTests()
