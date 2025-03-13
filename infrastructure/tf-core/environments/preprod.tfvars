@@ -219,7 +219,7 @@ function_apps = {
         CheckTimer                 = "100"
         DemographicURI             = "https://pre-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://pre-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
-        AllowDeleteRecords         = true
+        AllowDeleteRecords         = false
         UpdateQueueName            = "update-participant-queue"
       }
 
