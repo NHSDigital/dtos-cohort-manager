@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using NHS.CohortManager.Shared.Utilities;
 
 namespace MappingUtilitiesTests;
