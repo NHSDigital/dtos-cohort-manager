@@ -47,7 +47,6 @@ public class FileValidationTests
             inboundBlobName = "test-inbound"
         };
 
-        // Setup _config to return the testConfig
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _function = new FileValidation(_logger.Object, _blobStorageHelper.Object, _exceptionHandler.Object, _config.Object);
