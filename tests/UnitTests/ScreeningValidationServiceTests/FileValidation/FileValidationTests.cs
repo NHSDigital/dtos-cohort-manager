@@ -10,6 +10,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using NHS.CohortManager.ScreeningValidationService;
 using Model;
 using Common;
+using NHS.Screening.FileValidation;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class FileValidationTests
@@ -20,6 +22,7 @@ public class FileValidationTests
     private readonly Mock<HttpWebResponse> _webResponse = new();
     private readonly Mock<IBlobStorageHelper> _blobStorageHelper = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
+    private readonly Mock<IOptions<FileValidationConfig>> _config = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly ValidationException _requestBody;
     private readonly FileValidation _function;
@@ -38,7 +41,16 @@ public class FileValidationTests
             FileName = "filename"
         };
 
-        _function = new FileValidation(_logger.Object, _blobStorageHelper.Object, _exceptionHandler.Object);
+        var testConfig = new FileValidationConfig
+        {
+            caasfolder_STORAGE = "test-storage",
+            inboundBlobName = "test-inbound"
+        };
+
+        // Setup _config to return the testConfig
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _function = new FileValidation(_logger.Object, _blobStorageHelper.Object, _exceptionHandler.Object, _config.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
