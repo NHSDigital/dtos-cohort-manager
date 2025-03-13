@@ -63,6 +63,8 @@ public class MappingUtilitiesTests
     [DataRow("01/01/2000")] // dd/mm/yyyy
     [DataRow("20000101")] // yyyymmdd
     [DataRow("1/1/2000")] // d/m/yyyy
+    [DataRow("2000")] //yyyy
+    [DataRow("200001")] //yyyymm
     public void ParseDates_ValidInput_ReturnDate(string date)
     {
         //No Arrange
@@ -77,6 +79,8 @@ public class MappingUtilitiesTests
     [DataRow("00/00/2000")] // dd/mm/yyyy
     [DataRow("20000000")] // yyyymmdd
     [DataRow("0/0/2000")] // d/m/yyyy
+    [DataRow(null)]
+    [DataRow("")]
     public void ParseDates_InvalidInput_ReturnNull(string date)
     {
         //No Arrange
