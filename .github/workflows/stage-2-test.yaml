@@ -50,6 +50,7 @@ jobs:
         with:
           comment-title: 'Unit Test Results'
           results-path: ./tests/UnitTests/results-unit/*.trx
+
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
@@ -77,6 +78,7 @@ jobs:
       - name: "Save the coverage check result"
         run: |
           echo "Nothing to save"
+
   perform-static-analysis:
     name: "Perform static analysis"
     needs: [test-unit]
