@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService/ScreeningLkpDataService.csproj" />
+    <ProjectReference Include="../../../application/CohortManager/src/Functions/screeningDataServices/CohortDistributionDataService/CohortDistributionDataService.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectOutCode\BsSelectOutCode.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
