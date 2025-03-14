@@ -238,7 +238,7 @@ public class BsSelectGpPracticeDataServiceTests
         BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
         var req = new MockHttpRequestData(_context.Object, "", "GET");
         req.AddQuery("query", query);
-        req.AddQuery("single","true");
+        req.AddQuery("single", "true");
         //act
         var result = await function.Run(req, null);
 
@@ -579,6 +579,22 @@ public class BsSelectGpPracticeDataServiceTests
     }
 
     #endregion
+    #region Exception
+    [TestMethod]
+    public async Task RunAsync_GetItemByIdWithInvalidMethod_ReturnsInternalServerError()
+    {
+        // Arrange
+        var invalidMethod = string.Empty;
+        var _requestHandler = new RequestHandler<BsSelectGpPractice>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectGpPracticeDataService function = new BsSelectGpPracticeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, string.Empty, invalidMethod);
 
+        // Act
+        var result = await function.Run(req, "G82650");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+    #endregion
 
 }
