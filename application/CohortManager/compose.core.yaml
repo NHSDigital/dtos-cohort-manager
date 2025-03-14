@@ -13,9 +13,9 @@ services:
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - MeshApiBaseUrl=https://localhost:8700/messageexchange
       - BSSMailBox="X26ABC1"
-      - MeshPassword = ${MESHPASSWORD}
-      - MeshSharedKey = ${MESHSHAREDKEY}
-      - MeshKeyPassphrase = ${MESHKEYPASSPHRASE}
+      - MeshPassword=${MESHPASSWORD}
+      - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7059
 
   receive-caas-file:
