@@ -1,4 +1,5 @@
 using Common;
+using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -17,6 +18,8 @@ var host = new HostBuilder()
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURIGet"));
         });
+        // Register health checks
+        services.AddBasicHealthCheck("updateParticipant");
     })
     .AddAzureQueues()
     .AddExceptionHandler()
