@@ -38,19 +38,19 @@ public class EndToEndFileUploadService
             foreach (var nhsNumber in nhsNumbers)
             {
                 //  parameterized queries to prevent SQL injection
-                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM PARTICIPANT_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM PARTICIPANT_DEMOGRAPHIC WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM BS_COHORT_DISTRIBUTION WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
 
-                await  DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM EXCEPTION_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
             }
@@ -130,11 +130,27 @@ public class EndToEndFileUploadService
         return false;
     }
 
-    public async Task VerifyNhsNumbersAsync(string tableName, List<string> nhsNumbers)
+    public async Task VerifyNhsNumbersAsync(string firstTableName, List<string> nhsNumbers, string recordType = null, string secondTableName = null)
     {
-        _logger.LogInformation("Validating NHS numbers in table {TableName}.", tableName);
-        await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, tableName, nhsNumbers, _logger);
-        _logger.LogInformation("Validation of NHS numbers completed successfully.");
+        if (string.IsNullOrEmpty(secondTableName))
+        {
+            // Single table validation
+            _logger.LogInformation("Validating NHS numbers in table {TableName} with record type {RecordType}.", firstTableName, recordType ?? "null");
+            await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, firstTableName, nhsNumbers, recordType);
+            _logger.LogInformation("Validation of NHS numbers completed successfully.");
+        }
+        else
+        {
+            // Two table validation
+            _logger.LogInformation("Validating NHS numbers in tables {FirstTableName} and {SecondTableName} with record type {RecordType}.", firstTableName, secondTableName, recordType ?? "null");
+
+            await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, firstTableName, nhsNumbers, recordType);
+            _logger.LogInformation("Validation of NHS numbers in {FirstTableName} completed successfully.", firstTableName);
+
+            await DatabaseValidationHelper.VerifyNhsNumbersAsync(_sqlConnectionWithAuthentication, secondTableName, nhsNumbers);
+            _logger.LogInformation("Validation of NHS numbers in {SecondTableName} completed successfully.", secondTableName);
+            _logger.LogInformation("Validation of NHS numbers in both tables completed successfully.");
+        }
     }
 
     public async Task VerifyNhsNumbersCountAsync(string tableName, string nhsNumber, int expectedCount)
