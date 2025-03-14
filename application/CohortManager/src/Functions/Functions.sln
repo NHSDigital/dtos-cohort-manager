@@ -218,6 +218,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpParserTests", "..\..\..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{0A68E48A-8249-4A74-B5B7-5921017D07BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\ValidationHelperTests\ValidationHelperTests.csproj", "{EDB57691-525A-4693-8562-A5E6F4D0A61F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -604,6 +606,10 @@ Global
 		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDB57691-525A-4693-8562-A5E6F4D0A61F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDB57691-525A-4693-8562-A5E6F4D0A61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDB57691-525A-4693-8562-A5E6F4D0A61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDB57691-525A-4693-8562-A5E6F4D0A61F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
