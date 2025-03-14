@@ -4,7 +4,8 @@ using dtos_cohort_manager_specflow.Config;
 using dtos_cohort_manager_specflow.Helpers;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
-using TechTalk.SpecFlow;
+using Reqnroll;
+
 
 namespace dtos_cohort_manager_specflow.Hook
 {
