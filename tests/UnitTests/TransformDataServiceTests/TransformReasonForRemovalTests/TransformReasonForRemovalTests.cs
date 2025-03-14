@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.TransformDataServiceTests;
+namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
 using Moq;
 using Common;
@@ -11,14 +11,13 @@ using System.Data;
 public class TransformReasonForRemovalTests
 {
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private readonly Mock<IBsTransformationLookups> _transformationLookups = new();
     private readonly Mock<ITransformDataLookupFacade> _dataLookup = new();
     private readonly TransformReasonForRemoval _function;
     private readonly CohortDistributionParticipant _participant;
     public TransformReasonForRemovalTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new TransformReasonForRemoval(_exceptionHandler.Object, _transformationLookups.Object, _dataLookup.Object);
+        _function = new TransformReasonForRemoval(_exceptionHandler.Object, _dataLookup.Object);
         _participant = new CohortDistributionParticipant();
     }
 
@@ -26,7 +25,7 @@ public class TransformReasonForRemovalTests
     public async Task Run_ValidParticipant_ReturnsExistingParticipant()
     {
         // Act
-        var result = await _function.ReasonForRemovalTransformations(_participant,null);
+        var result = await _function.ReasonForRemovalTransformations(_participant, null);
 
         // Assert
         Assert.AreEqual(_participant, result);
@@ -55,7 +54,7 @@ public class TransformReasonForRemovalTests
         _dataLookup.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ABC");
 
         // Act
-        var result = await _function.ReasonForRemovalTransformations(_participant,null);
+        var result = await _function.ReasonForRemovalTransformations(_participant, null);
 
         // Assert
         Assert.AreEqual("ZZZABC", result.PrimaryCareProvider);
@@ -82,14 +81,15 @@ public class TransformReasonForRemovalTests
         _participant.Postcode = postcode;
 
         _dataLookup.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(false);
-        var existingParticipant = new CohortDistribution{
+        var existingParticipant = new CohortDistribution
+        {
             PrimaryCareProvider = "ABCDEF"
         };
 
-        _transformationLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ABC");
+        _dataLookup.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ABC");
 
         // Act
-        var result = await _function.ReasonForRemovalTransformations(_participant,existingParticipant);
+        var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
         Assert.AreEqual($"ZZZABC", result.PrimaryCareProvider);
@@ -108,22 +108,23 @@ public class TransformReasonForRemovalTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidPostcode")]
-    public async Task Run_InvalidParticipantForRule3_RaisesException(string postcode)
+    public async Task Run_InvalidParticipantForRule3_ReturnsNull(string postcode)
     {
         // Arrange
         _participant.ReasonForRemoval = "RDR";
         _participant.Postcode = postcode;
 
         _dataLookup.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode == "ValidPostcode");
-        var existingParticipant = new CohortDistribution{
+        var existingParticipant = new CohortDistribution
+        {
             PrimaryCareProvider = "ZZZABC"
         };
 
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<TransformationException>(() => _function.ReasonForRemovalTransformations(_participant,existingParticipant));
+        var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
-        Assert.AreEqual("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception", exception.Message);
+        Assert.AreSame(new Model.CohortDistributionParticipant().NhsNumber, result.NhsNumber);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -136,24 +137,24 @@ public class TransformReasonForRemovalTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidPostcode")]
-    public async Task Run_InvalidParticipantForRule4_RaisesException(string postcode)
+    public async Task Run_InvalidParticipantForRule4_ReturnsNull(string postcode)
     {
         // Arrange
         _participant.ReasonForRemoval = "RDR";
         _participant.Postcode = postcode;
 
         _dataLookup.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode == "ValidPostcode");
-        //_transformationLookups.Setup(x => x.GetPrimaryCareProvider(It.IsAny<string>())).Returns(string.Empty);
-        var existingParticipant = new CohortDistribution{
+
+        var existingParticipant = new CohortDistribution
+        {
             PrimaryCareProvider = string.Empty
         };
 
-
         // Act
-        var exception = await Assert.ThrowsExceptionAsync<TransformationException>(() => _function.ReasonForRemovalTransformations(_participant, existingParticipant));
+        var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
-        Assert.AreEqual("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception", exception.Message);
+        Assert.AreEqual(new CohortDistributionParticipant().NhsNumber, result.NhsNumber);
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
