@@ -76,6 +76,7 @@ services:
       - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
       - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
       - CohortQueueName=cohort-distribution-queue
       - CohortQueueNamePoison=cohort-distribution-queue-poison
       - IgnoreParticipantExceptions=false
