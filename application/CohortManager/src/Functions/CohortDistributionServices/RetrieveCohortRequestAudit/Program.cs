@@ -1,6 +1,7 @@
 using Common;
 using Common.Interfaces;
 using Data.Database;
+using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -12,6 +13,8 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
+        // Register health checks
+        services.AddBasicHealthCheck("RetrieveCohortRequestAudit");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

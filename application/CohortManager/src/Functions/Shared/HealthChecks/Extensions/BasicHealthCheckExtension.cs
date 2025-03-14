@@ -8,9 +8,9 @@ public static class BasicHealthCheckExtension
         // Register blob storage health checks
         services.AddHealthChecks()
             .AddCheck<BasicHealthCheck>(
-                "HealthCheck for " + name,
+                "Basic HealthCheck for " + name,
                 tags: new[] { "Basic", "Ping API end point." });
-        
+
         return services;
     }
 }

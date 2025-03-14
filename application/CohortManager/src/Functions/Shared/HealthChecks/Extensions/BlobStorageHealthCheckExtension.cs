@@ -10,12 +10,12 @@ public static class BlobStorageHealthCheckExtension
         // Register blob storage health checks
         services.AddHealthChecks()
             .AddCheck<BlobStorageHealthCheck>(
-                "HealthCheck for " + name,
+                "Storage HealthCheck For " + name,
                 tags: new[] { "Blob", "Azure Storage" });
         // Register BlobServiceClient service for health check
         services.AddSingleton<BlobServiceClient>(provider =>
         {
-            var connectionString = Environment.GetEnvironmentVariable("caasfolder_STORAGE");
+            var connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
             return new BlobServiceClient(connectionString);
         });
 
