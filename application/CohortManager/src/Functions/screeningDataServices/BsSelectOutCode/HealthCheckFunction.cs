@@ -1,6 +1,5 @@
-namespace ScreeningLkpDataService;
+namespace BsSelectOutCodeDataService;
 
-using System.Net;
 using System.Threading.Tasks;
 using HealthChecks.Extensions;
 using Microsoft.Azure.Functions.Worker;
@@ -22,3 +21,4 @@ public class HealthCheckFunction
         return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
 }
+

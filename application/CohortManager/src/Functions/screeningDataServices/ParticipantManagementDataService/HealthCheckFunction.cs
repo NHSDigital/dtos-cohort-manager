@@ -1,4 +1,4 @@
-namespace ScreeningLkpDataService;
+namespace ParticipantManagementDataService;
 
 using System.Net;
 using System.Threading.Tasks;
@@ -22,3 +22,4 @@ public class HealthCheckFunction
         return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
 }
+
