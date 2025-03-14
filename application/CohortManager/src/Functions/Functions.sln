@@ -212,6 +212,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadRulesTests", "..\..\..\..\tests\UnitTests\SharedTests\ReadRulesTests\ReadRulesTests.csproj", "{115F417D-C015-4ABE-9438-09CE31114CEE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpParserTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpParserTests\HttpParserTests.csproj", "{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -590,6 +592,10 @@ Global
 		{115F417D-C015-4ABE-9438-09CE31114CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
