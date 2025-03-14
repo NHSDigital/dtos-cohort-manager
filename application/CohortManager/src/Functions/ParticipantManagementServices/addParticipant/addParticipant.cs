@@ -45,12 +45,6 @@ public class AddParticipantFunction
         {
             // Get demographic data
             var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
-            if (demographicData == null)
-            {
-                _logger.LogInformation("demographic function failed");
-                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
-            }
 
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
@@ -66,7 +60,7 @@ public class AddParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
-                await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                await _handleException.CreateSystemExceptionLog(new ArgumentException("A fatal Rule was violated, so the record cannot be added to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return;
             }
 
