@@ -14,7 +14,6 @@ using Common;
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
-    private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
     private readonly IBlobStorageHelper _blobStorageHelper;
@@ -22,34 +21,38 @@ public class ReceiveCaasFile
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
-        IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        IDataServiceClient<ScreeningLkp> screeningLkpClient
+        IDataServiceClient<ScreeningLkp> screeningLkpClient,
+        IBlobStorageHelper blobStorageHelper,
+        IExceptionHandler exceptionHandler
         )
     {
         _logger = logger;
-        _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
         _screeningLkpClient = screeningLkpClient;
+        _blobStorageHelper = blobStorageHelper;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function(nameof(ReceiveCaasFile))]
-    public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string fileName)
+    public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         var downloadFilePath = string.Empty;
+        string screeningName = "";
         // for larger batches use size of 5000 - this works the best
         int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
         try
         {
-            FileNameParser fileNameParser = new(fileName);
+            FileNameParser fileNameParser = new(name);
             if (!fileNameParser.IsValid)
-                throw new ArgumentException("File name is invalid, file name: " + fileName);
+                throw new ArgumentException("File name is invalid, file name: " + name);
 
             var screeningService = await GetScreeningService(fileNameParser);
+            screeningName = screeningService.ScreeningName;
 
-            downloadFilePath = Path.Combine(Path.GetTempPath(), fileName);
+            downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
-            _logger.LogInformation("Downloading file from the blob, file: {Name}.", fileName);
+            _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
             await using (var fileStream = File.Create(downloadFilePath))
             {
                 await blobStream.CopyToAsync(fileStream);
@@ -73,7 +76,7 @@ public class ReceiveCaasFile
                     {
                         var batch = chunk.ToList();
                         allTasks.Add(
-                            _processCaasFile.ProcessRecords(batch, options, screeningService, fileName)
+                            _processCaasFile.ProcessRecords(batch, options, screeningService, name)
                         );
                     }
 
@@ -86,13 +89,13 @@ public class ReceiveCaasFile
                 }
             }
 
-            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", fileName, DateTime.Now);
+            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await _exceptionHandler.CreateRecordValidationExceptionLog("", fileName, ex.Message, "", "");
-            await _blobStorageHelper.CopyFileToPoisonAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), fileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage: {ExMessage}", ex.StackTrace, ex.Message);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", name, screeningName, "");
+            await _blobStorageHelper.CopyFileToPoisonAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), name, Environment.GetEnvironmentVariable("inboundBlobName"));
         }
         finally
         {

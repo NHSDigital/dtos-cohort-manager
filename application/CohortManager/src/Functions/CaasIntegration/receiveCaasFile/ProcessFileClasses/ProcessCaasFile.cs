@@ -79,6 +79,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (participant == null)
             {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
                 return;
             }
 

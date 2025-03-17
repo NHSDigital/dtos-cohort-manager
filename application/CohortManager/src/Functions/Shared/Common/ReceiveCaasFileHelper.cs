@@ -74,7 +74,8 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         }
         catch (Exception ex)
         {
-            throw new ArgumentException("Unable to create participant object", ex);
+            _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
+            return null;
         }
     }
 
