@@ -47,7 +47,7 @@ public class FileValidation
 
             if (requestBody.FileName != null)
             {
-                var copied = await _blobStorageHelper.CopyFileAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
+                var copied = await _blobStorageHelper.CopyFileToPoisonAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), requestBody.FileName, Environment.GetEnvironmentVariable("inboundBlobName"));
                 if (copied)
                 {
                     _logger.LogInformation("File validation exception has completed successfully");
