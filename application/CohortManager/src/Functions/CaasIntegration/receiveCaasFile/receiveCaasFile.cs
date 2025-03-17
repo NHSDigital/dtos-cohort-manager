@@ -91,7 +91,7 @@ public class ReceiveCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await _exceptionHandler.CreateRecordValidationExceptionLog("", fileName, ex.Message, "", requestBody.ErrorRecord);
+            await _exceptionHandler.CreateRecordValidationExceptionLog("", fileName, ex.Message, "", "");
             await _blobStorageHelper.CopyFileToPoisonAsync(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), fileName, Environment.GetEnvironmentVariable("inboundBlobName"));
         }
         finally
