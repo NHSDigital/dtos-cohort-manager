@@ -27,6 +27,8 @@ services:
     environment:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - caasfolder_STORAGE=UseDevelopmentStorage=true
+      - inboundBlobName=inbound
+      - fileExceptions=file-exceptions
       - ASPNETCORE_URLS=http://*:7060
       - targetFunction=http://localhost:7061/api/processCaasFile
       - FileValidationURL=http://localhost:7073/api/FileValidation
@@ -318,20 +320,6 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Screening Validation Service
-  file-validation:
-    container_name: file-validation
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: ScreeningValidationService/FileValidation/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7073
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - inboundBlobName=inbound
-      - caasfolder_STORAGE=UseDevelopmentStorage=true
-      - AzureWebJobsStorage=UseDevelopmentStorage=true
-      - fileExceptions=file-exceptions
-
   static-validation:
     container_name: static-validation
     network_mode: host

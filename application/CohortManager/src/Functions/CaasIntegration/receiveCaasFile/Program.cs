@@ -35,6 +35,7 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
