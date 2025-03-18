@@ -25,7 +25,6 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\tests\TestUtils\TestUtils.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
