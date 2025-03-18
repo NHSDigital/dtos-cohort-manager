@@ -84,7 +84,7 @@ public class FileValidationTests
         _callFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
                             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        _blobStorageHelper.Setup(x => x.CopyFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+        _blobStorageHelper.Setup(x => x.CopyFileToPoisonAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
         .Returns(Task.FromResult(true));
 
         _exceptionHandler.Setup(x => x.CreateRecordValidationExceptionLog(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(true));

@@ -16,6 +16,7 @@ public class CreateException
     private readonly ILogger<CreateException> _logger;
     private readonly IValidationExceptionData _validationData;
     private readonly ICreateResponse _createResponse;
+    private readonly IBlobStorageHelper _blobStorageHelper;
 
     public CreateException(
         ILogger<CreateException> logger,
