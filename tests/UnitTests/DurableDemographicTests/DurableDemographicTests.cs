@@ -4,39 +4,29 @@ using Microsoft.Extensions.Logging;
 using Model;
 using NHS.CohortManager.DemographicServices;
 using Moq;
-using Data.Database;
 using Microsoft.DurableTask;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
-using System.Text;
 using DataServices.Client;
 using System.Collections.Generic;
 using System.Text.Json;
 using Common;
-using System.Net;
 using Microsoft.DurableTask.Client;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class DurableDemographicTests
 {
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
-
     private readonly DurableDemographicFunction _function;
-
     private readonly Mock<ILogger<DurableDemographicFunction>> _logger = new();
-
     private readonly Mock<ICreateResponse> _createResponse = new();
-
     private readonly ServiceCollection _serviceCollection = new();
-
     private readonly ServiceProvider serviceProvider;
-
     private Mock<HttpRequestData> mockHttpRequest;
-
     private readonly Mock<FunctionContext> mockFunctionContext;
+    private readonly SetupRequest _setupRequest = new();
 
 
     public DurableDemographicTests()
@@ -131,7 +121,7 @@ public class DurableDemographicTests
 
         var json = JsonSerializer.Serialize(new BasicParticipantCsvRecord());
 
-        var HttpRequestData = SetupRequest(json);
+        mockHttpRequest = _setupRequest.Setup(json);
 
         // Mock StartNewAsync method
         clientMock.
@@ -149,23 +139,49 @@ public class DurableDemographicTests
         Assert.IsNull(result);
     }
 
-    public Mock<HttpRequestData> SetupRequest(string json)
+    [TestMethod]
+    public async Task RunOrchestrator_ActivityTimesOut_ReturnFalseAndLogError()
     {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
+        // Arrange
+        var utcNow = DateTime.UtcNow;
+        var timeoutDuration = TimeSpan.FromHours(2.5);
+        var expirationTime = utcNow.Add(timeoutDuration);
 
-        mockHttpRequest = new Mock<HttpRequestData>(mockFunctionContext.Object);
-        mockHttpRequest.Setup(s => s.Body).Returns(bodyStream);
-        mockHttpRequest.Setup(s => s.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(mockFunctionContext.Object);
-            response.SetupProperty(s => s.Headers, new HttpHeadersCollection());
-            response.SetupProperty(s => s.StatusCode, HttpStatusCode.Accepted);
-            response.SetupProperty(s => s.Body, new MemoryStream());
-            return response.Object;
-        });
+        var mockContext = new Mock<TaskOrchestrationContext>();
 
-        return mockHttpRequest;
+        mockContext.Setup(c => c.CurrentUtcDateTime).Returns(utcNow);
+
+        var sut = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+
+        var neverEndingTask = new TaskCompletionSource<bool>();
+
+        mockContext
+            .Setup(c => c.CallActivityAsync<bool>(
+                nameof(DurableDemographicFunction.InsertDemographicData),
+                It.IsAny<string>(),
+                It.IsAny<TaskOptions>()
+            ))
+            .Returns(neverEndingTask.Task);
+
+        mockContext
+            .Setup(c => c.CreateTimer(expirationTime, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        bool result = await sut.RunOrchestrator(mockContext.Object);
+
+        // Assert
+        Assert.IsFalse(result);
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ),
+            Times.Once
+        );
     }
 
     private static Mock<FunctionContext> CreateMockFunctionContext()
