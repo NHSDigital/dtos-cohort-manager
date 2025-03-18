@@ -1,4 +1,5 @@
-namespace ValidationHelperTests;
+namespace NHS.CohortManager.Tests.Shared;
+
 
 using Common;
 
