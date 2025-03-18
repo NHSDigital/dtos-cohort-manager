@@ -1,5 +1,10 @@
-﻿using Azure.Storage.Queues;
+﻿using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Xml.Xsl;
+using Azure.Storage.Queues;
 using Common;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
@@ -12,26 +17,53 @@ public class AzureQueueStorageHelperTests
 
     AzureQueueStorageHelper _queueHelper;
 
+    Mock<IQueueClientFactory> mockQueueClientFactory;
+
+    Mock<QueueClient> _mockQueueClient;
+
+    Mock<ILogger<AzureQueueStorageHelper>> _loggerMock;
+
     public AzureQueueStorageHelperTests()
     {
-        Mock<QueueClient> mockQueueClient = new("UseDevelopmentStorage=true", "testqueue");
-
-        var mockQueueClientFactory = new Mock<IQueueClientFactory>();
+        mockQueueClientFactory = new Mock<IQueueClientFactory>();
+        _loggerMock = new Mock<ILogger<AzureQueueStorageHelper>>();
+        _mockQueueClient = new("UseDevelopmentStorage=true", "testqueue");
 
         mockQueueClientFactory
             .Setup(f => f.CreateClient(It.IsAny<string>()))
-            .Returns(mockQueueClient.Object);
+            .Returns(_mockQueueClient.Object);
 
-        _queueHelper = new AzureQueueStorageHelper(new Mock<ILogger<AzureQueueStorageHelper>>().Object, mockQueueClientFactory.Object);
+        _queueHelper = new AzureQueueStorageHelper(_loggerMock.Object, mockQueueClientFactory.Object);
 
     }
 
     [TestMethod]
     public async Task AddItemToQueueAsync_AddsRecordToQueue_True()
     {
-        var res = await _queueHelper.AddItemToQueueAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "testqueue");
+        var testRecord = new ParticipantCsvRecord
+        {
+            Participant = new Participant(),
+            FileName = "test file name",
 
-        Assert.IsTrue(res);
+        };
+
+        // Act
+        var result = await _queueHelper.AddItemToQueueAsync(testRecord, "testqueue");
+
+        // Assert
+        Assert.IsTrue(result);
+
+        var expectedJson = JsonSerializer.Serialize(testRecord);
+        var expectedBase64Message = Convert.ToBase64String(Encoding.UTF8.GetBytes(expectedJson));
+
+        _mockQueueClient.Verify(x => x.SendMessageAsync(It.Is<string>(msg => msg == expectedBase64Message)), Times.Once);
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+                     It.IsAny<EventId>(),
+                     It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"There was an error while putting item on queue for queue: testqueue")),
+                     It.IsAny<Exception>(),
+                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                 Times.Never);
     }
 
     [TestMethod]
