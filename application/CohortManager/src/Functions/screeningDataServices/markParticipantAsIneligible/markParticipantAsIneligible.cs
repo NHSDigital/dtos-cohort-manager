@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,6 @@ public class MarkParticipantAsIneligible
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-
     private readonly ICallFunction _callFunction;
 
     public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantManagement> participantManagementClient, ICallFunction callFunction, IExceptionHandler handleException)
@@ -54,7 +52,7 @@ public class MarkParticipantAsIneligible
         long nhsNumber;
         long screeningId;
 
-        if (!long.TryParse(participantData.NhsNumber, out nhsNumber) || !long.TryParse(participantData.ScreeningId, out screeningId) )
+        if (!long.TryParse(participantData.NhsNumber, out nhsNumber) || !long.TryParse(participantData.ScreeningId, out screeningId))
         {
             throw new FormatException("Could not parse NhsNumber or screeningID");
         }
@@ -75,7 +73,7 @@ public class MarkParticipantAsIneligible
         try
         {
             var updated = false;
-            var updatedParticipantManagement =  _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
+            var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
             updatedParticipantManagement.EligibilityFlag = 0;
             updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
 
@@ -90,9 +88,12 @@ public class MarkParticipantAsIneligible
         }
         catch (Exception ex)
         {
-            if (ex is NullReferenceException) {
-                _logger.LogError("An error occured when trying to retrieve the participant data");
-            } else {
+            if (ex is NullReferenceException)
+            {
+                _logger.LogError("An error occurred when trying to retrieve the participant data");
+            }
+            else
+            {
                 _logger.LogError(ex, "an error occurred: {Ex}", ex);
                 await _handleException.CreateSystemExceptionLog(ex, participantData, requestBody.FileName);
             }
