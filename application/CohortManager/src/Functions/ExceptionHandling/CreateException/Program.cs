@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Data.Database;
 using Common;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using Model;
 using NHS.Screening.CreateException;
 
@@ -18,6 +19,8 @@ var host = new HostBuilder()
     {
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        // Register health checks
+        services.AddBasicHealthCheck("CreateException");
     })
     .AddDatabaseConnection()
     .Build();

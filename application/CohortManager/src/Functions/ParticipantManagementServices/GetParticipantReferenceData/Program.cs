@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Model;
 using DataServices.Client;
 using NHS.Screening.GetParticipantReferenceData;
+using HealthChecks.Extensions;
 
 
 var host = new HostBuilder()
@@ -18,6 +19,8 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        // Register health checks
+        services.AddBasicHealthCheck("GetParticipantReferenceData");
     })
     .Build();
 

@@ -1,4 +1,5 @@
 using Common;
+using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NHS.Screening.AddParticipant;
@@ -18,6 +19,8 @@ var host = new HostBuilder()
         {
             client.BaseAddress = new Uri(config.DemographicURIGet);
         });
+        // Register health checks
+        services.AddBlobStorageHealthCheck("addParticipant");
     })
     .AddAzureQueues()
     .AddExceptionHandler()
