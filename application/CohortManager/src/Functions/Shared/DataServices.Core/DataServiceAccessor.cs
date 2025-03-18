@@ -10,7 +10,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 {
     private readonly DbContext _context;
     private readonly ILogger<DataServiceAccessor<TEntity>> _logger;
-    public DataServiceAccessor(DataServicesContext context, ILogger<DataServiceAccessor<TEntity>> logger)
+    public DataServiceAccessor(DbContext context, ILogger<DataServiceAccessor<TEntity>> logger)
     {
         _context = context;
         _logger = logger;
