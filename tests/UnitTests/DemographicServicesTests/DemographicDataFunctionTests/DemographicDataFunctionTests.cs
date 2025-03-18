@@ -3,7 +3,6 @@ namespace NHS.CohortManager.Tests.UnitTests.DemographicServicesTests;
 using System.Net;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -168,4 +167,60 @@ public class DemographicDataFunctionTests
         ), Times.AtLeastOnce(), "There has been an error saving demographic data:");
 
     }
+
+    [TestMethod]
+    public async Task RunGet_QueryIsNull_ReturnBadRequest() {
+
+        // Arrange
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123456789,
+            NhsNumber = 987654321
+        };
+
+        var json = JsonSerializer.Serialize(_participant);
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+
+
+        _request = _setupRequest.Setup("987654321");
+
+        _participantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(participant);
+
+        // Act
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", null } });
+         _request.Setup(r => r.Method).Returns("GET");
+         var result = await sut.Run(_request.Object);
+
+         // Assert
+         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+    }
+
+    [TestMethod] 
+    public async Task RunExternal_ValidInput_ReturnOk() {
+        // Arrange
+        var participant = new ParticipantDemographic
+        {
+            ParticipantId = 123456789,
+            NhsNumber = 987654321
+        };
+
+        var json = JsonSerializer.Serialize(_participant);
+        var sut = new DemographicDataFunction(_logger.Object, _createResponse.Object, _participantDemographic.Object);
+
+
+        _request = _setupRequest.Setup("987654321");
+
+        _participantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(participant);
+
+        // Act
+        _request.Setup(x => x.Query).Returns(new System.Collections.Specialized.NameValueCollection() { { "Id", "987654321" } });
+
+        _request.Setup(r => r.Method).Returns("GET");
+        var result = await sut.RunExternal(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
 }
