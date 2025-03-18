@@ -1,13 +1,17 @@
-﻿using dtos_cohort_manager_specflow.TestServices;
-using TechTalk.SpecFlow;
+﻿using dtos_cohort_manager_e2e_tests.TestServices;
+using Reqnroll;
 using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
-using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Contexts;
-using dtos_cohort_manager_specflow.Models;
+using dtos_cohort_manager_e2e_tests.Config;
+using dtos_cohort_manager_e2e_tests.Contexts;
+using dtos_cohort_manager_e2e_tests;
+using dtos_cohort_manager_e2e_tests.Models;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
+using System.Linq;
 
-namespace dtos_cohort_manager_specflow.Steps.RegressionTests;
+namespace dtos_cohort_manager_e2e_tests.Steps;
 
 [Binding]
 public class Epic1_AutomatedRegressionSuiteSteps
@@ -24,7 +28,7 @@ public class Epic1_AutomatedRegressionSuiteSteps
     }
 
     [Then(@"verify the NHS numbers in Participant_Management and Participant_Demographic table should match the file data")]
-    public async Task ThenVerifyTheNHSNumbersInParticipant_ManagementAndParticipant_DemographicTableShouldMatchTheFileData()
+    public async Task ThenVerifyTheNHSNumbersInParticipantManagementAndParticipantDemographicTableShouldMatchTheFileData()
     {
 
         var recordType = _smokeTestsContext.RecordType.ToString().ToUpper();
@@ -36,10 +40,8 @@ public class Epic1_AutomatedRegressionSuiteSteps
         );
     }
 
-
-
     [Then(@"verify the NhsNumbers in Participant_Management table should match (.*)")]
-    public async Task ThenVerifyTheInParticipant_ManagementShouldMatchAmended(string expectedRecordType)
+    public async Task ThenVerifyTheInParticipantManagementShouldMatchAmended(string expectedRecordType)
     {
 
         await _fileUploadService.VerifyNhsNumbersAsync(
@@ -49,13 +51,13 @@ public class Epic1_AutomatedRegressionSuiteSteps
     }
 
     [Then(@"the Participant_Demographic table should match the (.*) for the NHS Number")]
-    public async Task ThenTheParticipant_DemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
+    public async Task ThenTheParticipantDemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
     {
         await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", _smokeTestsContext.NhsNumbers.FirstOrDefault(), "GIVEN_NAME", expectedGivenName);
     }
 
     [Then(@"the NHS Number should have exactly (.*) record in Participant_Management")]
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipant_Management(int count)
+    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipantManagement(int count)
     {
         await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_MANAGEMENT", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
     }
@@ -65,6 +67,14 @@ public class Epic1_AutomatedRegressionSuiteSteps
     {
         await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_DEMOGRAPHIC", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
     }
+
+    [Then(@"the NHS Number should have exactly (.*) record in Cohort_Distribution table")]
+    public async Task thereshouldntbenoentryofNHSnumberincohortdistributiontable(int count)
+    {
+        await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _smokeTestsContext.NhsNumbers.FirstOrDefault(), count);
+
+    }
+
 
 
 }
