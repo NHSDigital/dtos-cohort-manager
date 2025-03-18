@@ -1,6 +1,5 @@
-namespace ScreeningLkpDataService;
+namespace LanguageCodesDataService;
 
-using System.Net;
 using System.Threading.Tasks;
 using HealthChecks.Extensions;
 using Microsoft.Azure.Functions.Worker;
