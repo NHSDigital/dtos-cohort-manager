@@ -132,7 +132,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAudit"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{2D5B5A6C-69E8-4FC6-A4C1-0C09096D5AE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\SharedTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckDemographicTests", "..\..\..\..\tests\UnitTests\SharedTests\CheckDemographicTests\CheckDemographicTests.csproj", "{2476768B-4A21-4348-8EA3-A95EC27DE464}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
 EndProject
@@ -207,6 +209,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreeningWorkflow", "screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj", "{3E51D76F-4A90-4EC2-AF80-74E6EE94C257}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecks", "Shared\HealthChecks\HealthChecks.csproj", "{EA290B1D-C07B-4B10-B7D1-F87E2629D069}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\EnumHelperTests\EnumHelperTests.csproj", "{1FCC5D88-C291-46E0-84BE-A8FD465FD509}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureQueueStorageHelperTests", "..\..\..\..\tests\UnitTests\AzureQueueStorageHelperTests\AzureQueueStorageHelperTests.csproj", "{870D1FAF-5928-4853-85DD-77154D39F3ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadRulesTests", "..\..\..\..\tests\UnitTests\SharedTests\ReadRulesTests\ReadRulesTests.csproj", "{115F417D-C015-4ABE-9438-09CE31114CEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpParserTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpParserTests\HttpParserTests.csproj", "{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{0A68E48A-8249-4A74-B5B7-5921017D07BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -578,6 +590,26 @@ Global
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x64.Build.0 = Release|Any CPU
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x86.ActiveCfg = Release|Any CPU
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069}.Release|x86.Build.0 = Release|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
