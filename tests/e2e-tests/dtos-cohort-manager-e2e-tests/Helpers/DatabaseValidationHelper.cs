@@ -204,103 +204,7 @@ public static class DatabaseValidationHelper
         return false;
     }
 
-    public static async Task<bool> VerifyFieldsMatchCsvAsync(string connectionString, string tableName, string nhsNumber, string csvFilePath, ILogger logger)
-    {
-        ValidateTableName(tableName);
 
-        var csvRecords = CsvHelperService.ReadCsv(csvFilePath);
-        var expectedRecord = csvRecords.FirstOrDefault(record => record["NHS Number"] == nhsNumber);
-
-        if (expectedRecord == null)
-        {
-            logger.LogError($"NHS number {nhsNumber} not found in the CSV file.");
-            return false;
-        }
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = $"SELECT * FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!reader.HasRows)
-                    {
-                        logger.LogError($"No record found in {tableName} for NHS number {nhsNumber}.");
-                        return false;
-                    }
-
-                    while (await reader.ReadAsync())
-                    {
-                        foreach (var key in expectedRecord.Keys)
-                        {
-                            var expectedValue = expectedRecord[key];
-                            var actualValue = reader[key]?.ToString();
-
-                            if (expectedValue != actualValue)
-                            {
-                                logger.LogError($"Mismatch in {key} for NHS number {nhsNumber}: expected '{expectedValue}', found '{actualValue}'.");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
-    }
-
-    public static async Task<bool> VerifyFieldsMatchParquetAsync(string connectionString, string tableName, string nhsNumber, string parquetFilePath, ILogger logger)
-    {
-        ValidateTableName(tableName);
-
-        var parquetRecords = ReadParquetFile(parquetFilePath);
-        var expectedRecord = parquetRecords.FirstOrDefault(record => record["NHS Number"]?.ToString() == nhsNumber);
-
-        if (expectedRecord == null)
-        {
-            logger.LogError($"NHS number {nhsNumber} not found in the Parquet file.");
-            return false;
-        }
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = $"SELECT * FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!reader.HasRows)
-                    {
-                        logger.LogError($"No record found in {tableName} for NHS number {nhsNumber}.");
-                        return false;
-                    }
-
-                    while (await reader.ReadAsync())
-                    {
-                        foreach (var key in expectedRecord.Keys)
-                        {
-                            var expectedValue = expectedRecord[key]?.ToString();
-                            var actualValue = reader[key]?.ToString();
-
-                            if (expectedValue != actualValue)
-                            {
-                                logger.LogError($"Mismatch in {key} for NHS number {nhsNumber}: expected '{expectedValue}', found '{actualValue}'.");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
-    }
 
     public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
     {
@@ -324,18 +228,6 @@ public static class DatabaseValidationHelper
         return nhsNumberCount;
     }
 
-    private static List<IDictionary<string, object>> ReadParquetFile(string parquetFilePath)
-    {
-        var records = new List<IDictionary<string, object>>();
-        using (var reader = new ChoParquetReader(parquetFilePath))
-        {
-            foreach (var record in reader)
-            {
-                records.Add((IDictionary<string, object>)record);
-            }
-        }
-        return records;
-    }
 
 
 }
