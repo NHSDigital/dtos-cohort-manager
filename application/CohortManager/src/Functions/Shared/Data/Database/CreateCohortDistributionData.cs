@@ -64,7 +64,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             " bcd.[REQUEST_ID] " +
             " FROM [dbo].[BS_COHORT_DISTRIBUTION] bcd " +
             " WHERE bcd.IS_EXTRACTED = @Extracted " +
-            " AND REQUEST_ID IS NULL " +
+            " AND REQUEST_ID = '00000000-0000-0000-0000-000000000000' " +
             " ORDER BY bcd.RECORD_INSERT_DATETIME ASC ";
 
         var parameters = new Dictionary<string, object>
@@ -87,6 +87,10 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var statusCode = participantsList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
         LogRequestAudit(requestId, statusCode);
 
+        if (participantsList.Any())
+        {
+            return CohortDistributionParticipantDto(participantsList);
+        }
         return new List<CohortDistributionParticipantDto>();
     }
 
