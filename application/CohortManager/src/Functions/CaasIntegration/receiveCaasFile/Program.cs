@@ -40,6 +40,7 @@ try
             client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
         });
         services.AddScoped<IValidateDates, ValidateDates>();
+        services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
