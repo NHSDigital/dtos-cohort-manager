@@ -62,7 +62,6 @@ public class ValidationHelperTests
         Assert.IsTrue(result);
     }
 
-
     [TestMethod]
     [DataRow("9999-10-10")]
     [DataRow("3034-04-06")]
