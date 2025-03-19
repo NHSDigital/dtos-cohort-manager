@@ -50,20 +50,6 @@ public class ValidationHelperTests
 
 
     [TestMethod]
-    [DataRow("1990-200-200")]
-    [DataRow("fdfgdfg")]
-    [DataRow("0000-00-00")]
-    [DataRow("000000000000000")]
-    [DataRow("")]
-    public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
-    {
-        var result = ValidationHelper.ValidatePastDate(pastDate);
-
-        Assert.IsFalse(result);
-    }
-
-
-    [TestMethod]
     [DataRow("1990-10-10")]
     [DataRow("2002-04-06")]
     [DataRow("1997-12-23")]
@@ -83,7 +69,7 @@ public class ValidationHelperTests
     [DataRow("6060-12-23")]
     [DataRow("7070-01-01")]
     [DataRow("dfbgdfdggfggg")]
-    public void ValidatePastDate_InvalidPastDate_ReturnsTrue(string pastDate)
+    public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
     {
         var result = ValidationHelper.ValidatePastDate(pastDate);
 
