@@ -67,10 +67,20 @@ public class ValidationHelperTests
     [DataRow("3034-04-06")]
     [DataRow("6060-12-23")]
     [DataRow("7070-01-01")]
+    [DataRow("7070-01-01")]
     [DataRow("dfbgdfdggfggg")]
     public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
     {
         var result = ValidationHelper.ValidatePastDate(pastDate);
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse()
+    {
+
+        var result = ValidationHelper.ValidatePastDate(DateTime.Today.AddDays(1).ToString());
 
         Assert.IsFalse(result);
     }
