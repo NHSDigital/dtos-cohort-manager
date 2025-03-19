@@ -17,10 +17,6 @@
       <EmbeddedResource Remove="TestFiles\update\**" />
       <None Remove="TestFiles\remove\**" />
       <None Remove="TestFiles\update\**" />
-      <SpecFlowFeatureFiles Remove="TestFiles\remove\**" />
-      <SpecFlowFeatureFiles Remove="TestFiles\update\**" />
-      <SpecFlowObsoleteCodeBehindFiles Remove="TestFiles\remove\**" />
-      <SpecFlowObsoleteCodeBehindFiles Remove="TestFiles\update\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -47,10 +43,10 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-        <PackageReference Include="SolidToken.SpecFlow.DependencyInjection" Version="3.9.3" />
-        <PackageReference Include="SpecFlow" Version="3.9.74" />
-        <PackageReference Include="SpecFlow.NUnit" Version="3.9.74" />
-        <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
+        <PackageReference Include="Reqnroll" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.NUnit" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.4.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -88,10 +84,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <SpecFlowFeatureFiles Update="Features\FileUploadAndCohortDistribution.feature">
-        <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">SpecFlowSingleFileGenerator</Generator>
-        <LastGenOutput>FileUploadAndCohortDistribution.feature.cs</LastGenOutput>
-      </SpecFlowFeatureFiles>
     </ItemGroup>
 
 </Project>
