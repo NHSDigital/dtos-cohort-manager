@@ -1,0 +1,87 @@
+# WARNING: Please, DO NOT edit this section of the file! It is maintained in the repository template.
+
+.scannerwork
+*cloc*report*.json
+*sbom*report*.json
+*vulnerabilities*report*.json
+*report*json.zip
+.version
+
+*.code-workspace
+!project.code-workspace
+
+# Please, add your custom content below!
+
+# keys
+
+*.pfx
+*.pem
+*.key
+
+# User-specific files
+*.suo
+*.user
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# Visual Studio 2017 auto generated files
+Generated\ Files/
+
+# Text Editors
+.vscode/*
+!.vscode/tasks.json
+_ReSharper.*/
+*/*/.idea/*
+
+# Azurite
+__azurite*
+__blobstorage__
+__queuestorage__
+
+# Tests
+TestResults
+
+# Builds
+bin
+obj
+OutputDirectory
+
+# Mac
+.DS_Store
+
+# User Settings
+local.settings.json
+
+# Docker
+.env
+
+# sample data
+application/CohortManager/SampleData/
+*.csv
+*.parquet
+!tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
+!tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles/**/*.parquet
+
+# csv to sql statement scripts
+bs_select_gp_practice_lpk.txt
+current_posting.txt
+select_outcode_mapping_lkp_output.txt
+
+# Python
+*.pyc
+
+
+recreate_local_settings.sh
+
+.history
+application/CohortManager/Set-up/SampleData/CaaSSchema02.json
+infrastructure/.terraform.lock.hcl
+infrastructure/tf-core/.terraform.lock.hcl
+infrastructure/tf-audit/.terraform.lock.hcl
+application/CohortManager/.vscode/
+
+# Ignore generated feature bindings
+*.feature.cs
+tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings-local.json
+tests/e2e-tests/dtos-cohort-manager-e2e-tests/Config/appsettings-local.json
