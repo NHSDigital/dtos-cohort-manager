@@ -1,0 +1,69 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: ce0f49a28a90aa60ac579db350dbd18971b0d5ed
+      endpoint: NHSDigital
+
+variables:
+  - group: DEV_hub_backend_remote_state
+  - name: destEnvironmentShortName
+    value: dev
+
+stages:
+- stage: db_changes_stage
+  displayName: Database changes
+  jobs:
+  - job: db_changes
+    pool:
+      name: private-pool-dev-uks
+    displayName: Apply database changes
+    steps:
+      - checkout: self
+      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+
+- stage: deploy_image_stage
+  displayName: Deploy images
+  jobs:
+  - job: deploy_images
+    pool:
+      name: private-pool-dev-uks
+    displayName: Deploy Docker images to function apps
+    variables:
+      DEST_REGISTRY: $(destRegistry)
+      ADD_IMAGE_TAG: $(addImageTag)
+      FUNCTION_NAME_PREFIX: $(destEnvironmentShortName)-uks
+      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-$(destEnvironmentShortName)-uks
+      PROJECT_NAME: cohort-manager
+    steps:
+      - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+
+- stage: post_deployment_tests_stage
+  displayName: Post-deployment tests
+  variables:
+  - group: DEV_automation_testing_pipeline
+  jobs:
+  - job: post_deployment_tests
+    displayName: Run post-deployment tests
+    pool:
+      name: private-pool-dev-uks
+    variables:
+      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
+      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
+      AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
+      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
+    steps:
+    - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: sc-cohort-manager-dev
