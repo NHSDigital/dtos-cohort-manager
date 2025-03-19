@@ -48,6 +48,6 @@ internal static class Startup
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<AppSettings>>().Value);
         services.AddTransient<EndToEndFileUploadService>();
 
-        services.AddScoped(_ => new SmokeTestsContext());
+        services.AddScoped(_ => new EndToEndTestsContext());
     }
 }

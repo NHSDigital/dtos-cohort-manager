@@ -8,7 +8,7 @@ using dtos_cohort_manager_e2e_tests.Models;
 
 namespace dtos_cohort_manager_e2e_tests.Contexts;
 
-public class SmokeTestsContext
+public class EndToEndTestsContext
 {
     public string FilePath { get; set; }
 
