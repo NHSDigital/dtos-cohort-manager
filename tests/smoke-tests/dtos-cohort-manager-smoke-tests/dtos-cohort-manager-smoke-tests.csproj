@@ -93,11 +93,4 @@
         <LastGenOutput>FileUploadAndCohortDistribution.feature.cs</LastGenOutput>
       </SpecFlowFeatureFiles>
     </ItemGroup>
-
-      <ItemGroup>
-  <SpecFlowFeatureFiles Update="Features\RegressionTests\Epic1_AutomatedRegressionSuite.feature">
-    <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">SpecFlowSingleFileGenerator</Generator>
-    <LastGenOutput>Epic1_AutomatedRegressionSuite.feature.cs</LastGenOutput>
-  </SpecFlowFeatureFiles>
-</ItemGroup>
 </Project>

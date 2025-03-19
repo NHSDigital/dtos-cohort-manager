@@ -19,13 +19,13 @@ public class Epic1_AutomatedRegressionSuiteSteps
 {
     private readonly EndToEndFileUploadService _fileUploadService;
 
-     private readonly AppSettings _appSettings;
+    private readonly AppSettings _appSettings;
     private SmokeTestsContext _smokeTestsContext;
 
 
-    public Epic1_AutomatedRegressionSuiteSteps(IServiceProvider services, AppSettings appSettings,SmokeTestsContext smokeTestsContext, ILogger<Epic1_AutomatedRegressionSuiteSteps> logger)
+    public Epic1_AutomatedRegressionSuiteSteps(IServiceProvider services, AppSettings appSettings, SmokeTestsContext smokeTestsContext, ILogger<Epic1_AutomatedRegressionSuiteSteps> logger)
     {
-         _appSettings = appSettings;
+        _appSettings = appSettings;
         _smokeTestsContext = smokeTestsContext;
         _fileUploadService = services.GetRequiredService<EndToEndFileUploadService>();
 
@@ -79,7 +79,7 @@ public class Epic1_AutomatedRegressionSuiteSteps
 
     }
 
-     [Given(@"the database is cleaned of all records for NHS Numbers: (.*)")]
+    [Given(@"the database is cleaned of all records for NHS Numbers: (.*)")]
     public async Task GivenDatabaseIsCleaned(string nhsNumbersString)
     {
         var nhsNumbers = nhsNumbersString.Split(',', StringSplitOptions.TrimEntries);
