@@ -14,38 +14,6 @@ namespace dtos_cohort_manager_e2e_tests.Helpers;
 
 public static class DatabaseValidationHelper
 {
-    private static readonly HashSet<string> AllowedTables = new HashSet<string>
-    {
-        "BS_COHORT_DISTRIBUTION",
-        "PARTICIPANT_MANAGEMENT",
-        "PARTICIPANT_DEMOGRAPHIC",
-        "EXCEPTION_MANAGEMENT"
-    };
-
-    private static readonly HashSet<string> AllowedFields =
-    [
-        "NHS_NUMBER",
-        "GIVEN_NAME",
-        "RULE_ID",
-        "RULE_DESCRIPTION"
-        // Add other allowed fields here
-    ];
-
-    private static void ValidateTableName(string tableName)
-    {
-        if (!AllowedTables.Contains(tableName.ToUpper()))
-        {
-            throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
-        }
-    }
-
-    private static void ValidateFieldName(string fieldName)
-    {
-        if (!AllowedFields.Contains(fieldName.ToUpper()))
-        {
-            throw new ArgumentException($"Field '{fieldName}' is not in the list of allowed fields.");
-        }
-    }
 
     public static async Task VerifyNhsNumbersAsync(
     SqlConnectionWithAuthentication sqlConnectionWithAuthentication,
@@ -147,6 +115,29 @@ public static class DatabaseValidationHelper
         return false;
     }
 
+
+    public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
+    {
+        int nhsNumberCount = 0;
+
+        // Get the open connection (with token if using Managed Identity)
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
+        {
+            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
+
+            // Create SQL command and add parameter for NHS Number
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+
+                // Execute the query and get the count of NHS numbers
+                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
+            }
+        }
+
+        return nhsNumberCount;
+    }
+
     private static async Task<bool> VerifyNhsNumberAsync(
     SqlConnection connection,
     string tableName,
@@ -203,31 +194,36 @@ public static class DatabaseValidationHelper
         }
         return false;
     }
-
-
-
-    public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
+    private static readonly HashSet<string> AllowedTables = new HashSet<string>
     {
-        int nhsNumberCount = 0;
+        "BS_COHORT_DISTRIBUTION",
+        "PARTICIPANT_MANAGEMENT",
+        "PARTICIPANT_DEMOGRAPHIC",
+        "EXCEPTION_MANAGEMENT"
+    };
 
-        // Get the open connection (with token if using Managed Identity)
-        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
+    private static readonly HashSet<string> AllowedFields =
+    [
+        "NHS_NUMBER",
+        "GIVEN_NAME",
+        "RULE_ID",
+        "RULE_DESCRIPTION"
+        // Add other allowed fields here
+    ];
+
+    private static void ValidateTableName(string tableName)
+    {
+        if (!AllowedTables.Contains(tableName.ToUpper()))
         {
-            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-
-            // Create SQL command and add parameter for NHS Number
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-
-                // Execute the query and get the count of NHS numbers
-                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
-            }
+            throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
         }
-
-        return nhsNumberCount;
     }
 
-
-
+    private static void ValidateFieldName(string fieldName)
+    {
+        if (!AllowedFields.Contains(fieldName.ToUpper()))
+        {
+            throw new ArgumentException($"Field '{fieldName}' is not in the list of allowed fields.");
+        }
+    }
 }
