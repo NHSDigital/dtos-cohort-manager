@@ -27,11 +27,9 @@ public class RequestHandlerTests
     [TestInitialize]
     public void setup()
     {
-        var databaseName = Guid.NewGuid().ToString();
-        var connectionString = $"Data Source={databaseName};Mode=Memory;Cache=Shared";
-
         var options = new DbContextOptionsBuilder<TestContext>()
-            .UseSqlite(connectionString)  // GUID for the name so a new one is created for each test
+            .UseSqlite("DataSource=:memory:")
+            .EnableSensitiveDataLogging()
             .Options;
 
         _context = new TestContext(options);
@@ -47,6 +45,7 @@ public class RequestHandlerTests
             new TestEntity { Id = 3, NHSNumber = 00000, RecordType = "AMENDED" }
         );
         _context.SaveChanges();
+        _context.ChangeTracker.Clear();
 
         AccessRule alwaysTrueRule = i => true;
         AuthenticationConfiguration authConfig = new(alwaysTrueRule, alwaysTrueRule, alwaysTrueRule, alwaysTrueRule, alwaysTrueRule);
@@ -208,24 +207,192 @@ public class RequestHandlerTests
     public async Task HandleRequest_DeleteWithKey_DeleteAndReturnOk()
     {
         // Arrange
+        _context.TestEntities.RemoveRange(_context.TestEntities);
+        var entity = new TestEntity { Id = 4, NHSNumber = 00001, RecordType = "AMENDED" };
+        _context.TestEntities.Add(entity);
+        _context.SaveChanges();
+
+        _context.Entry(entity).State = EntityState.Detached;
+
         var request = setupRequest.Setup();
         request.Setup(x => x.Method).Returns("DELETE");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object, "4");
+
+        // Assert
+        var deletedEntity = await _context.TestEntities
+                                        .FirstOrDefaultAsync(e => e.Id == 4);
+
+        Assert.IsNull(deletedEntity);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task HandleRequest_DeleteWithKeyNotInDb_ReturnNotFound()
+    {
+        // Arrange
+        var request = setupRequest.Setup();
+        request.Setup(x => x.Method).Returns("DELETE");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object, "4");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task HandleRequest_DeleteWithoutKey_ReturnBadRequest()
+    {
+        // Arrange
+        var request = setupRequest.Setup();
+        request.Setup(x => x.Method).Returns("DELETE");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    #endregion
+
+    #region Post Tests
+
+    [TestMethod]
+    public async Task HandleRequest_PostSingle_InsertAndReturnOk()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = 4, NHSNumber = 00000, RecordType = "ADD"};
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entity));
+        request.Setup(x => x.Method).Returns("POST");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object);
+
+        // Assert
+        var insertedEntity = await _context.TestEntities
+                                .FirstOrDefaultAsync(e => e.Id == 4);
+
+        Assert.AreEqual(entity.Id, insertedEntity.Id);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task HandleRequest_PostSingleInvalidEntity_ReturnInternalServerError()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = 4, NHSNumber = 00000}; // Missing required field RecordType
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entity));
+        request.Setup(x => x.Method).Returns("POST");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task HandleRequest_PostMany_InsertAndReturnOk()
+    {
+        // Arrange
+        var entityList = new List<TestEntity> {
+            new() { Id = 4, NHSNumber = 00000, RecordType = "ADD"},
+            new() { Id = 5, NHSNumber = 11111, RecordType = "ADD"}
+        };
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entityList));
+        request.Setup(x => x.Method).Returns("POST");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object);
+
+        // Assert
+        var insertedEntities = _context.TestEntities.Where(e => e.Id >= 4);
+
+        Assert.AreEqual(entityList.Count, insertedEntities.Count());
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    #endregion
+
+    #region Put Tests
+
+    [TestMethod]
+    public async Task HandleRequest_Put_UpdateAndReturnOk()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = 3, NHSNumber = 11111, RecordType = "AMENDED" };
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entity));
+        request.Setup(x => x.Method).Returns("PUT");
 
         // Act
         var response = await _sut.HandleRequest(request.Object, "3");
 
         // Assert
-        // var deletedEntity = await _context.TestEntities
-        //                                 .FirstOrDefaultAsync(e => e.Id == 4);
+        var updatedEntity = await _context.TestEntities
+                                .FirstOrDefaultAsync(e => e.Id == 3);
 
-        // Assert.IsNull(deletedEntity);
+        Assert.AreEqual(entity.NHSNumber, updatedEntity.NHSNumber);
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
+    [TestMethod]
+    public async Task HandleRequest_PutKeyNotInDB_ReturnNotFound()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = 4, NHSNumber = 11111, RecordType = "AMENDED" };
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entity));
+        request.Setup(x => x.Method).Returns("PUT");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object, "4");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task HandleRequest_PutWithoutKey_ReturnBadRequest()
+    {
+        // Arrange
+        var entity = new TestEntity { Id = 4, NHSNumber = 11111, RecordType = "AMENDED" };
+
+        var request = setupRequest.Setup(JsonSerializer.Serialize(entity));
+        request.Setup(x => x.Method).Returns("PUT");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     #endregion
-    // method not allowed
-    // no data in DB
-    // multiple records returned on get
 
+    [TestMethod]
+    public async Task HandleRequest_MethodBlocked_ReturnUnauthorized()
+    {
+        // Arrange
+        AccessRule alwaysTrueRule = i => true;
+        AccessRule alwaysFalseRule = i => false;
+        AuthenticationConfiguration authConfig = new(alwaysTrueRule, alwaysFalseRule, alwaysTrueRule, alwaysTrueRule, alwaysTrueRule);
 
+        _sut = new RequestHandler<TestEntity>(_accessor, new NullLogger<RequestHandler<TestEntity>>(), authConfig);
+
+        var request = setupRequest.Setup();
+        request.Setup(x => x.Method).Returns("GET");
+
+        // Act
+        var response = await _sut.HandleRequest(request.Object, "1");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
 }
