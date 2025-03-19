@@ -9,7 +9,6 @@ using Model;
 using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
-using Data.Database;
 using DataServices.Client;
 
 public class RetrieveParticipantData

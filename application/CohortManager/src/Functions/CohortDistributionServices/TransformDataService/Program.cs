@@ -1,10 +1,9 @@
-
-
 using Common;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using Model;
 using NHS.CohortManager.CohortDistribution;
 
@@ -23,6 +22,8 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
         services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
+        // Register health checks
+        services.AddDatabaseHealthCheck("TransformDataService");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
