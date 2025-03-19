@@ -1,0 +1,28 @@
+apiVersion: '2021-07-01'
+location: 'uksouth'
+name: '${CONTAINER_GROUP_NAME}'
+identity:
+  type: 'UserAssigned'
+  userAssignedIdentities:
+    '${MI_ID_ACR}': {}
+    '${MI_ID_SQL}': {}
+properties:
+  containers:
+    - name: '${CONTAINER_NAME}'
+      properties:
+        image: '${CONTAINER_IMAGE}'
+        resources:
+          requests:
+            cpu: 1.0
+            memoryInGB: 1.5
+        environmentVariables: # Add or modify this section
+          - name: 'DtOsDatabaseConnectionString'
+            value: '${SQL_CONNECTION_STRING}'
+          - name: 'SQL_IDENTITY_CLIENT_ID'
+            value: '${SQL_IDENTITY_CLIENT_ID}'
+  imageRegistryCredentials:
+    - server: '${ACR_SERVER}'
+      identity: '${MI_ID_ACR}'
+  osType: Linux
+  restartPolicy: Never
+type: Microsoft.ContainerInstance/containerGroups

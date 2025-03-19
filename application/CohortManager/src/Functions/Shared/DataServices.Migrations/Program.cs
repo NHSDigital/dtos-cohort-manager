@@ -1,23 +1,29 @@
 namespace DataServices.Migrations;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using DataServices.Database;
-using Common;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Model;
-using Model.Enums;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
+
+using Azure.Identity;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+using NetTopologySuite;
+
+using Common;
+using DataServices.Database;
+using Model;
+using Model.Enums;
 
 public class Program
 {
     public static int Main(string[] args)
     {
-
-        List<string> configFiles = ["appsettings.json"]; // Only used for local
+        List<string> configFiles = new List<string> { "appsettings.json" }; // Only used for local
 
         var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null,configFiles);
         using var host = CreateHostBuilder(config.DtOsDatabaseConnectionString).Build();
@@ -34,20 +40,31 @@ public class Program
             return ExitCodes.FAILURE;
         }
 
-
         return ExitCodes.SUCCESS;
 
-
     }
+
     static IHostBuilder CreateHostBuilder(string connectionString) =>
         Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
                 services.AddDbContext<DataServicesContext>(options =>
-                    options.UseSqlServer(connectionString
-                    ,x => x.MigrationsAssembly("DataServices.Migrations")
-                    ));
-                services.AddScoped<ISeedDataLoader,SeedDataLoader>();
+                {
+                    var sqlConnectionBuilder = new SqlConnectionStringBuilder(connectionString);
+                    string clientId = Environment.GetEnvironmentVariable("SQL_IDENTITY_CLIENT_ID");
+                    var credential = new ManagedIdentityCredential(clientId);
+
+                    var connection = new SqlConnection(sqlConnectionBuilder.ConnectionString);
+                    var token = credential.GetToken(new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" }));
+                    connection.AccessToken = token.Token;
+
+                    options.UseSqlServer(connection, sqlServerOptionsAction =>
+                    {
+                        sqlServerOptionsAction.MigrationsAssembly("DataServices.Migrations");
+                        sqlServerOptionsAction.UseNetTopologySuite();
+                    });
+                });
+                services.AddScoped<ISeedDataLoader, SeedDataLoader>();
 
             });
 
@@ -108,8 +125,6 @@ public class Program
         }
         return ExitCodes.SUCCESS;
 
-
-
     }
 
     static int ExtractData(IHost host)
@@ -130,7 +145,6 @@ public class Program
         ExtractDataofType<LanguageCode>(dbContext);
         ExtractDataofType<ScreeningLkp>(dbContext);
 
-
         return 0;
     }
 
@@ -142,10 +156,5 @@ public class Program
         File.WriteAllText($"{typeof(TEntity).Name}.json", jsonString);
         return true;
     }
-
-
-
-
-
 
 }
