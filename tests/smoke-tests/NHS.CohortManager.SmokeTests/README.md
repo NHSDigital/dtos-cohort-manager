@@ -2,7 +2,7 @@
 
 ## Overview
 
-This test automation framework utilizes SpecFlow, a behavior-driven development (BDD) tool, to create and execute smoke tests for the Cohort Manager application. SpecFlow allows defining test scenarios using a natural language syntax, making tests more readable and maintainable.
+This test automation framework utilises ReqnRoll, a behavior-driven development (BDD) tool, to create and execute smoke tests for the Cohort Manager application. ReqnRoll allows defining test scenarios using a natural language syntax, making tests more readable and maintainable.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ To set up and run this test automation framework, ensure you have the following 
 
 - . NET Core SDK (version X. X or higher)
 - Visual Studio 2022 or Visual Studio Code
-- SpecFlow Visual Studio Extension
+- ReqnRoll Visual Studio Extension
 - SQL Server (for database testing)
 - Azure Storage Explorer (for blob storage tests)
 
