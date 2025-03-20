@@ -6,7 +6,7 @@ This test automation framework utilizes SpecFlow, a behavior-driven development 
 
 ## Table of Contents
 
-- [SpecFlow Test Automation Framework](#specflow-test-automation-framework)
+- [NHS CohortManager SmokeTests Automation Framework](#nhs-cohortmanager-smoketests-automation-framework)
   - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
   - [Prerequisites](#prerequisites)
