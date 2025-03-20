@@ -1,46 +1,21 @@
+namespace NHS.CohortManager.EndToEndTests.Helpers;
+
 using ChoETL;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Azure.Identity;
 using Azure.Core;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using NUnit.Framework;
+using System.Linq;
 
-namespace dtos_cohort_manager_specflow.Helpers;
+
 
 public static class DatabaseValidationHelper
 {
-    private static readonly HashSet<string> AllowedTables = new HashSet<string>
-    {
-        "BS_COHORT_DISTRIBUTION",
-        "PARTICIPANT_MANAGEMENT",
-        "PARTICIPANT_DEMOGRAPHIC",
-        "EXCEPTION_MANAGEMENT"
-    };
-
-    private static readonly HashSet<string> AllowedFields =
-    [
-        "NHS_NUMBER",
-        "GIVEN_NAME",
-        "RULE_ID",
-        "RULE_DESCRIPTION"
-        // Add other allowed fields here
-    ];
-
-    private static void ValidateTableName(string tableName)
-    {
-        if (!AllowedTables.Contains(tableName.ToUpper()))
-        {
-            throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
-        }
-    }
-
-    private static void ValidateFieldName(string fieldName)
-    {
-        if (!AllowedFields.Contains(fieldName.ToUpper()))
-        {
-            throw new ArgumentException($"Field '{fieldName}' is not in the list of allowed fields.");
-        }
-    }
 
     public static async Task VerifyNhsNumbersAsync(
     SqlConnectionWithAuthentication sqlConnectionWithAuthentication,
@@ -142,6 +117,29 @@ public static class DatabaseValidationHelper
         return false;
     }
 
+
+    public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
+    {
+        int nhsNumberCount = 0;
+
+        // Get the open connection (with token if using Managed Identity)
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
+        {
+            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
+
+            // Create SQL command and add parameter for NHS Number
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+
+                // Execute the query and get the count of NHS numbers
+                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
+            }
+        }
+
+        return nhsNumberCount;
+    }
+
     private static async Task<bool> VerifyNhsNumberAsync(
     SqlConnection connection,
     string tableName,
@@ -198,139 +196,36 @@ public static class DatabaseValidationHelper
         }
         return false;
     }
-
-    public static async Task<bool> VerifyFieldsMatchCsvAsync(string connectionString, string tableName, string nhsNumber, string csvFilePath, ILogger logger)
+    private static readonly HashSet<string> AllowedTables = new HashSet<string>
     {
-        ValidateTableName(tableName);
+        "BS_COHORT_DISTRIBUTION",
+        "PARTICIPANT_MANAGEMENT",
+        "PARTICIPANT_DEMOGRAPHIC",
+        "EXCEPTION_MANAGEMENT"
+    };
 
-        var csvRecords = CsvHelperService.ReadCsv(csvFilePath);
-        var expectedRecord = csvRecords.FirstOrDefault(record => record["NHS Number"] == nhsNumber);
+    private static readonly HashSet<string> AllowedFields =
+    [
+        "NHS_NUMBER",
+        "GIVEN_NAME",
+        "RULE_ID",
+        "RULE_DESCRIPTION"
+        // Add other allowed fields here
+    ];
 
-        if (expectedRecord == null)
+    private static void ValidateTableName(string tableName)
+    {
+        if (!AllowedTables.Contains(tableName.ToUpper()))
         {
-            logger.LogError($"NHS number {nhsNumber} not found in the CSV file.");
-            return false;
+            throw new ArgumentException($"Table '{tableName}' is not in the list of allowed tables.");
         }
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = $"SELECT * FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!reader.HasRows)
-                    {
-                        logger.LogError($"No record found in {tableName} for NHS number {nhsNumber}.");
-                        return false;
-                    }
-
-                    while (await reader.ReadAsync())
-                    {
-                        foreach (var key in expectedRecord.Keys)
-                        {
-                            var expectedValue = expectedRecord[key];
-                            var actualValue = reader[key]?.ToString();
-
-                            if (expectedValue != actualValue)
-                            {
-                                logger.LogError($"Mismatch in {key} for NHS number {nhsNumber}: expected '{expectedValue}', found '{actualValue}'.");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
     }
 
-    public static async Task<bool> VerifyFieldsMatchParquetAsync(string connectionString, string tableName, string nhsNumber, string parquetFilePath, ILogger logger)
+    private static void ValidateFieldName(string fieldName)
     {
-        ValidateTableName(tableName);
-
-        var parquetRecords = ReadParquetFile(parquetFilePath);
-        var expectedRecord = parquetRecords.FirstOrDefault(record => record["NHS Number"]?.ToString() == nhsNumber);
-
-        if (expectedRecord == null)
+        if (!AllowedFields.Contains(fieldName.ToUpper()))
         {
-            logger.LogError($"NHS number {nhsNumber} not found in the Parquet file.");
-            return false;
+            throw new ArgumentException($"Field '{fieldName}' is not in the list of allowed fields.");
         }
-
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
-            var query = $"SELECT * FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    if (!reader.HasRows)
-                    {
-                        logger.LogError($"No record found in {tableName} for NHS number {nhsNumber}.");
-                        return false;
-                    }
-
-                    while (await reader.ReadAsync())
-                    {
-                        foreach (var key in expectedRecord.Keys)
-                        {
-                            var expectedValue = expectedRecord[key]?.ToString();
-                            var actualValue = reader[key]?.ToString();
-
-                            if (expectedValue != actualValue)
-                            {
-                                logger.LogError($"Mismatch in {key} for NHS number {nhsNumber}: expected '{expectedValue}', found '{actualValue}'.");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return true;
     }
-
-    public static async Task<int> GetNhsNumberCount(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string nhsNumber, ILogger logger)
-    {
-        int nhsNumberCount = 0;
-
-        // Get the open connection (with token if using Managed Identity)
-        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
-        {
-            var query = $"SELECT COUNT(*) FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-
-            // Create SQL command and add parameter for NHS Number
-            using (var command = new SqlCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
-
-                // Execute the query and get the count of NHS numbers
-                nhsNumberCount = (int)(await command.ExecuteScalarAsync() ?? 0);
-            }
-        }
-
-        return nhsNumberCount;
-    }
-
-    private static List<IDictionary<string, object>> ReadParquetFile(string parquetFilePath)
-    {
-        var records = new List<IDictionary<string, object>>();
-        using (var reader = new ChoParquetReader(parquetFilePath))
-        {
-            foreach (var record in reader)
-            {
-                records.Add((IDictionary<string, object>)record);
-            }
-        }
-        return records;
-    }
-
-
 }
