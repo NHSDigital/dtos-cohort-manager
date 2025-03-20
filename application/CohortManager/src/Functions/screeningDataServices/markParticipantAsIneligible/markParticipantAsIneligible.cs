@@ -7,9 +7,10 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using DataServices.Client;
+using Microsoft.Extensions.Options;
 using Model;
-
+using DataServices.Client;
+using NHS.Screening.MarkParticipantAsIneligible;
 
 public class MarkParticipantAsIneligible
 {
@@ -18,14 +19,22 @@ public class MarkParticipantAsIneligible
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
+    private readonly MarkParticipantAsIneligibleConfig _config;
 
-    public MarkParticipantAsIneligible(ILogger<MarkParticipantAsIneligible> logger, ICreateResponse createResponse, IDataServiceClient<ParticipantManagement> participantManagementClient, ICallFunction callFunction, IExceptionHandler handleException)
+    public MarkParticipantAsIneligible(
+        ILogger<MarkParticipantAsIneligible> logger,
+        ICreateResponse createResponse,
+        IDataServiceClient<ParticipantManagement> participantManagementClient,
+        ICallFunction callFunction,
+        IExceptionHandler handleException,
+        IOptions<MarkParticipantAsIneligibleConfig> markParticipantAsIneligibleConfig)
     {
         _logger = logger;
         _participantManagementClient = participantManagementClient;
         _createResponse = createResponse;
         _handleException = handleException;
         _callFunction = callFunction;
+        _config = markParticipantAsIneligibleConfig.Value;
     }
 
     [Function("markParticipantAsIneligible")]
@@ -107,7 +116,7 @@ public class MarkParticipantAsIneligible
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
@@ -120,4 +129,3 @@ public class MarkParticipantAsIneligible
         }
     }
 }
-
