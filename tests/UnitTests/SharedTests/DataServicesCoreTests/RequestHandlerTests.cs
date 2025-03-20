@@ -8,11 +8,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataServices.Core;
-using DataServices.Database;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using System.Collections.Specialized;
-using System.Linq.Expressions;
 using System.Net;
 using System.Linq.Dynamic.Core;
 

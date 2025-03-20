@@ -23,7 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="../../../../application/CohortManager/src/Functions/Shared/Common/Common.csproj" />
     <ProjectReference Include="../../../../application/CohortManager/src/Functions/Shared/DataServices.Core/DataServices.Core.csproj" />
-    <ProjectReference Include="../../../../application/CohortManager/src/Functions/Shared/DataServices.Database/DataServices.DataBase.csproj" />
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
