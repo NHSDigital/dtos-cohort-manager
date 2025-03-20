@@ -129,30 +129,6 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
-
-        var testConfig = new CreateParticipantConfig
-        {
-            ParticipantManagementUrl = "test-url",
-            LookupValidationURL = "test-url-2"
-        };
-
-        _config.Setup(c => c.Value).Returns(testConfig);
-
-        var sut = new ScreeningDataServices.CreateParticipant(
-            _mockLogger.Object,
-            _mockCreateResponse.Object,
-            _handleException.Object,
-            _callFunction.Object,
-            _participantManagementClient.Object,
-            _config.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
-
         // Act
         var response = await _sut.Run(mockRequest);
 
