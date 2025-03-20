@@ -1,10 +1,16 @@
-using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Helpers;
+namespace NHS.CohortManager.EndToEndTests.TestServices;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using NHS.CohortManager.EndToEndTests.Config;
+using NHS.CohortManager.EndToEndTests.Helpers;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
-namespace dtos_cohort_manager_specflow.TestServices;
+
 
 public class EndToEndFileUploadService
 {

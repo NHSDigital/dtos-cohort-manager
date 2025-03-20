@@ -1,7 +1,11 @@
+namespace NHS.CohortManager.EndToEndTests.Helpers;
+
+using System.IO;
+using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 
-namespace dtos_cohort_manager_specflow.Helpers;
+
 
 public class BlobStorageHelper
 {
