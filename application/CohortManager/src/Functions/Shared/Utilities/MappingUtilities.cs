@@ -18,7 +18,7 @@ public static class MappingUtilities
     /// </summary>
     public static short ParseStringFlag(string flag)
     {
-        return flag?.ToUpper() switch
+        return flag.ToUpper() switch
         {
             "0" => 0,
             "1" => 1,
