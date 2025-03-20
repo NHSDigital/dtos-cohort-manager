@@ -4,7 +4,7 @@ using NHS.CohortManager.SmokeTests.Config;
 using NHS.CohortManager.SmokeTests.Helpers;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 namespace NHS.CohortManager.SmokeTests.Hook
 {

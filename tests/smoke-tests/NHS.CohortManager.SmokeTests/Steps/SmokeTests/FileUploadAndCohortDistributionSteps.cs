@@ -1,5 +1,5 @@
 using NHS.CohortManager.SmokeTests.TestServices;
-using TechTalk.SpecFlow;
+using Reqnroll;
 using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
 using NHS.CohortManager.SmokeTests.Config;
