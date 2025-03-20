@@ -24,7 +24,7 @@ public static class MappingUtilities
             "1" => 1,
             "Y" => 1,
             "N" => 0,
-            _ => throw new ArgumentException("Invalid input"),
+            _ => throw new ArgumentException("Invalid input")
         };
     }
 
