@@ -27,6 +27,8 @@ public class ReceiveCaasFileTests
     private readonly string _blobName;
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
     private readonly Mock<IDataServiceClient<ScreeningLkp>> _mockScreeningLkpClient = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
+    private readonly Mock<IBlobStorageHelper> _blobStorageHelperMock = new();
 
     public ReceiveCaasFileTests()
     {
@@ -36,7 +38,12 @@ public class ReceiveCaasFileTests
 
         Environment.SetEnvironmentVariable("BatchSize", "2000");
 
-        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningLkpClient.Object);
+        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object,
+                                                    _mockProcessCaasFile.Object,
+                                                    _mockScreeningLkpClient.Object,
+                                                    _blobStorageHelperMock.Object,   
+
+                                                    _exceptionHandlerMock.Object);
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
 
         _participant = new Participant()
@@ -68,11 +75,15 @@ public class ReceiveCaasFileTests
             ScreeningId = 1,
             ScreeningWorkflowId = "TestWorkflow"
         };
-        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(It.IsAny<string>(), It.IsAny<FileNameParser>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(true));
-        _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
+        _mockScreeningLkpClient
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>()))
+            .ReturnsAsync(screeningLkp);
+        _mockICallFunction
+            .Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+            .Verifiable();
+        _mockIReceiveCaasFileHelper
+            .Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult<Participant?>(_participant));
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
@@ -91,58 +102,72 @@ public class ReceiveCaasFileTests
 
     [TestMethod]
     [DataRow("F9B292BSS_20241201121212_n1.parquet")]
-    public async Task Run_FileNameIsIncorrect_LogFileNameIsInvalid(string blobName)
+    public async Task Run_FileNameIsIncorrect_CreateExceptionAndCopyBlobToPoison(string blobName)
     {
+        // Arrange
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, blobName);
 
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                 It.IsAny<EventId>(),
-                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("File name is invalid.")),
-                 It.IsAny<Exception>(),
-                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-             Times.Once);
+        // Assert
+        _exceptionHandlerMock
+            .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+                It.IsAny<ArgumentException>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
+
+        _blobStorageHelperMock
+            .Verify(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
 
         Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
 
     }
 
     [TestMethod]
-    public async Task Run_fileNameChecksTrowsError_ErrorIsThrown()
+    public async Task Run_fileNameChecksThrowsError_CreateExceptionAndCopyBlobToPoison()
     {
+        // Arrange
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
 
-        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
-        .Throws(new Exception("There was a problem checking file name"));
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-                 It.IsAny<EventId>(),
-                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Stack Trace:")),
-                 It.IsAny<Exception>(),
-                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-             Times.Once);
+        // Assert
+        _exceptionHandlerMock
+            .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+                It.IsAny<Exception>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
 
-        Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
+        _blobStorageHelperMock
+            .Verify(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
     }
 
     [TestMethod]
     [DataRow(0, "")]
     [DataRow(0, " ")]
     [DataRow(null, null)]
-    public async Task Run_cannotGetScreeningId_LogsError(Int64 screeningId, string screeningName)
+    public async Task Run_CannotGetScreeningId_CreateExceptionAndCopyBlobToPoison(Int64 screeningId, string screeningName)
     {
         // Arrange
-
         await using var fileSteam = File.OpenRead(_blobName);
-
-        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
-        .Returns(Task.FromResult(true));
 
         var screeningLkp = new ScreeningLkp
         {
@@ -150,19 +175,31 @@ public class ReceiveCaasFileTests
             ScreeningId = screeningId,
             ScreeningWorkflowId = "TestWorkflow"
         };
-        _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
+        _mockScreeningLkpClient
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>()))
+            .ReturnsAsync((ScreeningLkp)null);
 
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
-        _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The Screening id or screening name was null or empty")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
+        // Assert
+        _exceptionHandlerMock
+            .Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+                It.IsAny<ArgumentException>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
+
+        _blobStorageHelperMock
+            .Verify(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()
+            ));
     }
 
     [TestMethod]
@@ -171,8 +208,7 @@ public class ReceiveCaasFileTests
         // Arrange
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
-        _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(It.IsAny<string>(), It.IsAny<FileNameParser>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(true));
+
 
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
 
@@ -193,7 +229,13 @@ public class ReceiveCaasFileTests
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         // Assert
-        _mockProcessCaasFile.Verify(x => x.ProcessRecords(It.Is<List<ParticipantsParquetMap>>(list => list.Count == batchSize), It.IsAny<ParallelOptions>(), It.IsAny<ScreeningService>(), _blobName), Times.Exactly(1));
+        _mockProcessCaasFile
+            .Verify(x => x.ProcessRecords(
+                It.Is<List<ParticipantsParquetMap>>(list => list.Count == batchSize),
+                It.IsAny<ParallelOptions>(),
+                It.IsAny<ScreeningLkp>(),
+                _blobName),
+            Times.Exactly(1));
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
