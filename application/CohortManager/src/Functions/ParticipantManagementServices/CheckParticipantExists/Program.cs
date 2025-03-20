@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Model;
 using DataServices.Client;
+using HealthChecks.Extensions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -14,6 +15,8 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        // Register health checks
+        services.AddBasicHealthCheck("CheckParticipantExists");
     })
     .Build();
 
