@@ -7,7 +7,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <NoWarn>CS8618;CS8604;CS8605;CS8601;CS8604;CS8602</NoWarn>
+        <NoWarn>CS8618;CS8604;CS8605;CS8601;CS8604;CS8602;CS8625</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -61,6 +61,9 @@
       <None Update="Config\appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Config\appsettings-local.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="TestFiles\add\ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -85,10 +88,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <SpecFlowFeatureFiles Update="Features\FileUploadAndCohortDistribution.feature">
+      <SpecFlowFeatureFiles Update="Features\SmokeTests\FileUploadAndCohortDistribution.feature">
         <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">SpecFlowSingleFileGenerator</Generator>
         <LastGenOutput>FileUploadAndCohortDistribution.feature.cs</LastGenOutput>
       </SpecFlowFeatureFiles>
     </ItemGroup>
-
 </Project>

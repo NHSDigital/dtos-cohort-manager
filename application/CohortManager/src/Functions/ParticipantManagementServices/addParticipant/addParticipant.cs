@@ -11,6 +11,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Common;
 using Model;
+using NHS.Screening.AddParticipant;
+using Microsoft.Extensions.Options;
 
 public class AddParticipantFunction
 {
@@ -21,8 +23,18 @@ public class AddParticipantFunction
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    private readonly AddParticipantConfig _config;
 
-    public AddParticipantFunction(ILogger<AddParticipantFunction> logger, ICallFunction callFunction, ICreateResponse createResponse, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
+    public AddParticipantFunction(
+        ILogger<AddParticipantFunction> logger, 
+        ICallFunction callFunction, 
+        ICreateResponse createResponse, 
+        ICheckDemographic checkDemographic, 
+        ICreateParticipant createParticipant, 
+        IExceptionHandler handleException, 
+        ICohortDistributionHandler cohortDistributionHandler,
+        IOptions<AddParticipantConfig> addParticipantConfig
+        )
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -31,6 +43,7 @@ public class AddParticipantFunction
         _createParticipant = createParticipant;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
+        _config = addParticipantConfig.Value;
     }
 
     [Function(nameof(AddParticipantFunction))]
@@ -44,7 +57,7 @@ public class AddParticipantFunction
         try
         {
             // Get demographic data
-            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
@@ -78,7 +91,7 @@ public class AddParticipantFunction
 
             // Add participant to database
             var json = JsonSerializer.Serialize(participantCsvRecord);
-            createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSaddParticipant"), json);
+            createResponse = await _callFunction.SendPost(_config.DSaddParticipant, json);
 
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -91,7 +104,7 @@ public class AddParticipantFunction
 
             // Mark participant as eligible
             var participantJson = JsonSerializer.Serialize(participant);
-            eligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+            eligibleResponse = await _callFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
 
             if (eligibleResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -133,7 +146,7 @@ public class AddParticipantFunction
             };
         }
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+        var response = await _callFunction.SendPost(_config.StaticValidationURL, json);
         var responseBodyJson = await _callFunction.GetResponseText(response);
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 

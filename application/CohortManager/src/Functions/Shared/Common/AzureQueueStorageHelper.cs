@@ -9,20 +9,18 @@ using Model;
 
 public class AzureQueueStorageHelper : IAzureQueueStorageHelper
 {
-
-    private readonly string storageConnectionString;
-
     public readonly ILogger<AzureQueueStorageHelper> _logger;
+    public readonly IQueueClientFactory _queueClientFactory;
 
-    public AzureQueueStorageHelper(ILogger<AzureQueueStorageHelper> logger)
+    public AzureQueueStorageHelper(ILogger<AzureQueueStorageHelper> logger, IQueueClientFactory queueClientFactory)
     {
-        storageConnectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         _logger = logger;
+        _queueClientFactory = queueClientFactory;
     }
 
     public async Task<bool> AddItemToQueueAsync<T>(T participantCsvRecord, string queueName)
     {
-        var _queueClient = new QueueClient(storageConnectionString, queueName);
+        var _queueClient = _queueClientFactory.CreateClient(queueName);
         await _queueClient.CreateIfNotExistsAsync();
         var json = JsonSerializer.Serialize(participantCsvRecord);
         var bytes = Encoding.UTF8.GetBytes(json);

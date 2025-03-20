@@ -11,6 +11,8 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using updateParticipant;
 using RulesEngine.Models;
+using Microsoft.Extensions.Options;
+using NHS.Screening.UpdateParticipant;
 
 [TestClass]
 public class UpdateParticipantTests
@@ -30,16 +32,20 @@ public class UpdateParticipantTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private Mock<HttpRequestData> _request;
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+    private readonly Mock<IOptions<UpdateParticipantConfig>> _config = new();
 
     public UpdateParticipantTests()
     {
-        Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
-        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
-        Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
-        Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
-        Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
-        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
+        var testConfig = new UpdateParticipantConfig
+        {
+            DemographicURIGet = "DemographicURIGet",
+            UpdateParticipant = "UpdateParticipant",
+            StaticValidationURL = "StaticValidationURL",
+            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
+            markParticipantAsIneligible = "markParticipantAsIneligible"
+        };
 
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _azureQueueStorageHelper.Object);
 
@@ -68,7 +74,13 @@ public class UpdateParticipantTests
         _request = _setupRequest.Setup(json);
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
         _webResponseSuccess.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
@@ -152,7 +164,13 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
 
         // Act
         await sut.Run(json);
@@ -208,7 +226,13 @@ public class UpdateParticipantTests
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
 
         // Act
         await sut.Run(json);
@@ -221,7 +245,7 @@ public class UpdateParticipantTests
                 It.IsAny<It.IsAnyType>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ), Times.AtLeastOnce(), "Update participant failed");
+            ), Times.AtLeastOnce(), "Unsuccessfully updated records");
     }
 
     [TestMethod]
@@ -249,7 +273,13 @@ public class UpdateParticipantTests
                         .Returns(Task.FromResult<Demographic>(new Demographic()));
 
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
 
         // Act
         await sut.Run(json);
@@ -290,7 +320,14 @@ public class UpdateParticipantTests
         _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
+                                                
         //Act
         await sut.Run(json);
 
@@ -344,8 +381,14 @@ public class UpdateParticipantTests
 
         _request = _setupRequest.Setup(json);
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunction.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler);
-
+        var sut = new UpdateParticipantFunction(_logger.Object, 
+                                                _callFunction.Object, 
+                                                _checkDemographic.Object, 
+                                                _createParticipant, 
+                                                _handleException.Object, 
+                                                _cohortDistributionHandler,
+                                                _config.Object);
+                                                
         // Act
         await sut.Run(json);
 
