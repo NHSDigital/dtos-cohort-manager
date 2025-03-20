@@ -18,7 +18,6 @@ public class MarkParticipantAsIneligible
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-
     private readonly ICallFunction _callFunction;
     private readonly MarkParticipantAsIneligibleConfig _config;
 
@@ -100,7 +99,7 @@ public class MarkParticipantAsIneligible
         {
             if (ex is NullReferenceException)
             {
-                _logger.LogError("An error occured when trying to retrieve the participant data");
+                _logger.LogError("An error occurred when trying to retrieve the participant data");
             }
             else
             {
