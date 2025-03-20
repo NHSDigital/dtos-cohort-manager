@@ -108,7 +108,7 @@ public class UpdateParticipantDetailsTests
 
         _callFunctionMock.Object, _participantManagementClientMock.Object,
                                                 _config.Object);
-        
+
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
@@ -130,7 +130,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object, _config.Object);
 
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = rfrDate;
         var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
