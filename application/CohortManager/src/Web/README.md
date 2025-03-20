@@ -18,7 +18,6 @@ Create a `.env` file which should override environment variables required to run
 
 ```text
 # Default
-NEXT_PUBLIC_BASE_URL=https://localhost:3000
 SERVICE_NAME="Cohort Manager"
 
 # Next Auth
