@@ -86,3 +86,4 @@ application/CohortManager/.vscode/
 *.feature.cs
 tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings-local.json
 tests/e2e-tests/dtos-cohort-manager-e2e-tests/Config/appsettings-local.json
+tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
