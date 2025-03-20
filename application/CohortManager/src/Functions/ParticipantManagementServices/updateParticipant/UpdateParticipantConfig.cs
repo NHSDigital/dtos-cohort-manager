@@ -12,5 +12,6 @@ public class UpdateParticipantConfig
     public string StaticValidationURL { get; set; }
     [Required]
     public string DSmarkParticipantAsEligible { get; set; }
+    [Required]
     public string markParticipantAsIneligible { get; set; }
 }
