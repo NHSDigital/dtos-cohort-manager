@@ -41,6 +41,7 @@ try
             client.BaseAddress = new Uri(config.DemographicURI);
         });
         services.AddScoped<IValidateDates, ValidateDates>();
+        services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
