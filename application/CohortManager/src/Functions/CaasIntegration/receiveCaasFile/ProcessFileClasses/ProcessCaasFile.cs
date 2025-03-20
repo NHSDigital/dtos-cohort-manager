@@ -204,7 +204,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
     {
-        var allowDeleteRecords = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("AllowDeleteRecords", DataTypes.Boolean);
+        var allowDeleteRecords = _config.AllowDeleteRecords;
         try
         {
             if (allowDeleteRecords)

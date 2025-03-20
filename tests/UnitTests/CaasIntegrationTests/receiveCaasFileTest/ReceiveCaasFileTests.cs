@@ -45,7 +45,8 @@ public class ReceiveCaasFileTests
             BatchSize = 2000,
             AddQueueName = "AddQueueName",
             UpdateQueueName = "UpdateQueueName",
-            PMSRemoveParticipant = "PMSRemoveParticipant"
+            PMSRemoveParticipant = "PMSRemoveParticipant",
+            AllowDeleteRecords = true
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
