@@ -62,7 +62,7 @@ application/CohortManager/SampleData/
 *.parquet
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 !tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles/**/*.parquet
-!tests/e2e-tests/dtos-cohort-manager-e2e-tests/TestFiles/**/*.parquet
+!tests/e2e-tests/NHS.CohortManager.EndToEndTests/TestFiles/**/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
