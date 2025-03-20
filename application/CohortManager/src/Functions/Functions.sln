@@ -163,8 +163,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataServiceTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateDatesTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\ValidateDates\ValidateDatesTests.csproj", "{9005A919-F64D-4723-87A7-595BB4E64563}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServiceTests", "..\..\..\..\tests\UnitTests\DataServiceTests\DataServiceTests.csproj", "{E26B2D73-BD60-4AD8-B403-939ACEDE9429}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{CD0F16B5-8752-4917-A4CF-15195607E027}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessCaasFileTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\processCaasFileTest\ProcessCaasFileTests.csproj", "{FF6BE3D4-F1A4-42EB-B473-21E50A634317}"
@@ -965,14 +963,6 @@ Global
 		{9005A919-F64D-4723-87A7-595BB4E64563}.Release|x64.Build.0 = Release|Any CPU
 		{9005A919-F64D-4723-87A7-595BB4E64563}.Release|x86.ActiveCfg = Release|Any CPU
 		{9005A919-F64D-4723-87A7-595BB4E64563}.Release|x86.Build.0 = Release|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|x64.Build.0 = Debug|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Debug|x86.Build.0 = Debug|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|x64.ActiveCfg = Release|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|x64.Build.0 = Release|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|x86.ActiveCfg = Release|Any CPU
-		{E26B2D73-BD60-4AD8-B403-939ACEDE9429}.Release|x86.Build.0 = Release|Any CPU
 		{CD0F16B5-8752-4917-A4CF-15195607E027}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{CD0F16B5-8752-4917-A4CF-15195607E027}.Debug|x64.Build.0 = Debug|Any CPU
 		{CD0F16B5-8752-4917-A4CF-15195607E027}.Debug|x86.ActiveCfg = Debug|Any CPU
