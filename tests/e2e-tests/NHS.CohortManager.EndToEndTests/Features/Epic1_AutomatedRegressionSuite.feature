@@ -55,7 +55,7 @@ DTOSS Regression TEST PACK.
       | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 |
 
   @DTOSS-7585 @Regression
-  Scenario: Verify exception records reach participant Tables but not Cohort Distribution for ADD record
+  Scenario: Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then the Exception table should contain the below details for the NHS Number
@@ -71,7 +71,7 @@ DTOSS Regression TEST PACK.
       | Exception_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612314172 |
 
   @DTOSS-7585 @Regression
-  Scenario: Verify exception records reach participant Tables with a partial record to Cohort Distribution for AMENDED record
+  Scenario: Verify AMENDED records with non-fatal validation issues reach participant tables with partial Cohort distribution entries
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     And the file is uploaded to the Blob Storage container
     And the NHS numbers in the database should match the file data
