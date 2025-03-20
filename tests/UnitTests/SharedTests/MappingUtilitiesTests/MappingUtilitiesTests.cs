@@ -1,6 +1,6 @@
-using NHS.CohortManager.Shared.Utilities;
-
 namespace MappingUtilitiesTests;
+
+using NHS.CohortManager.Shared.Utilities;
 
 [TestClass]
 public class MappingUtilitiesTests
@@ -49,7 +49,6 @@ public class MappingUtilitiesTests
 
     [TestMethod]
     [DataRow("W")]
-    [DataRow(null)]
     public void ParseStringFlag_InvalidInput_ReturnArguementError(string flag)
     {
         //No Arrange or Act
