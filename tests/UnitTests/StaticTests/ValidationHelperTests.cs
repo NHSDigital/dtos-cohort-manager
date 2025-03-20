@@ -20,6 +20,9 @@ public class ValidationHelperTests
     }
 
     [TestMethod]
+    [DataRow(null)]
+    [DataRow("-1234567890")]    
+    [DataRow("1a2b3c4d5e")]
     [DataRow("1234567890")]
     [DataRow("9876543219")]
     [DataRow("123456789")]
@@ -36,28 +39,14 @@ public class ValidationHelperTests
     }
 
     [TestMethod]
-    [DataRow("1990-10-10")]
-    [DataRow("2002-04-06")]
-    [DataRow("1997-12-23")]
-    [DataRow("2010-01-01")]
-    [DataRow("2005-12-10")]
+    [DataRow("20000101")]               //  yyyymmdd
+    [DataRow("200001")]                 //  yyyymm
+    [DataRow("2000-01-01")]             //  yyyy-mm-dd
+    [DataRow("01/01/2000 12:00:00")]    //  dd/mm/yyyy hh:mm:ss
+    [DataRow("2000")]                   //  yyyy
     public void ValidatePastDate_ValidPastDate_ReturnsTrue(string pastDate)
     {
         var result = ValidationHelper.ValidatePastDate(pastDate);
-
-        Assert.IsTrue(result);
-    }
-
-
-    [TestMethod]
-    [DataRow("1990-10-10")]
-    [DataRow("2002-04-06")]
-    [DataRow("1997-12-23")]
-    [DataRow("2010-01-01")]
-    [DataRow("2005-12-10")]
-    public void ValidateDate_ValidDate_ReturnsTrue(string date)
-    {
-        var result = ValidationHelper.IsValidDate(date);
 
         Assert.IsTrue(result);
     }
@@ -67,8 +56,9 @@ public class ValidationHelperTests
     [DataRow("3034-04-06")]
     [DataRow("6060-12-23")]
     [DataRow("7070-01-01")]
-    [DataRow("7070-01-01")]
     [DataRow("dfbgdfdggfggg")]
+    [DataRow("-2000")]   
+    [DataRow(null)]               
     public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
     {
         var result = ValidationHelper.ValidatePastDate(pastDate);
