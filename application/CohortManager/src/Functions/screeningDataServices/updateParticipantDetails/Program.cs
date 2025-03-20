@@ -6,10 +6,12 @@ using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.UpdateParticipantDetails;
 
 var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+    .AddConfiguration<UpdateParticipantDetailsConfig>(out UpdateParticipantDetailsConfig config)
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
