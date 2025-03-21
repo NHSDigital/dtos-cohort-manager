@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: ce0f49a28a90aa60ac579db350dbd18971b0d5ed
+      ref: a48e553fe2868e8139177768a8a8e5487e2919f0
       endpoint: NHSDigital
 
 variables:
@@ -33,7 +33,7 @@ stages:
       - group: TEMP_ENVIRONMENTS_core_backend
     steps:
       - checkout: self
-      - template: ../templates/steps/apply-database-changes.yaml
+      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: sc-cohort-manager-dev
           resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
