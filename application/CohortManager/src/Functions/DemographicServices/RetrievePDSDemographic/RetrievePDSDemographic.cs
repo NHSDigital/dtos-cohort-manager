@@ -1,30 +1,34 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
+using NHS.Screening.RetrievePDSDemographic;
 
 public class RetrievePdsDemographic
 {
     private readonly ILogger<RetrievePdsDemographic> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly ICallFunction _callFunction;
-
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+    private readonly RetrievePDSDemographicConfig _config;
 
-    public RetrievePdsDemographic(ILogger<RetrievePdsDemographic> logger, ICreateResponse createResponse, ICallFunction callFunction)
+    public RetrievePdsDemographic(
+        ILogger<RetrievePdsDemographic> logger, 
+        ICreateResponse createResponse, 
+        ICallFunction callFunction,
+        IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
+        _config = retrievePDSDemographicConfig.Value;
     }
 
     [Function("RetrievePdsDemographic")]
@@ -37,7 +41,7 @@ public class RetrievePdsDemographic
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No Participant ID Provided");
             }
 
-            var pdsDemographicFunctionUrl = Environment.GetEnvironmentVariable("ParticipantDemographicDataServiceURL");
+            var pdsDemographicFunctionUrl = _config.ParticipantDemographicDataServiceURL;
 
             // Calling PDSDemographicDataFunction via ICallFunction
             var pdsDemographicResponseJson = await _callFunction.SendGet(pdsDemographicFunctionUrl);

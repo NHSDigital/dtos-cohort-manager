@@ -22,6 +22,7 @@ public class RetrieveMeshFile
     private readonly string _mailboxId;
     private readonly string _blobConnectionString;
     private readonly IBlobStorageHelper _blobStorageHelper;
+    private readonly RetrieveMeshFileConfig _config;
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
     private const string ConfigFileName = "MeshState.json";
 
@@ -31,7 +32,8 @@ public class RetrieveMeshFile
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
         _mailboxId = options.Value.BSSMailBox;
-        _blobConnectionString = Environment.GetEnvironmentVariable("caasfolder_STORAGE");
+        _config = options.Value;
+        _blobConnectionString = _config.caasfolder_STORAGE;
     }
     /// <summary>
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.

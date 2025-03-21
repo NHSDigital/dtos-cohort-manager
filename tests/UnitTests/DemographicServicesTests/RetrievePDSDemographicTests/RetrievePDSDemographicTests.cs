@@ -9,10 +9,12 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
+using NHS.Screening.RetrievePDSDemographic;
 
 [TestClass]
 public class RetrievePdsDemographicTests
@@ -27,14 +29,22 @@ public class RetrievePdsDemographicTests
     private readonly Participant _participant;
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
+    private readonly Mock<IOptions<RetrievePDSDemographicConfig>> _config = new();
 
     private RetrievePdsDemographic _retrievePdsDemographic;
     public RetrievePdsDemographicTests()
     {
+        var testConfig = new RetrievePDSDemographicConfig
+        {
+            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _request = new Mock<HttpRequestData>(_context.Object);
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
-         _retrievePdsDemographic = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _callFunction.Object);
+         _retrievePdsDemographic = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _callFunction.Object, _config.Object);
 
         Environment.SetEnvironmentVariable("RetrievePdsDemographicURI", "RetrievePdsDemographicURI");
 

@@ -7,11 +7,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
 using HealthChecks.Extensions;
+using NHS.Screening.AddCohortDistribution;
 
 var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
-        .Build()
+    .AddConfiguration<AddCohortDistributionDataConfig>(out AddCohortDistributionDataConfig config)
+    .AddDataServicesHandler()
+    .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
+    .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {

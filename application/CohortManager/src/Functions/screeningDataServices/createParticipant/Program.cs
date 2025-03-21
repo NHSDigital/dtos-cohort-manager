@@ -5,11 +5,13 @@ using Data.Database;
 using DataServices.Client;
 using HealthChecks.Extensions;
 using Model;
+using NHS.Screening.CreateParticipant;
 
 var host = new HostBuilder()
+    .AddConfiguration<CreateParticipantConfig>(out CreateParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .Build()
     .ConfigureServices(services =>
     {

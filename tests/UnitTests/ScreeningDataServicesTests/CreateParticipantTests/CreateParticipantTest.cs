@@ -12,6 +12,8 @@ using Model;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using DataServices.Client;
+using Microsoft.Extensions.Options;
+using NHS.Screening.CreateParticipant;
 
 [TestClass]
 public class CreateParticipantTests
@@ -20,6 +22,8 @@ public class CreateParticipantTests
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
+    private readonly Mock<IOptions<CreateParticipantConfig>> _config = new();
+
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly ScreeningDataServices.CreateParticipant _sut;
     private ParticipantCsvRecord _requestRecord;
@@ -59,6 +63,14 @@ public class CreateParticipantTests
             }
         };
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         ValidationExceptionLog validationResponse = new()
         {
             IsFatal = false,
@@ -78,7 +90,17 @@ public class CreateParticipantTests
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
+
+            _participantManagementClient.Object,
+            _config.Object);
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
+
     }
 
     [TestMethod]
@@ -127,6 +149,7 @@ public class CreateParticipantTests
             .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(false);
 
+
         // Act
         await _sut.Run(mockRequest);
 
@@ -146,12 +169,36 @@ public class CreateParticipantTests
             CreatedException = false
         };
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        var sut = new ScreeningDataServices.CreateParticipant(
+            _mockLogger.Object,
+            _mockCreateResponse.Object,
+            _handleException.Object,
+            _callFunction.Object,
+            _participantManagementClient.Object,
+            _config.Object);
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = true,
+                CreatedException = false
+            })));
+        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
+
         _callFunction
             .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
+
 
         // Act
         await _sut.Run(mockRequest);
@@ -169,9 +216,35 @@ public class CreateParticipantTests
         var json = JsonSerializer.Serialize(_requestRecord);
         var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
 
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        var sut = new ScreeningDataServices.CreateParticipant(
+            _mockLogger.Object,
+            _mockCreateResponse.Object,
+            _handleException.Object,
+            _callFunction.Object,
+            _participantManagementClient.Object,
+            _config.Object);
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            })));
+
+        _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).Throws(new Exception("someError"));
+
+
         _participantManagementClient
             .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
             .Throws(new Exception("someError"));
+
 
         // Act
         await _sut.Run(mockRequest);

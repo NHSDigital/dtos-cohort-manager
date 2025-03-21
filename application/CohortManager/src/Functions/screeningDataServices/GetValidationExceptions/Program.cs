@@ -6,13 +6,15 @@ using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.GetValidationExceptions;
 
 var host = new HostBuilder()
+    .AddConfiguration<GetValidationExceptionsConfig>(out GetValidationExceptionsConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-    .AddDataService<ExceptionManagement>(Environment.GetEnvironmentVariable("ExceptionManagementDataServiceURL"))
-    .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
-    .AddDataService<GPPractice>(Environment.GetEnvironmentVariable("GPPracticeDataServiceURL"))
+    .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
+    .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
 
     .Build()
     .ConfigureServices(services =>

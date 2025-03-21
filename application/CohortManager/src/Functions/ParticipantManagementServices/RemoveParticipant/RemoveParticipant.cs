@@ -7,7 +7,9 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
+using NHS.Screening.RemoveParticipant;
 
 public class RemoveParticipant
 {
@@ -16,18 +18,22 @@ public class RemoveParticipant
     private readonly ICallFunction _callFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    private readonly RemoveParticipantConfig _config;
+
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
         ICallFunction callFunction,
         IExceptionHandler handleException,
-        ICohortDistributionHandler cohortDistributionHandler)
+        ICohortDistributionHandler cohortDistributionHandler,
+        IOptions<RemoveParticipantConfig> removeParticipantConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
+        _config = removeParticipantConfig.Value;
     }
 
     [Function("RemoveParticipant")]
@@ -97,7 +103,7 @@ public class RemoveParticipant
     private async Task<bool> MarkParticipantAsIneligible(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
-        var ineligibleResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), json);
+        var ineligibleResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, json);
 
         if (ineligibleResponse.StatusCode != HttpStatusCode.OK)
         {

@@ -5,12 +5,14 @@ using Common;
 using DataServices.Client;
 using HealthChecks.Extensions;
 using Model;
+using NHS.Screening.CreateException;
 
 var host = new HostBuilder()
+    .AddConfiguration<CreateExceptionConfig>(out CreateExceptionConfig config)
     .AddDataServicesHandler()
-    .AddDataService<ExceptionManagement>(Environment.GetEnvironmentVariable("ExceptionManagementDataServiceURL"))
-    .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
-    .AddDataService<GPPractice>(Environment.GetEnvironmentVariable("GPPracticeDataServiceURL"))
+    .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
+    .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
     .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>

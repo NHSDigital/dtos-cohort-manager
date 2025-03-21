@@ -4,11 +4,13 @@ using Microsoft.Extensions.Hosting;
 using Data.Database;
 using Model;
 using DataServices.Client;
+using NHS.Screening.DemographicDurableFunction;
 using HealthChecks.Extensions;
 
 var host = new HostBuilder()
+    .AddConfiguration<DemographicDurableFunctionConfig>(out DemographicDurableFunctionConfig config)
     .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
         .Build()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
