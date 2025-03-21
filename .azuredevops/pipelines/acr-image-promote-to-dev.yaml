@@ -67,3 +67,5 @@ stages:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: sc-cohort-manager-dev
+        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
+        testProjectName: 'NHS.CohortManager.SmokeTests'
