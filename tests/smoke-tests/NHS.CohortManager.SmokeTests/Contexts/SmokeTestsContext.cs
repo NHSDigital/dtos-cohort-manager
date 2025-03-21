@@ -1,12 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
-using dtos_cohort_manager_specflow.Models;
+using NHS.CohortManager.SmokeTests.Models;
 
-namespace dtos_cohort_manager_specflow.Contexts;
+namespace NHS.CohortManager.SmokeTests.Contexts;
 
 public class SmokeTestsContext
 {

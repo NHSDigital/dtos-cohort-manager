@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace dtos_cohort_manager_specflow.Models;
+namespace NHS.CohortManager.SmokeTests.Models;
 
 public enum RecordTypesEnum
 {

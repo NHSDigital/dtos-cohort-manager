@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dtos-cohort-manager-smoke-tests", "dtos-cohort-manager-smoke-tests\dtos-cohort-manager-smoke-tests.csproj", "{B0014134-D3E5-496A-941E-DE76EF985E4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NHS.CohortManager.SmokeTests", "NHS.CohortManager.SmokeTests.csproj", "{B0014134-D3E5-496A-941E-DE76EF985E4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

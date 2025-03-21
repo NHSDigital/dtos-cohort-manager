@@ -1,10 +1,10 @@
-using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Helpers;
+using NHS.CohortManager.SmokeTests.Config;
+using NHS.CohortManager.SmokeTests.Helpers;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
-namespace dtos_cohort_manager_specflow.TestServices;
+namespace NHS.CohortManager.SmokeTests.TestServices;
 
 public class EndToEndFileUploadService
 {

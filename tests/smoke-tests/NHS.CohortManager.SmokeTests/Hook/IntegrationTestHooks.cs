@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Helpers;
+using NHS.CohortManager.SmokeTests.Config;
+using NHS.CohortManager.SmokeTests.Helpers;
 using Microsoft.Extensions.Options;
 using FluentAssertions;
-using TechTalk.SpecFlow;
+using Reqnroll;
 
-namespace dtos_cohort_manager_specflow.Hook
+namespace NHS.CohortManager.SmokeTests.Hook
 {
     [Binding]
     public class IntegrationTestHooks(ScenarioContext scenarioContext)

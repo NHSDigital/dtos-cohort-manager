@@ -5,7 +5,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Azure.Identity;
 using Azure.Core;
 
-namespace dtos_cohort_manager_specflow.Helpers;
+namespace NHS.CohortManager.SmokeTests.Helpers;
 
 public static class DatabaseValidationHelper
 {

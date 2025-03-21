@@ -1,4 +1,4 @@
-namespace dtos_cohort_manager_specflow.Config;
+namespace NHS.CohortManager.SmokeTests.Config;
 
 public class FilePaths
 {
