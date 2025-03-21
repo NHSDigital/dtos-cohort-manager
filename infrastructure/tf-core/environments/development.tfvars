@@ -173,7 +173,7 @@ function_apps = {
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
-  health_check_path             = "api/health"
+  health_check_path             = "/api/health"
 
   fa_config = {
     ReceiveCaasFile = {
@@ -1143,7 +1143,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S7"
+      sku                  = "S1"
       storage_account_type = "Local"
       zone_redundant       = false
     }
