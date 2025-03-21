@@ -10,10 +10,11 @@ public class RetrieveMeshFileConfig
     [Required]
     public string MeshPassword { get; set; }
     [Required]
-    public string MeshSharedKey { get; set; }
-    public string MeshKeyPassphrase { get; set; }
-    public string MeshKeyName { get; set; }
-
+    public string MeshSharedKey {get; set;}
+    public string MeshKeyPassphrase {get; set;}
+    public string MeshKeyName {get; set;}
+    public string KeyVaultConnectionString {get; set;}
+    [Required]
+    public string caasfolder_STORAGE {get; set;}
     public string ServerSideCerts { get; set; }
-
 }
