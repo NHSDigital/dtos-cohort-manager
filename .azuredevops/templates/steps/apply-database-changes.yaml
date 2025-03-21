@@ -3,7 +3,17 @@
 parameters:
   - name: serviceConnection
     type: string
-  - name: resourceGroupName
+  - name: resourceGroupSQL
+    type: string
+  - name: miNameACR
+    type: string
+  - name: miNameSQL
+    type: string
+  - name: acrServerName
+    type: string
+  - name: containerImageName
+    type: string
+  - name: sqlConnectionString
     type: string
 
 steps:
@@ -17,18 +27,33 @@ steps:
       scriptType: bash
       scriptLocation: inlineScript
       inlineScript: |
-        az account set -s $(TF_VAR_TARGET_SUBSCRIPTION_ID)
 
-        managedIdentity=$(az identity show --name mi-cohort-manager-db-management --resource-group ${{ parameters.resourceGroupName }})
-        managedIdentityId=$(echo $managedIdentity | jq -r '.principalId')
+        subscriptionId=$(TF_VAR_TARGET_SUBSCRIPTION_ID)
+        az account set -s $subscriptionId
+
+        managedIdentitySQL=$(az identity show --name ${{ parameters.miNameSQL }} --resource-group ${{ parameters.resourceGroupSQL }} --subscription $subscriptionId) # allows script to be re-run
+        managedIdentityIdSQL=$(echo $managedIdentitySQL | jq -r '.clientId')
+
+        # Export the variables for use in the container instance creation:
+        export CONTAINER_GROUP_NAME='acigrp-cohort-manager-db-migration'
+        export CONTAINER_NAME='cohort-manager-db-migration'
+        export CONTAINER_IMAGE='${{ parameters.acrServerName }}/${{ parameters.containerImageName }}'
+        export ACR_SERVER='${{ parameters.acrServerName }}'
+        export MI_ID_ACR="/subscriptions/$subscriptionId/resourcegroups/${{ parameters.resourceGroupSQL }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${{ parameters.miNameACR }}"
+        export MI_ID_SQL="/subscriptions/$subscriptionId/resourceGroups/${{ parameters.resourceGroupSQL }}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/${{ parameters.miNameSQL }}"
+        export SQL_CONNECTION_STRING='${{ parameters.sqlConnectionString }}'
+        export SQL_IDENTITY_CLIENT_ID="$managedIdentityIdSQL"
+
+        # Create a temporary file to store the substituted YAML
+        temp_yaml=$(mktemp)
+
+        # Substitute environment variables and write to the temporary file
+        envsubst < '.azuredevops/templates/resources/deploy-container-instance-sql-db-migration.yaml' > "$temp_yaml"
 
         az container create \
-        --resource-group ${{ parameters.resourceGroupName }} \
-        --name "$(destEnvironmentShortName)-uks-db-management" \
-        --image "db-management:$(selectImageTag)" \
-        --registry-login-server $(sourceRegistry) \
-        --registry-username dtos-cohort-manager-acr-push \
-        --assign-identity $managedIdentityId \
-        --restart-policy Never \
-        --environment-variables \
-          "connectionstring=$(DTOS_DATABASE_CONNECTION_STRING)"
+            --name $CONTAINER_GROUP_NAME \
+            --resource-group ${{ parameters.resourceGroupSQL }} \
+            --subscription $subscriptionId \
+            --file "${temp_yaml}" \
+            --verbose
+

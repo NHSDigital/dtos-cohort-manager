@@ -15,11 +15,11 @@ resources:
 variables:
   - group: DEV_hub_backend_remote_state
   - name: sourceRegistry
-    value: acrukshubdevcohman
+    value: acrukscohmantemp7048
   - name: selectImageTag
     value: development
   - name: destEnvironmentShortName
-    value: dev
+    value: temp7048
 
 stages:
 - stage: db_changes_stage
@@ -30,13 +30,18 @@ stages:
       name: private-pool-dev-uks
     displayName: Apply database changes
     variables:
-      - group: DEV_core_backend
+      - group: TEMP_ENVIRONMENTS_core_backend
     steps:
       - checkout: self
       - template: ../templates/steps/apply-database-changes.yaml
         parameters:
           serviceConnection: sc-cohort-manager-dev
-          resourceGroupName: rg-cohman-$(destEnvironmentShortName)-uks
+          resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
+          miNameACR: dtos-cohort-manager-acr-push
+          miNameSQL: mi-cohort-manager-db-management
+          acrServerName: '$(sourceRegistry).azurecr.io'
+          containerImageName: 'cohort-manager-database-db-migration:temp'
+          sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: deploy_image_stage
   displayName: Deploy images
