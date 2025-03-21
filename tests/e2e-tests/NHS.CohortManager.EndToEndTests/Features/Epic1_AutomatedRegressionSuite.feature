@@ -88,3 +88,31 @@ DTOSS Regression TEST PACK.
     Examples:
       | AddFileName                                       | AmendedFileName                                       | NhsNumbers |
       | ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612514171 |
+
+  @DTOSS-7589 @Regression
+  Scenario: Verify AMENDED records is processed without any Exception
+    Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    And the file is uploaded to the Blob Storage container
+    And the NHS numbers in the database should match the file data
+    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then the NHS Number should have exactly 1 record in Participant_Management
+    And the NHS Number should have exactly 1 record in Participant_Demographic
+    And the NHS Number should have exactly 0 record in Exception_Managment
+
+    Examples:
+      | AddFileName                                        | AmendedFileName                                        | NhsNumbers |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 |
+
+  @DTOSS-7590 @Regression
+  Scenario: Verify ADD records is processed without any Exception
+    Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then the NHS Number should have exactly 1 record in Participant_Management
+    And the NHS Number should have exactly 1 record in Participant_Demographic
+    And the NHS Number should have exactly 0 record in Exception_Managment
+
+
+    Examples:
+      | FileName                                             | RecordType | NhsNumbers             |
+      | ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
