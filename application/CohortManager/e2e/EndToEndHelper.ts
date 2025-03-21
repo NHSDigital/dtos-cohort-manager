@@ -66,8 +66,5 @@ export class EndToEndHelper {
         }
         return false;
     }
-
-    delay(ms) {
-        new Promise(res => setTimeout(res, ms));
+    delay = ms => new Promise(res => setTimeout(res, ms));
     }
-}

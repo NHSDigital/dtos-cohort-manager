@@ -1,21 +1,15 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
-import { QueueClient } from '@azure/storage-queue';
-import { read } from 'fs';
 import { EndToEndHelper } from './EndToEndHelper';
-
-// Replace with your actual connection string
-const connectionString = "";
-const containerName = "inbound";
-const queueName = "add-participant-queue";
+import configJson from '../playwrightConfig.json';
 
 test.describe('End To End tests', () => {
   const endToEndHelper = new EndToEndHelper();
 
     test('01.Upload Add file to Azure Blob and check database', async () => {
       // Initialize the Azure Blob Service Client and get the container and blob clients
-      const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-      const containerClient = blobServiceClient.getContainerClient(containerName);
+      const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+      const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
       const blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
       const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -34,8 +28,8 @@ test.describe('End To End tests', () => {
   
   test('02.Upload Add file to Azure Blob twice and expect it error in database', async () => {
       // Initialize the Azure Blob Service Client and get the container and blob clients
-      const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-      const containerClient = blobServiceClient.getContainerClient(containerName);
+      const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+      const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
       const blobName = "ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet";
       const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -62,8 +56,8 @@ test.describe('End To End tests', () => {
   
   test('03.Upload Add file to Azure Blob and expect it to error in database with error codes 36, 3645 and not go to cohort', async () => {
       // Initialize the Azure Blob Service Client and get the container and blob clients
-      const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-      const containerClient = blobServiceClient.getContainerClient(containerName);
+      const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+      const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
       const blobName = "Exception_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet";
       const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -95,8 +89,8 @@ test.describe('End To End tests', () => {
     var arrIndex = 0;
   
     // Initialize the Azure Blob Service Client and get the container and blob clients
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+    const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
     const blobName = "AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet";
     const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -124,8 +118,8 @@ test.describe('End To End tests', () => {
   
   test('05.Upload update file and except it not to be in database and error 22 in error table', async () => {
     // Initialize the Azure Blob Service Client and get the container and blob clients
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+    const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
     const blobName = "AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet";
     const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -154,8 +148,8 @@ test.describe('End To End tests', () => {
     var arrIndex = 0; 
     
     // Initialize the Azure Blob Service Client and get the container and blob clients
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+    const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
     const blobName = "ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet";
     const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
@@ -187,8 +181,8 @@ test.describe('End To End tests', () => {
     test.setTimeout(100000); // Sets timeout to 45 seconds for this test
     
     // Initialize the Azure Blob Service Client and get the container and blob clients
-    const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blobServiceClient = BlobServiceClient.fromConnectionString(configJson.ConnectionString);
+    const containerClient = blobServiceClient.getContainerClient(configJson.containerName);
     const blobName = "ADD_500_2_-_CAAS_BREAST_SCREENING_COHORT.parquet";
     const blobClient: BlockBlobClient = containerClient.getBlockBlobClient(blobName);
   
