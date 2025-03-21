@@ -1,14 +1,14 @@
-﻿using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Contexts;
-using dtos_cohort_manager_specflow.Helpers;
-using dtos_cohort_manager_specflow.TestServices;
+using NHS.CohortManager.SmokeTests.Config;
+using NHS.CohortManager.SmokeTests.Contexts;
+using NHS.CohortManager.SmokeTests.Helpers;
+using NHS.CohortManager.SmokeTests.TestServices;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SolidToken.SpecFlow.DependencyInjection;
+using Reqnroll.Microsoft.Extensions.DependencyInjection;
 
-namespace dtos_cohort_manager_specflow;
+namespace NHS.CohortManager.SmokeTests;
 
 internal static class Startup
 {

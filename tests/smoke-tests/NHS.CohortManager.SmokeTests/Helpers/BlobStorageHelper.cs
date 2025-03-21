@@ -1,7 +1,7 @@
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 
-namespace dtos_cohort_manager_specflow.Helpers;
+namespace NHS.CohortManager.SmokeTests.Helpers;
 
 public class BlobStorageHelper
 {

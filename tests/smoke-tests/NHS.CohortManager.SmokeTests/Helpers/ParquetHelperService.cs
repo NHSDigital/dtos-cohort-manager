@@ -1,6 +1,6 @@
 using ChoETL;
 
-namespace dtos_cohort_manager_specflow.Helpers
+namespace NHS.CohortManager.SmokeTests.Helpers
 {
     public static class ParquetHelperService
     {

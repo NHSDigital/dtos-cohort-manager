@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <RootNamespace>dtos_cohort_manager_specflow</RootNamespace>
+        <RootNamespace>NHS.CohortManager.SmokeTests</RootNamespace>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -47,10 +47,10 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-        <PackageReference Include="SolidToken.SpecFlow.DependencyInjection" Version="3.9.3" />
-        <PackageReference Include="SpecFlow" Version="3.9.74" />
-        <PackageReference Include="SpecFlow.NUnit" Version="3.9.74" />
-        <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
+        <PackageReference Include="Reqnroll" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.Microsoft.Extensions.DependencyInjection" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.NUnit" Version="2.4.0" />
+        <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="2.4.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -85,12 +85,5 @@
       <None Update="TestFiles\amended\AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <SpecFlowFeatureFiles Update="Features\SmokeTests\FileUploadAndCohortDistribution.feature">
-        <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">SpecFlowSingleFileGenerator</Generator>
-        <LastGenOutput>FileUploadAndCohortDistribution.feature.cs</LastGenOutput>
-      </SpecFlowFeatureFiles>
     </ItemGroup>
 </Project>

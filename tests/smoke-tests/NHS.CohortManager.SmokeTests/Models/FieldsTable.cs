@@ -1,4 +1,4 @@
-namespace dtos_cohort_manager_specflow.Models;
+namespace NHS.CohortManager.SmokeTests.Models;
 
 public class FieldsTable
 {

@@ -1,12 +1,12 @@
-using dtos_cohort_manager_specflow.TestServices;
-using TechTalk.SpecFlow;
+using NHS.CohortManager.SmokeTests.TestServices;
+using Reqnroll;
 using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
-using dtos_cohort_manager_specflow.Config;
-using dtos_cohort_manager_specflow.Contexts;
-using dtos_cohort_manager_specflow.Models;
+using NHS.CohortManager.SmokeTests.Config;
+using NHS.CohortManager.SmokeTests.Contexts;
+using NHS.CohortManager.SmokeTests.Models;
 
-namespace dtos_cohort_manager_specflow.Steps.SmokeTests;
+namespace NHS.CohortManager.SmokeTests.Steps.SmokeTests;
 
 [Binding]
 public class FileUploadAndCohortDistributionSteps
