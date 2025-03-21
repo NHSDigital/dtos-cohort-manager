@@ -4,9 +4,12 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
     using Data.Database;
     using Microsoft.Extensions.Logging;
     using Moq;
+    using Model;
+    using DataServices.Client;
 
     public abstract class CohortDistributionDataBase
     {
+        private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionMock;
         protected readonly Mock<IDbConnection> _mockDBConnection = new();
         protected readonly Mock<IDbCommand> _commandMock = new();
         protected readonly Mock<IDataReader> _mockDataReader = new();
@@ -16,34 +19,29 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
         protected readonly Mock<IDbTransaction> _mockTransaction = new();
         protected CreateCohortDistributionData _createCohortDistributionDataService;
 
+
         protected CohortDistributionDataBase()
         {
             Environment.SetEnvironmentVariable("DtOsDatabaseConnectionString", "DtOsDatabaseConnectionString");
             Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
 
+            _cohortDistributionMock = new Mock<IDataServiceClient<CohortDistribution>>();
+
             _mockDBConnection.Setup(x => x.ConnectionString).Returns("someFakeConnectionString");
             _mockDBConnection.Setup(x => x.BeginTransaction()).Returns(_mockTransaction.Object);
 
-            _commandMock.Setup(c => c.Dispose());
             _commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
-            _commandMock.Setup(m => m.Parameters.Clear()).Verifiable();
-            _commandMock.SetupProperty<System.Data.CommandType>(c => c.CommandType);
-            _commandMock.SetupProperty<string>(c => c.CommandText);
-            _commandMock.Setup(x => x.CreateParameter()).Returns(_mockParameter.Object);
-
             _mockDBConnection.Setup(m => m.CreateCommand()).Returns(_commandMock.Object);
-            _commandMock.Setup(m => m.Parameters.Add(It.IsAny<IDbDataParameter>())).Verifiable();
-            _commandMock.Setup(m => m.ExecuteReader())
-                .Returns(_mockDataReader.Object);
-            _mockDBConnection.Setup(conn => conn.Open());
 
             _mockDataReader.SetupSequence(reader => reader.Read())
-            .Returns(true)
-            .Returns(false);
+                .Returns(true)
+                .Returns(false);
 
             _createCohortDistributionDataService = new CreateCohortDistributionData(
                 _mockDBConnection.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _cohortDistributionMock.Object  // Ensure this is not null
+            );
         }
     }
 }
