@@ -1,141 +1,101 @@
 namespace NHS.CohortManager.Tests.UnitTests.RetrieveCohortRequestAuditTests;
 
+using System.Net;
+using System.Text.Json;
+using Common;
+using Common.Interfaces;
 using Model;
-using NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCohortRequestAuditTests;
-
+using Moq;
+using NHS.CohortManager.CohortDistributionDataServices;
+using NHS.CohortManager.Tests.TestUtils;
 [TestClass]
-public class RetrieveCohortRequestAuditTests : CohortDistributionDataBase
+public class RetrieveCohortRequestAuditTests : DatabaseTestBaseSetup<RetrieveCohortRequestAudit>
 {
-
-    [TestMethod]
-    public async Task GetCohortRequestAudit_WithAllParameters_ReturnsValidCohortRequestAudit()
+    private static readonly Mock<ICreateCohortDistributionData> _createCohortDistributionData = new();
+    private static readonly Mock<IExceptionHandler> _handleException = new();
+    private List<CohortRequestAudit> _cohortRequestAuditList;
+    private static readonly Mock<IHttpParserHelper> _httpParserHelper = new();
+    public RetrieveCohortRequestAuditTests() : base((conn, logger, transaction, command, response) =>
+        new RetrieveCohortRequestAudit(
+        logger,
+        _createCohortDistributionData.Object,
+        response,
+        _handleException.Object,
+        _httpParserHelper.Object))
     {
-        // Arrange
-        string requestId = "testRequestId";
-        string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
+        CreateHttpResponseMock();
+    }
 
-        SetUpReader();
-
-        // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("testRequestId", result[0].RequestId);
-        Assert.AreEqual("200", result[0].StatusCode);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
-
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        _createCohortDistributionData.Reset();
+        _service = new RetrieveCohortRequestAudit(
+            _loggerMock.Object,
+            _createCohortDistributionData.Object,
+            _createResponseMock.Object,
+            _handleException.Object,
+            _httpParserHelper.Object
+        );
+        var columnToClassPropertyMapping = new Dictionary<string, string> {
+            { "REQUEST_ID", "RequestId" },
+            { "STATUS_CODE", "StatusCode" },
+            { "CREATED_DATETIME", "CreatedDateTime" },
+        };
+        _cohortRequestAuditList = new List<CohortRequestAudit>
+        {
+            new CohortRequestAudit {
+                RequestId = "testRequestId",
+                StatusCode = "200",
+                CreatedDateTime = DateTime.Now.ToString("yyyyMMdd")
+            }
+        };
+        var json = JsonSerializer.Serialize(_cohortRequestAuditList);
+        SetupRequest(json);
+        SetupDataReader(_cohortRequestAuditList, columnToClassPropertyMapping);
     }
 
     [TestMethod]
-    public async Task GetCohortRequestAudit_WithNullParameters_ReturnsValidCohortRequestAudit()
+    public async Task Run_RetrieveCohortRequestAuditSucceeds_ReturnsOK()
     {
         // Arrange
-        string? requestId = null;
-        string? statusCode = null;
-        DateTime? dateFrom = null;
-
-        SetUpReader();
+        var dateFrom = DateTime.Now.AddDays(-1);
+        SetupRequestWithQueryParams(new Dictionary<string, string> {
+            { "requestId", "testRequestId" },
+            { "statusCode", "200" },
+            { "dateFrom", dateFrom.ToString("yyyyMMdd") },
+        });
+        _createCohortDistributionData.Setup(s => s.GetCohortRequestAudit(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>())).ReturnsAsync(_cohortRequestAuditList);
 
         // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _service.RunAsync(_request.Object);
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
-    public async Task GetCohortRequestAudit_WithEmptyRequestId_ReturnsValidCohortRequestAudit()
+    public async Task Run_RetrieveCohortRequestAuditThrowsException_LogsExceptionAndReturnsInternalServerError()
     {
         // Arrange
-        string requestId = "";
-        string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
-
-        SetUpReader();
-
-        // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("testRequestId", result[0].RequestId);
-        Assert.AreEqual("200", result[0].StatusCode);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
-    }
-
-    [TestMethod]
-    public async Task GetCohortRequestAudit_WithEmptyStatusCode_ReturnsValidCohortRequestAudit()
-    {
-        // Arrange
-        string requestId = "testRequestId";
-        string statusCode = "";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
-
-        SetUpReader();
+        var dateFrom = DateTime.Now.AddDays(-1);
+        SetupRequestWithQueryParams(new Dictionary<string, string> {
+            { "requestId", "testRequestId" },
+            { "statusCode", "200" },
+            { "dateFrom", dateFrom.ToString("yyyyMMdd") },
+        });
+        _createCohortDistributionData.Setup(s => s.GetCohortRequestAudit(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTime>())).Throws(new Exception("There was an error"));
 
         // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
+        var result = await _service.RunAsync(_request.Object);
 
         // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("testRequestId", result[0].RequestId);
-        Assert.AreEqual("200", result[0].StatusCode);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-        Assert.IsTrue(dateFrom <= DateTime.Parse(result[0].CreatedDateTime));
-    }
-
-    [TestMethod]
-    public async Task GetCohortRequestAudit_WithFutureDateFrom_ReturnsEmptyList()
-    {
-        // Arrange
-        string requestId = "testRequestId";
-        string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(1);
-
-        _mockDataReader.Setup(reader => reader.Read()).Returns(false);
-
-        // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(0, result.Count);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-    }
-
-    [TestMethod]
-    public async Task GetCohortRequestAudit_WithNoMatchingRecords_ReturnsEmptyList()
-    {
-        // Arrange
-        string requestId = "nonExistentRequestId";
-        string statusCode = "nonExistentStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
-
-        _mockDataReader.Setup(reader => reader.Read()).Returns(false);
-
-        // Act
-        var result = await _createCohortDistributionDataService.GetCohortRequestAudit(requestId, statusCode, dateFrom);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(0, result.Count);
-        Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-    }
-
-    private void SetUpReader()
-    {
-        _mockDataReader.Setup(reader => reader["REQUEST_ID"]).Returns("testRequestId");
-        _mockDataReader.Setup(reader => reader["STATUS_CODE"]).Returns("200");
-        _mockDataReader.Setup(reader => reader["CREATED_DATETIME"]).Returns(DateTime.Now.ToString());
+        _handleException.Verify(i => i.CreateSystemExceptionLogFromNhsNumber(
+            It.Is<Exception>((v, t) => v.ToString().Contains("There was an error")),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()), Times.Once);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 }
