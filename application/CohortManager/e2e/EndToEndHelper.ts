@@ -1,7 +1,7 @@
 import { QueueClient } from '@azure/storage-queue';
 import { expect, type Locator, type Page } from '@playwright/test';
 import playwrightConfig from '../playwright.config';
-import configJson from '../playwrightConfig.json'; // Adjust the path as necessary
+import configJson from '../playwrightConfig.json';
 export class EndToEndHelper {
 
     async GetCohortRecordsFromAPI(rowCount): Promise<[]> {
