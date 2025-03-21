@@ -11,6 +11,8 @@ using Common;
 using System.Linq.Expressions;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
+using NHS.Screening.UpdateParticipantDetails;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class UpdateParticipantDetailsTests
@@ -23,6 +25,7 @@ public class UpdateParticipantDetailsTests
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<HttpWebResponse> _LookupValidationWebResponse = new();
+    private readonly Mock<IOptions<UpdateParticipantDetailsConfig>> _config = new();
     private ValidationExceptionLog _lookupValidationResponseBody = new();
 
     public UpdateParticipantDetailsTests()
@@ -84,6 +87,14 @@ public class UpdateParticipantDetailsTests
         _lookupValidationResponseBody.IsFatal = false;
         string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
 
+        var testConfig = new UpdateParticipantDetailsConfig
+        {
+            ParticipantManagementUrl = "test-storage",
+            LookupValidationURL = "test-inbound"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _callFunctionMock
             .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
             .ReturnsAsync(lookupResponseJson);
@@ -94,7 +105,10 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+
+        _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _config.Object);
+
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
@@ -116,7 +130,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object, _config.Object);
 
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = rfrDate;
         var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
@@ -142,7 +156,8 @@ public class UpdateParticipantDetailsTests
             .Throws(new Exception());
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
@@ -163,7 +178,8 @@ public class UpdateParticipantDetailsTests
             .Throws(new Exception());
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
@@ -188,7 +204,8 @@ public class UpdateParticipantDetailsTests
             .ReturnsAsync(lookupResponseJson);
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
@@ -215,7 +232,8 @@ public class UpdateParticipantDetailsTests
             .ReturnsAsync(lookupResponseJson);
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object);
+                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);

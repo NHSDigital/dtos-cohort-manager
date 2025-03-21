@@ -9,6 +9,7 @@ using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using DataServices.Client;
+using Microsoft.Extensions.Options;
 
 public class ReceiveCaasFile
 {
@@ -16,18 +17,21 @@ public class ReceiveCaasFile
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
+    private readonly ReceiveCaasFileConfig _config;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
-        IDataServiceClient<ScreeningLkp> screeningLkpClient
+        IDataServiceClient<ScreeningLkp> screeningLkpClient,
+        IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
         )
     {
         _logger = logger;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
         _screeningLkpClient = screeningLkpClient;
+        _config = receiveCaasFileConfig.Value;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -36,7 +40,7 @@ public class ReceiveCaasFile
         var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
         // for larger batches use size of 5000 - this works the best
-        int.TryParse(Environment.GetEnvironmentVariable("BatchSize"), out var BatchSize);
+        var BatchSize = _config.BatchSize;
         try
         {
             FileNameParser fileNameParser = new FileNameParser(name);

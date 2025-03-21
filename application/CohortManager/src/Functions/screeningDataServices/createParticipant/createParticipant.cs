@@ -6,10 +6,11 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Common;
 using Model;
-using NHS.CohortManager.Shared.Utilities;
 using DataServices.Client;
+using NHS.Screening.CreateParticipant;
 
 public class CreateParticipant
 {
@@ -18,19 +19,22 @@ public class CreateParticipant
     private readonly IExceptionHandler _handleException;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly ICallFunction _callFunction;
+    private readonly CreateParticipantConfig _config;
 
-    public CreateParticipant(ILogger<CreateParticipant> logger,
+    public CreateParticipant(
+        ILogger<CreateParticipant> logger,
         ICreateResponse createResponse,
         IExceptionHandler handleException,
         ICallFunction callFunction,
-        IDataServiceClient<ParticipantManagement> participantManagementClient
-        )
+        IDataServiceClient<ParticipantManagement> participantManagementClient,
+        IOptions<CreateParticipantConfig> createParticipantConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _handleException = handleException;
         _callFunction = callFunction;
         _participantManagementClient = participantManagementClient;
+        _config = createParticipantConfig.Value;
     }
 
     [Function("CreateParticipant")]
@@ -66,7 +70,7 @@ public class CreateParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
-            if (response.CreatedException) 
+            if (response.CreatedException)
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
 
             var ParticipantManagementRecord = participantCsvRecord.Participant.ToParticipantManagement();
@@ -94,7 +98,7 @@ public class CreateParticipant
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
@@ -106,6 +110,4 @@ public class CreateParticipant
             return null;
         }
     }
-
-
 }
