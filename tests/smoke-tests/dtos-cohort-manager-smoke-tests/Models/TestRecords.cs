@@ -9,5 +9,5 @@ namespace dtos_cohort_manager_specflow.Models;
 public class TestRecords
 {
     public string FileName { get; set; }
-    public RecordTypesEnum RecordType{get; set; }
+    public RecordTypesEnum RecordType { get; set; }
 }

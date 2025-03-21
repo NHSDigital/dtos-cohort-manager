@@ -4,12 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Common;
 using Model;
 using DataServices.Client;
+using NHS.Screening.CheckParticipantExists;
 using HealthChecks.Extensions;
 
 var host = new HostBuilder()
+    .AddConfiguration<CheckParticipantExistsConfig>(out CheckParticipantExistsConfig config)
     .ConfigureFunctionsWebApplication()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .Build()
     .ConfigureServices(services => {
         services.AddApplicationInsightsTelemetryWorkerService();
