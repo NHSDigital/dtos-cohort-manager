@@ -26,7 +26,7 @@ test.describe('End To End tests', () => {
       await blobClient.uploadFile(testfileName);
       await endToEndHelper.delay(20000);
   
-      const recordFromDB = await endToEndHelper.checkDatabase(2);
+      const recordFromDB = await endToEndHelper.GetCohortRecordsFromAPI(2);
       var res = recordFromDB["nhs_number"] == '3112728165';
       expect(res).toBeTruthy();
   });
@@ -51,7 +51,7 @@ test.describe('End To End tests', () => {
   
       await endToEndHelper.delay(15000);
       // Check that the cohort distribution has made it to the database via an HTTP API call.
-      const error = await endToEndHelper.checkDatabaseForErrors();
+      const error = await endToEndHelper.GetErrorsFromExceptionAPI();
       
       var res = error.find(x => x["RuleId"] == '47');
       expect(res != null || res != undefined).toBeTruthy()
@@ -75,9 +75,9 @@ test.describe('End To End tests', () => {
       // upload same file again and expect to it cause an error in database
       await endToEndHelper.delay(20000);
       // Check that the cohort distribution has made it to the database via an HTTP API call.
-      const itemsFromDatabase = await endToEndHelper.checkDatabase(5);
+      const itemsFromDatabase = await endToEndHelper.GetCohortRecordsFromAPI(5);
       
-      const error = await endToEndHelper.checkDatabaseForErrors();
+      const error = await endToEndHelper.GetErrorsFromExceptionAPI();
       
       var Rule36InDatabase = error.find(x => x["RuleId"] == '36');
       var Rule3645InDatabase = error.find(x => x["RuleId"] == '3645');
@@ -108,7 +108,7 @@ test.describe('End To End tests', () => {
     // upload same file again and expect to it cause an error in database
     await endToEndHelper.delay(20000);
   
-    (await endToEndHelper.checkDatabase(5)).forEach((item) =>{
+    (await endToEndHelper.GetCohortRecordsFromAPI(5)).forEach((item) =>{
       if(item["nhs_number"] == '2612514171') {
         amendedItems[arrIndex] = item
         arrIndex++
@@ -136,9 +136,9 @@ test.describe('End To End tests', () => {
     await blobClient.uploadFile(testfileName);
     await endToEndHelper.delay(20000);
     // upload same file again and expect to it cause an error in database
-    const itemsFromDatabase = await endToEndHelper.checkDatabase(5);
+    const itemsFromDatabase = await endToEndHelper.GetCohortRecordsFromAPI(5);
       
-    const error = await endToEndHelper.checkDatabaseForErrors();
+    const error = await endToEndHelper.GetErrorsFromExceptionAPI();
     
     var Rule22InDatabase = error.find(x => x["RuleId"] == '22');
     
@@ -168,7 +168,7 @@ test.describe('End To End tests', () => {
     await endToEndHelper.delay(20000);
   
     
-    (await endToEndHelper.checkDatabase(5)).forEach((item) =>{
+    (await endToEndHelper.GetCohortRecordsFromAPI(5)).forEach((item) =>{
       if(item["nhs_number"] == '1111110662' || item["nhs_number"] == '2222211794') {
         amendedItems[arrIndex] = item
         arrIndex++
@@ -200,7 +200,7 @@ test.describe('End To End tests', () => {
     // upload same file again and expect to it cause an error in database
     await endToEndHelper.delay(60000);
   
-    var hasMoreThan500Records = (await endToEndHelper.checkDatabase(300)).length >= 300
+    var hasMoreThan500Records = (await endToEndHelper.GetCohortRecordsFromAPI(300)).length >= 300
   
     expect(hasMoreThan500Records).toBeTruthy()
   });    

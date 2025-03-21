@@ -84,3 +84,68 @@ application/CohortManager/.vscode/
 # Ignore generated feature bindings
 *.feature.cs
 tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings-local.json
+
+
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+application/CohortManager/playwright-report/index.html
+playwright.config.js
+
+# Node.js dependency directories
+node_modules/
+
+# Playwright test results and reports
+test-results/
+playwright-report/
+
+# Playwright authentication state storage
+playwright/.auth/
+
+# Playwright drivers
+drivers/
+
+# Playwright browser binaries
+.local-browsers/
+
+# Playwright generated files
+packages/playwright-core/src/generated
+packages/playwright-ct-core/src/generated
+packages/*/lib/
+
+# IDE and editor configuration files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variable files
+.env
+.env.local
+.env.*.local
+
+# Coverage reports
+coverage/
+
+# Miscellaneous
+*.pyc
+*.pyo
+*.pyd
+*.class
+*.bak
+*.tmp
+playwrightConfig.json

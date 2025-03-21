@@ -1,12 +1,13 @@
 import { QueueClient } from '@azure/storage-queue';
 import { expect, type Locator, type Page } from '@playwright/test';
+import playwrightConfig from '../playwright.config';
+import configJson from '../playwrightConfig.json'; // Adjust the path as necessary
 export class EndToEndHelper {
 
-    async checkDatabase(rowCount): Promise<[]> {
-        const url = `http://localhost:7095/api/RetrieveCohortDistributionData?rowCount=${rowCount}`;
+    async GetCohortRecordsFromAPI(rowCount): Promise<[]> {
         try 
         {
-            const response = await fetch(url);
+            const response = await fetch(configJson.GetCohortDistributionURL+`?rowCount=${rowCount}`);
             if (response.ok) {
                 var responseJson = await response.json();
                 if (responseJson.length > 1) {
@@ -25,10 +26,8 @@ export class EndToEndHelper {
     }
 
 
-    async checkDatabaseForErrors(): Promise<[]> {
-        const url = `http://localhost:7070/api/GetValidationExceptions`;
-        console.log("here");
-        var response = await fetch(url) 
+    async GetErrorsFromExceptionAPI(): Promise<[]> {
+        var response = await fetch(configJson.GetValidationExceptionsURL) 
         try 
         {
             if (response.ok) {
@@ -45,8 +44,6 @@ export class EndToEndHelper {
             return [];
         }
     }
-
-
 
     async retrieveNextMessage(queueClient: QueueClient): Promise<boolean> {
         const exists = await queueClient.exists();
@@ -70,6 +67,7 @@ export class EndToEndHelper {
         return false;
     }
 
-
-    delay = ms => new Promise(res => setTimeout(res, ms));
+    delay(ms) {
+        new Promise(res => setTimeout(res, ms));
     }
+}
