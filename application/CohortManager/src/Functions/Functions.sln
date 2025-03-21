@@ -72,8 +72,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortDistribution"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionData", "CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj", "{02CB2B53-7670-47CC-93DF-6F941FB58C38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{963347ED-E02D-42D2-8A9C-05115E8B75C9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{81BF10AD-AD08-4D47-8150-96FA09227107}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\UnitTests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{142C4501-749C-4ECC-8F9E-452F204D65DE}"
@@ -350,10 +348,6 @@ Global
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02CB2B53-7670-47CC-93DF-6F941FB58C38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{963347ED-E02D-42D2-8A9C-05115E8B75C9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D07AA2A7-1E9F-4168-849D-1F25AEAFD1F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
