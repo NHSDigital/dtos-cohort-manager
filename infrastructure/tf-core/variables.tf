@@ -181,6 +181,7 @@ variable "function_apps" {
     ftps_state                             = string
     health_check_path                      = optional(string, "")
     https_only                             = bool
+    pull_image_over_vnet                   = optional(bool, true)
     remote_debugging_enabled               = bool
     storage_uses_managed_identity          = bool
     worker_32bit                           = bool
@@ -341,6 +342,13 @@ variable "sqlserver" {
       storage_account_type = optional(string, "Local")
       zone_redundant       = optional(bool, false)
 
+      short_term_retention_policy = optional(number, null)
+      long_term_retention_policy = optional(object({
+        weekly_retention  = optional(string, null)
+        monthly_retention = optional(string, null)
+        yearly_retention  = optional(string, null)
+        week_of_year      = optional(number, null)
+      }), {})
     })), {})
 
     # FW Rules

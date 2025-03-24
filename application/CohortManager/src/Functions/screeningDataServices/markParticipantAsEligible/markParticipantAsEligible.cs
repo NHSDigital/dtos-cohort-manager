@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -53,10 +52,10 @@ public class MarkParticipantAsEligible
                     throw new FormatException("Could not parse ScreeningId");
                 }
 
-                var updatedParticipantManagement = _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId).Result;
+                var updatedParticipantManagement = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
                 updatedParticipantManagement.EligibilityFlag = 1;
 
-                updated = _participantManagementClient.Update(updatedParticipantManagement).Result;
+                updated = await _participantManagementClient.Update(updatedParticipantManagement);
             }
 
             if (updated)

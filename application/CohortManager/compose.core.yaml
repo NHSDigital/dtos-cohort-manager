@@ -13,9 +13,9 @@ services:
       - caasfolder_STORAGE=UseDevelopmentStorage=true
       - MeshApiBaseUrl=https://localhost:8700/messageexchange
       - BSSMailBox="X26ABC1"
-      - MeshPassword = ${MESHPASSWORD}
-      - MeshSharedKey = ${MESHSHAREDKEY}
-      - MeshKeyPassphrase = ${MESHKEYPASSPHRASE}
+      - MeshPassword=${MESHPASSWORD}
+      - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7059
 
   receive-caas-file:
@@ -155,6 +155,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - AcceptableLatencyThresholdMs=500
 
   mark-participant-as-eligible:
     container_name: mark-participant-as-eligible
@@ -167,6 +168,7 @@ services:
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException,
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - AcceptableLatencyThresholdMs=500
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
@@ -183,6 +185,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - AcceptableLatencyThresholdMs=500
 
   update-participant-details:
     container_name: update-participant-details
@@ -196,6 +199,7 @@ services:
       - LookupValidationURL=http://localhost:7075/api/LookupValidation
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - AcceptableLatencyThresholdMs=500
 
   create-exception:
     container_name: create-exception
@@ -223,6 +227,7 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
+      - AcceptableLatencyThresholdMs=500
 
   # Data Services
   bs-select-gp-practice-data-service:
@@ -234,7 +239,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7998
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
+      - AcceptableLatencyThresholdMs=500
   bs-select-outcode-data-service:
     container_name: bs-select-outcode-data-service
     network_mode: host
@@ -244,6 +249,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7881
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   language-code-data-service:
     container_name: language-code-data-service
@@ -254,6 +260,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7997
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   current-posting-data-service:
     container_name: current-posting-data-service
@@ -264,6 +271,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   excluded-smu-data-service:
     container_name: excluded-smu-data-service
@@ -274,6 +282,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
@@ -285,6 +294,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7991
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
@@ -296,6 +306,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
@@ -306,6 +317,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7993
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   participant-management-data-service:
     container_name: participant-management-data-service
@@ -400,6 +412,7 @@ services:
       - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - AcceptableLatencyThresholdMs=500
 
   gppractice-data-service:
     container_name: gppractice-data-service
@@ -410,6 +423,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7910
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   exception-management-data-service:
     container_name: exception-management-data-service
@@ -420,6 +434,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   bs-request-audit-data-service:
     container_name: bs-request-audit-data-service
@@ -430,6 +445,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7989
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
 
   screening-lkp-data-service:
@@ -441,3 +457,14 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
+
+  receive-service-now-message: 
+    container_name: receive-service-now-message
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:7912

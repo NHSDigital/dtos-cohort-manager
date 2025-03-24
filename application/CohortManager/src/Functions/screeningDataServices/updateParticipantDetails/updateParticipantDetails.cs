@@ -4,13 +4,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using DataServices.Client;
+using NHS.Screening.UpdateParticipantDetails;
+using Microsoft.Extensions.Options;
 
 public class UpdateParticipantDetails
 {
@@ -19,16 +19,19 @@ public class UpdateParticipantDetails
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly UpdateParticipantDetailsConfig _config;
 
     public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse,
                                     IExceptionHandler handleException, ICallFunction callFunction,
-                                    IDataServiceClient<ParticipantManagement> participantManagementClient)
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IOptions<UpdateParticipantDetailsConfig> updateParticipantDetailsConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _handleException = handleException;
         _callFunction = callFunction;
         _participantManagementClient = participantManagementClient;
+        _config = updateParticipantDetailsConfig.Value;
     }
 
     [Function("updateParticipantDetails")]
@@ -98,7 +101,7 @@ public class UpdateParticipantDetails
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 

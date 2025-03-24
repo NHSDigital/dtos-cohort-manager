@@ -9,8 +9,10 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
+using NHS.Screening.StaticValidation;
 using RulesEngine.Models;
 
 public class StaticValidation
@@ -20,14 +22,22 @@ public class StaticValidation
     private readonly IExceptionHandler _handleException;
     private readonly IReadRules _readRules;
     private readonly ICallFunction _callFunction;
+    private readonly StaticValidationConfig _config;
 
-    public StaticValidation(ILogger<StaticValidation> logger, IExceptionHandler handleException, ICreateResponse createResponse, IReadRules readRules, ICallFunction callFunction)
+    public StaticValidation(
+        ILogger<StaticValidation> logger, 
+        IExceptionHandler handleException, 
+        ICreateResponse createResponse, 
+        IReadRules readRules,
+        ICallFunction callFunction,
+        IOptions<StaticValidationConfig> staticValidationConfig)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRules = readRules;
         _callFunction = callFunction;
+        _config = staticValidationConfig.Value;
     }
 
     [Function("StaticValidation")]
@@ -51,7 +61,8 @@ public class StaticValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions)]
+                CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions)],
+                UseFastExpressionCompiler = false
             };
 
             var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -97,6 +108,6 @@ public class StaticValidation
             NhsNumber = nhsNumber,
             ScreeningName = screeningName
         });
-        await _callFunction.SendPost(Environment.GetEnvironmentVariable("RemoveOldValidationRecord"), OldExceptionRecordJson);
+        await _callFunction.SendPost(_config.RemoveOldValidationRecord, OldExceptionRecordJson);
     }
 }

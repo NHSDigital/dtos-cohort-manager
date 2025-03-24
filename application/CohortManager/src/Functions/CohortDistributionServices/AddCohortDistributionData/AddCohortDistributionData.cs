@@ -1,14 +1,12 @@
 namespace NHS.CohortManager.CohortDistributionDataServices;
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
-using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
