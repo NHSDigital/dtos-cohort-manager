@@ -2,10 +2,13 @@ namespace updateParticipant;
 
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model;
 using System.Text.Json;
 using Common;
+using NHS.Screening.UpdateParticipant;
+using Microsoft.Extensions.Options;
 
 public class UpdateParticipantFunction
 {
@@ -15,8 +18,16 @@ public class UpdateParticipantFunction
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    private readonly UpdateParticipantConfig _config;
 
-    public UpdateParticipantFunction(ILogger<UpdateParticipantFunction> logger, ICallFunction callFunction, ICheckDemographic checkDemographic, ICreateParticipant createParticipant, IExceptionHandler handleException, ICohortDistributionHandler cohortDistributionHandler)
+    public UpdateParticipantFunction(
+        ILogger<UpdateParticipantFunction> logger,
+        ICallFunction callFunction,
+        ICheckDemographic checkDemographic,
+        ICreateParticipant createParticipant,
+        IExceptionHandler handleException,
+        ICohortDistributionHandler cohortDistributionHandler,
+        IOptions<UpdateParticipantConfig> updateParticipantConfig)
     {
         _logger = logger;
         _callFunction = callFunction;
@@ -24,6 +35,7 @@ public class UpdateParticipantFunction
         _createParticipant = createParticipant;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
+        _config = updateParticipantConfig.Value;
     }
 
     [Function("updateParticipant")]
@@ -35,7 +47,7 @@ public class UpdateParticipantFunction
 
         try
         {
-            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, Environment.GetEnvironmentVariable("DemographicURIGet"));
+            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
@@ -64,6 +76,12 @@ public class UpdateParticipantFunction
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
                 updateResponse = await UpdateParticipant(participantCsvRecord);
+                if (!updateResponse)
+                {
+                    _logger.LogError("Unsuccessfully updated records");
+                    return;
+                }
+
                 participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
 
                 _logger.LogInformation("The participant has been updated but a validation Exception was raised");
@@ -75,6 +93,11 @@ public class UpdateParticipantFunction
             }
 
             updateResponse = await UpdateParticipant(participantCsvRecord);
+            if (!updateResponse)
+            {
+                _logger.LogError("Unsuccessfully updated records");
+                return;
+            }
             participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
             responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
 
@@ -115,7 +138,7 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var createResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("UpdateParticipant"), json);
+        var createResponse = await _callFunction.SendPost(_config.UpdateParticipant, json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
@@ -131,12 +154,12 @@ public class UpdateParticipantFunction
         if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"), participantJson);
+            eligibilityResponse = await _callFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
         }
         else
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord);
-            eligibilityResponse = await _callFunction.SendPost(Environment.GetEnvironmentVariable("markParticipantAsIneligible"), participantJson);
+            eligibilityResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, participantJson);
         }
 
         if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
@@ -165,7 +188,7 @@ public class UpdateParticipantFunction
                 };
             }
 
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL"), json);
+            var response = await _callFunction.SendPost(_config.StaticValidationURL, json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 

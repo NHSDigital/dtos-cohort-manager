@@ -18,7 +18,7 @@ public class FileNameParser
     public string GetScreeningService()
     {
         Group g = match.Groups[2];
-        return g.Captures[0].ToString();
+        return g.Success ? g.Captures[0].ToString() : string.Empty;
     }
 
 }

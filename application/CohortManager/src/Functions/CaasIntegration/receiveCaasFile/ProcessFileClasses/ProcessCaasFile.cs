@@ -6,6 +6,7 @@ using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
 
@@ -21,6 +22,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
     private readonly ICallFunction _callFunction;
+    private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
     private readonly string UpdateParticipantQueueName;
@@ -36,7 +38,8 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction
+        ICallFunction callFunction,
+        IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
     {
         _logger = logger;
@@ -49,10 +52,11 @@ public class ProcessCaasFile : IProcessCaasFile
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
         _callFunction = callFunction;
+        _config = receiveCaasFileConfig.Value;
 
-        DemographicURI = Environment.GetEnvironmentVariable("DemographicURI");
-        AddParticipantQueueName = Environment.GetEnvironmentVariable("AddQueueName");
-        UpdateParticipantQueueName = Environment.GetEnvironmentVariable("UpdateQueueName");
+        DemographicURI = _config.DemographicURI;
+        AddParticipantQueueName = _config.AddQueueName;
+        UpdateParticipantQueueName = _config.UpdateQueueName;
 
 
         if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
@@ -128,17 +132,14 @@ public class ProcessCaasFile : IProcessCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
+                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
+
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
+                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
 
-                var deleted = await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-                if (!deleted)
-                {
-                    _logger.LogError("Could not delete old demographic participant with participant Id: {ParticipantId}", basicParticipantCsvRecord.participant.ParticipantId);
-                    break;
-                }
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
 
@@ -159,21 +160,18 @@ public class ProcessCaasFile : IProcessCaasFile
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
 
-        if (currentBatch.UpdateRecords.LongCount() > 0 || currentBatch.DeleteRecords.LongCount() > 0)
-        {
-            _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
-            await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
+        _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
+        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
 
-            foreach (var updateRecords in currentBatch.DeleteRecords)
-            {
-                await RemoveParticipant(updateRecords, name);
-            }
+        foreach (var updateRecords in currentBatch.DeleteRecords)
+        {
+            await RemoveParticipant(updateRecords, name);
         }
         // this used to release memory from being used
         currentBatch = null;
     }
 
-    private async Task<bool> DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -190,11 +188,11 @@ public class ProcessCaasFile : IProcessCaasFile
                 var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
 
                 _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
-                return deleted;
+                return;
             }
             else
             {
-                _logger.LogWarning("The participant could not be found, preventing updates from being applied");
+                _logger.LogWarning("The participant could not be found, when trying to delete old Participant. This could prevent updates from being applied");
             }
         }
         catch (Exception ex)
@@ -202,19 +200,18 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
-        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
     {
-        var allowDeleteRecords = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("AllowDeleteRecords", DataTypes.Boolean);
+        var allowDeleteRecords = _config.AllowDeleteRecords;
         try
         {
             if (allowDeleteRecords)
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(Environment.GetEnvironmentVariable("PMSRemoveParticipant"), json);
+                await _callFunction.SendPost(_config.PMSRemoveParticipant, json);
             }
             else
             {

@@ -11,6 +11,8 @@
 - Signed Git commits (if you would like to contribute): \
     [Using 1Password](https://developer.1password.com/docs/ssh/git-commit-signing/) is the easiest option if you have it, otherwise use the below link for instructions \
     <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- Added the git submodule:
+  `git submodule update --init --recursive`
 
 ## Set-up
 

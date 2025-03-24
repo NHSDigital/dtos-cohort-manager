@@ -5,6 +5,7 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     container_name: "azurite"
     networks: [cohman-network]
+    command: azurite --silent --skipApiVersionCheck
     restart: always
     ports:
       - "10000:10000"

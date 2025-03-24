@@ -342,6 +342,13 @@ variable "sqlserver" {
       storage_account_type = optional(string, "Local")
       zone_redundant       = optional(bool, false)
 
+      short_term_retention_policy = optional(number, null)
+      long_term_retention_policy = optional(object({
+        weekly_retention  = optional(string, null)
+        monthly_retention = optional(string, null)
+        yearly_retention  = optional(string, null)
+        week_of_year      = optional(number, null)
+      }), {})
     })), {})
 
     # FW Rules

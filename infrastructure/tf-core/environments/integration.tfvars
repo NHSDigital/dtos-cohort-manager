@@ -1022,6 +1022,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     RetrievePDSDemographic = {
@@ -1072,7 +1075,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 5
       read_scale           = false
-      sku                  = "S7"
+      sku                  = "S1"
       storage_account_type = "Local"
       zone_redundant       = false
     }
