@@ -122,10 +122,20 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
     }
+
     //TODO: needs moving to shared temp fix for parallel run.
+
+    /// <summary>
+    /// Gets the outcode (1st part of postcode) from the postcode.
+    /// </summary>
+    /// <param name="postcode">a non-null string representing the postcode</param>
+    /// <remarks>
+    /// Works for valid UK postcodes and dummy postcodes.
+    /// Works with or without a space separator between outcode and incode.
+    /// </remarks>
     private static string ParseOutcode(string postcode)
     {
-        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
+        string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
         if (!match.Success)

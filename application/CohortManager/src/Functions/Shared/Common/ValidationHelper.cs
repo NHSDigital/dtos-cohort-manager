@@ -1,6 +1,7 @@
 namespace Common;
 
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 public static class ValidationHelper
 {
@@ -60,6 +61,30 @@ public static class ValidationHelper
         }
         return false;
 
+    }
+
+    /// <summary>
+    /// Validates the postcode according to the offical rules for valid
+    /// UK postcodes, also accepts dummy postcodes as valid.
+    /// </summary>
+    /// <param name="postcode">Postcode string (not null)</param>
+    /// <returns>bool, whether or not the postcode is valid</returns>
+    /// <remarks> 
+    /// further information for postcode validation can be found in 
+    /// ADR-008 on confluence.
+    /// </remarks>
+    public static bool ValidatePostcode(string postcode)
+    {
+        string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
+        string dummyPostcodePattern = "^ZZ99 ?[A-Z]{2}$";
+
+        Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase);
+        Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase);
+
+        if (validPostcodeMatch.Success || dummyPostcodeMatch.Success)
+            return true;
+
+        return false;
     }
 
     private static bool ParseInt32(char value, out int integerValue)

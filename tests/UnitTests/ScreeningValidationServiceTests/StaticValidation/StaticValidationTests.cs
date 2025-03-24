@@ -324,6 +324,10 @@ public class StaticValidationTests
     [DataRow("GIR0AA")]
     [DataRow("")]
     [DataRow(null)]
+    // Dummy Postcodes
+    [DataRow("ZZ99 9FZ")]
+    [DataRow("ZZ999FZ")]
+    [DataRow("ZZ99 3WZ")]
     public async Task Run_ValidPostcode_PostcodeRulePasses(string postcode)
     {
         // Arrange
@@ -347,6 +351,9 @@ public class StaticValidationTests
     [DataRow("AA 12345")]
     [DataRow("A1B 1CDE")]
     [DataRow("A1A@1AA")]
+    [DataRow("ZZ9 4LZ")]
+    [DataRow("Z99 4LZ")]
+    [DataRow("ZzZ99 LZ")]
     public async Task Run_InvalidPostcode_PostcodeRuleFailsAndExceptionCreated(string postcode)
     {
         // Arrange
