@@ -465,6 +465,6 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegrationService/Dockerfile
-      profiles: [not-implemented]
+    profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:7912
