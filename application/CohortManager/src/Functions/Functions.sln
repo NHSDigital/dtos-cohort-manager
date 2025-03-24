@@ -196,6 +196,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", "ServiceNowIntegrationService\ReceiveServiceNowMessage.csproj", "{43A1A7D7-83F5-448E-8ADA-741284819DCB}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievePDSDemographic", "DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj", "{F3F09EF8-704E-41E6-8FCC-B6052056C885}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievePDSDemographicTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\RetrievePDSDemographicTests\RetrievePDSDemographicTests.csproj", "{33F5B173-BD11-4BE1-979E-DFF2305F555C}"
@@ -558,6 +560,10 @@ Global
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Release|Any CPU.ActiveCfg = Release|Any CPU

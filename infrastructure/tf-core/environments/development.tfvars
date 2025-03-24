@@ -1063,6 +1063,18 @@ function_apps = {
       }
     }
 
+    ReceiveServiceNowMessage = {
+      name_suffix            = "receive-service-now-message"
+      function_endpoint_name = "ReceiveServiceNowMessage"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
     BsRequestAuditDataService = {
       name_suffix            = "bs-request-audit-data-service"
       function_endpoint_name = "BsRequestAuditDataService"
