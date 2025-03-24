@@ -24,6 +24,7 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
