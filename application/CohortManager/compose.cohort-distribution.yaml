@@ -3,6 +3,7 @@ name: cohort-manager
 services:
   add-cohort-distribution-data:
     container_name: add-cohort-distribution-data
+    image: add-cohort-distribution-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -15,6 +16,7 @@ services:
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
+    image: retrieve-cohort-distribution-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -27,6 +29,7 @@ services:
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
+    image: retrieve-cohort-request-audit
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -39,6 +42,7 @@ services:
 
   transform-data-service:
     container_name: transform-data-service
+    image: transform-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -53,6 +57,7 @@ services:
 
   allocate-service-provider:
     container_name: allocate-service-provider
+    image: allocate-service-provider
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -63,6 +68,7 @@ services:
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
+    image: create-cohort-distribution
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -84,6 +90,7 @@ services:
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
+    image: retrieve-participant-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -96,6 +103,7 @@ services:
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
+    image: validate-cohort-distribution-record
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -109,6 +117,7 @@ services:
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
+    image: remove-validation-exception-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/

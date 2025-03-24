@@ -2,6 +2,38 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Win: Build and run docker project",
+      "type": "shell",
+      "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose up",
+      "problemMatcher": [],
+      "options": {
+        "shell": {
+          "executable": "wsl.exe"
+        },
+        "cwd": "./application/CohortManager"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Win: Build and run docker project with deps",
+      "type": "shell",
+      "command": "docker compose -f compose.deps.yaml down && docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up && docker compose up",
+      "problemMatcher": [],
+      "options": {
+        "shell": {
+          "executable": "wsl.exe"
+        },
+        "cwd": "./application/CohortManager"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
       "label": "Run All Functions",
       "dependsOrder": "parallel",
       "dependsOn": [

@@ -4,6 +4,7 @@ services:
   # CaaS Integration Service
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
+    image: retrieve-mesh-file
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -21,6 +22,7 @@ services:
 
   receive-caas-file:
     container_name: receive-caas-file
+    image: receive-caas-file
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -50,6 +52,7 @@ services:
   # Participant Management Service
   add-participant:
     container_name: add-participant
+    image: add-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -72,6 +75,7 @@ services:
 
   remove-participant:
     container_name: remove-participant
+    image: remove-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -87,6 +91,7 @@ services:
 
   update-participant:
     container_name: update-participant
+    image: update-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -106,6 +111,7 @@ services:
 
   update-participant-from-screening-provider:
     container_name: update-participant-from-screening-provider
+    image: update-participant-from-screening-provider
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -122,6 +128,7 @@ services:
 
   check-participant-exists:
     container_name: check-participant-exists
+    image: check-participant-exists
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -133,6 +140,7 @@ services:
 
   get-participant-reference-data:
     container_name: get-participant-reference-data
+    image: get-participant-reference-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -146,6 +154,7 @@ services:
   # Screening Data Service
   create-participant:
     container_name: create-participant
+    image: create-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -161,6 +170,7 @@ services:
 
   mark-participant-as-eligible:
     container_name: mark-participant-as-eligible
+    image: mark-participant-as-eligible
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -173,6 +183,7 @@ services:
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
+    image: mark-participant-as-ineligible
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -189,6 +200,7 @@ services:
 
   update-participant-details:
     container_name: update-participant-details
+    image: update-participant-details
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -202,6 +214,7 @@ services:
 
   create-exception:
     container_name: create-exception
+    image: create-exception
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -216,6 +229,7 @@ services:
 
   get-validation-exceptions:
     container_name: get-validation-exceptions
+    image: get-validation-exceptions
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -231,6 +245,7 @@ services:
   # Screening Validation Service
   file-validation:
     container_name: file-validation
+    image: file-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -245,6 +260,7 @@ services:
 
   static-validation:
     container_name: static-validation
+    image: static-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -259,6 +275,7 @@ services:
 
   lookup-validation:
     container_name: lookup-validation
+    image: lookup-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -278,6 +295,7 @@ services:
   # Demographic Services
   demographic-data-management:
     container_name: demographic-data-management
+    image: demographic-data-management
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -286,8 +304,10 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
+    image: retrieve-pds-demographic
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -300,6 +320,7 @@ services:
 
   durable-demographic-function:
     container_name: durable-demographic-function
+    image: durable-demographic-function
     networks: [cohman-network]
     build:
       context: ./src/Functions/
