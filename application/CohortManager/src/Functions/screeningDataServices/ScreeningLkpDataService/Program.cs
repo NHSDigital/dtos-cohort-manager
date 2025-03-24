@@ -9,7 +9,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         // Register health checks
-        services.AddDatabaseHealthCheck();
+        services.AddDatabaseHealthCheck("ScreeningLkpDataService");
     })
     .Build();
 

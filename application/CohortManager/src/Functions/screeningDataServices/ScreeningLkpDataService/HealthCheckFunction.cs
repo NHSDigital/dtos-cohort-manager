@@ -2,6 +2,7 @@ namespace ScreeningLkpDataService;
 
 using System.Net;
 using System.Threading.Tasks;
+using HealthChecks.Extensions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -16,17 +17,8 @@ public class HealthCheckFunction
     }
 
     [Function("health")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var healthReport = await _healthCheckService.CheckHealthAsync();
-
-        var response = req.CreateResponse(healthReport.Status == HealthStatus.Healthy ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable);
-        await response.WriteAsJsonAsync(new
-        {
-            status = healthReport.Status.ToString(),
-            details = healthReport.Entries
-        });
-
-        return response;
+        return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
 }
