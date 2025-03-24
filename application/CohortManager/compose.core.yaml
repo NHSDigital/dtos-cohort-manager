@@ -107,7 +107,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
-    profiles: [ bi-analytics ]
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:8001
       - ParticipantManagementUrl=http://127.0.0.1:7994/api/ParticipantManagementDataService
@@ -123,7 +123,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
-    profiles: [ bi-analytics ]
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:8002
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
@@ -134,7 +134,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
-    profiles: [ bi-analytics ]
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:7999
       - HigherRiskReferralReasonLkpDataServiceUrl=http://localhost:7992/api/HigherRiskReferralReasonLkpDataService
@@ -286,7 +286,7 @@ services:
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
     network_mode: host
-    profiles: [ bi-analytics ]
+    profiles: [bi-analytics]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
@@ -301,7 +301,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
-    profiles: [ bi-analytics ]
+    profiles: [bi-analytics]
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -455,12 +455,14 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
-  receive-service-now-message:
+  receive-service-now-message: 
     container_name: receive-service-now-message
     network_mode: host
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegrationService/Dockerfile
+      profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:7912
