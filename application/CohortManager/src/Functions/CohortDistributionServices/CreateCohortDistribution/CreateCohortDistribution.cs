@@ -20,20 +20,23 @@ public class CreateCohortDistribution
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly CreateCohortDistributionConfig _config;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
-           ICallFunction callFunction,
-           ICohortDistributionHelper CohortDistributionHelper,
-           IExceptionHandler exceptionHandler,
-           IAzureQueueStorageHelper azureQueueStorageHelper,
-           IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
+                                    ICallFunction callFunction,
+                                    ICohortDistributionHelper CohortDistributionHelper,
+                                    IExceptionHandler exceptionHandler,
+                                    IAzureQueueStorageHelper azureQueueStorageHelper,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
+        _participantManagementClient = participantManagementClient;
         _config = createCohortDistributionConfig.Value;
     }
 
@@ -67,12 +70,12 @@ public class CreateCohortDistribution
                     return;
                 }
             }
-            
+
             // Check if participant has exceptions
             bool ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
-            bool participantHasException = participantData.ExceptionFlag == 1;
 
+            bool participantHasException = participantData.ExceptionFlag == 1;
             if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
                 await HandleErrorResponseAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
@@ -82,13 +85,21 @@ public class CreateCohortDistribution
 
             // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
-            var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
+            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
 
-            if (validationRecordCreated && !ignoreParticipantExceptions)
+            // Update participant exception flag
+            if (validationResponse.CreatedException)
             {
-                var errorMessage = $"Validation error: A rule triggered a fatal error, preventing the cohort distribution record with participant Id {participantData.ParticipantId} from being added to the database";
+                var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 _logger.LogInformation(errorMessage);
                 await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, serviceProvider, JsonSerializer.Serialize(participantData));
+
+                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+                participantMangement.ExceptionFlag = 1;
+
+                bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+                if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
+
                 return;
             }
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
@@ -109,7 +120,7 @@ public class CreateCohortDistribution
         }
         catch (Exception ex)
         {
-            var errorMessage = $"Failed during TransformParticipant or AddCohortDistribution Function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             _logger.LogError(ex, errorMessage);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, "", JsonSerializer.Serialize(basicParticipantCsvRecord.ErrorRecord) ?? "N/A");
             throw;
