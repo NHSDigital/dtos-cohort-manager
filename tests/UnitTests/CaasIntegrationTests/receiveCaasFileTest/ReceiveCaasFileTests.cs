@@ -14,6 +14,8 @@ using Model;
 using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -27,6 +29,7 @@ public class ReceiveCaasFileTests
     private readonly string _blobName;
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
     private readonly Mock<IDataServiceClient<ScreeningLkp>> _mockScreeningLkpClient = new();
+    private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
 
     public ReceiveCaasFileTests()
     {
@@ -34,9 +37,22 @@ public class ReceiveCaasFileTests
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
 
-        Environment.SetEnvironmentVariable("BatchSize", "2000");
+        var testConfig = new ReceiveCaasFileConfig
+        {
+            DemographicDataServiceURL = "DemographicDataServiceURL",
+            ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
+            DemographicURI  = "DemographicURI",
+            BatchSize = 2000,
+            AddQueueName = "AddQueueName",
+            UpdateQueueName = "UpdateQueueName",
+            PMSRemoveParticipant = "PMSRemoveParticipant",
+            AllowDeleteRecords = true
+        };
 
-        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningLkpClient.Object);
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningLkpClient.Object,
+                                        _config.Object);
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
 
         _participant = new Participant()

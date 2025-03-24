@@ -510,6 +510,22 @@ public class BsSelectOutCodeDataServiceTests
     }
 
     #endregion
+    #region Exception
+    [TestMethod]
+    public async Task RunAsync_GetItemByIdWithInvalidMethod_ReturnsInternalServerError()
+    {
+        // Arrange
+        var invalidMethod = string.Empty;
+        var _requestHandler = new RequestHandler<BsSelectOutCode>(_dataServiceAccessor, _mockRequestHandlerLogger.Object, _authenticationConfiguration);
+        BsSelectOutCodeDataService function = new BsSelectOutCodeDataService(_mockFunctionLogger.Object, _requestHandler, _createResponse);
+        var req = new MockHttpRequestData(_context.Object, string.Empty, invalidMethod);
 
+        // Act
+        var result = await function.Run(req, "G82650");
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+    #endregion
 
 }

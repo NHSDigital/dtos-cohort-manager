@@ -10,6 +10,8 @@ using Model;
 using Model.Enums;
 using Data.Database;
 using DataServices.Client;
+using NHS.Screening.CreateCohortDistribution;
+using Microsoft.Extensions.Options;
 
 public class CreateCohortDistribution
 {
@@ -18,18 +20,21 @@ public class CreateCohortDistribution
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly CreateCohortDistributionConfig _config;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
            ICallFunction callFunction,
            ICohortDistributionHelper CohortDistributionHelper,
            IExceptionHandler exceptionHandler,
-           IAzureQueueStorageHelper azureQueueStorageHelper)
+           IAzureQueueStorageHelper azureQueueStorageHelper,
+           IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
+        _config = createCohortDistributionConfig.Value;
     }
 
     [Function(nameof(CreateCohortDistribution))]
@@ -64,7 +69,8 @@ public class CreateCohortDistribution
             }
             
             // Check if participant has exceptions
-            bool ignoreParticipantExceptions = Environment.GetEnvironmentVariable("IgnoreParticipantExceptions") == "true";
+            bool ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
+            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
             bool participantHasException = participantData.ExceptionFlag == 1;
 
             if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
@@ -90,10 +96,7 @@ public class CreateCohortDistribution
             // Transformation
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
             if (transformedParticipant == null)
-            {
-                await HandleErrorResponseAsync("The transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
                 return;
-            }
 
             // Add to cohort distribution table
             var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
@@ -123,14 +126,14 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, Environment.GetEnvironmentVariable("CohortQueueNamePoison"));
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = DatabaseHelper.ConvertBoolStringToBoolByType("IsExtractedToBSSelect", DataTypes.Integer).ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+        var response = await _callFunction.SendPost(_config.AddCohortDistributionURL, json);
 
         _logger.LogInformation("Called {AddCohortDistribution} function", nameof(AddCohortDistribution));
         return response;

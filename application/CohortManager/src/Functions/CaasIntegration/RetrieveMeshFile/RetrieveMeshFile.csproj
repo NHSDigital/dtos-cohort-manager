@@ -23,6 +23,9 @@
         <None Update="meshpfx.pfx">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="meshServerSideCerts.crt">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
         <None Update="local.settings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
@@ -33,5 +36,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
+        <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
     </ItemGroup>
 </Project>

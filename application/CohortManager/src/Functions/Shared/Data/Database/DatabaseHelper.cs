@@ -90,8 +90,4 @@ public class DatabaseHelper : IDatabaseHelper
             _ => throw new NotImplementedException()
         };
     }
-    public int ParseExceptionFlag(object exception)
-    {
-        return exception != DBNull.Value && exception.ToString() == "Y" || exception == "1" ? 1 : 0;
-    }
 }

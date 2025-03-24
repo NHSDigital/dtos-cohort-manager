@@ -22,6 +22,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
   </ItemGroup>
 </Project>

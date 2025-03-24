@@ -16,6 +16,8 @@ using Model.Enums;
 using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
+using NHS.Screening.CreateCohortDistribution;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -28,6 +30,7 @@ public class CreateCohortDistributionTests
     private readonly CreateCohortDistributionRequestBody _requestBody;
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
     private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
+    private readonly Mock<IOptions<CreateCohortDistributionConfig>> _config = new();
     private Mock<HttpRequestData> _request;
     private readonly SetupRequest _setupRequest = new();
     private CohortDistributionParticipant _cohortDistributionParticipant;
@@ -36,12 +39,14 @@ public class CreateCohortDistributionTests
 
     public CreateCohortDistributionTests()
     {
-        Environment.SetEnvironmentVariable("RetrieveParticipantDataURL", "RetrieveParticipantDataURL");
-        Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
-        Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
-        Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
-        Environment.SetEnvironmentVariable("IsExtractedToBSSelect", "IsExtractedToBSSelect");
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
+        var testConfig = new CreateCohortDistributionConfig
+        {
+            IgnoreParticipantExceptions = false,
+            CohortQueueNamePoison = "CohortQueueNamePoison",
+            AddCohortDistributionURL = "AddCohortDistributionURL"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         _requestBody = new CreateCohortDistributionRequestBody()
         {
@@ -64,7 +69,8 @@ public class CreateCohortDistributionTests
             .ReturnsAsync(_cohortDistributionParticipant);
 
         _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
-                                            _exceptionHandler.Object, _azureQueueStorageHelper.Object);
+                                            _exceptionHandler.Object, _azureQueueStorageHelper.Object,
+                                            _config.Object);
 
     }
 
@@ -172,7 +178,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_TransformDataServiceRequestFails_LogError()
+    public async Task RunAsync_TransformDataServiceRequestFails_ReturnEarly()
     {
         // Arrange
         _cohortDistributionHelper
@@ -192,12 +198,8 @@ public class CreateCohortDistributionTests
         // Act
         await _sut.RunAsync(_requestBody);
 
-        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The transformed participant returned null from the transform participant function")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-        Times.Once);
+        // Assert
+        _callFunction.Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
