@@ -482,7 +482,7 @@
       },
       {
         "RuleName": "03.Other.DateOfDeath.NotDea",
-        "Expression": "participant.DateOfDeath != null && participant.ReasonForRemoval != \"DEA\"",
+        "Expression": "!string.IsNullOrEmpty(participant.DateOfDeath) && participant.ReasonForRemoval != \"DEA\"",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
