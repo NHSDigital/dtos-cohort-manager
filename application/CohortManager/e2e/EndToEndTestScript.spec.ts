@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { BlobServiceClient, BlockBlobClient } from '@azure/storage-blob';
 import { EndToEndHelper } from './EndToEndHelper';
-import configJson from '../playwrightConfig.json';
+import configJson from './playwrightConfig.json';
 
 test.describe('End To End tests', () => {
   const endToEndHelper = new EndToEndHelper();

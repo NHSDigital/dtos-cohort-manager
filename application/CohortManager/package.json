@@ -16,6 +16,7 @@
   "description": "",
   "dependencies": {
     "@azure/storage-blob": "^12.27.0",
-    "@azure/storage-queue": "^12.26.0"
+    "@azure/storage-queue": "^12.26.0",
+    "azure-storage": "^2.10.7"
   }
 }
