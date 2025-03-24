@@ -16,6 +16,8 @@ using Model.Enums;
 using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
+using NHS.Screening.CreateCohortDistribution;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -28,6 +30,7 @@ public class CreateCohortDistributionTests
     private readonly CreateCohortDistributionRequestBody _requestBody;
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
     private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
+    private readonly Mock<IOptions<CreateCohortDistributionConfig>> _config = new();
     private Mock<HttpRequestData> _request;
     private readonly SetupRequest _setupRequest = new();
     private CohortDistributionParticipant _cohortDistributionParticipant;
@@ -36,12 +39,14 @@ public class CreateCohortDistributionTests
 
     public CreateCohortDistributionTests()
     {
-        Environment.SetEnvironmentVariable("RetrieveParticipantDataURL", "RetrieveParticipantDataURL");
-        Environment.SetEnvironmentVariable("AllocateScreeningProviderURL", "AllocateScreeningProviderURL");
-        Environment.SetEnvironmentVariable("TransformDataServiceURL", "TransformDataServiceURL");
-        Environment.SetEnvironmentVariable("AddCohortDistributionURL", "AddCohortDistributionURL");
-        Environment.SetEnvironmentVariable("IsExtractedToBSSelect", "IsExtractedToBSSelect");
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "IgnoreParticipantExceptions");
+        var testConfig = new CreateCohortDistributionConfig
+        {
+            IgnoreParticipantExceptions = false,
+            CohortQueueNamePoison = "CohortQueueNamePoison",
+            AddCohortDistributionURL = "AddCohortDistributionURL"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         _requestBody = new CreateCohortDistributionRequestBody()
         {
@@ -78,6 +83,7 @@ public class CreateCohortDistributionTests
         _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
                                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                                             _participantManagementClientMock.Object);
+                                            _config.Object);
 
     }
 

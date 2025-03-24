@@ -2,13 +2,16 @@ using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
+using NHS.Screening.UpdateParticipantDetails;
 
 var host = new HostBuilder()
-.AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+    .AddConfiguration<UpdateParticipantDetailsConfig>(out UpdateParticipantDetailsConfig config)
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
@@ -17,6 +20,8 @@ var host = new HostBuilder()
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICallFunction, CallFunction>();
+        // Register health checks
+        services.AddDatabaseHealthCheck("updateParticipantDetails");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

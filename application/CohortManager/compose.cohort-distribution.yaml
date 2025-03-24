@@ -24,6 +24,7 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - AcceptableLatencyThresholdMs=500
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
@@ -49,6 +50,7 @@ services:
       - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService/
       - CohortDistributionDataServiceUrl=http://localhost:7992/api/CohortDistributionDataService/
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   allocate-service-provider:
     container_name: allocate-service-provider
@@ -81,6 +83,7 @@ services:
       - CohortQueueNamePoison=cohort-distribution-queue-poison
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
+      - AcceptableLatencyThresholdMs=500
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
@@ -93,6 +96,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
       - DemographicDataFunctionURL=http://localhost:7076/api/DemographicDataFunction
+      - AcceptableLatencyThresholdMs=500
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
@@ -106,6 +110,7 @@ services:
       - ExceptionFunctionURL=http://localhost:7070/api/CreateException
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
+      - AcceptableLatencyThresholdMs=500
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
@@ -130,4 +135,4 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
+      - AcceptableLatencyThresholdMs=500
