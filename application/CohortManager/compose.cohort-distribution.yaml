@@ -134,3 +134,7 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+networks:
+  cohman-network:
+    external: true
