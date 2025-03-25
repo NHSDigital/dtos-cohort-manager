@@ -101,6 +101,7 @@ public class ProcessCaasFileTests
     public async Task ProcessRecords_Amend_sendOneRecordToUpdateQueue()
     {
         // Arrange
+        var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
         var participants = new List<ParticipantsParquetMap>
         {
             new ParticipantsParquetMap { NhsNumber = 1234567890 },
@@ -118,7 +119,7 @@ public class ProcessCaasFileTests
             .ReturnsAsync(true);
 
         // Act
-        await _processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
+        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
         // Assert
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
