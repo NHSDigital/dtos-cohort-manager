@@ -88,7 +88,7 @@ jobs:
           echo "::set-output name=coverage_xml_path::${COVERAGE_PATH}"
       - name: "Upload coverage report"
         id: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: ${{ steps.run_coverage.outputs.coverage_xml_path }}
@@ -107,7 +107,7 @@ jobs:
         with:
           fetch-depth: 0  # Full history is needed to improve relevancy of reporting
       - name: "Download coverage report"
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: coverage-report
           path: ./coverage
