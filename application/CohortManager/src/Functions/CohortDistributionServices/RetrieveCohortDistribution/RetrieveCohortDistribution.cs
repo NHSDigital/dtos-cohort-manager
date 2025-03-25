@@ -61,15 +61,14 @@ public class RetrieveCohortDistributionData
             if (!string.IsNullOrEmpty(requestId))
             {
                 requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
-                if (requestId != null)
-                {
-                    var isGuidParsed = Guid.TryParse(requestId, out Guid parsedRequestId);
-                    if (!isGuidParsed)
-                    {
-                        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
-                    }
 
+                if (Guid.TryParse(requestId, out Guid parsedRequestId))
+                {
                     cohortDistributionParticipants = await GetCohortDistributionParticipantsByRequestId(parsedRequestId);
+                }
+                else
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
                 }
             }
 
