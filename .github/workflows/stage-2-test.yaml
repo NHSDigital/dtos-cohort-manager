@@ -50,6 +50,7 @@ jobs:
         with:
           comment-title: 'Unit Test Results'
           results-path: ./tests/UnitTests/results-unit/*.trx
+
   test-lint:
     name: "Linting"
     runs-on: ubuntu-latest
@@ -63,23 +64,38 @@ jobs:
       - name: "Save the linting result"
         run: |
           echo "Nothing to save"
+
   test-coverage:
     name: "Test coverage"
     needs: [test-unit]
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    outputs:
+      coverage_xml_path: ${{ steps.upload.outputs.artifact_path }}
     steps:
       - name: "Checkout code"
         uses: actions/checkout@v4
-      - name: "Run test coverage check"
+        with:
+          submodules: 'true'
+      - name: "Generate coverage report"
+        id: run_coverage
         run: |
-          make test-coverage
-      - name: "Save the coverage check result"
-        run: |
-          echo "Nothing to save"
+          # Run your test coverage command.
+          # This script should generate the file at the given path.
+          COVERAGE_PATH=$(make test-coverage)
+          echo "Generated coverage report at: ${COVERAGE_PATH}"
+          # Export the coverage path as an output variable for later reference if needed
+          echo "::set-output name=coverage_xml_path::${COVERAGE_PATH}"
+      - name: "Upload coverage report"
+        id: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ${{ steps.run_coverage.outputs.coverage_xml_path }}
+
   perform-static-analysis:
     name: "Perform static analysis"
-    needs: [test-unit]
+    needs: [test-unit, test-coverage]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -89,10 +105,16 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
+          fetch-depth: 0  # Full history is needed to improve relevancy of reporting
+      - name: "Download coverage report"
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-report
+          path: ./coverage
       - name: "Perform static analysis"
         uses: ./.github/actions/perform-static-analysis
         with:
           sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
           sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
           sonar_token: "${{ secrets.SONAR_TOKEN }}"
+          coverage_report_path_opencover: "./coverage/$(basename ${{ needs.test-coverage.outputs.coverage_xml_path }})"
