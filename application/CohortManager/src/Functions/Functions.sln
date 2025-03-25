@@ -135,10 +135,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\SharedTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckDemographicTests", "..\..\..\..\tests\UnitTests\SharedTests\CheckDemographicTests\CheckDemographicTests.csproj", "{2476768B-4A21-4348-8EA3-A95EC27DE464}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Client", "Shared\DataServices.Client\DataServices.Client.csproj", "{420B8566-2CE2-4B89-A0E4-D86C6AB24722}"
@@ -1315,14 +1311,6 @@ Global
 		{D6C3BE30-1AA0-49F5-928C-06102D183A08}.Release|x64.Build.0 = Release|Any CPU
 		{D6C3BE30-1AA0-49F5-928C-06102D183A08}.Release|x86.ActiveCfg = Release|Any CPU
 		{D6C3BE30-1AA0-49F5-928C-06102D183A08}.Release|x86.Build.0 = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|x64.Build.0 = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|x86.Build.0 = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|x64.ActiveCfg = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|x64.Build.0 = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|x86.ActiveCfg = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|x86.Build.0 = Release|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|x64.Build.0 = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|x86.ActiveCfg = Debug|Any CPU
