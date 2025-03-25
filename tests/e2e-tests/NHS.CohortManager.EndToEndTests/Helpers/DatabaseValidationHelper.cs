@@ -209,7 +209,8 @@ public static class DatabaseValidationHelper
         "NHS_NUMBER",
         "GIVEN_NAME",
         "RULE_ID",
-        "RULE_DESCRIPTION"
+        "RULE_DESCRIPTION",
+        "ELIGIBILITY_FLAG"
         // Add other allowed fields here
     ];
 
