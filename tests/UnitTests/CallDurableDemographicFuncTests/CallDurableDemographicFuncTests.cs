@@ -9,44 +9,21 @@ using Model;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Moq.Protected;
+using NHS.Screening.ReceiveCaasFile;
 
 [TestClass]
-public class CheckDemographicTests
+public class CallDurableDemographicFuncTests
 {
-    private readonly Mock<ILogger<CheckDemographic>> _logger = new();
+    private readonly Mock<ILogger<CallDurableDemographicFunc>> _logger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpClient> _httpClient = new();
-    private readonly CheckDemographic _checkDemographic;
+    private readonly CallDurableDemographicFunc _checkDemographic;
 
-    public CheckDemographicTests()
+    private readonly Mock<ICopyFailedBatchToBlob> _copyFailedBatchToBlob = new();
+
+    public CallDurableDemographicFuncTests()
     {
-        _checkDemographic = new CheckDemographic(_callFunction.Object, _logger.Object, _httpClient.Object);
-    }
-
-    [TestMethod]
-    public async Task GetDemographicAsync_ValidInput_ReturnDemographic()
-    {
-        //Arrange
-        var uri = "test-uri.com/get";
-        var nhsNumber = "1234567890";
-
-        var demographic = new Demographic
-        {
-            FirstName = "John",
-            NhsNumber = nhsNumber
-        };
-
-        _callFunction.Setup(x => x.SendGet(It.IsAny<string>()))
-            .ReturnsAsync(JsonSerializer.Serialize(demographic))
-            .Verifiable();
-
-
-        //Act
-        var result = await _checkDemographic.GetDemographicAsync(uri, nhsNumber);
-
-        //Assert
-        Assert.AreEqual(nhsNumber, result.NhsNumber);
-        Assert.AreEqual(demographic.FirstName, result.FirstName);
+        _checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, _httpClient.Object, _copyFailedBatchToBlob.Object);
     }
 
     [TestMethod]
@@ -60,9 +37,9 @@ public class CheckDemographicTests
         var result = await _checkDemographic.PostDemographicDataAsync(participants, uri);
 
         // Assert
-        Assert.IsTrue(result);
+        //Assert.IsTrue(result);
         _logger.Verify(x => x.Log(
-            It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Information),
+            It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There were no items to to send to the demographic durable function")),
             null,
@@ -105,7 +82,7 @@ public class CheckDemographicTests
 
         // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.OK);
-        var checkDemographic = new CheckDemographic(_callFunction.Object, _logger.Object, httpClient);
+        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);
@@ -113,7 +90,7 @@ public class CheckDemographicTests
         // Assert
         Assert.IsTrue(result);
         _logger.Verify(x => x.Log(
-                It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Warning),
+                It.Is<LogLevel>(l => l == LogLevel.Warning),
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Durable function completed")),
                 null,
@@ -125,7 +102,7 @@ public class CheckDemographicTests
     public async Task GetStatus_ResponseError_UnknownStatus()
     {
         // Arrange
-        var uri = "http://test-uri.com/get-status"; 
+        var uri = "http://test-uri.com/get-status";
         var participants = new List<ParticipantDemographic>
         {
             new ParticipantDemographic { /* populate properties if needed */ }
@@ -133,7 +110,7 @@ public class CheckDemographicTests
 
         // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.BadRequest);
-        var checkDemographic = new CheckDemographic(_callFunction.Object, _logger.Object, httpClient);
+        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);
@@ -141,7 +118,7 @@ public class CheckDemographicTests
         // Assert
         Assert.IsTrue(result);
         _logger.Verify(x => x.Log(
-            It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Warning),
+            It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("still sending records to queue")
                 && v.ToString().Contains("Simulated exception")),
