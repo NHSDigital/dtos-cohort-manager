@@ -136,8 +136,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckDemographicTests", "..\..\..\..\tests\UnitTests\SharedTests\CheckDemographicTests\CheckDemographicTests.csproj", "{2476768B-4A21-4348-8EA3-A95EC27DE464}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Client", "Shared\DataServices.Client\DataServices.Client.csproj", "{420B8566-2CE2-4B89-A0E4-D86C6AB24722}"
@@ -225,6 +223,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{0A68E48A-8249-4A74-B5B7-5921017D07BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{5D5C7C1C-37FE-4671-8BA2-138447049EE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionsTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8E769A0D-F808-48F7-9E36-6F8BDC204C80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -428,10 +428,6 @@ Global
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -628,6 +624,10 @@ Global
 		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
