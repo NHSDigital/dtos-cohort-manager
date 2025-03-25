@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.TransformDataServiceTests;
+namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
 using Moq;
 using Common;
