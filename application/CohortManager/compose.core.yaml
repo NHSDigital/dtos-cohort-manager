@@ -4,7 +4,7 @@ services:
   # CaaS Integration Service
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
-    image: retrieve-mesh-file
+    image: cohort-manager-retrieve-mesh-file
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -22,7 +22,7 @@ services:
 
   receive-caas-file:
     container_name: receive-caas-file
-    image: receive-caas-file
+    image: cohort-manager-receive-caas-file
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -52,7 +52,7 @@ services:
   # Participant Management Service
   add-participant:
     container_name: add-participant
-    image: add-participant
+    image: cohort-manager-add-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -75,7 +75,7 @@ services:
 
   remove-participant:
     container_name: remove-participant
-    image: remove-participant
+    image: cohort-manager-remove-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -91,7 +91,7 @@ services:
 
   update-participant:
     container_name: update-participant
-    image: update-participant
+    image: cohort-manager-update-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -111,7 +111,7 @@ services:
 
   update-participant-from-screening-provider:
     container_name: update-participant-from-screening-provider
-    image: update-participant-from-screening-provider
+    image: cohort-manager-update-participant-from-screening-provider
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -128,7 +128,7 @@ services:
 
   check-participant-exists:
     container_name: check-participant-exists
-    image: check-participant-exists
+    image: cohort-manager-check-participant-exists
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -140,7 +140,7 @@ services:
 
   get-participant-reference-data:
     container_name: get-participant-reference-data
-    image: get-participant-reference-data
+    image: cohort-manager-get-participant-reference-data
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -154,7 +154,7 @@ services:
   # Screening Data Service
   create-participant:
     container_name: create-participant
-    image: create-participant
+    image: cohort-manager-create-participant
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -171,7 +171,7 @@ services:
 
   mark-participant-as-eligible:
     container_name: mark-participant-as-eligible
-    image: mark-participant-as-eligible
+    image: cohort-manager-mark-participant-as-eligible
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -182,7 +182,7 @@ services:
 
   mark-participant-as-ineligible:
     container_name: mark-participant-as-ineligible
-    image: mark-participant-as-ineligible
+    image: cohort-manager-mark-participant-as-ineligible
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -200,7 +200,7 @@ services:
 
   update-participant-details:
     container_name: update-participant-details
-    image: update-participant-details
+    image: cohort-manager-update-participant-details
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -215,7 +215,7 @@ services:
 
   create-exception:
     container_name: create-exception
-    image: create-exception
+    image: cohort-manager-create-exception
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -230,7 +230,7 @@ services:
 
   get-validation-exceptions:
     container_name: get-validation-exceptions
-    image: get-validation-exceptions
+    image: cohort-manager-get-validation-exceptions
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -247,7 +247,7 @@ services:
   # Screening Validation Service
   file-validation:
     container_name: file-validation
-    image: file-validation
+    image: cohort-manager-file-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -262,7 +262,7 @@ services:
 
   static-validation:
     container_name: static-validation
-    image: static-validation
+    image: cohort-manager-static-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -277,7 +277,7 @@ services:
 
   lookup-validation:
     container_name: lookup-validation
-    image: lookup-validation
+    image: cohort-manager-lookup-validation
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -297,7 +297,7 @@ services:
   # Demographic Services
   demographic-data-management:
     container_name: demographic-data-management
-    image: demographic-data-management
+    image: cohort-manager-demographic-data-management
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -309,7 +309,7 @@ services:
       
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
-    image: retrieve-pds-demographic
+    image: cohort-manager-retrieve-pds-demographic
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -322,7 +322,7 @@ services:
 
   durable-demographic-function:
     container_name: durable-demographic-function
-    image: durable-demographic-function
+    image: cohort-manager-durable-demographic-function
     networks: [cohman-network]
     build:
       context: ./src/Functions/

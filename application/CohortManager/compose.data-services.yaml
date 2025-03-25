@@ -3,7 +3,7 @@ name: cohort-manager
 services:
   gppractice-data-service:
     container_name: gppractice-data-service
-    image: gppractice-data-service
+    image: cohort-manager-gppractice-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -16,7 +16,7 @@ services:
 
   exception-management-data-service:
     container_name: exception-management-data-service
-    image: exception-management-data-service
+    image: cohort-manager-exception-management-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -28,7 +28,7 @@ services:
 
   bs-request-audit-data-service:
     container_name: bs-request-audit-data-service
-    image: bs-request-audit-data-service
+    image: cohort-manager-bs-request-audit-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -41,7 +41,7 @@ services:
 
   screening-lkp-data-service:
     container_name: screening-lkp-data-service
-    image: screening-lkp-data-service
+    image: cohort-manager-screening-lkp-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -52,7 +52,7 @@ services:
       - AcceptableLatencyThresholdMs=500
   bs-select-gp-practice-data-service:
     container_name: bs-select-gp-practice-data-service
-    image: bs-select-gp-practice-data-service
+    image: cohort-manager-bs-select-gp-practice-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -64,7 +64,7 @@ services:
 
   bs-select-outcode-data-service:
     container_name: bs-select-outcode-data-service
-    image: bs-select-outcode-data-service
+    image: cohort-manager-bs-select-outcode-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -76,7 +76,7 @@ services:
 
   language-code-data-service:
     container_name: language-code-data-service
-    image: language-code-data-service
+    image: cohort-manager-language-code-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -88,7 +88,7 @@ services:
 
   current-posting-data-service:
     container_name: current-posting-data-service
-    image: current-posting-data-service
+    image: cohort-manager-current-posting-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -100,7 +100,7 @@ services:
 
   excluded-smu-data-service:
     container_name: excluded-smu-data-service
-    image: excluded-smu-data-service
+    image: cohort-manager-excluded-smu-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -112,7 +112,7 @@ services:
 
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
-    image: gene-code-lkp-data-service
+    image: cohort-manager-gene-code-lkp-data-service
     networks: [cohman-network]
     profiles: [bi-analytics]
     build:
@@ -125,7 +125,7 @@ services:
 
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
-    image: higher-risk-referral-reason-lkp-data-service
+    image: cohort-manager-higher-risk-referral-reason-lkp-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -138,7 +138,7 @@ services:
 
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
-    image: participant-demographic-data-service
+    image: cohort-manager-participant-demographic-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -150,7 +150,7 @@ services:
 
   participant-management-data-service:
     container_name: participant-management-data-service
-    image: participant-management-data-service
+    image: cohort-manager-participant-management-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -162,7 +162,7 @@ services:
 
   cohort-distribution-data-service:
     container_name: cohort-distribution-data-service
-    image: cohort-distribution-data-service
+    image: cohort-manager-cohort-distribution-data-service
     networks: [cohman-network]
     build:
       context: ./src/Functions/
