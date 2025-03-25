@@ -39,7 +39,7 @@ public static class CreateCohortDistributionParticipantDTO
             EmailAddress = s.EmailAddressHome ?? string.Empty,
             EmailAddressEffectiveFromDate = MappingUtilities.FormatDateTime(s.EmailAddressHomeFromDt) ?? string.Empty,
             PreferredLanguage = s.PreferredLanguage ?? string.Empty,
-            IsInterpreterRequired = int.TryParse(s.InterpreterRequired.ToString(), out var isInterpreterRequired) ? isInterpreterRequired : 0,
+            IsInterpreterRequired = s.InterpreterRequired,
             ReasonForRemoval = s.ReasonForRemoval ?? string.Empty,
             ReasonForRemovalEffectiveFromDate = MappingUtilities.FormatDateTime(s.ReasonForRemovalDate),
             ParticipantId = s.ParticipantId.ToString() ?? string.Empty,

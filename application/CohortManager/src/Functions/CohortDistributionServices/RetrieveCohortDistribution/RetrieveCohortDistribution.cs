@@ -63,7 +63,13 @@ public class RetrieveCohortDistributionData
                 requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
                 if (requestId != null)
                 {
-                    cohortDistributionParticipants = await GetCohortDistributionParticipantsByRequestId(requestId);
+                    var isGuidParsed = Guid.TryParse(requestId, out Guid parsedRequestId);
+                    if (!isGuidParsed)
+                    {
+                        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+                    }
+
+                    cohortDistributionParticipants = await GetCohortDistributionParticipantsByRequestId(parsedRequestId);
                 }
             }
 
@@ -85,16 +91,10 @@ public class RetrieveCohortDistributionData
         }
     }
 
-    private async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(string requestId)
+    private async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId)
     {
-        var isGuidParsed = Guid.TryParse(requestId, out Guid parsedRequestId);
-        if (!isGuidParsed)
-        {
-            return new List<CohortDistributionParticipantDto>();
-        }
-
         var recordToReturn = new CohortDistributionParticipant();
-        var CohortDistributionList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == parsedRequestId);
+        var CohortDistributionList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
 
         return CreateCohortDistributionParticipantDTO.CohortDistributionParticipantDto(CohortDistributionList.ToList());
     }
