@@ -352,7 +352,7 @@ public class StaticValidationTests
     [DataRow("A1B 1CDE")]
     [DataRow("A1A@1AA")]
     [DataRow("ZZ9 4LZ")]
-    [DataRow("Z99 4LZ")]
+    [DataRow("Z99 4")]
     [DataRow("ZzZ99 LZ")]
     public async Task Run_InvalidPostcode_PostcodeRuleFailsAndExceptionCreated(string postcode)
     {
