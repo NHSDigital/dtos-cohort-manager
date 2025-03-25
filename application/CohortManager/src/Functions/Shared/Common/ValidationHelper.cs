@@ -76,7 +76,7 @@ public static class ValidationHelper
     public static bool ValidatePostcode(string postcode)
     {
         string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
-        string dummyPostcodePattern = "^ZZ99 ?[A-Z]{2}$";
+        string dummyPostcodePattern = "^ZZ99 ?[0-9][A-Z]{2}$";
 
         Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase);
         Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase);
@@ -85,6 +85,29 @@ public static class ValidationHelper
             return true;
 
         return false;
+    }
+
+    /// <summary>
+    /// Gets the outcode (1st part of postcode) from the postcode.
+    /// </summary>
+    /// <param name="postcode">a non-null string representing the postcode</param>
+    /// <remarks>
+    /// Works for valid UK postcodes and dummy postcodes.
+    /// Works with or without a space separator between outcode and incode.
+    /// </remarks>
+    public static string? ParseOutcode(string postcode)
+    {
+        string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
+
+        Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        if (!match.Success)
+        {
+            return null;
+        }
+
+        string outcode = match.Groups[1].Value;
+
+        return outcode;
     }
 
     private static bool ParseInt32(char value, out int integerValue)
