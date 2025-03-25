@@ -95,6 +95,6 @@ public class RetrieveCohortDistributionData
         var recordToReturn = new CohortDistributionParticipant();
         var CohortDistributionList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
 
-        return CreateCohortDistributionParticipantDTO.CohortDistributionParticipantDto(CohortDistributionList.ToList());
+        return CohortDistributionParticipantMapper.CohortDistributionParticipantDto(CohortDistributionList.ToList());
     }
 }

@@ -5,7 +5,7 @@ using Model.DTO;
 using Model.Enums;
 using NHS.CohortManager.Shared.Utilities;
 
-public static class CreateCohortDistributionParticipantDTO
+public static class CohortDistributionParticipantMapper
 {
 
     public static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistribution> listOfAllParticipants)
