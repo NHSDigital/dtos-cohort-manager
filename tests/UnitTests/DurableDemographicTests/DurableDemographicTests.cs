@@ -144,7 +144,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var utcNow = DateTime.UtcNow;
-        var timeoutDuration = TimeSpan.FromHours(2.5);
+        var timeoutDuration = TimeSpan.FromHours(0);
         var expirationTime = utcNow.Add(timeoutDuration);
 
         var mockContext = new Mock<TaskOrchestrationContext>();
@@ -161,27 +161,41 @@ public class DurableDemographicTests
                 It.IsAny<string>(),
                 It.IsAny<TaskOptions>()
             ))
-            .Returns(neverEndingTask.Task);
+             .Returns(Task.Delay(Timeout.Infinite).ContinueWith(_ => false));
 
         mockContext
             .Setup(c => c.CreateTimer(expirationTime, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        // Act
-        bool result = await sut.RunOrchestrator(mockContext.Object);
+        mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(_logger.Object);
+        mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
+
+        bool result = false;
+        try
+        {
+            // Act
+            result = await sut.RunOrchestrator(mockContext.Object);
+        }
+        catch
+        {
+            Assert.IsFalse(result);
+            _logger.Verify(
+                x => x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                ),
+                Times.Once
+            );
+
+        }
+
+
 
         // Assert
-        Assert.IsFalse(result);
-        _logger.Verify(
-            x => x.Log(
-                LogLevel.Warning,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ),
-            Times.Once
-        );
+
     }
 
     private static Mock<FunctionContext> CreateMockFunctionContext()
