@@ -8,7 +8,7 @@ using NHS.CohortManager.Shared.Utilities;
 public static class CohortDistributionParticipantMapper
 {
 
-    public static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistribution> listOfAllParticipants)
+    public static List<CohortDistributionParticipantDto> MapDto(List<CohortDistribution> listOfAllParticipants)
     {
         return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
         {
