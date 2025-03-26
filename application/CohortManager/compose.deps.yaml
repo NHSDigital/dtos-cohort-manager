@@ -3,9 +3,9 @@ name: cohort-manager-deps
 services:
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
-    container_name: "azurite"
+    container_name: azurite
     networks: [cohman-network]
-    command: azurite --silent --skipApiVersionCheck
+    command: azurite --silent --skipApiVersionCheck --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0
     restart: always
     ports:
       - "10000:10000"
@@ -26,14 +26,14 @@ services:
   mssql:
     container_name: db
     image: mcr.microsoft.com/mssql/server:2022-latest
-    ports:
-      - "1433:1433"
     networks: [cohman-network]
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${PASSWORD}
     cap_add:
       - SYS_PTRACE
+    ports:
+      - "1433:1433"
     healthcheck:
       test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 10s
