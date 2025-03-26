@@ -104,13 +104,12 @@ Alternatively, you can run an individual function locally with `func start`
 To make the application more manageable to run, some functions have had [docker compose profiles](https://docs.docker.com/compose/how-tos/profiles/) added to them, which means they will not build and run unless specified
 
 Key of profiles:
-<!-- vale off -->
+
 - bi-analytics - Functions that are only used by the external BI & Analytics product
 - bs-select - Functions that are only used by external requests from BS Select
-- ui - only used by the user interface
+- UI - only used by the user interface
 - non-essential - Functions that are not needed to run the application
 - not-implemented - Functions that do not yet have an implementation and are not in use
-<!-- vale on -->
 
 You can run a specific profile with `docker compose --profile <profile-name> up`
 
