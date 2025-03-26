@@ -24,4 +24,6 @@ public class ReceiveCaasFileConfig
 
     [Required]
     public string caasfolder_STORAGE { get; set; }
+
+    public string GetOrchestrationStatusURL { get; set; }
 }

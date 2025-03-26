@@ -10,20 +10,29 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Moq.Protected;
 using NHS.Screening.ReceiveCaasFile;
+using Microsoft.Extensions.Options;
 
 [TestClass]
-public class CheckDemographicTests
+public class CallDurableDemographicFuncTests
 {
     private readonly Mock<ILogger<CallDurableDemographicFunc>> _logger = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<HttpClient> _httpClient = new();
     private readonly CallDurableDemographicFunc _callDurableDemographicFunc;
-
     private readonly Mock<ICopyFailedBatchToBlob> _copyFailedBatchToBlob = new();
 
-    public CheckDemographicTests()
+    private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
+
+    public CallDurableDemographicFuncTests()
     {
-        _callDurableDemographicFunc = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, _httpClient.Object, _copyFailedBatchToBlob.Object);
+        var testConfig = new ReceiveCaasFileConfig
+        {
+            GetOrchestrationStatusURL = "http://testURL.com",
+            maxNumberOfChecks = 50
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+        _callDurableDemographicFunc = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, _httpClient.Object, _copyFailedBatchToBlob.Object, _config.Object);
     }
 
     [TestMethod]
@@ -82,7 +91,7 @@ public class CheckDemographicTests
 
         // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.OK);
-        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object);
+        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);
@@ -110,7 +119,7 @@ public class CheckDemographicTests
 
         // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.BadRequest);
-        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object);
+        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);
