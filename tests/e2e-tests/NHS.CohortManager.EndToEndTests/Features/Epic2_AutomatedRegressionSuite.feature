@@ -6,7 +6,7 @@ DTOSS Regression TEST PACK.
     And the application is properly configured
 
   @DTOSS-5104 @Regression
-  Scenario: Verify eligibility flag is set to true for add participant
+  Scenario: Verify eligibility flag is set to true for ADD participant
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     And the file is uploaded to the Blob Storage container
     And the NHS numbers in the database should match the file data
@@ -19,7 +19,7 @@ DTOSS Regression TEST PACK.
       | ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612514171 |
 
   @DTOSS-5104 @Regression
-  Scenario: Verify eligibility flag is set to true for AMENDED records
+  Scenario: Verify eligibility flag is set to true for AMENDED participant
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     And the file is uploaded to the Blob Storage container
     And the NHS numbers in the database should match the file data
