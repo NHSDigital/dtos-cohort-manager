@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using FluentAssertions;
 using NHS.CohortManager.EndToEndTests.Config;
 using NHS.CohortManager.EndToEndTests.Contexts;
-using NHS.CohortManager.EndToEndTests;
 using NHS.CohortManager.EndToEndTests.Models;
 using Microsoft.Extensions.Logging;
 using System;
