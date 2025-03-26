@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.EndToEndTests.Helpers;
+
 using ChoETL;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -6,8 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NHS.CohortManager.EndToEndTests.Helpers
-{
+
+
     public class ParquetHelper
     {
         // Mapping between Parquet fields and DB columns
@@ -345,6 +347,6 @@ namespace NHS.CohortManager.EndToEndTests.Helpers
             public bool ELIGIBILITY { get; set; }
         }
     }
-}
+
 
 
