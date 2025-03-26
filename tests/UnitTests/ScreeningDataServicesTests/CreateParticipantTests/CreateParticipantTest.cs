@@ -7,10 +7,13 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Common;
 using Data.Database;
+using Model.Enums;
 using Model;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text.Json;
 using DataServices.Client;
+using Microsoft.Extensions.Options;
+using NHS.Screening.CreateParticipant;
 
 [TestClass]
 public class CreateParticipantTests
@@ -22,6 +25,7 @@ public class CreateParticipantTests
     private ParticipantCsvRecord _participantCsvRecord = new();
     private readonly Mock<ICallFunction> _callFunction = new();
     private readonly ScreeningDataServices.CreateParticipant _sut;
+    private readonly Mock<IOptions<CreateParticipantConfig>> _config = new();
 
     public CreateParticipantTests()
     {
@@ -34,21 +38,30 @@ public class CreateParticipantTests
         _callFunction
             .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
             .ReturnsAsync(JsonSerializer.Serialize(
-                new ValidationExceptionLog { IsFatal = false, CreatedException = false }
-            ));
+                new ValidationExceptionLog { IsFatal = false, CreatedException = false }));
+
+        var testConfig = new CreateParticipantConfig
+        {
+            ParticipantManagementUrl = "test-url",
+            LookupValidationURL = "test-url-2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _participantManagementClient
             .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
-        _sut = new ScreeningDataServices.CreateParticipant(
+
+        _sut = new(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
             _callFunction.Object,
-            _participantManagementClient.Object);
-
-
+            _participantManagementClient.Object,
+            _config.Object);
     }
+
 
     [TestMethod]
     public async Task Run_ValidRequest_UpdateAndReturnOk()
@@ -69,6 +82,29 @@ public class CreateParticipantTests
             .Verify(response => response.CreateHttpResponse(
                 HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""),
             Times.Once);
+    }
+
+
+    [DataRow("2025")]
+    [DataRow("202501")]
+    public async Task Run_ParticipantHasPartialDates_TransformDatesAndAdd(string rfrDate)
+    {
+        // Arrange
+        var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
+
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
+
+        // Act
+        var response = await _sut.Run(mockRequest);
+
+        // Assert
+        _mockCreateResponse
+            .Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""),
+                Times.Once());
+        _participantManagementClient
+            .Verify(x => x.Add(It.Is<ParticipantManagement>(x => x.ReasonForRemovalDate == expectedParticipant.ReasonForRemovalDate)),
+                Times.Once());
     }
 
     [TestMethod]

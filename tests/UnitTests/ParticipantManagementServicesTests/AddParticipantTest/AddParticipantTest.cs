@@ -10,6 +10,8 @@ using Model;
 using addParticipant;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text;
+using NHS.Screening.AddParticipant;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class AddParticipantTests
@@ -25,17 +27,23 @@ public class AddParticipantTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private BasicParticipantCsvRecord _request = new();
+    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+    private readonly Mock<IOptions<AddParticipantConfig>> _config = new();
 
     public AddParticipantTests()
     {
-        Environment.SetEnvironmentVariable("DSaddParticipant", "DSaddParticipant");
-        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
-        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
-        Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
-        Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
 
         _request.FileName = "ExampleFileName.parquet";
         _request.Participant = new BasicParticipantData{ NhsNumber = "1234567890", ScreeningName = "BS Select" };
+        var testConfig = new AddParticipantConfig
+        {
+            DemographicURIGet = "DemographicURIGet",
+            DSaddParticipant = "DSaddParticipant",
+            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
+            StaticValidationURL = "StaticValidationURL"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
         _sendToCohortDistributionResponse.Setup(x => x.StatusCode)
@@ -60,7 +68,7 @@ public class AddParticipantTests
 
         _cohortDistributionHandler
             .Setup(call => call.SendToCohortDistributionService(
-                It.IsAny<string>(), 
+                It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
@@ -71,18 +79,8 @@ public class AddParticipantTests
             .Setup(call => call.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .ReturnsAsync(new Demographic())
             .Verifiable();
-
-        _createResponse
-            .Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns(It.IsAny<HttpResponseData>());
-
-        _handleException
-            .Setup(x => x.CreateSystemExceptionLog(
-                It.IsAny<Exception>(),
-                It.IsAny<Participant>(),
-                It.IsAny<string>())
-            );
     }
+
 
     [TestMethod]
     public async Task Run_ValidRequest_SendToCohortDistribution()
@@ -91,7 +89,7 @@ public class AddParticipantTests
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object,
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
-                                            _cohortDistributionHandler.Object);
+                                            _cohortDistributionHandler.Object, _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -129,7 +127,9 @@ public class AddParticipantTests
             _checkDemographic.Object,
             _createParticipant,
             _handleException.Object,
-             _cohortDistributionHandler.Object);
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -155,24 +155,28 @@ public class AddParticipantTests
             .ReturnsAsync(eligibleResponse.Object);
 
         var sut = new AddParticipantFunction(
-            _loggerMock.Object,
-            _callFunctionMock.Object,
-            _createResponse.Object,
-            _checkDemographic.Object,
-            _createParticipant,
-            _handleException.Object,
-            _cohortDistributionHandler.Object);
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
 
-        //Assert
-        _handleException
-            .Verify(call => call.CreateSystemExceptionLog(
-                It.Is<Exception>(e => e.Message.Contains("There was an error while marking participant as eligible")),
-                It.IsAny<BasicParticipantData>(),
-                It.IsAny<string>()
-            ));
+        // Assert
+        _loggerMock.Verify(log =>
+            log.Log(
+            LogLevel.Information,
+            0,
+            It.IsAny<It.IsAnyType>(),
+            null,
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+            ), Times.AtLeastOnce(), "Participant created, marked as eligible");
     }
 
     [TestMethod]
@@ -191,7 +195,13 @@ public class AddParticipantTests
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object,
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
-                                            _cohortDistributionHandler.Object);
+                                            _cohortDistributionHandler.Object, _config.Object);
+
+        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
+        _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()));
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
+            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -216,7 +226,7 @@ public class AddParticipantTests
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object,
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
-                                            _cohortDistributionHandler.Object);
+                                            _cohortDistributionHandler.Object, _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -243,7 +253,7 @@ public class AddParticipantTests
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object,
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
-                                            _cohortDistributionHandler.Object);
+                                            _cohortDistributionHandler.Object, _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -270,7 +280,7 @@ public class AddParticipantTests
         var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object,
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
-                                            _cohortDistributionHandler.Object);
+                                            _cohortDistributionHandler.Object, _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));

@@ -62,6 +62,7 @@ application/CohortManager/SampleData/
 *.parquet
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 !tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles/**/*.parquet
+!tests/e2e-tests/NHS.CohortManager.EndToEndTests/TestFiles/**/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
@@ -83,4 +84,6 @@ application/CohortManager/.vscode/
 
 # Ignore generated feature bindings
 *.feature.cs
-tests/smoke-tests/dtos-cohort-manager-smoke-tests/Config/appsettings-local.json
+tests/smoke-tests/NHS.CohortManager.SmokeTests/Config/appsettings-local.json
+tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
+*.crt

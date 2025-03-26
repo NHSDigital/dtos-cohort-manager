@@ -68,7 +68,7 @@ public class CreateExceptionTests
     }
 
     [TestMethod]
-    public async Task Run_ExceptionRecordCreated_ReturnsCreated()
+    public async Task Run_ExceptionRecordCreated_ReturnsOk()
     {
         // Arrange
         _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).ReturnsAsync(true);
@@ -79,7 +79,7 @@ public class CreateExceptionTests
         // Assert
         Assert.IsNotNull(result);
         _validationExceptionData.Verify(v => v.Create(It.IsAny<ValidationException>()), Times.Once);
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]

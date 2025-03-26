@@ -9,10 +9,11 @@ using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistribution.ValidateCohortDistributionRecord;
-
+using NHS.Screening.ValidateCohortDistributionRecord;
 
 [TestClass]
 public class ValidateCohortDistributionRecordTests
@@ -26,6 +27,7 @@ public class ValidateCohortDistributionRecordTests
     private readonly Mock<HttpRequestData> _request;
     private readonly ValidateCohortDistributionRecordBody _requestBody;
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceMock = new();
+    private readonly Mock<IOptions<ValidateCohortDistributionRecordConfig>> _config = new();
 
 
     public ValidateCohortDistributionRecordTests()
@@ -42,7 +44,22 @@ public class ValidateCohortDistributionRecordTests
             CohortDistributionParticipant = new CohortDistributionParticipant()
         };
 
-        _function = new ValidateCohortDistributionRecord(_logger.Object, _createResponse.Object, _exceptionHandler.Object, _callFunction.Object, _cohortDistributionDataServiceMock.Object);
+        var testConfig = new ValidateCohortDistributionRecordConfig
+        {
+            CohortDistributionDataServiceURL = "test",
+            LookupValidationURL = "test2"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _function = new ValidateCohortDistributionRecord(
+            _logger.Object, 
+            _createResponse.Object, 
+            _exceptionHandler.Object, 
+            _callFunction.Object, 
+            _cohortDistributionDataServiceMock.Object,
+            _config.Object
+        );
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
                 {
@@ -125,7 +142,7 @@ public class ValidateCohortDistributionRecordTests
     }
 
     [TestMethod]
-    public async Task Run_LookupValidationCreatesValidationError_Created()
+    public async Task Run_LookupValidationCreatesValidationError_ReturnOk()
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
@@ -145,7 +162,7 @@ public class ValidateCohortDistributionRecordTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
