@@ -1,4 +1,4 @@
-Feature: Epic2_AutomatedRegressionSuite
+Feature: Epic2_HighPriorityTests
 DTOSS Regression TEST PACK.
 
   Background:
