@@ -11,6 +11,8 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using updateParticipant;
 using RulesEngine.Models;
+using Microsoft.Extensions.Options;
+using NHS.Screening.UpdateParticipant;
 
 [TestClass]
 public class UpdateParticipantTests
@@ -23,17 +25,22 @@ public class UpdateParticipantTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private ParticipantCsvRecord _request = new();
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
+    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+    private readonly Mock<IOptions<UpdateParticipantConfig>> _config = new();
 
     public UpdateParticipantTests()
     {
-        Environment.SetEnvironmentVariable("UpdateParticipant", "UpdateParticipant");
-        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
-        Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
-        Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
-        Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
-        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
+        var testConfig = new UpdateParticipantConfig
+        {
+            DemographicURIGet = "DemographicURIGet",
+            UpdateParticipant = "UpdateParticipant",
+            StaticValidationURL = "StaticValidationURL",
+            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
+            markParticipantAsIneligible = "markParticipantAsIneligible"
+        };
 
         var validationResponse = new ValidationExceptionLog { IsFatal = false, CreatedException = false };
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         _callFunctionMock
             .Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
@@ -84,6 +91,7 @@ public class UpdateParticipantTests
                 It.IsAny<Participant>(),
                 It.IsAny<string>())
             );
+
     }
 
     [TestMethod]
@@ -92,7 +100,8 @@ public class UpdateParticipantTests
         // Arrange
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                                 _checkDemographic.Object, _createParticipant,
-                                                _handleException.Object, _cohortDistributionHandler.Object);
+                                                _handleException.Object, _cohortDistributionHandler.Object,
+                                                _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -119,7 +128,8 @@ public class UpdateParticipantTests
         _request.Participant.EligibilityFlag = EligibilityFlag.Ineligible;
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                                 _checkDemographic.Object, _createParticipant,
-                                                _handleException.Object, _cohortDistributionHandler.Object);
+                                                _handleException.Object, _cohortDistributionHandler.Object,
+                                                _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -151,7 +161,8 @@ public class UpdateParticipantTests
 
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                                 _checkDemographic.Object, _createParticipant,
-                                                _handleException.Object, _cohortDistributionHandler.Object);
+                                                _handleException.Object, _cohortDistributionHandler.Object,
+                                                _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -177,7 +188,8 @@ public class UpdateParticipantTests
 
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                                 _checkDemographic.Object, _createParticipant,
-                                                _handleException.Object, _cohortDistributionHandler.Object);
+                                                _handleException.Object, _cohortDistributionHandler.Object,
+                                                _config.Object);
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
@@ -202,7 +214,8 @@ public class UpdateParticipantTests
 
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                                 _checkDemographic.Object, _createParticipant,
-                                                _handleException.Object, _cohortDistributionHandler.Object);
+                                                _handleException.Object, _cohortDistributionHandler.Object,
+                                                _config.Object);
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
 
@@ -225,7 +238,8 @@ public class UpdateParticipantTests
 
         var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
                                         _checkDemographic.Object, _createParticipant,
-                                        _handleException.Object, _cohortDistributionHandler.Object);
+                                        _handleException.Object, _cohortDistributionHandler.Object,
+                                        _config.Object);
 
         //Act
         await sut.Run(JsonSerializer.Serialize(_request));

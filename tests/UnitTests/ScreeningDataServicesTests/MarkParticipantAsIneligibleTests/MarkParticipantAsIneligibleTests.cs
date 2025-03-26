@@ -1,210 +1,180 @@
 namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
 
+using System.Linq.Expressions;
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
-using NHS.CohortManager.ScreeningDataServices;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
+using DataServices.Client;
 using Model;
 using Moq;
-using Google.Protobuf.Reflection;
-using DataServices.Client;
-using System.Linq.Expressions;
+using NHS.CohortManager.ScreeningDataServices;
+using NHS.CohortManager.Tests.TestUtils;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NHS.Screening.MarkParticipantAsIneligible;
 
 [TestClass]
-public class MarkParticipantAsIneligibleTests
+public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkParticipantAsIneligible>
 {
-    private readonly Mock<FunctionContext> _context = new();
-    private readonly Mock<HttpRequestData> _request;
-    private readonly ParticipantCsvRecord _requestBody;
-    private readonly MarkParticipantAsIneligible _function;
-    private readonly Mock<ICreateResponse> _createResponse = new();
-    private readonly Mock<ILogger<MarkParticipantAsIneligible>> _mockLogger = new();
-    private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<HttpWebResponse> _webResponse = new();
+    private static readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
+    private static readonly Mock<IExceptionHandler> _handleException = new();
+    private static readonly Mock<ICallFunction> _callFunction = new();
+    private static readonly ParticipantCsvRecord _participantCsvRecord = new();
+    private static readonly Mock<IOptions<MarkParticipantAsIneligibleConfig>> _config = new();
+    private ParticipantManagement _participantManagement = new();
 
-    private readonly Mock<IExceptionHandler> _handleException = new();
-
-    public MarkParticipantAsIneligibleTests()
+    public MarkParticipantAsIneligibleTests() : base((conn, logger, transaction, command, response) =>
+    new MarkParticipantAsIneligible(
+        logger,
+        response,
+        _participantManagementClient.Object,
+        _callFunction.Object,
+        _handleException.Object,
+        _config.Object))
     {
         Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
+        CreateHttpResponseMock();
+    }
 
-        _request = new Mock<HttpRequestData>(_context.Object);
-
-        _requestBody = new ParticipantCsvRecord
+    [TestInitialize]
+    public void TestInitialize()
+    {
+        _callFunction.Reset();
+        _participantManagementClient.Reset();
+        _service = new MarkParticipantAsIneligible(
+            _loggerMock.Object,
+            _createResponseMock.Object,
+            _participantManagementClient.Object,
+            _callFunction.Object,
+            _handleException.Object,
+            _config.Object);
+        _participantCsvRecord.Participant = new Participant()
         {
-            FileName = "test.csv",
-            Participant = new Participant()
-            {
-                NhsNumber = "1234567890",
-                ScreeningId = "1",
-                ParticipantId = "123"
-            }
+            NhsNumber = "1234567890",
+            ScreeningId = "1"
+        };
+        _participantManagement = new ParticipantManagement()
+        {
+            NHSNumber = 1234567890,
+            ScreeningId = 1
+        };
+        var testConfig = new MarkParticipantAsIneligibleConfig
+        {
+            ParticipantManagementUrl = "test-storage",
+            LookupValidationURL = "test-inbound"
         };
 
-        _function = new MarkParticipantAsIneligible(_mockLogger.Object, _createResponse.Object, _mockParticipantManagementClient.Object, _callFunction.Object, _handleException.Object);
-
-        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
-
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-            {
-                var response = new Mock<HttpResponseData>(_context.Object);
-                response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-                response.SetupProperty(r => r.StatusCode);
-                response.SetupProperty(r => r.Body, new MemoryStream());
-                return response.Object;
-            });
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-                response.WriteString(ResponseBody);
-                return response;
-            });
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Empty()
-    {
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Request_Body_Invalid()
-    {
-        // Arrange
-        SetUpRequestBody("Invalid request body");
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Return_OK_When_Request_Is_Successful()
-    {
-        // Arrange
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
+        _config.Setup(c => c.Value).Returns(testConfig);
+        _participantManagementClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new List<ParticipantManagement> { _participantManagement });
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult(
+            JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = false,
                 CreatedException = false
             })));
-
-       var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, ScreeningId = 1, EligibilityFlag = 0 };
-        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
-        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _participantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(_participantManagement);
+        _participantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
     }
 
+    [DataRow("")]
+    [DataRow("Invalid request body")]
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_Lookup_Validation_Fails()
+    public async Task Run_BadRequest_ReturnsBadRequest(string badRequest)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-
+        _request = SetupRequest(badRequest);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var result = await _service.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
+    [DataRow("1234567890", "")]
+    [DataRow("", "1")]
     [TestMethod]
-    public async Task Run_Should_Return_BadRequest_When_UpdateParticipantAsEligible_Fails()
+    public async Task Run_InvalidNhsNumberOrScreeningId_ReturnsFormatException(string nhsNumber, string screeningId)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-            JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            })));
-
-        _mockParticipantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
+        _participantCsvRecord.Participant.NhsNumber = nhsNumber;
+        _participantCsvRecord.Participant.ScreeningId = screeningId;
+        _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var result = await Assert.ThrowsExceptionAsync<FormatException>(() => _service.RunAsync(_request.Object));
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.IsInstanceOfType(result, typeof(FormatException));
+        StringAssert.Contains(result.Message, "Could not parse NhsNumber or screeningID");
     }
 
     [TestMethod]
-    public async Task Run_UpdateParticipantAsEligible_Response_Is_Fatal()
+    public async Task Run_FailedLookupValidation_ReturnsBadRequest()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("LookupValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult(
             JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = true,
                 CreatedException = true
             })));
 
+        _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
+
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var result = await _service.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
-
-    private void SetUpRequestBody(string json)
+    [TestMethod]
+    public async Task Run_UpdateSucceeds_ReturnsOK()
     {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
+        // Arrange
+        _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
 
-        _request.Setup(r => r.Body).Returns(bodyStream);
+        // Act
+        var result = await _service.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_UpdateFails_ReturnsBadRequest()
+    {
+        // Arrange
+        _participantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
+        _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
+
+        // Act
+        var result = await _service.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_UpdateThrowsException_ReturnsBadRequest()
+    {
+        // Arrange
+        var errorMessage = "There was an error";
+        _participantManagementClient.Setup(data => data.Update(It.IsAny<ParticipantManagement>())).Throws(new Exception(errorMessage));
+        _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
+
+        // Act
+        var result = await _service.RunAsync(_request.Object);
+
+        // Assert
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 }

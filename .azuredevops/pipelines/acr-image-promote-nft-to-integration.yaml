@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: ce0f49a28a90aa60ac579db350dbd18971b0d5ed
+      ref: b27ec9f8be6e667ee4073c8436dadb55b9fe99c7
       endpoint: NHSDigital
 
 variables:
@@ -92,3 +92,5 @@ stages:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: sc-cohort-manager-int
+        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
+        testProjectName: 'NHS.CohortManager.SmokeTests'

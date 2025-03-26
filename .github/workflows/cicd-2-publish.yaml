@@ -51,15 +51,15 @@ jobs:
           export VERSION="${{ steps.variables.outputs.version }}"
           make list-variables
 
-  publish:
-    name: "Build and publish image stage"
-    # runs-on: ubuntu-latest
-    needs: [metadata]
-    uses: ./.github/workflows/stage-3-build-images.yaml
-    if: github.event.pull_request.merged == true
-    with:
-      environment_tag: "${{ needs.metadata.outputs.environment_tag }}"
-    secrets: inherit
+  # publish:
+  #   name: "Build and publish image stage"
+  #   # runs-on: ubuntu-latest
+  #   needs: [metadata]
+  #   uses: ./.github/workflows/stage-3-build-images.yaml
+  #   if: github.event.pull_request.merged == true
+  #   with:
+  #     environment_tag: "${{ needs.metadata.outputs.environment_tag }}"
+  #   secrets: inherit
     # timeout-minutes: 3
     # steps:
     #   - name: "Checkout code"
