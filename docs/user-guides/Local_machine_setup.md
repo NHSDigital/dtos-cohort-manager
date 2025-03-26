@@ -65,9 +65,9 @@ The docker compose has now been split into 4 files due to the size of the applic
 
 First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
+<!-- vale ignore --> Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
 
-> **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
+<!-- vale ignore --> > **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
 
 To build and run the application manually in the terminal, run the following commands in the application/CohortManager directory:\
 If you are on Mac, you will need to replace `docker` with `podman`
@@ -107,7 +107,7 @@ Key of profiles:
 
 - bi-analytics - Functions that are only used by the external BI & Analytics product
 - bs-select - Functions that are only used by external requests from BS Select
-- ui - only used by the user interface
+- <!-- vale ignore --> ui - only used by the user interface
 - non-essential - Functions that are not needed to run the application
 - not-implemented - Functions that do not yet have an implementation and are not in use
 
