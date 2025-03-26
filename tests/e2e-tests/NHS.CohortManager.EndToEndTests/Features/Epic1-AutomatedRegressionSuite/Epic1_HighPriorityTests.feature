@@ -33,8 +33,10 @@ DTOSS Regression TEST PACK.
   Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
 
     Examples:
       | FileName                                             | RecordType | NhsNumbers             |
@@ -48,9 +50,11 @@ DTOSS Regression TEST PACK.
     And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
-    And the NHS Number should have exactly 2 record in Cohort_Distribution table
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | BS_Cohort_Distribution  |                    2 |
 
     Examples:
       | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
@@ -64,9 +68,11 @@ DTOSS Regression TEST PACK.
       | FieldName        | FieldValue                                     |
       | RULE_ID          |                                             36 |
       | RULE_DESCRIPTION | Invalid primary care provider GP practice code |
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
-    And the NHS Number should have exactly 0 record in Cohort_Distribution table
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | BS_Cohort_Distribution  |                    0 |
 
     Examples:
       | AddFileName                                             | NhsNumbers |
@@ -83,9 +89,11 @@ DTOSS Regression TEST PACK.
       | FieldName        | FieldValue            |
       | RULE_ID          |                    17 |
       | RULE_DESCRIPTION | Date of birth invalid |
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
-    And the NHS Number should have exactly 1 record in Cohort_Distribution table
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | BS_Cohort_Distribution  |                    1 |
 
     Examples:
       | AddFileName                                       | AmendedFileName                                       | NhsNumbers |
@@ -99,10 +107,12 @@ DTOSS Regression TEST PACK.
     And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
-    And the NHS Number should have exactly 2 record in Cohort_Distribution table
-    And the NHS Number should have exactly 0 record in Exception_Managment
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | BS_Cohort_Distribution  |                    2 |
+      | Exception_Managment     |                    0 |
 
     Examples:
       | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
@@ -113,14 +123,16 @@ DTOSS Regression TEST PACK.
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
-    And the NHS Number should have exactly 1 record in Cohort_Distribution table
-    And the NHS Number should have exactly 0 record in Exception_Managment
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | BS_Cohort_Distribution  |                    1 |
+      | Exception_Managment     |                    0 |
 
     Examples:
-      | FileName                                             | RecordType | NhsNumbers             |
-      | ADD2_records_-_CAAS_BREAST_SCREENING_COHORT.parquet  | Add        | 1111110662, 2222211794 |
+      | FileName                                            | RecordType | NhsNumbers             |
+      | ADD2_records_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
 
   @DTOSS-7587 @Regression
   Scenario: Verify a file is uploaded to blobstorage successfully
@@ -151,10 +163,12 @@ DTOSS Regression TEST PACK.
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have exactly 1 record in Participant_Management
-    And the NHS Number should have exactly 1 record in Participant_Demographic
+    Then the NHS Number should have the following records count
+      | TableName               | ExpectedCountInTable |
+      | Participant_Management  |                    1 |
+      | Participant_Demographic |                    1 |
+      | Exception_Management    |                    0 |
     And verify Parquet file data matches the data in cohort distribution
-    And the NHS Number should have exactly 0 record in Exception_Managment
 
     Examples:
       | FileName                                           | RecordType | NhsNumbers |

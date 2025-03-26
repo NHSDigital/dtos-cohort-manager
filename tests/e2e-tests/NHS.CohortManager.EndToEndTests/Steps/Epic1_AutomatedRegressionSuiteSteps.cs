@@ -76,36 +76,22 @@ public class Epic1_AutomatedRegressionSuiteSteps
     public async Task ThenTheParticipantDemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
     {
 
-    await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", "GIVEN_NAME", expectedGivenName, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
+        await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", "GIVEN_NAME", expectedGivenName, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
     }
 
-    [Then(@"the NHS Number should have exactly (.*) record in Participant_Management")]
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipantManagement(int count)
+    [Then(@"the NHS Number should have the following records count")]
+    public async Task ThenTheNHSNumberShouldHaveFollowingRecordsCounts(Table table)
     {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_MANAGEMENT", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-    }
+        foreach (var row in table.Rows)
+        {
+            string tableName = row["TableName"];
+            int expectedCount = int.Parse(row["ExpectedCountInTable"]);
 
-    [Then(@"the NHS Number should have exactly (.*) record in Participant_Demographic")]
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipant_Demographic(int count)
-    {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_DEMOGRAPHIC", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-    }
-
-    [Then(@"the NHS Number should have exactly (.*) record in Cohort_Distribution table")]
-    public async Task thereshouldntbenoentryofNHSnumberincohortdistributiontable(int count)
-    {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-
-
-    }
-
-    [Then("the NHS Number should have exactly (.*) record in Exception_Managment")]
-
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInException_Managment(int count)
-    {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("EXCEPTION_MANAGEMENT", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-
-
+            await _fileUploadService.VerifyNhsNumbersCountAsync(
+                tableName,
+                _endtoendTestsContext.NhsNumbers.FirstOrDefault(),
+                expectedCount);
+        }
     }
 
     [Given(@"the database is cleaned of all records for NHS Numbers: (.*)")]
@@ -196,7 +182,7 @@ public class Epic1_AutomatedRegressionSuiteSteps
 
         foreach (var field in fields)
         {
-           await _fileUploadService.VerifyFieldUpdateAsync( "EXCEPTION_MANAGEMENT",field.FieldName,field.FieldValue, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
+            await _fileUploadService.VerifyFieldUpdateAsync("EXCEPTION_MANAGEMENT", field.FieldName, field.FieldValue, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
         }
     }
 
