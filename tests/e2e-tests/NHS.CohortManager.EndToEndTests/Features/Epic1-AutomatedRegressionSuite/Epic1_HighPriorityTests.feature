@@ -47,12 +47,14 @@ DTOSS Regression TEST PACK.
     And the NHS numbers in the database should match the file data
     And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
     Then the NHS Number should have exactly 1 record in Participant_Management
     And the NHS Number should have exactly 1 record in Participant_Demographic
+    And the NHS Number should have exactly 2 record in Cohort_Distribution table
 
     Examples:
-      | AddFileName                                        | AmendedFileName                                        | NhsNumbers |
-      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 |
+      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDED    |
 
   @DTOSS-7585 @Regression
   Scenario: Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution
@@ -88,3 +90,72 @@ DTOSS Regression TEST PACK.
     Examples:
       | AddFileName                                       | AmendedFileName                                       | NhsNumbers |
       | ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2612514171 |
+
+  @DTOSS-7589 @Regression
+  Scenario: Verify AMENDED records is processed without any Exception
+    Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    And the file is uploaded to the Blob Storage container
+    And the NHS numbers in the database should match the file data
+    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
+    Then the NHS Number should have exactly 1 record in Participant_Management
+    And the NHS Number should have exactly 1 record in Participant_Demographic
+    And the NHS Number should have exactly 2 record in Cohort_Distribution table
+    And the NHS Number should have exactly 0 record in Exception_Managment
+
+    Examples:
+      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDED    |
+
+  @DTOSS-7590 @Regression
+  Scenario: Verify ADD records is processed without any Exception
+    Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
+    Then the NHS Number should have exactly 1 record in Participant_Management
+    And the NHS Number should have exactly 1 record in Participant_Demographic
+    And the NHS Number should have exactly 1 record in Cohort_Distribution table
+    And the NHS Number should have exactly 0 record in Exception_Managment
+
+    Examples:
+      | FileName                                             | RecordType | NhsNumbers             |
+      | ADD2_records_-_CAAS_BREAST_SCREENING_COHORT.parquet  | Add        | 1111110662, 2222211794 |
+
+  @DTOSS-7587 @Regression
+  Scenario: Verify a file is uploaded to blobstorage successfully
+    Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then the uploaded file should exist in blob storage
+    And the file content should match the original
+
+    Examples:
+      | FileName                                             | RecordType | NhsNumbers             |
+      | ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
+
+  @DTOSS-7588 @Regression
+  Scenario: Verify that an invalid CAAS file type triggers a validation exception
+    Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then the exception table should contain the below details
+      | FieldName        | FieldValue                                                                           |
+      | ERROR_RECORD     | File name is invalid. File name: Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet |
+      | RULE_DESCRIPTION | The file failed file validation. Check the file Exceptions blob store.               |
+
+    Examples:
+      | FileName                                            | RecordType | NhsNumbers             |
+      | Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet | Add        | 1111110662, 2222211794 |
+
+  @DTOSS-7586 @Regression
+  Scenario: Verify Successful Data Processing and Storage in Cohort Manager for Add"
+    Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+    When the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
+    Then the NHS Number should have exactly 1 record in Participant_Management
+    And the NHS Number should have exactly 1 record in Participant_Demographic
+    And verify Parquet file data matches the data in cohort distribution
+    And the NHS Number should have exactly 0 record in Exception_Managment
+
+    Examples:
+      | FileName                                           | RecordType | NhsNumbers |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 2312514176 |
