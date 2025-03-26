@@ -114,7 +114,7 @@ app_service_plan = {
       dec_threshold       = 20
       dec_scale_direction = "Decrease"
       dec_scale_type      = "ExactCount"
-      dec_scale_value     = 1
+      dec_scale_value     = 2
       dec_scale_cooldown  = "PT5M"
     }
   }
@@ -139,16 +139,18 @@ app_service_plan = {
           capacity_min = "1"
           capacity_max = "4"
           capacity_def = "2"
-          inc_threshold = 5
-          dec_threshold = 5
-          dec_scale_type = "ChangeCount"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
         }
       }
     }
   }
 }
-
 diagnostic_settings = {
   metric_enabled = true
 }
