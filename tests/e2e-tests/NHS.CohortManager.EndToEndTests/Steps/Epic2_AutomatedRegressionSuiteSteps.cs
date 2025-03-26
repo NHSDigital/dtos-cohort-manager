@@ -33,7 +33,7 @@ public class Epic2_AutomatedRegressionSuiteSteps
 
     }
 
-    [Then(@"the Participant Management table should contain an eligibility flag set to true")]
+    [Then(@"the Participant_Management table should contain an eligibility flag set to true")]
     public async Task ThenTheParticipantTableShouldContainTheBelowDetails(Table table)
     {
         var fields = table.Rows.Select(row => new FieldsTable
