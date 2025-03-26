@@ -107,7 +107,7 @@ Key of profiles:
 
 - bi-analytics - Functions that are only used by the external BI & Analytics product
 - bs-select - Functions that are only used by external requests from BS Select
-- UI - only used by the user interface
+- ui - only used by the user interface
 - non-essential - Functions that are not needed to run the application
 - not-implemented - Functions that do not yet have an implementation and are not in use
 
