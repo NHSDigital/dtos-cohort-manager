@@ -38,9 +38,11 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 *Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
 
 ### 4. Download Docker/ Podman
+
 If you are on Windows, install Docker Engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
 
 If you are on Mac, install Podman by running:
+
 ```bash
 brew install --cask podman
 brew install podman-compose
@@ -52,6 +54,7 @@ podman machine start
 ```
 
 ## Running the Application
+
 The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
 - compose.deps.yaml - contains the database, azurite and setup containers, this must be run before the other files
 - compose.core.yaml - contains the core functions
@@ -61,10 +64,9 @@ The docker compose has now been split into 4 files due to the size of the applic
 
 First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-> **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
-
-### Vscode Tasks
 Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
+
+> **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
 
 To build and run the application manually in the terminal, run the following commands in the application/CohortManager directory:\
 If you are on Mac, you will need to replace `docker` with `podman`
@@ -93,12 +95,15 @@ docker compose up receive-caas-file
 docker ps -a   # List all of the containers
 docker logs <container-name>   # View the logs of the container
 ```
+
 Alternatively, you can run an individual function locally with `func start`
 
 ### Profiles
+
 To make the application more manageable to run, some functions have had [docker compose profiles](https://docs.docker.com/compose/how-tos/profiles/) added to them, which means they will not build and run unless specified
 
 Key of profiles:
+
 - bi-analytics - Functions that are only used by the external BI & Analytics product
 - bs-select - Functions that are only used by external requests from BS Select
 - ui - only used by the user interface
