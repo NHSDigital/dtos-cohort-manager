@@ -11,6 +11,9 @@ using HealthChecks.Extensions;
 var host = new HostBuilder()
     .AddConfiguration<CreateCohortDistributionConfig>(out CreateCohortDistributionConfig config)
     .ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICallFunction, CallFunction>();

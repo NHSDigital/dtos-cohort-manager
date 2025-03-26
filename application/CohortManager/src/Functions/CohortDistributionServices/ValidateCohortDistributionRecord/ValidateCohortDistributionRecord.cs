@@ -73,11 +73,7 @@ public class ValidateCohortDistributionRecord
             var newParticipant = requestBody.CohortDistributionParticipant;
 
             var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
-            if (validationResult.CreatedException)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationResult));
-            }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(validationResult));
 
         }
         catch (Exception ex)
