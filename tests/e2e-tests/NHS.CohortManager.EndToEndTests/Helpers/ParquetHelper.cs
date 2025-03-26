@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NHS.CohortManager.EndToEndTests.Helpers
 {
-    public class ParquetHelperService
+    public class ParquetHelper
     {
         // Mapping between Parquet fields and DB columns
         private static readonly Dictionary<string, string> FieldMappings = new Dictionary<string, string>

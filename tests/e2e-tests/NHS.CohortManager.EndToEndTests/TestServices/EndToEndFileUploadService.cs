@@ -18,15 +18,15 @@ public class EndToEndFileUploadService
     private readonly AppSettings _appSettings;
     private readonly BlobStorageHelper _blobStorageHelper;
 
-    private readonly ParquetHelperService _parquethelperservice;
+    private readonly ParquetHelper _parquethelper;
     private readonly SqlConnectionWithAuthentication _sqlConnectionWithAuthentication;
 
-    public EndToEndFileUploadService(ILogger<EndToEndFileUploadService> logger, AppSettings appSettings, BlobStorageHelper blobStorageHelper, ParquetHelperService parquetHelperService)
+    public EndToEndFileUploadService(ILogger<EndToEndFileUploadService> logger, AppSettings appSettings, BlobStorageHelper blobStorageHelper, ParquetHelper parquetHelper)
     {
         _logger = logger;
         _appSettings = appSettings;
         _blobStorageHelper = blobStorageHelper;
-        _parquethelperservice = parquetHelperService;
+        _parquethelper = parquetHelper;
 
         // Read from appsettings.json
         string connectionString = _appSettings.ConnectionStrings.DtOsDatabaseConnectionString;
@@ -85,7 +85,7 @@ public class EndToEndFileUploadService
             _logger.LogInformation("Starting Parquet file validation for file: {FilePath}", filePath);
 
             // Call the method from ParquetHelperService, passing in the logger
-            await ParquetHelperService.VerifyParquetValuesMatchDbValuesAsync(
+            await ParquetHelper.VerifyParquetValuesMatchDbValuesAsync(
                 filePath,
                 _sqlConnectionWithAuthentication,
                 tableName,
@@ -104,7 +104,7 @@ public class EndToEndFileUploadService
         _logger.LogInformation("Extracting NHS numbers from Parquet file: {FilePath}", filePath);
 
         // Hypothetical helper that parses the Parquet file and returns NHS numbers
-        var nhsNumbers = ParquetHelperService.ExtractNhsNumbersFromParquet(filePath);
+        var nhsNumbers = ParquetHelper.ExtractNhsNumbersFromParquet(filePath);
 
         _logger.LogInformation("Extracted {Count} NHS numbers from the Parquet file.", nhsNumbers.Count);
         return nhsNumbers;
