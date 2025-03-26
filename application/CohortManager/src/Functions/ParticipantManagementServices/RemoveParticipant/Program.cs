@@ -14,7 +14,6 @@ var host = new HostBuilder()
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
-        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
             client.BaseAddress = new Uri(config.DemographicURIGet);
@@ -22,6 +21,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RemoveParticipant");
     })
+    .AddAzureQueues()
     .AddExceptionHandler()
     .Build();
 
