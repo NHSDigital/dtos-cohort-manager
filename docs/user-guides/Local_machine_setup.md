@@ -37,29 +37,49 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 *Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
 
-## Running the Application Locally (Windows)
+### 4. Download Docker/ Podman
+If you are on Windows, install Docker Engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
 
-Download docker engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
+If you are on Mac, install Podman by running:
+```bash
+brew install --cask podman
+brew install podman-compose
+
+# Allocate sufficient resources to Podman:
+podman machine stop
+podman machine set --cpus=6 --memory=12288 --disk-size=125
+podman machine start
+```
+
+## Running the Application
+The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
+- compose.deps.yaml - contains the database, azurite and setup containers, this must be run before the other files
+- compose.core.yaml - contains the core functions
+- compose.cohort-distribution.yaml - cohort distribution
+- compose.data-services.yaml - cotnains the data services
+- compose.yaml - imports the core and cohort distribution files so they can be interacted with together
 
 First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
+> **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
 
-- compose.deps.yaml - contains the database, azurite and setup containers, this must be run before the other files
-- compose.core.yaml - contains the application minus cohort distribution
-- compose.cohort-distribution.yaml - cohort distribution
-- compose.yaml - imports the core and cohort distribution files so they can be interacted with together
+### Vscode Tasks
+Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
 
-To build and run the system locally:
+To build and run the application manually in the terminal, run the following commands in the application/CohortManager directory:\
+If you are on Mac, you will need to replace `docker` with `podman`
 
 ```bash
 # Build the functions
 docker compose -f compose.core.yaml build
 docker compose -f compose.cohort-distribution.yaml build
+docker compose -f compose.data-services.yaml build
 
 docker compose -f compose.deps.yaml up --build -d # Run the deps before the rest of the functions
 docker compose up # Run the functions
 ```
+
+>**Note:** This will take a while the first time
 
 Other useful commands:
 
@@ -73,27 +93,22 @@ docker compose up receive-caas-file
 docker ps -a   # List all of the containers
 docker logs <container-name>   # View the logs of the container
 ```
-
-*Note anything in local.settings.json will not apply to the containerised functions
-
 Alternatively, you can run an individual function locally with `func start`
 
-## Running the Application Locally (Mac)
+### Profiles
+To make the application more manageable to run, some functions have had [docker compose profiles](https://docs.docker.com/compose/how-tos/profiles/) added to them, which means they will not build and run unless specified
 
-The full containerised solution does not work on Macs so you will have to run the application manually, but you can run the dependencies with docker
+Key of profiles:
+- bi-analytics - Functions that are only used by the external BI & Analytics product
+- bs-select - Functions that are only used by external requests from BS Select
+- ui - only used by the user interface
+- non-essential - Functions that are not needed to run the application
+- not-implemented - Functions that do not yet have an implementation and are not in use
 
-### Dependencies
+You can run a specific profile with `docker compose --profile <profile-name> up`
 
-Download Colima using [these instructions](https://smallsharpsoftwaretools.com/tutorials/use-colima-to-run-docker-containers-on-macos/)
+Or, to run the whole application `docker compose --profile "*" up`
 
-Add the environment variables using the instructions in the windows setup
-
-You can then run and setup the dependencies using docker:
-    `docker compose -f compose.deps.yaml up`
-
-### Functions
-
-*Someone using a Mac please update this with instructions
 
 ## Appendix A: Storage
 
