@@ -46,8 +46,11 @@ public class AddParticipantTests
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _sendToCohortDistributionResponse.Setup(x => x.StatusCode)
+
+        _sendToCohortDistributionResponse
+            .Setup(x => x.StatusCode)
             .Returns(HttpStatusCode.OK);
+
         _validationResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
         var validationResponse = new ValidationExceptionLog { IsFatal = false, CreatedException = false };
@@ -57,13 +60,7 @@ public class AddParticipantTests
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         _callFunctionMock
-            .Setup(call => call.SendPost("StaticValidationURL", It.IsAny<string>()))
-            .ReturnsAsync(_validationResponse.Object);
-        _callFunctionMock
-            .Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
-        _callFunctionMock
-            .Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
+            .Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(_webResponse.Object);
 
         _cohortDistributionHandler
@@ -196,12 +193,6 @@ public class AddParticipantTests
                                             _createResponse.Object, _checkDemographic.Object,
                                             _createParticipant, _handleException.Object,
                                             _cohortDistributionHandler.Object, _config.Object);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.Created);
-        _callFunctionMock.Setup(call => call.SendPost("DSaddParticipant", It.IsAny<string>()));
-
-        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
-            .Returns(Task.FromResult<Demographic>(new Demographic()));
 
         // Act
         await sut.Run(JsonSerializer.Serialize(_request));
