@@ -6,6 +6,7 @@ using System.Text.Json;
 using Common;
 using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 using Polly;
@@ -16,20 +17,21 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     private readonly ICallFunction _callFunction;
     private readonly ILogger<CallDurableDemographicFunc> _logger;
     private readonly HttpClient _httpClient;
-
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
-
     private readonly int _maxNumberOfChecks;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
+    private readonly ReceiveCaasFileConfig _config;
 
-    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob)
+
+    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IOptions<ReceiveCaasFileConfig> config)
     {
+        _config = config.Value;
         _callFunction = callFunction;
         _logger = logger;
         _httpClient = httpClient;
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
-        _maxNumberOfChecks = int.Parse(Environment.GetEnvironmentVariable("maxNumberOfChecks") ?? "50");
+        _maxNumberOfChecks = _config.maxNumberOfChecks;
 
         _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }

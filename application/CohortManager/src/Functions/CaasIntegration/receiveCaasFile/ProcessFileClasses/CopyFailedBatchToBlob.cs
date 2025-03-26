@@ -4,17 +4,20 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 
 public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
 {
     private readonly ILogger<CopyFailedBatchToBlob> _logger;
     private readonly IBlobStorageHelper _blobStorageHelper;
-
     private readonly IExceptionHandler _handleException;
 
-    public CopyFailedBatchToBlob(ILogger<CopyFailedBatchToBlob> logger, IBlobStorageHelper blobStorageHelper, IExceptionHandler handleException)
+    private readonly ReceiveCaasFileConfig _config;
+
+    public CopyFailedBatchToBlob(ILogger<CopyFailedBatchToBlob> logger, IBlobStorageHelper blobStorageHelper, IExceptionHandler handleException, IOptions<ReceiveCaasFileConfig> config)
     {
+        _config = config.Value;
         _logger = logger;
         _blobStorageHelper = blobStorageHelper;
         _handleException = handleException;
@@ -25,7 +28,7 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
         using (var stream = GenerateStreamFromString(jsonFromBatch))
         {
             var blobFile = new BlobFile(stream, $"failedBatch-{Guid.NewGuid()}.json");
-            var copied = await _blobStorageHelper.UploadFileToBlobStorage(Environment.GetEnvironmentVariable("caasfolder_STORAGE"), "failed-batch", blobFile);
+            var copied = await _blobStorageHelper.UploadFileToBlobStorage(_config.caasfolder_STORAGE, "failed-batch", blobFile);
 
             if (copied)
             {
