@@ -124,6 +124,7 @@ public class GetParticipantReferenceDataTests
         // Act
         var result = await _function.Run(req);
 
+
         // Assert
         Assert.AreEqual(_mockHttpResponseData, result);
         _mockLogger.Verify(
