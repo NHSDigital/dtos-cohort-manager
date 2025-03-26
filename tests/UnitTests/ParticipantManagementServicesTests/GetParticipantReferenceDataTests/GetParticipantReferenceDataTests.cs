@@ -2,7 +2,6 @@ namespace NHS.CohortManager.Tests.UnitTests.ParticipantManagementServiceTests;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -24,7 +23,6 @@ public class GetParticipantReferenceDataTests
     private Mock<IDataServiceClient<GeneCodeLkp>> _mockGeneCodeClient;
     private Mock<IDataServiceClient<HigherRiskReferralReasonLkp>> _mockRiskReasonClient;
     private readonly Mock<FunctionContext> _context = new();
-    private Mock<HttpRequestData> _mockRequest;
     private readonly HttpResponseData _mockHttpResponseData;
 
     private GetParticipantReferenceData _function;
@@ -36,7 +34,6 @@ public class GetParticipantReferenceDataTests
         _mockCreateResponse = new Mock<ICreateResponse>();
         _mockGeneCodeClient = new Mock<IDataServiceClient<GeneCodeLkp>>();
         _mockRiskReasonClient = new Mock<IDataServiceClient<HigherRiskReferralReasonLkp>>();
-        _mockRequest = new Mock<HttpRequestData>();
 
         _function = new GetParticipantReferenceData(
             _mockLogger.Object,
