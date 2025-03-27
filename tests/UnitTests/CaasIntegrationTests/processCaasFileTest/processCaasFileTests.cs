@@ -88,14 +88,46 @@ public class ProcessCaasFileTests
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
 
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(
-            It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()),
-            Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Information),
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+           It.IsAny<EventId>(),
+           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending Update Records 0 to queue")),
+           It.IsAny<Exception>(),
+           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+       Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProcessRecords_Amend_sendOneRecordToUpdateQueue()
+    {
+        // Arrange
+        var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
+        var participants = new List<ParticipantsParquetMap>
+        {
+            new ParticipantsParquetMap { NhsNumber = 1234567890 },
+            new ParticipantsParquetMap { NhsNumber = 9876543210 }
+        };
+
+        var options = new ParallelOptions();
+        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        const string fileName = "TestFile";
+
+        _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
+
+        _checkDemographicMock.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+            .ReturnsAsync(true);
+
+        // Act
+        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
+        // Assert
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending Update Records")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to Add queue")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
