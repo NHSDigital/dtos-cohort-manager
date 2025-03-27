@@ -65,9 +65,13 @@ The docker compose has now been split into 4 files due to the size of the applic
 
 First, copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
+> **Note:** For existing users, make sure you replace where it says 127.0.0.1 in the azurite connection string and replace it with "azurite"
+
 Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
 
-> **Note:** Pressing ctrl/ cmd + shift + B will build and run the application automatically in vscode
+You can also download the "Tasks" extension in vscode to quickly run these task from the status bar.
+
+> **Note:** Pressing ctrl/ cmd + shift + B will build the application automatically in vscode
 
 To build and run the application manually in the terminal, run the following commands in the application/CohortManager directory:\
 If you are on Mac, you will need to replace `docker` with `podman`
