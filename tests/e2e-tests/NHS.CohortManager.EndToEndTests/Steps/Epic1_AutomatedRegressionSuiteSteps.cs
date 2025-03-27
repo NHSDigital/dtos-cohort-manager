@@ -62,15 +62,6 @@ public class Epic1_AutomatedRegressionSuiteSteps
         );
     }
 
-    [Then(@"verify the NhsNumbers in Participant_Management table should match (.*)")]
-    public async Task ThenVerifyTheInParticipantManagementShouldMatchAmended(string expectedRecordType)
-    {
-
-        await _fileUploadService.VerifyNhsNumbersAsync(
-            "PARTICIPANT_MANAGEMENT",
-            _endtoendTestsContext.NhsNumbers!,
-            expectedRecordType.ToUpper());
-    }
 
     [Then(@"the Participant_Demographic table should match the (.*) for the NHS Number")]
     public async Task ThenTheParticipantDemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
@@ -94,40 +85,6 @@ public class Epic1_AutomatedRegressionSuiteSteps
         }
     }
 
-    [Given(@"the database is cleaned of all records for NHS Numbers: (.*)")]
-    public async Task GivenDatabaseIsCleaned(string nhsNumbersString)
-    {
-        var nhsNumbers = nhsNumbersString.Split(',', StringSplitOptions.TrimEntries);
-
-        // _fileUploadService.CleanDatabaseAsync accepts a list of NHS numbers
-        await _fileUploadService.CleanDatabaseAsync(nhsNumbers);
-    }
-
-    [Given(@"the application is properly configured")]
-    public void GivenApplicationIsConfigured()
-    {
-        _fileUploadService.Should().NotBeNull("EndToEndFileUploadService is not initialized.");
-    }
-
-    [Given(@"file (.*) exists in the configured location for ""(.*)"" with NHS numbers : (.*)")]
-    public void GivenFileExistsAtConfiguredPath(string fileName, string? recordType, string nhsNumbersData)
-    {
-        var folderPath = typeof(FilePaths).GetProperty(recordType!)?.GetValue(_appSettings.FilePaths)?.ToString();
-        var filePath = Path.Combine(folderPath!, fileName);
-
-        _endtoendTestsContext.FilePath = filePath;
-        _endtoendTestsContext.RecordType = (RecordTypesEnum)Enum.Parse(typeof(RecordTypesEnum), recordType, ignoreCase: true);
-
-        _endtoendTestsContext.NhsNumbers = nhsNumbersData.Split(',', StringSplitOptions.TrimEntries).ToList();
-    }
-
-    [Given(@"the file is uploaded to the Blob Storage container")]
-    [When(@"the file is uploaded to the Blob Storage container")]
-    public async Task WhenFileIsUploaded()
-    {
-        var filePath = _endtoendTestsContext.FilePath;
-        await _fileUploadService.UploadFileAsync(filePath);
-    }
 
     [Then(@"the uploaded file should exist in blob storage")]
     public async Task ThenTheFileShouldExistInBlobStorage()
@@ -151,13 +108,6 @@ public class Epic1_AutomatedRegressionSuiteSteps
 
     }
 
-
-    [Given(@"the NHS numbers in the database should match the file data")]
-    [Then(@"the NHS numbers in the database should match the file data")]
-    public async Task ThenVerifyNhsNumbersInDatabase()
-    {
-        await _fileUploadService.VerifyNhsNumbersAsync("BS_COHORT_DISTRIBUTION", _endtoendTestsContext.NhsNumbers!);
-    }
 
     [Then(@"there should be (.*) records for the NHS Number in the database")]
     public async Task ThenThereShouldBeRecordsForThe(int count)
