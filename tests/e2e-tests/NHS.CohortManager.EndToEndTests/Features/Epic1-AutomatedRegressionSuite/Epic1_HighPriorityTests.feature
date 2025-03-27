@@ -112,7 +112,7 @@ DTOSS Regression TEST PACK.
       | Participant_Management  |                    1 |
       | Participant_Demographic |                    1 |
       | BS_Cohort_Distribution  |                    2 |
-      | Exception_Managment     |                    0 |
+      | Exception_Management    |                    0 |
 
     Examples:
       | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
@@ -128,7 +128,7 @@ DTOSS Regression TEST PACK.
       | Participant_Management  |                    1 |
       | Participant_Demographic |                    1 |
       | BS_Cohort_Distribution  |                    1 |
-      | Exception_Managment     |                    0 |
+      | Exception_Management    |                    0 |
 
     Examples:
       | FileName                                            | RecordType | NhsNumbers             |
