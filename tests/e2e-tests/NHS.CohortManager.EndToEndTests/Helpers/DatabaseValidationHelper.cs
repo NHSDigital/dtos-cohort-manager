@@ -45,13 +45,20 @@ public static class DatabaseValidationHelper
     {
         List<string> fieldValues = new List<string>();
         ValidateTableName(tableName);
-        ValidateFieldName(fieldName);
 
+        // Make sure we're validating the actual field name, not the NHS number
+        if (!string.IsNullOrEmpty(fieldName))
+        {
+            ValidateFieldName(fieldName);
+        }
+        else
+        {
+            throw new ArgumentNullException(nameof(fieldName), "Field name cannot be null or empty");
+        }
 
         using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
         {
             var query = $"SELECT {fieldName} FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
-
 
             using (var command = new SqlCommand(query, connection))
             {
@@ -64,7 +71,6 @@ public static class DatabaseValidationHelper
                         var value = reader.IsDBNull(0) ? null : reader.GetValue(0);
                         if (value != null)
                         {
-
                             if (value is int intValue)
                                 fieldValues.Add(intValue.ToString());
                             else
@@ -87,6 +93,97 @@ public static class DatabaseValidationHelper
 
                 logger.LogInformation($"Field {fieldName} for NHS number {nhsNumber} successfully updated to {expectedValue}.");
                 return true;
+            }
+        }
+    }
+
+    public static async Task<bool> VerifyFieldUpdateByFileNameAsync(SqlConnectionWithAuthentication sqlConnectionWithAuthentication, string tableName, string fileName, string fieldName, string expectedValue, ILogger logger)
+    {
+        List<string> fieldValues = new List<string>();
+        ValidateTableName(tableName);
+        ValidateFieldName(fieldName);
+
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
+        {
+            var query = $"SELECT {fieldName} FROM {tableName} WHERE [FILE_NAME] = @FileName";
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@FileName", fileName);
+
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        var value = reader.IsDBNull(0) ? null : reader.GetValue(0);
+                        if (value != null)
+                        {
+                            if (value is int intValue)
+                                fieldValues.Add(intValue.ToString());
+                            else
+                                fieldValues.Add(value.ToString()!);
+                        }
+                    }
+                }
+
+                if (fieldValues.Count == 0)
+                {
+                    logger.LogError($"Field {fieldName} is null for file name {fileName} in {tableName} table.");
+                    return false;
+                }
+
+                if (!fieldValues.Contains(expectedValue))
+                {
+                    logger.LogError($"Field {fieldName} for file name {fileName} does not match the expected value. Expected: {expectedValue}, Actual: {fieldValues.FirstOrDefault()}");
+                    return false;
+                }
+
+                logger.LogInformation($"Field {fieldName} for file name {fileName} successfully updated to {expectedValue}.");
+                return true;
+            }
+        }
+    }
+
+    public static async Task<Dictionary<string, object>> GetDatabaseRecordAsync(
+    SqlConnectionWithAuthentication sqlConnectionWithAuthentication,
+    string tableName,
+    string nhsNumber,
+    ILogger logger)
+    {
+        ValidateTableName(tableName);
+
+        logger.LogInformation("Retrieving database record for NHS number {NhsNumber} from table {TableName}", nhsNumber, tableName);
+
+        using (var connection = await sqlConnectionWithAuthentication.GetOpenConnectionAsync())
+        {
+            var query = $"SELECT * FROM {tableName} WHERE [NHS_NUMBER] = @NhsNumber";
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@NhsNumber", nhsNumber);
+
+                using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                {
+                    if (await reader.ReadAsync())
+                    {
+                        var record = new Dictionary<string, object>();
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string columnName = reader.GetName(i);
+                            object value = reader.IsDBNull(i) ? null : reader.GetValue(i);
+                            record[columnName] = value;
+                        }
+
+                        logger.LogInformation("Successfully retrieved record for NHS number {NhsNumber}", nhsNumber);
+                        return record;
+                    }
+                    else
+                    {
+                        logger.LogWarning("No record found for NHS number {NhsNumber} in table {TableName}", nhsNumber, tableName);
+                        return null;
+                    }
+                }
             }
         }
     }
@@ -205,11 +302,12 @@ public static class DatabaseValidationHelper
     };
 
     private static readonly HashSet<string> AllowedFields =
-    [
+    [   "FILE_NAME",
         "NHS_NUMBER",
         "GIVEN_NAME",
         "RULE_ID",
-        "RULE_DESCRIPTION"
+        "RULE_DESCRIPTION",
+        "ERROR_RECORD"
         // Add other allowed fields here
     ];
 

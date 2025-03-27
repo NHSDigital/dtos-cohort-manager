@@ -13,23 +13,39 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.IO;
-
-
+using NHS.CohortManager.EndToEndTests.Helpers;
+using NUnit.Framework.Internal;
 
 [Binding]
 public class Epic1_AutomatedRegressionSuiteSteps
 {
     private readonly EndToEndFileUploadService _fileUploadService;
 
+    private readonly BlobStorageHelper _blobStorageHelper;
+
     private readonly AppSettings _appSettings;
     private EndToEndTestsContext _endtoendTestsContext;
 
 
-    public Epic1_AutomatedRegressionSuiteSteps(IServiceProvider services, AppSettings appSettings, EndToEndTestsContext endtoendTestsContext, ILogger<Epic1_AutomatedRegressionSuiteSteps> logger)
+    public Epic1_AutomatedRegressionSuiteSteps(IServiceProvider services, AppSettings appSettings, EndToEndTestsContext endtoendTestsContext, BlobStorageHelper blobStorageHelper)
     {
         _appSettings = appSettings;
         _endtoendTestsContext = endtoendTestsContext;
         _fileUploadService = services.GetRequiredService<EndToEndFileUploadService>();
+        _blobStorageHelper = blobStorageHelper;
+    }
+
+    [Then(@"verify Parquet file data matches the data in cohort distribution")]
+    public async Task ThenVerifyParquetFileDataMatchesTheDataInCohortDistribution()
+    {
+
+        string parquetFilePath = _endtoendTestsContext.FilePath;
+        var recordType = _endtoendTestsContext.RecordType.ToString().ToUpper();
+
+        await _fileUploadService.ValidateParquetFileAgainstDatabaseAsync(
+            parquetFilePath,
+            "BS_COHORT_DISTRIBUTION"
+        );
 
     }
 
@@ -59,26 +75,23 @@ public class Epic1_AutomatedRegressionSuiteSteps
     [Then(@"the Participant_Demographic table should match the (.*) for the NHS Number")]
     public async Task ThenTheParticipantDemographicTableShouldMatchTheAmendedAMENDEDNewTestForTheNHSNumber(string expectedGivenName)
     {
-        await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), "GIVEN_NAME", expectedGivenName);
+
+        await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_DEMOGRAPHIC", "GIVEN_NAME", expectedGivenName, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
     }
 
-    [Then(@"the NHS Number should have exactly (.*) record in Participant_Management")]
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipantManagement(int count)
+    [Then(@"the NHS Number should have the following records count")]
+    public async Task ThenTheNHSNumberShouldHaveFollowingRecordsCounts(Table table)
     {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_MANAGEMENT", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-    }
+        foreach (var row in table.Rows)
+        {
+            string tableName = row["TableName"];
+            int expectedCount = int.Parse(row["ExpectedCountInTable"]);
 
-    [Then(@"the NHS Number should have exactly (.*) record in Participant_Demographic")]
-    public async Task ThenTheNHSNumberShouldHaveExactlyRecordInParticipant_Demographic(int count)
-    {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("PARTICIPANT_DEMOGRAPHIC", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-    }
-
-    [Then(@"the NHS Number should have exactly (.*) record in Cohort_Distribution table")]
-    public async Task thereshouldntbenoentryofNHSnumberincohortdistributiontable(int count)
-    {
-        await _fileUploadService.VerifyNhsNumbersCountAsync("BS_COHORT_DISTRIBUTION", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), count);
-
+            await _fileUploadService.VerifyNhsNumbersCountAsync(
+                tableName,
+                _endtoendTestsContext.NhsNumbers.FirstOrDefault(),
+                expectedCount);
+        }
     }
 
     [Given(@"the database is cleaned of all records for NHS Numbers: (.*)")]
@@ -116,6 +129,29 @@ public class Epic1_AutomatedRegressionSuiteSteps
         await _fileUploadService.UploadFileAsync(filePath);
     }
 
+    [Then(@"the uploaded file should exist in blob storage")]
+    public async Task ThenTheFileShouldExistInBlobStorage()
+    {
+        var fileName = Path.GetFileName(_endtoendTestsContext.FilePath);
+        var containerName = _appSettings.BlobContainerName;
+
+        var exists = await _blobStorageHelper.DoesBlobExistAsync(fileName, containerName);
+        exists.Should().BeTrue($"File {fileName} should exist in container {containerName}");
+
+    }
+
+    [Then(@"the file content should match the original")]
+    public async Task ThenTheFileContentShouldMatchTheOriginal()
+    {
+        var filePath = _endtoendTestsContext.FilePath;
+        var containerName = _appSettings.BlobContainerName;
+
+        await _blobStorageHelper.AssertLocalFileMatchesBlobAsync(filePath, containerName);
+
+
+    }
+
+
     [Given(@"the NHS numbers in the database should match the file data")]
     [Then(@"the NHS numbers in the database should match the file data")]
     public async Task ThenVerifyNhsNumbersInDatabase()
@@ -146,10 +182,31 @@ public class Epic1_AutomatedRegressionSuiteSteps
 
         foreach (var field in fields)
         {
-            await _fileUploadService.VerifyFieldUpdateAsync("EXCEPTION_MANAGEMENT", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), field.FieldName, field.FieldValue);
+            await _fileUploadService.VerifyFieldUpdateAsync("EXCEPTION_MANAGEMENT", field.FieldName, field.FieldValue, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
         }
     }
 
+    [Then(@"the exception table should contain the below details")]
+    public async Task ThenTheExceptionTableShouldContainTheBelowDetailsForFileType(Table table)
+    {
+        var fields = table.Rows.Select(row => new FieldsTable
+        {
+            FieldName = row["FieldName"],
+            FieldValue = row["FieldValue"],
+        }).ToList();
 
+
+        string fileName = Path.GetFileName(_endtoendTestsContext.FilePath);
+
+        foreach (var field in fields)
+        {
+            await _fileUploadService.VerifyFieldUpdateAsync(
+                "EXCEPTION_MANAGEMENT",
+                field.FieldName,
+                field.FieldValue,
+                fileName: fileName);
+        }
+
+    }
 
 }
