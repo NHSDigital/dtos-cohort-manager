@@ -1,0 +1,66 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  name: private-pool-dev-uks
+
+schedules:
+- cron: "0 8 * * *" # Run at 8:00 AM UTC
+  displayName: "Scale_Peak"
+  branches:
+    include:
+    - main
+  always: true
+
+- cron: "0 17 * * *" # Run at 5:00 PM UTC
+  displayName: "Scale_OffPeak"
+  branches:
+    include:
+    - main
+  always: true
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: feat/dtoss-8108-azure-sql-scaling
+      endpoint: NHSDigital
+
+variables:
+  resourceGroupName: 'rg-cohman-dev-uks'
+  serverName: 'sqlsvr-cohman-dev-uks'
+  databaseName: 'DToSDB'
+  skuOffPeak: 'S1'
+  skuPeak: 'S2'
+  serviceConnection: sc-cohort-manager-dev
+
+stages:
+- stage: ScaleDatabase
+  jobs:
+  - job: ScaleUpDatabaseJob
+    displayName: 'Azure CLI - Scale Up $(serverName)/$(databaseName) to $(skuPeak)'
+    condition: and(succeeded(), eq(variables['Build.CronSchedule'], 'Scale_Peak'))
+    steps:
+    - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: $(serviceConnection)
+        resourceGroupName: $(resourceGroupName)
+        serverName: $(serverName)
+        databaseName: $(databaseName)
+        sku: $(skuPeak)
+
+  - job: ScaleDownDatabaseJob
+    displayName: 'Azure CLI - Scale Down $(serverName)/$(databaseName) to $(skuOffPeak)'
+    condition: and(succeeded(), eq(variables['Build.CronSchedule'], 'Scale_OffPeak'))
+    steps:
+    - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: $(serviceConnection)
+        resourceGroupName: $(resourceGroupName)
+        serverName: $(serverName)
+        databaseName: $(databaseName)
+        sku: $(skuOffPeak)
