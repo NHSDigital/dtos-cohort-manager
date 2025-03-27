@@ -95,9 +95,6 @@
         "isDefault": true
       },
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager",
         "os": {
           "windows": {
@@ -124,9 +121,6 @@
       "command": "podman compose down && podman compose up",
       "problemMatcher": [],
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager"
       },
     },
@@ -136,9 +130,6 @@
       "command": "podman compose -f compose.deps.yaml down && podman compose down && podman compose -f compose.deps.yaml up && podman compose up",
       "problemMatcher": [],
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager"
       },
     },
