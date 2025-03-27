@@ -29,21 +29,12 @@ public class Epic2_AutomatedRegressionSuiteSteps
 
     }
 
-    [Then(@"the Participant_Management table should contain an eligibility flag set to true")]
-    public async Task ThenTheParticipantTableShouldContainTheBelowDetails(Table table)
+    [Then(@"the ""(.*)"" table should contain an ""(.*)"" set to (.*)")]
+    public async Task ThenTheTableShouldContainAnSetTo(string tableName, string columnName, int flag)
     {
-        var fields = table.Rows.Select(row => new FieldsTable
-        {
-            FieldName = row["FieldName"],
-            FieldValue = row["FieldValue"]
-        }).ToList();
 
-        foreach (var field in fields)
-        {
-            await _fileUploadService.VerifyFieldUpdateAsync("PARTICIPANT_MANAGEMENT", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), field.FieldName, field.FieldValue);
-        }
+    await _fileUploadService.VerifyFieldUpdateAsync(tableName, columnName, flag.ToString(), _endtoendTestsContext.NhsNumbers.FirstOrDefault());
+
     }
-
-
 
 }
