@@ -17,6 +17,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly List<ValidationException> _exceptionList;
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
     private readonly Mock<PaginationService<ValidationException>> _paginationServiceMock = new();
+    private readonly HttpResponseData _mockHttpResponseData;
+
 
     public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) => null)
     {
@@ -40,6 +42,8 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         SetupRequest(json);
         CreateHttpResponseMock();
         SetupDataReader(_exceptionList, columnToClassPropertyMapping);
+
+        _mockHttpResponseData = _request.Object.CreateResponse();
     }
 
     [TestMethod]
@@ -93,5 +97,94 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
         _validationDataMock.Verify(v => v.GetExceptionById(exceptionId), Times.Once);
+    }
+    [TestMethod]
+    public async Task Run_NoExceptionsFound_ReturnsNoContent()
+    {
+        // Arrange
+        var exceptionId = 0;
+
+
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated))
+                        .ReturnsAsync(new List<ValidationException>());
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "exceptionId"))
+                            .Returns(0);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "lastId"))
+                            .Returns(0);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(
+            It.IsAny<HttpRequestData>(),
+            It.Is<string>(key => key == "todayOnly"),
+            It.IsAny<bool>()))
+            .Returns(false);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "orderByProperty"))
+                            .Returns((int)ExceptionSort.DateCreated);
+
+        _mockHttpResponseData.StatusCode = HttpStatusCode.NoContent;
+
+        _createResponseMock.Setup(r =>
+            r.CreateHttpResponse(
+                HttpStatusCode.NoContent,
+                It.IsAny<HttpRequestData>(),
+                It.IsAny<string>())
+            ).Returns(_mockHttpResponseData);
+
+        SetupRequestWithQueryParams([]);
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_ThrowsException_ReturnsInternalServerError()
+    {
+        // Arrange
+        var exceptionId = 0;
+
+        // Simulate exception thrown from GetAllExceptions
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated))
+                        .ThrowsAsync(new Exception("Simulated failure"));
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "exceptionId"))
+                            .Returns(exceptionId);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "lastId"))
+                            .Returns(0);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(
+            It.IsAny<HttpRequestData>(),
+            It.Is<string>(key => key == "todayOnly"),
+            It.IsAny<bool>()))
+            .Returns(false);
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "orderByProperty"))
+                            .Returns((int)ExceptionSort.DateCreated);
+
+        // Setup the mock response with expected error status code
+        _mockHttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
+
+        _createResponseMock.Setup(r =>
+            r.CreateHttpResponse(
+                HttpStatusCode.InternalServerError,
+                It.IsAny<HttpRequestData>(),
+                It.IsAny<string>())
+            ).Returns(_mockHttpResponseData);
+
+        SetupRequestWithQueryParams([]);
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated), Times.Once);
     }
 }
