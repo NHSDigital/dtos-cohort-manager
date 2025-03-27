@@ -14,7 +14,7 @@ public static class ValidationHelper
         var date = ParseDate(dateString);
         if(date.HasValue)
         {
-            return date < DateTime.Today;
+            return date <= DateTime.Today;
         }
         return false;
     }
