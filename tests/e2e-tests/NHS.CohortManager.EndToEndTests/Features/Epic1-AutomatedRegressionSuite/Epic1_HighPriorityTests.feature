@@ -146,7 +146,7 @@ DTOSS Regression TEST PACK.
       | ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
 
   @DTOSS-7588 @Regression
-  Scenario: Verify that an invalid CAAS file type triggers a validation exception
+  Scenario: Verify that a file with an invalid name creates a validation exception
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
     Then the exception table should contain the below details
