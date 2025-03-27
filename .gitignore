@@ -88,3 +88,10 @@ tests/smoke-tests/NHS.CohortManager.SmokeTests/Config/appsettings-local.json
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
 *.crt
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
+tests/playwright-tests/config/appsettings.json
+# Playwright
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
