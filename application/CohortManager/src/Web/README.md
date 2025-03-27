@@ -1,4 +1,4 @@
-# Cohort Manager ui
+# Cohort Manager Web
 
 > Note: This repository will shortly be getting merged together with [https://github.com/NHSDigital/dtos-cohort-manager](https://github.com/NHSDigital/dtos-cohort-manager), which is why it doesn't use the repository template.
 
