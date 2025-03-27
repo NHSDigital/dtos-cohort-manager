@@ -33,11 +33,7 @@ namespace NHS.CohortManager.SmokeTests.Hook
         [AfterScenario]
         public void AfterScenario()
         {
-            //// Clean up resources if necessary
-            //if (ServiceProvider is IDisposable disposable)
-            //{
-            //    disposable.Dispose();
-            //}
+
         }
 
         private void AssertAllConfigurations()
