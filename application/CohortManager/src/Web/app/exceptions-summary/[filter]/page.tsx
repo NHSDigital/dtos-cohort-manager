@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function Page(props: {
   readonly params: Promise<{
-    readonly exceptionId: string;
+    readonly filter: string;
   }>;
 }) {
   const session = await auth();
