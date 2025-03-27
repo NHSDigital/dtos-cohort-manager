@@ -14,6 +14,8 @@ using Common;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.DependencyInjection;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Net;
+using System.Text;
 
 [TestClass]
 public class DurableDemographicTests
@@ -28,6 +30,9 @@ public class DurableDemographicTests
     private readonly Mock<FunctionContext> mockFunctionContext;
     private readonly SetupRequest _setupRequest = new();
 
+    private Mock<HttpRequestData> _request;
+
+
 
     public DurableDemographicTests()
     {
@@ -37,6 +42,15 @@ public class DurableDemographicTests
         serviceProvider = _serviceCollection.BuildServiceProvider();
         mockFunctionContext = CreateMockFunctionContext();
         mockFunctionContext.SetupProperty(c => c.InstanceServices, serviceProvider);
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
+                response.WriteString(ResponseBody);
+                return response;
+            });
     }
 
 
@@ -183,6 +197,71 @@ public class DurableDemographicTests
             Times.Once
         );
     }
+
+    [TestMethod]
+    public async Task GetOrchestrationStatus_GetsOrchestrationStatus_StatusCompleted()
+    {
+        // Arrange
+        var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+
+        var instanceId = "test-instance";
+        var request = SetupRequest(JsonSerializer.Serialize(instanceId));
+        var OrchestrationMetadata = new OrchestrationMetadata("test-instance", instanceId);
+
+        _mockClient.Setup(x => x.GetInstanceAsync(instanceId, default)).ReturnsAsync(OrchestrationMetadata);
+
+        // Act
+        var result = await _function.GetOrchestrationStatus(request.Object, _mockClient.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockClient.Verify(c => c.GetInstanceAsync(instanceId, default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task LogsWarning_WhenInstanceIdIsEmpty()
+    {
+        // Arrange
+        var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
+        var request = SetupRequest(JsonSerializer.Serialize(""));
+
+        // Act
+        var result = await _function.GetOrchestrationStatus(request.Object, _mockClient.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"instance found")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
+    }
+
+    public Mock<HttpRequestData> SetupRequest(string json)
+    {
+        var byteArray = Encoding.ASCII.GetBytes(json);
+        var bodyStream = new MemoryStream(byteArray);
+
+        _request = new Mock<HttpRequestData>(mockFunctionContext.Object);
+        _request.Setup(s => s.Body).Returns(bodyStream);
+        _request.Setup(s => s.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(mockFunctionContext.Object);
+            response.SetupProperty(s => s.Headers, new HttpHeadersCollection());
+            response.SetupProperty(s => s.StatusCode);
+            response.SetupProperty(s => s.Body, new MemoryStream());
+            return response.Object;
+        });
+
+        return _request;
+    }
+
+
+
+
 
     private static Mock<FunctionContext> CreateMockFunctionContext()
     {
