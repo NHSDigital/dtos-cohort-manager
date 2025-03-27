@@ -50,6 +50,21 @@ jobs:
         with:
           comment-title: 'Unit Test Results'
           results-path: ./tests/UnitTests/results-unit/*.trx
+      - name: "Check if coverage directory exists"
+        id: check_coverage
+        run: |
+          if [ -d "./coverage" ] && [ "$(find ./coverage -name '*.xml' | wc -l)" -gt 0 ]; then
+            echo "has_coverage=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_coverage=false" >> $GITHUB_OUTPUT
+          fi
+      - name: "Upload Coverage Reports"
+        uses: actions/upload-artifact@v4
+        if: steps.check_coverage.outputs.has_coverage == 'true'
+        with:
+          name: coverage-reports
+          path: ./coverage/**/*.xml
+          retention-days: 5
 
   test-lint:
     name: "Linting"
@@ -65,37 +80,9 @@ jobs:
         run: |
           echo "Nothing to save"
 
-  test-coverage:
-    name: "Test coverage"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      coverage_xml_path: ${{ steps.upload.outputs.artifact_path }}
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-        with:
-          submodules: 'true'
-      - name: "Generate coverage report"
-        id: run_coverage
-        run: |
-          # Run your test coverage command.
-          # This script should generate the file at the given path.
-          COVERAGE_PATH=$(make test-coverage)
-          echo "Generated coverage report at: ${COVERAGE_PATH}"
-          # Export the coverage path as an output variable for later reference if needed
-          echo "::set-output name=coverage_xml_path::${COVERAGE_PATH}"
-      - name: "Upload coverage report"
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: ${{ steps.run_coverage.outputs.coverage_xml_path }}
-
   perform-static-analysis:
     name: "Perform static analysis"
-    needs: [test-unit, test-coverage]
+    needs: [test-unit]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -105,16 +92,38 @@ jobs:
       - name: "Checkout code"
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history is needed to improve relevancy of reporting
-      - name: "Download coverage report"
+          fetch-depth: 0 # Full history is needed to improve relevancy of reporting
+
+      - name: "Download coverage reports"
         uses: actions/download-artifact@v4
         with:
-          name: coverage-report
+          name: coverage-reports
           path: ./coverage
+
+      - name: "Find coverage files"
+        id: find_coverage
+        run: |
+          if [ -d "./coverage" ]; then
+            # Find all XML files in the coverage directory and create a comma-separated list
+            coverage_files=$(find ./coverage -type f -name "*.xml" | tr '\n' ',' | sed 's/,$//')
+
+            if [ -n "$coverage_files" ]; then
+              echo "coverage_exists=true" >> $GITHUB_OUTPUT
+              echo "coverage_path=$coverage_files" >> $GITHUB_OUTPUT
+              echo "Found coverage files: $coverage_files"
+            else
+              echo "coverage_exists=false" >> $GITHUB_OUTPUT
+              echo "No XML coverage files found. SonarCloud may not receive coverage data."
+            fi
+          else
+            echo "coverage_exists=false" >> $GITHUB_OUTPUT
+            echo "Coverage directory does not exist. SonarCloud may not receive coverage data."
+          fi
+
       - name: "Perform static analysis"
         uses: ./.github/actions/perform-static-analysis
         with:
           sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
           sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
           sonar_token: "${{ secrets.SONAR_TOKEN }}"
-          coverage_report_path_opencover: "./coverage/$(basename ${{ needs.test-coverage.outputs.coverage_xml_path }})"
+          coverage_report_path_opencover: "${{ steps.find_coverage.outputs.coverage_path || '' }}"
