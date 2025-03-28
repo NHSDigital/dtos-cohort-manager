@@ -95,3 +95,5 @@ tests/playwright-tests/config/appsettings.json
 **/playwright-report/
 **/blob-report/
 **/playwright/.cache/
+tests/playwright-tests/.env
+tests/playwright-tests/.env.*
