@@ -1,12 +1,17 @@
 namespace NHS.CohortManager.CohortDistributionDataServices;
 
 using System.Net;
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Common;
 using Common.Interfaces;
+using Data.Database;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
 using Model.DTO;
 
 /// <summary>
@@ -30,13 +35,18 @@ public class RetrieveCohortDistributionData
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IHttpParserHelper _httpParserHelper;
-    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
+
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataServiceClient;
+
+
+    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper, IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _httpParserHelper = httpParserHelper;
+        _cohortDistributionDataServiceClient = cohortDistributionDataServiceClient;
     }
 
     [Function(nameof(RetrieveCohortDistributionData))]
@@ -51,9 +61,14 @@ public class RetrieveCohortDistributionData
             if (!string.IsNullOrEmpty(requestId))
             {
                 requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
-                if (requestId != null)
+
+                if (Guid.TryParse(requestId, out Guid parsedRequestId))
                 {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
+                    cohortDistributionParticipants = await GetCohortDistributionParticipantsByRequestId(parsedRequestId);
+                }
+                else
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
                 }
             }
 
@@ -73,5 +88,13 @@ public class RetrieveCohortDistributionData
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", "", "", "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId)
+    {
+        var recordToReturn = new CohortDistributionParticipant();
+        var CohortDistributionList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
+
+        return CohortDistributionParticipantMapper.MapDto(CohortDistributionList.ToList());
     }
 }
