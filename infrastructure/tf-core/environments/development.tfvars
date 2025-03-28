@@ -36,6 +36,17 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 3
       }
+      webapps = {
+        cidr_newbits               = 8
+        cidr_offset                = 4
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep-dmz = {
+        cidr_newbits = 8
+        cidr_offset  = 5
+      }
     }
   }
 }
@@ -1126,6 +1137,62 @@ function_apps = {
 }
 
 function_app_slots = []
+
+linux_web_app = {
+  acr_mi_name = "dtos-cohort-manager-acr-push"
+  acr_name    = "acrukshubdevcohman"
+  acr_rg_name = "rg-hub-dev-uks-cohman"
+
+  app_insights_name    = "appi-dev-uks-cohman"
+  app_insights_rg_name = "rg-cohman-dev-uks-audit"
+
+  always_on = true
+
+  cont_registry_use_mi = true
+
+  docker_CI_enable  = "true"
+  docker_env_tag    = "development"
+  docker_img_prefix = "cohort-manager"
+
+  enable_appsrv_storage    = "false"
+  ftps_state               = "Disabled"
+  https_only               = true
+  remote_debugging_enabled = false
+  worker_32bit             = false
+  # storage_name             = "webappstor"
+  # storage_type             = "AzureBlob"
+  # share_name               = "webapp"
+
+  linux_web_app_config = {
+
+    FrontEndUi = {
+      name_suffix          = "web"
+      app_service_plan_key = "Default"
+      env_vars_static = {
+        AUTH_NHSLOGIN_CLIENT_ID  = "screening participant manager"
+        AUTH_NHSLOGIN_ISSUER_URL = "https://auth.sandpit.signin.nhs.uk"
+        AUTH_TRUST_HOST          = true
+        SERVICE_NAME             = "Manage your screening"
+      }
+      local_urls = {
+        EXPERIENCE_API_URL = "https://%s-experience-api.azurewebsites.net"
+        NEXTAUTH_URL       = "https://%s-nextjs-frontend.azurewebsites.net/api/auth"
+      }
+      env_vars_from_key_vault = [
+        {
+          env_var_name          = "AUTH_NHSLOGIN_CLIENT_SECRET"
+          key_vault_secret_name = "auth-nhslogin-client-secret"
+        },
+        {
+          env_var_name          = "NEXTAUTH_SECRET"
+          key_vault_secret_name = "nextauth-secret"
+        }
+      ]
+    }
+  }
+}
+
+linux_web_app_slots = []
 
 key_vault = {
   disk_encryption   = true

@@ -36,6 +36,17 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 3
       }
+      webapps = {
+        cidr_newbits               = 8
+        cidr_offset                = 4
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep-dmz = {
+        cidr_newbits = 8
+        cidr_offset  = 5
+      }
     }
   }
 }
