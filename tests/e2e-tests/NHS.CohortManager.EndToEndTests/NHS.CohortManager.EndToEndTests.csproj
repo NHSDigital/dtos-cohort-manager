@@ -46,7 +46,7 @@
 
 
  <ItemGroup>
-      <None Update="Config\appsettings.json">
+      <None Update="Config\appsettings-example.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Config\appsettings-local.json">
