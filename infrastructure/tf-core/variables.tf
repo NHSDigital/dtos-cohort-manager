@@ -218,6 +218,70 @@ variable "key_vault" {
   })
 }
 
+variable "linux_web_app" {
+  description = "Configuration for linux web apps"
+  type = object({
+    acr_mi_name                            = string
+    acr_name                               = string
+    acr_rg_name                            = string
+    always_on                              = bool
+    app_service_logs_disk_quota_mb         = optional(number)
+    app_service_logs_retention_period_days = optional(number)
+    cont_registry_use_mi                   = bool
+    docker_env_tag                         = string
+    docker_CI_enable                       = optional(string, "")
+    docker_img_prefix                      = string
+    enable_appsrv_storage                  = bool
+    ftps_state                             = string
+    health_check_path                      = optional(string, "")
+    https_only                             = bool
+    pull_image_over_vnet                   = optional(bool, true)
+    remote_debugging_enabled               = optional(bool, false)
+    storage_name                           = optional(string)
+    storage_type                           = optional(string)
+    share_name                             = optional(string)
+    storage_account_access_key             = optional(string)
+    storage_account_name                   = optional(string)
+    worker_32bit                           = bool
+    slots = optional(map(object({
+      name         = string
+      slot_enabled = optional(bool, false)
+    })))
+    linux_web_app_config = map(object({
+      name_suffix                  = string
+      app_service_plan_key         = string
+      storage_account_env_var_name = optional(string, "")
+      storage_containers = optional(list(object
+        ({
+          env_var_name   = string
+          container_name = string
+      })), [])
+      db_connection_string = optional(string, "")
+      key_vault_url        = optional(string, "")
+      app_urls = optional(list(object({
+        env_var_name     = string
+        function_app_key = string
+        endpoint_name    = optional(string, "")
+      })), [])
+      env_vars_from_key_vault = optional(list(object({
+        env_var_name          = string
+        key_vault_secret_name = string
+      })), [])
+      env_vars_static = optional(map(string), {})
+      local_urls      = optional(map(string), {})
+    }))
+  })
+}
+
+variable "linux_web_app_slots" {
+  description = "linux web app slots"
+  type = list(object({
+    linux_web_app_slots_name    = optional(string, "")
+    linux_web_app_slots_enabled = optional(bool, false)
+  }))
+  default = []
+}
+
 variable "network_security_group_rules" {
   description = "The network security group rules."
   default     = {}
