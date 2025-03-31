@@ -125,7 +125,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Unit Test Results
           results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
-          coverage-path: aggregated-results/coverage.xml
+          coverage-path: aggregated-results/**/coverage.cobertura.xml
           coverage-threshold: 80
 
   test-lint:
