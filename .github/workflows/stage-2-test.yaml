@@ -94,7 +94,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.scope }}
-          path: TestResults/**/*.${{ inputs.unit_test_logger_format }}
+          path: |
+            TestResults/**/*.${{ inputs.unit_test_logger_format }}
+            Coverage/**/*.xml
 
   aggregate-test-results:
     name: Aggregate results and report
@@ -122,8 +124,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: Unit Test Results
           results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
-          # coverage-path: aggregated-results/coverage.xml
-          # coverage-threshold: 80
+          coverage-path: aggregated-results/coverage.xml
+          coverage-threshold: 80
 
   test-lint:
     name: Linting
