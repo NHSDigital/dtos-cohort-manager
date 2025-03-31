@@ -30,15 +30,25 @@ public class ClosureResolver : ExpressionVisitor
             if (node.Member is FieldInfo field)
             {
                 var constVal = field.GetValue(constExpr.Value);
-                return Expression.Constant(constVal);
+                return base.VisitConstant(Expression.Constant(constVal));
             }
             else if (node.Member is PropertyInfo prop)
             {
                 var constVal = prop.GetValue(constExpr.Value);
-                return Expression.Constant(constVal);
+                return base.VisitConstant(Expression.Constant(constVal));
             }
         }
 
         return base.VisitMember(node);
     }
+    protected override Expression VisitConstant(ConstantExpression node)
+    {
+        if (node.Type == typeof(Guid) && node.Value is Guid guidValue)
+        {
+            return Expression.Constant($"\"{guidValue}\"");
+        }
+        return base.VisitConstant(node);
+    }
+
+
 }
