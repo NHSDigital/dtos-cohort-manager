@@ -99,34 +99,44 @@ jobs:
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
             TestResults/**/coverage.cobertura.xml
 
-  aggregate-test-results:
-    name: Aggregate results and report
-    runs-on: ubuntu-latest
-    needs: [test-unit,test-coverage]
-    permissions:
-      pull-requests: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Download all test result artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: aggregated-results
-      - name: Upload aggregated results as a single artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-aggregated
-          path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
-      - name: Report results
-        uses: bibipkins/dotnet-test-reporter@v1.5.3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: Unit Test Results
-          results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
-          coverage-path: aggregated-results/**/coverage.cobertura.xml
-          coverage-threshold: 80
+aggregate-test-results:
+  name: Aggregate results and report
+  runs-on: ubuntu-latest
+  needs: [test-unit, test-coverage]
+  permissions:
+    pull-requests: write
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Download all test result artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: aggregated-results
+    - name: Merge coverage reports
+      run: |
+        # Install the Coverlet console tool globally
+        dotnet tool install --global coverlet.console
+        # Ensure the tool is in the PATH
+        export PATH="$PATH:~/.dotnet/tools"
+        # Merge all coverage.cobertura.xml files into one named combined-coverage.cobertura.xml
+        coverlet merge aggregated-results/**/coverage.cobertura.xml --output aggregated-results/combined-coverage.cobertura.xml
+    - name: Upload aggregated results as a single artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-aggregated
+        path: |
+          aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
+          aggregated-results/combined-coverage.cobertura.xml
+    - name: Report results
+      uses: bibipkins/dotnet-test-reporter@v1.5.3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        comment-title: Unit Test Results
+        results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
+        coverage-path: aggregated-results/combined-coverage.cobertura.xml
+        coverage-threshold: 80
 
   test-lint:
     name: Linting
