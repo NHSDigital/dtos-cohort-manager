@@ -72,6 +72,8 @@ public class ValidationHelperTests
 
         var result = ValidationHelper.ValidatePastDate(DateTime.Today.AddDays(2).ToString());
 
+        System.Console.WriteLine("ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse Result: " + result);
+
         Assert.IsFalse(result);
     }
 }
