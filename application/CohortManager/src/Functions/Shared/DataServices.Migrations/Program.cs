@@ -11,9 +11,7 @@ using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
 using NetTopologySuite;
-
 using Common;
 using DataServices.Database;
 using Model;
@@ -26,7 +24,7 @@ public class Program
         List<string> configFiles = new List<string> { "appsettings.json" }; // Only used for local
 
         var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null,configFiles);
-        using var host = CreateHostBuilder(config.DtOsDatabaseConnectionString).Build();
+        using var host = CreateHostBuilder(config).Build();
 
         var migrationsApplied = ApplyMigrations(host);
         if(migrationsApplied == ExitCodes.FAILURE)
@@ -44,19 +42,21 @@ public class Program
 
     }
 
-    static IHostBuilder CreateHostBuilder(string connectionString) =>
+    static IHostBuilder CreateHostBuilder(DatabaseConfig config) =>
         Host.CreateDefaultBuilder()
             .ConfigureServices((context, services) =>
             {
                 services.AddDbContext<DataServicesContext>(options =>
                 {
-                    var sqlConnectionBuilder = new SqlConnectionStringBuilder(connectionString);
-                    string clientId = Environment.GetEnvironmentVariable("SQL_IDENTITY_CLIENT_ID");
-                    var credential = new ManagedIdentityCredential(clientId);
-
+                    var sqlConnectionBuilder = new SqlConnectionStringBuilder(config.DtOsDatabaseConnectionString);
                     var connection = new SqlConnection(sqlConnectionBuilder.ConnectionString);
-                    var token = credential.GetToken(new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" }));
-                    connection.AccessToken = token.Token;
+
+                    if(config.SQL_IDENTITY_CLIENT_ID is not null)
+                    {
+                        var credential = new ManagedIdentityCredential(config.SQL_IDENTITY_CLIENT_ID );
+                        var token = credential.GetToken(new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" }));
+                        connection.AccessToken = token.Token;
+                    }
 
                     options.UseSqlServer(connection, sqlServerOptionsAction =>
                     {
