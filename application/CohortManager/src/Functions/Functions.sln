@@ -132,9 +132,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAudit"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{2D5B5A6C-69E8-4FC6-A4C1-0C09096D5AE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\SharedTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{D6C3BE30-1AA0-49F5-928C-06102D183A08}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8B96E54E-5391-4B61-97D5-B31FC7963BEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckDemographicTests", "..\..\..\..\tests\UnitTests\SharedTests\CheckDemographicTests\CheckDemographicTests.csproj", "{2476768B-4A21-4348-8EA3-A95EC27DE464}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationExceptionDataTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\ValidationExceptionDataTests\ValidationExceptionDataTests.csproj", "{A54E1897-B755-4D15-8575-6589E17ECADE}"
 EndProject
@@ -194,6 +194,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateParticipantFromScreen
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CheckParticipantExistsTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\CheckParticipantExistsTests\CheckParticipantExistsTests.csproj", "{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", "ServiceNowIntegrationService\ReceiveServiceNowMessage.csproj", "{43A1A7D7-83F5-448E-8ADA-741284819DCB}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievePDSDemographic", "DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj", "{F3F09EF8-704E-41E6-8FCC-B6052056C885}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievePDSDemographicTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\RetrievePDSDemographicTests\RetrievePDSDemographicTests.csproj", "{33F5B173-BD11-4BE1-979E-DFF2305F555C}"
@@ -211,6 +213,22 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthChecks", "Shared\HealthChecks\HealthChecks.csproj", "{EA290B1D-C07B-4B10-B7D1-F87E2629D069}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\EnumHelperTests\EnumHelperTests.csproj", "{1FCC5D88-C291-46E0-84BE-A8FD465FD509}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MappingUtilitiesTests", "..\..\..\..\tests\UnitTests\SharedTests\MappingUtilitiesTests\MappingUtilitiesTests.csproj", "{F2DB16E9-F9C5-4E69-909C-D8ACFB8137CB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureQueueStorageHelperTests", "..\..\..\..\tests\UnitTests\AzureQueueStorageHelperTests\AzureQueueStorageHelperTests.csproj", "{870D1FAF-5928-4853-85DD-77154D39F3ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadRulesTests", "..\..\..\..\tests\UnitTests\SharedTests\ReadRulesTests\ReadRulesTests.csproj", "{115F417D-C015-4ABE-9438-09CE31114CEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpParserTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpParserTests\HttpParserTests.csproj", "{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{0A68E48A-8249-4A74-B5B7-5921017D07BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{5D5C7C1C-37FE-4671-8BA2-138447049EE3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionsTests", "..\..\..\..\tests\UnitTests\ScreeningDataServicesTests\ValidationExceptionDataTests\GetValidationExceptionTests\GetValidationExceptionsTests.csproj", "{8E769A0D-F808-48F7-9E36-6F8BDC204C80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceDataTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\GetParticipantReferenceDataTests\GetParticipantReferenceDataTests.csproj", "{BF97136A-59AA-4468-9F10-B1F91140EE62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -414,10 +432,6 @@ Global
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{073470C0-3CFE-4C53-AA24-B3E75CB1BFE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B96E54E-5391-4B61-97D5-B31FC7963BEA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A54E1897-B755-4D15-8575-6589E17ECADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -546,6 +560,10 @@ Global
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7B76A57-0B18-4234-BAE5-1F9178CB6A08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43A1A7D7-83F5-448E-8ADA-741284819DCB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3F09EF8-704E-41E6-8FCC-B6052056C885}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -590,6 +608,38 @@ Global
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FCC5D88-C291-46E0-84BE-A8FD465FD509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2DB16E9-F9C5-4E69-909C-D8ACFB8137CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2DB16E9-F9C5-4E69-909C-D8ACFB8137CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2DB16E9-F9C5-4E69-909C-D8ACFB8137CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2DB16E9-F9C5-4E69-909C-D8ACFB8137CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{870D1FAF-5928-4853-85DD-77154D39F3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A68E48A-8249-4A74-B5B7-5921017D07BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115F417D-C015-4ABE-9438-09CE31114CEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D5C7C1C-37FE-4671-8BA2-138447049EE3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E769A0D-F808-48F7-9E36-6F8BDC204C80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

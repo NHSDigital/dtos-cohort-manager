@@ -1,132 +1,141 @@
 name: cohort-manager
 
 services:
-  # Cohort Distribution Services
   add-cohort-distribution-data:
     container_name: add-cohort-distribution-data
-    network_mode: host
+    image: cohort-manager-add-cohort-distribution-data
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/AddCohortDistributionData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7077
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
-    network_mode: host
+    image: cohort-manager-retrieve-cohort-distribution-data
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
+    profiles: [bs-select]
     environment:
       - ASPNETCORE_URLS=http://*:7078
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - AcceptableLatencyThresholdMs=500
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
-    network_mode: host
+    image: cohort-manager-retrieve-cohort-request-audit
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
+    profiles: [bs-select]
     environment:
       - ASPNETCORE_URLS=http://*:7086
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   transform-data-service:
     container_name: transform-data-service
-    network_mode: host
+    image: cohort-manager-transform-data-service
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7080
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://localhost:7881/api/BsSelectOutCodeDataService
-      - BsSelectGpPracticeUrl=http://localhost:7998/api/BsSelectGpPracticeDataService/
-      - CohortDistributionDataServiceUrl=http://localhost:7992/api/CohortDistributionDataService/
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
+      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService/
+      - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
 
   allocate-service-provider:
     container_name: allocate-service-provider
-    network_mode: host
+    image: cohort-manager-allocate-service-provider
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7081
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   create-cohort-distribution:
     container_name: create-cohort-distribution
-    network_mode: host
+    image: cohort-manager-create-cohort-distribution
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7082
-      - AzureWebJobsStorage=UseDevelopmentStorage=true
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - AllocateScreeningProviderURL=http://localhost:7081/api/AllocateServiceProviderToParticipantByService
-      - TransformDataServiceURL=http://localhost:7080/api/TransformDataService
-      - RetrieveParticipantDataURL=http://localhost:7083/api/RetrieveParticipantData
-      - AddCohortDistributionURL=http://localhost:7077/api/AddCohortDistributionData
-      - ValidateCohortDistributionRecordURL=http://localhost:7084/api/ValidateCohortDistributionRecord
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - AllocateScreeningProviderURL=http://allocate-service-provider:7081/api/AllocateServiceProviderToParticipantByService
+      - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
+      - RetrieveParticipantDataURL=http://retrieve-participant-data:7083/api/RetrieveParticipantData
+      - AddCohortDistributionURL=http://add-cohort-distribution-data:7077/api/AddCohortDistributionData
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ValidateCohortDistributionRecordURL=http://validate-cohort-distribution-record:7084/api/ValidateCohortDistributionRecord
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortQueueName=cohort-distribution-queue
       - CohortQueueNamePoison=cohort-distribution-queue-poison
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
+      - AcceptableLatencyThresholdMs=500
 
   retrieve-participant-data:
     container_name: retrieve-participant-data
-    network_mode: host
+    image: cohort-manager-retrieve-participant-data
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7083
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
-      - DemographicDataFunctionURL=http://localhost:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - DemographicDataFunctionURL=http://demographic-data-management:7076/api/DemographicDataFunction
+      - AcceptableLatencyThresholdMs=500
 
   validate-cohort-distribution-record:
     container_name: validate-cohort-distribution-record
-    network_mode: host
+    image: cohort-manager-validate-cohort-distribution-record
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/ValidateCohortDistributionRecord/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7084
-      - LookupValidationURL=http://localhost:7075/api/LookupValidation
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
+      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - AcceptableLatencyThresholdMs=500
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
-    network_mode: host
+    image: cohort-manager-remove-validation-exception-data
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7085
-      - ExceptionFunctionURL=http://localhost:7070/api/CreateException
-      - ExceptionManagementDataServiceURL=http://localhost:7911/api/ExceptionManagementDataService
-      - DemographicDataServiceURL=http://localhost:7993/api/ParticipantDemographicDataService/
-      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService
+      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
+      - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  cohort-distribution-data-service:
-    container_name: cohort-distribution-data-service
-    network_mode: host
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/CohortDistributionDataService/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7992
-      - DtOsDatabaseConnectionString=Server=localhost,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-
+networks:
+  cohman-network:
+    external: true

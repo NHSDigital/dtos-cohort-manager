@@ -2,8 +2,6 @@ namespace ExcludedSMULookupDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using DataServices.Database;
-using System.Text.Json;
 using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Common;

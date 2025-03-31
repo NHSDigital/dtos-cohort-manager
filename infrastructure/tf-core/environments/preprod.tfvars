@@ -136,9 +136,9 @@ app_service_plan = {
         memory_percentage = {
           metric = "MemoryPercentage"
 
-          capacity_min = "4"
-          capacity_max = "4"
-          capacity_def = "4"
+          capacity_min = "2"
+          capacity_max = "2"
+          capacity_def = "2"
         }
       }
     }
@@ -219,7 +219,7 @@ function_apps = {
         CheckTimer                 = "100"
         DemographicURI             = "https://pre-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://pre-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
-        AllowDeleteRecords         = true
+        AllowDeleteRecords         = false
         UpdateQueueName            = "update-participant-queue"
       }
 
@@ -1102,7 +1102,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = false
+    public_network_access_enabled           = true
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}

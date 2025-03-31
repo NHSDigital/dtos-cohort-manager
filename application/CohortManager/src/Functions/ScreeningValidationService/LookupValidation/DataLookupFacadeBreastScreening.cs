@@ -3,6 +3,8 @@ namespace NHS.CohortManager.ScreeningValidationService;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
+using Common;
+
 public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
 {
     private readonly ILogger<DataLookupFacadeBreastScreening> _logger;
@@ -52,7 +54,7 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        var outcode = ValidationHelper.ParseOutcode(postcode);
         _logger.LogInformation("Validating Outcode: {Outcode}", outcode);
         var result = _outcodeClient.GetSingle(outcode);
 
@@ -75,8 +77,9 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     /// </summary>
     /// <param name="currentPosting">The participant's current posting (area code).</param>
     /// <returns>bool, whether or not the current posting is valid.<returns>
-    public bool CheckIfCurrentPostingExists(string currentPosting)
+    public bool CheckIfCurrentPostingExists(string? currentPosting)
     {
+
         var result = _currentPostingClient.GetByFilter(i => i.Posting == currentPosting && i.InUse == "Y").Result;
         if (result == null)
         {
@@ -113,6 +116,10 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     }
     public string RetrievePostingCategory(string currentPosting)
     {
+        if(string.IsNullOrEmpty(currentPosting))
+        {
+            return null;
+        }
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
     }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using NHS.CohortManager.ScreeningValidationService;
 
 var hostBuilder = new HostBuilder();
@@ -25,6 +26,8 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
         services.AddSingleton<IDataLookupFacadeBreastScreening, DataLookupFacadeBreastScreening>();
+        // Register health checks
+        services.AddBasicHealthCheck("LookupValidation");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

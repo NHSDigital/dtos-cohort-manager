@@ -10,6 +10,8 @@ using Model;
 using addParticipant;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Text;
+using NHS.Screening.AddParticipant;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class AddNewParticipantTest
@@ -27,17 +29,20 @@ public class AddNewParticipantTest
     private readonly SetupRequest _setupRequest = new();
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new Mock<ICohortDistributionHandler>();
+    private readonly Mock<IOptions<AddParticipantConfig>> _config = new();
     private Mock<HttpRequestData> _request;
 
     public AddNewParticipantTest()
     {
-        Environment.SetEnvironmentVariable("DSaddParticipant", "DSaddParticipant");
-        Environment.SetEnvironmentVariable("DSmarkParticipantAsEligible", "DSmarkParticipantAsEligible");
-        Environment.SetEnvironmentVariable("DemographicURIGet", "DemographicURIGet");
-        Environment.SetEnvironmentVariable("StaticValidationURL", "StaticValidationURL");
-        Environment.SetEnvironmentVariable("CohortDistributionServiceURL", "CohortDistributionServiceURL");
+        var testConfig = new AddParticipantConfig
+        {
+            DemographicURIGet = "DemographicURIGet",
+            DSaddParticipant = "DSaddParticipant",
+            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
+            StaticValidationURL = "StaticValidationURL"
+        };
 
-
+        _config.Setup(c => c.Value).Returns(testConfig);
 
         var participantCsvRecord = new ParticipantCsvRecord
         {
@@ -106,7 +111,16 @@ public class AddNewParticipantTest
 
 
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
 
         // Act
@@ -173,7 +187,9 @@ public class AddNewParticipantTest
             _checkDemographic.Object,
             _createParticipant,
             _handleException.Object,
-             _cohortDistributionHandler.Object);
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
@@ -215,7 +231,16 @@ public class AddNewParticipantTest
                 CreatedException = false
             })));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -261,7 +286,7 @@ public class AddNewParticipantTest
         _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
         _callFunctionMock.Setup(call => call.SendPost(
-                Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"),
+                "DSmarkParticipantAsEligible",
                 It.IsAny<string>()))
             .Returns(Task.FromResult<HttpWebResponse>(eligibleResponse.Object));
 
@@ -296,13 +321,12 @@ public class AddNewParticipantTest
             _checkDemographic.Object,
             _createParticipant,
             _handleException.Object,
-            _cohortDistributionHandler.Object);
-
-
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         await sut.Run(JsonSerializer.Serialize(basicParticipantCsvRecord));
-
 
         //Assert
         var invocations = _handleException.Invocations;
@@ -315,7 +339,7 @@ public class AddNewParticipantTest
 
 
         _callFunctionMock.Verify(call => call.SendPost(
-            Environment.GetEnvironmentVariable("DSmarkParticipantAsEligible"),
+            "DSmarkParticipantAsEligible",
             It.IsAny<string>()), Times.Once);
 
 
@@ -344,7 +368,16 @@ public class AddNewParticipantTest
 
 
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -384,7 +417,16 @@ public class AddNewParticipantTest
             .Returns(Task.FromResult<Demographic>(new Demographic()))
             .Verifiable();
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -413,7 +455,16 @@ public class AddNewParticipantTest
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -449,7 +500,16 @@ public class AddNewParticipantTest
         _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Returns(Task.FromResult<Demographic>(new Demographic()));
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         // Act
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
@@ -483,7 +543,16 @@ public class AddNewParticipantTest
             .Returns(Task.FromResult<Demographic>(new Demographic()));
         _sendToCohortDistributionResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        var sut = new AddParticipantFunction(_loggerMock.Object, _callFunctionMock.Object, _createResponse.Object, _checkDemographic.Object, _createParticipant, _handleException.Object, _cohortDistributionHandler.Object);
+        var sut = new AddParticipantFunction(
+            _loggerMock.Object, 
+            _callFunctionMock.Object, 
+            _createResponse.Object, 
+            _checkDemographic.Object, 
+            _createParticipant, 
+            _handleException.Object, 
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
 
         _callFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
