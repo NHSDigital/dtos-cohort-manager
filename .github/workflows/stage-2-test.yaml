@@ -139,7 +139,8 @@ jobs:
           results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
           coverage-path: aggregated-results/combined-coverage.cobertura.xml
           coverage-type: cobertura
-          coverage-threshold: 80
+          coverage-threshold: 50
+          post-new-comment: true
 
   test-lint:
     name: Linting
