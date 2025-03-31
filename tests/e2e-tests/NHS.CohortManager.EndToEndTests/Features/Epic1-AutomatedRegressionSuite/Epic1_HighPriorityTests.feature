@@ -64,15 +64,12 @@ DTOSS Regression TEST PACK.
   Scenario: Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the Exception table should contain the below details for the NHS Number
-      | FieldName        | FieldValue                                     |
-      | RULE_ID          |                                             36 |
-      | RULE_DESCRIPTION | Invalid primary care provider GP practice code |
-    Then the NHS Number should have the following records count
+    Then the Exception table should have rule ID 36 with description "Invalid primary care provider GP practice code" for the NHS Number
+    And the NHS Number should have the following records count
       | TableName               | ExpectedCountInTable |
-      | Participant_Management  |                    1 |
-      | Participant_Demographic |                    1 |
-      | BS_Cohort_Distribution  |                    0 |
+      | PARTICIPANT_MANAGEMENT  |                    1 |
+      | PARTICIPANT_DEMOGRAPHIC |                    1 |
+      | BS_COHORT_DISTRIBUTION  |                    0 |
 
     Examples:
       | AddFileName                                             | NhsNumbers |
@@ -85,10 +82,7 @@ DTOSS Regression TEST PACK.
     And the NHS numbers in the database should match the file data
     And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the Exception table should contain the below details for the NHS Number
-      | FieldName        | FieldValue            |
-      | RULE_ID          |                    17 |
-      | RULE_DESCRIPTION | Date of birth invalid |
+    Then the Exception table should have rule ID 17 with description "Date of birth invalid" for the NHS Number
     Then the NHS Number should have the following records count
       | TableName               | ExpectedCountInTable |
       | Participant_Management  |                    1 |
@@ -149,10 +143,9 @@ DTOSS Regression TEST PACK.
   Scenario: Verify that a file with an invalid name creates a validation exception
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the exception table should contain the below details
-      | FieldName        | FieldValue                                                                           |
-      | ERROR_RECORD     | File name is invalid. File name: Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet |
-      | RULE_DESCRIPTION | The file failed file validation. Check the file Exceptions blob store.               |
+    Then the Exception table should have ERROR_RECORD "File name is invalid. File name: Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet" for the file
+    And the Exception table should have RULE_ID "0" for the file
+    And the Exception table should have RULE_DESCRIPTION "The file failed file validation. Check the file Exceptions blob store." for the file
 
     Examples:
       | FileName                                            | RecordType | NhsNumbers             |
