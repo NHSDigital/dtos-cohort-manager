@@ -12,7 +12,7 @@ Format="trx"
 # Find all *.csproj files excluding the IntegrationTests folder and execute dotnet test, with build for now
 find "$UnitDir" -name '*.csproj' | while read -r file; do
     echo -e "\nRunning unit tests for:\n$file"
-    dotnet test "$file" --logger $Format --verbosity detailed
+    dotnet test "$file" --logger $Format --verbosity quiet
 done
 
 # Move all trx result files into a separate folder, for easier reporting
