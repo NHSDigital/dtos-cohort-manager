@@ -22,6 +22,7 @@ public class CreateCohortDistribution
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly CreateCohortDistributionConfig _config;
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
                                     ICallFunction callFunction,
@@ -29,6 +30,7 @@ public class CreateCohortDistribution
                                     IExceptionHandler exceptionHandler,
                                     IAzureQueueStorageHelper azureQueueStorageHelper,
                                     IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
@@ -37,6 +39,7 @@ public class CreateCohortDistribution
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
         _participantManagementClient = participantManagementClient;
+        _cohortDistributionClient = cohortDistributionClient;
         _config = createCohortDistributionConfig.Value;
     }
 
@@ -83,9 +86,13 @@ public class CreateCohortDistribution
                 return;
             }
 
+            // Get previous Cohort Distribution record
+            var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.NHSNumber == long.Parse(basicParticipantCsvRecord.NhsNumber))
+            CohortDistribution 
+
             // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
-            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
+            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName, participantData);
 
             // Update participant exception flag
             if (validationResponse.CreatedException)
@@ -106,8 +113,7 @@ public class CreateCohortDistribution
 
             // Transformation
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-            if (transformedParticipant == null)
-                return;
+            if (transformedParticipant == null) return;
 
             // Add to cohort distribution table
             var cohortAddResponse = await AddCohortDistribution(transformedParticipant);

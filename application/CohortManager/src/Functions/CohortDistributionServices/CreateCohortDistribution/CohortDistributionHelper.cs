@@ -1,15 +1,18 @@
-namespace Common;
+namespace NHS.CohortManager.CohortDistribution;
 
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
+using Model.Enums;
+using Common;
 
 public class CohortDistributionHelper : ICohortDistributionHelper
 {
     private readonly ICallFunction _callFunction;
     private readonly ILogger<CohortDistributionHelper> _logger;
+    private readonly CreateCohortDistributionConfig _config;
+
     public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger)
     {
         _callFunction = callFunction;
@@ -76,18 +79,22 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant)
+    public async Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string fileName,
+                                                                                    CohortDistributionParticipant requestParticipant,
+                                                                                    CohortDistributionParticipant existingParticipant)
     {
-        var lookupValidationRequestBody = new ValidateCohortDistributionRecordBody()
+        var request = new LookupValidationRequestBody
         {
-            NhsNumber = nhsNumber,
-            FileName = FileName,
-            CohortDistributionParticipant = cohortDistributionParticipant,
+            NewParticipant = new Participant(requestParticipant),
+            ExistingParticipant = new Participant(existingParticipant),
+            FileName = fileName,
+            RulesType = RulesType.CohortDistribution
         };
-        var json = JsonSerializer.Serialize(lookupValidationRequestBody);
+
+        var json = JsonSerializer.Serialize(request);
 
         _logger.LogInformation("Called cohort validation service");
-        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"));
+        var response = await GetResponseAsync(json, _config.);
         return JsonSerializer.Deserialize<ValidationExceptionLog>(response);
     }
 

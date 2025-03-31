@@ -80,6 +80,10 @@ public class CreateCohortDistributionTests
             .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
+        _callFunction
+            .Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
+            .ReturnsAsync(_sendToCohortDistributionResponse.Object);
+
         _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
                                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                                             _participantManagementClientMock.Object, _config.Object);
@@ -255,7 +259,7 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_AllSuccessfulRequests_AddsToCOhort()
+    public async Task RunAsync_AllSuccessfulRequests_AddsToCohort()
     {
         // Arrange
         _cohortDistributionHelper
@@ -268,9 +272,6 @@ public class CreateCohortDistributionTests
         _sendToCohortDistributionResponse
             .Setup(x => x.StatusCode)
             .Returns(HttpStatusCode.OK);
-        _callFunction
-            .Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
-            .ReturnsAsync(_sendToCohortDistributionResponse.Object);
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
@@ -322,20 +323,26 @@ public class CreateCohortDistributionTests
     }
 
     [TestMethod]
-    public async Task RunAsync_ValidationRuleTriggered_UpdateExceptionFlagAndLog()
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task RunAsync_ValidationRuleTriggered_UpdateExceptionFlagAndLog(bool ignoreExceptionsValue)
     {
         // Arrange
+        var testConfig = new CreateCohortDistributionConfig
+        {
+            IgnoreParticipantExceptions = ignoreExceptionsValue,
+            CohortQueueNamePoison = "CohortQueueNamePoison",
+            AddCohortDistributionURL = "AddCohortDistributionURL"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
         _cohortDistributionHelper
             .Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
             .ReturnsAsync(new ValidationExceptionLog { CreatedException = true, IsFatal = false });
         _cohortDistributionHelper
             .Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("");
-
-        var response = new Mock<HttpWebResponse>();
-        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>())).ReturnsAsync(response.Object);
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
@@ -355,13 +362,20 @@ public class CreateCohortDistributionTests
 
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+
+        if (ignoreExceptionsValue)
+        {
+            _callFunction
+                .Verify(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()), Times.Once());
+        }
+
     }
 
     [TestMethod]
     public async Task RunAsync_ParticipantHasExceptionAndEnvironmentVariableFalse_CreateExceptionAndReturn()
     {
         // Arrange
-        Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "false");
+        // Environment.SetEnvironmentVariable("IgnoreParticipantExceptions", "false");
         _cohortDistributionParticipant.ExceptionFlag = 1;
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
