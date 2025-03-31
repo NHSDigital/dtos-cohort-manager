@@ -97,7 +97,7 @@ jobs:
           name: test-results-${{ matrix.scope }}
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
-            Coverage/**/*.xml
+            TestResults/**/coverage.cobertura.xml
 
   aggregate-test-results:
     name: Aggregate results and report
