@@ -11,12 +11,17 @@ public static class ValidationHelper
     // Validates that the date is not in the future and that it is in one of the expected formats
     public static bool ValidatePastDate(string dateString)    {
 
-        var date = ParseDate(dateString);
-        if(date.HasValue)
-        {
-            return date < DateTime.UtcNow.AddDays(1);
-        }
-        return false;
+        var nullableDate = ParseDate(dateString);
+
+        if (nullableDate == null) return false;
+
+        var date = (DateTime)nullableDate;
+
+        System.Console.WriteLine(date.ToString("dd/MM/yyyy HH:mm:ss"));
+
+        return date.Date < DateTime.UtcNow.Date;
+
+
     }
 
     public static bool ValidateNHSNumber(string nhsNumber)
