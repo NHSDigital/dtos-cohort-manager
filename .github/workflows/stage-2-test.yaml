@@ -171,7 +171,7 @@ jobs:
 
   perform-static-analysis:
     name: Perform static analysis
-    needs: [test-unit]
+    needs: [test-unit, aggregate-test-results]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
