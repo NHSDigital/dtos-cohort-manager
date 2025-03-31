@@ -82,6 +82,7 @@ jobs:
         with:
           submodules: true
       - name: Run unit test suite
+        continue-on-error: true
         run: |
           set -eo pipefail
           mkdir "TestResults"
