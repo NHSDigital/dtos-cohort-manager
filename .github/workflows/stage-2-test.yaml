@@ -88,7 +88,8 @@ jobs:
           mkdir "TestResults"
           find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
             echo -e "\nRunning unit tests for:\n${file}"
-            dotnet test "${file}" --logger ${LOGGER_FORMAT} --results-directory "TestResults" --verbosity quiet
+            dotnet test "${file}" --logger ${LOGGER_FORMAT} --results-directory "TestResults" --verbosity quiet \
+              --collect:"XPlat Code Coverage"
           done
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
