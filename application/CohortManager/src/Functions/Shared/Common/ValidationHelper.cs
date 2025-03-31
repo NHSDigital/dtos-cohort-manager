@@ -9,12 +9,12 @@ public static class ValidationHelper
     private static readonly string[] DateFormats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
     private static readonly string NilReturnFileNhsNumber = "0000000000";
     // Validates that the date is not in the future and that it is in one of the expected formats
-    public static bool ValidatePastDate(string dateString)
-    {
+    public static bool ValidatePastDate(string dateString)    {
+
         var date = ParseDate(dateString);
         if(date.HasValue)
         {
-            return date < DateTime.Today.AddDays(1);
+            return date < DateTime.UtcNow.AddDays(1);
         }
         return false;
     }

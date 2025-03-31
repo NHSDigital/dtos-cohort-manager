@@ -70,7 +70,7 @@ public class ValidationHelperTests
     public void ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse()
     {
 
-        var result = ValidationHelper.ValidatePastDate(DateTime.Today.AddDays(2).ToString());
+        var result = ValidationHelper.ValidatePastDate(DateTime.UtcNow.AddDays(2).ToString());
 
         System.Console.WriteLine("ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse Result: " + result);
 
