@@ -116,12 +116,14 @@ jobs:
           path: aggregated-results
       - name: Merge coverage reports
         run: |
-          # Install the Coverlet console tool globally
-          dotnet tool install --global coverlet.console
+          # Install the ReportGenerator global tool
+          dotnet tool install -g dotnet-reportgenerator-globaltool
           # Ensure the tool is in the PATH
           export PATH="$PATH:~/.dotnet/tools"
-          # Merge all coverage.cobertura.xml files into one named combined-coverage.cobertura.xml
-          coverlet merge aggregated-results/**/coverage.cobertura.xml --output aggregated-results/combined-coverage.cobertura.xml
+          # Merge all coverage.cobertura.xml files into one merged report using ReportGenerator
+          reportgenerator -reports:"aggregated-results/**/coverage.cobertura.xml" -targetdir:"aggregated-results/merged" -reporttypes:Cobertura
+          # Rename/move the merged report to a clear name for further steps
+          mv aggregated-results/merged/Cobertura.xml aggregated-results/combined-coverage.cobertura.xml
       - name: Upload aggregated results as a single artifact
         uses: actions/upload-artifact@v4
         with:
