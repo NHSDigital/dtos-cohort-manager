@@ -72,11 +72,8 @@ export async function validateSqlData(validations: any): Promise<boolean> {
 
 export async function cleanupDatabase(nhsNumbers: string[]) {
 
-  // Connect to the database
   const pool = await sql.connect(sqlConfig);
   try {
-
-    // Create a comma-separated string from the condition list
     const conditions = nhsNumbers.map(item => `'${item}'`).join(',');
     const tables = ['PARTICIPANT_MANAGEMENT', 'PARTICIPANT_DEMOGRAPHIC', 'BS_COHORT_DISTRIBUTION', 'EXCEPTION_MANAGEMENT']
     for (const table of tables) {
@@ -86,7 +83,6 @@ export async function cleanupDatabase(nhsNumbers: string[]) {
   } catch (err) {
     console.error('Error deleting contents:', err);
   } finally {
-    // Close the database connection
     await pool.close();
   }
 }

@@ -61,6 +61,7 @@ class ApiClient {
   }
 
   //TODO Merge with postWithRetry and control using assertion check flag
+  //TODO move static content to env file for betetr control over timeouts and re-tries
   async postWithRetryForAssertion(endpoint: string, validRequestBody: any, assertionKey: string, assertionValue: string, retries: number = 8, waitTime: number = 2000): Promise<any> {
 
     for (let attempt = 1; attempt <= retries; attempt++) {
@@ -74,7 +75,7 @@ class ApiClient {
           try {
             expect(responseBody[assertionKey]).toBe(assertionValue);
             console.info(`Assertion passed for ${assertionKey} on attempt ${attempt}`);
-            return response; // Return the response body if the assertion passes
+            return response;
           } catch (assertionError) {
             console.warn(`Assertion failed for ${assertionKey} on attempt ${attempt}`, assertionError);
           }
