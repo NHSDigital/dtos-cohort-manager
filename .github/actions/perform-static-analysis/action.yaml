@@ -45,8 +45,8 @@ runs:
       shell: bash # Change from powershell to bash
       run: |
         mkdir -p .sonar/scanner
-        dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
-        dotnet tool install dotnet-coverage --tool-path ./.sonar/scanner
+        dotnet tool install dotnet-sonarscanner --tool-path $PWD/.sonar/scanner
+        dotnet tool install dotnet-coverage --tool-path $PWD/.sonar/scanner
     - name: Build and analyze
       shell: bash
       run: |
