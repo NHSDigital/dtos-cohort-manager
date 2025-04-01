@@ -15,7 +15,6 @@ set -euo pipefail
 #   SONAR_ORGANISATION_KEY=org-key  # SonarCloud organisation key
 #   SONAR_PROJECT_KEY=project-key   # SonarCloud project key
 #   SONAR_TOKEN=token               # SonarCloud token
-#   COVERAGE_REPORT_PATHS  # Path to code coverage report(s), comma separated
 #
 # Options:
 #   FORCE_USE_DOCKER=true # If set to true the command is run in a Docker container, default is 'false'
@@ -41,8 +40,7 @@ function run-sonar-scanner-natively() {
     -Dsonar.branch.name="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}" \
     -Dsonar.organization="$SONAR_ORGANISATION_KEY" \
     -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-    -Dsonar.token="$SONAR_TOKEN" \
-    -Dsonar.cs.opencover.reportsPaths="$COVERAGE_REPORT_PATHS"
+    -Dsonar.token="$SONAR_TOKEN"
 }
 
 function run-sonar-scanner-in-docker() {
@@ -59,8 +57,7 @@ function run-sonar-scanner-in-docker() {
       -Dsonar.branch.name="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}" \
       -Dsonar.organization="$SONAR_ORGANISATION_KEY" \
       -Dsonar.projectKey="$SONAR_PROJECT_KEY" \
-      -Dsonar.token="$SONAR_TOKEN" \
-      -Dsonar.cs.opencover.reportsPaths="$COVERAGE_REPORT_PATHS"
+      -Dsonar.token="$SONAR_TOKEN"
 }
 
 # ==============================================================================

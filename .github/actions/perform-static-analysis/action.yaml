@@ -10,9 +10,6 @@ inputs:
   sonar_token:
     description: "Sonar token, the API key"
     required: false
-  coverage_report_paths:
-    description: "Path to OpenCover or Coverlet format coverage reports (comma-separated for multiple files)"
-    required: false
 runs:
   using: "composite"
   steps:
@@ -29,5 +26,4 @@ runs:
         export SONAR_ORGANISATION_KEY=${{ inputs.sonar_organisation_key }}
         export SONAR_PROJECT_KEY=${{ inputs.sonar_project_key }}
         export SONAR_TOKEN=${{ inputs.sonar_token }}
-        export COVERAGE_REPORT_PATHS=${{ inputs.coverage_report_paths }}
         ./scripts/reports/perform-static-analysis.sh
