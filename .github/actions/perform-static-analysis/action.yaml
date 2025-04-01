@@ -3,26 +3,55 @@ description: "Perform static analysis"
 inputs:
   sonar_organisation_key:
     description: "Sonar organisation key, used to identify the project"
-    required: false
+    required: true
   sonar_project_key:
     description: "Sonar project key, used to identify the project"
-    required: false
+    required: true
   sonar_token:
     description: "Sonar token, the API key"
-    required: false
+    required: true
 runs:
   using: "composite"
   steps:
-    - name: "Check prerequisites for performing static analysis"
-      shell: bash
-      id: check
-      run: echo "secret_exist=${{ inputs.sonar_token != '' }}" >> $GITHUB_OUTPUT
-    - name: "Perform static analysis"
-      shell: bash
-      if: steps.check.outputs.secret_exist == 'true'
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: "zulu" # Alternative distribution options are available.
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+    - name: Install .NET SDK 9 (or your required version)
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x # C
+    - name: Cache SonarQube Cloud packages
+      uses: actions/cache@v4
+      with:
+        path: ~\sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache SonarQube Cloud scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v4
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+    - name: Install SonarQube Cloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: bash # Change from powershell to bash
       run: |
-        export BRANCH_NAME=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
-        export SONAR_ORGANISATION_KEY=${{ inputs.sonar_organisation_key }}
-        export SONAR_PROJECT_KEY=${{ inputs.sonar_project_key }}
-        export SONAR_TOKEN=${{ inputs.sonar_token }}
-        ./scripts/reports/perform-static-analysis.sh
+        mkdir -p .sonar/scanner
+        dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+        dotnet tool install dotnet-coverage --tool-path ./.sonar/scanner
+    - name: Build and analyze
+      shell: bash
+      run: |
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /o:"${{ inputs.sonar_organisation_key }}" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" \
+           /d:sonar.cs.opencover.reportsPaths=**/**/coverage.**.xml \
+           /d:sonar.lang.patterns.ts=**/*.ts,**/*.tsx,**/*.cts,**/*.mts \
+           /d:sonar.lang.patterns.js=**/*.js,**/*.jsx,**/*.cjs,**/*.mjs,**/*.vue \
+           /d:sonar.javascript.enabled=false
+        dotnet build application/CohortManager/src/Functions/Functions.sln
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
