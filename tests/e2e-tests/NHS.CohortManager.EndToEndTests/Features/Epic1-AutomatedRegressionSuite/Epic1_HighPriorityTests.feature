@@ -1,4 +1,4 @@
-Feature: Epic1_AutomatedRegressionSuite
+Feature: Epic1_HighPriorityTests
 DTOSS Regression TEST PACK.
 
   Background:
@@ -19,15 +19,16 @@ DTOSS Regression TEST PACK.
   Scenario: Verify AMENDED records reach the participant tables
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     And the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <AddRecordType>
     And the NHS numbers in the database should match the file data
-    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+    Given file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
+    Then verify the NhsNumbers in Participant_Management table should match <AmendedRecordType>
     And the Participant_Demographic table should match the <AmendedGivenName> for the NHS Number
 
     Examples:
-      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AmendedGivenName | RecordType |
-      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDEDNewTest1  | Amended    |
+      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AmendedGivenName | AddRecordType | AmendedRecordType |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDEDNewTest1  | ADD           | AMENDED           |
 
   @DTOSS-7584 @Regression
   Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record
@@ -42,23 +43,24 @@ DTOSS Regression TEST PACK.
       | FileName                                             | RecordType | NhsNumbers             |
       | ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
 
-  @DTOSS-7584 @Regression
-  Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record
-    Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
-    And the file is uploaded to the Blob Storage container
-    And the NHS numbers in the database should match the file data
-    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
-    When the file is uploaded to the Blob Storage container
-    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have the following records count
-      | TableName               | ExpectedCountInTable |
-      | Participant_Management  |                    1 |
-      | Participant_Demographic |                    1 |
-      | BS_Cohort_Distribution  |                    2 |
+ @DTOSS-7584 @Regression
+Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record
+  Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+  And the file is uploaded to the Blob Storage container
+  Then verify the NhsNumbers in Participant_Management table should match <AddRecordType>
+  And the NHS numbers in the database should match the file data
+  Given file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+  When the file is uploaded to the Blob Storage container
+  Then verify the NhsNumbers in Participant_Management table should match <AmendedRecordType>
+  Then the NHS Number should have the following records count
+    | TableName               | ExpectedCountInTable |
+    | Participant_Management  |                    1 |
+    | Participant_Demographic |                    1 |
+    | BS_Cohort_Distribution  |                    2 |
 
-    Examples:
-      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
-      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDED    |
+  Examples:
+    | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AddRecordType | AmendedRecordType |
+    | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | ADD           | AMENDED           |
 
   @DTOSS-7585 @Regression
   Scenario: Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution
