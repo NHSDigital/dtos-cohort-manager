@@ -51,10 +51,10 @@ runs:
       shell: bash
       run: |
         cd application/CohortManager/src/Functions
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /o:"${{ inputs.sonar_organisation_key }}" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" \
+        $PWD/.sonar/scanner/dotnet-sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /o:"${{ inputs.sonar_organisation_key }}" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" \
            /d:project.settings="$PWD/scripts/config/sonar-scanner.properties" \
            /d:sonar.lang.patterns.ts=**/*.ts,**/*.tsx,**/*.cts,**/*.mts \
            /d:sonar.lang.patterns.js=**/*.js,**/*.jsx,**/*.cjs,**/*.mjs,**/*.vue \
            /d:sonar.javascript.enabled=false
         dotnet build
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
+        $PWD/.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
