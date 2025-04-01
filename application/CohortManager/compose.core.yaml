@@ -344,9 +344,9 @@ services:
 
    # UI
   web:
-    container_name: "web"
+    container_name: web
     build:
-      context: ./src/web
+      context: ./src/Web
       dockerfile: Dockerfile
     restart: always
     profiles: [ui]
