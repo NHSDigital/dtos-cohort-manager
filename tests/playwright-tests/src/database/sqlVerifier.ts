@@ -33,28 +33,42 @@ export async function validateSqlData(validations: any): Promise<boolean> {
 
   try {
     for (const validationObj of validations) {
-      const { tableName, columnName, columnValue } = validationObj.validations;
-      let query = `SELECT COUNT(*) AS count FROM ${tableName} WHERE ${columnName} = '${columnValue}'`;
+      const { tableName, ...columns } = validationObj.validations;
+      let query = `SELECT COUNT(*) AS count FROM ${tableName} WHERE `;
+      const conditions = [];
+      const inputs = [];
+
+      for (const [key, value] of Object.entries(columns)) {
+        if (key.startsWith('columnName')) {
+          const columnIndex = key.replace('columnName', '');
+          const columnValueKey = `columnValue${columnIndex}`;
+          conditions.push(`${value} = @value${columnIndex}`);
+          inputs.push({ name: `value${columnIndex}`, value: columns[columnValueKey] });
+        }
+      }
+
+      query += conditions.join(' AND ');
+
       let result;
       let retries = Number(config.sqlRetry);
       let waitTime = Number(config.sqlWaitTime);
 
       for (let attempt = 1; attempt <= retries; attempt++) {
-        result = await pool.request()
-          .input('value', sql.VarChar, columnValue)
-          .query(query);
+        const request = pool.request();
+        inputs.forEach(input => request.input(input.name, sql.VarChar, input.value));
+        result = await request.query(query);
 
         if (result.recordset[0].count > 0) {
-          console.info(`Validation passed for ${columnName} with value ${columnValue} in table ${tableName}`);
-          results.push({ columnName, columnValue, tableName, status: 'pass' });
+          console.info(`Validation passed for ${JSON.stringify(columns)} in table ${tableName}`);
+          results.push({ columns, tableName, status: 'pass' });
           break;
         } else {
-          console.warn(`Validation failed for ${columnName} with value ${columnValue} in table ${tableName}, attempt ${attempt} after ${waitTime} seconds`);
+          console.warn(`Validation failed for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${waitTime} seconds`);
           if (attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, waitTime));
             waitTime += 5000;
           } else {
-            results.push({ columnName, columnValue, tableName, status: 'fail' });
+            results.push({ columns, tableName, status: 'fail' });
           }
         }
       }
@@ -63,7 +77,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
     const hasFailures = results.some(result => result.status === 'fail');
     return !hasFailures;
   } catch (error) {
-    console.error('Error checking validations:', error);
+    console.error('Error checking validations:', error); //  surface test failures in logs for easy debugging
     throw error;
   } finally {
     pool.close();
