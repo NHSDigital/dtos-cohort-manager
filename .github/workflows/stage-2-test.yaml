@@ -132,6 +132,7 @@ jobs:
           path: |
             aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
             aggregated-results/combined-coverage.cobertura.xml
+            aggregated-results/**/coverage.opencover.xml
       - name: Report results
         uses: bibipkins/dotnet-test-reporter@v1.5.3
         with:
