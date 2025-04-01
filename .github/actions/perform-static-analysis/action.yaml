@@ -18,8 +18,10 @@ runs:
       with:
         java-version: 17
         distribution: "zulu" # Alternative distribution options are available.
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
+        submodules: true
         fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
     - name: Install .NET SDK 8
       uses: actions/setup-dotnet@v4
