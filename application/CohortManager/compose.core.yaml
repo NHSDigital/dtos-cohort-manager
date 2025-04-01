@@ -342,6 +342,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
+   # UI
   web:
     container_name: "web"
     build:
