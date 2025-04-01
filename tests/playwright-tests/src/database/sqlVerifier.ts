@@ -77,7 +77,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
     const hasFailures = results.some(result => result.status === 'fail');
     return !hasFailures;
   } catch (error) {
-    console.error('Error checking validations:', error); //  surface test failures in logs for easy debugging
+    console.error('Error checking validations:', error); // surface test failures in logs for easy debugging
     throw error;
   } finally {
     pool.close();
@@ -85,13 +85,17 @@ export async function validateSqlData(validations: any): Promise<boolean> {
 }
 
 export async function cleanupDatabase(nhsNumbers: string[]) {
-
   const pool = await sql.connect(sqlConfig);
   try {
-    const conditions = nhsNumbers.map(item => `'${item}'`).join(',');
     const tables = ['PARTICIPANT_MANAGEMENT', 'PARTICIPANT_DEMOGRAPHIC', 'BS_COHORT_DISTRIBUTION', 'EXCEPTION_MANAGEMENT']
     for (const table of tables) {
-      await pool.request().query(`DELETE FROM ${table} WHERE NHS_Number IN (${conditions})`);
+      const request = pool.request();
+      nhsNumbers.forEach((nhsNumber, index) => {
+        request.input(`nhsNumber${index}`, sql.VarChar, nhsNumber);
+      });
+
+      const conditions = nhsNumbers.map((_, index) => `@nhsNumber${index}`).join(',');
+      await request.query(`DELETE FROM ${table} WHERE NHS_Number IN (${conditions})`);
       console.info(`Contents deleted from ${table} WHERE NHS_Number IN (${conditions})`);
     }
   } catch (err) {
