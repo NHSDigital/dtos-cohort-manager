@@ -53,5 +53,7 @@ runs:
            /d:sonar.lang.patterns.ts=**/*.ts,**/*.tsx,**/*.cts,**/*.mts \
            /d:sonar.lang.patterns.js=**/*.js,**/*.jsx,**/*.cjs,**/*.mjs,**/*.vue \
            /d:sonar.javascript.enabled=false
-        dotnet build application/CohortManager/src/Functions/Functions.sln
+        cd application/CohortManager/src/Functions
+        dotnet build
+        cd ../../../../
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
