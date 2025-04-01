@@ -110,20 +110,22 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Download all test result artifacts
+      - name: Download all test results
         uses: actions/download-artifact@v4
         with:
           path: aggregated-results
-      - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
       - name: Collate coverage reports
         continue-on-error: true
-        run: reportgenerator -reports:aggregated-results/**/coverage.cobertura.xml -targetdir:coverage -reporttypes:Cobertura
-      - name: Upload test coverage report
+        run: |
+          mkdir coverage
+          dotnet tool install --global dotnet-coverage
+          dotnet coverage merge *.cobertura.xml --recursive -o coverage/vscoverage.xml -f xml
+          dotnet coverage merge *.cobertura.xml --recursive -o coverage/cobertura.xml -f cobertura
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
-          path: coverage/Cobertura.xml
+          path: coverage/*.xml
       - name: Report results
         uses: bibipkins/dotnet-test-reporter@v1.5.3
         with:
@@ -131,7 +133,7 @@ jobs:
           comment-title: Unit Test Results
           results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
           coverage-type: cobertura
-          coverage-path: coverage/Cobertura.xml
+          coverage-path: coverage/cobertura.xml
           # coverage-threshold: 50
 
   test-lint:
@@ -150,6 +152,7 @@ jobs:
 
   perform-static-analysis:
     name: Perform static analysis
+    needs: [aggregate-test-results]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -160,6 +163,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Full history is needed to improving relevancy of reporting
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-report
+          path: coverage
       - name: Perform static analysis
         uses: ./.github/actions/perform-static-analysis
         with:
