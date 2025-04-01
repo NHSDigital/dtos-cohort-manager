@@ -52,7 +52,7 @@ runs:
       run: |
         ./.sonar/scanner/dotnet-sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /o:"${{ inputs.sonar_organisation_key }}" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" \
            /d:project.settings="./scripts/config/sonar-scanner.properties" \
-           /d:sonar.cs.vscoveragexml.reportsPaths=coverage/vscoverage.xml \
+           /d:sonar.cs.vscoveragexml.reportsPaths=**/vscoverage.xml \
            /d:sonar.lang.patterns.ts=**/*.ts,**/*.tsx,**/*.cts,**/*.mts \
            /d:sonar.lang.patterns.js=**/*.js,**/*.jsx,**/*.cjs,**/*.mjs,**/*.vue \
            /d:sonar.javascript.enabled=false
