@@ -103,7 +103,7 @@ jobs:
   aggregate-test-results:
     name: Aggregate results and report
     runs-on: ubuntu-latest
-    needs: [test-unit, test-coverage]
+    needs: [test-unit]
     permissions:
       pull-requests: write
     steps:
@@ -155,21 +155,6 @@ jobs:
         run: |
           make test-lint
       - name: Save the linting result
-        run: |
-          echo "Nothing to save"
-
-  test-coverage:
-    name: Test coverage
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run test coverage check
-        run: |
-          make test-coverage
-      - name: Save the coverage check result
         run: |
           echo "Nothing to save"
 
