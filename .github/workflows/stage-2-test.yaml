@@ -98,6 +98,7 @@ jobs:
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
             TestResults/**/coverage.cobertura.xml
+            TestResults/**/coverage.opencover.xml
 
   aggregate-test-results:
     name: Aggregate results and report
