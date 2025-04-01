@@ -8,14 +8,26 @@ public static class ValidationHelper
 
     private static readonly string[] DateFormats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
     private static readonly string NilReturnFileNhsNumber = "0000000000";
-    // Validates that the date is not in the future and that it is in one of the expected formats
+
+    /// <summary>
+    /// Validates that a date is not in the future and
+    /// in a valid format.
+    /// </summary>
+    /// <returns>bool, whether or not the date is valid</returns>
+    /// <remarks>
+    /// If you create a new date, make sure to provide a valid format in
+    /// the ToString parameter, otherwise it will default to the default
+    /// based on the culture info.
+    /// </remarks>
     public static bool ValidatePastDate(string dateString)
     {
         var date = ParseDate(dateString);
-        if(date.HasValue)
+
+        if (date.HasValue)
         {
             return date < DateTime.Today.AddDays(1);
         }
+
         return false;
     }
 
