@@ -73,7 +73,7 @@ To run unit tests, use the following command:
 npm run test:unit
 ```
 
-This will execute all unit tests and provide a summary of the tests results.
+This will execute all unit tests and provide a summary of the test results.
 
 #### Running unit tests in watch mode
 
