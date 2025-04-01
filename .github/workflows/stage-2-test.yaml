@@ -197,4 +197,3 @@ jobs:
           sonar_organisation_key: ${{ vars.SONAR_ORGANISATION_KEY }}
           sonar_project_key: ${{ vars.SONAR_PROJECT_KEY }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
-          coverage_report_paths: aggregated-results/**/coverage.opencover.xml
