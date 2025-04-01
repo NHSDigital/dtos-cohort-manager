@@ -349,6 +349,7 @@ services:
       context: ./src/web
       dockerfile: Dockerfile
     restart: always
+    profiles: [ui]
     ports:
       - "3000:3000"
     networks: [cohman-network]
