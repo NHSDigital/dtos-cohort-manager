@@ -27,7 +27,7 @@ services:
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-      - BsSelectRequestAuditDataService=http://localhost:7956/api/BsSelectRequestAuditDataService/
+      - BsSelectRequestAuditDataService=http://bs-select-request-audit-data-service:7956/api/BsSelectRequestAuditDataService/
       - AcceptableLatencyThresholdMs=500
 
   retrieve-cohort-request-audit:
@@ -42,7 +42,7 @@ services:
       - ASPNETCORE_URLS=http://*:7086
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-      - BsSelectRequestAuditDataService=http://localhost:7956/api/BsSelectRequestAuditDataService/
+      - BsSelectRequestAuditDataService=http://bs-select-request-audit-data-service:7956/api/BsSelectRequestAuditDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   transform-data-service:
