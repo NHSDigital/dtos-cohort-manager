@@ -13,12 +13,6 @@ public class HttpClientFunction : IHttpClientFunction
         _factory = factory;
     }
 
-    /// <summary>
-    /// Performs a GET request using HttpClient.
-    /// </summary>
-    /// <param name="url">URL to be used in request.</param>
-    /// <param name="headers">Headers to be used in request.</param>
-    /// <returns>HttpResponseMessage<returns>
     public async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string> headers)
     {
         using var client = _factory.CreateClient();
