@@ -41,6 +41,8 @@ stages:
           miNameACR: dtos-cohort-manager-acr-push
           miNameSQL: mi-cohort-manager-db-management
           acrServerName: '$(sourceRegistry).azurecr.io'
+          containerGroupName: 'acigrp-cohort-manager-db-migration'
+          containerName: 'cohort-manager-db-migration'
           containerImageName: 'cohort-manager-database-db-migration:temp'
           sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
