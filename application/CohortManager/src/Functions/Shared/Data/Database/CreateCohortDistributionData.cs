@@ -58,7 +58,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             CohortDistributionParticipantDto(new List<CohortDistributionParticipant>());
         }
-        // TODO we should probalby tidy this up and make it better.
+        // TODO we should probably tidy this up and make it better.
         var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
         return CohortDistributionParticipantDto(participantsList.Select(x => new CohortDistributionParticipant(x)).ToList());
     }
@@ -77,11 +77,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return BuildCohortRequestAudits(result);
     }
 
-    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistributionParticipant> listOfAllParticipants, Guid newRequestId = new Guid())
+    private static List<CohortDistributionParticipantDto> CohortDistributionParticipantDto(List<CohortDistributionParticipant> listOfAllParticipants, Guid? newRequestId = null)
     {
         return listOfAllParticipants.Select(s => new CohortDistributionParticipantDto
         {
-            RequestId = CreateRequestId(newRequestId).ToString(),
+            RequestId = CreateRequestId(newRequestId, s.RequestId),
             NhsNumber = s.NhsNumber ?? string.Empty,
             SupersededByNhsNumber = s.SupersededByNhsNumber ?? null,
             PrimaryCareProvider = s.PrimaryCareProvider ?? null,
@@ -116,13 +116,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         }).ToList();
     }
 
-    private static Guid CreateRequestId(Guid newRequestId)
+    private static string CreateRequestId(Guid? newRequestId, string currentRequestId)
     {
-        if (newRequestId != Guid.Empty)
+        if (newRequestId != null)
         {
-            return newRequestId;
+            return newRequestId.Value.ToString();
         }
-        return Guid.Empty;
+        return currentRequestId;
     }
 
     private void LogRequestAudit(Guid requestId, int statusCode)
