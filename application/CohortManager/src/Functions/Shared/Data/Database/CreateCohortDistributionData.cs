@@ -58,6 +58,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             CohortDistributionParticipantDto(new List<CohortDistributionParticipant>());
         }
+        // TODO we should probalby tidy this up and make it better.
         var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
         return CohortDistributionParticipantDto(participantsList.Select(x => new CohortDistributionParticipant(x)).ToList());
     }
