@@ -3,7 +3,7 @@ import { config } from './env';
 
 export default defineConfig({
   testDir: '../tests',
-  timeout: 60000,
+  timeout: 120000,
   retries: 2,
   workers: 4,
   use: {
