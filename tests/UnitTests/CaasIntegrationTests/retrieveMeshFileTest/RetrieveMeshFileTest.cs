@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -9,6 +10,9 @@ using NHS.MESH.Client.Contracts.Services;
 using NHS.MESH.Client.Models;
 using Model;
 using Microsoft.Extensions.Options;
+using Azure.Messaging.EventGrid.SystemEvents;
+using System.Text.Json;
+using System.Text;
 
 [TestClass]
 public class RetrieveMeshFileTest
@@ -26,6 +30,8 @@ public class RetrieveMeshFileTest
     private readonly RetrieveMeshFile _retrieveMeshFile;
 
     private const string mailboxId = "TestMailBox";
+    private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
+    private const string ConfigFileName = "MeshState.json";
 
     public RetrieveMeshFileTest()
     {
@@ -375,5 +381,103 @@ public class RetrieveMeshFileTest
 
     }
 
+    [TestMethod]
+    public async Task Run_Handshake_Success()
+    {
+        // arrange
+        MeshResponse<HandshakeResponse> handshakeResponse = MeshResponseTestHelper.CreateSuccessfulHandshakeResponse(mailboxId);
+        _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_Handshake_Failure()
+    {
+        // arrange
+        MeshResponse<HandshakeResponse> handshakeResponse = new MeshResponse<HandshakeResponse>
+        {
+            IsSuccessful = false,
+            Error = new APIErrorResponse
+            {
+                ErrorCode = "Error",
+                ErrorDescription = "Handshake failed"
+            }
+        };
+        _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
+
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_Handshake_Exception()
+    {
+        // arrange
+        _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).Throws(new Exception("Handshake exception"));
+
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShouldExecuteHandshake_NextHandshakeTime_InPast()
+    {
+        // arrange
+        Dictionary<string, string> configValues = new Dictionary<string, string>
+        {
+            { NextHandShakeTimeConfigKey, DateTime.UtcNow.AddHours(-1).ToString() }
+        };
+        string json = JsonSerializer.Serialize(configValues);
+        byte[] bytes = Encoding.UTF8.GetBytes(json);
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), "config", ConfigFileName)).ReturnsAsync(new BlobFile(bytes, ConfigFileName));
+
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShouldExecuteHandshake_NoMeshStateFile_ReadError()
+    {
+        // arrange
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), "config", ConfigFileName)).ReturnsAsync((BlobFile)null);
+
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShouldExecuteHandshake_NextHandshakeTime_ParsingError()
+    {
+        // arrange
+        Dictionary<string, string> configValues = new Dictionary<string, string>
+        {
+            { NextHandShakeTimeConfigKey, " invalid date " }
+        };
+        string json = JsonSerializer.Serialize(configValues);
+        byte[] bytes = Encoding.UTF8.GetBytes(json);
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), "config", ConfigFileName)).ReturnsAsync(new BlobFile(bytes, ConfigFileName));
+
+        // act
+        await _retrieveMeshFile.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
+
+        // assert
+        _mockMeshOperationService.Verify(i => i.MeshHandshakeAsync(It.IsAny<string>()), Times.Once);
+    }
 }
