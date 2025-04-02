@@ -1,5 +1,7 @@
 namespace Model;
+
 using Model.Enums;
+using Hl7.Fhir.Model;
 
 public class Demographic
 {
@@ -38,4 +40,12 @@ public class Demographic
     public string? InvalidFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
+
+    public Demographic() { }
+    public Demographic(Patient patient)
+    {
+        NhsNumber = patient.Id;
+        PrimaryCareProvider = patient.GeneralPractitioner[0].Identifier.Value;
+        PrimaryCareProviderEffectiveFromDate = patient.GeneralPractitioner[0].Identifier.Period.Start;
+    }
 }
