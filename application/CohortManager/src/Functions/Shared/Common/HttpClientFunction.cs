@@ -13,6 +13,12 @@ public class HttpClientFunction : IHttpClientFunction
         _factory = factory;
     }
 
+    /// <summary>
+    /// Performs a GET request using HttpClient.
+    /// </summary>
+    /// <param name="url">URL to be used in request.</param>
+    /// <param name="headers">Headers to be used in request.</param>
+    /// <returns>HttpResponseMessage<returns>
     public async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string> headers)
     {
         using var client = _factory.CreateClient();
@@ -43,8 +49,6 @@ public class HttpClientFunction : IHttpClientFunction
     /// <summary>
     /// Removes the query string from the URL to prevent us logging sensitive information.
     /// </summary>
-    /// <param name="url"></param>
-    /// <returns></returns>
     private static string RemoveURLQueryString(string url)
     {
         if (string.IsNullOrEmpty(url))
