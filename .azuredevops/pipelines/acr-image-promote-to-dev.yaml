@@ -33,6 +33,7 @@ stages:
       - group: TEMP_ENVIRONMENTS_core_backend
     steps:
       - checkout: self
+      - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: sc-cohort-manager-dev
