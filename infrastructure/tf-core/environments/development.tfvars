@@ -611,6 +611,14 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "BsRequestAuditDataService"
+          function_app_key = "BsRequestAuditDataService"
         }
       ]
       env_vars_static = {
@@ -789,6 +797,14 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "BsRequestAuditDataService"
+          function_app_key = "BsRequestAuditDataService"
         }
       ]
     }
