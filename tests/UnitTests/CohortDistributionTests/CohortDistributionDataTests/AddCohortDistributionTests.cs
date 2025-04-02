@@ -138,13 +138,14 @@ public class AddCohortDistributionTests
     [TestMethod]
     public async Task GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
+        var requestId = new Guid();
         var listOfValues = new List<CohortDistribution>()
         {
             new CohortDistribution
             {
                 ParticipantId = 1,
                 RecordInsertDateTime = DateTime.Today,
-                RequestId = _requestId
+                RequestId = requestId
             }
         };
 
@@ -156,6 +157,6 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("1", result[0].ParticipantId);
-        Assert.AreEqual(_requestId.ToString(), result[0].RequestId);
+        Assert.AreEqual(requestId.ToString(), result[0].RequestId);
     }
 }

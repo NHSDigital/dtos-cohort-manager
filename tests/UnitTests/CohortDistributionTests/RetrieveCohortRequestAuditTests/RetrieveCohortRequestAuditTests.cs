@@ -6,8 +6,6 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCohortRequestAuditTests;
-
 [TestClass]
 public class RetrieveCohortRequestAuditTests
 {
