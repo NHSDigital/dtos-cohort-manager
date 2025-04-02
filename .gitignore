@@ -88,3 +88,4 @@ tests/smoke-tests/NHS.CohortManager.SmokeTests/Config/appsettings-local.json
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
 *.crt
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
+application/CohortManager/src/Functions/Shared/DataServices.Migrations/appsettings.json
