@@ -15,11 +15,11 @@ resources:
 variables:
   - group: DEV_hub_backend_remote_state
   - name: sourceRegistry
-    value: acrukscohmantemp7048
+    value: acrukshubdevcohman
   - name: selectImageTag
     value: development
   - name: destEnvironmentShortName
-    value: temp7048
+    value: dev
 
 stages:
 - stage: db_changes_stage
@@ -30,7 +30,7 @@ stages:
       name: private-pool-dev-uks
     displayName: Apply database changes
     variables:
-      - group: TEMP_ENVIRONMENTS_core_backend
+      - group: DEV_core_backend
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
