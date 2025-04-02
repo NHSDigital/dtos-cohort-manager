@@ -13,6 +13,8 @@ export const config = {
     password: process.env.SQL_PASSWORD || '',
     database: process.env.SQL_DATABASE || '',
   },
+  sqlRetry: process.env.SQL_RETRIES || 1,
+  sqlWaitTime: process.env.SQL_WAIT_TIME || 2000,
   containerName: process.env.CONTAINER_NAME || '',
   endpointRetrieveCohortRequestAudit: process.env.endpointRetrieveCohortRequestAudit || '',
   endpointRetrieveCohortDistributionData: process.env.endpointRetrieveCohortDistributionData || ''
