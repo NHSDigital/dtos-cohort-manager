@@ -121,42 +121,34 @@ public class Epic1_AutomatedRegressionSuiteSteps
         await _fileUploadService.VerifyFieldUpdateAsync("BS_COHORT_DISTRIBUTION", _endtoendTestsContext.NhsNumbers.FirstOrDefault(), "GIVEN_NAME", expectedGivenName);
     }
 
-    [Then(@"the Exception table should contain the below details for the NHS Number")]
-    public async Task ThenTheExceptionTableShouldContainTheBelowDetails(Table table)
-    {
-        var fields = table.Rows.Select(row => new FieldsTable
-        {
-            FieldName = row["FieldName"],
-            FieldValue = row["FieldValue"]
-        }).ToList();
 
-        foreach (var field in fields)
-        {
-            await _fileUploadService.VerifyFieldUpdateAsync("EXCEPTION_MANAGEMENT", field.FieldName, field.FieldValue, _endtoendTestsContext.NhsNumbers.FirstOrDefault());
-        }
+
+    [Then(@"the Exception table should have rule ID (.*) with description ""(.*)"" for the NHS Number")]
+    public async Task ThenTheExceptionTableShouldHaveRuleDetailsForTheNHSNumber(int ruleId, string ruleDescription)
+    {
+        await _fileUploadService.VerifyFieldUpdateAsync(
+            "EXCEPTION_MANAGEMENT",
+            "RULE_ID",
+            ruleId.ToString(),
+            _endtoendTestsContext.NhsNumbers.FirstOrDefault());
+
+        await _fileUploadService.VerifyFieldUpdateAsync(
+            "EXCEPTION_MANAGEMENT",
+            "RULE_DESCRIPTION",
+            ruleDescription,
+            _endtoendTestsContext.NhsNumbers.FirstOrDefault());
     }
 
-    [Then(@"the exception table should contain the below details")]
-    public async Task ThenTheExceptionTableShouldContainTheBelowDetailsForFileType(Table table)
-    {
-        var fields = table.Rows.Select(row => new FieldsTable
-        {
-            FieldName = row["FieldName"],
-            FieldValue = row["FieldValue"],
-        }).ToList();
+    [Then(@"the Exception table should have (.*) ""(.*)"" for the file")]
+public async Task ThenTheExceptionTableShouldHaveFieldValueForTheFile(string fieldName, string fieldValue)
+{
+    string fileName = Path.GetFileName(_endtoendTestsContext.FilePath);
 
-
-        string fileName = Path.GetFileName(_endtoendTestsContext.FilePath);
-
-        foreach (var field in fields)
-        {
-            await _fileUploadService.VerifyFieldUpdateAsync(
-                "EXCEPTION_MANAGEMENT",
-                field.FieldName,
-                field.FieldValue,
-                fileName: fileName);
-        }
-
-    }
+    await _fileUploadService.VerifyFieldUpdateAsync(
+        "EXCEPTION_MANAGEMENT",
+        fieldName,
+        fieldValue,
+        fileName: fileName);
+}
 
 }
