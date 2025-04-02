@@ -15,7 +15,7 @@ using NHS.CohortManager.Tests.TestUtils;
 public class AddCohortDistributionTests
 {
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private readonly string _requestId = Guid.NewGuid().ToString();
+    private readonly Guid _requestId = Guid.NewGuid();
 
     private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private List<CohortDistribution> _cohortDistributionList;
@@ -103,7 +103,7 @@ public class AddCohortDistributionTests
         // Act
         _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(new List<CohortDistribution>());
         var validRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
-        var inValidRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
+        var inValidRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(Guid.Empty);
 
         // Assert
         Assert.AreEqual(0, inValidRequestIdResult.Count);
@@ -144,7 +144,7 @@ public class AddCohortDistributionTests
             {
                 ParticipantId = 1,
                 RecordInsertDateTime = DateTime.Today,
-                RequestId = Guid.Parse(_requestId)
+                RequestId = _requestId
             }
         };
 
@@ -156,6 +156,6 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("1", result[0].ParticipantId);
-        Assert.AreEqual(_requestId, result[0].RequestId);
+        Assert.AreEqual(_requestId.ToString(), result[0].RequestId);
     }
 }

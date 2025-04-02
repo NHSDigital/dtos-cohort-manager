@@ -40,10 +40,6 @@ namespace NHS.CohortManager.Tests.UnitTests.CohortDistributionTests.RetrieveCoho
             _mockDataReader.SetupSequence(reader => reader.Read())
             .Returns(true)
             .Returns(false);
-
-            _createCohortDistributionDataService = new CreateCohortDistributionData(
-                _mockDBConnection.Object,
-                _loggerMock.Object);
         }
     }
 }
