@@ -91,7 +91,7 @@ app_service_plan = {
   vnet_integration_enabled = true
 
   autoscale = {
-    cpu_percentage = {
+    scaling_rule = {
       metric = "CpuPercentage"
 
       capacity_min = "1"
@@ -122,7 +122,7 @@ app_service_plan = {
   instances = {
     DefaultPlan = {
       autoscale_override = {
-        memory_percentage = {
+        scaling_rule = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
@@ -133,7 +133,7 @@ app_service_plan = {
     }
     HighLoadFunctions = {
       autoscale_override = {
-        memory_percentage = {
+        scaling_rule = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
