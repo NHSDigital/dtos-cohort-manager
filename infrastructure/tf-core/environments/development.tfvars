@@ -617,7 +617,7 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         },
         {
-          env_var_name     = "BsRequestAuditDataService"
+          env_var_name     = "BsSelectRequestAuditDataService"
           function_app_key = "BsRequestAuditDataService"
         }
       ]
