@@ -11,8 +11,7 @@ export default defineConfig({
     extraHTTPHeaders: { 'Content-Type': 'application/json' },
   },
   projects: [
-    { name: 'dev', use: { ...config } },
-    { name: 'staging', use: { ...config } },
+    { name: 'dev', use: { ...config } }
   ],
   reporter: [['html', { outputFolder: 'playwright-report' }]],
 });
