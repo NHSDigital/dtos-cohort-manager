@@ -50,7 +50,7 @@ test.describe('Smoke Tests', () => {
     });
   });
 
-  test.only('@smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async () => {
+  test('@smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async () => {
     const nhsNumbers = ['2312514176'];
     await cleanupDatabase(nhsNumbers); //TODO move to before this test
 
