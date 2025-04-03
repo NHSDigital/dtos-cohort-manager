@@ -9,13 +9,11 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: b27ec9f8be6e667ee4073c8436dadb55b9fe99c7
+      ref: dbb933e78adea035c494a4d6c081c39787533a30
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
-  - name: destEnvironmentShortName
-    value: int
   - name: sourceRegistry
     value: acrukshubdevcohman
   - name: selectImageTag
@@ -24,6 +22,8 @@ variables:
     value: acrukshubdevcohman
   - name: addImageTag
     value: integration
+  - name: destEnvironmentShortName
+    value: int
 
 stages:
 - stage: db_changes_stage
@@ -33,11 +33,22 @@ stages:
     pool:
       name: private-pool-dev-uks
     displayName: Apply database changes
+    variables:
+      - group: INT_core_backend
     steps:
       - checkout: self
+      - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-int
+          serviceConnection: $(SERVICE_CONNECTION)
+          resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
+          miNameACR: dtos-cohort-manager-acr-push
+          miNameSQL: mi-cohort-manager-db-management
+          acrServerName: '$(sourceRegistry).azurecr.io'
+          containerGroupName: 'acigrp-cohort-manager-db-migration'
+          containerName: 'cohort-manager-db-migration'
+          containerImageName: 'cohort-manager-database-db-migration:$(selectImageTag)'
+          sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: re_tag_stage
   displayName: ACR re-tag
@@ -54,7 +65,7 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-int
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: deploy_image_stage
   displayName: Deploy images
@@ -72,7 +83,7 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-int
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
@@ -91,6 +102,6 @@ stages:
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-int
+        serviceConnection: $(SERVICE_CONNECTION)
         testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
         testProjectName: 'NHS.CohortManager.SmokeTests'
