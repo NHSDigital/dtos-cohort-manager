@@ -18,7 +18,7 @@
 
    ```
 
-2. Follow the setup instructions in the docs located at [Local_machine_setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
+2. Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
 
 ## Running Playwright Tests
 
