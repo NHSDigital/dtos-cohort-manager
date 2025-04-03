@@ -1,0 +1,14 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "telecom": [
+    {
+      "system": "phone",
+      "value": "07700900123",
+      "use": "mobile",
+      "period": {
+        "start": "2020-01-01"
+      }
+    }
+  ]
+}

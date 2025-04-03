@@ -48,6 +48,10 @@ public class FhirParserHelper : IFhirParserHelper
         demographic.RecordInsertDateTime = null; // TODO: No clear source for initial creation date in FHIR
         demographic.DateOfBirth = patient.BirthDate;
 
+        //TODO: Superseded NHS Number - how does CM manage?
+
+        //TODO: CurrentPosting & CurrentPostingEffectiveFromDate - what should these be set to?
+
         MapPrimaryCareProvider(patient, demographic);
         MapNames(patient, demographic);
         MapGender(patient, demographic);
