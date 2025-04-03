@@ -51,6 +51,9 @@ npm test
 npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 ```
 
+### Cloud Execution
+>Note: will be updated soon
+
 ## Test Flow Overview
 1. **File Upload**: Upload test file to storage
 2. **Processing**: Local functions process the uploaded file
