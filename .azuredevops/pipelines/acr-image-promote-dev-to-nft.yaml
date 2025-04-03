@@ -43,7 +43,7 @@ stages:
           serviceConnection: $(SERVICE_CONNECTION)
           resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
           miNameACR: dtos-cohort-manager-acr-push
-          miNameSQL: mi-cohort-manager-db-management
+          miNameSQL: mi-cohort-manager-db-management-nft
           acrServerName: '$(sourceRegistry).azurecr.io'
           containerGroupName: 'acigrp-cohort-manager-db-migration'
           containerName: 'cohort-manager-db-migration'
