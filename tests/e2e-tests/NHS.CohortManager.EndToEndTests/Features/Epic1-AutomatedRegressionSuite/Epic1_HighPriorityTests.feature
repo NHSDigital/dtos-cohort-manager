@@ -1,4 +1,4 @@
-Feature: Epic1_AutomatedRegressionSuite
+Feature: Epic1_HighPriorityTests
 DTOSS Regression TEST PACK.
 
   Background:
@@ -19,15 +19,16 @@ DTOSS Regression TEST PACK.
   Scenario: Verify AMENDED records reach the participant tables
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     And the file is uploaded to the Blob Storage container
+    Then verify the NhsNumbers in Participant_Management table should match <AddRecordType>
     And the NHS numbers in the database should match the file data
-    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+    Given file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
+    Then verify the NhsNumbers in Participant_Management table should match <AmendedRecordType>
     And the Participant_Demographic table should match the <AmendedGivenName> for the NHS Number
 
     Examples:
-      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AmendedGivenName | RecordType |
-      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDEDNewTest1  | Amended    |
+      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AmendedGivenName | AddRecordType | AmendedRecordType |
+      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDEDNewTest1  | ADD           | AMENDED           |
 
   @DTOSS-7584 @Regression
   Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record
@@ -42,37 +43,35 @@ DTOSS Regression TEST PACK.
       | FileName                                             | RecordType | NhsNumbers             |
       | ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet | Add        | 1111110662, 2222211794 |
 
-  @DTOSS-7584 @Regression
-  Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record
-    Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
-    And the file is uploaded to the Blob Storage container
-    And the NHS numbers in the database should match the file data
-    And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
-    When the file is uploaded to the Blob Storage container
-    Then verify the NhsNumbers in Participant_Management table should match <RecordType>
-    Then the NHS Number should have the following records count
-      | TableName               | ExpectedCountInTable |
-      | Participant_Management  |                    1 |
-      | Participant_Demographic |                    1 |
-      | BS_Cohort_Distribution  |                    2 |
+ @DTOSS-7584 @Regression
+Scenario: Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record
+  Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
+  And the file is uploaded to the Blob Storage container
+  Then verify the NhsNumbers in Participant_Management table should match <AddRecordType>
+  And the NHS numbers in the database should match the file data
+  Given file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
+  When the file is uploaded to the Blob Storage container
+  Then verify the NhsNumbers in Participant_Management table should match <AmendedRecordType>
+  Then the NHS Number should have the following records count
+    | TableName               | ExpectedCountInTable |
+    | Participant_Management  |                    1 |
+    | Participant_Demographic |                    1 |
+    | BS_Cohort_Distribution  |                    2 |
 
-    Examples:
-      | AddFileName                                        | AmendedFileName                                        | NhsNumbers | RecordType |
-      | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | AMENDED    |
+  Examples:
+    | AddFileName                                        | AmendedFileName                                        | NhsNumbers | AddRecordType | AmendedRecordType |
+    | ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet | 2312514176 | ADD           | AMENDED           |
 
   @DTOSS-7585 @Regression
   Scenario: Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution
     Given file <AddFileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the Exception table should contain the below details for the NHS Number
-      | FieldName        | FieldValue                                     |
-      | RULE_ID          |                                             36 |
-      | RULE_DESCRIPTION | Invalid primary care provider GP practice code |
-    Then the NHS Number should have the following records count
+    Then the Exception table should have rule ID 36 with description "Invalid primary care provider GP practice code" for the NHS Number
+    And the NHS Number should have the following records count
       | TableName               | ExpectedCountInTable |
-      | Participant_Management  |                    1 |
-      | Participant_Demographic |                    1 |
-      | BS_Cohort_Distribution  |                    0 |
+      | PARTICIPANT_MANAGEMENT  |                    1 |
+      | PARTICIPANT_DEMOGRAPHIC |                    1 |
+      | BS_COHORT_DISTRIBUTION  |                    0 |
 
     Examples:
       | AddFileName                                             | NhsNumbers |
@@ -85,10 +84,7 @@ DTOSS Regression TEST PACK.
     And the NHS numbers in the database should match the file data
     And file <AmendedFileName> exists in the configured location for "Amended" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the Exception table should contain the below details for the NHS Number
-      | FieldName        | FieldValue            |
-      | RULE_ID          |                    17 |
-      | RULE_DESCRIPTION | Date of birth invalid |
+    Then the Exception table should have rule ID 17 with description "Date of birth invalid" for the NHS Number
     Then the NHS Number should have the following records count
       | TableName               | ExpectedCountInTable |
       | Participant_Management  |                    1 |
@@ -149,10 +145,9 @@ DTOSS Regression TEST PACK.
   Scenario: Verify that a file with an invalid name creates a validation exception
     Given file <FileName> exists in the configured location for "Add" with NHS numbers : <NhsNumbers>
     When the file is uploaded to the Blob Storage container
-    Then the exception table should contain the below details
-      | FieldName        | FieldValue                                                                           |
-      | ERROR_RECORD     | File name is invalid. File name: Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet |
-      | RULE_DESCRIPTION | The file failed file validation. Check the file Exceptions blob store.               |
+    Then the Exception table should have ERROR_RECORD "File name is invalid. File name: Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet" for the file
+    And the Exception table should have RULE_ID "0" for the file
+    And the Exception table should have RULE_DESCRIPTION "The file failed file validation. Check the file Exceptions blob store." for the file
 
     Examples:
       | FileName                                            | RecordType | NhsNumbers             |
