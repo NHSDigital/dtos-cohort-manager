@@ -59,11 +59,12 @@ export async function validateSqlData(validations: any): Promise<boolean> {
         result = await request.query(query);
 
         if (result.recordset[0].count > 0) {
+          console.info(`✅ Function processing completed`)
           console.info(`Validation passed for ${JSON.stringify(columns)} in table ${tableName}`);
           results.push({ columns, tableName, status: 'pass' });
           break;
         } else {
-          console.warn(`Validation failed for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${waitTime} seconds`);
+          console.info(`🚧 Function processing in progress for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${waitTime} seconds`);
           if (attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, waitTime));
             waitTime += 5000;
@@ -77,7 +78,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
     const hasFailures = results.some(result => result.status === 'fail');
     return !hasFailures;
   } catch (error) {
-    console.error('Error checking validations:', error); // surface test failures in logs for easy debugging
+    console.error('Error checking validations:', error); //TODO surface test failures in logs for easy debugging
     throw error;
   } finally {
     pool.close();
