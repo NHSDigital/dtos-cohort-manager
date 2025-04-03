@@ -64,7 +64,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
           results.push({ columns, tableName, status: 'pass' });
           break;
         } else {
-          console.info(`🚧 Function processing in progress for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${waitTime} seconds`);
+          console.info(`🚧 Function processing in progress for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${Math.round(waitTime/1000)} seconds`);
           if (attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, waitTime));
             waitTime += 5000;
