@@ -9,14 +9,12 @@ using Moq;
 using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
-using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
 using Model.Enums;
 using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
-using NHS.Screening.CreateCohortDistribution;
 using Microsoft.Extensions.Options;
 
 [TestClass]

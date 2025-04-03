@@ -5,12 +5,10 @@ using Common;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using NHS.CohortManager.CohortDistribution;
 using Model;
 using Model.Enums;
 using Data.Database;
 using DataServices.Client;
-using NHS.Screening.CreateCohortDistribution;
 using Microsoft.Extensions.Options;
 
 public class CreateCohortDistribution
@@ -87,12 +85,11 @@ public class CreateCohortDistribution
             }
 
             // Get previous Cohort Distribution record
-            var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.NHSNumber == long.Parse(basicParticipantCsvRecord.NhsNumber))
-            CohortDistribution 
+            var previousCohortDistributionRecord = await GetLatestCohortDistributionRecordAsync(participantData.ParticipantId);
 
             // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
-            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName, participantData);
+            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName, participantData, previousCohortDistributionRecord);
 
             // Update participant exception flag
             if (validationResponse.CreatedException)
@@ -112,7 +109,7 @@ public class CreateCohortDistribution
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
 
             // Transformation
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
+            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord);
             if (transformedParticipant == null) return;
 
             // Add to cohort distribution table
@@ -154,5 +151,18 @@ public class CreateCohortDistribution
 
         _logger.LogInformation("Called {AddCohortDistribution} function", nameof(AddCohortDistribution));
         return response;
+    }
+
+    private async Task<CohortDistributionParticipant> GetLatestCohortDistributionRecordAsync(string participantId)
+    {
+        var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.ParticipantId == long.Parse(participantId));
+        CohortDistribution? latestParticipant = cohortDistRecords
+                                                .OrderByDescending(x => x.CohortDistributionId)
+                                                .FirstOrDefault();
+
+        if (latestParticipant != null)
+            return new CohortDistributionParticipant(latestParticipant);
+        else 
+            return new CohortDistributionParticipant();
     }
 }

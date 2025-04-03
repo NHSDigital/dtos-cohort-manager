@@ -98,7 +98,7 @@ public class CohortDistributionParticipant
     public string? InvalidFlag { get; set; }
 
 
-    public CohortDistribution ToCohortDistributionParticipant()
+    public CohortDistribution ToCohortDistribution()
     {
         return new CohortDistribution
         {

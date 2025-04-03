@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
 using Model;
-using NHS.Screening.CreateCohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using HealthChecks.Extensions;
 
 var host = new HostBuilder()
