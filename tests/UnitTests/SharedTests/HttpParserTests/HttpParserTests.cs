@@ -31,7 +31,7 @@ public class HttpParserHelperTests
 
                 return response.Object;
             });
-    }  
+    }
 
     [TestMethod]
     [DataRow("ID", "1", 1)]
@@ -43,43 +43,44 @@ public class HttpParserHelperTests
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsInt(_request.Object, key);
-        
+
         // Assert
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(expected, actual);
     }
 
     [TestMethod]
-    [DataRow("ID", "1" , 0)]
-    public void GetQueryParameterAsInt_InvalidInput_ReturnDefaultValue(string key, string value, int defaultValue) {
+    [DataRow("ID", "1", 0)]
+    public void GetQueryParameterAsInt_InvalidInput_ReturnDefaultValue(string key, string value, int defaultValue)
+    {
         // Arrange
         string invalidKey = "InvalidInput";
         _request.Setup(x => x.Query).Returns(new NameValueCollection() { { invalidKey, value } });
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsInt(_request.Object, key);
-        
+
         // Assert
-        var expected = defaultValue;
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(defaultValue, actual);
     }
 
     [TestMethod]
-    [DataRow("ID", null , 0)]
+    [DataRow("ID", null, 0)]
     [DataRow(null, "ABC", 0)]
-    public void GetQueryParameterAsInt_NullInput_ReturnDefaultValue(string key, string value, int defaultValue) {
+    public void GetQueryParameterAsInt_NullInput_ReturnDefaultValue(string key, string value, int defaultValue)
+    {
         // Arrange
         _request.Setup(x => x.Query).Returns(new NameValueCollection() { { key, value } });
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsInt(_request.Object, key);
-        
+
         // Assert
-        var expected = defaultValue;
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(defaultValue, actual);
     }
     [TestMethod]
     [DataRow("No Patient ID")]
-    public void LogErrorResponse_ValidError_ReturnHttpErrorResponse(string errorMessage) {
+    public void LogErrorResponse_ValidError_ReturnHttpErrorResponse(string errorMessage)
+    {
         //No Arrange
         //Act
         _httpParserHelper.LogErrorResponse(_request.Object, errorMessage);
@@ -89,55 +90,56 @@ public class HttpParserHelperTests
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
             It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()));
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
     }
 
 
     [TestMethod]
     [DataRow("ID", "1", true)]
     [DataRow("ID", "0", false)]
-    public void GetQueryParameterAsBool_ValidInput_ReturnBool(string key, string value, bool expected) {
+    public void GetQueryParameterAsBool_ValidInput_ReturnBool(string key, string value, bool expected)
+    {
         // Arrange
         bool defaultValue = false;
         _request.Setup(x => x.Query).Returns(new NameValueCollection() { { key, value } });
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsBool(_request.Object, key, defaultValue);
-        
+
         // Assert
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(expected, actual);
     }
 
     [TestMethod]
-    [DataRow("ID", null , true)]
-    [DataRow("ID", null , false)]
-    public void GetQueryParameterAsBool_InvalidInput_ReturnDefaultValue(string key, string value, bool defaultValue) {
+    [DataRow("ID", null, true)]
+    [DataRow("ID", null, false)]
+    public void GetQueryParameterAsBool_InvalidInput_ReturnDefaultValue(string key, string value, bool defaultValue)
+    {
         // Arrange
         string invalidKey = "InvalidInput";
         _request.Setup(x => x.Query).Returns(new NameValueCollection() { { invalidKey, value } });
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsBool(_request.Object, key, defaultValue);
-        
+
         // Assert
-        var expected = defaultValue;
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(defaultValue, actual);
     }
 
     [TestMethod]
-    [DataRow("ID", null , true)]
-    [DataRow("ID", null , false)]
-    [DataRow(null, "ABC" , true)]
+    [DataRow("ID", null, true)]
+    [DataRow("ID", null, false)]
+    [DataRow(null, "ABC", true)]
     [DataRow(null, "ABC", false)]
-    public void GetQueryParameterAsBool_NullInput_ReturnDefaultValue(string key, string value, bool defaultValue) {
-       // Arrange
-        _request.Setup(x => x.Query).Returns(new NameValueCollection() { { key, "value" } });
+    public void GetQueryParameterAsBool_NullInput_ReturnDefaultValue(string key, string value, bool defaultValue)
+    {
+        // Arrange
+        _request.Setup(x => x.Query).Returns(new NameValueCollection() { { key, value } });
 
         //Act
         var actual = _httpParserHelper.GetQueryParameterAsBool(_request.Object, key, defaultValue);
-        
+
         // Assert
-        bool expected = defaultValue;
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(defaultValue, actual);
     }
 }
