@@ -54,20 +54,4 @@ public class HttpParserHelper : IHttpParserHelper
                 return defaultValue;
         }
     }
-
-    public Demographic FhirParser(string json)
-    {
-        var parser = new FhirJsonParser();
-
-        try
-        {
-            var parsedPatient = parser.Parse<Patient>(json);
-            return new Demographic(parsedPatient);
-        }
-        catch (FormatException ex)
-        {
-            _logger.LogError(ex, "Failed to parse FHIR json");
-            throw;
-        }
-    }
 }

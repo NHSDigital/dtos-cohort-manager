@@ -16,19 +16,19 @@ public class RetrievePdsDemographic
     private readonly ICreateResponse _createResponse;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly RetrievePDSDemographicConfig _config;
-    private readonly IHttpParserHelper _httpParserHelper;
+    private readonly IFhirParserHelper _fhirParserHelper;
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
         ICreateResponse createResponse,
         IHttpClientFunction httpClientFunction,
-        IHttpParserHelper httpParserHelper,
+        IFhirParserHelper fhirParserHelper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _httpClientFunction = httpClientFunction;
-        _httpParserHelper = httpParserHelper;
+        _fhirParserHelper = fhirParserHelper;
         _config = retrievePDSDemographicConfig.Value;
     }
 
@@ -63,7 +63,8 @@ public class RetrievePdsDemographic
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                var demographic = _httpParserHelper.FhirParser(jsonResponse);
+                var demographic = _fhirParserHelper.FhirParser(jsonResponse);
+                _logger.LogInformation(JsonSerializer.Serialize(jsonResponse));
                 Console.WriteLine(JsonSerializer.Serialize(demographic));
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
