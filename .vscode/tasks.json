@@ -61,15 +61,12 @@
       "group": {
         "kind": "build",
         "isDefault": true
-      },
+        },
       },
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager",
         "statusbar": {
-          "hide": true
+          "hide": false
         }
       }
     },
