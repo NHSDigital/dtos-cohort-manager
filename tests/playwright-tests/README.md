@@ -10,22 +10,22 @@
 
 ## Getting Started
 
-1. Clone the repository to get all functions and test files
+- Clone the repository to get all functions and test files
 
-   ```bash
+```bash
 
-   git clone https://github.com/NHSDigital/dtos-cohort-manager.git
+git clone https://github.com/NHSDigital/dtos-cohort-manager.git
 
-   ```
+```
 
-2. Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
+- Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
 
 ## Running Playwright Tests
 
 ### Local Execution
 
-1. Rename `.env.dev.example` to `.env.dev`.
-2. Update the following configuration according to your local settings
+- Rename `.env.dev.example` to `.env.dev`.
+- Update the following configuration according to your local settings
 
 ```bash
 
@@ -43,19 +43,16 @@ SQL_WAIT_TIME=''
 
 ```
 
-3. Run tests
+- Run tests
 
 ```bash
 
 # Navigate to test framework
 cd ../dtos-cohort-manager/tests/playwright-tests
-
 # Install dependencies
 npm install
-
 # Run all tests
 npm test
-
 # Run specific test file
 npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 
@@ -90,6 +87,7 @@ Upload any parquet file to the system by specifying the filename
 async function processFileViaStorage(fileName: string);
 
 ```
+
 All test files should be placed under `playwright-tests/tests/e2e/testfiles`
 
 ### Validation Engine
@@ -135,6 +133,3 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
       await validateSqlDatabase(checkInDatabase.validations);
 
 ```
-
-
-
