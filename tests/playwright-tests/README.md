@@ -16,25 +16,6 @@
 
 ### Local Execution
 
-- Rename `.env.dev.example` to `.env.dev`.
-- Update the following configuration according to your local settings
-
-```bash
-
-# Azure Storage
-AZURE_CONNECTION_STRING=''
-CONTAINER_NAME=''
-
-# Azure SQL Database
-SQL_HOST=''
-SQL_USER=''
-SQL_PASSWORD=''
-SQL_DATABASE=''
-SQL_RETRIES=''
-SQL_WAIT_TIME=''
-
-```
-
 - Run tests
 
 ```bash
