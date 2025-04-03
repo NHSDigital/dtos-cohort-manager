@@ -1,4 +1,4 @@
-namespace HttpParserHelperTests;
+namespace FhirParserHelperTests;
 
 using Common;
 using Moq;
@@ -13,7 +13,6 @@ public class FhirParserHelperTests
 {
     private readonly Mock<ILogger<FhirParserHelper>> _logger = new();
     private readonly FhirParserHelper _fhirParserHelper;
-    private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<FunctionContext> _context = new();
 
@@ -53,7 +52,7 @@ public class FhirParserHelperTests
         };
 
         // Act
-        var result = _fhirParserHelper.FhirParser(json);
+        var result = _fhirParserHelper.ParseFhirJson(json);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(Demographic));
@@ -70,7 +69,7 @@ public class FhirParserHelperTests
         var json = string.Empty;
 
         // Act & Assert
-        Assert.ThrowsException<FormatException>(() => _fhirParserHelper.FhirParser(json));
+        Assert.ThrowsException<FormatException>(() => _fhirParserHelper.ParseFhirJson(json));
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),

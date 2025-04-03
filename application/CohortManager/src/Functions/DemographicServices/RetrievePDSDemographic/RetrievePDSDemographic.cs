@@ -63,7 +63,7 @@ public class RetrievePdsDemographic
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                var demographic = _fhirParserHelper.FhirParser(jsonResponse);
+                var demographic = _fhirParserHelper.ParseFhirJson(jsonResponse);
                 _logger.LogInformation(JsonSerializer.Serialize(jsonResponse));
                 Console.WriteLine(JsonSerializer.Serialize(demographic));
 
