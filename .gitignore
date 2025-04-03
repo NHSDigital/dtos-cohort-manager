@@ -92,3 +92,18 @@ application/CohortManager/.vscode/
 
 # Ignore all .crt files
 *.crt
+tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
+
+# Playwright
+# Ignore
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+**/playwright-tests/.env
+**/playwright-tests/.env.*
+**/playwright-tests/.vscode/settings.json
+# Allow
+!**/playwright-tests/.env.dev.example
+!**/playwright-tests/src/tests/e2e/testfiles/**/*.parquet
