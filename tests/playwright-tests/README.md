@@ -1,6 +1,7 @@
 # Functions Testing Guide using Playwright Test Framework
 
 ## Prerequisites
+
 - Local functions environment running
 - Node.js installed
 - Git installed
@@ -8,9 +9,13 @@
 - Verify all functions are operational
 
 ## Getting Started
+
 1. Clone the repository to get all functions and test files
+
    ```bash
+
    git clone https://github.com/NHSDigital/dtos-cohort-manager.git
+
    ```
 
 2. Follow the setup instructions in the docs located at [Local_machine_setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
@@ -20,9 +25,10 @@
 ### Local Execution
 
 1. Rename `.env.dev.example` to `.env.dev`.
-2. Update the following configuration according to your local settings:
+2. Update the following configuration according to your local settings
 
 ```bash
+
 # Azure Storage
 AZURE_CONNECTION_STRING=''
 CONTAINER_NAME=''
@@ -34,10 +40,13 @@ SQL_PASSWORD=''
 SQL_DATABASE=''
 SQL_RETRIES=''
 SQL_WAIT_TIME=''
+
 ```
 
 3. Run tests
+
 ```bash
+
 # Navigate to test framework
 cd ../dtos-cohort-manager/tests/playwright-tests
 
@@ -49,17 +58,21 @@ npm test
 
 # Run specific test file
 npx playwright test src/tests/e2e/e2e-with-db.spec.ts
+
 ```
 
 ### Cloud Execution
+
 >Note: will be updated soon
 
 ## Test Flow Overview
+
 1. **File Upload**: Upload test file to storage
 2. **Processing**: Local functions process the uploaded file
 3. **Validation**: Verify results in cohort using **dynamic** database queries
 
 ## Contributing to improve Test Coverage & Framework
+
 - Identify gaps in current test coverage, and or framework
 - Create new tests/ utilities following the existing patterns
 - Submit pull requests with your improvements
@@ -68,16 +81,23 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 ## Reusable Components
 
 ### File Processor
-Upload any parquet file to the system by specifying the filename:
+
+Upload any parquet file to the system by specifying the filename
+
 ```ts
+
 // Example usage
 async function processFileViaStorage(fileName: string);
+
 ```
 All test files should be placed under `playwright-tests/tests/e2e/testfiles`
 
 ### Validation Engine
-The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries:
+
+The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries
+
 ```ts
+
 // Example usage
       const checkInDatabase = {
         "validations": [{
@@ -113,6 +133,8 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
         ]
       }
       await validateSqlDatabase(checkInDatabase.validations);
+
 ```
+
 
 
