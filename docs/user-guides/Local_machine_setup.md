@@ -119,10 +119,6 @@ You can run a specific profile with `docker compose --profile <profile-name> up`
 
 Or, to run the whole application `docker compose --profile "*" up`
 
-### Running tests using Playwright Test Framework
-
-[Functions Testing Guide using Playwright Test Framework](../../tests/playwright-tests/README.md)
-
 ## Appendix A: Storage
 
 ### The send-sample-file.py script
