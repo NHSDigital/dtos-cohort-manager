@@ -135,33 +135,44 @@ public class FhirParserHelper : IFhirParserHelper
 
     private static void MapAddress(Patient patient, Demographic demographic)
     {
-        var homeAddress = patient.Address?.FirstOrDefault(a => a.Use == Address.AddressUse.Home)
+        // Find the home address or first available address
+        var homeAddress = GetHomeAddress(patient);
+        if (homeAddress == null) return;
+
+        // Map all address components
+        MapAddressComponents(homeAddress, demographic);
+    }
+
+    private static Address? GetHomeAddress(Patient patient)
+    {
+        return patient.Address?.FirstOrDefault(a => a.Use == Address.AddressUse.Home)
             ?? patient.Address?.FirstOrDefault();
+    }
 
-        if (homeAddress != null)
+    private static void MapAddressComponents(Address address, Demographic demographic)
+    {
+        // Map address lines
+        if (address.Line != null)
         {
-            if (homeAddress.Line != null)
-            {
-                var addressLines = homeAddress.Line.ToArray();
-                demographic.AddressLine1 = addressLines.Length > 0 ? addressLines[0] : null;
-                demographic.AddressLine2 = addressLines.Length > 1 ? addressLines[1] : null;
-                demographic.AddressLine3 = addressLines.Length > 2 ? addressLines[2] : null;
-                demographic.AddressLine4 = addressLines.Length > 3 ? addressLines[3] : null;
-                demographic.AddressLine5 = addressLines.Length > 4 ? addressLines[4] : null;
-            }
+            var addressLines = address.Line.ToArray();
+            demographic.AddressLine1 = addressLines.Length > 0 ? addressLines[0] : null;
+            demographic.AddressLine2 = addressLines.Length > 1 ? addressLines[1] : null;
+            demographic.AddressLine3 = addressLines.Length > 2 ? addressLines[2] : null;
+            demographic.AddressLine4 = addressLines.Length > 3 ? addressLines[3] : null;
+            demographic.AddressLine5 = addressLines.Length > 4 ? addressLines[4] : null;
+        }
 
-            demographic.Postcode = homeAddress.PostalCode;
+        // Map other address details
+        demographic.Postcode = address.PostalCode;
+        MapPafKeyFromExtensions(address, demographic);
 
-            // PAF Key from extensions
-            MapPafKeyFromExtensions(homeAddress, demographic);
-
-            // Address effective date
-            if (homeAddress.Period?.Start != null)
-            {
-                demographic.UsualAddressEffectiveFromDate = homeAddress.Period.Start.ToString();
-            }
+        // Map effective date
+        if (address.Period?.Start != null)
+        {
+            demographic.UsualAddressEffectiveFromDate = address.Period.Start.ToString();
         }
     }
+
 
     private static void MapPafKeyFromExtensions(Address homeAddress, Demographic demographic)
     {
