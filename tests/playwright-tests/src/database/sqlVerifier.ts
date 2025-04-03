@@ -87,7 +87,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
 export async function cleanupDatabase(nhsNumbers: string[]) {
   const pool = await sql.connect(sqlConfig);
   try {
-    const tables = ['PARTICIPANT_MANAGEMENT', 'PARTICIPANT_DEMOGRAPHIC', 'BS_COHORT_DISTRIBUTION', 'EXCEPTION_MANAGEMENT']
+    const tables = ['PARTICIPANT_MANAGEMENT', 'PARTICIPANT_DEMOGRAPHIC', 'BS_COHORT_DISTRIBUTION', 'EXCEPTION_MANAGEMENT'] //TODO move to external config; helpers should not have project specific configurations
     for (const table of tables) {
       const request = pool.request();
       nhsNumbers.forEach((nhsNumber, index) => {
