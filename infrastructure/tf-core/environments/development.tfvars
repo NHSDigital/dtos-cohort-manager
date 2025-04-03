@@ -151,6 +151,7 @@ app_service_plan = {
     }
   }
 }
+
 diagnostic_settings = {
   metric_enabled = true
 }
