@@ -9,17 +9,17 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: dbb933e78adea035c494a4d6c081c39787533a30
+      ref: feat/dtoss-3350-pipeline-function-deploy
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
   - name: sourceRegistry
-    value: acrukshubdevcohman
-  - name: selectImageTag
-    value: development
+    value: acrukscohmantemp7048
+  - name: addImageTag
+    value: temp
   - name: destEnvironmentShortName
-    value: dev
+    value: temp7048
 
 stages:
 - stage: db_changes_stage
@@ -30,7 +30,7 @@ stages:
       name: private-pool-dev-uks
     displayName: Apply database changes
     variables:
-      - group: DEV_core_backend
+      - group: TEMP_ENVIRONMENTS_core_backend
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
@@ -43,21 +43,21 @@ stages:
           acrServerName: '$(sourceRegistry).azurecr.io'
           containerGroupName: 'acigrp-cohman-$(destEnvironmentShortName)-uks-db-migration'
           containerName: 'cohort-manager-db-migration'
-          containerImageName: 'cohort-manager-database-db-migration:$(selectImageTag)'
+          containerImageName: 'cohort-manager-database-db-migration:$(addImageTag)'
           sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: deploy_image_stage
   displayName: Deploy images
+  variables:
+    - group: TEMP_ENVIRONMENTS_core_backend
   jobs:
   - job: deploy_images
     pool:
       name: private-pool-dev-uks
     displayName: Deploy Docker images to function apps
     variables:
-      DEST_REGISTRY: $(destRegistry)
+      SRC_REGISTRY: $(sourceRegistry)
       ADD_IMAGE_TAG: $(addImageTag)
-      FUNCTION_NAME_PREFIX: $(destEnvironmentShortName)-uks
-      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-$(destEnvironmentShortName)-uks
       PROJECT_NAME: cohort-manager
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
