@@ -224,49 +224,53 @@ public class FhirParserHelper : IFhirParserHelper
 
     private static void MapContactInformation(Patient patient, Demographic demographic)
     {
-        if (patient.Telecom != null)
+        if (patient.Telecom == null) return;
+
+        // Home phone
+        var homePhone = patient.Telecom.FirstOrDefault(t =>
+            t.System == ContactPoint.ContactPointSystem.Phone &&
+            t.Use == ContactPoint.ContactPointUse.Home);
+        if (homePhone != null)
         {
-            // Home phone
-            var homePhone = patient.Telecom.FirstOrDefault(t =>
-                t.System == ContactPoint.ContactPointSystem.Phone &&
-                t.Use == ContactPoint.ContactPointUse.Home);
+            MapContactPoint(homePhone,
+                value => demographic.TelephoneNumber = value,
+                date => demographic.TelephoneNumberEffectiveFromDate = date);
+        }
 
-            if (homePhone != null)
-            {
-                demographic.TelephoneNumber = homePhone.Value;
-                if (homePhone.Period?.Start != null)
-                {
-                    demographic.TelephoneNumberEffectiveFromDate = homePhone.Period.Start.ToString();
-                }
-            }
+        // Mobile phone
+        var mobilePhone = patient.Telecom.FirstOrDefault(t =>
+            t.System == ContactPoint.ContactPointSystem.Phone &&
+            t.Use == ContactPoint.ContactPointUse.Mobile);
+        if (mobilePhone != null)
+        {
+            MapContactPoint(mobilePhone,
+                value => demographic.MobileNumber = value,
+                date => demographic.MobileNumberEffectiveFromDate = date);
+        }
 
-            // Mobile phone
-            var mobilePhone = patient.Telecom.FirstOrDefault(t =>
-                t.System == ContactPoint.ContactPointSystem.Phone &&
-                t.Use == ContactPoint.ContactPointUse.Mobile);
+        // Email
+        var email = patient.Telecom.FirstOrDefault(t =>
+            t.System == ContactPoint.ContactPointSystem.Email &&
+            t.Use == ContactPoint.ContactPointUse.Home);
+        if (email != null)
+        {
+            MapContactPoint(email,
+                value => demographic.EmailAddress = value,
+                date => demographic.EmailAddressEffectiveFromDate = date);
+        }
+    }
 
-            if (mobilePhone != null)
-            {
-                demographic.MobileNumber = mobilePhone.Value;
-                if (mobilePhone.Period?.Start != null)
-                {
-                    demographic.MobileNumberEffectiveFromDate = mobilePhone.Period.Start.ToString();
-                }
-            }
+    private static void MapContactPoint(
+        ContactPoint contactPoint,
+        Action<string> setValueAction,
+        Action<string> setDateAction)
+    {
+        // Now we know contactPoint isn't null when this method is called
+        setValueAction(contactPoint.Value);
 
-            // Email
-            var email = patient.Telecom.FirstOrDefault(t =>
-                t.System == ContactPoint.ContactPointSystem.Email &&
-                t.Use == ContactPoint.ContactPointUse.Home);
-
-            if (email != null)
-            {
-                demographic.EmailAddress = email.Value;
-                if (email.Period?.Start != null)
-                {
-                    demographic.EmailAddressEffectiveFromDate = email.Period.Start.ToString();
-                }
-            }
+        if (contactPoint.Period?.Start != null)
+        {
+            setDateAction(contactPoint.Period.Start.ToString());
         }
     }
 
