@@ -85,16 +85,21 @@ application/CohortManager/.vscode/
 
 # Ignore generated feature bindings
 *.feature.cs
-tests/smoke-tests/NHS.CohortManager.SmokeTests/Config/appsettings-local.json
-tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
+# Ignore all appsettings.json files
+**/appsettings.json
+
+# Ignore all appsettings-local.json files
+**/appsettings-local.json
+
+# Ignore all .crt files
 *.crt
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
-tests/playwright-tests/config/appsettings.json
+
 # Playwright
 **/node_modules/
 **/test-results/
 **/playwright-report/
 **/blob-report/
 **/playwright/.cache/
-tests/playwright-tests/.env
-tests/playwright-tests/.env.*
+**/playwright-tests/.env
+**/playwright-tests/.env.*
