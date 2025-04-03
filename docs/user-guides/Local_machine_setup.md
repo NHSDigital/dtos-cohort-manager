@@ -119,6 +119,9 @@ You can run a specific profile with `docker compose --profile <profile-name> up`
 
 Or, to run the whole application `docker compose --profile "*" up`
 
+### Running tests using Playwright Test Framework
+
+[Functions Testing Guide using Playwright Test Framework](../../tests/playwright-tests/README.md)
 
 ## Appendix A: Storage
 
@@ -145,3 +148,4 @@ Once created, use the sample csv files upload it to that new inbound container.
 Back in VS Code you should see the logs of the functions running locally, once it's complete, you can refresh the database again to see the changes made by the CSV files.
 
 *Note: Sample Data and Scripts to create the database are provided by the Data team. The latest files can be found in the `dtos-data-modes` repository in the NHS Digital GitHub <https://github.com/NHSDigital/dtos-data-models>
+

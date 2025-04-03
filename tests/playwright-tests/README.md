@@ -10,14 +10,6 @@
 
 ## Getting Started
 
-- Clone the repository to get all functions and test files
-
-```bash
-
-git clone https://github.com/NHSDigital/dtos-cohort-manager.git
-
-```
-
 - Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
 
 ## Running Playwright Tests
