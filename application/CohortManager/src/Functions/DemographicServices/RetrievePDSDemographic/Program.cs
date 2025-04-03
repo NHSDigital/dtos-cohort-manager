@@ -1,4 +1,5 @@
 using Common;
+using Common.Interfaces;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,6 +13,7 @@ var host = new HostBuilder()
         services.AddHttpClient();
         services.AddScoped<IHttpClientFunction, HttpClientFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })

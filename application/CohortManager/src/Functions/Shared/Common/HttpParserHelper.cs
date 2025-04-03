@@ -2,8 +2,11 @@ namespace Common;
 
 using System.Net;
 using Common.Interfaces;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class HttpParserHelper : IHttpParserHelper
 {
@@ -49,6 +52,22 @@ public class HttpParserHelper : IHttpParserHelper
                 return false;
             default:
                 return defaultValue;
+        }
+    }
+
+    public Demographic FhirParser(string json)
+    {
+        var parser = new FhirJsonParser();
+
+        try
+        {
+            var parsedPatient = parser.Parse<Patient>(json);
+            return new Demographic(parsedPatient);
+        }
+        catch (FormatException ex)
+        {
+            _logger.LogError(ex, "Failed to parse FHIR json");
+            throw;
         }
     }
 }

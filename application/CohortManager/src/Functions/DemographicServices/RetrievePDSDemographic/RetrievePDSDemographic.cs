@@ -3,13 +3,11 @@ namespace NHS.CohortManager.DemographicServices;
 using System.Net;
 using System.Text.Json;
 using Common;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
+using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Model;
 using NHS.Screening.RetrievePDSDemographic;
 
 public class RetrievePdsDemographic
@@ -18,16 +16,19 @@ public class RetrievePdsDemographic
     private readonly ICreateResponse _createResponse;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly RetrievePDSDemographicConfig _config;
+    private readonly IHttpParserHelper _httpParserHelper;
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
         ICreateResponse createResponse,
-        IHttpClientFunction callFunction,
+        IHttpClientFunction httpClientFunction,
+        IHttpParserHelper httpParserHelper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _httpClientFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
+        _httpParserHelper = httpParserHelper;
         _config = retrievePDSDemographicConfig.Value;
     }
 
@@ -62,25 +63,10 @@ public class RetrievePdsDemographic
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 var jsonResponse = await response.Content.ReadAsStringAsync();
+                var demographic = _httpParserHelper.FhirParser(jsonResponse);
+                Console.WriteLine(JsonSerializer.Serialize(demographic));
 
-                // parse fhir response
-                var parser = new FhirJsonParser();
-
-                try
-                {
-                    var parsedPatient = parser.Parse<Patient>(jsonResponse);
-
-                    // build Demographic
-                    var demographic = new Demographic(parsedPatient);
-                    Console.WriteLine(JsonSerializer.Serialize(demographic));
-
-                }
-                catch (FormatException fe)
-                {
-                    Console.WriteLine(fe.Message);
-                }
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, jsonResponse);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
