@@ -59,10 +59,10 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 2. **Processing**: Local functions process the uploaded file
 3. **Validation**: Verify results in cohort using **dynamic** database queries
 
-## Contributing to Test Coverage
-- Identify gaps in current test coverage
-- Create new test files following the existing patterns
-- Submit pull requests with your test improvements
+## Contributing to improve Test Coverage & Framework
+- Identify gaps in current test coverage, and or framework
+- Create new tests/ utilities following the existing patterns
+- Submit pull requests with your improvements
 - Document any new test utilities or approaches
 
 ## Reusable Components
