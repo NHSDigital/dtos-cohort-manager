@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using System.Collections.Specialized;
+using Model;
 
 [TestClass]
 public class HttpParserHelperTests
@@ -141,5 +142,49 @@ public class HttpParserHelperTests
 
         // Assert
         Assert.AreEqual(defaultValue, actual);
+    }
+
+    [TestMethod]
+    public void FhirParser_ValidJson_ReturnsDemographic()
+    {
+        // Arrange
+        string json;
+        using (StreamReader r = new StreamReader("../../../mock-fhir-response.json"))
+        {
+            json = r.ReadToEnd();
+        }
+
+        var expected = new Demographic()
+        {
+            NhsNumber = "9000000009",
+            PrimaryCareProvider = "Y12345",
+            PrimaryCareProviderEffectiveFromDate = "2020-01-01",
+            NamePrefix = "Mrs"
+        };
+
+        // Act
+        var result = _httpParserHelper.FhirParser(json);
+
+        // Assert
+        Assert.IsInstanceOfType(result, typeof(Demographic));
+        Assert.AreEqual(expected.NhsNumber, result.NhsNumber);
+        Assert.AreEqual(expected.PrimaryCareProvider, result.PrimaryCareProvider);
+        Assert.AreEqual(expected.PrimaryCareProviderEffectiveFromDate, result.PrimaryCareProviderEffectiveFromDate);
+        Assert.AreEqual(expected.NamePrefix, result.NamePrefix);
+    }
+
+    [TestMethod]
+    public void FhirParser_InvalidJson_ThrowsException()
+    {
+        // Arrange
+        var json = string.Empty;
+
+        // Act & Assert
+        Assert.ThrowsException<FormatException>(() => _httpParserHelper.FhirParser(json));
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
     }
 }
