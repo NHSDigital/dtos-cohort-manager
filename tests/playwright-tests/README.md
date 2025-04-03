@@ -68,6 +68,24 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 2. **Processing**: Local functions process the uploaded file
 3. **Validation**: Verify results in cohort using **dynamic** database queries
 
+### Test Case Scripting Example
+
+![smoke test example](../../docs/assets/test-playwright-smoke-example.png)
+
+### Test Report Example
+
+- report overview
+
+![default report](../../docs/assets/test-playwright-report-example.png)
+
+- automatic retries
+
+![automatic retries](../../docs/assets/test-playwright-automatic-retry-example.png)
+
+### Test Logs Example
+
+![test logs example](../../docs/assets/test-playwright-logs-example.png)
+
 ## Contributing to improve Test Coverage & Framework
 
 - Identify gaps in current test coverage, and or framework
