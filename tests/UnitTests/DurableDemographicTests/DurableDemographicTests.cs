@@ -200,14 +200,14 @@ public class DurableDemographicTests
     }
 
     [TestMethod]
-    public async Task GetOrchestrationStatus_GetsOrchestrationStatus_StatusCompleted()
+    public async Task GetOrchestrationStatus_ValidRequest_ReturnOrchestrationStatus()
     {
         // Arrange
         var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
         var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
 
         var instanceId = "test-instance";
-        var request = SetupRequest(JsonSerializer.Serialize(instanceId));
+        var request = _setupRequest.Setup(JsonSerializer.Serialize(instanceId));
         var OrchestrationMetadata = new OrchestrationMetadata("test-instance", instanceId);
 
         _mockClient.Setup(x => x.GetInstanceAsync(instanceId, default)).ReturnsAsync(OrchestrationMetadata);
@@ -221,11 +221,11 @@ public class DurableDemographicTests
     }
 
     [TestMethod]
-    public async Task LogsWarning_WhenInstanceIdIsEmpty()
+    public async Task GetOrchestrationStatus_InstanceIdIsEmpty_LogsWarning()
     {
         // Arrange
         var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
-        var request = SetupRequest(JsonSerializer.Serialize(""));
+        var request = _setupRequest.Setup(JsonSerializer.Serialize(""));
 
         // Act
         var result = await _function.GetOrchestrationStatus(request.Object, _mockClient.Object);
@@ -240,29 +240,6 @@ public class DurableDemographicTests
               It.IsAny<Func<It.IsAnyType, Exception, string>>()),
           Times.Once);
     }
-
-    public Mock<HttpRequestData> SetupRequest(string json)
-    {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
-
-        _request = new Mock<HttpRequestData>(mockFunctionContext.Object);
-        _request.Setup(s => s.Body).Returns(bodyStream);
-        _request.Setup(s => s.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(mockFunctionContext.Object);
-            response.SetupProperty(s => s.Headers, new HttpHeadersCollection());
-            response.SetupProperty(s => s.StatusCode);
-            response.SetupProperty(s => s.Body, new MemoryStream());
-            return response.Object;
-        });
-
-        return _request;
-    }
-
-
-
-
 
     private static Mock<FunctionContext> CreateMockFunctionContext()
     {
