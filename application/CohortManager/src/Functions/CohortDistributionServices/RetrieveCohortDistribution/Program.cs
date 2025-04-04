@@ -1,3 +1,5 @@
+
+
 using Common;
 using Common.Interfaces;
 using Data.Database;
@@ -7,9 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
 
+
 var host = new HostBuilder()
-    .AddDataServicesHandler()
-        .AddDataService<CohortDistribution>(Environment.GetEnvironmentVariable("CohortDistributionDataServiceURL"))
+        .AddConfiguration<RetrieveCohortDistributionConfig>(out RetrieveCohortDistributionConfig config)
+        .AddDataServicesHandler()
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
+        .AddDataService<BsSelectRequestAudit>(config.BsSelectRequestAuditDataService)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
