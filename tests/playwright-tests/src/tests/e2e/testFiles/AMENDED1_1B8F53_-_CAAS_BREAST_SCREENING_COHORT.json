@@ -1,0 +1,13 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "GIVEN_NAME",
+        "columnValue": "AMENDEDNewTest1",
+        "columnName2": "NHS_Number",
+        "columnValue2": "2312514176"
+      }
+    }
+  ]
+}
