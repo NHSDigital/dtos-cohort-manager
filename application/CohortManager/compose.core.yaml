@@ -234,7 +234,6 @@ services:
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
-
   get-validation-exceptions:
     container_name: get-validation-exceptions
     image: cohort-manager-get-validation-exceptions
@@ -313,7 +312,7 @@ services:
       - ASPNETCORE_URLS=http://*:7076
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
-      
+
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
     image: cohort-manager-retrieve-pds-demographic
@@ -342,6 +341,18 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
+
+   # UI
+  web:
+    container_name: web
+    build:
+      context: ./src/Web
+      dockerfile: Dockerfile
+    restart: always
+    profiles: [ui]
+    ports:
+      - "3000:3000"
+    networks: [cohman-network]
 
 networks:
   cohman-network:

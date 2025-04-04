@@ -91,30 +91,30 @@ app_service_plan = {
   vnet_integration_enabled = true
 
   autoscale = {
-    memory_percentage = {
-      metric = "MemoryPercentage"
+    scaling_rule = {
+      metric = "CpuPercentage"
 
       capacity_min = "1"
-      capacity_max = "5"
-      capacity_def = "1"
+      capacity_max = "12"
+      capacity_def = "2"
 
       time_grain       = "PT1M"
       statistic        = "Average"
-      time_window      = "PT10M"
+      time_window      = "PT1M"
       time_aggregation = "Average"
 
-      inc_operator        = "GreaterThan"
-      inc_threshold       = 70
+      inc_operator        = "GreaterThanOrEqual"
+      inc_threshold       = 20
       inc_scale_direction = "Increase"
-      inc_scale_type      = "ChangeCount"
-      inc_scale_value     = 1
-      inc_scale_cooldown  = "PT5M"
+      inc_scale_type      = "ExactCount"
+      inc_scale_value     = 12
+      inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
-      dec_threshold       = 25
+      dec_threshold       = 20
       dec_scale_direction = "Decrease"
-      dec_scale_type      = "ChangeCount"
-      dec_scale_value     = 1
+      dec_scale_type      = "ExactCount"
+      dec_scale_value     = 2
       dec_scale_cooldown  = "PT5M"
     }
   }
@@ -122,23 +122,30 @@ app_service_plan = {
   instances = {
     DefaultPlan = {
       autoscale_override = {
-        memory_percentage = {
-          metric = "MemoryPercentage"
+        scaling_rule = {
+          metric = "CpuPercentage"
 
-          capacity_min = "12"
+          capacity_min = "1"
           capacity_max = "12"
-          capacity_def = "12"
+          capacity_def = "2"
         }
       }
     }
     HighLoadFunctions = {
       autoscale_override = {
-        memory_percentage = {
-          metric = "MemoryPercentage"
+        scaling_rule = {
+          metric = "CpuPercentage"
 
-          capacity_min = "4"
+          capacity_min = "1"
           capacity_max = "4"
-          capacity_def = "4"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
         }
       }
     }
@@ -173,6 +180,7 @@ function_apps = {
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
+  health_check_path             = "/api/health"
 
   fa_config = {
     ReceiveCaasFile = {
@@ -362,6 +370,9 @@ function_apps = {
           function_app_key = "ParticipantManagementDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     MarkParticipantAsEligible = {
@@ -383,6 +394,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     MarkParticipantAsIneligible = {
@@ -404,6 +418,9 @@ function_apps = {
           function_app_key = "ParticipantManagementDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     UpdateParticipantDetails = {
@@ -425,6 +442,9 @@ function_apps = {
           function_app_key = "ParticipantManagementDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     CreateException = {
@@ -467,6 +487,9 @@ function_apps = {
           function_app_key = "GPPracticeDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     FileValidation = {
@@ -596,8 +619,19 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "BsSelectRequestAuditDataService"
+          function_app_key = "BsRequestAuditDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     TransformDataService = {
@@ -623,6 +657,9 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     AllocateServiceProvider = {
@@ -678,10 +715,11 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortQueueName             = "cohort-distribution-queue"
-        CohortQueueNamePoison       = "cohort-distribution-queue-poison"
-        IgnoreParticipantExceptions = "false"
-        IsExtractedToBSSelect       = "false"
+        CohortQueueName              = "cohort-distribution-queue"
+        CohortQueueNamePoison        = "cohort-distribution-queue-poison"
+        IgnoreParticipantExceptions  = "false"
+        IsExtractedToBSSelect        = "false"
+        AcceptableLatencyThresholdMs = "500"
       }
     }
 
@@ -704,6 +742,9 @@ function_apps = {
           function_app_key = "DemographicDataManagement"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ValidateCohortDistributionRecord = {
@@ -725,6 +766,9 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     RemoveValidationExceptionData = {
@@ -761,6 +805,14 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "BsSelectRequestAuditDataService"
+          function_app_key = "BsRequestAuditDataService"
         }
       ]
     }
@@ -776,6 +828,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     CurrentPostingDataService = {
@@ -789,6 +844,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     BsSelectOutcodeDataService = {
@@ -802,6 +860,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     BsSelectGpPracticeDataService = {
@@ -815,6 +876,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ExcludedSMUDataService = {
@@ -828,6 +892,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ParticipantManagementDataService = {
@@ -854,6 +921,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     DurableDemographicFunction = {
@@ -871,6 +941,9 @@ function_apps = {
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     GPPracticeDataService = {
@@ -884,6 +957,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ExceptionManagementDataService = {
@@ -897,6 +973,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     UpdateParticipantFromScreeningProvider = {
@@ -971,6 +1050,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     HigherRiskReferralReasonLkpDataService = {
@@ -984,6 +1066,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     CohortDistributionDataService = {
@@ -991,6 +1076,21 @@ function_apps = {
       function_endpoint_name = "CohortDistributionDataService"
       app_service_plan_key   = "HighLoadFunctions"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    ReceiveServiceNowMessage = {
+      name_suffix            = "receive-service-now-message"
+      function_endpoint_name = "ReceiveServiceNowMessage"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1010,6 +1110,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ScreeningLkpDataService = {
