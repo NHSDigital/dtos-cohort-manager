@@ -150,7 +150,8 @@ public class DurableDemographicTests
             clientMock.Object,
             mockFunctionContext.Object);
 
-        Assert.IsNull(result);
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
