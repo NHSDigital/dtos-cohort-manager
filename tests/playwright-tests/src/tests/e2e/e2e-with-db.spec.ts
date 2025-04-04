@@ -5,67 +5,64 @@ import { getTestData, processFileViaStorage, validateSqlDatabase } from '../step
 
 
 test.describe('Smoke Tests', () => {
-  test('@smoke @DTOSS-6256 Verify file upload and cohort distribution process for ADD', async () => {
+  test('01 @smoke @DTOSS-6256 Verify file upload and cohort distribution process for ADD', async ({ }, testInfo) => {
+    console.info(`Running test: ${testInfo.title}`);
 
-    const testFile = "ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT";
-    const [checkInDatabase, nhsNumbers] = await getTestData(`${testFile}.json`);
+    const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
       await cleanupDatabase(nhsNumbers); //TODO re-think try remove-participant api instead
     });
 
     await test.step(`When 2 ADD participants are processed via storage`, async () => {
-      await processFileViaStorage(`${testFile}.parquet`);
+      await processFileViaStorage(parquetFile!);
     });
 
     await test.step(`Then NHS Numbers should be should be updated in the cohort`, async () => {
-      await validateSqlDatabase(checkInDatabase.validations);
+      await validateSqlDatabase(checkInDatabase);
     });
 
   });
-  test('@smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async () => {
+  test('02 @smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ }, testInfo) => {
+    console.info(`Running test: ${testInfo.title}`); //TODO move to beforeEach
 
-    //TODO move setup to test.before
-    const testFileAdd = "ADD1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT";
-    const testFileAmend = "AMENDED1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT";
-    const [checkInDatabaseAdd, nhsNumbers] = await getTestData(`${testFileAdd}.json`);
-    const [checkInDatabaseAmend] = await getTestData(`${testFileAmend}.json`);
+    const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
+    const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
+
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabase(nhsNumbers); //TODO re-think try remove-participant api instead
+      await cleanupDatabase(nhsNumber); //TODO re-think try remove-participant api instead
+      await cleanupDatabase(nhsNumberAmend);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(`${testFileAdd}.parquet`);
+      await processFileViaStorage(parquetFileAdd!);
     });
 
     await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlData(checkInDatabaseAdd.validations);
+      await validateSqlData(checkInDatabase);
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage`, async () => {
-      await processFileViaStorage(`${testFileAmend}.parquet`);
+      await processFileViaStorage(parquetFileAmend!);
     });
 
     await test.step(`Then AMENDED record name should be updated in the cohort`, async () => {
-      await validateSqlDatabase(checkInDatabaseAmend.validations);
+      await validateSqlDatabase(checkInDatabaseAmend);
     });
 
-
-
-
   });
-  test('@smoke @DTOSS-7960 Verify GP Practice Code Exception, flag in participant management is set to 1', async () => {
+  test('05 @smoke @DTOSS-7960 Verify GP Practice Code Exception flag in participant management set to 1', async ({ }, testInfo) => {
+    console.info(`Running test: ${testInfo.title}`); //TODO move to beforeEach
 
-    const testFile = "Exception_1B8F53_-_CAAS_BREAST_SCREENING_COHORT";
-    const [checkInDatabase, nhsNumbers] = await getTestData(`${testFile}.json`);
+    const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain records that will be processed: ${nhsNumbers}  `, async () => {
       await cleanupDatabase(nhsNumbers); //TODO re-think try remove-participant api instead
     });
 
     await test.step(`When participants are processed via storage`, async () => {
-      await processFileViaStorage(`${testFile}.parquet`);
+      await processFileViaStorage(parquetFile!);
     });
 
     await test.step(`Then records should be updated in the cohort`, async () => {

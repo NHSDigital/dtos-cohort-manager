@@ -18,17 +18,21 @@ export async function validateSqlDatabase(validations: any) {
   });
 }
 
-export async function processFileViaStorage(fileName: string) {
+export async function processFileViaStorage(parquetFilePath: string) {
   return test.step(`Process file via Storage`, async () => {
-    const parquetFilePath = path.join(__dirname, `../`, `e2e/testFiles/${fileName}`); // TODO move static data to configuration file .env.*
     await uploadToLocalStorage(parquetFilePath);
   });
 }
 
-export async function getTestData(fileName: string): Promise<[any, string[]]> { //TODO fix return type
-  return test.step(`Extracting data to be validated from input JSON`, async () => {
-    const parsedData: InputData = JSON.parse(fs.readFileSync(path.join(__dirname, `../`, `e2e/testFiles/${fileName}`), 'utf-8')); // TODO move static data to configuration file .env
+export async function getTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<[any, string[], string?]> { //TODO fix return type
+  return test.step(`Creating Input Data from JSON file`, async () => {
+    const testScenariosPath = path.join(__dirname, `../`, `e2e/testScenarios/${scenarioFolderName.substring(0, 2)}/`); // TODO move static data to configuration file .env.*
+    console.info(`ℹ️ Test scenarios input data path: ${testScenariosPath}`);
+    const jsonFile = fs.readdirSync(testScenariosPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parquetFile = testScenariosPath + jsonFile?.replace('.json', '.parquet'); //TODO add a check here to fail if jsonFile name is not same as parquet file name
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testScenariosPath + jsonFile, 'utf-8'));
     const nhsNumbers: string[] = parsedData.validations.map(item => item.validations.columnValue);
-    return [parsedData.validations, nhsNumbers];
+    // TODO integrate Parquet file creation process here
+    return [parsedData.validations, nhsNumbers, parquetFile];
   });
 }
