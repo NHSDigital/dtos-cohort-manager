@@ -941,7 +941,7 @@ function_apps = {
     CohortDistributionDataService = {
       name_suffix            = "cohort-distribution-data-service"
       function_endpoint_name = "CohortDistributionDataService"
-      app_service_plan_key   = "HighLoadFunctions"
+      app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
