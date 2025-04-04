@@ -14,10 +14,6 @@ var host = new HostBuilder()
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
-        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
-        {
-            client.BaseAddress = new Uri(config.DemographicURIGet);
-        });
         // Register health checks
         services.AddBasicHealthCheck("RemoveParticipant");
     })

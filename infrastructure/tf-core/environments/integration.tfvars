@@ -229,6 +229,7 @@ function_apps = {
         GetOrchestrationStatusURL  = "https://int-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
+        maxNumberOfChecks          = "50"
       }
 
     }
