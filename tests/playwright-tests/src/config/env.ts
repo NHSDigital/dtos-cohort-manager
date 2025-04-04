@@ -15,5 +15,6 @@ export const config = {
   },
   sqlRetry: process.env.SQL_RETRIES || 1,
   sqlWaitTime: process.env.SQL_WAIT_TIME || 2000,
-  containerName: process.env.CONTAINER_NAME || ''
+  containerName: process.env.CONTAINER_NAME || '',
+  e2eTestScenarioPath: process.env.E2E_TEST_SCENARIOS_PATH || '',
 };
