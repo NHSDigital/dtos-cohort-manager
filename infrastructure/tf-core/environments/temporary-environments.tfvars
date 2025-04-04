@@ -115,7 +115,7 @@ function_apps = {
 
   cont_registry_use_mi = true
 
-  docker_CI_enable     = "true"
+  docker_CI_enable     = "false"
   docker_env_tag       = "temp"
   docker_img_prefix    = "cohort-manager"
   pull_image_over_vnet = false
