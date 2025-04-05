@@ -1,6 +1,8 @@
 import styles from "@/app/styles/components/signIn.module.scss";
 import { signIn } from "@/app/lib/auth";
 
+import type { JSX } from "react";
+
 interface SignInProps {
   serviceName?: string;
   headingLevel?: 1 | 2 | 3 | 4;
