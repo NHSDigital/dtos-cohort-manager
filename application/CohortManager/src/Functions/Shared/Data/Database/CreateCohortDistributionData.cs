@@ -3,8 +3,6 @@ namespace Data.Database;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using DataServices.Client;
@@ -209,7 +207,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         if (dateFrom.HasValue)
         {
-            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime == dateFrom);
+            double numberOfDays = GetDays(dateFrom.Value);
+            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime >= DateTime.Today.AddDays(-numberOfDays));
             conditions.Add(predicate);
         }
 
@@ -235,6 +234,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             return finalPredicate;
         }
         return x => true;
+    }
+
+    private static double GetDays(DateTime GivenDate)
+    {
+        DateTime today = DateTime.Today;
+        TimeSpan difference = today.Subtract(GivenDate);
+        var days = difference.TotalDays;
+
+        return days;
     }
 
     private static Expression<Func<T, bool>> CombineWithAnd<T>(List<Expression<Func<T, bool>>> expressions)
