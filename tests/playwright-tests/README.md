@@ -150,3 +150,48 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
 }
 
 ```
+
+- Example Usage 4
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "EXCEPTION_MANAGEMENT",
+        "columnName": "NHS_Number",
+        "columnValue": "2612314172",
+        "columnName2": "RULE_ID",
+        "columnValue2": "36",
+        "columnName3": "RULE_DESCRIPTION",
+        "columnValue3": "Invalid primary care provider GP practice code"
+      }
+    }
+  ]
+}
+
+
+```
+
+- Example Usage 5
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "EXCEPTION_MANAGEMENT",
+        "columnName": "NHS_Number",
+        "columnValue": "2612514171",
+        "columnName2": "RULE_ID",
+        "columnValue2": "17",
+        "columnName3": "RULE_DESCRIPTION",
+        "columnValue3": "Date of birth invalid"
+      }
+    }
+  ]
+}
+
+```
