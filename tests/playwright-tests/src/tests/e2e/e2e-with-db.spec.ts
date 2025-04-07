@@ -6,13 +6,6 @@ import { getTestData, processFileViaStorage, validateSqlDatabase, validateSqlDat
 
 test.describe('Smoke Tests', () => {
 
-  test.beforeEach(async ({ }, testInfo) => {
-    console.info(`\t🚧\tRunning test: ${testInfo.title}`);
-  });
-  test.afterEach(async ({ }, testInfo) => {
-    console.info(`\t✅\tFinished test: ${testInfo.title}`);
-  });
-
   test('01 @smoke @DTOSS-6256 @api Verify file upload and cohort distribution process for ADD', async ({ request }, testInfo) => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
