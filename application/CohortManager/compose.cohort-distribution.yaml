@@ -26,6 +26,8 @@ services:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - BsSelectRequestAuditDataService=http://bs-select-request-audit-data-service:7956/api/BsSelectRequestAuditDataService/
       - AcceptableLatencyThresholdMs=500
 
   retrieve-cohort-request-audit:
@@ -39,6 +41,8 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7086
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - BsSelectRequestAuditDataService=http://bs-select-request-audit-data-service:7956/api/BsSelectRequestAuditDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   transform-data-service:
@@ -135,6 +139,8 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
+
 
 networks:
   cohman-network:

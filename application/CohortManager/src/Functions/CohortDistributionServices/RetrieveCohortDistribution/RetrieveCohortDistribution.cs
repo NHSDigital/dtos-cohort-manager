@@ -50,16 +50,18 @@ public class RetrieveCohortDistributionData
         {
             if (!string.IsNullOrEmpty(requestId))
             {
-                requestId = _createCohortDistributionData.GetNextCohortRequestAudit(requestId)?.RequestId;
+                var audit = await _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
+                Guid requestIdFromDatabase = audit.RequestId;
+
                 if (requestId != null)
                 {
-                    cohortDistributionParticipants = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestId);
+                    cohortDistributionParticipants = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestIdFromDatabase);
                 }
             }
 
             if (cohortDistributionParticipants.Count == 0)
             {
-                cohortDistributionParticipants = _createCohortDistributionData
+                cohortDistributionParticipants = await _createCohortDistributionData
                 .GetUnextractedCohortDistributionParticipants(rowCount);
             }
 
