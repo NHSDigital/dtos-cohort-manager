@@ -27,11 +27,11 @@ export async function processFileViaStorage(parquetFilePath: string) {
 
 export async function getTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<[any, string[], string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
-    const testScenariosPath = path.join(__dirname, `../`, `${config.e2eTestScenarioPath}/${scenarioFolderName.substring(0, 2)}/`);
-    console.info(`ℹ️ Test scenarios input data path: ${testScenariosPath}`);
-    const jsonFile = fs.readdirSync(testScenariosPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
-    const parquetFile = testScenariosPath + jsonFile?.replace('.json', '.parquet'); //TODO add a check here to fail if jsonFile name is not same as parquet file name
-    const parsedData: InputData = JSON.parse(fs.readFileSync(testScenariosPath + jsonFile, 'utf-8'));
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 2)}/`);
+    console.info(`ℹ️ Test scenarios input data path: ${testFilesPath}`);
+    const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parquetFile = testFilesPath + jsonFile?.replace('.json', '.parquet'); //TODO add a check here to fail if jsonFile name is not same as parquet file name
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const nhsNumbers: string[] = parsedData.validations.map(item => item.validations.columnValue);
     // TODO integrate Parquet file creation process here
     return [parsedData.validations, nhsNumbers, parquetFile];

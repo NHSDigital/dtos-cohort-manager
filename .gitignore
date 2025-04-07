@@ -106,4 +106,4 @@ tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 **/playwright-tests/.vscode/settings.json
 # Allow
 !**/playwright-tests/.env.dev.example
-!**/playwright-tests/src/tests/e2e/testScenarios/**/*.parquet
+!**/playwright-tests/src/tests/e2e/TestFiles/**/*.parquet
