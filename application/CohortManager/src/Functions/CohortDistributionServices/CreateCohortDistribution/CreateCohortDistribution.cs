@@ -66,7 +66,10 @@ public class CreateCohortDistribution
             var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
             if (!string.IsNullOrEmpty(participantData.Postcode))
             {
-                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
+                serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(basicParticipantCsvRecord.NhsNumber,
+                                                                                            participantData.ScreeningAcronym,
+                                                                                            participantData.Postcode,
+                                                                                            JsonSerializer.Serialize(participantData));
                 if (serviceProvider == null)
                 {
                     await HandleExceptionAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName);
@@ -76,6 +79,7 @@ public class CreateCohortDistribution
 
             // Check if participant has exceptions
             bool ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
+            System.Console.WriteLine("ignore exceptions value: " + ignoreParticipantExceptions);
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
 
             bool participantHasException = participantData.ExceptionFlag == 1;
@@ -94,8 +98,7 @@ public class CreateCohortDistribution
             if (validationResponse.CreatedException)
             {
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
-                _logger.LogInformation(errorMessage);
-                await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, serviceProvider, JsonSerializer.Serialize(participantData));
+                await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName);
 
                 var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
                 participantMangement.ExceptionFlag = 1;
@@ -123,9 +126,10 @@ public class CreateCohortDistribution
         }
         catch (Exception ex)
         {
-            System.Console.WriteLine(ex);
-            var errorMessage = ;
-            await HandleExceptionAsync($"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}", )
+            var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            await HandleExceptionAsync(errorMessage,
+                                    new CohortDistributionParticipant {NhsNumber = basicParticipantCsvRecord.NhsNumber},
+                                    basicParticipantCsvRecord.FileName);
             throw;
         }
     }
@@ -155,7 +159,9 @@ public class CreateCohortDistribution
 
     private async Task<CohortDistributionParticipant> GetLatestCohortDistributionRecordAsync(string participantId)
     {
-        var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.ParticipantId == long.Parse(participantId));
+        long longParticipantId = long.Parse(participantId);
+
+        var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.ParticipantId == longParticipantId);
         CohortDistribution? latestParticipant = cohortDistRecords
                                                 .OrderByDescending(x => x.CohortDistributionId)
                                                 .FirstOrDefault();

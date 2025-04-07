@@ -88,6 +88,7 @@ services:
       - RetrieveParticipantDataURL=http://retrieve-participant-data:7083/api/RetrieveParticipantData
       - AddCohortDistributionURL=http://add-cohort-distribution-data:7077/api/AddCohortDistributionData
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortQueueName=cohort-distribution-queue

@@ -12,7 +12,8 @@ var host = new HostBuilder()
     .AddConfiguration<CreateCohortDistributionConfig>(out CreateCohortDistributionConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
         .Build()
     .ConfigureServices(services =>
     {

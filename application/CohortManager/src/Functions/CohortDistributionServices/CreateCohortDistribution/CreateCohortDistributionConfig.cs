@@ -18,4 +18,8 @@ public class CreateCohortDistributionConfig
     public string AllocateScreeningProviderURL { get; set; }
     [Required]
     public string RetrieveParticipantDataURL { get; set; }
+    [Required]
+    public string ParticipantManagementUrl { get; set; }
+    [Required]
+    public string CohortDistributionDataServiceUrl { get; set; }
 }

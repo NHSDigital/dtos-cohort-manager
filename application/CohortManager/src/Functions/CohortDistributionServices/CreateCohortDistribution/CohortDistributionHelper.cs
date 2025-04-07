@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
 using Common;
+using Microsoft.Extensions.Options;
 
 public class CohortDistributionHelper : ICohortDistributionHelper
 {
@@ -13,11 +14,11 @@ public class CohortDistributionHelper : ICohortDistributionHelper
     private readonly ILogger<CohortDistributionHelper> _logger;
     private readonly CreateCohortDistributionConfig _config;
 
-    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, CreateCohortDistributionConfig config)
+    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config)
     {
         _callFunction = callFunction;
         _logger = logger;
-        _config = config;
+        _config = config.Value;
     }
 
     /// <summary>
