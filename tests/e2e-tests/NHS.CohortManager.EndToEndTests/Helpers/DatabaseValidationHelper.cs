@@ -307,6 +307,7 @@ public static class DatabaseValidationHelper
         "GIVEN_NAME",
         "RULE_ID",
         "RULE_DESCRIPTION",
+        "ELIGIBILITY_FLAG",
         "ERROR_RECORD"
         // Add other allowed fields here
     ];

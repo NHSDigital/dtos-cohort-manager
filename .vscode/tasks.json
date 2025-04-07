@@ -2,145 +2,73 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Win: Build and run docker project",
+      "label": "Restart dependencies",
       "type": "shell",
-      "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose up",
-      "problemMatcher": [],
+      "osx": {
+        "command": "podman compose -f compose.deps.yaml down && podman compose -f compose.deps.yaml up"
+      },
+      "windows": {
+        "command": "docker compose -f compose.deps.yaml down && docker compose -f compose.deps.yaml up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager"
       },
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      }
     },
     {
-      "label": "Win: Build and run docker project with deps",
+      "label": "Restart application",
       "type": "shell",
-      "command": "docker compose -f compose.deps.yaml down && docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up && docker compose up",
+      "osx": {
+        "command": "podman compose down && podman compose up"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      },
+    },
+    {
+      "label": "Build applciation in docker",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        },
       "group": {
         "kind": "build",
         "isDefault": true
+        },
       },
       "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
         "cwd": "./application/CohortManager",
-        "os": {
-          "windows": {
-            "group": {
-              "isDefault": true
-            }
-          },
-          "osx": {
-            "group": {
-              "isDefault": false
-            }
-          },
-          "linux": {
-            "group": {
-              "isDefault": true
-            }
-          }
+        "statusbar": {
+          "hide": false
         }
       }
-    },
-    {
-      "label": "Win: Restart docker project",
-      "type": "shell",
-      "command": "docker compose down && docker compose up",
-      "problemMatcher": [],
-      "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
-        "cwd": "./application/CohortManager"
-      },
-    },
-    {
-      "label": "Win: Restart docker project & deps",
-      "type": "shell",
-      "command": "docker compose -f compose.deps.yaml down && docker compose down && docker compose -f compose.deps.yaml up && docker compose up",
-      "problemMatcher": [],
-      "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
-        "cwd": "./application/CohortManager"
-      },
-    },
-    {
-      "label": "Mac: Build and run docker project",
-      "type": "shell",
-      "command": "podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build && podman compose up",
-      "problemMatcher": [],
-      "options": {
-        "cwd": "./application/CohortManager"
-      },
-      "group": {
-        "kind": "build",
-        "isDefault": false
-      }
-    },
-    {
-      "label": "Mac: Build and run docker project with deps",
-      "type": "shell",
-      "command": "podman compose -f compose.deps.yaml down && podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build && podman compose -f compose.deps.yaml up && podman compose up",
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
-        "cwd": "./application/CohortManager",
-        "os": {
-          "windows": {
-            "group": {
-              "isDefault": false
-            }
-          },
-          "osx": {
-            "group": {
-              "isDefault": true
-            }
-          },
-          "linux": {
-            "group": {
-              "isDefault": false
-            }
-          }
-        }
-      }
-    },
-    {
-      "label": "Mac: Restart docker project",
-      "type": "shell",
-      "command": "podman compose down && podman compose up",
-      "problemMatcher": [],
-      "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
-        "cwd": "./application/CohortManager"
-      },
-    },
-    {
-      "label": "Mac: Restart docker project & deps",
-      "type": "shell",
-      "command": "podman compose -f compose.deps.yaml down && podman compose down && podman compose -f compose.deps.yaml up && podman compose up",
-      "problemMatcher": [],
-      "options": {
-        "shell": {
-          "executable": "wsl.exe"
-        },
-        "cwd": "./application/CohortManager"
-      },
     },
     {
       "label": "Run All Functions",
@@ -167,14 +95,22 @@
         "CohortDistributionServices/ValidateCohortDistributionRecord",
         "CohortDistributionServices/TransformDataService",
         "CohortDistributionServices/AddCohortDistributionData"
-      ]
+      ],
+      "options": {
+        "statusbar": {
+          "hide": true
+        }
+      }
     },
     {
       "label": "CaasIntegration/receiveCaasFile",
       "type": "shell",
       "command": "func start",
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile"
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -192,7 +128,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CaasIntegration/processCaasFile"
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/processCaasFile",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -210,7 +149,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDataManagementFunction"
+        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDataManagementFunction",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -228,7 +170,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/addParticipant"
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/addParticipant",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -246,7 +191,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/updateParticipant"
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/updateParticipant",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -264,7 +212,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/RemoveParticipant"
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/RemoveParticipant",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -282,7 +233,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/CreateException"
+        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/CreateException",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -300,7 +254,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -318,7 +275,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/DemographicDataService"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/DemographicDataService",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -336,7 +296,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsEligible"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsEligible",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -354,7 +317,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsIneligible"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsIneligible",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -372,7 +338,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/updateParticipantDetails"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/updateParticipantDetails",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -390,7 +359,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/FileValidation"
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/FileValidation",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -408,7 +380,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation"
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -426,7 +401,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException"
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -444,7 +422,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation"
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -462,7 +443,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/CreateCohortDistribution"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/CreateCohortDistribution",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -480,7 +464,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveParticipantData"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveParticipantData",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -498,7 +485,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ServiceProviderAllocationService"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ServiceProviderAllocationService",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -516,7 +506,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ValidateCohortDistributionRecord"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ValidateCohortDistributionRecord",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -534,7 +527,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/TransformDataService"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/TransformDataService",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -552,7 +548,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData"
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData",
+        "statusbar": {
+          "hide": true
+        }
       }
     },
     {
@@ -570,7 +569,10 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService"
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
       }
     }
   ]
