@@ -2,7 +2,8 @@
   "validations": [
     {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
+        "nhsNumber": "2312514176",
+        "tableName": "PARTICIPANT_MANAGEMENT",
         "columnName": "NHS_Number",
         "columnValue": "2312514176"
       }

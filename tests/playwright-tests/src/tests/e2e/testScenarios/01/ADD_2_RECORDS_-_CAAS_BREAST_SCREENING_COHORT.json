@@ -2,6 +2,7 @@
   "validations": [
     {
       "validations": {
+        "nhsNumber": "1111110662",
         "tableName": "BS_COHORT_DISTRIBUTION",
         "columnName": "NHS_Number",
         "columnValue": "1111110662"
@@ -9,9 +10,18 @@
     },
     {
       "validations": {
+        "nhsNumber": "2222211794",
         "tableName": "BS_COHORT_DISTRIBUTION",
         "columnName": "NHS_Number",
         "columnValue": "2222211794"
+      }
+    },
+    {
+      "validations": {
+        "nhsNumber": "2222211794",
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "primary_care_provider",
+        "columnValue": "E85121"
       }
     }
   ]

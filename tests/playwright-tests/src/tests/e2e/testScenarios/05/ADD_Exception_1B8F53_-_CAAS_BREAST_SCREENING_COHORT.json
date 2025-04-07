@@ -2,11 +2,11 @@
   "validations": [
     {
       "validations": {
+        "nhsNumber": "2612314172",
+        "screeningServiceId":"1",
         "tableName": "PARTICIPANT_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612314172",
-        "columnName2": "EXCEPTION_FLAG",
-        "columnValue2": "1"
+        "columnName": "ExceptionFlag",
+        "columnValue": 1
       }
     }
   ]

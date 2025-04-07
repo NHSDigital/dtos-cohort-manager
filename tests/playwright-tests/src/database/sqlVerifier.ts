@@ -64,7 +64,7 @@ export async function validateSqlData(validations: any): Promise<boolean> {
           results.push({ columns, tableName, status: 'pass' });
           break;
         } else {
-          console.info(`🚧 Function processing in progress for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${Math.round(waitTime/1000)} seconds`);
+          console.info(`🚧\tFunction processing in progress for ${JSON.stringify(columns)} in table ${tableName}, attempt ${attempt} after ${Math.round(waitTime / 1000)} seconds`);
           if (attempt < retries) {
             await new Promise(resolve => setTimeout(resolve, waitTime));
             waitTime += 5000;
@@ -86,16 +86,18 @@ export async function validateSqlData(validations: any): Promise<boolean> {
 }
 
 export async function cleanupDatabase(nhsNumbers: string[]) {
+  const validNHSNumbers = await nhsNumbers.filter(number => /^\d{10}$/.test(number));
+
   const pool = await sql.connect(sqlConfig);
   try {
     const tables = ['PARTICIPANT_MANAGEMENT', 'PARTICIPANT_DEMOGRAPHIC', 'BS_COHORT_DISTRIBUTION', 'EXCEPTION_MANAGEMENT'] //TODO move to external config; helpers should not have project specific configurations
     for (const table of tables) {
       const request = pool.request();
-      nhsNumbers.forEach((nhsNumber, index) => {
+      validNHSNumbers.forEach((nhsNumber, index) => {
         request.input(`nhsNumber${index}`, sql.VarChar, nhsNumber);
       });
 
-      const conditions = nhsNumbers.map((_, index) => `@nhsNumber${index}`).join(',');
+      const conditions = validNHSNumbers.map((_, index) => `@nhsNumber${index}`).join(',');
       await request.query(`DELETE FROM ${table} WHERE NHS_Number IN (${conditions})`);
       console.info(`Contents deleted from ${table} WHERE NHS_Number IN (${conditions})`);
     }

@@ -2,11 +2,17 @@
   "validations": [
     {
       "validations": {
+        "nhsNumber": "2312514176",
         "tableName": "BS_COHORT_DISTRIBUTION",
         "columnName": "NHS_Number",
-        "columnValue": "2312514176",
-        "columnName2": "GIVEN_NAME",
-        "columnValue2": "AMENDEDNewTest1"
+        "columnValue": "2312514176"
+      }
+    },{
+      "validations": {
+        "nhsNumber": "2312514176",
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "GIVEN_NAME",
+        "columnValue": "AMENDEDNewTest1"
       }
     }
   ]

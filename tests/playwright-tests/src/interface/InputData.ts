@@ -1,5 +1,7 @@
 
 interface Validation {
+  nhsNumber: string;
+  screeningServiceId: string,
   tableName: string;
   columnName: string;
   columnValue: string;
