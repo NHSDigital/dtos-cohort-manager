@@ -627,7 +627,7 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectRequestAuditDataService"
-          function_app_key = "BsRequestAuditDataService"
+          function_app_key = "BsSelectRequestAuditDataService"
         }
       ]
       env_vars_static = {
@@ -813,7 +813,7 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectRequestAuditDataService"
-          function_app_key = "BsRequestAuditDataService"
+          function_app_key = "BsSelectRequestAuditDataService"
         }
       ]
     }
@@ -1100,9 +1100,9 @@ function_apps = {
       ]
     }
 
-    BsRequestAuditDataService = {
+    BsSelectRequestAuditDataService = {
       name_suffix            = "bs-request-audit-data-service"
-      function_endpoint_name = "BsRequestAuditDataService"
+      function_endpoint_name = "BsSelectRequestAuditDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [

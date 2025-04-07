@@ -40,13 +40,13 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         var requestId = Guid.NewGuid();
         if (await MarkCohortDistributionParticipantsAsExtracted(CohortDistributionParticipantList, requestId))
         {
-            LogRequestAudit(requestId, (int)HttpStatusCode.OK);
+            await LogRequestAudit(requestId, (int)HttpStatusCode.OK);
 
             return CohortDistributionParticipantDto(CohortDistributionParticipantList, requestId);
         }
 
         var statusCode = CohortDistributionParticipantList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
-        LogRequestAudit(requestId, statusCode);
+        await LogRequestAudit(requestId, statusCode);
 
         return new List<CohortDistributionParticipantDto>();
     }
@@ -125,9 +125,9 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return currentRequestId;
     }
 
-    private void LogRequestAudit(Guid requestId, int statusCode)
+    private async Task LogRequestAudit(Guid requestId, int statusCode)
     {
-        _bsSelectRequestAuditDataServiceClient.Add(new BsSelectRequestAudit()
+        await _bsSelectRequestAuditDataServiceClient.Add(new BsSelectRequestAudit()
         {
             RequestId = requestId,
             StatusCode = statusCode.ToString(),
