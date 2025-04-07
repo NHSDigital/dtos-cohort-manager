@@ -45,7 +45,7 @@ public class FhirParserHelperTests
         // Arrange
         string json = LoadTestJson("complete-patient");
 
-        var expected = new Demographic()
+        var expected = new PDSDemographic()
         {
             // Basic Identifiers
             NhsNumber = "9000000009",
@@ -92,14 +92,18 @@ public class FhirParserHelperTests
 
             // Language Preferences
             PreferredLanguage = "French",
-            IsInterpreterRequired = "True"
+            IsInterpreterRequired = "True",
+
+            // Removal Information
+            ReasonForRemoval = "Transferred to Scotland",
+            EffectiveFromDate = "2020-01-01T00:00:00+00:00"
         };
 
         // Act
         var result = _fhirParserHelper.ParseFhirJson(json);
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(Demographic));
+        Assert.IsInstanceOfType(result, typeof(PDSDemographic));
 
         // Basic Identifiers
         Assert.AreEqual(expected.NhsNumber, result.NhsNumber);
@@ -147,6 +151,10 @@ public class FhirParserHelperTests
         // Language Preferences
         Assert.AreEqual(expected.PreferredLanguage, result.PreferredLanguage);
         Assert.AreEqual(expected.IsInterpreterRequired, result.IsInterpreterRequired);
+
+        // Removal Information
+        Assert.AreEqual(expected.ReasonForRemoval, result.ReasonForRemoval);
+        Assert.AreEqual(expected.EffectiveFromDate, result.EffectiveFromDate);
     }
 
     [TestMethod]
@@ -273,6 +281,8 @@ public class FhirParserHelperTests
         Assert.IsNull(result.TelephoneNumber);
         Assert.IsNull(result.EmailAddress);
         Assert.IsNull(result.PreferredLanguage);
+        Assert.IsNull(result.ReasonForRemoval);
+        Assert.IsNull(result.EffectiveFromDate);
     }
 
     [TestMethod]
@@ -307,6 +317,70 @@ public class FhirParserHelperTests
     public void FhirParser_NullPatient_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() => _fhirParserHelper.MapPatientToDemographic(null));
+        Assert.ThrowsException<ArgumentNullException>(() => _fhirParserHelper.MapPatientToPDSDemographic(null));
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithRemovalInformation_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-with-removal-info");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
+        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithRemovalCodeOnly_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-with-removal-code-only");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("SCT", result.ReasonForRemoval); // Should use code when display is not available
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
+        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithIncompleteRemovalInfo_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-with-incomplete-removal-info");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
+        Assert.IsNull(result.EffectiveFromDate); // Missing effective date in the sample
+        Assert.IsNull(result.EffectiveToDate); // Missing effective date in the sample
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNoEndDate_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-with-no-end-date");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
+        Assert.IsNull(result.EffectiveToDate); // Missing end date but has start date
     }
 }

@@ -18,13 +18,13 @@ public class FhirParserHelper : IFhirParserHelper
         _logger = logger;
     }
 
-    public Demographic ParseFhirJson(string json)
+    public PDSDemographic ParseFhirJson(string json)
     {
         var parser = new FhirJsonParser();
         try
         {
             var parsedPatient = parser.Parse<Patient>(json);
-            return MapPatientToDemographic(parsedPatient);
+            return MapPatientToPDSDemographic(parsedPatient);
         }
         catch (FormatException ex)
         {
@@ -33,24 +33,22 @@ public class FhirParserHelper : IFhirParserHelper
         }
     }
 
-    public Demographic MapPatientToDemographic(Patient patient)
+    public PDSDemographic MapPatientToPDSDemographic(Patient patient)
     {
-        var demographic = new Demographic();
+        var demographic = new PDSDemographic();
 
         if (patient == null)
             throw new ArgumentNullException(nameof(patient));
 
         // Basic Identifiers
-        demographic.NhsNumber = patient.Id;
-        // TODO: should participant ID be set here or no? Set to null for now
-        demographic.ParticipantId = null; // We do not know the Participant ID as there may not be one
-        demographic.RecordUpdateDateTime = patient.Meta?.LastUpdated?.ToString(); // TODO: should this be null as usually refers to participant?
-        demographic.RecordInsertDateTime = null; // TODO: No clear source for initial creation date in FHIR
+        demographic.NhsNumber = patient.Id; // We set to PDS NHS even if different from request
+        demographic.ParticipantId = null; // We do not know the Participant ID from PDS
+        demographic.RecordUpdateDateTime = null; // We do not know the RecordUpdateDateTime from PDS
+        demographic.RecordInsertDateTime = null; // We do not know the RecordInsertDateTime from PDS
         demographic.DateOfBirth = patient.BirthDate;
 
-        //TODO: Superseded NHS Number - how does CM manage?
-
-        //TODO: CurrentPosting & CurrentPostingEffectiveFromDate - what should these be set to?
+        // CurrentPosting & CurrentPostingEffectiveFromDate
+        // these are not set as not available in PDS
 
         MapPrimaryCareProvider(patient, demographic);
         MapNames(patient, demographic);
@@ -59,9 +57,7 @@ public class FhirParserHelper : IFhirParserHelper
         MapDeathInformation(patient, demographic);
         MapContactInformation(patient, demographic);
         MapLanguagePreferences(patient, demographic);
-
-        // TODO: Reason for Removal and effective date - not sure where to put these as not in demographic model
-        // they are mentioned in confluence
+        MapRemovalInformation(patient, demographic);
 
         return demographic;
     }
@@ -304,6 +300,47 @@ public class FhirParserHelper : IFhirParserHelper
             if (interpreterComponent != null && interpreterComponent.Value is FhirBoolean interpreterBool && interpreterBool.Value.HasValue)
             {
                 demographic.IsInterpreterRequired = interpreterBool.Value.Value.ToString();
+            }
+        }
+    }
+
+    private static void MapRemovalInformation(Patient patient, PDSDemographic demographic)
+    {
+        // Find the removal from registration extension
+        var removalExtension = patient.Extension?.FirstOrDefault(e =>
+            e.Url == "https://fhir.nhs.uk/StructureDefinition/Extension-PDS-RemovalFromRegistration");
+
+        if (removalExtension != null)
+        {
+            // Map the removal reason code/display
+            var removalCodeExtension = removalExtension.Extension?.FirstOrDefault(e =>
+                e.Url == "removalFromRegistrationCode");
+
+            if (removalCodeExtension?.Value is CodeableConcept removalConcept)
+            {
+                var removalCoding = removalConcept.Coding?.FirstOrDefault();
+                if (removalCoding != null)
+                {
+                    // Set the removal reason to the display value, or fall back to the code if display is null
+                    demographic.ReasonForRemoval = removalCoding.Display ?? removalCoding.Code;
+                }
+            }
+
+            // Map the effective time period
+            var effectiveTimeExtension = removalExtension.Extension?.FirstOrDefault(e =>
+                e.Url == "effectiveTime");
+
+            if (effectiveTimeExtension?.Value is Period effectivePeriod)
+            {
+                if (effectivePeriod.Start != null)
+                {
+                    demographic.EffectiveFromDate = effectivePeriod.Start.ToString();
+                }
+
+                if (effectivePeriod.End != null)
+                {
+                    demographic.EffectiveToDate = effectivePeriod.End.ToString();
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 namespace Model;
 
+using System.Text.Json.Serialization;
 using Model.Enums;
 
 public class Demographic
@@ -41,4 +42,16 @@ public class Demographic
     public string? RecordUpdateDateTime { get; set; }
 
     public Demographic() { }
+}
+
+public class PDSDemographic : Demographic
+{
+    [JsonPropertyOrder(997)]
+    public string? ReasonForRemoval { get; set; }
+    [JsonPropertyOrder(998)]
+    public string? EffectiveFromDate { get; set; }
+    [JsonPropertyOrder(999)]
+    public string? EffectiveToDate { get; set; }
+
+    public PDSDemographic() { }
 }
