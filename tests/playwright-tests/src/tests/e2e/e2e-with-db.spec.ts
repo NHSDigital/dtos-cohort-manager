@@ -5,7 +5,7 @@ import { getTestData, processFileViaStorage, validateSqlDatabase } from '../step
 
 
 test.describe('Smoke Tests', () => {
-  test('01 @smoke @DTOSS-6256 Verify file upload and cohort distribution process for ADD', async ({ }, testInfo) => {
+  test('01 @smoke @DTOSS-6256 Verify file upload and cohort distribution process for ADD', async ({ request }, testInfo) => {
     console.info(`Running test: ${testInfo.title}`);
 
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
@@ -23,7 +23,7 @@ test.describe('Smoke Tests', () => {
     });
 
   });
-  test('02 @smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ }, testInfo) => {
+  test('02 @smoke @DTOSS-6257 Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ request }, testInfo) => {
     console.info(`Running test: ${testInfo.title}`); //TODO move to beforeEach
 
     const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
@@ -52,7 +52,7 @@ test.describe('Smoke Tests', () => {
     });
 
   });
-  test('05 @smoke @DTOSS-7960 Verify GP Practice Code Exception flag in participant management set to 1', async ({ }, testInfo) => {
+  test('05 @smoke @DTOSS-7960 Verify GP Practice Code Exception flag in participant management set to 1', async ({request }, testInfo) => {
     console.info(`Running test: ${testInfo.title}`); //TODO move to beforeEach
 
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
