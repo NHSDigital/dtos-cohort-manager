@@ -82,6 +82,25 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
+    public async Task<HttpResponseMessage> DeleteAsync(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        try
+        {
+            HttpResponseMessage response = await client.DeleteAsync(url);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
+            throw;
+        }
+    }
+
     /// <summary>
     /// Removes the query string from the URL to prevent us logging sensitive information.
     /// </summary>

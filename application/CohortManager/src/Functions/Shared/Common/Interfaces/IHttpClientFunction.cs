@@ -23,4 +23,10 @@ public interface IHttpClientFunction
     /// <param name="data">Data to be sent in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> PutAsync(string url, string data);
+    /// <summary>
+    /// Performs a DELETE request using HttpClient.
+    /// </summary>
+    /// <param name="url">URL to be used in request.</param>
+    /// <returns>HttpResponseMessage<returns>
+    Task<HttpResponseMessage> DeleteAsync(string url);
 }
