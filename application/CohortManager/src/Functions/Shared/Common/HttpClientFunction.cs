@@ -42,10 +42,10 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> PostAsync(string url, string postData)
+    public async Task<HttpResponseMessage> PostAsync(string url, string data)
     {
         using var client = _factory.CreateClient();
-        using StringContent jsonContent = new(postData, Encoding.UTF8, "application/json");
+        using StringContent jsonContent = new(data, Encoding.UTF8, "application/json");
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
@@ -53,6 +53,26 @@ public class HttpClientFunction : IHttpClientFunction
         try
         {
             HttpResponseMessage response = await client.PostAsync(url, jsonContent);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<HttpResponseMessage> PutAsync(string url, string data)
+    {
+        using var client = _factory.CreateClient();
+        using StringContent jsonContent = new(data, Encoding.UTF8, "application/json");
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        try
+        {
+            HttpResponseMessage response = await client.PutAsync(url, jsonContent);
             return response;
         }
         catch (Exception ex)

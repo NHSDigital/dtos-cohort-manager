@@ -156,4 +156,72 @@ public class HttpClientFunctionTests
         Times.Once);
     }
     #endregion
+
+    #region PutAsync
+    [TestMethod]
+    public async Task Run_PutAsyncIsSuccessful_ReturnsOkResponse()
+    {
+        // Arrange
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(
+                new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK
+                }
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.PutAsync(_mockUrl, string.Empty);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_PutAsyncFails_LogsErrorAndThrowsException()
+    {
+        // Arrange
+        var errorMessage = "There was an error";
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .Throws(
+                new Exception(errorMessage)
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act & Assert
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.PutAsync(_mockUrl, string.Empty));
+        Assert.AreEqual(errorMessage, result.Message);
+
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+    }
+    #endregion
 }
