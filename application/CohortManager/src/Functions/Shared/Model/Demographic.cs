@@ -53,7 +53,6 @@ public class PDSDemographic : Demographic
     [JsonPropertyOrder(902)]
     public string? EffectiveToDate { get; set; }
     [JsonPropertyOrder(903)]
-    public ConfidentialityLevel ConfidentialityLevel { get; set; } = ConfidentialityLevel.NotSpecified;
-
+    public string? ConfidentialityCode { get; set; } = "";
     public PDSDemographic() { }
 }

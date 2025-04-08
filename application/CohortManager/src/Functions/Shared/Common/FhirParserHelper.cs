@@ -348,9 +348,6 @@ public class FhirParserHelper : IFhirParserHelper
 
     private static void MapSecurityMetadata(Patient patient, PDSDemographic demographic)
     {
-        // Default to NotSpecified if no security metadata is found
-        demographic.ConfidentialityLevel = ConfidentialityLevel.NotSpecified;
-
         // Check if the patient has security metadata
         if (patient.Meta?.Security != null && patient.Meta.Security.Any())
         {
@@ -360,31 +357,9 @@ public class FhirParserHelper : IFhirParserHelper
 
             if (confidentialityCoding != null)
             {
-                // Map the confidentiality code to the enum
-                switch (confidentialityCoding.Code)
-                {
-                    case "U":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.Unrestricted;
-                        break;
-                    case "L":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.Low;
-                        break;
-                    case "M":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.Moderate;
-                        break;
-                    case "N":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.Normal;
-                        break;
-                    case "R":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.Restricted;
-                        break;
-                    case "V":
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.VeryRestricted;
-                        break;
-                    default:
-                        demographic.ConfidentialityLevel = ConfidentialityLevel.NotSpecified;
-                        break;
-                }
+
+                demographic.ConfidentialityCode = confidentialityCoding.Code;
+
             }
         }
     }
