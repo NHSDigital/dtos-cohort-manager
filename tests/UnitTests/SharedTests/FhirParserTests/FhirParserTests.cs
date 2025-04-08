@@ -105,8 +105,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsInstanceOfType(result, typeof(PDSDemographic));
 
-        // Check that the IsRestricted flag is set to false
-        Assert.IsFalse(result.IsRestricted);
+        // Check that the ConfidentialityLevel is set to Unrestricted
+        Assert.IsTrue(result.ConfidentialityLevel == ConfidentialityLevel.Unrestricted);
 
         // Basic Identifiers
         Assert.AreEqual(expected.NhsNumber, result.NhsNumber);
@@ -172,8 +172,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
 
-        // Check that the IsRestricted flag is set to true
-        Assert.IsTrue(result.IsRestricted);
+        // Check that the ConfidentialityLevel is set to Restricted
+        Assert.IsTrue(result.ConfidentialityLevel == ConfidentialityLevel.Restricted);
 
         // Basic Information
         Assert.AreEqual("9000000025", result.NhsNumber);
@@ -209,8 +209,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
 
-        // Check that the IsRestricted flag is set to false
-        Assert.IsFalse(result.IsRestricted);
+        // Check that the ConfidentialityLevel is set to Unrestricted
+        Assert.IsTrue(result.ConfidentialityLevel == ConfidentialityLevel.Unrestricted);
 
         // Only NHS Number should be present
         Assert.AreEqual("9000000033", result.NhsNumber);
@@ -374,6 +374,9 @@ public class FhirParserHelperTests
         Assert.IsNull(result.PreferredLanguage);
         Assert.IsNull(result.ReasonForRemoval);
         Assert.IsNull(result.EffectiveFromDate);
+
+        // Check that the ConfidentialityLevel is set to NotSpecified
+        Assert.IsTrue(result.ConfidentialityLevel == ConfidentialityLevel.NotSpecified);
     }
 
     [TestMethod]
