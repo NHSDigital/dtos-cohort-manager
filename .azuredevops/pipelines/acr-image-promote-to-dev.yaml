@@ -14,12 +14,6 @@ resources:
 
 variables:
   - group: DEV_hub_backend_remote_state
-  - name: sourceRegistry
-    value: acrukscohmantemp7048
-  - name: addImageTag
-    value: temp
-  - name: destEnvironmentShortName
-    value: temp7048
 
 stages:
 - stage: db_changes_stage
@@ -31,33 +25,25 @@ stages:
     displayName: Apply database changes
     variables:
       - group: TEMP_ENVIRONMENTS_core_backend
+      - group: TEMP_ENVIRONMENTS_image_pipelines
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
-          resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
-          miNameACR: dtos-cohort-manager-acr-push
-          miNameSQL: mi-cohort-manager-db-management-dev
-          acrServerName: '$(sourceRegistry).azurecr.io'
-          containerGroupName: 'acigrp-cohman-$(destEnvironmentShortName)-uks-db-migration'
-          containerName: 'cohort-manager-db-migration'
-          containerImageName: 'cohort-manager-database-db-migration:$(addImageTag)'
-          sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: deploy_image_stage
   displayName: Deploy images
   variables:
     - group: TEMP_ENVIRONMENTS_core_backend
+    - group: TEMP_ENVIRONMENTS_image_pipelines
   jobs:
   - job: deploy_images
     pool:
       name: private-pool-dev-uks
     displayName: Deploy Docker images to function apps
     variables:
-      SRC_REGISTRY: $(sourceRegistry)
-      ADD_IMAGE_TAG: $(addImageTag)
       PROJECT_NAME: cohort-manager
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
