@@ -7,6 +7,7 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using NHS.CohortManager.Shared.Utilities;
 
 /// <summary>
 /// Azure Function for retrieving cohort audit history data based on RequestId, Status Code and Date.
@@ -50,7 +51,7 @@ public class RetrieveCohortRequestAudit
 
         if (!string.IsNullOrEmpty(dateFromQuery))
         {
-            var isValidDateFormat = DateTimeHelper.IsValidDateFormat(dateFromQuery);
+            var isValidDateFormat = MappingUtilities.IsValidDateFormat(dateFromQuery);
             if (!isValidDateFormat.isValidDateFormat)
             {
                 return _httpParserHelper.LogErrorResponse(req, "Invalid date format. Please use yyyyMMdd.");
