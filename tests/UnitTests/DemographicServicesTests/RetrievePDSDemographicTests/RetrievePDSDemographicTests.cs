@@ -76,7 +76,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
         _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-        _fhirParserHelperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new Demographic());
+        _fhirParserHelperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PDSDemographic());
 
         // Act
         var result = await _service.Run(_request.Object);
