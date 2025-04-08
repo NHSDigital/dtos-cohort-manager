@@ -50,7 +50,7 @@ public class FhirParserHelperTests
             // Basic Identifiers
             NhsNumber = "9000000009",
             ParticipantId = null,
-            RecordUpdateDateTime = null, // Meta.LastUpdated would be set if present
+            RecordUpdateDateTime = null, 
             RecordInsertDateTime = null,
             DateOfBirth = "2010-10-22",
 
@@ -155,6 +155,91 @@ public class FhirParserHelperTests
         // Removal Information
         Assert.AreEqual(expected.ReasonForRemoval, result.ReasonForRemoval);
         Assert.AreEqual(expected.EffectiveFromDate, result.EffectiveFromDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_SensitivePatient_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-sensitive");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+
+        // Basic Information
+        Assert.AreEqual("9000000025", result.NhsNumber);
+        Assert.AreEqual("2010-10-22", result.DateOfBirth);
+        Assert.AreEqual(Gender.Female, result.Gender);
+
+        // Name Information
+        Assert.AreEqual("Mrs", result.NamePrefix);
+        Assert.AreEqual("Janet", result.FirstName);
+        Assert.AreEqual("Smythe", result.FamilyName);
+
+        // Death Information
+        Assert.AreEqual("2010-10-22T00:00:00+00:00", result.DateOfDeath);
+        Assert.AreEqual(Status.Formal, result.DeathStatus);
+
+        // Missing Information
+        Assert.IsNull(result.AddressLine1);
+        Assert.IsNull(result.Postcode);
+        Assert.IsNull(result.TelephoneNumber);
+        Assert.IsNull(result.EmailAddress);
+        Assert.IsNull(result.PrimaryCareProvider);
+
+        // We don't currently parse the confidentiality flags provided by PDS
+        // So we just check if sensitive fields are null as supplied
+    }
+
+    [TestMethod]
+    public void FhirParser_MinimalPatientData_MapsCorrectly()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-minimal-data");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+
+        // Only NHS Number should be present
+        Assert.AreEqual("9000000033", result.NhsNumber);
+
+        // All other fields should be null
+        Assert.IsNull(result.DateOfBirth);
+        Assert.IsNull(result.Gender);
+        Assert.IsNull(result.NamePrefix);
+        Assert.IsNull(result.FirstName);
+        Assert.IsNull(result.FamilyName);
+        Assert.IsNull(result.OtherGivenNames);
+        Assert.IsNull(result.PreviousFamilyName);
+        Assert.IsNull(result.AddressLine1);
+        Assert.IsNull(result.AddressLine2);
+        Assert.IsNull(result.AddressLine3);
+        Assert.IsNull(result.AddressLine4);
+        Assert.IsNull(result.AddressLine5);
+        Assert.IsNull(result.Postcode);
+        Assert.IsNull(result.PafKey);
+        Assert.IsNull(result.UsualAddressEffectiveFromDate);
+        Assert.IsNull(result.DateOfDeath);
+        Assert.IsNull(result.DeathStatus);
+        Assert.IsNull(result.TelephoneNumber);
+        Assert.IsNull(result.TelephoneNumberEffectiveFromDate);
+        Assert.IsNull(result.MobileNumber);
+        Assert.IsNull(result.MobileNumberEffectiveFromDate);
+        Assert.IsNull(result.EmailAddress);
+        Assert.IsNull(result.EmailAddressEffectiveFromDate);
+        Assert.IsNull(result.PreferredLanguage);
+        Assert.IsNull(result.IsInterpreterRequired);
+        Assert.IsNull(result.PrimaryCareProvider);
+        Assert.IsNull(result.PrimaryCareProviderEffectiveFromDate);
+        Assert.IsNull(result.ReasonForRemoval);
+        Assert.IsNull(result.EffectiveFromDate);
+        Assert.IsNull(result.EffectiveToDate);
     }
 
     [TestMethod]
