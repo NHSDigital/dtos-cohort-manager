@@ -83,44 +83,115 @@ All test files should be placed under `playwright-tests/tests/e2e/testfiles`
 
 ### Validation Engine
 
-The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries
+The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries; below are some examples of currently supported formats
 
-```ts
+- Example Usage 1
 
-// Example usage
-      const checkInDatabase = {
-        "validations": [{
-          "validations": {
-            "tableName": "BS_COHORT_DISTRIBUTION",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[0]
-          }
-        }, {
-          "validations": {
-            "tableName": "BS_COHORT_DISTRIBUTION",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[1]
-          }
-        },
-        {
-          "validations": {
-            "tableName": "PARTICIPANT_MANAGEMENT",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[0],
-            "columnName2": "EXCEPTION_FLAG",
-            "columnValue2": "0"
-          }
-        }, {
-          "validations": {
-            "tableName": "PARTICIPANT_MANAGEMENT",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[1],
-            "columnName2": "EXCEPTION_FLAG",
-            "columnValue2": "0"
-          }
-        }
-        ]
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "NHS_Number",
+        "columnValue": "1111110662"
       }
-      await validateSqlDatabase(checkInDatabase.validations);
+    },
+    {
+      "validations": {
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "NHS_Number",
+        "columnValue": "2222211794"
+      }
+    }
+  ]
+}
+
+```
+
+- Example Usage 2
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "BS_COHORT_DISTRIBUTION",
+        "columnName": "NHS_Number",
+        "columnValue": "2312514176",
+        "columnName2": "GIVEN_NAME",
+        "columnValue2": "AMENDEDNewTest1"
+      }
+    }
+  ]
+}
+
+
+```
+
+- Example Usage 3
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "PARTICIPANT_MANAGEMENT",
+        "columnName": "NHS_Number",
+        "columnValue": "2612314172",
+        "columnName2": "EXCEPTION_FLAG",
+        "columnValue2": "1"
+      }
+    }
+  ]
+}
+
+```
+
+- Example Usage 4
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "EXCEPTION_MANAGEMENT",
+        "columnName": "NHS_Number",
+        "columnValue": "2612314172",
+        "columnName2": "RULE_ID",
+        "columnValue2": "36",
+        "columnName3": "RULE_DESCRIPTION",
+        "columnValue3": "Invalid primary care provider GP practice code"
+      }
+    }
+  ]
+}
+
+
+```
+
+- Example Usage 5
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "tableName": "EXCEPTION_MANAGEMENT",
+        "columnName": "NHS_Number",
+        "columnValue": "2612514171",
+        "columnName2": "RULE_ID",
+        "columnValue2": "17",
+        "columnName3": "RULE_DESCRIPTION",
+        "columnValue3": "Date of birth invalid"
+      }
+    }
+  ]
+}
 
 ```
