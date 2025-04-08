@@ -50,7 +50,7 @@ public class FhirParserHelperTests
             // Basic Identifiers
             NhsNumber = "9000000009",
             ParticipantId = null,
-            RecordUpdateDateTime = null, 
+            RecordUpdateDateTime = null,
             RecordInsertDateTime = null,
             DateOfBirth = "2010-10-22",
 
@@ -104,6 +104,9 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(PDSDemographic));
+
+        // Check that the IsRestricted flag is set to false
+        Assert.IsFalse(result.IsRestricted);
 
         // Basic Identifiers
         Assert.AreEqual(expected.NhsNumber, result.NhsNumber);
@@ -169,6 +172,9 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
 
+        // Check that the IsRestricted flag is set to true
+        Assert.IsTrue(result.IsRestricted);
+
         // Basic Information
         Assert.AreEqual("9000000025", result.NhsNumber);
         Assert.AreEqual("2010-10-22", result.DateOfBirth);
@@ -189,9 +195,6 @@ public class FhirParserHelperTests
         Assert.IsNull(result.TelephoneNumber);
         Assert.IsNull(result.EmailAddress);
         Assert.IsNull(result.PrimaryCareProvider);
-
-        // We don't currently parse the confidentiality flags provided by PDS
-        // So we just check if sensitive fields are null as supplied
     }
 
     [TestMethod]
@@ -205,6 +208,9 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.IsNotNull(result);
+
+        // Check that the IsRestricted flag is set to false
+        Assert.IsFalse(result.IsRestricted);
 
         // Only NHS Number should be present
         Assert.AreEqual("9000000033", result.NhsNumber);

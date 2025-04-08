@@ -46,12 +46,14 @@ public class Demographic
 
 public class PDSDemographic : Demographic
 {
-    [JsonPropertyOrder(997)]
+    [JsonPropertyOrder(900)]
     public string? ReasonForRemoval { get; set; }
-    [JsonPropertyOrder(998)]
+    [JsonPropertyOrder(901)]
     public string? EffectiveFromDate { get; set; }
-    [JsonPropertyOrder(999)]
+    [JsonPropertyOrder(902)]
     public string? EffectiveToDate { get; set; }
+     [JsonPropertyOrder(903)]
+    public bool IsRestricted { get; set; }
 
     public PDSDemographic() { }
 }

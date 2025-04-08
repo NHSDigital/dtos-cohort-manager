@@ -58,6 +58,7 @@ public class FhirParserHelper : IFhirParserHelper
         MapContactInformation(patient, demographic);
         MapLanguagePreferences(patient, demographic);
         MapRemovalInformation(patient, demographic);
+        MapSecurityMetadata(patient, demographic);
 
         return demographic;
     }
@@ -342,6 +343,25 @@ public class FhirParserHelper : IFhirParserHelper
                     demographic.EffectiveToDate = effectivePeriod.End.ToString();
                 }
             }
+        }
+    }
+
+    private static void MapSecurityMetadata(Patient patient, PDSDemographic demographic)
+    {
+        // Check if the patient has security metadata
+        if (patient.Meta?.Security != null && patient.Meta.Security.Any())
+        {
+            // Look for the confidentiality code
+            var restrictedSecurity = patient.Meta.Security.FirstOrDefault(s =>
+                s.System == "http://terminology.hl7.org/CodeSystem/v3-Confidentiality" &&
+                s.Code == "R");
+
+            // If found, mark the demographic as restricted
+            demographic.IsRestricted = restrictedSecurity != null;
+        }
+        else
+        {
+            demographic.IsRestricted = false;
         }
     }
 }
