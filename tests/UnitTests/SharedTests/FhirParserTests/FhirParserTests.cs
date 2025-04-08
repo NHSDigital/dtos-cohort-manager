@@ -95,7 +95,7 @@ public class FhirParserHelperTests
             IsInterpreterRequired = "True",
 
             // Removal Information
-            ReasonForRemoval = "Transferred to Scotland",
+            ReasonForRemoval = "SCT",
             EffectiveFromDate = "2020-01-01T00:00:00+00:00"
         };
 
@@ -331,23 +331,7 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
-        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
-        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
-    }
-
-    [TestMethod]
-    public void FhirParser_PatientWithRemovalCodeOnly_MapsCorrectly()
-    {
-        // Arrange
-        string json = LoadTestJson("patient-with-removal-code-only");
-
-        // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("SCT", result.ReasonForRemoval); // Should use code when display is not available
+        Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
         Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
         Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
     }
@@ -363,7 +347,7 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
+        Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
         Assert.IsNull(result.EffectiveFromDate); // Missing effective date in the sample
         Assert.IsNull(result.EffectiveToDate); // Missing effective date in the sample
     }
@@ -379,8 +363,24 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual("Transferred to Scotland", result.ReasonForRemoval);
+        Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
         Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
         Assert.IsNull(result.EffectiveToDate); // Missing end date but has start date
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNoCode_HasNullRemovalReason()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-with-display-only");
+
+        // Act
+        var result = _fhirParserHelper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsNull(result.ReasonForRemoval); // No code available, should be null
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
+        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
     }
 }

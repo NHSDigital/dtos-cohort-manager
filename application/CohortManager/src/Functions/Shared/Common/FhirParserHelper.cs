@@ -312,7 +312,7 @@ public class FhirParserHelper : IFhirParserHelper
 
         if (removalExtension != null)
         {
-            // Map the removal reason code/display
+            // Map the removal reason code only
             var removalCodeExtension = removalExtension.Extension?.FirstOrDefault(e =>
                 e.Url == "removalFromRegistrationCode");
 
@@ -321,8 +321,8 @@ public class FhirParserHelper : IFhirParserHelper
                 var removalCoding = removalConcept.Coding?.FirstOrDefault();
                 if (removalCoding != null)
                 {
-                    // Set the removal reason to the display value, or fall back to the code if display is null
-                    demographic.ReasonForRemoval = removalCoding.Display ?? removalCoding.Code;
+                    // Set the removal reason to the code value only, no fallback
+                    demographic.ReasonForRemoval = removalCoding.Code;
                 }
             }
 
