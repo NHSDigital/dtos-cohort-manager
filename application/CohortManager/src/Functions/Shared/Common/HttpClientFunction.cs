@@ -1,11 +1,13 @@
 namespace Common;
 
+using System.Text;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
 {
     private readonly ILogger<HttpClientFunction> _logger;
     private readonly IHttpClientFactory _factory;
+    public static readonly TimeSpan _timeout = TimeSpan.FromMinutes(10);
 
     public HttpClientFunction(ILogger<HttpClientFunction> logger, IHttpClientFactory factory)
     {
@@ -18,7 +20,7 @@ public class HttpClientFunction : IHttpClientFunction
         using var client = _factory.CreateClient();
 
         client.BaseAddress = new Uri(url);
-        client.Timeout = TimeSpan.FromMinutes(1000);
+        client.Timeout = _timeout;
 
         if (headers != null)
         {
@@ -36,6 +38,26 @@ public class HttpClientFunction : IHttpClientFunction
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<HttpResponseMessage> PostAsync(string url, string postData)
+    {
+        using var client = _factory.CreateClient();
+        using StringContent jsonContent = new(postData, Encoding.UTF8, "application/json");
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        try
+        {
+            HttpResponseMessage response = await client.PostAsync(url, jsonContent);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
             throw;
         }
     }
