@@ -2,11 +2,8 @@ namespace Common;
 
 using System.Net;
 using Common.Interfaces;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Model;
 
 public class HttpParserHelper : IHttpParserHelper
 {
