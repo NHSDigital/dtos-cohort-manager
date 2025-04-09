@@ -1,7 +1,10 @@
 ---
 
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
-trigger: none
+trigger:
+  branches:
+    include:
+    - test/DTOS-8371-yaml-changes
 pr: none
 
 resources:
