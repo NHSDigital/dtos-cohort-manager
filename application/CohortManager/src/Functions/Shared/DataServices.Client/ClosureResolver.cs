@@ -54,6 +54,10 @@ public class ClosureResolver : ExpressionVisitor
             */
             return Expression.Parameter(typeof(Guid), $"\"{guidValue}\"");
         }
+        else if (node.Type == typeof(DateTime) && node.Value is DateTime dateTimeValue)
+        {
+            return Expression.Parameter(typeof(DateTime), $"\"{dateTimeValue}\"");
+        }
         return base.VisitConstant(node);
     }
 
