@@ -236,15 +236,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return x => true;
     }
 
-    private static double GetDays(DateTime GivenDate)
-    {
-        DateTime today = DateTime.Today;
-        TimeSpan difference = today.Subtract(GivenDate);
-        var days = difference.TotalDays;
-
-        return days;
-    }
-
     private static Expression<Func<T, bool>> CombineWithAnd<T>(List<Expression<Func<T, bool>>> expressions)
     {
 
