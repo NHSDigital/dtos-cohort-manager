@@ -207,8 +207,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         if (dateFrom.HasValue)
         {
-            double numberOfDays = GetDays(dateFrom.Value);
-            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime >= DateTime.Today.AddDays(-numberOfDays));
+            DateTime dateTimeValue = dateFrom.Value.Date;
+            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime >= dateTimeValue);
             conditions.Add(predicate);
         }
 
