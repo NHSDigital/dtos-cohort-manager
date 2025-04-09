@@ -9,21 +9,11 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: dbb933e78adea035c494a4d6c081c39787533a30
+      ref: 408fa638a2c05f94bf2aaab7c00d702dad1d00ca
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
-  - name: sourceRegistry
-    value: acrukshubdevcohman
-  - name: selectImageTag
-    value: nft
-  - name: destRegistry
-    value: acrukshubdevcohman
-  - name: addImageTag
-    value: integration
-  - name: destEnvironmentShortName
-    value: int
 
 stages:
 - stage: db_changes_stage
@@ -35,20 +25,13 @@ stages:
     displayName: Apply database changes
     variables:
       - group: INT_core_backend
+      - group: INT_image_pipelines
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
-          resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
-          miNameACR: dtos-cohort-manager-acr-push
-          miNameSQL: mi-cohort-manager-db-management-int
-          acrServerName: '$(sourceRegistry).azurecr.io'
-          containerGroupName: 'acigrp-cohort-manager-db-migration'
-          containerName: 'cohort-manager-db-migration'
-          containerImageName: 'cohort-manager-database-db-migration:$(selectImageTag)'
-          sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: re_tag_stage
   displayName: ACR re-tag
@@ -58,10 +41,7 @@ stages:
       name: private-pool-prod-uks
     displayName: Update/copy Docker images with new tag
     variables:
-      SRC_REGISTRY: $(sourceRegistry)
-      DEST_REGISTRY: $(destRegistry)
-      SELECT_IMAGE_TAG: $(selectImageTag)
-      ADD_IMAGE_TAG: $(addImageTag)
+      - group: INT_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
@@ -75,11 +55,8 @@ stages:
       name: private-pool-dev-uks
     displayName: Deploy Docker images to function apps
     variables:
-      DEST_REGISTRY: $(destRegistry)
-      ADD_IMAGE_TAG: $(addImageTag)
-      FUNCTION_NAME_PREFIX: $(destEnvironmentShortName)-uks
-      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-$(destEnvironmentShortName)-uks
-      PROJECT_NAME: cohort-manager
+      - group: INT_core_backend
+      - group: INT_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:

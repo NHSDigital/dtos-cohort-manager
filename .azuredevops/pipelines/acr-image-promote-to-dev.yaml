@@ -24,8 +24,8 @@ stages:
       name: private-pool-dev-uks
     displayName: Apply database changes
     variables:
-      - group: TEMP_ENVIRONMENTS_core_backend
-      - group: TEMP_ENVIRONMENTS_image_pipelines
+      - group: DEV_core_backend
+      - group: DEV_image_pipelines
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
@@ -35,16 +35,14 @@ stages:
 
 - stage: deploy_image_stage
   displayName: Deploy images
-  variables:
-    - group: TEMP_ENVIRONMENTS_core_backend
-    - group: TEMP_ENVIRONMENTS_image_pipelines
   jobs:
   - job: deploy_images
     pool:
       name: private-pool-dev-uks
     displayName: Deploy Docker images to function apps
     variables:
-      PROJECT_NAME: cohort-manager
+      - group: DEV_core_backend
+      - group: DEV_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
