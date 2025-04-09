@@ -67,6 +67,17 @@ services:
       - CohortQueueName=cohort-distribution-queue
       - AddQueueName=add-participant-queue
 
+  block-participant:
+    container_name: block-participant
+    network_mode: host
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/BlockParticipant/Dockerfile
+    environment: 
+      - ASPNETCORE_URLS=http://*:7026
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+
   remove-participant:
     container_name: remove-participant
     network_mode: host
