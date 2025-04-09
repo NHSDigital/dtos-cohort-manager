@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortMan
 
 export const config = {
   baseURL: process.env.BASE_URL ?? '',
-  azureConnectionString: process.env.AZURITE_CONNECTION_STRING || '',
+  azureConnectionString: process.env.AZURITE_LOCAL_STORAGE_CONNECTION_STRING ?? '',
   sqlConfig: {
     host: process.env.SQL_HOST ?? '',
     user: process.env.SQL_USER ?? '',
