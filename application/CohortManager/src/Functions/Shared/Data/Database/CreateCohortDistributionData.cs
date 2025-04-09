@@ -33,12 +33,14 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
     public async Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount)
     {
         var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty);
-        //TODO do this filtering on the data services 
-        var CohortDistributionParticipantList = participantsList.Select(x => new CohortDistributionParticipant(x)).OrderBy(x => x.RequestId).Take(rowCount).ToList();
+
+        var participantsToBeExtracted = participantsList.OrderBy(x => x.RecordUpdateDateTime ?? x.RecordInsertDateTime).Take(rowCount).ToList();
+        //TODO do this filtering on the data services
+        var CohortDistributionParticipantList = participantsToBeExtracted.Select(x => new CohortDistributionParticipant(x)).ToList();
 
 
         var requestId = Guid.NewGuid();
-        if (await MarkCohortDistributionParticipantsAsExtracted(CohortDistributionParticipantList, requestId))
+        if (await MarkCohortDistributionParticipantsAsExtracted(participantsToBeExtracted, requestId))
         {
             await LogRequestAudit(requestId, (int)HttpStatusCode.OK);
 
@@ -135,7 +137,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         });
     }
 
-    private async Task<bool> MarkCohortDistributionParticipantsAsExtracted(List<CohortDistributionParticipant> cohortParticipants, Guid requestId)
+    private async Task<bool> MarkCohortDistributionParticipantsAsExtracted(List<CohortDistribution> cohortParticipants, Guid requestId)
     {
 
         if (cohortParticipants == null || cohortParticipants.Count == 0)
@@ -143,20 +145,18 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             return false;
         }
 
-        var allUnextractedParticipants = await _cohortDistributionDataServiceClient.
-        GetByFilter(x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty);
-
-        var filteredCohortDistribution = allUnextractedParticipants.
-            OrderBy(x => x.RecordInsertDateTime)
-            .Take(cohortParticipants.Count);
+        var extractedParticipants = cohortParticipants.Select(x => x.CohortDistributionId);
 
 
-        foreach (var filteredCohortDistributionRecord in filteredCohortDistribution)
+
+        foreach (var participantId in extractedParticipants)
         {
-            filteredCohortDistributionRecord.IsExtracted = 1;
-            filteredCohortDistributionRecord.RequestId = requestId;
 
-            var updatedRecord = await _cohortDistributionDataServiceClient.Update(filteredCohortDistributionRecord);
+            var participant = await _cohortDistributionDataServiceClient.GetSingle(participantId.ToString());
+            participant.IsExtracted = 1;
+            participant.RequestId = requestId;
+
+            var updatedRecord = await _cohortDistributionDataServiceClient.Update(participant);
             if (!updatedRecord)
             {
                 return false;
@@ -175,8 +175,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         string errorCode = errorCodeInt.ToString();
         string NoContent = NoContentInt.ToString();
 
+        var previousRequest = await _bsSelectRequestAuditDataServiceClient.GetSingleByFilter(x => x.RequestId == parsedRequestId);
+
+        if(previousRequest == null)
+        {
+            throw new KeyNotFoundException("No RequestId Found");
+        }
+
         var res = await _bsSelectRequestAuditDataServiceClient.GetByFilter(
-            x => x.RequestId > parsedRequestId
+            x => x.CreatedDateTime > previousRequest.CreatedDateTime
             && x.StatusCode != NoContent
             && x.StatusCode != errorCode
         );
