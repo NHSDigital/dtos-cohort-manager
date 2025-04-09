@@ -4,6 +4,7 @@ using Common;
 using DataServices.Client;
 using NHS.Screening.BlockParticipant;
 using Model;
+using HealthChecks.Extensions;
 
 var host = new HostBuilder()
     .AddConfiguration<BlockParticipantConfig>(out BlockParticipantConfig config)
@@ -11,6 +12,10 @@ var host = new HostBuilder()
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .Build()
+    .ConfigureServices(services => {
+        // Register health checks
+        services.AddBasicHealthCheck("CheckParticipantExists");
+    })
     .Build();
 
 await host.RunAsync();
