@@ -1,11 +1,14 @@
 import { test, expect } from "@playwright/test";
 import { validateSqlData } from "../../database/sqlVerifier";
-import path from "path";
 import { uploadToLocalStorage } from "../../storage/azureStorage";
+import { InputData } from "../../interface/InputData";
+import { config } from "../../config/env";
+import * as fs from 'fs';
+import path from "path";
 
 export async function validateSqlDatabase(validations: any) {
   return test.step(`Validate database for assertions`, async () => {
- const hasFailures = await validateSqlData(validations);
+    const hasFailures = await validateSqlData(validations);
 
     try {
       expect(hasFailures).toBeTruthy();
@@ -16,10 +19,21 @@ export async function validateSqlDatabase(validations: any) {
   });
 }
 
-export async function processFileViaStorage(fileName: string) {
+export async function processFileViaStorage(parquetFilePath: string) {
   return test.step(`Process file via Storage`, async () => {
-      const parquetFilePath = path.join(__dirname, `../`,`e2e/testFiles/${fileName}`); // TODO move static data to configuration file .env.*
-      await uploadToLocalStorage(parquetFilePath);
+    await uploadToLocalStorage(parquetFilePath);
   });
 }
 
+export async function getTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<[any, string[], string?]> { //TODO fix return type
+  return test.step(`Creating Input Data from JSON file`, async () => {
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 2)}/`);
+    console.info(`ℹ️\tTest files input data path: ${testFilesPath}`);
+    const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parquetFile = testFilesPath + jsonFile?.replace('.json', '.parquet'); //TODO add a check here to fail if jsonFile name is not same as parquet file name
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
+    const nhsNumbers: string[] = parsedData.validations.map(item => item.validations.columnValue);
+    // TODO integrate Parquet file creation process here
+    return [parsedData.validations, nhsNumbers, parquetFile];
+  });
+}
