@@ -3,8 +3,6 @@ namespace Data.Database;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using DataServices.Client;
@@ -216,7 +214,8 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         if (dateFrom.HasValue)
         {
-            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime == dateFrom);
+            DateTime dateTimeValue = dateFrom.Value.Date;
+            Expression<Func<BsSelectRequestAudit, bool>> predicate = (x => x.CreatedDateTime >= dateTimeValue);
             conditions.Add(predicate);
         }
 
