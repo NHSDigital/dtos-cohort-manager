@@ -47,4 +47,3 @@ stages:
         serviceConnection: sc-cohort-manager-dev
         testProjectDirectory: 'tests/playwright-tests'
         testProjectName: 'tests'
-        testProjectType: 'playwright'
