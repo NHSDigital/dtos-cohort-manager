@@ -17,4 +17,7 @@ export const config = {
   sqlWaitTime: process.env.SQL_WAIT_TIME ?? 2000,
   containerName: process.env.CONTAINER_NAME ?? '',
   e2eTestFilesPath: process.env.E2E_TEST_FILES_PATH ?? 'e2e/testFiles',
+  apiTestFilesPath: process.env.API_TEST_FILES_PATH ?? 'api/testFiles',
+  endpointRetrieveCohortDistributionData: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '',
+  endpointRetrieveCohortDistributionDataRowCount: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA_ROW_COUNT ?? 100,
 };
