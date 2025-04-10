@@ -196,7 +196,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             var valueExtension = pafExtension.Extension?.FirstOrDefault(e => e.Url == "value");
 
             if (typeExtension?.Value is Coding typeCoding &&
-                typeCoding.Code == "PAF" &&
+                typeCoding.Code == AddressKeyTypes.Paf &&
                 valueExtension?.Value is FhirString valueString)
             {
                 demographic.PafKey = valueString.Value;
