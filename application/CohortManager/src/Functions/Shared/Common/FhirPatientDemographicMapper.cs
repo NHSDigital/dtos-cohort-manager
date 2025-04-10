@@ -13,6 +13,16 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
     private readonly ILogger<FhirPatientDemographicMapper> _logger;
 
+    // URL constants for FHIR extensions
+    private static class FhirExtensionUrls
+    {
+        public const string UkCoreAddressKey = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey";
+        public const string UkCoreDeathNotificationStatus = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-DeathNotificationStatus";
+        public const string UkCoreNhsCommunication = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSCommunication";
+        public const string PdsRemovalFromRegistration = "https://fhir.nhs.uk/StructureDefinition/Extension-PDS-RemovalFromRegistration";
+        public const string V3Confidentiality = "http://terminology.hl7.org/CodeSystem/v3-Confidentiality";
+    }
+
     public FhirPatientDemographicMapper(ILogger<FhirPatientDemographicMapper> logger)
     {
         _logger = logger;
@@ -175,11 +185,10 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-
     private static void MapPafKeyFromExtensions(Address homeAddress, Demographic demographic)
     {
         var pafExtension = homeAddress?.Extension?.FirstOrDefault(e =>
-            e.Url == "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey");
+            e.Url == FhirExtensionUrls.UkCoreAddressKey);
 
         if (pafExtension != null)
         {
@@ -208,7 +217,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         // Death notification status
         var deathNotificationExtension = patient.Extension?.FirstOrDefault(e =>
-            e.Url == "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-DeathNotificationStatus");
+            e.Url == FhirExtensionUrls.UkCoreDeathNotificationStatus);
 
         if (deathNotificationExtension != null)
         {
@@ -293,7 +302,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     private static void MapLanguagePreferences(Patient patient, Demographic demographic)
     {
         var languageExtension = patient.Extension?.FirstOrDefault(e =>
-            e.Url == "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSCommunication");
+            e.Url == FhirExtensionUrls.UkCoreNhsCommunication);
 
         if (languageExtension != null)
         {
@@ -317,7 +326,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     {
         // Find the removal from registration extension
         var removalExtension = patient.Extension?.FirstOrDefault(e =>
-            e.Url == "https://fhir.nhs.uk/StructureDefinition/Extension-PDS-RemovalFromRegistration");
+            e.Url == FhirExtensionUrls.PdsRemovalFromRegistration);
 
         if (removalExtension != null)
         {
@@ -361,7 +370,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         {
             // Look for the confidentiality code
             var confidentialityCoding = patient.Meta.Security.FirstOrDefault(s =>
-                s.System == "http://terminology.hl7.org/CodeSystem/v3-Confidentiality");
+                s.System == FhirExtensionUrls.V3Confidentiality);
 
             if (confidentialityCoding != null)
             {
