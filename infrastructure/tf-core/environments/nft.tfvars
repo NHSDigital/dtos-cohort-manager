@@ -250,6 +250,9 @@ function_apps = {
           function_app_key = "FileValidation"
         }
       ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
 
     AddParticipant = {
