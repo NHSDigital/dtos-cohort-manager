@@ -221,23 +221,22 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (deathNotificationExtension != null)
         {
-            var statusExtension = deathNotificationExtension.Extension?.FirstOrDefault(e => e.Url == "deathNotificationStatus");
+            var statusExtension = deathNotificationExtension.Extension?
+                .FirstOrDefault(e => e.Url == "deathNotificationStatus");
+                
             if (statusExtension?.Value is CodeableConcept codeableConcept)
             {
                 var coding = codeableConcept.Coding?.FirstOrDefault();
-                if (coding != null)
+                if (coding != null && short.TryParse(coding.Code, out short statusCode))
                 {
-                    switch (coding.Code)
+                    // Directly parse the code to the Status enum if it's a valid value
+                    if (Enum.IsDefined(typeof(Status), statusCode))
                     {
-                        case "2": // "Formal - death notice received from Registrar of Deaths"
-                            demographic.DeathStatus = Status.Formal;
-                            break;
-                        case "1": // "Informal - death notice received via relative or other source"
-                            demographic.DeathStatus = Status.Informal;
-                            break;
-                        default:
-                            demographic.DeathStatus = null;
-                            break;
+                        demographic.DeathStatus = (Status)statusCode;
+                    }
+                    else
+                    {
+                        demographic.DeathStatus = null;
                     }
                 }
             }
