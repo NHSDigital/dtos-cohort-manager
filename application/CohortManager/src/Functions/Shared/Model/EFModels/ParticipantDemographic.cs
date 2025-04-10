@@ -107,10 +107,10 @@ public class ParticipantDemographic
     [Column("INVALID_FLAG")]
     public short? InvalidFlag { get; set; }
 
-    [Column("RECORD_INSERT_DATETIME")]
+    [Column("RECORD_INSERT_DATETIME", TypeName = "datetime")]
     public DateTime? RecordInsertDateTime { get; set; }
 
-    [Column("RECORD_UPDATE_DATETIME")]
+    [Column("RECORD_UPDATE_DATETIME", TypeName = "datetime")]
     public DateTime? RecordUpdateDateTime { get; set; }
 
 
