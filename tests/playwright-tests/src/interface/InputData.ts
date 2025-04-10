@@ -11,4 +11,6 @@ interface Validations {
 
 export interface InputData {
   validations: Validations[];
+  inputParticipantRecord: Record<string, any>;
+  nhsNumbers: string[];
 }

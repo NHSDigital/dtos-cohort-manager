@@ -37,3 +37,16 @@ export async function getTestData(scenarioFolderName: string, recordType: string
     return [parsedData.validations, nhsNumbers, parquetFile];
   });
 }
+
+export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
+  return test.step(`Creating Input Data from JSON file`, async () => {
+    console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 2)}/`);
+    const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
+    const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
+    const nhsNumbers: string[] = parsedData.nhsNumbers;
+    return [parsedData.validations, inputParticipantRecord, nhsNumbers, testFilesPath];
+  });
+}
+
