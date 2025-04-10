@@ -5,6 +5,18 @@ resource "azurerm_resource_group" "rg_vnet" {
   location = each.key
 }
 
+module "policy_assignment" {
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/policy-assignment"
+
+  name                       = var.name
+  enforce                    = var.enforce
+  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  resource_group_id          = azurerm_resource_group.rg_vnet.id
+  policy_definition_id       = var.policy_definition_id
+
+}
+
 resource "azurerm_resource_group" "rg_private_endpoints" {
   for_each = var.features.private_endpoints_enabled ? var.regions : {}
 
