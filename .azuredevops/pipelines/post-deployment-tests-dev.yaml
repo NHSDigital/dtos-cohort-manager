@@ -14,7 +14,10 @@ resources:
 
 variables:
 - group: DEV_automation_testing_pipeline
-  system.debug: true
+
+# Enable debug logging as a pipeline-level variable
+variables:
+  System.Debug: true
 
 parameters:
 - name: destEnvironmentShortName
