@@ -17,6 +17,7 @@ public class RetrievePdsDemographic
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+    private const string PdsParticipantUrlFormat = "{0}/{1}";
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
@@ -44,7 +45,7 @@ public class RetrievePdsDemographic
 
         try
         {
-            var url = $"{_config.RetrievePdsParticipantURL}/{nhsNumber}";
+            var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
 
             var headers = new Dictionary<string, string>()
             {
