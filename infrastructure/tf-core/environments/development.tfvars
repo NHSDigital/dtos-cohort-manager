@@ -1193,7 +1193,7 @@ linux_web_app = {
       app_service_plan_key = "DefaultPlan"
       env_vars_static = {
         AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-        AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+        AUTH_CIS2_CLIENT_ID  = "7708154963.cohort-manager-ui-dev-environment.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
         AUTH_TRUST_HOST      = true
         SERVICE_NAME         = "Cohort Manager"
       }
