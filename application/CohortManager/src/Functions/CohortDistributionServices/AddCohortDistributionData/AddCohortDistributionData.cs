@@ -60,7 +60,7 @@ public class AddCohortDistributionDataFunction
 
     private async Task<bool> InsertCohortDistributionData(CohortDistributionParticipant cohortDistributionParticipant)
     {
-        var cohortDistributionParticipantToAdd = cohortDistributionParticipant.ToCohortDistributionParticipant();
+        var cohortDistributionParticipantToAdd = cohortDistributionParticipant.ToCohortDistribution();
         var isAdded = await _cohortDistributionDataService.Add(cohortDistributionParticipantToAdd);
 
         return isAdded;

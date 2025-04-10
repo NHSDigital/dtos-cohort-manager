@@ -1,21 +1,33 @@
-namespace Common;
+namespace NHS.CohortManager.CohortDistributionService;
 
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
+using Model.Enums;
+using Common;
+using Microsoft.Extensions.Options;
 
 public class CohortDistributionHelper : ICohortDistributionHelper
 {
     private readonly ICallFunction _callFunction;
     private readonly ILogger<CohortDistributionHelper> _logger;
-    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger)
+    private readonly CreateCohortDistributionConfig _config;
+
+    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config)
     {
         _callFunction = callFunction;
         _logger = logger;
+        _config = config.Value;
     }
 
+    /// <summary>
+    /// Calls retrieve participant data which constructs a CohortDistributionParticipant
+    /// based on the data from the Participant Management and Demographic tables.
+    /// </summary>
+    /// <returns>
+    /// CohortDistributionParticipant, or null if there were any exceptions during execution.
+    /// </returns>
     public async Task<CohortDistributionParticipant?> RetrieveParticipantDataAsync(CreateCohortDistributionRequestBody cohortDistributionRequestBody)
     {
         var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
@@ -25,7 +37,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         };
 
         var requestBody = JsonSerializer.Serialize(retrieveParticipantRequestBody);
-        var response = await GetResponseAsync(requestBody, Environment.GetEnvironmentVariable("RetrieveParticipantDataURL"));
+        var response = await GetResponseAsync(requestBody, _config.RetrieveParticipantDataURL);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -47,7 +59,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         var json = JsonSerializer.Serialize(allocationConfigRequestBody);
 
-        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("AllocateScreeningProviderURL"));
+        var response = await GetResponseAsync(json, _config.AllocateScreeningProviderURL);
 
         if (!string.IsNullOrEmpty(response))
         {
@@ -57,18 +69,27 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
     }
 
-    public async Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData)
+    /// <summary>
+    /// Calls the Transform Data Service and returns the transformed participant
+    /// </summary>
+    /// <returns>
+    /// The transformed CohortDistributionParticipant, or null if there were any exceptions during execution.
+    /// </returns>
+    public async Task<CohortDistributionParticipant?> TransformParticipantAsync(string serviceProvider,
+                                                                            CohortDistributionParticipant participantData,
+                                                                            CohortDistributionParticipant existingParticipant)
     {
         var transformDataRequestBody = new TransformDataRequestBody()
         {
             Participant = participantData,
             ServiceProvider = serviceProvider,
+            ExistingParticipant = existingParticipant.ToCohortDistribution()
         };
 
         var json = JsonSerializer.Serialize(transformDataRequestBody);
 
         _logger.LogInformation("Called transform data service");
-        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("TransformDataServiceURL"));
+        var response = await GetResponseAsync(json, _config.TransformDataServiceURL);
         if (!string.IsNullOrEmpty(response))
         {
             return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
@@ -76,19 +97,28 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         return null;
     }
 
-    public async Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string nhsNumber, string FileName, CohortDistributionParticipant cohortDistributionParticipant)
+    public async Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string fileName,
+                                                                                    CohortDistributionParticipant requestParticipant,
+                                                                                    CohortDistributionParticipant existingParticipant)
     {
-        var lookupValidationRequestBody = new ValidateCohortDistributionRecordBody()
+        var request = new LookupValidationRequestBody
         {
-            NhsNumber = nhsNumber,
-            FileName = FileName,
-            CohortDistributionParticipant = cohortDistributionParticipant,
+            NewParticipant = new Participant(requestParticipant),
+            ExistingParticipant = new Participant(existingParticipant),
+            FileName = fileName,
+            RulesType = RulesType.CohortDistribution
         };
-        var json = JsonSerializer.Serialize(lookupValidationRequestBody);
+
+        var json = JsonSerializer.Serialize(request);
 
         _logger.LogInformation("Called cohort validation service");
-        var response = await GetResponseAsync(json, Environment.GetEnvironmentVariable("ValidateCohortDistributionRecordURL"));
-        return JsonSerializer.Deserialize<ValidationExceptionLog>(response);
+        var response = await GetResponseAsync(json, _config.LookupValidationURL);
+
+        if (!string.IsNullOrEmpty(response))
+        {
+            return JsonSerializer.Deserialize<ValidationExceptionLog>(response);
+        }
+        return null;
     }
 
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)

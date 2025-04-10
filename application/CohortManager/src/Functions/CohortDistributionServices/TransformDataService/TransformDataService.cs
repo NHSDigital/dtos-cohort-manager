@@ -4,7 +4,7 @@
 /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
 /// <returns>The transformed participant</returns>
 
-namespace NHS.CohortManager.CohortDistribution;
+namespace NHS.CohortManager.CohortDistributionService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -72,25 +72,22 @@ public class TransformDataService
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS Number couldn't be parsed to long");
             }
 
-            var existingParticipantsList = await _cohortDistributionClient.GetByFilter(x => x.NHSNumber == nhsNumberLong);
-            var lastParticipant = existingParticipantsList.OrderByDescending(x => x.CohortDistributionId).FirstOrDefault();
-
             // Character transformation
             var transformString = new TransformString(_exceptionHandler);
             participant = await transformString.TransformStringFields(participant);
 
             // Address transformation
-            participant = TransformAddress(lastParticipant, participant);
+            participant = TransformAddress(requestBody.ExistingParticipant, participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, lastParticipant);
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
 
 
-            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
+            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
             {
                 var response = JsonSerializer.Serialize(participant);
