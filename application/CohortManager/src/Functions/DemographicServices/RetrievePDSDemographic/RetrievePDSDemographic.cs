@@ -16,19 +16,19 @@ public class RetrievePdsDemographic
     private readonly ICreateResponse _createResponse;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly RetrievePDSDemographicConfig _config;
-    private readonly IFhirParserHelper _fhirParserHelper;
+    private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
         ICreateResponse createResponse,
         IHttpClientFunction httpClientFunction,
-        IFhirParserHelper fhirParserHelper,
+        IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _httpClientFunction = httpClientFunction;
-        _fhirParserHelper = fhirParserHelper;
+        _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
     }
 

@@ -12,14 +12,14 @@ using Model.Enums;
 [TestClass]
 public class FhirParserHelperTests
 {
-    private readonly Mock<ILogger<FhirParserHelper>> _logger = new();
-    private readonly FhirParserHelper _fhirParserHelper;
+    private readonly Mock<ILogger<FhirPatientDemographicMapper>> _logger = new();
+    private readonly FhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly Mock<HttpRequestData> _request;
     private readonly Mock<FunctionContext> _context = new();
 
     public FhirParserHelperTests()
     {
-        _fhirParserHelper = new FhirParserHelper(_logger.Object);
+        _fhirPatientDemographicMapper = new FhirPatientDemographicMapper(_logger.Object);
 
         _request = new Mock<HttpRequestData>(_context.Object);
 
@@ -100,7 +100,7 @@ public class FhirParserHelperTests
         };
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsInstanceOfType(result, typeof(PDSDemographic));
@@ -167,7 +167,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-sensitive");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);
@@ -204,7 +204,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-minimal-data");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);
@@ -255,7 +255,7 @@ public class FhirParserHelperTests
         var json = string.Empty;
 
         // Act & Assert
-        Assert.ThrowsException<FormatException>(() => _fhirParserHelper.ParseFhirJson(json));
+        Assert.ThrowsException<FormatException>(() => _fhirPatientDemographicMapper.ParseFhirJson(json));
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),
@@ -270,7 +270,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-multiple-given-names");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.AreEqual("Jane", result.FirstName);
@@ -284,7 +284,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-previous-name");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.AreEqual("Smith", result.FamilyName);
@@ -298,7 +298,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-mobile-number");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.AreEqual("07700900123", result.MobileNumber);
@@ -310,17 +310,17 @@ public class FhirParserHelperTests
     {
         // Test for Male
         var maleJson = LoadTestJson("patient-male");
-        var maleResult = _fhirParserHelper.ParseFhirJson(maleJson);
+        var maleResult = _fhirPatientDemographicMapper.ParseFhirJson(maleJson);
         Assert.AreEqual(Gender.Male, maleResult.Gender);
 
         // Test for Other
         var otherJson = LoadTestJson("patient-other");
-        var otherResult = _fhirParserHelper.ParseFhirJson(otherJson);
+        var otherResult = _fhirPatientDemographicMapper.ParseFhirJson(otherJson);
         Assert.AreEqual(Gender.NotSpecified, otherResult.Gender);
 
         // Test for Unknown
         var unknownJson = LoadTestJson("patient-unknown");
-        var unknownResult = _fhirParserHelper.ParseFhirJson(unknownJson);
+        var unknownResult = _fhirPatientDemographicMapper.ParseFhirJson(unknownJson);
         Assert.AreEqual(Gender.NotKnown, unknownResult.Gender);
     }
 
@@ -331,7 +331,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-non-deceased");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNull(result.DateOfDeath);
@@ -345,7 +345,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-informal-death");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.AreEqual(Status.Informal, result.DeathStatus);
@@ -358,7 +358,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-minimal");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert - Verify all optional fields are null
         Assert.IsNotNull(result);
@@ -386,7 +386,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-language-no-interpreter");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.AreEqual("French", result.PreferredLanguage);
@@ -400,7 +400,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-interpreter-no-language");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNull(result.PreferredLanguage);
@@ -411,7 +411,7 @@ public class FhirParserHelperTests
     public void FhirParser_NullPatient_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.ThrowsException<ArgumentNullException>(() => _fhirParserHelper.MapPatientToPDSDemographic(null));
+        Assert.ThrowsException<ArgumentNullException>(() => _fhirPatientDemographicMapper.MapPatientToPDSDemographic(null));
     }
 
     [TestMethod]
@@ -421,7 +421,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-removal-info");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);
@@ -437,7 +437,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-incomplete-removal-info");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);
@@ -453,7 +453,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-no-end-date");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);
@@ -469,7 +469,7 @@ public class FhirParserHelperTests
         string json = LoadTestJson("patient-with-display-only");
 
         // Act
-        var result = _fhirParserHelper.ParseFhirJson(json);
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
         Assert.IsNotNull(result);

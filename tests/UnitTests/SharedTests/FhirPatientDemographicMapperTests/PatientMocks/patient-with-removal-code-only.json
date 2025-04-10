@@ -29,7 +29,6 @@
               {
                 "system": "https://fhir.nhs.uk/CodeSystem/PDS-RemovalReasonExitCode",
                 "code": "SCT"
-                /* No display value provided - should fall back to code */
               }
             ]
           }

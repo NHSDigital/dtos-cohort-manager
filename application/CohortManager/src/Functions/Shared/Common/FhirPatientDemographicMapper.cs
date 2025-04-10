@@ -9,11 +9,11 @@ using Model.Enums;
 using System;
 using System.Linq;
 
-public class FhirParserHelper : IFhirParserHelper
+public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
-    private readonly ILogger<FhirParserHelper> _logger;
+    private readonly ILogger<FhirPatientDemographicMapper> _logger;
 
-    public FhirParserHelper(ILogger<FhirParserHelper> logger)
+    public FhirPatientDemographicMapper(ILogger<FhirPatientDemographicMapper> logger)
     {
         _logger = logger;
     }

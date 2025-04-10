@@ -3,7 +3,7 @@ namespace Common.Interfaces;
 using Hl7.Fhir.Model;
 using Model;
 
-public interface IFhirParserHelper
+public interface IFhirPatientDemographicMapper
 {
     /// <summary>
     /// Parses FHIR JSON and converts it to a Demographic object

@@ -16,7 +16,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 {
     private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _config = new();
-    private static readonly Mock<IFhirParserHelper> _fhirParserHelperMock = new();
+    private static readonly Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapperMock = new();
     private readonly string _validNhsNumber = "3112728165";
 
     public RetrievePdsDemographicTests() : base((conn, logger, transaction, command, response) =>
@@ -24,7 +24,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         logger,
         response,
         _httpClientFunction.Object,
-        _fhirParserHelperMock.Object,
+        _fhirPatientDemographicMapperMock.Object,
         _config.Object))
     {
         CreateHttpResponseMock();
@@ -41,13 +41,13 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _httpClientFunction.Reset();
-        _fhirParserHelperMock.Reset();
+        _fhirPatientDemographicMapperMock.Reset();
 
         _service = new RetrievePdsDemographic(
             _loggerMock.Object,
             _createResponseMock.Object,
             _httpClientFunction.Object,
-            _fhirParserHelperMock.Object,
+            _fhirPatientDemographicMapperMock.Object,
             _config.Object);
 
         _request = SetupRequest(string.Empty);
@@ -76,14 +76,14 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
         _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-        _fhirParserHelperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PDSDemographic());
+        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PDSDemographic());
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
         _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
-        _fhirParserHelperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Once());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Once());
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
@@ -99,7 +99,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 
         // Assert
         _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
-        _fhirParserHelperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
 
@@ -115,7 +115,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 
         // Assert
         _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
-        _fhirParserHelperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
@@ -131,7 +131,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 
         // Assert
         _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
-        _fhirParserHelperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
