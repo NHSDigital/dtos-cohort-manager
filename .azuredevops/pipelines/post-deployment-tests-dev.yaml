@@ -9,12 +9,11 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: 27d165dfad235002959585ca0460659e8e0fb2c3
+    ref: 4b04a75d98edcabce45252381309bae624711917
     endpoint: NHSDigital
 
 variables:
 - group: DEV_automation_testing_pipeline
-  System.Debug: true
 
 parameters:
 - name: destEnvironmentShortName
