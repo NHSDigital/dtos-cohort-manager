@@ -38,7 +38,9 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         var demographic = new PDSDemographic();
 
         if (patient == null)
+        {
             throw new ArgumentNullException(nameof(patient));
+        }
 
         // Basic Identifiers
         demographic.NhsNumber = patient.Id; // We set to PDS NHS even if different from request
@@ -134,7 +136,10 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     {
         // Find the home address or first available address
         var homeAddress = GetHomeAddress(patient);
-        if (homeAddress == null) return;
+        if (homeAddress == null)
+        {
+            return;
+        }
 
         // Map all address components
         MapAddressComponents(homeAddress, demographic);
@@ -232,7 +237,10 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
     private static void MapContactInformation(Patient patient, Demographic demographic)
     {
-        if (patient.Telecom == null) return;
+        if (patient.Telecom == null)
+        {
+            return;
+        }
 
         // Home phone
         var homePhone = patient.Telecom.FirstOrDefault(t =>
@@ -357,9 +365,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
             if (confidentialityCoding != null)
             {
-
                 demographic.ConfidentialityCode = confidentialityCoding.Code;
-
             }
         }
     }
