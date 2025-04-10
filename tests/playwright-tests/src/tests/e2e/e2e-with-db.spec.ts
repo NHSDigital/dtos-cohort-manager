@@ -56,7 +56,7 @@ test.describe('Smoke Tests', () => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain records that will be processed: ${nhsNumbers}  `, async () => {
-      await cleanupDatabase(nhsNumbers); //TODO re-think try remove-participant api instead
+      await cleanupDatabase(nhsNumbers);
     });
 
     await test.step(`When participants are processed via storage`, async () => {
@@ -67,5 +67,7 @@ test.describe('Smoke Tests', () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
   });
-})
+
+});
+
 
