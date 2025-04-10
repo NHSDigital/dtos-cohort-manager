@@ -37,12 +37,7 @@ public class RetrievePdsDemographic
     {
         var nhsNumber = req.Query["nhsNumber"];
 
-        if (string.IsNullOrEmpty(nhsNumber))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No NHS number provided.");
-        }
-
-        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+        if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number provided.");
         }
