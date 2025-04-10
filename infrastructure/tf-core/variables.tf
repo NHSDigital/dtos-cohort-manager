@@ -236,17 +236,6 @@ variable "network_security_group_rules" {
   })))
 }
 
-variable "policy_assignment" {
-  description = "Configuration for the policy assignment"
-  type = object({
-    enforce              = optional(bool, true)
-    name                 = optional(string, "")
-    resource_group_id    = optional(string, "")
-    policy_definition_id = optional(string, "")
-  })
-}
-
-
 /*
   application_rule_collection = [
     {

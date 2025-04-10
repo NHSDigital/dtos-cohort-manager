@@ -1166,7 +1166,6 @@ policy_assignment = {
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   resource_group_id          = azurerm_resource_group.rg_vnet.id
   policy_definition_id       = "/providers/microsoft.management/managementgroups/lz-root/providers/microsoft.authorization/policydefinitions/deploy-diagnostics-nic"
-  metric_enabled             = true
 }
 
 sqlserver = {
