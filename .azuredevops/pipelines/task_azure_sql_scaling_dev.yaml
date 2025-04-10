@@ -13,6 +13,7 @@ schedules:
   branches:
     include:
     - main
+    - feat/dtoss-8108-azure-sql-scaling
   always: true
 
 - cron: "0 17 * * *" # Run at 5:00 PM UTC
@@ -20,6 +21,7 @@ schedules:
   branches:
     include:
     - main
+    - feat/dtoss-8108-azure-sql-scaling
   always: true
 
 resources:
