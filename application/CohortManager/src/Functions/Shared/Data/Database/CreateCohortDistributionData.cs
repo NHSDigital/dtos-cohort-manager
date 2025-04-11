@@ -188,6 +188,11 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var recordToReturn = res.OrderBy(x => x.CreatedDateTime).FirstOrDefault();
 
+        if(recordToReturn == null)
+        {
+            return null;
+        }
+
         return new CohortRequestAudit()
         {
             RequestId = recordToReturn.RequestId,
