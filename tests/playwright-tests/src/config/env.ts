@@ -20,4 +20,11 @@ export const config = {
   apiTestFilesPath: process.env.API_TEST_FILES_PATH ?? 'api/testFiles',
   endpointRetrieveCohortDistributionData: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '',
   endpointRetrieveCohortDistributionDataRowCount: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA_ROW_COUNT ?? 100,
+  apiRetry: process.env.SQL_RETRIES ?? 1,
+  apiWaitTime: process.env.SQL_WAIT_TIME ?? 2000,
+  endpointCohortDistributionDataService: process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '',
+  endpointParticipantManagementDataService: process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '',
+  endpointExceptionManagementDataService: process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '',
 };
+
+

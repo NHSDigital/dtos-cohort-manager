@@ -7,6 +7,7 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using Model.DTO;
 
 /// <summary>
@@ -51,10 +52,9 @@ public class RetrieveCohortDistributionData
             if (!string.IsNullOrEmpty(requestId))
             {
                 var audit = await _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                Guid requestIdFromDatabase = audit.RequestId;
-
-                if (requestId != null)
+                if (audit != null)
                 {
+                    Guid requestIdFromDatabase = audit.RequestId;
                     cohortDistributionParticipants = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestIdFromDatabase);
                 }
             }
