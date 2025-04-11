@@ -36,7 +36,7 @@ try
 
         // Get MESH public certificates (CA chain)
         var secretClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-        string base64Cert = secretClient.GetSecret(config.MeshCertName).Value.ToString();
+        string base64Cert = secretClient.GetSecret(config.MeshCertName).Value.Value;
         meshCerts = CertificateHelper.GetCertificatesFromString(base64Cert);
     }
     // Local
@@ -55,7 +55,10 @@ try
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services
-            .AddMeshClient(_ => _.MeshApiBaseUrl = config.MeshApiBaseUrl)
+            .AddMeshClient(_ => {
+                _.MeshApiBaseUrl = config.MeshApiBaseUrl;
+                _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
+            })
             .AddMailbox(config.BSSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
                 Password = config.MeshPassword,
