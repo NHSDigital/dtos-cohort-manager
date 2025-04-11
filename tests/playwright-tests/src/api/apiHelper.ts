@@ -20,17 +20,10 @@ let response: APIResponse;
 
 
 export async function cleanupDatabase(numbers: string[], request: any): Promise<boolean> {
-
-
   await cleanCohortDistributionDataService(numbers, request);
   await cleanParticipantManagementDataService(numbers, request);
   await cleanExceptionManagementDataService(numbers, request);
-
-
-
-
   return true
-
 }
 
 
@@ -67,7 +60,6 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
   }
   return status;
 }
-
 
 async function cleanCohortDistributionDataService(numbers: string[], request: any): Promise<void> {
   const keys: number[] = [];
@@ -156,7 +148,6 @@ async function fetchApiResponse(endpoint: string, request: any): Promise<APIResp
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
-
 
 function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
   let nhsNumber: any;
