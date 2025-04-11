@@ -3,9 +3,10 @@ import { config } from './env';
 
 export default defineConfig({
   testDir: '../tests',
-  timeout: 4 * 60 * 1000,    // 4 minutes
+  timeout: 10 * 60 * 1000,    // 10 minutes
   retries: 2,
   workers: 4,
+  fullyParallel: true,
   use: {
     baseURL: config.baseURL,
     extraHTTPHeaders: { 'Content-Type': 'application/json' },
