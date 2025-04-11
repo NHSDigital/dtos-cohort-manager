@@ -17,7 +17,7 @@ module "policy_assignment" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/policy-assignment"
 
-  name                       = "Deploy Diagnostic Settings for Network Interfaces to Log Analytics workspace [${azurerm_resource_group.rg_vnet[each.key].name}]"
+  name                       = "deploy diagnostic settings for network interfaces to log analytics workspace [${azurerm_resource_group.rg_vnet[each.key].name}]"
   log_analytics_workspace_id = module.log_analytics_workspace_audit[local.primary_region].id
   resource_group_id          = azurerm_resource_group.rg_vnet[each.key].id
   policy_definition_id       = "/providers/microsoft.management/managementgroups/lz-root/providers/microsoft.authorization/policydefinitions/deploy-diagnostics-nic"
