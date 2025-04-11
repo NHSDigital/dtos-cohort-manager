@@ -1,5 +1,4 @@
 ---
-
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
@@ -9,7 +8,7 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: 30a41aa3ed6be8dbb6fad449d5881ba66a82ca55
+    ref: d2ab994de8df5cff5e759047c580ba4937d489e3
     endpoint: NHSDigital
 
 variables:
@@ -36,11 +35,7 @@ stages:
     displayName: Run post-deployment smoke tests
     pool:
       name: private-pool-dev-uks
-    variables:
-      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
-      AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
-      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
+
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
       parameters:
