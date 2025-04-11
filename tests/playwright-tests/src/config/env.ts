@@ -2,11 +2,13 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const env = process.env.NODE_ENV ?? 'dev';
-dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
+if(env == `ci`){}else{
+  dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
+}
 
 export const config = {
   baseURL: process.env.BASE_URL ?? '',
-  azureConnectionString: process.env.AZURITE_CONNECTION_STRING || '',
+  azureConnectionString: process.env.CAASFOLDER_STORAGE_CONNECTION_STRING || '',
   sqlConfig: {
     host: process.env.SQL_HOST ?? '',
     user: process.env.SQL_USER ?? '',
