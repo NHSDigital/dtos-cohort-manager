@@ -18,7 +18,7 @@ const IGNORE_VALIDATION_KEY = 'apiEndpoint';
 let waitTime = initialWaitTime;
 let response: APIResponse;
 
-export async function validateApiResponse(validationJson: any, request: any) {
+export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
 
   for (let attempt = 1; attempt <= apiRetry; attempt++) {
@@ -48,6 +48,7 @@ export async function validateApiResponse(validationJson: any, request: any) {
       await delayRetry();
     }
   }
+  return status;
 }
 
 async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
