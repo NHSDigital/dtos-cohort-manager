@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsEligible",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsIneligible", "screeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj", "{323B466B-D2DB-4774-993A-61B2A66715E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemsSubscriptionDataService", "screeningDataServices\markParticipantAsIneligible\NemsSubscriptionDataService.csproj", "{2F0F1457-27B4-4EBC-92CF-8FBA5252515E}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateParticipant", "screeningDataServices\createParticipant\CreateParticipant.csproj", "{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServices", "ParticipantManagementServices", "{E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}"
