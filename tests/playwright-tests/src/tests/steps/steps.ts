@@ -4,8 +4,17 @@ import { InputData } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
-import { validateApiResponse } from "../../api/apiHelper";
+import { cleanupDatabase, validateApiResponse } from "../../api/apiHelper";
 
+
+export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
+  return test.step(`Cleanup database`, async () => {
+    const status = await cleanupDatabase(numbers, request);
+    if(!status){
+      throw new Error(`❌ Cleanup failed after ${config.sqlRetry} attempts, please checks logs for more details`);
+    }
+  });
+}
 
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {
