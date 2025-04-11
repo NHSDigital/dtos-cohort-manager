@@ -1,10 +1,18 @@
 import { test } from '@playwright/test';
 import { cleanupDatabase, validateSqlData } from '../../database/sqlVerifier';
 import { getTestData, processFileViaStorage, validateSqlDatabase } from '../steps/steps'
+import { config } from "../../config/env";
+
 
 
 
 test.describe('Smoke Tests', () => {
+  test.only('01 @smoke Verify API', async ({ request }, testInfo) => {
+  const response = await request.get(`${config.endpointCohortDistributionDataService}/api/CohortDistributionDataService/`);
+  console.log('Response:', response.status());
+  const responseBody = await response.json();
+  console.log('Response Body:', responseBody);
+  })
   test('01 @smoke @DTOSS-6256 Verify file upload and cohort distribution process for ADD', async ({ request }, testInfo) => {
     console.info(`Running test: ${testInfo.title}`);
 

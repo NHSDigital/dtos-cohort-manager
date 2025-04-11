@@ -1,7 +1,12 @@
 ---
 
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
-trigger: none
+trigger:
+ PUSH:
+  branches:
+    include:
+    - test/DTOS-8371-yaml-changes
+
 pr: none
 
 resources:
@@ -9,7 +14,7 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: 30a41aa3ed6be8dbb6fad449d5881ba66a82ca55
+    ref: 5132bd9c2d76cef67059d3da5dcbf4fe1942368d
     endpoint: NHSDigital
 
 variables:
@@ -46,5 +51,5 @@ stages:
       parameters:
         serviceConnection: sc-cohort-manager-dev
         testProjectDirectory: 'tests/playwright-tests'
-        testfileDirectory: 'src/tests/e2e/testFiles'
         testProjectName: 'tests'
+        testProjectType: 'playwright'
