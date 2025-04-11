@@ -1,0 +1,15 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "extension": [
+    {
+      "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSCommunication",
+      "extension": [
+        {
+          "url": "interpreterRequired",
+          "valueBoolean": true
+        }
+      ]
+    }
+  ]
+}
