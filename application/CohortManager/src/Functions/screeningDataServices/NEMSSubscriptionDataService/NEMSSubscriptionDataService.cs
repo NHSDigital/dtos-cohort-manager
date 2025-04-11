@@ -1,4 +1,4 @@
-namespace NEMSSubscriptionDataService;
+namespace NemsSubscriptionDataService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -8,25 +8,25 @@ using Common;
 using DataServices.Core;
 using Model;
 
-public class NEMSSubscriptionDataService
+public class NemsSubscriptionDataService
 {
-    private readonly ILogger<NEMSSubscriptionDataService> _logger;
+    private readonly ILogger<NemsSubscriptionDataService> _logger;
     private readonly IRequestHandler<ExceptionManagement> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public NEMSSubscriptionDataService(ILogger<NEMSSubscriptionDataService> logger, IRequestHandler<ExceptionManagement> requestHandler, ICreateResponse createResponse)
+    public NemsSubscriptionDataService(ILogger<NemsSubscriptionDataService> logger, IRequestHandler<ExceptionManagement> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
         _createResponse = createResponse;
     }
 
-    [Function("NEMSSubscriptionDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "NEMSSubscriptionDataService/{*key}")] HttpRequestData req, string? key)
+    [Function("NemsSubscriptionDataService")]
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "NemsSubscriptionDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(NEMSSubscription));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(NemsSubscription));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }
