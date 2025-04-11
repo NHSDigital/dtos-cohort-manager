@@ -66,7 +66,7 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 - Submit pull requests with your improvements
 - Document any new test utilities or approaches
 
-## Reusable Components
+## Reusable Components (Steps)
 
 ### File Processor
 
@@ -83,7 +83,14 @@ All test files should be placed under `playwright-tests/tests/e2e/testfiles`
 
 ### Validation Engine
 
-The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries; below are some examples of currently supported formats
+```ts
+
+// Example usage
+async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any);
+
+```
+
+The validation engine accepts a JSON configuration to validate from API response; below are some examples of currently supported formats, more complex scenarios will be added in future
 
 - Example Usage 1
 
@@ -93,20 +100,38 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
   "validations": [
     {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
-        "columnName": "NHS_Number",
-        "columnValue": "1111110662"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 1111110662,
+        "PrimaryCareProvider": "E85121",
+        "NamePrefix": "MR",
+        "GivenName": "NewTest 1",
+        "OtherGivenName": "Test",
+        "FamilyName": "Adani 1",
+        "PreviousFamilyName": "Tester 1",
+        "AddressLine5": "United Kingdom",
+        "PostCode": "AB43 8FJ",
+        "CurrentPosting": "CH",
+        "EmailAddressHome": "bturneux0@soup.io",
+        "PreferredLanguage": "en",
+        "InterpreterRequired": 0
       }
     },
     {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
-        "columnName": "NHS_Number",
-        "columnValue": "2222211794"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794,
+        "PrimaryCareProvider": "E85121"
       }
     }
   ]
 }
+
 
 ```
 
@@ -118,15 +143,15 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
   "validations": [
     {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
-        "columnName": "NHS_Number",
-        "columnValue": "2312514176",
-        "columnName2": "GIVEN_NAME",
-        "columnValue2": "AMENDEDNewTest1"
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "2612314172",
+        "RuleId": 36,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     }
   ]
 }
+
 
 
 ```
@@ -139,59 +164,13 @@ The validation engine accepts a JSON configuration to build dynamic, SQL-injecti
   "validations": [
     {
       "validations": {
-        "tableName": "PARTICIPANT_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612314172",
-        "columnName2": "EXCEPTION_FLAG",
-        "columnValue2": "1"
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 2612314172,
+        "ExceptionFlag":1
       }
     }
   ]
 }
 
-```
-
-- Example Usage 4
-
-```json
-
-{
-  "validations": [
-    {
-      "validations": {
-        "tableName": "EXCEPTION_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612314172",
-        "columnName2": "RULE_ID",
-        "columnValue2": "36",
-        "columnName3": "RULE_DESCRIPTION",
-        "columnValue3": "Invalid primary care provider GP practice code"
-      }
-    }
-  ]
-}
-
-
-```
-
-- Example Usage 5
-
-```json
-
-{
-  "validations": [
-    {
-      "validations": {
-        "tableName": "EXCEPTION_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612514171",
-        "columnName2": "RULE_ID",
-        "columnValue2": "17",
-        "columnName3": "RULE_DESCRIPTION",
-        "columnValue3": "Date of birth invalid"
-      }
-    }
-  ]
-}
 
 ```
