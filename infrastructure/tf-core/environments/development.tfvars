@@ -1160,14 +1160,6 @@ key_vault = {
   sku_name          = "standard"
 }
 
-policy_assignment = {
-  name                       = "Deploy Diagnostic Settings for Network Interfaces to Log Analytics workspace"
-  enforce                    = var.enforce
-  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  resource_group_id          = azurerm_resource_group.rg_vnet.id
-  policy_definition_id       = "/providers/microsoft.management/managementgroups/lz-root/providers/microsoft.authorization/policydefinitions/deploy-diagnostics-nic"
-}
-
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
