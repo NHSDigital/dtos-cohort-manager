@@ -18,6 +18,16 @@ const IGNORE_VALIDATION_KEY = 'apiEndpoint';
 let waitTime = initialWaitTime;
 let response: APIResponse;
 
+
+export async function cleanupDatabase(numbers: string[], request: any): Promise<boolean> {
+  await cleanCohortDistributionDataService(numbers, request);
+  await cleanParticipantManagementDataService(numbers, request);
+  await cleanExceptionManagementDataService(numbers, request);
+  return true
+}
+
+
+
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
 
@@ -49,6 +59,83 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
     }
   }
   return status;
+}
+
+async function cleanCohortDistributionDataService(numbers: string[], request: any): Promise<void> {
+  const keys: number[] = [];
+  const responseCohort = await fetchApiResponse(`api/${COHORT_DISTRIBUTION_SERVICE}`, request);
+  expect(responseCohort.ok()).toBeTruthy();
+  try {
+    const responseBodyCohort = await responseCohort.json();
+    expect(Array.isArray(responseBodyCohort)).toBeTruthy();
+
+    for (const item of responseBodyCohort) {
+      if (numbers.includes(String(item[NHS_NUMBER_KEY]))) {
+        keys.push(item.CohortDistributionId);
+      }
+    }
+    console.info(`Keys to delete using ${COHORT_DISTRIBUTION_SERVICE} : ${keys}`);
+    for (const key of keys) {
+      const response = await request.delete(`${endpointCohortDistributionDataService}api/${COHORT_DISTRIBUTION_SERVICE}/${key}`);
+      expect(response.ok()).toBeTruthy();
+    }
+
+  } catch (error) {
+    console.info(`No response body received  ${COHORT_DISTRIBUTION_SERVICE}:`, error);
+  }
+
+
+}
+
+async function cleanParticipantManagementDataService(numbers: string[], request: any): Promise<void> {
+  const keys: number[] = [];
+  const responseParticipant = await fetchApiResponse(`api/${PARTICIPANT_MANAGEMENT_SERVICE}`, request);
+  expect(responseParticipant.ok()).toBeTruthy();
+  try {
+    const responseBodyParticipant = await responseParticipant.json();
+    expect(Array.isArray(responseBodyParticipant)).toBeTruthy();
+
+    for (const item of responseBodyParticipant) {
+      if (numbers.includes(String(item[NHS_NUMBER_KEY]))) {
+        keys.push(item.ParticipantId);
+      }
+    }
+    console.info(`Keys to delete using ${PARTICIPANT_MANAGEMENT_SERVICE} : ${keys}`);
+    for (const key of keys) {
+      const response = await request.delete(`${endpointParticipantManagementDataService}api/${PARTICIPANT_MANAGEMENT_SERVICE}/${key}`);
+      expect(response.ok()).toBeTruthy();
+    }
+
+  } catch (error) {
+    console.error(`No response body received ${PARTICIPANT_MANAGEMENT_SERVICE}:`, error);
+  }
+
+}
+
+async function cleanExceptionManagementDataService(numbers: string[], request: any): Promise<void> {
+  let keys: number[] = [];
+  const responseException = await fetchApiResponse(`api/${EXCEPTION_MANAGEMENT_SERVICE}`, request);
+  expect(responseException.ok()).toBeTruthy();
+  try {
+    const responseBodyException = await responseException.json();
+    expect(Array.isArray(responseBodyException)).toBeTruthy();
+
+    for (const item of responseBodyException) {
+      if (numbers.includes(String(item[NHS_NUMBER_KEY_EXCEPTION]))) {
+        keys.push(item.ExceptionId);
+      }
+    }
+    console.info(`Keys to delete using ${EXCEPTION_MANAGEMENT_SERVICE} : ${keys}`);
+    for (const key of keys) {
+      const response = await request.delete(`${endpointExceptionManagementDataService}api/${EXCEPTION_MANAGEMENT_SERVICE}/${key}`);
+      expect(response.ok()).toBeTruthy();
+    }
+
+
+  } catch (error) {
+    console.error(`No response body received ${EXCEPTION_MANAGEMENT_SERVICE}:`, error);
+
+  }
 }
 
 async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {

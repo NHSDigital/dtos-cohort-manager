@@ -1,6 +1,5 @@
 import { test } from '@playwright/test';
-import { cleanupDatabase } from '../../database/sqlVerifier'; //Explore Data Services route for cleanupDatabase
-import { getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
+import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
 
 
 
@@ -10,7 +9,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
-      await cleanupDatabase(nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumbers);
     });
 
     await test.step(`When 2 ADD participants are processed via storage`, async () => {
@@ -29,7 +28,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
     const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabase(nhsNumber);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -37,7 +36,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
     });
 
     await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request,checkInDatabase);
+      await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage`, async () => {
@@ -56,7 +55,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
     const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabase(nhsNumber);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -64,7 +63,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
     });
 
     await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request,checkInDatabase);
+      await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
@@ -87,7 +86,7 @@ test.describe.parallel('Exception @smoke Tests', () => {
     const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabase(nhsNumber);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -105,7 +104,7 @@ test.describe.parallel('Exception @smoke Tests', () => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain records that will be processed: ${nhsNumbers}  `, async () => {
-      await cleanupDatabase(nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumbers);
     });
 
     await test.step(`When participants are processed via storage`, async () => {
