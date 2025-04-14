@@ -10,6 +10,11 @@ module "acr" {
   location            = local.primary_region
 
   admin_enabled                 = var.acr.admin_enabled
+
+  log_analytics_workspace_id                  = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_acr_enabled_logs = local.monitor_diagnostic_setting_acr_enabled_logs
+  monitor_diagnostic_setting_acr_metrics      = local.monitor_diagnostic_setting_acr_metrics
+
   uai_name                      = var.acr.uai_name
   sku                           = var.acr.sku
   public_network_access_enabled = var.features.public_network_access_enabled
