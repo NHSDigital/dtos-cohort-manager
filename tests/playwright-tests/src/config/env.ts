@@ -4,21 +4,33 @@ import * as path from 'path';
 const env = process.env.NODE_ENV ?? 'dev';
 dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
 
+const baseURL = process.env.BASE_URL ?? '';
+const azureConnectionString = process.env.AZURITE_LOCAL_STORAGE_CONNECTION_STRING ?? '';
+const containerName = process.env.CONTAINER_NAME ?? '';
+const e2eTestFilesPath = process.env.E2E_TEST_FILES_PATH ?? '';
+const apiRetry = Number(process.env.API_RETRIES ?? 1);
+const apiWaitTime = Number(process.env.API_WAIT_TIME ?? 2000);
+const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '';
+const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
+const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
+
 export const config = {
-  baseURL: process.env.BASE_URL ?? '',
-  azureConnectionString: process.env.AZURITE_LOCAL_STORAGE_CONNECTION_STRING ?? '',
-  containerName: process.env.CONTAINER_NAME ?? '',
-  e2eTestFilesPath: process.env.E2E_TEST_FILES_PATH ?? 'e2e/testFiles',
-  apiTestFilesPath: process.env.API_TEST_FILES_PATH ?? 'api/testFiles',
-  endpointRetrieveCohortDistributionData: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '',
-  endpointRetrieveCohortDistributionDataRowCount: process.env.ENDPOINT_RETRIEVE_COHORT_DISTRIBUTION_DATA_ROW_COUNT ?? 100,
-  apiRetry: process.env.API_RETRIES ?? 1,
-  apiWaitTime: process.env.API_WAIT_TIME ?? 2000,
-  endpointCohortDistributionDataService: process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '',
-  endpointParticipantManagementDataService: process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '',
-  endpointExceptionManagementDataService: process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '',
-  endpointExternalBsSelectRetrieveCohortDistributionData: process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '',
-  endpointExternalBsSelectRetrieveCohortRequestAudit: process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '',
-};
-
-
+  baseURL,
+  azureConnectionString,
+  containerName,
+  e2eTestFilesPath,
+  apiRetry,
+  apiWaitTime,
+  endpointCohortDistributionDataService,
+  endpointParticipantManagementDataService,
+  endpointExceptionManagementDataService,
+  cohortDistributionService: 'CohortDistributionDataService',
+  participantManagementService: 'ParticipantManagementDataService',
+  exceptionManagementService: 'ExceptionManagementDataService',
+  nhsNumberKey: 'NHSNumber',
+  nhsNumberKeyException: 'NhsNumber',
+  uniqueKeyCohortDistribution: 'CohortDistributionId',
+  uniqueKeyParticipantManagement: 'ParticipantId',
+  uniqueKeyExceptionManagement: 'ExceptionId',
+  ignoreValidationKey: 'apiEndpoint'
+}
