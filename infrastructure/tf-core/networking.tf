@@ -12,6 +12,18 @@ resource "azurerm_resource_group" "rg_private_endpoints" {
   location = each.key
 }
 
+module "policy_assignment" {
+  for_each = var.features.private_endpoints_enabled ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/policy-assignment"
+
+  name                       = "deploy diagnostic settings for network interfaces to log analytics workspace [${azurerm_resource_group.rg_vnet[each.key].name}]"
+  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  resource_group_id          = azurerm_resource_group.rg_private_endpoints[each.key].id
+  policy_definition_id       = "/providers/microsoft.management/managementgroups/lz-root/providers/microsoft.authorization/policydefinitions/deploy-diagnostics-nic"
+
+}
+
 module "vnet" {
   for_each = var.regions
 

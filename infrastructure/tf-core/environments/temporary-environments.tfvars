@@ -39,7 +39,7 @@ features = {
   acr_enabled                          = false
   api_management_enabled               = false
   event_grid_enabled                   = false
-  private_endpoints_enabled            = false
+  private_endpoints_enabled            = true
   private_service_connection_is_manual = false
   public_network_access_enabled        = true
 }
