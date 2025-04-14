@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "test:data:service": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@data @service\"",
+    "test:smoke:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @api\"",
+    "test:regression:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@regression @api\"",
     "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts",
-    "setup-db": "ts-node src/sql-helper.ts",
+    "test:ut": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@ut",
+
     "lint": "eslint . --ext .ts",
     "build": "tsc -p tsconfig.json"
   },
