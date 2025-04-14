@@ -5,7 +5,7 @@ application_full_name = "cohort-manager"
 rbac_principal_name_resource_group = "dtos_team_select_temp_environments"
 
 features = {
-  private_endpoints_enabled              = false
+  private_endpoints_enabled              = true
   private_service_connection_is_manual   = false
   public_network_access_enabled          = true
   log_analytics_data_export_rule_enabled = false
