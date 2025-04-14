@@ -9,7 +9,7 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: 7dd6e83de82475570a27e172b95be8d30f488695
+    ref: b27ec9f8be6e667ee4073c8436dadb55b9fe99c7
     endpoint: NHSDigital
 
 variables:
@@ -32,16 +32,19 @@ stages:
     value: ${{ parameters.destEnvironmentShortName }}
 
   jobs:
-  - job: post_deployment_tests
-    displayName: Run post-deployment tests
+  - job: post_deployment_tests_smoke
+    displayName: Run post-deployment smoke tests
     pool:
       name: private-pool-dev-uks
     variables:
       AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.caasFileStorage: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
+      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
       AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
-
+      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
     steps:
-    - template: ../templates/steps/run-post-deployment-tests.yaml
+    - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: sc-cohort-manager-dev
+        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
+        testProjectName: 'NHS.CohortManager.SmokeTests'
+

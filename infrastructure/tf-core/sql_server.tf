@@ -49,6 +49,10 @@ module "azure_sql_server" {
   # FW Rules
   firewall_rules = var.sqlserver.fw_rules
 
+  # Backup Retention Policies
+  short_term_retention_policy = var.sqlserver.dbs.cohman.short_term_retention_policy
+  long_term_retention_policy  = var.sqlserver.dbs.cohman.long_term_retention_policy
+
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids_sql             = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-azure_sql"].id]

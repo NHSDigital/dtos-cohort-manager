@@ -1,33 +1,34 @@
 namespace NHS.CohortManager.CohortDistribution;
 
 using DataServices.Client;
-using Microsoft.Extensions.Logging;
 using Model;
+using Common;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
-    private readonly ILogger<TransformDataLookupFacade> _logger;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
-    public TransformDataLookupFacade(ILogger<TransformDataLookupFacade> logger,
-                                    IDataServiceClient<BsSelectOutCode> outcodeClient,
+    public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient)
     {
-        _logger = logger;
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
     }
 
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ValidationHelper.ParseOutcode(postcode)
+            ?? throw new TransformationException("Postcode format invalid");
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result != null;
     }
 
     public string GetBsoCode(string postcode){
-        var outcode = postcode.Substring(0, postcode.IndexOf(" "));
+        string outcode = ValidationHelper.ParseOutcode(postcode)
+            ?? throw new TransformationException("Postcode format invalid");
+
         var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result?.BSO;
@@ -44,10 +45,8 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     {
         var gpPractice = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
 
-        if (gpPractice == null)
-        {
-            return string.Empty;
-        }
+        if (gpPractice == null) return string.Empty;
+
         return gpPractice.BsoCode;
     }
 }

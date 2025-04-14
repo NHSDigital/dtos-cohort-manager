@@ -8,7 +8,9 @@ using Azure.Security.KeyVault.Certificates;
 using Azure.Identity;
 using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
-using System.Text.Json;
+using HealthChecks.Extensions;
+using Azure.Security.KeyVault.Secrets;
+using NHS.CohortManager.CaasIntegrationService;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -18,38 +20,57 @@ try
 {
     var host = new HostBuilder();
 
-    X509Certificate2 cert = null;
+    X509Certificate2 cohortManagerPrivateKey = null;
+    X509Certificate2Collection meshCerts = [];
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
 
-    if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("KeyVaultConnectionString")))
+    // Azure
+    if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
     {
+        // Get CohortManager private key
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
-        var client = new CertificateClient(vaultUri: new Uri(Environment.GetEnvironmentVariable("KeyVaultConnectionString")), credential: new DefaultAzureCredential());
-        var certificate = await client.DownloadCertificateAsync(config.MeshKeyName);
-        cert = certificate.Value;
+        var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+        var certificate = await certClient.DownloadCertificateAsync(config.MeshKeyName);
+        cohortManagerPrivateKey = certificate.Value;
+
+        // Get MESH public certificates (CA chain)
+        var secretClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+        string base64Cert = secretClient.GetSecret(config.MeshCertName).Value.Value;
+        meshCerts = CertificateHelper.GetCertificatesFromString(base64Cert);
     }
-    else if(!string.IsNullOrEmpty(config.MeshKeyName))
+    // Local
+    else
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
-        cert = new X509Certificate2(config.MeshKeyName,config.MeshKeyPassphrase);
+        cohortManagerPrivateKey = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
+
+        string certsString = File.ReadAllText(config.ServerSideCerts);
+        meshCerts = CertificateHelper.GetCertificatesFromString(certsString);
     }
 
     host.ConfigureFunctionsWebApplication();
-    host.ConfigureServices(services => {
+    host.ConfigureServices(services =>
+    {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services
-            .AddMeshClient(_ => _.MeshApiBaseUrl = config.MeshApiBaseUrl)
-            .AddMailbox(config.BSSMailBox,new NHS.MESH.Client.Configuration.MailboxConfiguration
+            .AddMeshClient(_ => {
+                _.MeshApiBaseUrl = config.MeshApiBaseUrl;
+                _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
+            })
+            .AddMailbox(config.BSSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
                 Password = config.MeshPassword,
                 SharedKey = config.MeshSharedKey,
-                Cert = cert
+                Cert = cohortManagerPrivateKey,
+                serverSideCertCollection = meshCerts
             })
             .Build();
         services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
-        services.AddTransient<IMeshToBlobTransferHandler,MeshToBlobTransferHandler>();
+        services.AddTransient<IMeshToBlobTransferHandler, MeshToBlobTransferHandler>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck("RetrieveMeshFile");
     })
     .AddExceptionHandler();
 
@@ -57,9 +78,9 @@ try
 
     await app.RunAsync();
 }
-catch(Exception ex)
+catch (Exception ex)
 {
-    logger.LogCritical(ex,"Failed to start up Function");
+    logger.LogCritical(ex, "Failed to start up Function");
 }
 
 

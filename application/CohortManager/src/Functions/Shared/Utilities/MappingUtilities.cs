@@ -14,6 +14,21 @@ public static class MappingUtilities
     }
 
     /// <summary>
+    /// Parses flags that can be Y, N, 0 or 1, such as the exception flag
+    /// </summary>
+    public static short ParseStringFlag(string flag)
+    {
+        return flag.ToUpper() switch
+        {
+            "0" => 0,
+            "1" => 1,
+            "Y" => 1,
+            "N" => 0,
+            _ => throw new ArgumentException("Invalid input")
+        };
+    }
+
+    /// <summary>
     /// Parses a date string to a nullable DateTime.
     /// Can handle partial dates.
     /// </summary>
@@ -35,9 +50,13 @@ public static class MappingUtilities
         return tempDate;
     }
 
+    /// <summary>
+    /// Returns a formatted date string given a nullable DateTime.
+    /// Formatted according to the yyyy-MM-dd hh:mm:ss format.
+    /// </summary>
     public static string? FormatDateTime(DateTime? date)
     {
-        return date?.ToString("yyyy-MM-dd hh:mm:ss");
+        return date?.ToString("yyyy-MM-dd");
     }
 
     private static string HandlePartialDates(string dateString)
@@ -54,5 +73,4 @@ public static class MappingUtilities
 
         return dateString;
     }
-
 }

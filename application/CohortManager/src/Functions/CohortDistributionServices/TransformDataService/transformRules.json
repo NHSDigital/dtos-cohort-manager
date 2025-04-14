@@ -482,7 +482,7 @@
       },
       {
         "RuleName": "03.Other.DateOfDeath.NotDea",
-        "Expression": "participant.DateOfDeath != null && participant.ReasonForRemoval != \"DEA\"",
+        "Expression": "!string.IsNullOrEmpty(participant.DateOfDeath) && participant.ReasonForRemoval != \"DEA\"",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -507,9 +507,9 @@
             "Context": {
               "transformFields": [
                 {
-                "isExpression": true,
-                "field": "FamilyName",
-                "value": "databaseParticipant.FamilyName"
+                  "isExpression": true,
+                  "field": "FamilyName",
+                  "value": "databaseParticipant.FamilyName"
                 }
               ]
             }
@@ -525,7 +525,7 @@
             "Context": {
               "transformFields": [
                 {
-                  "isExpression": false,
+                  "isExpression": true,
                   "field": "FirstName",
                   "value": "databaseParticipant.GivenName"
                 }

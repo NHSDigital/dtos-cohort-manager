@@ -1,0 +1,12 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "2612314172",
+        "RuleId": 36,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 1111110662,
+        "PrimaryCareProvider": "E85121",
+        "NamePrefix": "MR",
+        "GivenName": "NewTest 1",
+        "OtherGivenName": "Test",
+        "FamilyName": "Adani 1",
+        "PreviousFamilyName": "Tester 1",
+        "AddressLine5": "United Kingdom",
+        "PostCode": "AB43 8FJ",
+        "CurrentPosting": "CH",
+        "EmailAddressHome": "bturneux0@soup.io",
+        "PreferredLanguage": "en",
+        "InterpreterRequired": 0
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794,
+        "PrimaryCareProvider": "E85121"
+      }
+    }
+  ]
+}

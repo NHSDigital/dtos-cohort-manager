@@ -151,7 +151,7 @@ variable "app_service_plan" {
     vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
-      memory_percentage = object({
+      scaling_rule = object({
         metric              = optional(string)
         capacity_min        = optional(string)
         capacity_max        = optional(string)
@@ -177,7 +177,7 @@ variable "app_service_plan" {
 
     instances = map(object({
       autoscale_override = optional(object({
-        memory_percentage = object({
+        scaling_rule = object({
           metric              = optional(string)
           capacity_min        = optional(string)
           capacity_max        = optional(string)
@@ -392,6 +392,13 @@ variable "sqlserver" {
       storage_account_type = optional(string, "Local")
       zone_redundant       = optional(bool, false)
 
+      short_term_retention_policy = optional(number, null)
+      long_term_retention_policy = optional(object({
+        weekly_retention  = optional(string, null)
+        monthly_retention = optional(string, null)
+        yearly_retention  = optional(string, null)
+        week_of_year      = optional(number, null)
+      }), {})
     })), {})
 
     # FW Rules
