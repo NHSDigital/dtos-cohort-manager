@@ -5,7 +5,14 @@ import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
 import { validateApiResponse } from "../../api/apiHelper";
+import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 
+
+export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
+  return test.step(`Cleanup database using data services`, async () => {
+    await cleanDataBaseUsingServices(numbers, request);
+  });
+}
 
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {

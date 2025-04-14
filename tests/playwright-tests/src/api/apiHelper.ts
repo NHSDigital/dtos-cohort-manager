@@ -8,15 +8,16 @@ const endpointCohortDistributionDataService = config.endpointCohortDistributionD
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
 
-const COHORT_DISTRIBUTION_SERVICE = 'CohortDistributionDataService';
-const PARTICIPANT_MANAGEMENT_SERVICE = 'ParticipantManagementDataService';
-const EXCEPTION_MANAGEMENT_SERVICE = 'ExceptionManagementDataService';
-const NHS_NUMBER_KEY = 'NHSNumber';
-const NHS_NUMBER_KEY_EXCEPTION = 'NhsNumber';
-const IGNORE_VALIDATION_KEY = 'apiEndpoint';
+const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
+const PARTICIPANT_MANAGEMENT_SERVICE = config.participantManagementService;
+const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
+const NHS_NUMBER_KEY = config.nhsNumberKey;
+const NHS_NUMBER_KEY_EXCEPTION = config.nhsNumberKeyException;
+const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 
 let waitTime = initialWaitTime;
 let response: APIResponse;
+
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
@@ -51,7 +52,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
   return status;
 }
 
-async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
+export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
   if (endpoint.includes(COHORT_DISTRIBUTION_SERVICE)) {
     return await request.get(`${endpointCohortDistributionDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_MANAGEMENT_SERVICE)) {
