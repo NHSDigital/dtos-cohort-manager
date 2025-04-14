@@ -19,8 +19,13 @@ regions = {
   uksouth = {
     is_primary_region = true
     address_space     = "10.255.0.0/16"
-    connect_peering   = false
-    subnets           = {}
+    connect_peering   = true
+    subnets           = {
+      pep = {
+        cidr_newbits = 8
+        cidr_offset  = 1
+      }
+    }
   }
 }
 

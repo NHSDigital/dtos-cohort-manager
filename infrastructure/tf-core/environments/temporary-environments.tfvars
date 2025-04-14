@@ -53,7 +53,23 @@ regions = {
     is_primary_region = true
     address_space     = "10.254.0.0/16"
     connect_peering   = false
-    subnets           = {}
+    subnets           = {
+      apps = {
+        cidr_newbits               = 8
+        cidr_offset                = 2
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep = {
+        cidr_newbits = 8
+        cidr_offset  = 1
+      }
+      sql = {
+        cidr_newbits = 8
+        cidr_offset  = 3
+      }
+    }
   }
 }
 
@@ -61,6 +77,51 @@ acr = {
   admin_enabled = false
   sku           = "Standard"
   uai_name      = "dtos-cohort-manager-acr-push"
+}
+
+routes = {
+  uksouth = {
+    firewall_policy_priority = 100
+    application_rules        = []
+    nat_rules                = []
+    network_rules = [
+      {
+        name                  = "AllowCohmanToAudit"
+        priority              = 991
+        action                = "Allow"
+        rule_name             = "CohmanToAudit"
+        source_addresses      = ["10.254.0.0/16"]
+        destination_addresses = ["10.255.0.0/16"]
+        protocols             = ["TCP", "UDP"]
+        destination_ports     = ["443"]
+      },
+      {
+        name                  = "AllowAuditToCohman"
+        priority              = 992
+        action                = "Allow"
+        rule_name             = "AuditToCohman"
+        source_addresses      = ["10.255.0.0/16"]
+        destination_addresses = ["10.254.0.0/16"]
+        protocols             = ["TCP", "UDP"]
+        destination_ports     = ["443"]
+      }
+    ]
+    route_table_routes_to_audit = [
+      {
+        name                   = "CohmanToAudit"
+        address_prefix         = "10.255.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+      }
+    ]
+    route_table_routes_from_audit = [{
+      name                   = "AuditToCohman"
+      address_prefix         = "10.254.0.0/16"
+      next_hop_type          = "VirtualAppliance"
+      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+      }
+    ]
+  }
 }
 
 app_service_plan = {
