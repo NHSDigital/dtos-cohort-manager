@@ -25,6 +25,8 @@ export const config = {
   endpointCohortDistributionDataService: process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '',
   endpointParticipantManagementDataService: process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '',
   endpointExceptionManagementDataService: process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '',
+  endpointExternalBsSelectRetrieveCohortDistributionData: process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '',
+  endpointExternalBsSelectRetrieveCohortRequestAudit: process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '',
 };
 
 

@@ -2,9 +2,9 @@
   "validations": [
     {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
-        "columnName": "GIVEN_NAME",
-        "columnValue": "NewTest1UpdatedUpdated"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 4915676684,
+        "IsExtracted": 0
       }
     }
   ],
@@ -49,15 +49,35 @@
     "eligibility": true
   },
   "nhsNumbers": [
-    "4246633585",
-    "7786827242",
-    "6807750900",
-    "6173409003",
-    "4358031722",
-    "6686015199",
-    "6603613638",
-    "4993678193",
-    "4788893312",
-    "4162446997"
+    "4626656854",
+    "6172960024",
+    "7407937982",
+    "7565570672",
+    "6958088816",
+    "6766273305",
+    "4103970448",
+    "4966405114",
+    "6992953516",
+    "4915676684"
   ]
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
