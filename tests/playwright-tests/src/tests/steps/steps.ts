@@ -11,7 +11,7 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
   return test.step(`Cleanup database`, async () => {
     const status = await cleanupDatabase(numbers, request);
     if(!status){
-      throw new Error(`❌ Cleanup failed after ${config.sqlRetry} attempts, please checks logs for more details`);
+      throw new Error(`❌ Cleanup failed after ${config.apiRetry} attempts, please checks logs for more details`);
     }
   });
 }
