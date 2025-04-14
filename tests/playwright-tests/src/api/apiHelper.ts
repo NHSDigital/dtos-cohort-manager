@@ -43,10 +43,9 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
 
-        const { matchingObject, nhsNumber } = findMatchingObject(endpoint, responseBody, apiValidation);
-        validateFields(apiValidation, matchingObject, nhsNumber);
+        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        status = await validateFields(apiValidation, matchingObject, nhsNumber);
 
-        status = true;
       }
     } catch (error) {
       if (!status) console.warn(`❌ Validation failed after attempt ${attempt}`);
@@ -149,7 +148,7 @@ async function fetchApiResponse(endpoint: string, request: any): Promise<APIResp
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
 
-function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
+async function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
   let nhsNumber: any;
   let matchingObjects: any[] = [];
   let matchingObject: any;
@@ -166,13 +165,21 @@ function findMatchingObject(endpoint: string, responseBody: any[], apiValidation
   return { matchingObject, nhsNumber };
 }
 
-function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any) {
+async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  for (const [fieldName, expectedValue] of fieldsToValidate) {
-    expect(matchingObject).toHaveProperty(fieldName);
-    expect(matchingObject[fieldName]).toBe(expectedValue);
-    console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+  try{
+    for (const [fieldName, expectedValue] of fieldsToValidate) {
+      console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      expect(matchingObject).toHaveProperty(fieldName);
+      expect(matchingObject[fieldName]).toBe(expectedValue);
+      console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+    }
+    return true;
+  } catch (error) {
+    return false;
   }
+
+
 }
 
 async function delayRetry() {
