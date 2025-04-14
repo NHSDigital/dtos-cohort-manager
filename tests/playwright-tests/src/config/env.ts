@@ -14,6 +14,8 @@ const apiWaitTime = Number(process.env.API_WAIT_TIME ?? 2000);
 const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '';
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
+const endpointExternalBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
+const endpointExternalBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 
 export const config = {
   baseURL,
@@ -26,6 +28,8 @@ export const config = {
   endpointCohortDistributionDataService,
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
+  endpointExternalBsSelectRetrieveCohortDistributionData,
+  endpointExternalBsSelectRetrieveCohortRequestAudit,
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
