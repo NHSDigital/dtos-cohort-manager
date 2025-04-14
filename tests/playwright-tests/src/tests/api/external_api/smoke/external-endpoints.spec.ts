@@ -7,7 +7,7 @@ test.describe.serial('@smoke @api @external_bs_select_api retrieve cohort tests'
   const BASE_URL = config.endpointExternalBsSelectRetrieveCohortDistributionData
   const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
 
-  test('@ut check retrieve cohort endpoint up and running', async ({ request }) => {
+  test('check retrieve cohort endpoint up and running', async ({ request }) => {
 
     const response = await request.get(`${endpoint}`, {
       params: {
@@ -25,7 +25,7 @@ test.describe.serial('@smoke @api @external_bs_select_api retrieve audit tests',
   const BASE_URL = config.endpointExternalBsSelectRetrieveCohortRequestAudit;
   const endpoint = `${BASE_URL}api/RetrieveCohortRequestAudit`
 
-  test('@ut check retrieve cohort audit endpoint up and running', async ({ request }) => {
+  test('check retrieve cohort audit endpoint up and running', async ({ request }) => {
     const response = await request.get(`${endpoint}`);
     console.info(`Response Status: ${response.status()}`);
     expect(response.status()).toBeTruthy();
