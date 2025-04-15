@@ -3,7 +3,7 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "35.TooManyDemographicsFieldsChanged.NonFatal",
+        "RuleName": "35.TooManyDemographicsFieldsChanged.CaaS.NonFatal",
         "LocalParams": [
           {
             "Name": "NewDateOfBirth",
@@ -17,7 +17,7 @@
         "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND NewDateOfBirth == ExistingDateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND NewDateOfBirth == ExistingDateOfBirth))"
       },
       {
-        "RuleName": "54.ValidateBsoCode.NonFatal",
+        "RuleName": "54.ValidateBsoCode.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "reasonForRemoval",
@@ -44,7 +44,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.Non.NonFatal",
         "LocalParams": [
           {
             "Name": "ExistingParticipantInDMS",

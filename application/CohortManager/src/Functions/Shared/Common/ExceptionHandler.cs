@@ -162,9 +162,10 @@ public class ExceptionHandler : IExceptionHandler
         {
             var ruleDetails = error.Rule.RuleName.Split('.');
             var ruleId = int.Parse(ruleDetails[0]);
+            var Category = ruleDetails[2];
             var errorMessage = (string)error.ActionResult.Output;
 
-            var IsFatal = ParseFatalRuleType(ruleDetails[2]);
+            var IsFatal = ParseFatalRuleType(ruleDetails[3]);
             if (IsFatal == 1)
             {
                 foundFatalRule = true;
@@ -180,14 +181,14 @@ public class ExceptionHandler : IExceptionHandler
             var exception = new ValidationException
             {
                 RuleId = ruleId,
-                RuleDescription = errorMessage ?? ruleDetails[1],
+                RuleDescription = errorMessage ?? ruleDetails[2],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
                 DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.Now,
-                Category = ruleId == 51 ? (int)ExceptionCategory.ParticipantLocationRemainingOutsideOfCohort : (int)ExceptionCategory.File,
+                Category = ruleId == 51 ? (int)ExceptionCategory.ParticipantLocationRemainingOutsideOfCohort : GetCategory(Category),
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
                 Fatal = IsFatal
@@ -214,6 +215,12 @@ public class ExceptionHandler : IExceptionHandler
             CreatedException = true
         };
     }
+
+    private int GetCategory(string category)
+    {
+        return (int)Enum.Parse(typeof(ExceptionCategory), category, ignoreCase: true);
+    }
+
     public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
