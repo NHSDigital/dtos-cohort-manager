@@ -14,5 +14,8 @@ export default defineConfig({
   projects: [
     { name: 'dev', use: { ...config } }
   ],
-  reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['junit', { outputFile: 'playwright-report/results.xml' }]
+  ]
 });
