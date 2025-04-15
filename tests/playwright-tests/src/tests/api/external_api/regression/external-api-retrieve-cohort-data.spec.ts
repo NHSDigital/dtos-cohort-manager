@@ -150,6 +150,116 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
   });
 
+  test.only('@DTOSS-5940-01 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
+
+    const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
+
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
+
+    await test.step(`When 10 ADD participants are processed via storage`, async () => {
+      await processFileViaStorage(parquetFile);
+    });
+
+    await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
+      await validateSqlDatabaseFromAPI(request, checkInDatabase);
+    });
+
+
+    await test.step(`Send a GET request via RetrieveCohortDistribution 5 times`, async () => {
+
+      const expectedRowCount = 2;
+      const requestIdsToNhsNumbers: { requestId: string; nhsNumber: string }[] = [];
+
+      for (let i = 0; i < 5; i++) {
+        const response = await request.get(`${endpoint}`, {
+          params: {
+            rowCount: expectedRowCount
+          }
+        });
+
+        expect(response.status()).toBe(200);
+
+        const responseBody = await response.json();
+        expect(Array.isArray(responseBody)).toBe(true);
+        expect(responseBody.length).toBe(expectedRowCount);
+
+        const currentBatch = responseBody.map((item: any) => {
+          return {
+            requestId: item.request_id,
+            nhsNumber: item.nhs_number
+          };
+        });
+
+        requestIdsToNhsNumbers.push(...currentBatch);
+      }
+
+      // 6th request
+      const finalResponse = await request.get(`${endpoint}`, {
+        params: {
+          rowCount: expectedRowCount
+        }
+      });
+
+      expect(finalResponse.status()).toBe(204);
+
+      const uniqueRequestIds = Array.from(new Set(requestIdsToNhsNumbers.map(item => item.requestId)));
+
+      for (let i = 0; i < uniqueRequestIds.length; i++) {
+        const currentRequestId = uniqueRequestIds[i];
+        const nextRequestId = uniqueRequestIds[i + 1];
+
+        if (i === 0) {
+          const response = await request.get(`${endpoint}`, {
+            params: {
+              requestId: currentRequestId
+            }
+          });
+
+          expect(response.status()).toBe(200);
+
+          const responseBody = await response.json();
+          expect(Array.isArray(responseBody)).toBe(true);
+          expect(responseBody.length).toBe(2);
+
+          const nhsNumbers = responseBody.map((item: any) => item.nhs_number);
+          expect(nhsNumbers.length).toBe(2);
+
+          console.info(`RequestId: ${currentRequestId}, NHS Numbers: ${nhsNumbers}`);
+        }
+
+        if (nextRequestId) {
+          const nextResponse = await request.get(`${endpoint}`, {
+            params: {
+              requestId: nextRequestId
+            }
+          });
+
+          if (nextResponse.status() == 200) {
+            const nextResponseBody = await nextResponse.json();
+            expect(Array.isArray(nextResponseBody)).toBe(true);
+            expect(nextResponseBody.length).toBe(2);
+
+            const nextNhsNumbers = nextResponseBody.map((item: any) => item.nhs_number);
+            expect(nextNhsNumbers.length).toBe(2);
+
+            console.info(`RequestId: ${nextRequestId}, NHS Numbers: ${nextNhsNumbers}`);
+
+          } else {
+            expect(nextResponse.status()).toBe(204);
+          }
+        }
+      }
+
+      requestIdsToNhsNumbers.forEach(({ requestId, nhsNumber }) => {
+        console.info(`RequestId: ${requestId}, NHS Number: ${nhsNumber}`);
+      });
+
+
+    });
+  });
+
 });
 
 test.describe.serial('@regression @api Negative - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
