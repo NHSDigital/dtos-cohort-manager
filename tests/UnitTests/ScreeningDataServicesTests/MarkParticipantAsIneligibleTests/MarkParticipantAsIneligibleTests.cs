@@ -32,7 +32,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
         _handleException.Object,
         _config.Object))
     {
-        Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
+        TestInitialize();
         CreateHttpResponseMock();
     }
 
@@ -61,7 +61,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
         var testConfig = new MarkParticipantAsIneligibleConfig
         {
             ParticipantManagementUrl = "test-storage",
-            LookupValidationURL = "test-inbound"
+            LookupValidationURL = "test-inbound",
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -134,7 +134,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
     [TestMethod]
     public async Task Run_UpdateSucceeds_ReturnsOK()
     {
-        // Arrange
+
         _request = SetupRequest(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Act
