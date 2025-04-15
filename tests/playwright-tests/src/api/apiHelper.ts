@@ -39,12 +39,10 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
 
       }
     } catch (error) {
-      if (!status) console.warn(`❌ Validation failed after attempt ${attempt}`);
     }
 
     if (attempt < apiRetry && !status) {
-      console.warn(`🚧 Function processing in progress`);
-      console.info(`ℹ️\t Attempt ${attempt} failed. Retrying in ${Math.round(waitTime / 1000)} seconds...`);
+      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
       await delayRetry();
     }
   }
