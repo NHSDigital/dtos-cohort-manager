@@ -35,7 +35,7 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
-    public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName)
+    public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
     {
         if (participant.NhsNumber != null)
         {
@@ -44,7 +44,7 @@ public class ExceptionHandler : IExceptionHandler
 
         var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
-        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
+        var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
         await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
@@ -181,14 +181,14 @@ public class ExceptionHandler : IExceptionHandler
             var exception = new ValidationException
             {
                 RuleId = ruleId,
-                RuleDescription = errorMessage ?? ruleDetails[2],
+                RuleDescription = errorMessage ?? ruleDetails[1],
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
                 DateCreated = DateTime.Now,
                 DateResolved = DateTime.MaxValue,
                 ExceptionDate = DateTime.Now,
-                Category = ruleId == 51 ? (int)ExceptionCategory.ParticipantLocationRemainingOutsideOfCohort : GetCategory(Category),
+                Category = GetCategory(Category),
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
                 Fatal = IsFatal
@@ -301,8 +301,26 @@ public class ExceptionHandler : IExceptionHandler
     /// <param name="screeningName"></param>
     /// <param name="errorRecord"></param>
     /// <returns></returns>
-    private ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord)
+    private ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord, string category = "")
     {
+        int categoryToSendToDB = (int)ExceptionCategory.Non;
+        if (string.IsNullOrEmpty(category))
+        {
+            if (IsNilReturnFileNhsNumber(nhsNumber))
+            {
+                categoryToSendToDB = (int)ExceptionCategory.NilReturnFile;
+            }
+            else
+            {
+                categoryToSendToDB = (int)ExceptionCategory.File;
+            }
+        }
+        else
+        {
+            categoryToSendToDB = GetCategory(category);
+        }
+
+
         return new ValidationException()
         {
             RuleId = exception.HResult,
@@ -312,7 +330,7 @@ public class ExceptionHandler : IExceptionHandler
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
-            Category = IsNilReturnFileNhsNumber(nhsNumber) ? (int)ExceptionCategory.NilReturnFile : (int)ExceptionCategory.File,
+            Category = categoryToSendToDB,
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,

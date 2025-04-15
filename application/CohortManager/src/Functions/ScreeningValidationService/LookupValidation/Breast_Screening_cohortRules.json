@@ -44,7 +44,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.Non.NonFatal",
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
         "LocalParams": [
           {
             "Name": "ExistingParticipantInDMS",

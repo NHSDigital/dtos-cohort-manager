@@ -47,7 +47,7 @@
         }
       },
       {
-        "RuleName": "00.ValidateLanguageCode.Non.NonFatal",
+        "RuleName": "00.ValidateLanguageCode.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "languageCode",
@@ -84,7 +84,7 @@
     "WorkflowName": "ADD",
     "Rules": [
       {
-        "RuleName": "47.ParticipantMustNotExist.NBO.Fatal",
+        "RuleName": "47.ParticipantMustNotExist.CaaS.Fatal",
         "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
