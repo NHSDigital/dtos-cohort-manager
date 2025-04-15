@@ -93,7 +93,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "22.CaaS.Fatal",
+        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
