@@ -9,10 +9,6 @@ if(process.env.Is_CloudEnvironment){}else{
 const baseURL = process.env.BASE_URL ?? '';
 const azureConnectionString = process.env.CAASFOLDER_STORAGE_CONNECTION_STRING ?? '';
 const containerName = process.env.CONTAINER_NAME ?? '';
-const e2eTestFilesPath = process.env.E2E_TEST_FILES_PATH ?? '';
-const apiTestFilesPath = process.env.API_TEST_FILES_PATH ?? '';
-const apiRetry = Number(process.env.API_RETRIES ?? 1);
-const apiWaitTime = Number(process.env.API_WAIT_TIME ?? 2000);
 const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '';
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
@@ -32,7 +28,7 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   e2eTestFilesPath:'e2e/testFiles',
-  apiTestFilesPath:'e2e/testFiles',
+  apiTestFilesPath:'api/testFiles',
   apiRetry: 8,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
