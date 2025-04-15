@@ -11,10 +11,10 @@ using Model;
 public class NemsSubscriptionDataService
 {
     private readonly ILogger<NemsSubscriptionDataService> _logger;
-    private readonly IRequestHandler<ExceptionManagement> _requestHandler;
+    private readonly IRequestHandler<NemsSubscription> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public NemsSubscriptionDataService(ILogger<NemsSubscriptionDataService> logger, IRequestHandler<ExceptionManagement> requestHandler, ICreateResponse createResponse)
+    public NemsSubscriptionDataService(ILogger<NemsSubscriptionDataService> logger, IRequestHandler<NemsSubscription> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
