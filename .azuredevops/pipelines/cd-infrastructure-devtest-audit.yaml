@@ -17,16 +17,16 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: DEV_audit_backend
+  - group: DEVTEST_audit_backend
   - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
   - name: TF_VERSION
     value: 1.9.2
   - name: TF_PLAN_ARTIFACT
-    value: tf_plan_audit_DEV
+    value: tf_plan_audit_DEVTEST
   - name: ENVIRONMENT
-    value: development
+    value: devtest
 
 stages:
   - stage: terraform_plan
