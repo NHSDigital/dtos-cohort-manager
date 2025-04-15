@@ -150,7 +150,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
   });
 
-  test.only('@DTOSS-5940-01 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
+  test('@DTOSS-5940-01 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
