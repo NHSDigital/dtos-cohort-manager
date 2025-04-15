@@ -149,6 +149,17 @@ app_service_plan = {
         }
       }
     }
+    RetrieveMeshFile = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "1"
+          capacity_def = "1"
+        }
+      }
+    }
   }
 }
 
@@ -237,7 +248,7 @@ function_apps = {
     RetrieveMeshFile = {
       name_suffix                  = "retrieve-mesh-file"
       function_endpoint_name       = "RetrieveMeshFile"
-      app_service_plan_key         = "DefaultPlan"
+      app_service_plan_key         = "RetrieveMeshFile"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
