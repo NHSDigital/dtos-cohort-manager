@@ -2,10 +2,12 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const env = process.env.NODE_ENV ?? 'dev';
-dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
+if(process.env.Is_CloudEnvironment){}else{
+  dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
+}
 
 const baseURL = process.env.BASE_URL ?? '';
-const azureConnectionString = process.env.AZURITE_LOCAL_STORAGE_CONNECTION_STRING ?? '';
+const azureConnectionString = process.env.CAASFOLDER_STORAGE_CONNECTION_STRING ?? '';
 const containerName = process.env.CONTAINER_NAME ?? '';
 const e2eTestFilesPath = process.env.E2E_TEST_FILES_PATH ?? '';
 const apiTestFilesPath = process.env.API_TEST_FILES_PATH ?? '';
@@ -21,10 +23,6 @@ export const config = {
   baseURL,
   azureConnectionString,
   containerName,
-  e2eTestFilesPath,
-  apiTestFilesPath,
-  apiRetry,
-  apiWaitTime,
   endpointCohortDistributionDataService,
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
@@ -33,6 +31,10 @@ export const config = {
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
+  e2eTestFilesPath:'e2e/testFiles',
+  apiTestFilesPath:'e2e/testFiles',
+  apiRetry: 8,
+  apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyException: 'NhsNumber',
   uniqueKeyCohortDistribution: 'CohortDistributionId',
