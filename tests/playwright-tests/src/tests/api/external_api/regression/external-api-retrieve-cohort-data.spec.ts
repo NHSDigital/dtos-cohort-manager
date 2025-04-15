@@ -7,7 +7,7 @@ const BASE_URL = config.endpointExternalBsSelectRetrieveCohortDistributionData
 const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
 
 
-test.describe.serial('@regression @api @ut Positive - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
+test.describe.serial('@regression @api Positive - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
 
   test('@DTOSS-5928-01 200 - @TC1_SIT Verify the ability to process CaaS test file with 10 records from Cohort Manager to BS Select (ADD)', async ({ request }, testInfo) => {
 
