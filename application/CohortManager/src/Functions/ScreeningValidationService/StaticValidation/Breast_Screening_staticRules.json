@@ -27,7 +27,7 @@
         }
       },
       {
-        "RuleName": "8.RecordType.Non.NonFatal",
+        "RuleName": "8.RecordType.CaaS.NonFatal",
         "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
         "Actions": {
           "OnFailure": {
@@ -111,7 +111,7 @@
         }
       },
       {
-        "RuleName": "42.GPPracticeCode.Non.NonFatal",
+        "RuleName": "42.GPPracticeCode.NBO.NonFatal",
         "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
