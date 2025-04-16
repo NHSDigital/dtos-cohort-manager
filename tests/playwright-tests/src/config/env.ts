@@ -12,8 +12,8 @@ const containerName = process.env.CONTAINER_NAME ?? '';
 const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '';
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
-const endpointExternalBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
-const endpointExternalBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_EXTERNAL_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
+const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
+const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 
 export const config = {
   baseURL,
@@ -22,8 +22,8 @@ export const config = {
   endpointCohortDistributionDataService,
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
-  endpointExternalBsSelectRetrieveCohortDistributionData,
-  endpointExternalBsSelectRetrieveCohortRequestAudit,
+  endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
+  endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',

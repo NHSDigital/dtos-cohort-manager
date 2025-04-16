@@ -4,7 +4,7 @@ import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
 import { checkMappingsByIndex } from '../../../../api/apiHelper';
 
-const BASE_URL = config.endpointExternalBsSelectRetrieveCohortDistributionData
+const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
 const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
 
 

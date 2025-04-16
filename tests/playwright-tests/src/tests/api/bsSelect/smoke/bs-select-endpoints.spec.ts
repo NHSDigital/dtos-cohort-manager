@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 import { config } from '../../../../config/env'
 
 
-test.describe.serial('@smoke @api @external_bs_select_api retrieve cohort tests', async () => {
+test.describe.serial('@smoke @api @bs_select_api retrieve cohort tests', async () => {
 
-  const BASE_URL = config.endpointExternalBsSelectRetrieveCohortDistributionData
+  const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
   const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
 
   test('check retrieve cohort endpoint up and running', async ({ request }) => {
@@ -20,9 +20,9 @@ test.describe.serial('@smoke @api @external_bs_select_api retrieve cohort tests'
 
 });
 
-test.describe.serial('@smoke @api @external_bs_select_api retrieve audit tests', async () => {
+test.describe.serial('@smoke @api @bs_select_api retrieve audit tests', async () => {
 
-  const BASE_URL = config.endpointExternalBsSelectRetrieveCohortRequestAudit;
+  const BASE_URL = config.endpointBsSelectRetrieveCohortRequestAudit;
   const endpoint = `${BASE_URL}api/RetrieveCohortRequestAudit`
 
   test('check retrieve cohort audit endpoint up and running', async ({ request }) => {
