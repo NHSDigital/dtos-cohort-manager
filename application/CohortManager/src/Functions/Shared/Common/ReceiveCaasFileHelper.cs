@@ -95,7 +95,8 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         var json = JsonSerializer.Serialize(new ValidationException()
         {
             FileName = fileName,
-            ErrorRecord = errorRecord
+            ErrorRecord = errorRecord,
+            Category = (int)ExceptionCategory.CaaS
         });
 
         var result = await _callFunction.SendPost(fileValidationURL, json);

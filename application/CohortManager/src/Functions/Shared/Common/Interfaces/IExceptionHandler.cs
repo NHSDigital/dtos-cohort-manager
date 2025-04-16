@@ -15,7 +15,7 @@ public interface IExceptionHandler
     /// <param name="exception">The exception to be written to the database.</param>
     /// <param name="participant">The participant that created the exception.</param>
     /// <param name="fileName">The file name of the file containing the participant.</param>
-    Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName);
+    Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "");
     /// <summary>
     /// Overloaded method to create a system exception given BasicParticipantData.
     /// </summary>
