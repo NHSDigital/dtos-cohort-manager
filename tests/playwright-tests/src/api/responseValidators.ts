@@ -15,7 +15,7 @@ export const validateResponseByStatus = <T>(): ResponseValidator<ApiResponse<T>>
     }
 
     if (response.status === 204) {
-      expect(response.data).toBe('');
+      expect(response.data).toBe(null);
     }
   };
 
