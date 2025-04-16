@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { config } from '../../../../config/env'
 import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
+import { checkMappingsByIndex } from '../../../../api/apiHelper';
 
 const BASE_URL = config.endpointExternalBsSelectRetrieveCohortDistributionData
 const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
@@ -149,8 +150,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     });
 
   });
-
-  test('@DTOSS-5940-01 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
+  test.only('@DTOSS-5940-01 200 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
@@ -167,10 +167,11 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     });
 
 
-    await test.step(`Send a GET request via RetrieveCohortDistribution 5 times`, async () => {
+    await test.step(`Send a GET request via RetrieveCohortDistribution 5 times, and validate that req_id 1 nhs numbers are mapped to req_id 2 nhs numbers`, async () => {
 
       const expectedRowCount = 2;
       const requestIdsToNhsNumbers: { requestId: string; nhsNumber: string }[] = [];
+      const requestIdsToNhsNumbersFromResponse: { requestId: string; nhsNumber: string }[] = [];
 
       for (let i = 0; i < 5; i++) {
         const response = await request.get(`${endpoint}`, {
@@ -226,7 +227,14 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
           const nhsNumbers = responseBody.map((item: any) => item.nhs_number);
           expect(nhsNumbers.length).toBe(2);
 
-          console.info(`RequestId: ${currentRequestId}, NHS Numbers: ${nhsNumbers}`);
+          const batch = responseBody.map((item: any) => {
+            return {
+              requestId: currentRequestId,
+              nhsNumber: item.nhs_number
+            };
+          });
+
+          requestIdsToNhsNumbersFromResponse.push(...batch);
         }
 
         if (nextRequestId) {
@@ -244,7 +252,14 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
             const nextNhsNumbers = nextResponseBody.map((item: any) => item.nhs_number);
             expect(nextNhsNumbers.length).toBe(2);
 
-            console.info(`RequestId: ${nextRequestId}, NHS Numbers: ${nextNhsNumbers}`);
+            const batch = nextResponseBody.map((item: any) => {
+              return {
+                requestId: nextRequestId,
+                nhsNumber: item.nhs_number
+              };
+            });
+
+            requestIdsToNhsNumbersFromResponse.push(...batch);
 
           } else {
             expect(nextResponse.status()).toBe(204);
@@ -252,10 +267,9 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         }
       }
 
-      requestIdsToNhsNumbers.forEach(({ requestId, nhsNumber }) => {
-        console.info(`RequestId: ${requestId}, NHS Number: ${nhsNumber}`);
-      });
-
+      const result = await checkMappingsByIndex(requestIdsToNhsNumbers, requestIdsToNhsNumbersFromResponse);
+      console.info(`Overall check result: ${result ? "PASS" : "FAIL"}`);
+      expect(result).toBeTruthy();
 
     });
   });
@@ -304,4 +318,5 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
 
 
 });
+
 

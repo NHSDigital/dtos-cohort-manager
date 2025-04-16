@@ -98,3 +98,65 @@ async function delayRetry() {
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   waitTime += 5000;
 }
+
+
+export async function checkMappingsByIndex(
+  original: Array<{ requestId: string; nhsNumber: string }>,
+  shifted: Array<{ requestId: string; nhsNumber: string }>
+): Promise<boolean> {
+  const uniqueOriginalRequestIds: string[] = [];
+  original.forEach(item => {
+    if (!uniqueOriginalRequestIds.includes(item.requestId)) {
+      uniqueOriginalRequestIds.push(item.requestId);
+    }
+  });
+  const uniqueShiftedRequestIds: string[] = [];
+  shifted.forEach(item => {
+    if (!uniqueShiftedRequestIds.includes(item.requestId)) {
+      uniqueShiftedRequestIds.push(item.requestId);
+    }
+  });
+
+  let allMatched = true;
+  for (let i = 0; i < uniqueShiftedRequestIds.length; i++) {
+    const shiftedRequestId = uniqueShiftedRequestIds[i];
+    const originalNextRequestId = uniqueOriginalRequestIds[i + 1];
+
+    if (!originalNextRequestId) {
+      console.info(`No next request ID for index ${i}`);
+      continue;
+    }
+    const shiftedNhsNumbers = shifted
+      .filter(item => item.requestId === shiftedRequestId)
+      .map(item => item.nhsNumber)
+      .sort();
+
+    const originalNextNhsNumbers = original
+      .filter(item => item.requestId === originalNextRequestId)
+      .map(item => item.nhsNumber)
+      .sort();
+
+    if (shiftedNhsNumbers.length !== originalNextNhsNumbers.length) {
+      console.info(`Length mismatch for index ${i}`);
+      console.info(`Shifted [${shiftedRequestId}]: ${shiftedNhsNumbers.length} items`);
+      console.info(`Original Next [${originalNextRequestId}]: ${originalNextNhsNumbers.length} items`);
+      allMatched = false;
+      continue;
+    }
+
+    const allNhsNumbersMatch = shiftedNhsNumbers.every(
+      (nhsNumber, index) => nhsNumber === originalNextNhsNumbers[index]
+    );
+
+    if (!allNhsNumbersMatch) {
+      console.error(`❌ NHS numbers don't match for index ${i}`);
+      console.warn(`Shifted [${shiftedRequestId}]: ${shiftedNhsNumbers}`);
+      console.warn(`Original Next [${originalNextRequestId}]: ${originalNextNhsNumbers}`);
+      allMatched = false;
+    } else {
+      console.log(`✅ NHS numbers match for index ${i} (${shiftedRequestId} -> ${originalNextRequestId})`);
+    }
+  }
+
+  return allMatched;
+}
