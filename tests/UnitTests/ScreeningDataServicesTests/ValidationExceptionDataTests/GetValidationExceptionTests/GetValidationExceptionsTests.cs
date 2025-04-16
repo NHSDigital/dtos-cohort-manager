@@ -10,6 +10,7 @@ using NHS.CohortManager.ScreeningDataServices;
 using Common;
 using System.Threading.Tasks;
 using Model.Enums;
+using Common.Interfaces;
 
 [TestClass]
 public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationExceptions>
@@ -18,6 +19,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     private readonly Dictionary<string, string> columnToClassPropertyMapping;
     private readonly Mock<PaginationService<ValidationException>> _paginationServiceMock = new();
     private readonly HttpResponseData _mockHttpResponseData;
+    private static readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
 
 
     public GetValidationExceptionsTests() : base((conn, logger, transaction, command, response) => null)

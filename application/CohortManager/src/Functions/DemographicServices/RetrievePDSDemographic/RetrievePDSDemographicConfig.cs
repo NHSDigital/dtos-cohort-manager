@@ -5,5 +5,5 @@ using System.ComponentModel.DataAnnotations;
 public class RetrievePDSDemographicConfig
 {
     [Required]
-    public string ParticipantDemographicDataServiceURL {get; set;}
+    public string RetrievePdsParticipantURL { get; set; }
 }

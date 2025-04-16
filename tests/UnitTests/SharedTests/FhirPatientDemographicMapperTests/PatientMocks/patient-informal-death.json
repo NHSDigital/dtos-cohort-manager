@@ -1,0 +1,29 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "deceasedDateTime": "2022-05-10T00:00:00+00:00",
+  "extension": [
+    {
+      "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-DeathNotificationStatus",
+      "extension": [
+        {
+          "url": "deathNotificationStatus",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-DeathNotificationStatus",
+                "version": "1.0.0",
+                "code": "1",
+                "display": "Informal - death notice received via relative or other source"
+              }
+            ]
+          }
+        },
+        {
+          "url": "systemEffectiveDate",
+          "valueDateTime": "2022-05-10T00:00:00+00:00"
+        }
+      ]
+    }
+  ]
+}
