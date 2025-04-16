@@ -24,6 +24,8 @@ export const config = {
   endpointExceptionManagementDataService,
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
+  routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
+  routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',

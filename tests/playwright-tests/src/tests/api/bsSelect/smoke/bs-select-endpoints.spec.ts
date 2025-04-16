@@ -5,7 +5,7 @@ import { config } from '../../../../config/env'
 test.describe.serial('@smoke @api @bs_select_api retrieve cohort tests', async () => {
 
   const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
-  const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
+  const endpoint = `${BASE_URL}${config.routeBsSelectRetrieveCohortDistributionData}`
 
   test('check retrieve cohort endpoint up and running', async ({ request }) => {
 
@@ -23,7 +23,7 @@ test.describe.serial('@smoke @api @bs_select_api retrieve cohort tests', async (
 test.describe.serial('@smoke @api @bs_select_api retrieve audit tests', async () => {
 
   const BASE_URL = config.endpointBsSelectRetrieveCohortRequestAudit;
-  const endpoint = `${BASE_URL}api/RetrieveCohortRequestAudit`
+  const endpoint = `${BASE_URL}${config.routeBsSelectRetrieveCohortRequestAudit}`
 
   test('check retrieve cohort audit endpoint up and running', async ({ request }) => {
     const response = await request.get(`${endpoint}`);

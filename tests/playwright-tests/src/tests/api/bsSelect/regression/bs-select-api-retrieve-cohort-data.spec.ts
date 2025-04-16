@@ -5,7 +5,7 @@ import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validate
 import { checkMappingsByIndex } from '../../../../api/apiHelper';
 
 const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
-const endpoint = `${BASE_URL}api/RetrieveCohortDistributionData`
+const endpoint = `${BASE_URL}${config.routeBsSelectRetrieveCohortDistributionData}`
 
 
 test.describe.serial('@regression @api Positive - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
