@@ -676,7 +676,7 @@ public class LookupValidationTests
 
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.Non.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
