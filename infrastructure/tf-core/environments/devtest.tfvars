@@ -992,7 +992,7 @@ function_apps = {
     }
 
     UpdateParticipantFromScreeningProvider = {
-      name_suffix            = "update-participant-from-screening-provider"
+      name_suffix            = "update-participant-from-screening-prov"
       function_endpoint_name = "UpdateParticipantFromScreeningProvider"
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
@@ -1069,7 +1069,7 @@ function_apps = {
     }
 
     HigherRiskReferralReasonLkpDataService = {
-      name_suffix            = "higher-risk-referral-reason-lkp-data-service"
+      name_suffix            = "higher-risk-referral-reason-lkp-ds"
       function_endpoint_name = "HigherRiskReferralReasonLkpDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
