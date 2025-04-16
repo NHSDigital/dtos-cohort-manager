@@ -129,12 +129,12 @@ export async function checkMappingsByIndex(
     const shiftedNhsNumbers = shifted
       .filter(item => item.requestId === shiftedRequestId)
       .map(item => item.nhsNumber)
-      .sort();
+      .sort((a, b) => a.localeCompare(b));
 
     const originalNextNhsNumbers = original
       .filter(item => item.requestId === originalNextRequestId)
       .map(item => item.nhsNumber)
-      .sort();
+      .sort((a, b) => a.localeCompare(b));
 
     if (shiftedNhsNumbers.length !== originalNextNhsNumbers.length) {
       console.info(`Length mismatch for index ${i}`);
