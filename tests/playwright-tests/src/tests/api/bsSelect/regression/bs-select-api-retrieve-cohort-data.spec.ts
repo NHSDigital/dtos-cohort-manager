@@ -3,6 +3,8 @@ import { config } from '../../../../config/env'
 import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
 import { checkMappingsByIndex } from '../../../../api/apiHelper';
+import { getRecords } from '../../../../api/distributionService/bsSelectService'
+import { composeValidators, expectStatus, validateResponseByStatus } from '../../../../api/responseValidators';
 
 const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
 const endpoint = `${BASE_URL}${config.routeBsSelectRetrieveCohortDistributionData}`
@@ -29,17 +31,18 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`And participants received from api should be 10 with status code of 200`, async () => {
       const rowCount = 10;
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 10
-        }
-      });
 
-      expect(response.status()).toBe(200);
+      const response = await getRecords(request, { rowCount: 10 });
 
-      const responseBody = await response.json();
-      expect(Array.isArray(responseBody)).toBe(true);
-      expect(responseBody.length).toBe(rowCount);
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
+      expect(Array.isArray(response.data)).toBeTruthy();
+      expect(response.data.length).toBe(rowCount);
     });
 
 
@@ -59,32 +62,34 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then participants received from api should be 10 with status code of 200`, async () => {
       const expectedRowCount = 10;
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 100
-        }
-      });
 
-      expect(response.status()).toBe(200);
+      const response = await getRecords(request, { rowCount: 100 });
 
-      const responseBody = await response.json();
-      expect(Array.isArray(responseBody)).toBe(true);
-      expect(responseBody.length).toBe(expectedRowCount);
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
+      expect(Array.isArray(response.data)).toBe(true);
+      expect(response.data.length).toBe(expectedRowCount);
     });
 
   });
   test('@DTOSS-5928-03 204 - @TC12_SIT Verify that BS Select can NOT retrieve same record on second attempt (ADD)', async ({ request }) => {
 
     await test.step(`Then no participants should be received with status code of 204`, async () => {
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 100
-        }
-      });
 
-      expect(response.status()).toBe(204);
-      const responseBody = await response.text();
-      expect(responseBody).toBe('');
+      const response = await getRecords(request, { rowCount: 100 });
+
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
     });
 
 
@@ -123,33 +128,34 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`And on 2nd hit the remaining 10 participants should be received from api with status code of 200`, async () => {
       const expectedRowCount = 10;
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 10
-        }
-      });
+      const response = await getRecords(request, { rowCount: 10 });
 
-      expect(response.status()).toBe(200);
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
 
-      const responseBody = await response.json();
-      expect(Array.isArray(responseBody)).toBe(true);
-      expect(responseBody.length).toBe(expectedRowCount);
+      //Extend custom assertions
+      expect(response.data.length).toBe(expectedRowCount);
     });
 
     await test.step(`And on 3rd hit the no participants should be received from api with status code of 204`, async () => {
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 10
-        }
-      });
 
-      expect(response.status()).toBe(204);
-      const responseBody = await response.text();
-      expect(responseBody).toBe('');
+      const response = await getRecords(request, { rowCount: 10 });
 
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
     });
 
   });
+
+  //TODO update below test to use bs select service api orchestration
   test('@DTOSS-5940-01 200 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
