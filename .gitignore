@@ -104,7 +104,6 @@ tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 **/playwright-tests/.env
 **/playwright-tests/.env.*
 **/playwright-tests/.vscode/settings.json
+**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
 # Allow
 !**/playwright-tests/.env.dev.example
-!**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
-ADD_2_RECORDS_-_CAAS_BREAST_SCREENING_COHORT.parquet
