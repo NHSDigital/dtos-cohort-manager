@@ -75,13 +75,13 @@ public class GPPractice
     [Column("TELEPHONE_NUMBER")]
     public string? TelephoneNumber { get; set; }
 
-    [Column("OPEN_DATE")]
+    [Column("OPEN_DATE", TypeName = "datetime")]
     public DateTime? OpenDate { get; set; }
 
-    [Column("CLOSE_DATE")]
+    [Column("CLOSE_DATE", TypeName = "datetime")]
     public DateTime? CloseDate { get; set; }
 
-    [Column("FAILSAFE_DATE")]
+    [Column("FAILSAFE_DATE", TypeName = "datetime")]
     public DateTime? FailsafeDate { get; set; }
 
     [Required]
