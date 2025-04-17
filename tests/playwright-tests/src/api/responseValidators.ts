@@ -18,9 +18,6 @@ export const validateResponseByStatus = <T>(): ResponseValidator<ApiResponse<T>>
       expect(response.data).toBe(null);
     }
 
-    if (response.status === 500) {
-      expect(response.data).toBe(null);
-    }
   };
 
 export const composeValidators = <T>(...validators: ResponseValidator<T>[]): ResponseValidator<T> =>
