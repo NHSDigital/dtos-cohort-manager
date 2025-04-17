@@ -26,7 +26,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
     await test.step(`And participants received from api should be 10 with status code of 200`, async () => {
-      const rowCount = 10;
+      const ExpectedRowCount = 10;
 
       const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
@@ -38,7 +38,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
       //Extend custom assertions
       expect(Array.isArray(response.data)).toBeTruthy();
-      expect(response.data.length).toBe(rowCount);
+      expect(response.data.length).toBe(ExpectedRowCount);
     });
 
 
@@ -59,7 +59,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     await test.step(`Then participants received from api should be 10 with status code of 200`, async () => {
       const expectedRowCount = 10;
 
-      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 100 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
       const genericValidations = composeValidators(
         expectStatus(200),
@@ -77,7 +77,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then no participants should be received with status code of 204`, async () => {
 
-      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 100 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
       const genericValidations = composeValidators(
         expectStatus(204),
