@@ -31,7 +31,7 @@ export async function processFileViaStorage(parquetFilePath: string) {
 
 export async function getTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<[any, string[], string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
-    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 2)}/`);
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
     console.info(`ℹ️\tTest files input data path: ${testFilesPath}`);
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parquetFile = testFilesPath + jsonFile?.replace('.json', '.parquet'); //TODO add a check here to fail if jsonFile name is not same as parquet file name
