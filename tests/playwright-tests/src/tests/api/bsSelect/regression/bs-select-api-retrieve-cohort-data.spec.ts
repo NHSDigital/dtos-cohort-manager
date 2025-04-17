@@ -247,7 +247,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
           const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId });
 
 
-          if (nextResponse.data.status() == 200) {
+          if (nextResponse.status == 200) {
             expect(Array.isArray(nextResponse.data)).toBe(true);
             expect(nextResponse.data.length).toBe(2);
 
