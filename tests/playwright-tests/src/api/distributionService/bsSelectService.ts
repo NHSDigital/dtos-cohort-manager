@@ -4,7 +4,7 @@ import { config } from '../../config/env';
 import { ApiResponse, QueryParams } from '../core/types';
 
 
-export const getRecords = (
+export const getRecordsFromBsSelectRetrieveCohort = (
   request: APIRequestContext,
   params: QueryParams
 ): Promise<ApiResponse> => {

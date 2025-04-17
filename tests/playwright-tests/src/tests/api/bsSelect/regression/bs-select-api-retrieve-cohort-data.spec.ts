@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { config } from '../../../../config/env'
 import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
 import { checkMappingsByIndex } from '../../../../api/apiHelper';
-import { getRecords } from '../../../../api/distributionService/bsSelectService'
+import { getRecordsFromBsSelectRetrieveCohort } from '../../../../api/distributionService/bsSelectService'
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../../api/responseValidators';
-
-const BASE_URL = config.endpointBsSelectRetrieveCohortDistributionData
-const endpoint = `${BASE_URL}${config.routeBsSelectRetrieveCohortDistributionData}`
 
 
 test.describe.serial('@regression @api Positive - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
@@ -32,7 +28,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     await test.step(`And participants received from api should be 10 with status code of 200`, async () => {
       const rowCount = 10;
 
-      const response = await getRecords(request, { rowCount: 10 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
       const genericValidations = composeValidators(
         expectStatus(200),
@@ -63,7 +59,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     await test.step(`Then participants received from api should be 10 with status code of 200`, async () => {
       const expectedRowCount = 10;
 
-      const response = await getRecords(request, { rowCount: 100 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 100 });
 
       const genericValidations = composeValidators(
         expectStatus(200),
@@ -81,7 +77,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then no participants should be received with status code of 204`, async () => {
 
-      const response = await getRecords(request, { rowCount: 100 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 100 });
 
       const genericValidations = composeValidators(
         expectStatus(204),
@@ -112,23 +108,23 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
     await test.step(`And participants received from api should be 10 with status code of 200`, async () => {
-      const rowCount = 10;
-      const response = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: 10
-        }
-      });
+      const expectedRowCount = 10;
 
-      expect(response.status()).toBe(200);
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
-      const responseBody = await response.json();
-      expect(Array.isArray(responseBody)).toBe(true);
-      expect(responseBody.length).toBe(rowCount);
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
+      expect(response.data.length).toBe(expectedRowCount);
     });
 
     await test.step(`And on 2nd hit the remaining 10 participants should be received from api with status code of 200`, async () => {
       const expectedRowCount = 10;
-      const response = await getRecords(request, { rowCount: 10 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
       const genericValidations = composeValidators(
         expectStatus(200),
@@ -142,7 +138,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`And on 3rd hit the no participants should be received from api with status code of 204`, async () => {
 
-      const response = await getRecords(request, { rowCount: 10 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10 });
 
       const genericValidations = composeValidators(
         expectStatus(204),
@@ -155,7 +151,6 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
   });
 
-  //TODO update below test to use bs select service api orchestration
   test('@DTOSS-5940-01 200 - TC13_SIT: Verify that BS Select can retrieve an already retrieved cohort successfully(ADD)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
@@ -180,19 +175,18 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
       const requestIdsToNhsNumbersFromResponse: { requestId: string; nhsNumber: string }[] = [];
 
       for (let i = 0; i < 5; i++) {
-        const response = await request.get(`${endpoint}`, {
-          params: {
-            rowCount: expectedRowCount
-          }
-        });
+        const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 2 });
 
-        expect(response.status()).toBe(200);
+        const genericValidations = composeValidators(
+          expectStatus(200),
+          validateResponseByStatus()
+        );
+        await genericValidations(response);
 
-        const responseBody = await response.json();
-        expect(Array.isArray(responseBody)).toBe(true);
-        expect(responseBody.length).toBe(expectedRowCount);
+        //Extend custom assertions
+        expect(response.data.length).toBe(expectedRowCount);
 
-        const currentBatch = responseBody.map((item: any) => {
+        const currentBatch = response.data.map((item: any) => {
           return {
             requestId: item.request_id,
             nhsNumber: item.nhs_number
@@ -203,13 +197,15 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
       }
 
       // 6th request
-      const finalResponse = await request.get(`${endpoint}`, {
-        params: {
-          rowCount: expectedRowCount
-        }
-      });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 2 });
 
-      expect(finalResponse.status()).toBe(204);
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
+      //Extend custom assertions
 
       const uniqueRequestIds = Array.from(new Set(requestIdsToNhsNumbers.map(item => item.requestId)));
 
@@ -218,47 +214,47 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         const nextRequestId = uniqueRequestIds[i + 1];
 
         if (i === 0) {
-          const response = await request.get(`${endpoint}`, {
-            params: {
-              requestId: currentRequestId
-            }
-          });
 
-          expect(response.status()).toBe(200);
 
-          const responseBody = await response.json();
-          expect(Array.isArray(responseBody)).toBe(true);
-          expect(responseBody.length).toBe(2);
+          const expectedRowCount = 2;
+          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId });
 
-          const nhsNumbers = responseBody.map((item: any) => item.nhs_number);
+          const genericValidations = composeValidators(
+            expectStatus(200),
+            validateResponseByStatus()
+          );
+          await genericValidations(response);
+
+
+          expect(response.data.length).toBe(expectedRowCount);
+
+          const nhsNumbers = response.data.map((item: any) => item.nhs_number);
           expect(nhsNumbers.length).toBe(2);
 
-          const batch = responseBody.map((item: any) => {
+          const currentBatch = response.data.map((item: any) => {
             return {
               requestId: currentRequestId,
               nhsNumber: item.nhs_number
             };
           });
 
-          requestIdsToNhsNumbersFromResponse.push(...batch);
+          requestIdsToNhsNumbersFromResponse.push(...currentBatch);
         }
 
         if (nextRequestId) {
-          const nextResponse = await request.get(`${endpoint}`, {
-            params: {
-              requestId: nextRequestId
-            }
-          });
 
-          if (nextResponse.status() == 200) {
-            const nextResponseBody = await nextResponse.json();
-            expect(Array.isArray(nextResponseBody)).toBe(true);
-            expect(nextResponseBody.length).toBe(2);
 
-            const nextNhsNumbers = nextResponseBody.map((item: any) => item.nhs_number);
+          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId });
+
+
+          if (nextResponse.data.status() == 200) {
+            expect(Array.isArray(nextResponse.data)).toBe(true);
+            expect(nextResponse.data.length).toBe(2);
+
+            const nextNhsNumbers = nextResponse.data.map((item: any) => item.nhs_number);
             expect(nextNhsNumbers.length).toBe(2);
 
-            const batch = nextResponseBody.map((item: any) => {
+            const batch = nextResponse.data.map((item: any) => {
               return {
                 requestId: nextRequestId,
                 nhsNumber: item.nhs_number
@@ -268,7 +264,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
             requestIdsToNhsNumbersFromResponse.push(...batch);
 
           } else {
-            expect(nextResponse.status()).toBe(204);
+            expect(nextResponse.data.status()).toBe(204);
           }
         }
       }
@@ -308,20 +304,17 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
     await test.step(`And Internal server error should be received with status code 500`, async () => {
 
       const requestIdNotExists = '81b723eb-8b40-46bc-84dd-2459c22d69be';
-      const response = await request.get(`${endpoint}`, {
-        params: {
 
-          requestId: requestIdNotExists
-        }
-      });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists });
 
-      expect(response.status()).toBe(500);
-      const responseBody = await response.text();
-      expect(responseBody).toBe('');
+      const genericValidations = composeValidators(
+        expectStatus(500),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+
     });
-
   });
-
 
 });
 
