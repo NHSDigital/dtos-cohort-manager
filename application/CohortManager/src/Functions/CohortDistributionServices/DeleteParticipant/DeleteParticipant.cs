@@ -47,15 +47,17 @@ public class DeleteParticipant
             {
                 requestBodyJson = await reader.ReadToEndAsync();
             }
+
             requestBody = JsonSerializer.Deserialize<DeleteParticipantRequestBody>(requestBodyJson);
             FamilyName = requestBody.FamilyName;
             DateOfBirth = requestBody.DateOfBirth;
 
-            // if (string.IsNullOrEmpty(FamilyName) || DateOfBirth == null)
-            // {
-            //     _logger.LogError("Invalid request body");
-            //     return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            // }
+            if (string.IsNullOrEmpty(FamilyName) || !requestBody.DateOfBirth.HasValue)
+            {
+                _logger.LogError("Invalid request body");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
         }
         catch (Exception ex)
         {
@@ -65,10 +67,8 @@ public class DeleteParticipant
 
         try
         {
-            long longNhsNumber = long.Parse(requestBody.NhsNumber);
-            var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == longNhsNumber && p.DateOfBirth == DateOfBirth);
-                                                                            // p.DateOfBirth == DateOfBirth &&
-                                                                            // p.FamilyName == FamilyName);
+            var longNhsNumber = long.Parse(requestBody.NhsNumber);
+            var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == longNhsNumber && p.FamilyName == FamilyName);
             if (participantData == null)
             {
                 _logger.LogError("The participantData was null the {DeleteParticipant}  function", nameof(DeleteParticipant));
@@ -76,21 +76,27 @@ public class DeleteParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, $"the participantData was null the {nameof(DeleteParticipant)}  function");
             }
 
-            // var deleteParticipant = await _cohortDistributionClient.Delete(participantData.CohortDistributionId.ToString());
-            // if (!deleteParticipant)
-            // {
-            //     _logger.LogError("Failed to delete participant with NHS Number: {NHSNumber}", participantData.NHSNumber);
-            //     return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete participant");
-            // }
+            var participantToDelete = participantData.FirstOrDefault(p => p.DateOfBirth == DateOfBirth);
 
-            // _logger.LogInformation("Deleted participant with NHS Number: {NHSNumber}", participantData.NHSNumber);
+            if (participantToDelete != null)
+            {
+                await _cohortDistributionClient.Delete(participantToDelete.CohortDistributionId.ToString());
+            }
+
+            else
+            {
+                _logger.LogError("Failed to delete participant with details provided");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete participant");
+            }
+
+            _logger.LogInformation("Deleted participant");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Delete participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber, "", "", JsonSerializer.Serialize(requestBody) ?? "N/A");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber.ToString(), "", "", JsonSerializer.Serialize(requestBody) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
