@@ -14,9 +14,9 @@ public class NemsSubscription
     [Column("NHS_NUMBER")]
     public long NhsNumber { get; set; }
     
-    [Column("RECORD_INSERT_DATETIME")]
+    [Column("RECORD_INSERT_DATETIME", TypeName = "datetime")]
     public DateTime? RecordInsertDateTime { get; set; }
     
-    [Column("RECORD_UPDATE_DATETIME")]
+    [Column("RECORD_UPDATE_DATETIME", TypeName = "datetime")]
     public DateTime? RecordUpdateDateTime { get; set; }
 }
