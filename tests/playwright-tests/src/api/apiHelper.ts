@@ -154,7 +154,7 @@ export async function checkMappingsByIndex(
       console.warn(`Original Next [${originalNextRequestId}]: ${originalNextNhsNumbers}`);
       allMatched = false;
     } else {
-      console.log(`✅ NHS numbers match for index ${i} (${shiftedRequestId} -> ${originalNextRequestId})`);
+      console.info(`✅ NHS numbers match for index ${i} (${shiftedRequestId} -> ${originalNextRequestId})`);
     }
   }
 

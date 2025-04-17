@@ -8,5 +8,13 @@ export const getRecordsFromBsSelectRetrieveCohort = (
   request: APIRequestContext,
   params: QueryParams
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortDistributionData}${config.routeBsSelectRetrieveCohortDistributionData}`,params);
+  return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortDistributionData}${config.routeBsSelectRetrieveCohortDistributionData}`, params);
+};
+
+
+export const getRecordsFromBsSelectRetrieveAudit = (
+  request: APIRequestContext,
+  params?: QueryParams
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortRequestAudit}${config.routeBsSelectRetrieveCohortRequestAudit}`, params);
 };
