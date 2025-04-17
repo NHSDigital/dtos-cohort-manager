@@ -36,6 +36,10 @@ async function cleanDataService(
     const response = await fetchApiResponse(`api/${serviceName}`, request);
     expect(response.ok()).toBeTruthy();
 
+    if (response.status() === 204) {
+      console.info(`No data in the table for ${serviceName}`);
+      return;
+    }
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBeTruthy();
 

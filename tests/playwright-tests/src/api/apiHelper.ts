@@ -34,18 +34,15 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
 
-        const { matchingObject, nhsNumber } = findMatchingObject(endpoint, responseBody, apiValidation);
-        validateFields(apiValidation, matchingObject, nhsNumber);
+        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        status = await validateFields(apiValidation, matchingObject, nhsNumber);
 
-        status = true;
       }
     } catch (error) {
-      if (!status) console.warn(`❌ Validation failed after attempt ${attempt}`);
     }
 
     if (attempt < apiRetry && !status) {
-      console.warn(`🚧 Function processing in progress`);
-      console.info(`ℹ️\t Attempt ${attempt} failed. Retrying in ${Math.round(waitTime / 1000)} seconds...`);
+      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
       await delayRetry();
     }
   }
@@ -63,7 +60,7 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
 
-function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
+async function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
   let nhsNumber: any;
   let matchingObjects: any[] = [];
   let matchingObject: any;
@@ -80,16 +77,86 @@ function findMatchingObject(endpoint: string, responseBody: any[], apiValidation
   return { matchingObject, nhsNumber };
 }
 
-function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any) {
+async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  for (const [fieldName, expectedValue] of fieldsToValidate) {
-    expect(matchingObject).toHaveProperty(fieldName);
-    expect(matchingObject[fieldName]).toBe(expectedValue);
-    console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+  try{
+    for (const [fieldName, expectedValue] of fieldsToValidate) {
+      console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      expect(matchingObject).toHaveProperty(fieldName);
+      expect(matchingObject[fieldName]).toBe(expectedValue);
+      console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+    }
+    return true;
+  } catch (error) {
+    return false;
   }
+
+
 }
 
 async function delayRetry() {
   await new Promise((resolve) => setTimeout(resolve, waitTime));
   waitTime += 5000;
+}
+
+
+export async function checkMappingsByIndex(
+  original: Array<{ requestId: string; nhsNumber: string }>,
+  shifted: Array<{ requestId: string; nhsNumber: string }>
+): Promise<boolean> {
+  const uniqueOriginalRequestIds: string[] = [];
+  original.forEach(item => {
+    if (!uniqueOriginalRequestIds.includes(item.requestId)) {
+      uniqueOriginalRequestIds.push(item.requestId);
+    }
+  });
+  const uniqueShiftedRequestIds: string[] = [];
+  shifted.forEach(item => {
+    if (!uniqueShiftedRequestIds.includes(item.requestId)) {
+      uniqueShiftedRequestIds.push(item.requestId);
+    }
+  });
+
+  let allMatched = true;
+  for (let i = 0; i < uniqueShiftedRequestIds.length; i++) {
+    const shiftedRequestId = uniqueShiftedRequestIds[i];
+    const originalNextRequestId = uniqueOriginalRequestIds[i + 1];
+
+    if (!originalNextRequestId) {
+      console.info(`No next request ID for index ${i}`);
+      continue;
+    }
+    const shiftedNhsNumbers = shifted
+      .filter(item => item.requestId === shiftedRequestId)
+      .map(item => item.nhsNumber)
+      .sort((a, b) => a.localeCompare(b));
+
+    const originalNextNhsNumbers = original
+      .filter(item => item.requestId === originalNextRequestId)
+      .map(item => item.nhsNumber)
+      .sort((a, b) => a.localeCompare(b));
+
+    if (shiftedNhsNumbers.length !== originalNextNhsNumbers.length) {
+      console.info(`Length mismatch for index ${i}`);
+      console.info(`Shifted [${shiftedRequestId}]: ${shiftedNhsNumbers.length} items`);
+      console.info(`Original Next [${originalNextRequestId}]: ${originalNextNhsNumbers.length} items`);
+      allMatched = false;
+      continue;
+    }
+
+    const allNhsNumbersMatch = shiftedNhsNumbers.every(
+      (nhsNumber, index) => nhsNumber === originalNextNhsNumbers[index]
+    );
+
+    if (!allNhsNumbersMatch) {
+      console.error(`❌ NHS numbers don't match for index ${i}`);
+      console.warn(`Shifted [${shiftedRequestId}]: ${shiftedNhsNumbers}`);
+      console.warn(`Original Next [${originalNextRequestId}]: ${originalNextNhsNumbers}`);
+      allMatched = false;
+    } else {
+      console.info(`✅ NHS numbers match for index ${i} (${shiftedRequestId} -> ${originalNextRequestId})`);
+    }
+  }
+
+  return allMatched;
 }
