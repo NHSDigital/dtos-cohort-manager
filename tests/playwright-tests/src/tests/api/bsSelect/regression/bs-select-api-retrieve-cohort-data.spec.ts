@@ -90,7 +90,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
   });
-  test('@DTOSS-5941-01 200 - @TC15_SIT Verify that BS Select can retrieve a request id for a retrieved cohort successfully (ADD) 10 at a time', async ({ request }, testInfo) => {
+  test('@DTOSS-5942-01 200 - @TC15_SIT Verify that BS Select can retrieve a request id for a retrieved cohort successfully (ADD) 10 at a time', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
@@ -280,7 +280,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 test.describe.serial('@regression @api Negative - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
 
-  test('@DTOSS-5942-01 500 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
+  test('@DTOSS-5941-01 204 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
 
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
@@ -301,14 +301,14 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
     });
 
 
-    await test.step(`And Internal server error should be received with status code 500`, async () => {
+    await test.step(`And 204 status code should be received`, async () => {
 
       const requestIdNotExists = '81b723eb-8b40-46bc-84dd-2459c22d69be';
 
       const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists });
 
       const genericValidations = composeValidators(
-        expectStatus(500),
+        expectStatus(204),
         validateResponseByStatus()
       );
       await genericValidations(response);
