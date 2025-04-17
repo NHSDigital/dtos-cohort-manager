@@ -31,4 +31,8 @@ locals {
   # VNET
   monitor_diagnostic_setting_vnet_enabled_logs = ["VMProtectionAlerts"]
   monitor_diagnostic_setting_vnet_metrics      = ["AllMetrics"]
+
+  # WEB APP
+  monitor_diagnostic_setting_linux_web_app_enabled_logs = ["AppServicePlatformLogs"]
+  monitor_diagnostic_setting_linux_web_app_metrics      = ["AllMetrics"]
 }
