@@ -1169,12 +1169,7 @@ function_apps = {
   }
 }
 
-function_app_slots = [
-  {
-    function_app_slots_name   = "staging"
-    function_app_slot_enabled = true
-  }
-]
+function_app_slots = []
 
 key_vault = {
   disk_encryption   = true
