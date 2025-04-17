@@ -1,0 +1,22 @@
+# Base image for Azure Functions .NET 6
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated6.0 AS base
+WORKDIR /home/site/wwwroot
+
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+
+# Copy csproj and restore dependencies
+COPY ["NEMSUnSubscription.csproj", "./"]
+RUN dotnet restore "NEMSUnSubscription.csproj"
+
+# Copy the rest of the code
+COPY . .
+
+# Build and publish
+RUN dotnet publish "NEMSUnSubscription.csproj" -c Release -o /app/publish
+
+# Final stage
+FROM base AS final
+WORKDIR /home/site/wwwroot
+COPY --from=build /app/publish .

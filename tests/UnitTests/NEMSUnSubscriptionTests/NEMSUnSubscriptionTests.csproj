@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+  <TargetFramework>net8.0</TargetFramework>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+
+  <IsPackable>false</IsPackable>
+  <IsTestProject>true</IsTestProject>
+</PropertyGroup>
+
+<ItemGroup>
+  <PackageReference Include="coverlet.collector" Version="6.0.0" />
+  <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+  <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+  <PackageReference Include="Moq" Version="4.20.72" />
+  <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />
+  <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
+
+</ItemGroup>
+
+<ItemGroup>
+  <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+</ItemGroup>
+
+
+<ItemGroup>
+  <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
+  <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\NEMSUnSubscription\NEMSUnSubscription.csproj" />
+</ItemGroup>
+</Project>
