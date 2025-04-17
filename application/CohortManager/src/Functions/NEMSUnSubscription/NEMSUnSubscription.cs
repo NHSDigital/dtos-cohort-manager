@@ -10,18 +10,25 @@ using Azure.Data.Tables;
 using Azure;
 using Model;
 
-
 public class NEMSUnSubscription
 {
     private const string TableName = "NemsSubscriptionTable";
-    private readonly TableClient _tableClient;
-    private readonly HttpClient _httpClient;
+    protected readonly TableClient _tableClient;
+    protected readonly HttpClient _httpClient;
 
+    // Default constructor (for runtime usage)
     public NEMSUnSubscription()
     {
         var storageUri = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
         _tableClient = new TableClient(storageUri, TableName);
         _httpClient = new HttpClient();
+    }
+
+    // Constructor for dependency injection (testability)
+    public NEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
+    {
+        _tableClient = tableClient;
+        _httpClient = httpClient;
     }
 
     [Function("NEMSUnsubscribe")]
@@ -32,6 +39,14 @@ public class NEMSUnSubscription
         var logger = executionContext.GetLogger("NEMSUnsubscribe");
 
         var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+
+        if (string.IsNullOrWhiteSpace(requestBody))
+        {
+            var badRequestResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+            await badRequestResponse.WriteStringAsync("Request body is empty.");
+            return badRequestResponse;
+        }
+
         var request = JsonSerializer.Deserialize<UnsubscriptionRequest>(requestBody);
 
         if (request == null || string.IsNullOrEmpty(request.NhsNumber))
@@ -72,7 +87,10 @@ public class NEMSUnSubscription
         return successResponse;
     }
 
-    private async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
+    /// <summary>
+    /// Looks up the subscription ID based on NHS number.
+    /// </summary>
+    protected virtual async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
     {
         try
         {
@@ -87,7 +105,10 @@ public class NEMSUnSubscription
         }
     }
 
-    private async Task<bool> DeleteSubscriptionFromNems(string subscriptionId)
+    /// <summary>
+    /// Sends delete request to NEMS API.
+    /// </summary>
+    protected virtual async Task<bool> DeleteSubscriptionFromNems(string subscriptionId)
     {
         try
         {
@@ -102,7 +123,10 @@ public class NEMSUnSubscription
         }
     }
 
-    private async Task DeleteSubscriptionFromTableAsync(string nhsNumber)
+    /// <summary>
+    /// Deletes the subscription ID from the Azure Table.
+    /// </summary>
+    protected virtual async Task DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
         try
         {
@@ -114,4 +138,3 @@ public class NEMSUnSubscription
         }
     }
 }
-
