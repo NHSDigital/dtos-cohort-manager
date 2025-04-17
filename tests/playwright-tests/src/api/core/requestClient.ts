@@ -19,7 +19,7 @@ export const parseResponse = async <T>(response: any): Promise<ApiResponse<T>> =
   const headers = response.headers();
 
   let data = null;
-  if (status !== 204) data = await response.json();
+  if (status !== 204 || status !== 500) data = await response.json();
 
 
   return {
