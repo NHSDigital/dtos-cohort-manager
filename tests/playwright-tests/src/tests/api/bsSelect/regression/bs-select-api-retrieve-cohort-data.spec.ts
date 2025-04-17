@@ -43,7 +43,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
   });
-  test('@DTOSS-5928-02 200 - @TC3_SIT Verify the ability to process CaaS file with 10 records from Cohort Manager to BS Select (AMENDED)', async ({ request }, testInfo) => {
+  test('@DTOSS-5930-01 200 - @TC3_SIT Verify the ability to process CaaS file with 10 records from Cohort Manager to BS Select (AMENDED)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, "AMENDED");
 
@@ -73,7 +73,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
     });
 
   });
-  test('@DTOSS-5928-03 204 - @TC12_SIT Verify that BS Select can NOT retrieve same record on second attempt (ADD)', async ({ request }) => {
+  test('@DTOSS-5939-01 204 - @TC12_SIT Verify that BS Select can NOT retrieve same record on second attempt (ADD)', async ({ request }) => {
 
     await test.step(`Then no participants should be received with status code of 204`, async () => {
 
@@ -90,7 +90,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
   });
-  test('@DTOSS-5928-05 200 - @TC15_SIT Verify that BS Select can retrieve a request id for a retrieved cohort successfully (ADD) 10 at a time', async ({ request }, testInfo) => {
+  test('@DTOSS-5941-01 200 - @TC15_SIT Verify that BS Select can retrieve a request id for a retrieved cohort successfully (ADD) 10 at a time', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
@@ -280,7 +280,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 test.describe.serial('@regression @api Negative - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
 
-  test('@DTOSS-5928-04 500 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
+  test('@DTOSS-5942-01 500 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
 
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
