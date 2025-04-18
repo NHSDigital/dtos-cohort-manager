@@ -126,7 +126,18 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "20"
+          capacity_max = "8"
+          capacity_def = "2"
+        }
+      }
+    }
+    DefaultPlan2 = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "8"
           capacity_def = "2"
         }
       }
@@ -794,7 +805,7 @@ function_apps = {
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "DefaultPlan2"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -1169,12 +1180,7 @@ function_apps = {
   }
 }
 
-function_app_slots = [
-  {
-    function_app_slots_name   = "staging"
-    function_app_slot_enabled = true
-  }
-]
+function_app_slots = []
 
 key_vault = {
   disk_encryption   = true
