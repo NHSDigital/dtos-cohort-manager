@@ -123,7 +123,7 @@ app_service_plan = {
     DefaultPlan = {
       autoscale_override = {
         scaling_rule = {
-          metric = "CpuPercentage"
+          metric = ""
 
           capacity_min = "1"
           capacity_max = "20"
@@ -131,10 +131,21 @@ app_service_plan = {
         }
       }
     }
+    DefaultPlan2 = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = ""
+
+          capacity_min = "1"
+          capacity_max = "4"
+          capacity_def = "2"
+        }
+      }
+    }
     HighLoadFunctions = {
       autoscale_override = {
         scaling_rule = {
-          metric = "CpuPercentage"
+          metric = ""
 
           capacity_min = "1"
           capacity_max = "4"
@@ -152,7 +163,7 @@ app_service_plan = {
     RetrieveMeshFile = {
       autoscale_override = {
         scaling_rule = {
-          metric = "CpuPercentage"
+          metric = ""
 
           capacity_min = "1"
           capacity_max = "4"
@@ -794,7 +805,7 @@ function_apps = {
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "DefaultPlan2"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
