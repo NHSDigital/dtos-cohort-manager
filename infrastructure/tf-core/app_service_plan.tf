@@ -35,7 +35,7 @@ module "app-service-plan" {
   tags = var.tags
 
   ## autoscale rule
-  metric = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.scaling_rule.metric, var.app_service_plan.autoscale.scaling_rule.metric) : var.app_service_plan.autoscale.scaling_rule.metric
+  metric = "" #each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.scaling_rule.metric, var.app_service_plan.autoscale.scaling_rule.metric) : var.app_service_plan.autoscale.scaling_rule.metric
 
   capacity_min = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.scaling_rule.capacity_min, var.app_service_plan.autoscale.scaling_rule.capacity_min) : var.app_service_plan.autoscale.scaling_rule.capacity_min
   capacity_max = each.value.asp_val.autoscale_override != null ? coalesce(each.value.asp_val.autoscale_override.scaling_rule.capacity_max, var.app_service_plan.autoscale.scaling_rule.capacity_max) : var.app_service_plan.autoscale.scaling_rule.capacity_max
