@@ -1,4 +1,4 @@
-import { request, test } from '@playwright/test';
+import { test } from '@playwright/test';
 import { cleanupDatabaseFromAPI, getApiTestData, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
 
