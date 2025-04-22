@@ -228,6 +228,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionsTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceDataTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\GetParticipantReferenceDataTests\GetParticipantReferenceDataTests.csproj", "{BF97136A-59AA-4468-9F10-B1F91140EE62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscription", "NEMSSubscriptionServices\NEMSSubscription.csproj", "{1D344810-9F48-4FC9-A3B7-08D280DA8467}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscriptionTests", "..\..\..\..\tests\UnitTests\NEMSSubscriptionTests\NEMSSubscriptionTests.csproj", "{DF0FF58E-3733-4D48-B6CE-38F4B07015C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -634,6 +638,14 @@ Global
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D344810-9F48-4FC9-A3B7-08D280DA8467}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D344810-9F48-4FC9-A3B7-08D280DA8467}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D344810-9F48-4FC9-A3B7-08D280DA8467}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D344810-9F48-4FC9-A3B7-08D280DA8467}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF0FF58E-3733-4D48-B6CE-38F4B07015C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF0FF58E-3733-4D48-B6CE-38F4B07015C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF0FF58E-3733-4D48-B6CE-38F4B07015C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF0FF58E-3733-4D48-B6CE-38F4B07015C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
