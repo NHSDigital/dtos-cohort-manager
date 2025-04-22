@@ -98,7 +98,7 @@ stages:
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-dev
+        serviceConnection: $(SERVICE_CONNECTION)
         testProjectDirectory: 'tests/playwright-tests'
         testfileDirectory: 'src/tests/e2e/testFiles'
         testProjectName: 'tests'
