@@ -5,7 +5,8 @@ export async function createParquetFromJson(
   nhsNumbers: string[],
   inputParticipantRecord: Record<string, any>,
   testFilesPath: string,
-  recordType: string = 'ADD'
+  recordType: string = 'ADD',
+  multiply: boolean = true
 ): Promise<string> {
   try {
     const reader = await parquet.ParquetReader.openFile(path.join(__dirname, `schema.parquet`));
@@ -14,23 +15,34 @@ export async function createParquetFromJson(
 
     await reader.close();
     const writer = await parquet.ParquetWriter.openFile(schema, outputFilePath);
-    const baseRecord: Record<string, any> = inputParticipantRecord;
+    const baseRecords: Record<string, any> = inputParticipantRecord;
 
-    let updatedNameForAmended = baseRecord.given_name;
-    if (recordType === 'AMENDED') {
-      updatedNameForAmended = `${baseRecord.given_name}Updated`;
+    for (const baseRecord of Object.values(baseRecords)){
+
+
+    if (multiply) {
+      let updatedNameForAmended = baseRecord.given_name;
+      if (recordType === 'AMENDED') {
+        updatedNameForAmended = `${baseRecord.given_name}Updated`;
+      }
+
+      for (const nhsNumber of nhsNumbers) {
+        const updatedRecord = {
+          ...baseRecord,
+          nhs_number: nhsNumber,
+          serial_change_number: nhsNumbers.indexOf(nhsNumber) + 1,
+          record_type: recordType,
+          given_name: `${updatedNameForAmended}`,
+        };
+        await writer.appendRow(updatedRecord);
+      }
+
+
+    } else {
+      await writer.appendRow(baseRecord);
     }
 
-    for (const nhsNumber of nhsNumbers) {
-      const updatedRecord = {
-        ...baseRecord,
-        nhs_number: nhsNumber,
-        serial_change_number: nhsNumbers.indexOf(nhsNumber) + 1,
-        record_type: recordType,
-        given_name: `${updatedNameForAmended}`,
-      };
-      await writer.appendRow(updatedRecord);
-    }
+  }
 
     await writer.close();
     console.info(`New Parquet file created with updated records: ${outputFilePath}`);
