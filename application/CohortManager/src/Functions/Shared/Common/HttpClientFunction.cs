@@ -1,5 +1,6 @@
 namespace Common;
 
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,7 @@ public class HttpClientFunction : IHttpClientFunction
 {
     private readonly ILogger<HttpClientFunction> _logger;
     private readonly IHttpClientFactory _factory;
-    public static readonly TimeSpan _timeout = TimeSpan.FromMinutes(10);
+    public static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
     private const string errorMessage = "Failed to execute request to {Url}, message: {Message}";
 
     public HttpClientFunction(ILogger<HttpClientFunction> logger, IHttpClientFactory factory)
@@ -37,7 +38,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendGet(string url)
+    public async Task<string> SendGet(string url)
     {
         using var client = _factory.CreateClient();
 
@@ -47,7 +48,7 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendGet(string url, Dictionary<string, string> parameters)
+    public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         using var client = _factory.CreateClient();
 
@@ -69,7 +70,16 @@ public class HttpClientFunction : IHttpClientFunction
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
 
-        return await GetAsync(client);
+        try
+        {
+            HttpResponseMessage response = await client.GetAsync(url);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
     }
 
     public async Task<HttpResponseMessage> SendPut(string url, string data)
@@ -125,19 +135,26 @@ public class HttpClientFunction : IHttpClientFunction
         return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
     }
 
-    private async Task<HttpResponseMessage> GetAsync(HttpClient client)
+    private async Task<string> GetAsync(HttpClient client)
     {
         var url = client.BaseAddress?.ToString() ?? string.Empty;
 
         try
         {
             HttpResponseMessage response = await client.GetAsync(url);
-            return response;
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                return jsonResponse;
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
             throw;
         }
+
+        return null;
     }
 }

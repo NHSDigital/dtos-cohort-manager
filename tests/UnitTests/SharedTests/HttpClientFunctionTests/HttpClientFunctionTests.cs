@@ -24,6 +24,7 @@ public class HttpClientFunctionTests
     public async Task Run_SendGetIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
+        var mockContent = "mock content";
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -34,7 +35,8 @@ public class HttpClientFunctionTests
             .ReturnsAsync(
                 new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.OK
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(mockContent)
                 }
             );
 
@@ -48,7 +50,7 @@ public class HttpClientFunctionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(mockContent, result);
     }
 
     [TestMethod]
@@ -92,6 +94,7 @@ public class HttpClientFunctionTests
     public async Task Run_SendGetWithParametersIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
+        var mockContent = "mock content";
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -102,7 +105,8 @@ public class HttpClientFunctionTests
             .ReturnsAsync(
                 new HttpResponseMessage
                 {
-                    StatusCode = HttpStatusCode.OK
+                    StatusCode = HttpStatusCode.OK,
+                    Content = new StringContent(mockContent)
                 }
             );
 
@@ -116,7 +120,7 @@ public class HttpClientFunctionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(mockContent, result);
     }
 
     [TestMethod]
@@ -148,6 +152,43 @@ public class HttpClientFunctionTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_SendPdsGetFails_LogsErrorWithoutNhsNumberAndThrowsException()
+    {
+        // Arrange
+        var errorMessage = "There was an error";
+        var nhsNumber = "1234567890";
+        var mockUrl = $"{_mockUrl}?nhsNumber={nhsNumber}";
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .Throws(
+                new Exception(errorMessage)
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act & Assert
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.SendPdsGet(mockUrl));
+        Assert.AreEqual(errorMessage, result.Message);
+
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage) && !v.ToString().Contains(nhsNumber)),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
     }
     #endregion
 
