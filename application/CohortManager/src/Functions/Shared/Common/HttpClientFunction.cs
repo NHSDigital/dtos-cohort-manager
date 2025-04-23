@@ -1,6 +1,7 @@
 namespace Common;
 
 using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
@@ -8,6 +9,7 @@ public class HttpClientFunction : IHttpClientFunction
     private readonly ILogger<HttpClientFunction> _logger;
     private readonly IHttpClientFactory _factory;
     public static readonly TimeSpan _timeout = TimeSpan.FromMinutes(10);
+    private const string errorMessage = "Failed to execute request to {Url}, message: {Message}";
 
     public HttpClientFunction(ILogger<HttpClientFunction> logger, IHttpClientFactory factory)
     {
@@ -15,34 +17,7 @@ public class HttpClientFunction : IHttpClientFunction
         _factory = factory;
     }
 
-    public async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string> headers)
-    {
-        using var client = _factory.CreateClient();
-
-        client.BaseAddress = new Uri(url);
-        client.Timeout = _timeout;
-
-        if (headers != null)
-        {
-            foreach (var header in headers)
-            {
-                client.DefaultRequestHeaders.Add(header.Key, header.Value);
-            }
-        }
-
-        try
-        {
-            HttpResponseMessage response = await client.GetAsync(url);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", RemoveURLQueryString(url), ex.Message);
-            throw;
-        }
-    }
-
-    public async Task<HttpResponseMessage> PostAsync(string url, string data)
+    public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         using var client = _factory.CreateClient();
         using StringContent jsonContent = new(data, Encoding.UTF8, "application/json");
@@ -57,12 +32,47 @@ public class HttpClientFunction : IHttpClientFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
+            _logger.LogError(ex, errorMessage, url, ex.Message);
             throw;
         }
     }
 
-    public async Task<HttpResponseMessage> PutAsync(string url, string data)
+    public async Task<HttpResponseMessage> SendGet(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await GetAsync(client);
+    }
+
+    public async Task<HttpResponseMessage> SendGet(string url, Dictionary<string, string> parameters)
+    {
+        using var client = _factory.CreateClient();
+
+        url = QueryHelpers.AddQueryString(url, parameters);
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await GetAsync(client);
+    }
+
+    public async Task<HttpResponseMessage> SendPdsGet(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+        client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
+        client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
+        client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
+
+        return await GetAsync(client);
+    }
+
+    public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         using var client = _factory.CreateClient();
         using StringContent jsonContent = new(data, Encoding.UTF8, "application/json");
@@ -77,12 +87,12 @@ public class HttpClientFunction : IHttpClientFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
+            _logger.LogError(ex, errorMessage, url, ex.Message);
             throw;
         }
     }
 
-    public async Task<HttpResponseMessage> DeleteAsync(string url)
+    public async Task<HttpResponseMessage> SendDelete(string url)
     {
         using var client = _factory.CreateClient();
 
@@ -96,7 +106,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to execute request to {Url}, message: {Message}", url, ex.Message);
+            _logger.LogError(ex, errorMessage, url, ex.Message);
             throw;
         }
     }
@@ -113,5 +123,21 @@ public class HttpClientFunction : IHttpClientFunction
 
         int queryIndex = url.IndexOf('?');
         return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
+    }
+
+    private async Task<HttpResponseMessage> GetAsync(HttpClient client)
+    {
+        var url = client.BaseAddress?.ToString() ?? string.Empty;
+
+        try
+        {
+            HttpResponseMessage response = await client.GetAsync(url);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
     }
 }

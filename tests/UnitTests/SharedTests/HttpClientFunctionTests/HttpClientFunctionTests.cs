@@ -14,14 +14,14 @@ public class HttpClientFunctionTests
     private readonly Mock<HttpMessageHandler> _httpMessageHandler = new();
     private HttpClientFunction? _function;
     private readonly string _mockUrl = "http://test.com";
-    private readonly Dictionary<string, string> _mockHeaders = new Dictionary<string, string>()
+    private readonly Dictionary<string, string> _mockParameters = new Dictionary<string, string>()
     {
-        {"Mock-Header", "mock-header" }
+        {"mock-key", "mock-value" }
     };
 
-    #region GetAsync
+    #region SendGet
     [TestMethod]
-    public async Task Run_GetAsyncIsSuccessful_ReturnsOkResponse()
+    public async Task Run_SendGetIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
         _httpMessageHandler
@@ -44,7 +44,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act
-        var result = await _function.GetAsync(_mockUrl, _mockHeaders);
+        var result = await _function.SendGet(_mockUrl);
 
         // Assert
         Assert.IsNotNull(result);
@@ -52,7 +52,7 @@ public class HttpClientFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_GetAsyncFails_LogsErrorWithoutNhsNumberAndThrowsException()
+    public async Task Run_SendGetFails_LogsErrorWithoutNhsNumberAndThrowsException()
     {
         // Arrange
         var errorMessage = "There was an error";
@@ -76,7 +76,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act & Assert
-        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.GetAsync(mockUrl, _mockHeaders));
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.SendGet(mockUrl));
         Assert.AreEqual(errorMessage, result.Message);
 
         _logger.Verify(x => x.Log(
@@ -87,11 +87,73 @@ public class HttpClientFunctionTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
     }
+
+    [TestMethod]
+    public async Task Run_SendGetWithParametersIsSuccessful_ReturnsOkResponse()
+    {
+        // Arrange
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(
+                new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK
+                }
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendGet(_mockUrl, _mockParameters);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_SendPdsGetIsSuccessful_ReturnsOkResponse()
+    {
+        // Arrange
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(
+                new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.OK
+                }
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendPdsGet(_mockUrl);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
     #endregion
 
-    #region PostAsync
+    #region SendPost
     [TestMethod]
-    public async Task Run_PostAsyncIsSuccessful_ReturnsOkResponse()
+    public async Task Run_SendPostIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
         _httpMessageHandler
@@ -114,7 +176,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act
-        var result = await _function.PostAsync(_mockUrl, string.Empty);
+        var result = await _function.SendPost(_mockUrl, string.Empty);
 
         // Assert
         Assert.IsNotNull(result);
@@ -122,7 +184,7 @@ public class HttpClientFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_PostAsyncFails_LogsErrorAndThrowsException()
+    public async Task Run_SendPostFails_LogsErrorAndThrowsException()
     {
         // Arrange
         var errorMessage = "There was an error";
@@ -144,7 +206,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act & Assert
-        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.PostAsync(_mockUrl, string.Empty));
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.SendPost(_mockUrl, string.Empty));
         Assert.AreEqual(errorMessage, result.Message);
 
         _logger.Verify(x => x.Log(
@@ -157,9 +219,9 @@ public class HttpClientFunctionTests
     }
     #endregion
 
-    #region PutAsync
+    #region SendPut
     [TestMethod]
-    public async Task Run_PutAsyncIsSuccessful_ReturnsOkResponse()
+    public async Task Run_SendPutIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
         _httpMessageHandler
@@ -182,7 +244,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act
-        var result = await _function.PutAsync(_mockUrl, string.Empty);
+        var result = await _function.SendPut(_mockUrl, string.Empty);
 
         // Assert
         Assert.IsNotNull(result);
@@ -190,7 +252,7 @@ public class HttpClientFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_PutAsyncFails_LogsErrorAndThrowsException()
+    public async Task Run_SendPutFails_LogsErrorAndThrowsException()
     {
         // Arrange
         var errorMessage = "There was an error";
@@ -212,7 +274,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act & Assert
-        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.PutAsync(_mockUrl, string.Empty));
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.SendPut(_mockUrl, string.Empty));
         Assert.AreEqual(errorMessage, result.Message);
 
         _logger.Verify(x => x.Log(
@@ -225,9 +287,9 @@ public class HttpClientFunctionTests
     }
     #endregion
 
-    #region DeleteAsync
+    #region SendDelete
     [TestMethod]
-    public async Task Run_DeleteAsyncIsSuccessful_ReturnsOkResponse()
+    public async Task Run_SendDeleteIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
         _httpMessageHandler
@@ -250,7 +312,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act
-        var result = await _function.DeleteAsync(_mockUrl);
+        var result = await _function.SendDelete(_mockUrl);
 
         // Assert
         Assert.IsNotNull(result);
@@ -258,7 +320,7 @@ public class HttpClientFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_DeleteAsyncFails_LogsErrorAndThrowsException()
+    public async Task Run_SendDeleteFails_LogsErrorAndThrowsException()
     {
         // Arrange
         var errorMessage = "There was an error";
@@ -280,7 +342,7 @@ public class HttpClientFunctionTests
         _function = new HttpClientFunction(_logger.Object, _factory.Object);
 
         // Act & Assert
-        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.DeleteAsync(_mockUrl));
+        var result = await Assert.ThrowsExceptionAsync<Exception>(() => _function.SendDelete(_mockUrl));
         Assert.AreEqual(errorMessage, result.Message);
 
         _logger.Verify(x => x.Log(
