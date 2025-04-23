@@ -269,6 +269,36 @@
         "RuleId": 54,
         "RuleDescription": "Participant was transformed as transform rule: Name Prefix HisRoyalHighness was executed"
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9991742468,
+        "NamePrefix": "HRH"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9991742468",
+        "RuleId": 55,
+        "RuleDescription": "Participant was transformed as transform rule: Name Prefix HerRoyalHighness was executed"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9991845666,
+        "NamePrefix": "LADY"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9991845666",
+        "RuleId": 56,
+        "RuleDescription": "Participant was transformed as transform rule: Name Prefix Baroness was executed"
+      }
     }
   ],
   "inputParticipantRecord": [
@@ -991,6 +1021,86 @@
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 19,
+      "nhs_number": 9991742468,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81629",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "LD",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "HER ROYAL HIGHNESS",
+      "given_name": "TransformNamePrefix ADD 19",
+      "other_given_name": "OtherGivenName 19",
+      "family_name": "FamiliyName 19",
+      "previous_family_name": "PreviousFamilyName 19",
+      "date_of_birth": "19700101",
+      "gender": 0,
+      "address_line_1": "19 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AL1 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "7888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 20,
+      "nhs_number": 9991845666,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81630",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "LDS",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "BARONESS",
+      "given_name": "TransformNamePrefix ADD 20",
+      "other_given_name": "OtherGivenName 20",
+      "family_name": "FamiliyName 20",
+      "previous_family_name": "PreviousFamilyName 20",
+      "date_of_birth": "19700101",
+      "gender": 2,
+      "address_line_1": "20 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AL1 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "7888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
     }
   ],
   "nhsNumbers": [
@@ -1011,6 +1121,8 @@
     "9991449272",
     "9991536566",
     "9991615091",
-    "9991640959"
+    "9991640959",
+    "9991742468",
+    "9991845666"
   ]
 }
