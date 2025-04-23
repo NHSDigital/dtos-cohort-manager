@@ -42,7 +42,7 @@ test.only('06 @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibi
     await processFileViaStorage(parquetFileAmend!);
   });
 
-  await test.step(`Then validate eligibility flag is always set to true for ADD`, async () => {
+  await test.step(`Then validate eligibility flag is always set to true for AMENDED`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
