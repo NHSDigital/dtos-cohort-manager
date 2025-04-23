@@ -3,7 +3,7 @@ import { cleanupDatabaseFromAPI, getCheckInDataBaseValidations, getTestData, pro
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 
 
-let testCaseBuilder: any[] = getCheckInDataBaseValidations("@DTOSS-8348-01")
+let testCaseBuilder: any[] = getCheckInDataBaseValidations("@DTOSS-5556-01")
 
 
 test.beforeAll(async ({ request }, testInfo) => {
