@@ -22,3 +22,14 @@ the below tool will need installing to easily verify the changes to the snapshot
 4a - If the Tests pass, This indicates that there have been no functional changes have been made and you are good to go!
 4b - If the Tests fail you can run `dotnet verify review` this will show the differences between the verified(previous) and received (New)
 
+## ToDo
+
+- Clear down and load the test files are part of the test. Clear the database once all the tests are completed?
+  - Maybe only clear the NHS Numbers that are part of the smoke test file and only filter on that when doing the comparison
+- Test the api responses by calling the APIs from the Snapshot tests
+  - Such as retrieve cohort Distribution and the Exception API
+  - Do this after each file is run?
+  - Do this in addition to the database checks?
+- Create new test classes for each of the smoke test files
+- Work on how this would work in the pipeline
+- Ensure the above process works as expected
