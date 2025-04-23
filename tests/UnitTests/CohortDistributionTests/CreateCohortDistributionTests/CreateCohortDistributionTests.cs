@@ -1,7 +1,9 @@
 namespace NHS.CohortManager.Tests.UnitTests.CreateCohortDistributionTests;
 
 using System.Net;
+using System.Text;
 using System.Text.Json;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Common;
@@ -10,6 +12,8 @@ using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.CohortDistribution;
 using NHS.CohortManager.Tests.TestUtils;
 using Model;
+using Model.Enums;
+using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
 using NHS.Screening.CreateCohortDistribution;
@@ -18,18 +22,19 @@ using Microsoft.Extensions.Options;
 [TestClass]
 public class CreateCohortDistributionTests
 {
-    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<ILogger<CreateCohortDistribution>> _logger = new();
     private readonly Mock<ICohortDistributionHelper> _cohortDistributionHelper = new();
     private readonly CreateCohortDistribution _sut;
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+    private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
     private readonly Mock<IOptions<CreateCohortDistributionConfig>> _config = new();
     private Mock<HttpRequestData> _request;
     private readonly SetupRequest _setupRequest = new();
-    private readonly CohortDistributionParticipant _cohortDistributionParticipant;
-    private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private CohortDistributionParticipant _cohortDistributionParticipant;
+    private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
 
 
     public CreateCohortDistributionTests()
@@ -75,7 +80,7 @@ public class CreateCohortDistributionTests
             .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
-        _sut = new CreateCohortDistribution(_logger.Object, _httpClientFunction.Object, _cohortDistributionHelper.Object,
+        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
                                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                                             _participantManagementClientMock.Object, _config.Object);
 
@@ -203,7 +208,7 @@ public class CreateCohortDistributionTests
         await _sut.RunAsync(_requestBody);
 
         // Assert
-        _httpClientFunction.Verify(x => x.PostAsync("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
+        _callFunction.Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -223,8 +228,8 @@ public class CreateCohortDistributionTests
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement { ExceptionFlag = 0 });
 
-        _httpClientFunction
-            .Setup(call => call.PostAsync(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
+        _callFunction
+            .Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
             .Throws(new Exception("an error happened"));
 
         try
@@ -260,17 +265,21 @@ public class CreateCohortDistributionTests
             .Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
             .ReturnsAsync(new CohortDistributionParticipant());
 
-        _httpClientFunction
-            .Setup(call => call.PostAsync(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _sendToCohortDistributionResponse
+            .Setup(x => x.StatusCode)
+            .Returns(HttpStatusCode.OK);
+        _callFunction
+            .Setup(call => call.SendPost(It.Is<string>(s => s.Contains("AddCohortDistributionURL")), It.IsAny<string>()))
+            .ReturnsAsync(_sendToCohortDistributionResponse.Object);
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement() { ExceptionFlag = 0 });
 
-        _httpClientFunction
-            .Setup(call => call.PostAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
+        _callFunction
+            .Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(response);
 
         // Act
         await _sut.RunAsync(_requestBody);
@@ -294,9 +303,9 @@ public class CreateCohortDistributionTests
             .Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>()))
             .ReturnsAsync(new CohortDistributionParticipant());
 
-        _httpClientFunction.Setup(x => x.PostAsync("AddCohortDistributionURL", It.IsAny<string>())).ReturnsAsync(
-            new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest }
-        );
+        var response = new Mock<HttpWebResponse>();
+        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.BadRequest);
+        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(response.Object);
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement() { ExceptionFlag = 1 });
@@ -323,9 +332,10 @@ public class CreateCohortDistributionTests
             .Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("");
 
-        _httpClientFunction.Setup(x => x.PostAsync("AddCohortDistributionURL", It.IsAny<string>())).ReturnsAsync(
-            new HttpResponseMessage { StatusCode = HttpStatusCode.OK }
-        );
+        var response = new Mock<HttpWebResponse>();
+        response.Setup(r => r.StatusCode).Returns(HttpStatusCode.OK);
+
+        _callFunction.Setup(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>())).ReturnsAsync(response.Object);
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))

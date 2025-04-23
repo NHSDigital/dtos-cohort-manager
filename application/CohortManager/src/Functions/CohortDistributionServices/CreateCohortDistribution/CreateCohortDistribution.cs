@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 public class CreateCohortDistribution
 {
     private readonly ILogger<CreateCohortDistribution> _logger;
-    private readonly IHttpClientFunction _httpClientFunction;
+    private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
@@ -24,7 +24,7 @@ public class CreateCohortDistribution
     private readonly CreateCohortDistributionConfig _config;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
-                                    IHttpClientFunction httpClientFunction,
+                                    ICallFunction callFunction,
                                     ICohortDistributionHelper CohortDistributionHelper,
                                     IExceptionHandler exceptionHandler,
                                     IAzureQueueStorageHelper azureQueueStorageHelper,
@@ -32,7 +32,7 @@ public class CreateCohortDistribution
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
-        _httpClientFunction = httpClientFunction;
+        _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -140,11 +140,11 @@ public class CreateCohortDistribution
         await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
-    private async Task<HttpResponseMessage> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
+    private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = DatabaseHelper.ConvertBoolStringToBoolByType("IsExtractedToBSSelect", DataTypes.Integer).ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
-        var response = await _httpClientFunction.PostAsync(_config.AddCohortDistributionURL, json);
+        var response = await _callFunction.SendPost(_config.AddCohortDistributionURL, json);
 
         _logger.LogInformation("Called {AddCohortDistribution} function", nameof(AddCohortDistribution));
         return response;
