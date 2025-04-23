@@ -57,7 +57,6 @@ stages:
     displayName: Run post-deployment tests
     pool:
       name: private-pool-dev-uks
-    variables:
 
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
