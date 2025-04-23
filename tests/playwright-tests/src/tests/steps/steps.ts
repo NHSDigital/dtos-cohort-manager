@@ -30,8 +30,8 @@ export async function processFileViaStorage(parquetFilePath: string) {
 }
 
 export async function getTestData(scenarioFolderName: string
-  ,recordType: string = "ADD"
-  ,createParquetFile = false): Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
+  , recordType: string = "ADD"
+  , createParquetFile = false):  Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
     console.info(`ℹ️\tTest files input data path: ${testFilesPath}`);
@@ -52,6 +52,17 @@ export async function getTestData(scenarioFolderName: string
     return [parsedData.validations, uniqueNhsNumbers, parquetFile, inputParticipantRecord, testFilesPath];
   });
 }
+
+export function getCheckInDataBaseValidations(scenarioFolderName: string
+  , recordType: string = "ADD") {
+  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+  console.info(`ℹ️\tTest files input data path: ${testFilesPath}`);
+  const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+  const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
+  return parsedData.validations;
+
+}
+
 
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {

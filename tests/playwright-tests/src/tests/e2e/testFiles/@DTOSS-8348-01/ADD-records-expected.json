@@ -4,14 +4,14 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9990069646,
-        "NamePrefix": "A.M"
+        "NamePrefix": "A.ML"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990069646",
-        "RuleId": 38,
+        "RuleId": 37,
         "RuleDescription": "Participant was transformed as transform rule: Name Prefix AirMarshal was executed"
       }
     },
@@ -43,6 +43,36 @@
         "NhsNumber": "9990201897",
         "RuleId": 39,
         "RuleDescription": "Participant was transformed as transform rule: Name Prefix Brigadier was executed"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990286760,
+        "NamePrefix": "BRO"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990286760",
+        "RuleId": 40,
+        "RuleDescription": "Participant was transformed as transform rule: Name Prefix Brother was executed"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990335133,
+        "NamePrefix": "BRO"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990335133",
+        "RuleId": 41,
+        "RuleDescription": "Participant was transformed as transform rule: Name Prefix Br was executed"
       }
     }
   ],
@@ -166,11 +196,93 @@
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 4,
+      "nhs_number": 9990286760,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81623",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "LA",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "BROTHER",
+      "given_name": "TransformNamePrefix ADD 4",
+      "other_given_name": "OtherGivenName 4",
+      "family_name": "FamiliyName 4",
+      "previous_family_name": "PreviousFamilyName 4",
+      "date_of_birth": "19700101",
+      "gender": 0,
+      "address_line_1": "4 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AL1 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "7888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 5,
+      "nhs_number": 9990335133,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81629",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "LD",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "BR",
+      "given_name": "TransformNamePrefix ADD 5",
+      "other_given_name": "OtherGivenName 5",
+      "family_name": "FamiliyName 5",
+      "previous_family_name": "PreviousFamilyName 5",
+      "date_of_birth": "19700101",
+      "gender": 2,
+      "address_line_1": "5 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AL1 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "7888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
     }
   ],
   "nhsNumbers": [
     "9990069646",
     "9990162573",
-    "9990201897"
+    "9990201897",
+    "9990286760",
+    "9990335133"
   ]
 }

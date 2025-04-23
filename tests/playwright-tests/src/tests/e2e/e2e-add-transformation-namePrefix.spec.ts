@@ -1,33 +1,50 @@
 import { test } from '@playwright/test';
-import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
+import { cleanupDatabaseFromAPI, getCheckInDataBaseValidations, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 
 
+let testCaseBuilder: any[] = getCheckInDataBaseValidations("@DTOSS-8348-01")
 
-test.describe.parallel('namePrefix', () => {
 
-  test.only('@DTOSS-8348-01 Verify file upload and cohort distribution process for ADD - namePrefix', {
-    tag: ['@regression @e2e', '@ds'],
-  },  async ({ request }, testInfo) => {
-    const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
-    let runTimeParquetFile: string = "";
-    if (parquetFile == ""){
-      runTimeParquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!, "ADD", false);
-    }
+test.beforeAll(async ({ request }, testInfo) => {
 
-    await test.step(`Given database does not contain ADD records that will be processed`, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
-    });
+  const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
-    await test.step(`When ADD participants are processed via storage`, async () => {
-      await processFileViaStorage(runTimeParquetFile);
-    });
+  let runTimeParquetFile: string = "";
+  if (!parquetFile) {
+    runTimeParquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!, "ADD", false);
+  }
 
-    await test.step(`Then NHS Numbers should be should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, checkInDatabase);
-    });
-
+  await test.step(`Given database does not contain ADD records that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+  });
+  await test.step(`When ADD participants are processed via storage`, async () => {
+    await processFileViaStorage(runTimeParquetFile);
   });
 
 });
+
+testCaseBuilder.forEach(async (validations, index) => {
+
+  const testScenarioName = await buildTestScenarioName(validations);
+  test(`@DTOSS-8348-01 @ut ${testScenarioName}`, async ({ request }) => {
+      await validateSqlDatabaseFromAPI(request, [validations]);
+  });
+});
+
+
+async function buildTestScenarioName(validations: any){
+  const testScenario = validations.validations;
+  if (testScenario.NamePrefix == undefined) {
+    return `Verify RuleId as ${testScenario.RuleId} & description as ${testScenario.RuleDescription} for NHS participant ${testScenario.NhsNumber}`
+  } else {
+    return `Verify NamePrefix as ${testScenario.NamePrefix} for NHS participant ${testScenario.NHSNumber}`
+  }
+}
+
+
+
+
+
+
 
