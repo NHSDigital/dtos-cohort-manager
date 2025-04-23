@@ -8,7 +8,7 @@ let testCaseBuilder: any[] = getCheckInDataBaseValidations("@DTOSS-5556-01")
 
 test.beforeAll(async ({ request }, testInfo) => {
 
-  const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
+  const [, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
   let runTimeParquetFile: string = "";
   if (!parquetFile) {
