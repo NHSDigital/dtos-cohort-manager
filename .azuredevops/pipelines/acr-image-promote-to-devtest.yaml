@@ -58,13 +58,11 @@ stages:
     pool:
       name: private-pool-dev-uks
     variables:
-      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
-      AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
-      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
+
     steps:
-    - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
+    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
       parameters:
         serviceConnection: $(SERVICE_CONNECTION)
-        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
-        testProjectName: 'NHS.CohortManager.SmokeTests'
+        testProjectDirectory: 'tests/playwright-tests'
+        testfileDirectory: 'src/tests/e2e/testFiles'
+        testProjectName: 'tests'
