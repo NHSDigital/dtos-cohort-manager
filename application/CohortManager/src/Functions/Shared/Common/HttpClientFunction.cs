@@ -135,6 +135,9 @@ public class HttpClientFunction : IHttpClientFunction
         return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
     }
 
+    /// <summary>
+    /// Reads response content from successful GET requests and returns it as a string. Returns null for unsuccessful requests.
+    /// </summary>
     private async Task<string> GetAsync(HttpClient client)
     {
         var url = client.BaseAddress?.ToString() ?? string.Empty;
