@@ -27,6 +27,7 @@ public interface IHttpClientFunction
 
     /// <summary>
     /// Performs a GET request to a PDS endpoint using HttpClient.
+    /// This is a WIP as additional work is required to use the PDS endpoint from cohort manager. Currently it just uses the PDS sandbox API.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
