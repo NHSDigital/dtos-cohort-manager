@@ -9,6 +9,8 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddHttpClient();
+        // Register health checks
+        services.AddBasicHealthCheck("NEMSSubscription");
     })
     .Build();
 
