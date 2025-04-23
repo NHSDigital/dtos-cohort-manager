@@ -41,7 +41,7 @@ stages:
       name: private-pool-prod-uks
     displayName: Update/copy Docker images with new tag
     variables:
-      - group: INT_image_pipelines
+      - group: NFT_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
