@@ -47,12 +47,16 @@ public class ClosureResolver : ExpressionVisitor
     {
         if (node.Type == typeof(Guid) && node.Value is Guid guidValue)
         {
-            /* 
-            * Forces guid to be wrapped in quotes and and into the type Guid. 
-            * This is because the data service wants the guid to be enclosed in quotes. 
-            * This allows  deserialization into a correctly formatted expression 
+            /*
+            * Forces guid to be wrapped in quotes and and into the type Guid.
+            * This is because the data service wants the guid to be enclosed in quotes.
+            * This allows  deserialization into a correctly formatted expression
             */
             return Expression.Parameter(typeof(Guid), $"\"{guidValue}\"");
+        }
+        else if (node.Type == typeof(DateTime) && node.Value is DateTime dateTimeValue)
+        {
+            return Expression.Parameter(typeof(DateTime), $"\"{dateTimeValue.ToString("yyyy-MM-dd HH:mm:ss.fffff")}\"");
         }
         return base.VisitConstant(node);
     }

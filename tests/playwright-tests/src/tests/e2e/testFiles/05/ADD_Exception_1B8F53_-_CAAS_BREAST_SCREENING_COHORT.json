@@ -2,11 +2,9 @@
   "validations": [
     {
       "validations": {
-        "tableName": "PARTICIPANT_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612314172",
-        "columnName2": "EXCEPTION_FLAG",
-        "columnValue2": "1"
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 2612314172,
+        "ExceptionFlag":1
       }
     }
   ]

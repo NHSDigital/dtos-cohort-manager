@@ -1,12 +1,10 @@
 {
   "validations": [
-    {
+   {
       "validations": {
-        "tableName": "BS_COHORT_DISTRIBUTION",
-        "columnName": "NHS_Number",
-        "columnValue": "2312514176",
-        "columnName2": "GIVEN_NAME",
-        "columnValue2": "AMENDEDNewTest1"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "GivenName": "AMENDEDNewTest1",
+        "NHSNumber": 2312514176
       }
     }
   ]

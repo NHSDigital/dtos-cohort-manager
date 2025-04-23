@@ -17,4 +17,6 @@ public class RetrieveMeshFileConfig
     [Required]
     public string caasfolder_STORAGE {get; set;}
     public string ServerSideCerts { get; set; }
+    public string MeshCertName { get; set; }
+    public bool? BypassServerCertificateValidation {get;set;}
 }

@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.CohortDistributionDataServices;
 
+using System.Globalization;
 using System.Net;
 using System.Text.Json;
 using Common;
@@ -7,6 +8,7 @@ using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using NHS.CohortManager.Shared.Utilities;
 
 /// <summary>
 /// Azure Function for retrieving cohort audit history data based on RequestId, Status Code and Date.
@@ -29,6 +31,7 @@ public class RetrieveCohortRequestAudit
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IHttpParserHelper _httpParserHelper;
+    public const string Iso8601 = "yyyyMMdd";
 
     public RetrieveCohortRequestAudit(ILogger<RetrieveCohortRequestAudit> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper)
     {
@@ -50,12 +53,12 @@ public class RetrieveCohortRequestAudit
 
         if (!string.IsNullOrEmpty(dateFromQuery))
         {
-            var isValidDateFormat = DateTimeHelper.IsValidDateFormat(dateFromQuery);
-            if (!isValidDateFormat.isValidDateFormat)
+            bool isValidDateFormat = DateTime.TryParseExact(dateFromQuery, Iso8601, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+            if (!isValidDateFormat)
             {
                 return _httpParserHelper.LogErrorResponse(req, "Invalid date format. Please use yyyyMMdd.");
             }
-            dateFrom = isValidDateFormat.date;
+            dateFrom = date;
         }
 
         try

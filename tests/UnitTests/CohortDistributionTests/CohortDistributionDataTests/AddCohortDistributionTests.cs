@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Castle.Core.Logging;
@@ -43,6 +44,7 @@ public class AddCohortDistributionTests
         var rowCount = 1;
         _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(listOfValues);
         _cohortDistributionDataServiceClient.Setup(x => x.Update(It.IsAny<CohortDistribution>())).ReturnsAsync(true);
+        _cohortDistributionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
         // Act
         var result = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
@@ -71,6 +73,7 @@ public class AddCohortDistributionTests
         var rowCount = 2;
         _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(_cohortDistributionList);
         _cohortDistributionDataServiceClient.Setup(x => x.Update(It.IsAny<CohortDistribution>())).ReturnsAsync(true);
+        _cohortDistributionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
 
         // Act
         var result = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
