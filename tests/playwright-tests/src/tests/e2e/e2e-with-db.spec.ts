@@ -5,7 +5,7 @@ import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSql
 
 test.describe.parallel('Positive @smoke Tests', () => {
 
-  test('01 @smoke @DTOSS-6256 @api Verify file upload and cohort distribution process for ADD', async ({ request }, testInfo) => {
+  test('01 @smoke @e2e @DTOSS-6256 @api Verify file upload and cohort distribution process for ADD', async ({ request }, testInfo) => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
@@ -22,7 +22,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
 
   });
 
-  test('02 @smoke @DTOSS-6257 @db Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ request }, testInfo) => {
+  test('02 @smoke @e2e @DTOSS-6257 @db Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ request }, testInfo) => {
 
     const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
     const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
@@ -49,7 +49,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
 
   });
 
-  test('04 @smoke @DTOSS-6407 Verify file upload handles EmptyDOB Exception', async ({ request }, testInfo) => {
+  test('04 @smoke @e2e @DTOSS-6407 Verify file upload handles EmptyDOB Exception', async ({ request }, testInfo) => {
 
     const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
     const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
@@ -81,7 +81,7 @@ test.describe.parallel('Positive @smoke Tests', () => {
 
 test.describe.parallel('Exception @smoke Tests', () => {
 
-  test('03 @smoke @DTOSS-6406 Verify file upload handles invalid GP Practice Code Exception', async ({ request }, testInfo) => {
+  test('03 @smoke @e2e @DTOSS-6406 Verify file upload handles invalid GP Practice Code Exception', async ({ request }, testInfo) => {
 
     const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
@@ -98,7 +98,7 @@ test.describe.parallel('Exception @smoke Tests', () => {
     });
   });
 
-  test('05 @smoke @DTOSS-7960 @api Verify GP Practice Code Exception flag in participant management set to 1', async ({ request }, testInfo) => {
+  test('05 @smoke @e2e @DTOSS-7960 @api Verify GP Practice Code Exception flag in participant management set to 1', async ({ request }, testInfo) => {
     console.info(`Running test: ${testInfo.title}`);
 
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
