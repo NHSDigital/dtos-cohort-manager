@@ -18,13 +18,18 @@ public class HttpClientFunctionTests
     {
         {"mock-key", "mock-value" }
     };
+    private const string _mockContent = "mock content";
+    private readonly HttpResponseMessage _mockResponse = new HttpResponseMessage
+    {
+        StatusCode = HttpStatusCode.OK,
+        Content = new StringContent(_mockContent)
+    };
 
     #region SendGet
     [TestMethod]
     public async Task Run_SendGetIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
-        var mockContent = "mock content";
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -32,13 +37,7 @@ public class HttpClientFunctionTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(
-                new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(mockContent)
-                }
-            );
+            .ReturnsAsync(_mockResponse);
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
@@ -50,7 +49,7 @@ public class HttpClientFunctionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(mockContent, result);
+        Assert.AreEqual(_mockContent, result);
     }
 
     [TestMethod]
@@ -94,7 +93,6 @@ public class HttpClientFunctionTests
     public async Task Run_SendGetWithParametersIsSuccessful_ReturnsOkResponse()
     {
         // Arrange
-        var mockContent = "mock content";
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -102,13 +100,7 @@ public class HttpClientFunctionTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(
-                new HttpResponseMessage
-                {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new StringContent(mockContent)
-                }
-            );
+            .ReturnsAsync(_mockResponse);
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
@@ -120,7 +112,7 @@ public class HttpClientFunctionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(mockContent, result);
+        Assert.AreEqual(_mockContent, result);
     }
 
     [TestMethod]
@@ -393,6 +385,22 @@ public class HttpClientFunctionTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
+    }
+    #endregion
+
+    #region GetResponseText
+    [TestMethod]
+    public async Task Run_GetResponseText_ReturnsContentAsString()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.GetResponseText(_mockResponse);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(_mockContent, result);
     }
     #endregion
 }

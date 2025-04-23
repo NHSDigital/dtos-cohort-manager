@@ -121,6 +121,11 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
+    public async Task<string> GetResponseText(HttpResponseMessage response)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+
     /// <summary>
     /// Removes the query string from the URL to prevent us logging sensitive information.
     /// </summary>
@@ -148,8 +153,7 @@ public class HttpClientFunction : IHttpClientFunction
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                return jsonResponse;
+                return await GetResponseText(response);
             }
         }
         catch (Exception ex)

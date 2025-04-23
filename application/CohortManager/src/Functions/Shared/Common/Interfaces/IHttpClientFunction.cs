@@ -47,4 +47,11 @@ public interface IHttpClientFunction
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendDelete(string url);
+
+    /// <summary>
+    /// Reads HTTP response content and returns it as a string.
+    /// </summary>
+    /// <param name="response">HTTP response message.</param>
+    /// <returns>string<returns>
+    Task<string> GetResponseText(HttpResponseMessage response);
 }
