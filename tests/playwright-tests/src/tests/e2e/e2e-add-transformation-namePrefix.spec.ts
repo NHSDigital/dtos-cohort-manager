@@ -24,10 +24,10 @@ test.beforeAll(async ({ request }, testInfo) => {
 
 });
 
-testCaseBuilder.forEach(async (validations, index) => {
+testCaseBuilder.forEach(async (validations) => {
 
   const testScenarioName = await buildTestScenarioName(validations);
-  test(`@DTOSS-8348-01 @ut ${testScenarioName}`, async ({ request }) => {
+  test(`@DTOSS-5556-01 @ut ${testScenarioName}`, async ({ request }) => {
       await validateSqlDatabaseFromAPI(request, [validations]);
   });
 });
