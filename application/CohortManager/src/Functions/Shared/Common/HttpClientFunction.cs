@@ -102,7 +102,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendDelete(string url)
+    public async Task<bool> SendDelete(string url)
     {
         using var client = _factory.CreateClient();
 
@@ -112,7 +112,13 @@ public class HttpClientFunction : IHttpClientFunction
         try
         {
             HttpResponseMessage response = await client.DeleteAsync(url);
-            return response;
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                return true;
+            }
+
+            return false;
         }
         catch (Exception ex)
         {

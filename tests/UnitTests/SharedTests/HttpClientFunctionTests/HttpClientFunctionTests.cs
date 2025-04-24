@@ -322,7 +322,7 @@ public class HttpClientFunctionTests
 
     #region SendDelete
     [TestMethod]
-    public async Task Run_SendDeleteIsSuccessful_ReturnsOkResponse()
+    public async Task Run_SendDeleteIsSuccessful_ReturnsTrue()
     {
         // Arrange
         _httpMessageHandler
@@ -349,11 +349,42 @@ public class HttpClientFunctionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(true, result);
     }
 
     [TestMethod]
-    public async Task Run_SendDeleteFails_LogsErrorAndThrowsException()
+    public async Task Run_SendDeleteFails_ReturnsFalse()
+    {
+        // Arrange
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Delete),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(
+                new HttpResponseMessage
+                {
+                    StatusCode = HttpStatusCode.InternalServerError
+                }
+            );
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendDelete(_mockUrl);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(false, result);
+    }
+
+    [TestMethod]
+    public async Task Run_SendDeleteThrowsError_LogsErrorAndThrowsException()
     {
         // Arrange
         var errorMessage = "There was an error";

@@ -45,8 +45,8 @@ public interface IHttpClientFunction
     /// Performs a DELETE request using HttpClient.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
-    /// <returns>HttpResponseMessage<returns>
-    Task<HttpResponseMessage> SendDelete(string url);
+    /// <returns>bool<returns>
+    Task<bool> SendDelete(string url);
 
     /// <summary>
     /// Reads HTTP response content and returns it as a string.
