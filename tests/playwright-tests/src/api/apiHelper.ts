@@ -36,7 +36,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
 
-        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation, false);
         status = await validateFields(apiValidation, matchingObject, nhsNumber);
 
       }
@@ -65,7 +65,7 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
 
-async function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any) {
+async function findMatchingObject(endpoint: string, responseBody: any[], apiValidation: any, includeCount: boolean = true ) {
   let nhsNumber: any;
   let matchingObjects: any[] = [];
   let matchingObject: any;
@@ -83,9 +83,12 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   ? matchingObjects[0]
   : matchingObjects[matchingObjects.length - 1];
 
-  return { matchingObject, nhsNumber };
+  if (includeCount) {
+    return { matchingObject, nhsNumber, count: matchingObjects.length };
+  } else {
+    return { matchingObject, nhsNumber };
+  }
 }
-
 async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
   try{
@@ -101,6 +104,54 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
   }
 
 
+}
+
+export async function validateApiResponseCount(validationJson: any, request: any, expectedCount: number): Promise<boolean> {
+  let status = false;
+
+  for (let attempt = 1; attempt <= apiRetry; attempt++) {
+    if (status) break;
+
+    try {
+      for (const apiValidation of validationJson) {
+        const endpoint = apiValidation.validations.apiEndpoint;
+        response = await fetchApiResponse(endpoint, request);
+
+        expect(response.ok()).toBeTruthy();
+        const responseBody = await response.json();
+        expect(Array.isArray(responseBody)).toBeTruthy();
+
+        // Get the matching object, NHS number, and count of matching records
+        const { matchingObject, nhsNumber, count } = await findMatchingObject(endpoint, responseBody, apiValidation, true);
+
+        // Log the count of matching records
+        console.info(`🚧 Found ${count} matching records in ${endpoint} for NHS Number ${nhsNumber}`);
+
+        status = await validateCount(nhsNumber, count ?? 0, expectedCount);
+
+      }
+    } catch (error) {
+    }
+
+    if (attempt < apiRetry && !status) {
+      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
+      await delayRetry();
+    }
+  }
+  waitTime = Number(config.apiWaitTime); //Reset to original value on exit.
+  return status;
+}
+
+
+
+async function validateCount(nhsNumber: any, count: number, expectedCount: number): Promise<boolean> {
+  if (count !== expectedCount) {
+    console.error(`❌ Validation failed: Expected ${expectedCount} matching record(s), but found ${count} for NHS Number ${nhsNumber}`);
+    return false; // Fail the validation immediately
+  }
+
+  console.info(`✅ Validation completed: ${expectedCount} record(s) validated for NHS Number ${nhsNumber}`);
+  return true;
 }
 
 async function delayRetry() {

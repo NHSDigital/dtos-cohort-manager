@@ -4,7 +4,7 @@ import { InputData } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
-import { validateApiResponse } from "../../api/apiHelper";
+import { validateApiResponse, validateApiResponseCount } from "../../api/apiHelper";
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 
 
@@ -16,7 +16,16 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
 
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {
-    const status = await validateApiResponse(validations, request);
+    const status = await validateApiResponse(validations, request );
+    if(!status){
+      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details`);
+    }
+  });
+}
+
+export async function validateSqlDatabaseFromAPIcount(request: APIRequestContext, validations: any, expectedCount: number) {
+  return test.step(`Validate database for assertions`, async () => {
+    const status = await validateApiResponseCount(validations, request , expectedCount);
     if(!status){
       throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details`);
     }

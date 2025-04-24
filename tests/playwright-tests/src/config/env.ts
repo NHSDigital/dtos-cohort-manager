@@ -35,7 +35,7 @@ export const config = {
   e2eTestFilesPath:'e2e/testFiles',
   apiTestFilesPath:'api/testFiles',
   apiRetry: 8,
-  apiWaitTime: 5000,
+  apiWaitTime: 10000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
   uniqueKeyCohortDistribution: 'CohortDistributionId',

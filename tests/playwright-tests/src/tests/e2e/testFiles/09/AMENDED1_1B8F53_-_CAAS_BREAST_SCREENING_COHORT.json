@@ -1,0 +1,18 @@
+{
+  "validations": [
+   {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "AMENDED",
+        "NHSNumber": 2312514176
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "GivenName": "AMENDEDNewTest1",
+        "NhsNumber": 2312514176
+      }
+    }
+  ]
+}
