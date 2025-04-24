@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.NEMSSubscriptionServicesTests;
+namespace NHS.CohortManager.Tests.UnitTests.NEMSSubscribeTests;
 
 using Moq;
 using Moq.Protected;
@@ -16,28 +16,29 @@ using System;
 using System.Linq;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using NHS.CohortManager.NEMSSubscriptionServices;
 using Common;
 using Model;
+using NHS.CohortManager.DemographicServices;
+using NHS.CohortManager.Tests.TestUtils;
 
 using FhirTask = Hl7.Fhir.Model.Task; // 👈 Alias to avoid ambiguity
 
     [TestClass]
-    public class NEMSSubscriptionTests
+    public class NEMSSubscribeTests
     {
-        private Mock<ILogger<NEMSSubscription>> _loggerMock;
+        private Mock<ILogger<NEMSSubscribe>> _loggerMock;
         private Mock<IHttpClientFactory> _httpClientFactoryMock;
         private Mock<IExceptionHandler> _exceptionHandlerMock;
         private Mock<ICreateResponse> _createResponseMock;
         private Mock<ICallFunction> _callFunctionMock;
         private Mock<HttpMessageHandler> _httpMessageHandlerMock;
 
-        private NEMSSubscription _nemsSubscription;
+        private NEMSSubscribe _nemsSubscribe;
 
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger<NEMSSubscription>>();
+            _loggerMock = new Mock<ILogger<NEMSSubscribe>>();
             _httpClientFactoryMock = new Mock<IHttpClientFactory>();
             _exceptionHandlerMock = new Mock<IExceptionHandler>();
             _createResponseMock = new Mock<ICreateResponse>();
@@ -47,7 +48,7 @@ using FhirTask = Hl7.Fhir.Model.Task; // 👈 Alias to avoid ambiguity
             var httpClient = new HttpClient(_httpMessageHandlerMock.Object);
             _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
-            _nemsSubscription = new NEMSSubscription(
+            _nemsSubscribe = new NEMSSubscribe(
                 _loggerMock.Object,
                 _httpClientFactoryMock.Object,
                 _exceptionHandlerMock.Object,
