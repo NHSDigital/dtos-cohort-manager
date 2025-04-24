@@ -7,12 +7,14 @@ const initialWaitTime = Number(config.apiWaitTime) || 2000;
 const endpointCohortDistributionDataService = config.endpointCohortDistributionDataService;
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
+const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
 
 const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
 const PARTICIPANT_MANAGEMENT_SERVICE = config.participantManagementService;
 const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
+const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
 const NHS_NUMBER_KEY = config.nhsNumberKey;
-const NHS_NUMBER_KEY_EXCEPTION = config.nhsNumberKeyException;
+const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 
 let waitTime = initialWaitTime;
@@ -46,6 +48,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
       await delayRetry();
     }
   }
+  waitTime = Number(config.apiWaitTime); //Reset to original value on exit.
   return status;
 }
 
@@ -56,6 +59,8 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)) {
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
+  } else if(endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+    return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
@@ -65,14 +70,18 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   let matchingObjects: any[] = [];
   let matchingObject: any;
 
-  const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) ? NHS_NUMBER_KEY_EXCEPTION : NHS_NUMBER_KEY;
+  const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
+  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
+  : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
+  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
+  : NHS_NUMBER_KEY; // Default or fallback value
   nhsNumber = apiValidation.validations[nhsNumberKey];
 
   matchingObjects = responseBody.filter((item: Record<string, any>) => item[nhsNumberKey] == nhsNumber);
 
-  matchingObject = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
-    ? matchingObjects[0]
-    : matchingObjects[matchingObjects.length - 1];
+  matchingObject = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE && PARTICIPANT_DEMOGRAPHIC_SERVICE)
+  ? matchingObjects[0]
+  : matchingObjects[matchingObjects.length - 1];
 
   return { matchingObject, nhsNumber };
 }
