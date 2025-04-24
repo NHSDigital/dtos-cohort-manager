@@ -9,6 +9,11 @@ using System.Text.Json;
 using Azure.Data.Tables;
 using Azure;
 using Model;
+using Hl7.Fhir.Model;
+using Hl7.Fhir.Serialization;
+using Hl7.Fhir.Rest;
+using Model;
+using Common;
 
 public class NEMSUnSubscription
 {
@@ -16,14 +21,37 @@ public class NEMSUnSubscription
     protected readonly TableClient _tableClient;
     protected readonly HttpClient _httpClient;
 
-    // Default constructor (for runtime usage)
-    public NEMSUnSubscription()
+    private readonly ILogger<NEMSUnSubscription> _logger;
+    private readonly FhirJsonSerializer _fhirSerializer;
+    private readonly FhirJsonParser _fhirParser;
+    private readonly ICreateResponse _createResponse;
+    private readonly IExceptionHandler _handleException;
+    private readonly ICallFunction _callFunction;
+
+    public interface IExceptionHandler
     {
-        var storageUri = Environment.GetEnvironmentVariable("AzureWebJobsStorage");
-        _tableClient = new TableClient(storageUri, TableName);
-        _httpClient = new HttpClient();
+        Task<HttpResponseData> HandleAsync(HttpRequestData req, HttpStatusCode statusCode, string message);
     }
 
+    // Default constructor (for runtime usage)
+
+
+    public NEMSUnSubscription(ILogger<NEMSUnSubscription> logger,
+    //IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* To Do Later */
+    IHttpClientFactory httpClientFactory,
+    IExceptionHandler handleException,
+    ICreateResponse createResponse ,
+    ICallFunction callFunction)
+    {
+        _logger = logger;
+        _fhirSerializer = new FhirJsonSerializer();
+        _fhirParser = new FhirJsonParser();
+        _httpClient = httpClientFactory.CreateClient();
+        _handleException = handleException;
+        _createResponse = createResponse;
+        _callFunction = callFunction;
+
+    }
     // Constructor for dependency injection (testability)
     public NEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
     {
@@ -64,9 +92,7 @@ public class NEMSUnSubscription
         if (string.IsNullOrEmpty(subscriptionId))
         {
             logger.LogWarning("No subscription record found.");
-            var errorResponse = req.CreateResponse(HttpStatusCode.NotFound);
-            await errorResponse.WriteStringAsync("No subscription record found.");
-            return errorResponse;
+            return await _handleException.HandleAsync(req, HttpStatusCode.NotFound, "No subscription record found.");
         }
 
         bool isDeletedFromNems = await DeleteSubscriptionFromNems(subscriptionId);
@@ -74,9 +100,7 @@ public class NEMSUnSubscription
         if (!isDeletedFromNems)
         {
             logger.LogError("Failed to delete subscription from NEMS.");
-            var errorResponse = req.CreateResponse(HttpStatusCode.BadGateway);
-            await errorResponse.WriteStringAsync("Failed to delete subscription from NEMS.");
-            return errorResponse;
+            return await _handleException.HandleAsync(req, HttpStatusCode.BadGateway, "Failed to delete subscription from NEMS.");
         }
 
         await DeleteSubscriptionFromTableAsync(nhsNumber);
@@ -126,15 +150,17 @@ public class NEMSUnSubscription
     /// <summary>
     /// Deletes the subscription ID from the Azure Table.
     /// </summary>
-    protected virtual async Task DeleteSubscriptionFromTableAsync(string nhsNumber)
+    protected virtual async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
         try
         {
             await _tableClient.DeleteEntityAsync("SubscriptionPartition", nhsNumber);
+            return true;
         }
         catch (RequestFailedException ex)
         {
             Console.WriteLine($"Error deleting from table: {ex.Message}");
+            return false;
         }
     }
 }

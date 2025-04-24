@@ -115,6 +115,8 @@ public class TestableNEMSUnSubscription : NHS.CohortManager.NEMSUnSubscription.N
     public string? TestLookupResult { get; set; }
     public bool TestNemsDeleteResult { get; set; }
 
+
+
     public TestableNEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
         : base(tableClient, httpClient)
     {
@@ -130,8 +132,8 @@ public class TestableNEMSUnSubscription : NHS.CohortManager.NEMSUnSubscription.N
         return await Task.FromResult(TestNemsDeleteResult);
     }
 
-    protected override async Task DeleteSubscriptionFromTableAsync(string nhsNumber)
+   protected override Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
-        await Task.CompletedTask;
+        return Task.FromResult(TestNemsDeleteResult);
     }
 }
