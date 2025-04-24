@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 1111110662,
+        "NHSNumber": 9991110662,
         "PrimaryCareProvider": "E85121",
         "NamePrefix": "MR",
         "GivenName": "NewTest 1",
@@ -21,7 +21,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 1111110662,
+        "NhsNumber": 9991110662,
         "PrimaryCareProvider": "E85121",
         "NamePrefix": "MR",
         "GivenName": "NewTest 1",
@@ -39,20 +39,20 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 2222211794
+        "NHSNumber": 9992211794
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 2222211794,
+        "NHSNumber": 9992211794,
         "PrimaryCareProvider": "E85121"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 2222211794,
+        "NhsNumber": 9992211794,
         "PrimaryCareProvider": "E85121"
       }
     }
