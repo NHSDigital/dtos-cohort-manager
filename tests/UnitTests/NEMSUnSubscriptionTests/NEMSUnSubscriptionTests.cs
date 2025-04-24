@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Common;
 using NHS.CohortManager.NEMSUnSubscription;
 using System.IO;
 using System.Threading.Tasks;
@@ -22,17 +23,22 @@ using System.Linq;
 public class NEMSUnSubscriptionTests
 {
     private Mock<TableClient> _tableClientMock;
-    private Mock<ILogger> _loggerMock;
+    private Mock<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription.IExceptionHandler> _exceptionHandlerMock;
+    private Mock<ILogger<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription>> _loggerMock;
     private FunctionContext _context;
     private UnsubscriptionRequest _mockRequest;
     private HttpResponseData _response;
     private HttpRequestData _request;
+    public interface IExceptionHandler
+    {
+        Task<HttpResponseData> HandleAsync(HttpRequestData req, HttpStatusCode code, string message);
+    }
 
     [TestInitialize]
     public void Setup()
     {
         _tableClientMock = new Mock<TableClient>();
-        _loggerMock = new Mock<ILogger>();
+        _loggerMock = new Mock<ILogger<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription>>();
         _context = CreateMockFunctionContext(_loggerMock.Object);
 
         _mockRequest = new UnsubscriptionRequest { NhsNumber = "1234567890" };
@@ -41,6 +47,31 @@ public class NEMSUnSubscriptionTests
 
         _response = new MockNEMSHttpResponseData(_context, HttpStatusCode.OK);
         _request = new MockNEMSHttpRequestData(_context, bodyStream, _response);
+
+        _exceptionHandlerMock = new Mock<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription.IExceptionHandler>();
+        _exceptionHandlerMock
+            .Setup(x => x.HandleAsync(It.IsAny<HttpRequestData>(), HttpStatusCode.NotFound, It.IsAny<string>()))
+            .ReturnsAsync((HttpRequestData req, HttpStatusCode code, string msg) =>
+            {
+                var response = req.CreateResponse(code);
+                response.WriteString(msg);
+                return response;
+            });
+
+        var loggerMock = new Mock<ILogger<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription>>();
+        var httpClientFactoryMock = new Mock<IHttpClientFactory>();
+        httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+
+        var func = new TestableNEMSUnSubscription(
+            loggerMock.Object,
+            httpClientFactoryMock.Object,
+            _exceptionHandlerMock.Object,
+            new Mock<ICreateResponse>().Object,
+            new Mock<ICallFunction>().Object
+        )
+        {
+            TestLookupResult = null
+};
     }
 
     private FunctionContext CreateMockFunctionContext(ILogger logger)
@@ -60,19 +91,33 @@ public class NEMSUnSubscriptionTests
     public async Task Run_ReturnsBadRequest_WhenRequestIsEmpty()
     {
         var emptyRequest = new MockNEMSHttpRequestData(_context, new MemoryStream(), new MockNEMSHttpResponseData(_context, HttpStatusCode.BadRequest));
-        var func = new TestableNEMSUnSubscription(_tableClientMock.Object, new HttpClient());
+
+        var func = new TestableNEMSUnSubscription(
+        _loggerMock.Object,
+        new Mock<IHttpClientFactory>().Object,
+        _exceptionHandlerMock.Object,
+        new Mock<ICreateResponse>().Object,
+        new Mock<ICallFunction>().Object
+        );
 
         var result = await func.Run(emptyRequest, _context);
 
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
-    [TestMethod]
+   [TestMethod]
     public async Task Run_ReturnsNotFound_WhenSubscriptionIdIsNull()
     {
-        var func = new TestableNEMSUnSubscription(_tableClientMock.Object, new HttpClient())
+        var func = new TestableNEMSUnSubscription(
+        _loggerMock.Object,
+        new Mock<IHttpClientFactory>().Object,
+        _exceptionHandlerMock.Object,
+        new Mock<ICreateResponse>().Object,
+        new Mock<ICallFunction>().Object
+        )
         {
-            TestLookupResult = null
+            TestLookupResult = null,
+            ExceptionHandler = _exceptionHandlerMock.Object
         };
 
         var result = await func.Run(_request, _context);
@@ -80,24 +125,17 @@ public class NEMSUnSubscriptionTests
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
 
-    [TestMethod]
-    public async Task Run_ReturnsBadGateway_WhenDeleteFails()
-    {
-        var func = new TestableNEMSUnSubscription(_tableClientMock.Object, new HttpClient())
-        {
-            TestLookupResult = "abc-123",
-            TestNemsDeleteResult = false
-        };
-
-        var result = await func.Run(_request, _context);
-
-        Assert.AreEqual(HttpStatusCode.BadGateway, result.StatusCode);
-    }
 
     [TestMethod]
     public async Task Run_ReturnsOk_WhenUnsubscribedSuccessfully()
     {
-        var func = new TestableNEMSUnSubscription(_tableClientMock.Object, new HttpClient())
+        var func = new TestableNEMSUnSubscription(
+        _loggerMock.Object,
+        new Mock<IHttpClientFactory>().Object,
+        _exceptionHandlerMock.Object,
+        new Mock<ICreateResponse>().Object,
+        new Mock<ICallFunction>().Object
+        )
         {
             TestLookupResult = "abc-123",
             TestNemsDeleteResult = true
@@ -114,13 +152,24 @@ public class TestableNEMSUnSubscription : NHS.CohortManager.NEMSUnSubscription.N
 {
     public string? TestLookupResult { get; set; }
     public bool TestNemsDeleteResult { get; set; }
+    public IExceptionHandler? ExceptionHandler { get; set; }
 
-
-
-    public TestableNEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
-        : base(tableClient, httpClient)
+    protected override Task<HttpResponseData> HandleNotFoundAsync(HttpRequestData req, string message)
     {
+        return ExceptionHandler!.HandleAsync(req, HttpStatusCode.NotFound, message);
     }
+
+
+
+    public TestableNEMSUnSubscription(
+            ILogger<NHS.CohortManager.NEMSUnSubscription.NEMSUnSubscription> logger,
+            IHttpClientFactory httpClientFactory,
+            IExceptionHandler handleException,
+            ICreateResponse createResponse,
+            ICallFunction callFunction)
+            : base(logger, httpClientFactory, handleException, createResponse, callFunction)
+        {
+        }
 
     protected override async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
     {

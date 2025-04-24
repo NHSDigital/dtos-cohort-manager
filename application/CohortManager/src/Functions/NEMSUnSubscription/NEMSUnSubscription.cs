@@ -33,6 +33,11 @@ public class NEMSUnSubscription
         Task<HttpResponseData> HandleAsync(HttpRequestData req, HttpStatusCode statusCode, string message);
     }
 
+    protected virtual Task<HttpResponseData> HandleNotFoundAsync(HttpRequestData req, string message)
+    {
+        return _handleException.HandleAsync(req, HttpStatusCode.NotFound, message);
+    }
+
     // Default constructor (for runtime usage)
 
 
