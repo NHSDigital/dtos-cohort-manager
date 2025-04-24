@@ -14,8 +14,9 @@ except ModuleNotFoundError:
 def send_sample_file(sample_file):
     try:
         load_dotenv(dotenv_path="../../.env")
-        CONNECTION_STRING = os.getenv('AZURITE_CONNECTION_STRING')
-        blob_service_client = BlobServiceClient.from_connection_string(CONNECTION_STRING)
+        connection_string = os.getenv('AZURITE_CONNECTION_STRING')
+        connection_string = connection_string.replace('azurite', 'localhost')
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         print("Connected to Azurite")
     except FileNotFoundError:
         sys.exit(".env file not found, please follow the instructions in the docs to create one.")
