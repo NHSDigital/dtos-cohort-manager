@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import { cleanupDatabaseFromAPI, getApiTestData, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
 
-test('06 @epic2-high-priority @DTOSS-8544 @Implement Validation for Eligibility Flag for Add', async ({ request }, testInfo) => {
+test('06 @regression @e2e @epic2-high-priority @DTOSS-8544 @Implement Validation for Eligibility Flag for Add', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
@@ -24,7 +24,7 @@ test('06 @epic2-high-priority @DTOSS-8544 @Implement Validation for Eligibility 
 
 
 
-test('06 @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
+test('06 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
   const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
@@ -49,7 +49,7 @@ test('06 @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility 
   });
 });
 
-test('07 @epic2-high-priority @DTOSS-8534 @Implement validate eligibility flag set to null for ADD should raise exception', async ({ request }, testInfo) => {
+test('07 @regression @e2e @epic2-high-priority @DTOSS-8534 @Implement validate eligibility flag set to null for ADD should raise exception', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
@@ -65,6 +65,22 @@ test('07 @epic2-high-priority @DTOSS-8534 @Implement validate eligibility flag s
   });
 
   await test.step(`Then validate eligibility flag set to flase for ADD`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  });
+});
+
+test.only('09 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for ADD', async ({ request }, testInfo) => {
+  const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
+
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, nhsNumber);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(parquetFileAdd!);
+  });
+
+  await test.step(`Then validate invalid flag set to flase for ADD`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
