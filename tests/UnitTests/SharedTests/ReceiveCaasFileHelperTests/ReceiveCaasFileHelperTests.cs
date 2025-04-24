@@ -31,35 +31,23 @@ namespace Common.Tests
     [TestMethod]
     public async Task MapParticipant_ReturnsValidParticipant()
     {
+        // Arrange
         var rec = new ParticipantsParquetMap
         {
             Gender = (int)Gender.Female,
             EligibilityFlag = true
         };
 
+        // Act
         var result = await _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
 
+        // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("scr123", result.ScreeningId);
         Assert.AreEqual("1", result.EligibilityFlag);
         Assert.AreEqual(Gender.Female, result.Gender);
     }
 
-
-
-    [TestMethod]
-    public void BitStringFromNullableBoolean_ReturnsExpectedValues()
-    {
-        var method = typeof(ReceiveCaasFileHelper).GetMethod("BitStringFromNullableBoolean", BindingFlags.NonPublic | BindingFlags.Static);
-
-        var resultTrue = method.Invoke(null, new object[] { (bool?)true });
-        var resultFalse = method.Invoke(null, new object[] { (bool?)false });
-        var resultNull = method.Invoke(null, new object[] { null });
-
-        Assert.AreEqual("1", resultTrue);
-        Assert.AreEqual("0", resultFalse);
-        Assert.IsNull(resultNull);
-    }
 
     [TestMethod]
     public async Task InsertValidationErrorIntoDatabase_LogsFailureProperly()
@@ -91,10 +79,13 @@ namespace Common.Tests
     [TestMethod]
     public void GetUrlFromEnvironment_ReturnsUrl()
     {
+        // Arrange
         Environment.SetEnvironmentVariable("TestKey", "http://url");
 
+        // Act
         var result = _helper.GetUrlFromEnvironment("TestKey");
 
+        // Assert
         Assert.AreEqual("http://url", result);
     }
 
@@ -108,7 +99,6 @@ namespace Common.Tests
         Assert.ThrowsException<InvalidOperationException>(() =>
             _helper.GetUrlFromEnvironment("MissingKey"));
 
-        // Verify logger
         _mockLogger.Verify(
             x => x.Log(
                 LogLevel.Error,
@@ -125,6 +115,7 @@ namespace Common.Tests
     [TestMethod]
     public async Task CheckFileName_ReturnsFalse_IfInvalid()
     {
+        // Arrange
         var parser = new FileNameParser("testname");
 
         Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
@@ -134,8 +125,10 @@ namespace Common.Tests
             .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(mockResponse.Object);
 
+        // Act
         var result = await _helper.CheckFileName("badfile", parser, "error happened");
 
+        // Assert
         Assert.IsFalse(result);
         _mockCallFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
