@@ -5,7 +5,7 @@ import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSql
 
 test.describe.parallel('Positive @smoke Tests', () => {
 
-  test('08 @smoke @DTOSS-8519 @api Verify file upload into participants table for ADD', async ({ request }, testInfo) => {
+  test('@DTOSS-8519-01 @regression @e2e Verify file upload into participants table for ADD', async ({ request }, testInfo) => {
     const [checkInDatabase, nhsNumbers, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {

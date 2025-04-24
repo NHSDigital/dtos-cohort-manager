@@ -7,6 +7,7 @@
     "test:smoke:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @api\"",
     "test:smoke:e2e": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test:regression:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@regression @api\"",
+    "test:regression:e2e": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@regression @e2e\"",
     "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test:ut": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@ut\"",
     "lint": "eslint . --ext .ts",

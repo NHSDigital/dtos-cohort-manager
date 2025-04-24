@@ -2,7 +2,7 @@ import { test } from '@playwright/test';
 import { cleanupDatabaseFromAPI, getApiTestData, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
 
-test('06 @epic2-high-priority @DTOSS-8544 @Implement Validation for Eligibility Flag for Add', async ({ request }, testInfo) => {
+test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Add', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
@@ -22,9 +22,7 @@ test('06 @epic2-high-priority @DTOSS-8544 @Implement Validation for Eligibility 
   });
 });
 
-
-
-test('06 @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
+test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
   const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
@@ -49,7 +47,7 @@ test('06 @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility 
   });
 });
 
-test('07 @epic2-high-priority @DTOSS-8534 @Implement validate eligibility flag set to null for ADD should raise exception', async ({ request }, testInfo) => {
+test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate eligibility flag set to null for ADD should raise exception', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
