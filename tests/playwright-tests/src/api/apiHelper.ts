@@ -48,6 +48,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
       await delayRetry();
     }
   }
+  waitTime = Number(config.apiWaitTime); //Reset to original value on exit.
   return status;
 }
 
