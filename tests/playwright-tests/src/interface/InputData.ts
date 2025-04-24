@@ -1,8 +1,13 @@
 
 interface Validation {
-  tableName: string;
-  columnName: string;
-  columnValue: string;
+  NHSNumber: string;   // `other data services` returns NHSNumber
+  NhsNumber: string;  // `api/ExceptionManagementDataService` returns NhsNumber
+  apiEndpoint: string;
+  PrimaryCareProvider: string;
+  RuleId: number;
+  RuleDescription: string;
+  ExceptionFlag: number;
+
 }
 
 interface Validations {
@@ -11,4 +16,6 @@ interface Validations {
 
 export interface InputData {
   validations: Validations[];
+  inputParticipantRecord: Record<string, any>;
+  nhsNumbers: string[];
 }
