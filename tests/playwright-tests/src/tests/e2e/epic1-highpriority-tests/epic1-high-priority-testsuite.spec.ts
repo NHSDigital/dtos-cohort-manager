@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
+import { cleanupDatabaseFromAPI, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps'
 
 
 
