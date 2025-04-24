@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { cleanupDatabaseFromAPI, getCheckInDataBaseValidations, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps'
-import { createParquetFromJson } from '../../parquet/parquet-multiplier';
+import { cleanupDatabaseFromAPI, getCheckInDataBaseValidations, getTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps'
+import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 
 
 let testCaseBuilder: any[] = getCheckInDataBaseValidations("@DTOSS-5556-01")
