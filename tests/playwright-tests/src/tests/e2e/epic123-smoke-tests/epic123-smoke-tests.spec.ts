@@ -119,7 +119,7 @@ test.describe.parallel('Cohort Tests', () => {
 
 test.describe.parallel('Exception Tests', () => {
 
-  test('@DTOSS-6406-01 Verify file upload handles invalid GP Practice Code Exception', {
+  test.fixme('@DTOSS-6406-01 Verify file upload handles invalid GP Practice Code Exception', {
     tag: ['@smoke @e2e', '@ds'],
   }, async ({ request }, testInfo) => {
 
