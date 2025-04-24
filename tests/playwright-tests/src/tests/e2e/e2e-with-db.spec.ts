@@ -18,7 +18,7 @@ test.describe.parallel('Cohort Tests', () => {
       await processFileViaStorage(parquetFile!);
     });
 
-    await test.step(`Then NHS Numbers should be should be updated in the cohort`, async () => {
+    await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
 
