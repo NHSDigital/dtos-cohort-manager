@@ -2,13 +2,10 @@
   "validations": [
     {
       "validations": {
-        "tableName": "EXCEPTION_MANAGEMENT",
-        "columnName": "NHS_Number",
-        "columnValue": "2612514171",
-        "columnName2": "RULE_ID",
-        "columnValue2": "17",
-        "columnName3": "RULE_DESCRIPTION",
-        "columnValue3": "Date of birth invalid"
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "2612514171",
+        "RuleId": 17,
+        "RuleDescription": "Date of birth invalid"
       }
     }
   ]
