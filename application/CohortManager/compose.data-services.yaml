@@ -142,6 +142,8 @@ services:
     container_name: participant-demographic-data-service
     image: cohort-manager-participant-demographic-data-service
     networks: [cohman-network]
+    ports:
+      - 7993:7993
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
