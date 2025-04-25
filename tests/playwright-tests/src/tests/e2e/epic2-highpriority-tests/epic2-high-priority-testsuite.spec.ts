@@ -26,7 +26,7 @@ test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation
   });
 });
 
-test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
+test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
   const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
   let runTimeParquetFileAdd: string = "";
@@ -80,16 +80,16 @@ test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate e
     await processFileViaStorage(runTimeParquetFile);
   });
 
-  await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
-    await processFileViaStorage(parquetFileAmend!);
-  });
-
-  await test.step(`Then validate eligibility flag is set to false for ADD`, async () => {
+  await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
-});
 
-test('09 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
+  await test.step(`Then validate eligibility flag set to false for ADD`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  });
+})
+
+test.only('@DTOSS-8592-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
   const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
@@ -101,25 +101,8 @@ test('09 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate i
     await processFileViaStorage(parquetFileAdd!);
   });
 
-  await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
-    await processFileViaStorage(parquetFileAmend!);
-  });
-
-  await test.step(`Then validate invalid flag set to flase for AMENDED`, async () => {
+  await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
-  });
-});
-
-test('10 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
-  const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
-  const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
-
-  await test.step(`Given database does not contain record that will be processed`, async () => {
-    await cleanupDatabaseFromAPI(request, nhsNumber);
-  });
-
-  await test.step(`When ADD participant is processed via storage`, async () => {
-    await processFileViaStorage(parquetFileAdd!);
   });
 
   await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
@@ -127,6 +110,48 @@ test('10 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate i
   });
 
   await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabaseAmend);
+  });
+});
+
+test('@DTOSS-8535-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to false for ADD', async ({ request }, testInfo) => {
+  const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
+
+  // let runTimeParquetFile: string = "";
+  // if (!parquetFile) {
+  //   runTimeParquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!, "ADD", false);
+  // }
+
+  // await test.step(`Given database does not contain record that will be processed`, async () => {
+  //   await cleanupDatabaseFromAPI(request, nhsNumbers);
+  // });
+
+  // await test.step(`When ADD participant is processed via storage`, async () => {
+  //   await processFileViaStorage(runTimeParquetFile);
+  // });
+
+  await test.step(`Then validate invalid flag is set to false for ADD`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  });
+});
+
+test('@DTOSS-8593-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to true for ADD', async ({ request }, testInfo) => {
+  const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
+
+  let runTimeParquetFile: string = "";
+  if (!parquetFile) {
+    runTimeParquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!, "ADD", false);
+  }
+
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(runTimeParquetFile);
+  });
+
+  await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
