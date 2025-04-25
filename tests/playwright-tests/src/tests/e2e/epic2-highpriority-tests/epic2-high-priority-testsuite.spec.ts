@@ -88,3 +88,45 @@ test.fixme('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement vali
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
+
+test('09 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
+  const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
+  const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
+
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, nhsNumber);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(parquetFileAdd!);
+  });
+
+  await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
+    await processFileViaStorage(parquetFileAmend!);
+  });
+
+  await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  });
+});
+
+test.only('10 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
+  const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
+  const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
+
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, nhsNumber);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(parquetFileAdd!);
+  });
+
+  await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
+    await processFileViaStorage(parquetFileAmend!);
+  });
+
+  await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
+    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  });
+});
