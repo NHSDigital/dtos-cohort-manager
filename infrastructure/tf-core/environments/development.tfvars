@@ -367,6 +367,27 @@ function_apps = {
       }
     }
 
+    BlockParticipant = {
+      name_suffix            = "block-participant"
+      function_endpoint_name = "BlockParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+    }
+
     MarkParticipantAsEligible = {
       name_suffix            = "mark-participant-as-eligible"
       function_endpoint_name = "markParticipantAsEligible"
