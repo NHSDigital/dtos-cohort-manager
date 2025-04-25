@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NHSNumber": 9992728167,
+        "NhsNumber": 9992728167,
         "InvalidFlag": 0
       }
     }

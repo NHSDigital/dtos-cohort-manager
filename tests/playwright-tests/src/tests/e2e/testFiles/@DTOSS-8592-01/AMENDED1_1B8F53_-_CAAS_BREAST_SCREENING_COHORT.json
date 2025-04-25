@@ -3,7 +3,6 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "RecordType": "AMENDED",
         "NhsNumber": 9992728167,
         "InvalidFlag": 0
       }

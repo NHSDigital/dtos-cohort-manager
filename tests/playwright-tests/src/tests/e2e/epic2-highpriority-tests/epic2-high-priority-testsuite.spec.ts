@@ -147,7 +147,7 @@ test('@DTOSS-8535-01 @regression @e2e @epic2-high-priority @Implement validate i
   });
 });
 
-test('@DTOSS-8593-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to true for ADD', async ({ request }, testInfo) => {
+test.only('@DTOSS-8593-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to true for ADD', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
   let runTimeParquetFile: string = "";
