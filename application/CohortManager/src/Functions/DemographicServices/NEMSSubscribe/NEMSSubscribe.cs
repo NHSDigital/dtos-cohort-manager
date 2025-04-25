@@ -12,9 +12,11 @@ using Microsoft.Extensions.Logging;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
 using Hl7.Fhir.Rest;
+using Microsoft.Extensions.Options;
 using Model;
 using Common;
 using DataServices.Client;
+using NHS.Screening.NEMSSubscribe;
 
 public class NEMSSubscribe
 {
@@ -25,14 +27,17 @@ public class NEMSSubscribe
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
+    private readonly NEMSSubscribeConfig _config;
+
     // private readonly IDataServiceClient<NemsSubscription> _nemsSubscriptionClient; /* To Do Later */
 
     public NEMSSubscribe(ILogger<NEMSSubscribe> logger,
     //IDataServiceClient<NEMSSubscribe> nemsSubscriptionClient, /* To Do Later */
     IHttpClientFactory httpClientFactory,
     IExceptionHandler handleException,
-    ICreateResponse createResponse ,
-    ICallFunction callFunction)
+    ICreateResponse createResponse,
+    ICallFunction callFunction,
+    IOptions<NEMSSubscribeConfig> nemsSubscribeConfig)
     {
         _logger = logger;
         _fhirSerializer = new FhirJsonSerializer();
@@ -41,6 +46,7 @@ public class NEMSSubscribe
         _handleException = handleException;
         _createResponse = createResponse;
         _callFunction = callFunction;
+        _config = nemsSubscribeConfig.Value;
         //_nemsSubscriptionClient = nemsSubscriptionClient; /* To Do Later */
     }
 
@@ -89,14 +95,14 @@ public class NEMSSubscribe
             }
 
             // Return success response
-           /* var response = req.CreateResponse(HttpStatusCode.Created);
-            await response.WriteAsJsonAsync(new NemsSubscriptionResponse
-            {
-                SubscriptionId = subscriptionId,
-                NhsNumber = nhsNumber,
-                Status = "Active",
-                CreatedAt = DateTime.UtcNow
-            });*/
+            /* var response = req.CreateResponse(HttpStatusCode.Created);
+             await response.WriteAsJsonAsync(new NemsSubscriptionResponse
+             {
+                 SubscriptionId = subscriptionId,
+                 NhsNumber = nhsNumber,
+                 Status = "Active",
+                 CreatedAt = DateTime.UtcNow
+             });*/
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, subscriptionId);
         }
@@ -142,7 +148,7 @@ public class NEMSSubscribe
     private async Task<string> PostSubscriptionToNems(string subscriptionJson)
     {
         /* To Do Later - Modify and replace the place holder after onboarding */
-        string nemsFhirEndpoint = Environment.GetEnvironmentVariable("NEMS_FHIR_ENDPOINT");
+        string nemsFhirEndpoint = _config.NEMS_FHIR_ENDPOINT;
 
         try
         {
@@ -151,9 +157,9 @@ public class NEMSSubscribe
                 Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
             };
 
-            request.Headers.Add("Authorization", $"Bearer {Environment.GetEnvironmentVariable("SPINE_ACCESS_TOKEN")}");
-            request.Headers.Add("fromASID", Environment.GetEnvironmentVariable("FROM_ASID"));
-            request.Headers.Add("toASID", Environment.GetEnvironmentVariable("TO_ASID"));
+            request.Headers.Add("Authorization", $"Bearer {_config.SPINE_ACCESS_TOKEN}");
+            request.Headers.Add("fromASID", _config.FROM_ASID);
+            request.Headers.Add("toASID", _config.TO_ASID);
             request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
 
             var response = await _httpClient.SendAsync(request);
@@ -197,19 +203,21 @@ public class NEMSSubscribe
         {
             Meta = new Meta
             {
-                Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" },
+                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" },
+                Profile = new[] { _config.Subscription_Profile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = Subscription.SubscriptionStatus.Requested,
             Reason = "NEMS event notification subscription",
-            Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}",
+            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}",
+            Criteria = $"Patient?identifier={_config.Subscription_Criteria}|{nhsNumber}",
             Channel = new Subscription.ChannelComponent
             {
                 Type = Subscription.SubscriptionChannelType.RestHook,
-                Endpoint = Environment.GetEnvironmentVariable("CALLBACK_ENDPOINT"),
+                Endpoint = _config.CALLBACK_ENDPOINT,
                 Payload = "application/fhir+json",
                 Header = new[] {
-                    $"Authorization: Bearer {Environment.GetEnvironmentVariable("CALLBACK_AUTH_TOKEN")}",
+                    $"Authorization: Bearer {_config.CALLBACK_AUTH_TOKEN}",
                     "X-Correlation-ID: " + Guid.NewGuid().ToString()
                 }
             }
@@ -224,10 +232,12 @@ public class NEMSSubscribe
             End = DateTimeOffset.UtcNow.AddYears(1).ToString("yyyy-MM-dd")
         });
 
-        subscription.AddExtension(
-        "https://fhir.nhs.uk/StructureDefinition/Extension-NHSNumberVerificationStatus-1",
-        new CodeableConcept("https://fhir.nhs.uk/CodeSystem/NHSNumberVerificationStatus-1", "01", "Number present and verified")
-        );
+        /* If necessary - uncomment after on-boarding */
+        /* subscription.AddExtension(
+         "https://fhir.nhs.uk/StructureDefinition/Extension-NHSNumberVerificationStatus-1",
+         new CodeableConcept("https://fhir.nhs.uk/CodeSystem/NHSNumberVerificationStatus-1", "01", "Number present and verified")
+         );
+         */
 
         return subscription;
     }

@@ -21,7 +21,7 @@ using Model;
 using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
 
-using FhirTask = Hl7.Fhir.Model.Task; // 👈 Alias to avoid ambiguity
+using FhirTask = Hl7.Fhir.Model.Task; // Alias to avoid ambiguity
 
     [TestClass]
     public class NEMSSubscribeTests

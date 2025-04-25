@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
 using Common;
+using NHS.Screening.NEMSSubscribe;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
