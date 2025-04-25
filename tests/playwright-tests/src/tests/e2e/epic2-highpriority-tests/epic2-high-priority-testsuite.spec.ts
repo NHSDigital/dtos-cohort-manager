@@ -105,12 +105,12 @@ test('09 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate i
     await processFileViaStorage(parquetFileAmend!);
   });
 
-  await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
+  await test.step(`Then validate invalid flag set to flase for AMENDED`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
 
-test.only('10 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
+test('10 @regression @e2e @epic2-high-priority @DTOSS-8535 @Implement validate invalid flag value for Amended', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumber, parquetFileAdd] = await getTestData(testInfo.title);
   const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend] = await getTestData(testInfo.title, "AMENDED");
 
