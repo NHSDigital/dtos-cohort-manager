@@ -329,6 +329,18 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
+  nems-unsubscription:
+    container_name: nems-unsubscription
+    image: cohort-manager-nems-unsubscription
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9082
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
