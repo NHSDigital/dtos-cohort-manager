@@ -328,7 +328,7 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
-  nems-subscription:
+  nems-subscribe:
     container_name: nems-subscribe
     image: cohort-manager-nems-subscribe
     networks: [cohman-network]
