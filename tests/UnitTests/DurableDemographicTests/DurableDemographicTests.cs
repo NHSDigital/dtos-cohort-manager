@@ -124,7 +124,7 @@ public class DurableDemographicTests
     }
 
     [TestMethod]
-    public async Task HttpStart_InvalidInput_ReturnsNull()
+    public async Task HttpStart_InvalidInput_ReturnsInternalServerError()
     {
         // Define constants
         const string functionName = "DurableDemographicFunction";
