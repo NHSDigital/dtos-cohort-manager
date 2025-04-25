@@ -7,13 +7,15 @@ import {
 } from "../steps/steps";
 import { ensureNhsNumbersStartWith999 } from "../../utils/ensureNhsNumbersStartWith999";
 
-let nhsNumbers: string[] = [];
+let nhsNumber: string[] = [];
 
 test.describe.parallel("Positive @smoke Tests", () => {
+
   test.beforeEach(async ({}, testInfo) => {
     const [, rawNhsNumbers] = await getTestData(testInfo.title);
-    nhsNumbers = ensureNhsNumbersStartWith999(rawNhsNumbers);
+    nhsNumber = ensureNhsNumbersStartWith999(rawNhsNumbers);
   });
+
 
   test("01 @smoke @DTOSS-6256 @api Verify file upload and cohort distribution process for ADD", async ({
     request,
@@ -21,7 +23,7 @@ test.describe.parallel("Positive @smoke Tests", () => {
     const [, checkInDatabase, parquetFile] = await getTestData(testInfo.title);
 
     await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When 2 ADD participants are processed via storage`, async () => {
@@ -43,7 +45,7 @@ test.describe.parallel("Positive @smoke Tests", () => {
       await getTestData(testInfo.title, "AMENDED");
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -73,7 +75,7 @@ test.describe.parallel("Positive @smoke Tests", () => {
       await getTestData(testInfo.title, "AMENDED");
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -97,7 +99,7 @@ test.describe.parallel("Positive @smoke Tests", () => {
 test.describe.parallel("Exception @smoke Tests", () => {
   test.beforeEach(async ({}, testInfo) => {
     const [, rawNhsNumbers] = await getTestData(testInfo.title);
-    nhsNumbers = ensureNhsNumbersStartWith999(rawNhsNumbers);
+    nhsNumber = ensureNhsNumbersStartWith999(rawNhsNumbers);
   });
 
   test("03 @smoke @DTOSS-6406 Verify file upload handles invalid GP Practice Code Exception", async ({
@@ -108,7 +110,7 @@ test.describe.parallel("Exception @smoke Tests", () => {
     );
 
     await test.step(`Given database does not contain record that will be processed`, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -127,8 +129,8 @@ test.describe.parallel("Exception @smoke Tests", () => {
 
     const [, checkInDatabase, parquetFile] = await getTestData(testInfo.title);
 
-    await test.step(`Given database does not contain records that will be processed: ${nhsNumbers}  `, async () => {
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+    await test.step(`Given database does not contain records that will be processed: ${nhsNumber}  `, async () => {
+      await cleanupDatabaseFromAPI(request, nhsNumber);
     });
 
     await test.step(`When participants are processed via storage`, async () => {
