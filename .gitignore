@@ -110,3 +110,4 @@ application/CohortManager/src/Functions/
 # Allow
 !**/playwright-tests/.env.dev.example
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
+!**/playwright-tests/src/parquet/*.parquet

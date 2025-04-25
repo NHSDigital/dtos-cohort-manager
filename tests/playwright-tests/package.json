@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts",
-    "setup-db": "ts-node src/sql-helper.ts",
+    "test:data:service": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@data @service\"",
+    "test:smoke:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @api\"",
+    "test:regression:api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@regression @api\"",
+    "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
+    "test:ut": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@ut\"",
     "lint": "eslint . --ext .ts",
     "build": "tsc -p tsconfig.json"
   },
@@ -13,15 +16,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@playwright/test": "1.51.1",
     "@azure/storage-blob": "^12.27.0",
     "dotenv": "16.4.7",
-    "mssql": "11.0.1"
-
-
+    "parquetjs": "0.11.2"
   },
   "devDependencies": {
-    "@types/mssql": "9.1.7",
-    "@types/node": "22.13.14"
+    "@playwright/test": "^1.52.0",
+    "@types/node": "22.13.14",
+    "@types/parquetjs": "0.10.6"
   }
 }
