@@ -2,9 +2,9 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
+        "apiEndpoint": "api/ParticipantDemographicDataService",
         "NHSNumber": 9992728167,
-        "EligibilityFlag": 0
+        "InvalidFlag": 1
       }
     }
   ],
@@ -46,8 +46,8 @@
       "email_address_effective_from_date": "20240501",
       "preferred_language": "en",
       "is_interpreter_required": false,
-      "invalid_flag": false,
-      "eligibility": false
+      "invalid_flag": true,
+      "eligibility": true
     }
   ],
   "nhsNumbers": [

@@ -26,7 +26,7 @@ test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation
   });
 });
 
-test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
+test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Amended', async ({ request }, testInfo) => {
   const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
   let runTimeParquetFileAdd: string = "";
@@ -64,7 +64,7 @@ test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implemen
   });
 });
 
-test.fixme('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate eligibility flag set to null for ADD should raise exception', async ({ request }, testInfo) => {
+test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate eligibility flag set to flase for ADD', async ({ request }, testInfo) => {
   const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] = await getTestData(testInfo.title, "ADD", true);
 
   let runTimeParquetFile: string = "";
@@ -84,7 +84,7 @@ test.fixme('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement vali
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 
-  await test.step(`Then validate eligibility flag set to false for ADD`, async () => {
+  await test.step(`Then validate eligibility flag is set to false for ADD`, async () => {
     await validateSqlDatabaseFromAPI(request, checkInDatabase);
   });
 });
