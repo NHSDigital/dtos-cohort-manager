@@ -80,8 +80,8 @@ test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate e
     await processFileViaStorage(runTimeParquetFile);
   });
 
-  await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
-    await validateSqlDatabaseFromAPI(request, checkInDatabase);
+  await test.step(`When same ADD participant record is AMENDED via storage for ${nhsNumberAmend}`, async () => {
+    await processFileViaStorage(parquetFileAmend!);
   });
 
   await test.step(`Then validate eligibility flag is set to false for ADD`, async () => {
