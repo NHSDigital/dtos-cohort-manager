@@ -34,7 +34,6 @@ export async function getTestData(scenarioFolderName: string
   , createParquetFile = false):  Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
-    console.info(`ℹ️\tTest files input data path: ${testFilesPath}`);
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     let parquetFile: string = "";
     if (createParquetFile) {
