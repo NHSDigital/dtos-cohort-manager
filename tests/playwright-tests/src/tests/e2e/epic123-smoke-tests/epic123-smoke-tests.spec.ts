@@ -60,7 +60,7 @@ testWithAmended('@DTOSS-6407-01 @smoke @e2e @ds Verify file upload handles Empty
 });
 
 test.describe.parallel('Exception Tests', () => {
-test('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
+test.only('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
