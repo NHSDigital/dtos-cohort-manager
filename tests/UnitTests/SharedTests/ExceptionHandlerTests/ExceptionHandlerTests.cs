@@ -471,6 +471,7 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
         rule.RuleName = "51.Message.0.0"; // non-fatal rule
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "NonFatalError";
@@ -523,6 +524,7 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
         rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
@@ -555,6 +557,7 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
         rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
