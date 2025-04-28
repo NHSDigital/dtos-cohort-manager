@@ -67,3 +67,15 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
+
+module "managed-identity" {
+  for_each = var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
+
+  uai_name            = "mi-cohort-manager-db-management-${lower(var.environment)}-${each.key}"
+  resource_group_name = azurerm_resource_group.core[each.key].name
+  location            = each.key
+
+  tags = var.tags
+}
