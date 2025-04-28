@@ -203,7 +203,7 @@ function_apps = {
   ftps_state                    = "Disabled"
   https_only                    = true
   remote_debugging_enabled      = false
-  storage_uses_managed_identity = null
+  storage_uses_managed_identity = true
   worker_32bit                  = false
   health_check_path             = "/api/health"
 
