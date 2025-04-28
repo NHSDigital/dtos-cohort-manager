@@ -2,9 +2,9 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9992728167,
-        "EligibilityFlag": false
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9992728167,
+        "InvalidFlag": 0
       }
     }
   ],
@@ -47,7 +47,7 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "eligibility": false
+      "eligibility": true
     }
   ],
   "nhsNumbers": [
