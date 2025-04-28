@@ -329,9 +329,9 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
-  nems-unsubscription:
-    container_name: nems-unsubscription
-    image: cohort-manager-nems-unsubscription
+  nems-unsubscribe:
+    container_name: nems-unsubscribe
+    image: cohort-manager-nems-unsubscribe
     networks: [cohman-network]
     build:
       context: ./src/Functions/
