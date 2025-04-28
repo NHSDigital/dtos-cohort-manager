@@ -232,6 +232,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceData
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveCaasFileHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\ReceiveCaasFileHelperTests\ReceiveCaasFileHelperTests.csproj", "{2142F03D-5994-42B1-994D-EB6A60E81DC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockParticipantTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\BlockParticipantTests\BlockParticipantTests.csproj", "{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -646,6 +648,10 @@ Global
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

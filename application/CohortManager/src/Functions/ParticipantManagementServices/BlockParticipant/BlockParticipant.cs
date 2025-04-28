@@ -15,14 +15,16 @@ public class BlockParticipant
         private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
         private readonly ILogger<BlockParticipant> _logger;
         private readonly ICreateResponse _createResponse;
+        private readonly IExceptionHandler _exceptionHandler;
 
 
-        public BlockParticipant(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<BlockParticipant> logger, ICreateResponse createResponse)
+        public BlockParticipant(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<BlockParticipant> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
         {
             _participantManagementClient = participantManagementClient;
             _participantDemographicClient = participantDemographicClient;
             _logger = logger;
             _createResponse = createResponse;
+            _exceptionHandler = exceptionHandler;
         }
 
         [Function("BlockParticipant")]
@@ -56,8 +58,12 @@ public class BlockParticipant
                 if (!blockFlagUpdated) {throw new Exception("Failed to block participant");};
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "OK");
             }
-            catch (Exception) 
+            catch (Exception ex) 
             {
+                nhsNumber = long.Parse(req.Query["NhsNumber"]);
+                screeningId = 1; //TODO Unhardcode this (Phase 2)
+
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber.ToString(), "", screeningId.ToString(), req.ToString());
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An unknown error has occured");
             }
             
