@@ -1169,7 +1169,7 @@ function_apps = {
 
     NemsSubscribe = {
       name_suffix            = "nems-subscribe"
-      function_endpoint_name = "RetrievePDSDemographic"
+      function_endpoint_name = "NemsSubscribe"
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
