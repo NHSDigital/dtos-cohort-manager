@@ -1167,9 +1167,9 @@ function_apps = {
       ]
     }
 
-    NemsUnsubscription = {
-      name_suffix            = "nems-unsubscription"
-      function_endpoint_name = "NemsUnsubscription"
+    NemsUnsubscribe = {
+      name_suffix            = "nems-unsubscribe"
+      function_endpoint_name = "NemsUnsubscribe"
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
