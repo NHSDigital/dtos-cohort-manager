@@ -8,4 +8,6 @@ public class BlockParticipantConfig
     public string ParticipantManagementUrl {get; set;}
     [Required]
     public string ParticipantDemographicDataServiceURL {get; set;}
+    [Required]
+    public string ExceptionFunctionURL {get; set;}
 }

@@ -85,7 +85,9 @@ services:
     environment: 
       - ASPNETCORE_URLS=http://*:7026
       - AzureWebJobsStorage=UseDevelopmentStorage=true
-      - ParticipantManagementUrl=http://localhost:7994/api/ParticipantManagementDataService
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   remove-participant:
     container_name: remove-participant
