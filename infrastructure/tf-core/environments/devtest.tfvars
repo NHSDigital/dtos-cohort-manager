@@ -1166,6 +1166,23 @@ function_apps = {
         }
       ]
     }
+
+    NemsUnsubscription = {
+      name_suffix            = "nems-unsubscription"
+      function_endpoint_name = "NemsUnsubscription"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
+
   }
 }
 
