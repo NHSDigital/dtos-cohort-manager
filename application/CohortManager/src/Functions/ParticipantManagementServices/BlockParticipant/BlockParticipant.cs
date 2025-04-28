@@ -27,6 +27,15 @@ public class BlockParticipant
             _exceptionHandler = exceptionHandler;
         }
 
+        /// <summary>
+        /// Takes in a http request that if the input is valid then it updates the blocked flag within participant management table to 1. Otherwise, adds an exception to the exception table.
+        /// </summary>
+        /// <param name="req">
+        /// A Http request that should contain an NHS number, family name, date of birth and a screening ID.
+        /// </param>
+        /// <returns>
+        /// A http status code. (200 - Ok / 404 - Not Found / 500 - Internal server error)
+        /// </returns>
         [Function("BlockParticipant")]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
