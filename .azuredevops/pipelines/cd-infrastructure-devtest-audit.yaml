@@ -16,6 +16,16 @@ resources:
       ref: aa2910e39d7212b19221ebba408dd3c949804797
       endpoint: NHSDigital
 
+parameters:
+  - name: pipelineAction
+    displayName: 'Pipeline Action'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+      - 'Destroy'
+    default: 'Apply'
+
 variables:
   - group: DEVTEST_audit_backend
   - group: DEV_hub_backend_remote_state
@@ -57,3 +67,20 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+  - stage: terraform_destroy
+    displayName: Terraform Destroy
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    jobs:
+      - deployment: terraform_destroy
+        displayName: Terraform Destroy
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
