@@ -56,9 +56,7 @@ public class BlockParticipant
 
                 // Check participant exists in Participant Demographic table.
                 ParticipantDemographic participantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == nhsNumber && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
-                if (participantDemographic == null) {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
-                }
+                if (participantDemographic == null) {throw new NullReferenceException("Participant can't be found");}
 
                 ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
                 participantManagement.BlockedFlag = 1;
@@ -66,6 +64,13 @@ public class BlockParticipant
                 
                 if (!blockFlagUpdated) {throw new Exception("Failed to block participant");};
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "OK");
+            }
+            catch (NullReferenceException ex) {
+                nhsNumber = long.Parse(req.Query["NhsNumber"]);
+                screeningId = 1; //TODO Unhardcode this (Phase 2)
+
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber.ToString(), "", screeningId.ToString(), req.ToString());
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
             catch (Exception ex) 
             {
