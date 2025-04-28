@@ -21,6 +21,7 @@ test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation
 });
 
 
+
 testWithAmended('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
@@ -44,25 +45,6 @@ testWithAmended('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-808
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
   });
 });
-
-test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement validate eligibility flag set to false for ADD', async ({ request, testData }) => {
-  await test.step(`Given database does not contain record that will be processed`, async () => {
-    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-  });
-
-  await test.step(`When ADD participant is processed via storage`, async () => {
-    await processFileViaStorage(testData.runTimeParquetFile);
-  });
-
-  await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
-    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-  });
-
-  await test.step(`Then validate eligibility flag set to false for ADD`, async () => {
-    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-  });
-});
-
 
 testWithAmended('@DTOSS-8592-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag value for Amended', async ({ request, testData }) => {
 

@@ -75,6 +75,10 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
     ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
     : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
     ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
+    : endpoint.includes("participantmanagementdataservice")
+    ? "NHSNumber"
+    : endpoint.includes("CohortDistributionDataService")
+    ? "NHSNumber"
     : NHS_NUMBER_KEY;
 
 
@@ -97,9 +101,7 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   );
 
 
-  matchingObject = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE && PARTICIPANT_DEMOGRAPHIC_SERVICE)
-    ? matchingObjects[0]
-    : matchingObjects[matchingObjects.length - 1];
+  matchingObject = matchingObjects[matchingObjects.length - 1];
 
 
   if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
