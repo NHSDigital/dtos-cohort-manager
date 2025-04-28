@@ -5,9 +5,10 @@ using Model.DTO;
 
 public interface ICreateCohortDistributionData
 {
-    List<CohortDistributionParticipantDto> GetUnextractedCohortDistributionParticipants(int rowCount);
-    bool UpdateCohortParticipantAsInactive(string NhsNumber);
-    List<CohortDistributionParticipantDto> GetCohortDistributionParticipantsByRequestId(string requestId);
+    Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount);
+    Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
-    CohortRequestAudit GetNextCohortRequestAudit(string requestId);
+    Task<CohortRequestAudit> GetNextCohortRequestAudit(string requestId);
+
+
 }

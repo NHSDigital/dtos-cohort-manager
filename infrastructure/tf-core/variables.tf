@@ -102,7 +102,7 @@ variable "app_service_plan" {
     vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
-      memory_percentage = object({
+      scaling_rule = object({
         metric              = optional(string)
         capacity_min        = optional(string)
         capacity_max        = optional(string)
@@ -128,7 +128,7 @@ variable "app_service_plan" {
 
     instances = map(object({
       autoscale_override = optional(object({
-        memory_percentage = object({
+        scaling_rule = object({
           metric              = optional(string)
           capacity_min        = optional(string)
           capacity_max        = optional(string)
