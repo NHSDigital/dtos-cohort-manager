@@ -12,11 +12,13 @@ services:
       - ASPNETCORE_URLS=http://*:7910
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AcceptableLatencyThresholdMs=500
-      
+
 
   exception-management-data-service:
     container_name: exception-management-data-service
     image: cohort-manager-exception-management-data-service
+    ports:
+      - 7911:7911
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -139,6 +141,8 @@ services:
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     image: cohort-manager-participant-demographic-data-service
+    ports:
+      - 7993:7993
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -151,6 +155,8 @@ services:
   participant-management-data-service:
     container_name: participant-management-data-service
     image: cohort-manager-participant-management-data-service
+    ports:
+      - 7994:7994
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -163,6 +169,8 @@ services:
   cohort-distribution-data-service:
     container_name: cohort-distribution-data-service
     image: cohort-manager-cohort-distribution-data-service
+    ports:
+      - 7992:7992
     networks: [cohman-network]
     build:
       context: ./src/Functions/
