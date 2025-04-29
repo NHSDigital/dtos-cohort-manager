@@ -22,3 +22,6 @@ Dev
 dev
 Smartcard
 npm
+cmd
+ctrl
+ui
