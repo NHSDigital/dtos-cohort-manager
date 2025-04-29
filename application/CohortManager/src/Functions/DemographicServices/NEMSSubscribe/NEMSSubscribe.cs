@@ -241,9 +241,4 @@ public class NEMSSubscribe
 
         return subscription;
     }
-
-    public bool IsValidNhsNumber(string nhsNumber)
-    {
-        return nhsNumber.Length == 10 && nhsNumber.All(char.IsDigit);
-    }
 }
