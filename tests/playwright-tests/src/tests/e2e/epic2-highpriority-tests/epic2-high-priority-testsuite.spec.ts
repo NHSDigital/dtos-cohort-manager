@@ -20,9 +20,26 @@ test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation
   });
 });
 
+test('@DTOSS-8534-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Add will always revert to true', async ({ request, testData }) => {
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(testData.runTimeParquetFile);
+  });
+
+  await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
+    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+  });
+
+  await test.step(`Then validate eligibility flag will always revert to true for ADD`, async () => {
+    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+  });
+});
 
 
-testWithAmended('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
+testWithAmended('@DTOSS-8086-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
@@ -95,6 +112,20 @@ test('@DTOSS-8593-01 @regression @e2e @epic2-high-priority @Implement validate i
   });
 
   await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
+    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+  });
+});
+
+test.only('@DTOSS-8650-01 @regression @e2e @epic2-high-priority Verify rule 3 in Exception', async ({ request, testData }) => {
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(testData.runTimeParquetFile);
+  });
+
+  await test.step(`Then the Exception table should contain the details for the NHS Number`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
   });
 });
