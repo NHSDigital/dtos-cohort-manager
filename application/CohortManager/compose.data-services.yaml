@@ -141,6 +141,8 @@ services:
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     image: cohort-manager-participant-demographic-data-service
+    ports:
+      - 7993:7993
     networks: [cohman-network]
     ports:
       - 7993:7993

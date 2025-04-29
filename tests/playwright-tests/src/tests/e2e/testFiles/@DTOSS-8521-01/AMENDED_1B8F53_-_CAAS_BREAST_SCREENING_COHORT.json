@@ -2,30 +2,36 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "GivenName": "NewTest1UpdatedUpdated",
-        "NHSNumber": 9997421787,
-        "IsExtracted": 0
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "AMENDED",
+        "NHSNumber": 9995262320
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "GivenName": "AMENDEDNewTest1",
+        "NhsNumber": 9995262320
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": null,
+      "record_type": "AMENDED",
       "change_time_stamp": null,
-      "serial_change_number": null,
-      "nhs_number": null,
+      "serial_change_number": 1,
+      "nhs_number": 9995262320,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F83043",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
-      "given_name": "NewTest1Updated",
+      "given_name": "AMENDEDNewTest1",
       "other_given_name": "Test",
       "family_name": "Adani1",
       "previous_family_name": "Test2",
-      "date_of_birth": "19700101",
+      "date_of_birth": "<NA>",
       "gender": 1,
       "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
       "address_line_2": "Eastbourne",
@@ -52,15 +58,6 @@
     }
   ],
   "nhsNumbers": [
-    "9996683923",
-    "9996763943",
-    "9996891763",
-    "9996946800",
-    "9997023331",
-    "9997105028",
-    "9997226232",
-    "9997324595",
-    "9997344790",
-    "9997421787"
+    "9995262320"
   ]
 }
