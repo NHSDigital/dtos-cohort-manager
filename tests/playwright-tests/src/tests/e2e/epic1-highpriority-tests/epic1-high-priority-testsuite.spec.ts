@@ -4,7 +4,7 @@ import fs from 'fs';
 import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
 
-test('@DTOSS-8519-01 @regression @e2e @epic1-high-priority  @kt Verify file upload into participants table for ADD', async ({ request, testData }) => {
+test('@DTOSS-3648-01 @regression @e2e @epic1-high-priority  @kt Verify file upload into participants table for ADD', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -18,7 +18,7 @@ test('@DTOSS-8519-01 @regression @e2e @epic1-high-priority  @kt Verify file uplo
   });
 });
 
-testWithAmended('@DTOSS-8521-01 @regression @e2e @epic1-high-priority  @kt @Verify AMENDED records reach the participant tables', async ({ request, testData }) => {
+testWithAmended('@DTOSS-3217-01 @regression @e2e @epic1-high-priority  @kt @Verify AMENDED records reach the participant tables', async ({ request, testData }) => {
 
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
@@ -41,7 +41,7 @@ testWithAmended('@DTOSS-8521-01 @regression @e2e @epic1-high-priority  @kt @Veri
   });
 });
 
-test('@DTOSS-7584-01 @regression @e2e @epic1-high-priority  @kt Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record', async ({ request, testData }) => {
+test('@DTOSS-7584-01 @DTOSS-3661-01 @regression @e2e @epic1-high-priority  @kt Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -57,7 +57,7 @@ test('@DTOSS-7584-01 @regression @e2e @epic1-high-priority  @kt Confirm NHS Numb
 
 });
 
-testWithAmended('@DTOSS-7584-02 @regression @e2e @epic1-high-priority  @kt Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record', async ({ request, testData }) => {
+testWithAmended('@DTOSS-7584-02 @DTOSS-3661-02 @regression @e2e @epic1-high-priority  @kt Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -81,7 +81,7 @@ testWithAmended('@DTOSS-7584-02 @regression @e2e @epic1-high-priority  @kt Confi
 
 });
 
-test('@DTOSS-7585-01 @regression @e2e @epic1-high-priority  @kt Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution', async ({ request, testData }) => {
+test('@DTOSS-3662-01 @regression @e2e @epic1-high-priority  @kt Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -99,7 +99,7 @@ test('@DTOSS-7585-01 @regression @e2e @epic1-high-priority  @kt Verify ADD recor
 
 });
 
-testWithAmended('@DTOSS-7585-02 @regression @e2e @epic1-high-priority  @kt Verify AMENDED records with non-fatal validation issues reach participant tables with partial Cohort distribution entries', async ({ request, testData }) => {
+testWithAmended('@DTOSS-3662-02 @regression @e2e @epic1-high-priority  @kt Verify AMENDED records with non-fatal validation issues reach participant tables with partial Cohort distribution entries', async ({ request, testData }) => {
   await test.step(`Given database does not contain 1 ADD record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -125,7 +125,7 @@ testWithAmended('@DTOSS-7585-02 @regression @e2e @epic1-high-priority  @kt Verif
 
 });
 
-testWithAmended('@DTOSS-7589-01 @regression @e2e @epic1-high-priority  @kt Verify AMENDED records is processed without any Exception', async ({ request, testData }) => {
+testWithAmended('@DTOSS-3217-02 @regression @e2e @epic1-high-priority  @kt Verify AMENDED records is processed without any Exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain 1 ADD record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -151,7 +151,7 @@ testWithAmended('@DTOSS-7589-01 @regression @e2e @epic1-high-priority  @kt Verif
 
 });
 
-test('@DTOSS-7590-01 @regression @e2e @epic1-high-priority  @kt Verify ADD records is processed without any Exception', async ({ request, testData }) => {
+test('@DTOSS-3197-01 @regression @e2e @epic1-high-priority  @kt Verify ADD records is processed without any Exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -167,7 +167,7 @@ test('@DTOSS-7590-01 @regression @e2e @epic1-high-priority  @kt Verify ADD recor
   });
 });
 
-test('@DTOSS-7587-01 @regression @e2e @epic1-high-priority  @kt Verify a file is uploaded to storage successfully', async ({ request, testData }) => {
+test('@DTOSS-3744-01 @regression @e2e @epic1-high-priority  @kt Verify a file is uploaded to storage successfully', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -182,7 +182,7 @@ test('@DTOSS-7587-01 @regression @e2e @epic1-high-priority  @kt Verify a file is
   });
 });
 
-test('@DTOSS-7588-01 @regression @e2e @epic1-high-priority @kt Verify that a file with an invalid name creates a validation exception', async ({ request, testData }) => {
+test('@DTOSS-3192-01 @regression @e2e @epic1-high-priority @kt Verify that a file with an invalid name creates a validation exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain 1 ADD record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -208,7 +208,7 @@ test('@DTOSS-7588-01 @regression @e2e @epic1-high-priority @kt Verify that a fil
 });
 
 
-test('@DTOSS-7586-01 @regression @e2e @epic1-high-priority @kt Verify Successful Data Processing and Storage in Cohort Manager for Add', async ({ request, testData }) => {
+test('@DTOSS-3660-01 @regression @e2e @epic1-high-priority @kt Verify Successful Data Processing and Storage in Cohort Manager for Add', async ({ request, testData }) => {
   await test.step(`Given database does not contain 1 ADD record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
