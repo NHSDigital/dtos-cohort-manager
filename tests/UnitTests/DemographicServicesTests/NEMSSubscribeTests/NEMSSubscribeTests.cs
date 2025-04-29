@@ -58,7 +58,7 @@ using FhirTask = Hl7.Fhir.Model.Task; // Alias to avoid ambiguity
         }
 
         [TestMethod]
-        public async Task Run_ShouldReturnCreated_WhenValidRequest()
+        public async Task Run_ValidRequest_ReturnCreated()
         {
             // Arrange
             var nhsNumber = "1234567890";
