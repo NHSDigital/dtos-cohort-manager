@@ -71,22 +71,21 @@ public class DeleteParticipant
             var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == longNhsNumber && p.FamilyName == FamilyName);
             if (participantData == null)
             {
-                _logger.LogError("The participantData was null the {DeleteParticipant}  function", nameof(DeleteParticipant));
+                _logger.LogError("The participant data was null the {DeleteParticipant}  function", nameof(DeleteParticipant));
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, $"the participantData was null the {nameof(DeleteParticipant)}  function");
             }
 
-            var participantToDelete = participantData.FirstOrDefault(p => p.DateOfBirth == DateOfBirth);
-
-            if (participantToDelete != null)
+            var participantsToDelete = participantData.Where(p => p.DateOfBirth == DateOfBirth);
+            if (!participantsToDelete.Any())
             {
-                await _cohortDistributionClient.Delete(participantToDelete.CohortDistributionId.ToString());
+                _logger.LogInformation("No participants found with the specified date of birth");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No participants found with the specified date of birth");
             }
 
-            else
+            foreach (var participant in participantsToDelete)
             {
-                _logger.LogError("Failed to delete participant with details provided");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete participant");
+                await _cohortDistributionClient.Delete(participant.CohortDistributionId.ToString());
             }
 
             _logger.LogInformation("Deleted participant");
