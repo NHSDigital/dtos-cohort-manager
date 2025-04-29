@@ -129,24 +129,22 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
 
 async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  try {
-    for (const [fieldName, expectedValue] of fieldsToValidate) {
-      if (fieldName === "expectedCount") {
-        console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-        const actualCount = matchingObjects.length;
-        expect(actualCount).toBe(expectedValue);
-        console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
-      } else {
-        console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-        expect(matchingObject).toHaveProperty(fieldName);
-        expect(matchingObject[fieldName]).toBe(expectedValue);
-        console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
-      }
+
+  for (const [fieldName, expectedValue] of fieldsToValidate) {
+    if (fieldName === "expectedCount") {
+      console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      const actualCount = matchingObjects.length;
+      expect(actualCount).toBe(expectedValue);
+      console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+    } else {
+      console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      expect(matchingObject).toHaveProperty(fieldName);
+      expect(matchingObject[fieldName]).toBe(expectedValue);
+      console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
-    return true;
-  } catch (error) {
-    return false;
   }
+  return true;
+
 
 
 }
