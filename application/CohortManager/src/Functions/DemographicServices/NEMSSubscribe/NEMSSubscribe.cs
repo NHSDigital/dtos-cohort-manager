@@ -50,6 +50,30 @@ public class NEMSSubscribe
         //_nemsSubscriptionClient = nemsSubscriptionClient; /* To Do Later */
     }
 
+    /// <summary>
+    /// Azure Function that processes a NEMS subscription request by validating the NHS number,
+    /// verifying the patient in PDS, creating a FHIR subscription resource, posting it to NEMS,
+    /// and attempting to store the subscription locally in Sql-Server.
+    /// </summary>
+    /// <param name="req">
+    /// The HTTP request data containing a JSON payload with the NHS number to subscribe.
+    /// </param>
+    /// <returns>
+    /// An <see cref="HttpResponseData"/> indicating success (200 OK) with the subscription ID,
+    /// or failure with the appropriate HTTP status code and error message.
+    /// </returns>
+    /// <remarks>
+    /// This function performs the following steps:
+    /// 1. Validates the NHS number format.
+    /// 2. Calls PDS by calling "RetrievePDSDemographic" function to confirm patient existence.
+    /// 3. Constructs and sends a FHIR subscription resource to NEMS.
+    /// 4. After successful subscription creation, it will store the subscription details like
+    /// subscriptionId, Subscription Logic Id etc locally in Sql-Server.
+    /// </remarks>
+    /// <exception cref="Exception">
+    /// Returns HTTP 500 if an unexpected error occurs during processing.
+    /// </exception>
+
     [Function("NEMSSubscribe")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "subscriptions/nems")] HttpRequestData req)
     {
