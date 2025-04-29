@@ -118,16 +118,6 @@ public class NEMSSubscribe
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Subscription created but failed to store locally.");
             }
 
-            // Return success response
-            /* var response = req.CreateResponse(HttpStatusCode.Created);
-             await response.WriteAsJsonAsync(new NemsSubscriptionResponse
-             {
-                 SubscriptionId = subscriptionId,
-                 NhsNumber = nhsNumber,
-                 Status = "Active",
-                 CreatedAt = DateTime.UtcNow
-             });*/
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, subscriptionId);
         }
         catch (Exception ex)
