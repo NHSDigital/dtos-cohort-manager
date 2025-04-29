@@ -71,19 +71,16 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   let matchingObject: any;
 
 
-  const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
-    ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-    : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
-    ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-    : endpoint.includes("participantmanagementdataservice")
-    ? "NHSNumber"
-    : endpoint.includes("CohortDistributionDataService")
-    ? "NHSNumber"
-    : NHS_NUMBER_KEY;
-
+  let nhsNumberKey;
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+    nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
+  } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
+    nhsNumberKey = "NHSNumber";
+  } else {
+    nhsNumberKey = NHS_NUMBER_KEY;
+  }
 
   nhsNumber = apiValidation.validations[nhsNumberKey];
-
 
   if (!nhsNumber) {
     if (apiValidation.validations.NhsNumber) {
@@ -93,23 +90,18 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
     }
   }
 
-
   matchingObjects = responseBody.filter((item: Record<string, any>) =>
     item[nhsNumberKey] == nhsNumber ||
     item.NhsNumber == nhsNumber ||
     item.NHSNumber == nhsNumber
   );
 
-
   matchingObject = matchingObjects[matchingObjects.length - 1];
-
 
   if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
       (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
-
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
-
 
     const betterMatches = matchingObjects.filter(record =>
       (ruleIdToFind === undefined || record.RuleId === ruleIdToFind) &&
@@ -117,7 +109,6 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
     );
 
     if (betterMatches.length > 0) {
-
       matchingObject = betterMatches[0];
       console.log(`Found better matching record with NHS Number ${nhsNumber} and RuleId ${ruleIdToFind || 'any'}`);
     }
@@ -125,7 +116,6 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
 
   return { matchingObject, nhsNumber };
 }
-
 
 async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);

@@ -34,7 +34,7 @@ interface TestDataWithAmended {
 export const test = base.extend<{
   testData: TestData;
 }>({
-  testData: async ({ }, use, testInfo) => {
+  testData: async (_, use, testInfo) => {
 
     const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
       await getTestData(testInfo.title, "ADD", true);
@@ -69,7 +69,7 @@ export const test = base.extend<{
 export const testWithAmended = base.extend<{
   testData: TestDataWithAmended;
 }>({
-  testData: async ({ }, use, testInfo) => {
+  testData: async (_, use, testInfo) => {
 
     const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
       await getTestData(testInfo.title, "ADD", true);
