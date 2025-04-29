@@ -126,8 +126,33 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "20"
-          capacity_def = "2"
+          capacity_max = "1"
+          capacity_def = "1"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 1
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
+    DefaultPlan2 = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "1"
+          capacity_def = "1"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 1
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
         }
       }
     }
@@ -137,12 +162,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
+          capacity_max = "1"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -155,12 +180,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
+          capacity_max = "1"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -794,7 +819,7 @@ function_apps = {
     RemoveValidationExceptionData = {
       name_suffix            = "remove-validation-exception-data"
       function_endpoint_name = "RemoveValidationExceptionData"
-      app_service_plan_key   = "DefaultPlan"
+      app_service_plan_key   = "DefaultPlan2"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
@@ -1169,12 +1194,7 @@ function_apps = {
   }
 }
 
-function_app_slots = [
-  {
-    function_app_slots_name   = "staging"
-    function_app_slot_enabled = true
-  }
-]
+function_app_slots = []
 
 key_vault = {
   disk_encryption   = true
