@@ -3,7 +3,7 @@ import { config } from './env';
 
 export default defineConfig({
   testDir: '../tests',
-  timeout: 30 * 60 * 1000,    // 15 minutes
+  timeout: 15 * 60 * 1000,    // 15 minutes
   retries: 2,
   workers: 1,
   fullyParallel: false,
