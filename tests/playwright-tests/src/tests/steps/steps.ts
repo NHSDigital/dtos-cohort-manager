@@ -4,7 +4,7 @@ import { InputData } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
-import { validateApiResponse, validateApiResponseCount } from "../../api/apiHelper";
+import { validateApiResponse } from "../../api/apiHelper";
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 
 
