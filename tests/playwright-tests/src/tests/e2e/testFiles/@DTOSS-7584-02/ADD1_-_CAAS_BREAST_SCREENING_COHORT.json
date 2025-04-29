@@ -14,6 +14,13 @@
         "NhsNumber": 9997559762,
         "expectedCount": 1
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997559762,
+        "expectedCount": 1
+      }
     }
   ],
   "inputParticipantRecord": [
