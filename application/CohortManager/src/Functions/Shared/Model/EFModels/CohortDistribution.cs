@@ -9,9 +9,9 @@ public class CohortDistribution
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("BS_COHORT_DISTRIBUTION_ID", TypeName = "int")]
     public Int32 CohortDistributionId { get; set; }
-    [Column("PARTICIPANT_ID", TypeName = "int")]
+    [Column("PARTICIPANT_ID", TypeName = "bigint")]
     public Int64 ParticipantId { get; set; }
-    [Column("NHS_NUMBER", TypeName = "int")]
+    [Column("NHS_NUMBER", TypeName = "bigint")]
     public Int64 NHSNumber { get; set; }
     [Column("SUPERSEDED_NHS_NUMBER")]
     public Int64? SupersededNHSNumber { get; set; }
