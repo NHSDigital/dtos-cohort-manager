@@ -8,12 +8,6 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9994787284
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9994787284
       }
