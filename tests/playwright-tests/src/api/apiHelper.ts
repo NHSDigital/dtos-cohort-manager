@@ -48,7 +48,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
       await delayRetry();
     }
   }
-  waitTime = Number(config.apiWaitTime); //Reset to original value on exit.
+  waitTime = Number(config.apiWaitTime);
   return status;
 }
 
@@ -70,18 +70,49 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   let matchingObjects: any[] = [];
   let matchingObject: any;
 
-  const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
-  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-  : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
-  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-  : NHS_NUMBER_KEY; // Default or fallback value
+
+  let nhsNumberKey;
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+    nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
+  } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
+    nhsNumberKey = "NHSNumber";
+  } else {
+    nhsNumberKey = NHS_NUMBER_KEY;
+  }
+
   nhsNumber = apiValidation.validations[nhsNumberKey];
 
-  matchingObjects = responseBody.filter((item: Record<string, any>) => item[nhsNumberKey] == nhsNumber);
+  if (!nhsNumber) {
+    if (apiValidation.validations.NhsNumber) {
+      nhsNumber = apiValidation.validations.NhsNumber;
+    } else if (apiValidation.validations.NHSNumber) {
+      nhsNumber = apiValidation.validations.NHSNumber;
+    }
+  }
 
-  matchingObject = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE && PARTICIPANT_DEMOGRAPHIC_SERVICE)
-  ? matchingObjects[0]
-  : matchingObjects[matchingObjects.length - 1];
+  matchingObjects = responseBody.filter((item: Record<string, any>) =>
+    item[nhsNumberKey] == nhsNumber ||
+    item.NhsNumber == nhsNumber ||
+    item.NHSNumber == nhsNumber
+  );
+
+  matchingObject = matchingObjects[matchingObjects.length - 1];
+
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
+      (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
+    const ruleIdToFind = apiValidation.validations.RuleId;
+    const ruleDescToFind = apiValidation.validations.RuleDescription;
+
+    const betterMatches = matchingObjects.filter(record =>
+      (ruleIdToFind === undefined || record.RuleId === ruleIdToFind) &&
+      (ruleDescToFind === undefined || record.RuleDescription === ruleDescToFind)
+    );
+
+    if (betterMatches.length > 0) {
+      matchingObject = betterMatches[0];
+      console.log(`Found better matching record with NHS Number ${nhsNumber} and RuleId ${ruleIdToFind || 'any'}`);
+    }
+  }
 
   return { matchingObject, nhsNumber };
 }
