@@ -55,7 +55,7 @@ test('@DTOSS-7584-01 @regression @e2e @epic1-high-priority Confirm NHS Number Co
 
 });
 
-testWithAmended('@DTOSS-7584-02 @regression @e2e @epic1-high-priority @kt Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record', async ({ request, testData }) => {
+testWithAmended('@DTOSS-7584-02 @regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for AMENDED record', async ({ request, testData }) => {
   await test.step(`Given database does not contain 2 ADD records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
