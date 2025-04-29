@@ -185,32 +185,24 @@ public class DurableDemographicTests
         mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(_logger.Object);
         mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
 
-        bool result = false;
-        try
+
+        // Act and Assert
+
+        await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
         {
-            // Act
-            result = await sut.RunOrchestrator(mockContext.Object);
-        }
-        catch
-        {
+            var result = await sut.RunOrchestrator(mockContext.Object);
             Assert.IsFalse(result);
-            _logger.Verify(
-                x => x.Log(
-                    LogLevel.Warning,
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-                ),
-                Times.Once
-            );
-
-        }
-
-
-
-        // Assert
-
+        });
+        _logger.Verify(
+           x => x.Log(
+               LogLevel.Warning,
+               It.IsAny<EventId>(),
+               It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
+               It.IsAny<Exception>(),
+               It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+           ),
+           Times.Once
+       );
     }
 
     [TestMethod]
