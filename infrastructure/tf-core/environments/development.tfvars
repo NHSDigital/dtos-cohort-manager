@@ -1167,6 +1167,27 @@ function_apps = {
         }
       ]
     }
+
+    NemsMeshRetrieval = {
+      name_suffix            = "nems-mesh-retrieval"
+      function_endpoint_name = "NemsMeshRetrieval"
+      app_service_plan_key         = "RetrieveMeshFile" // using the same plan as the RetrieveMeshFile function
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "caasfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "FileValidationURL"
+          function_app_key = "FileValidation"
+        }
+      ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
+    }
   }
 }
 
