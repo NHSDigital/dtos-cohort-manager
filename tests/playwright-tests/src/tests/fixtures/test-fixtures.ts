@@ -1,4 +1,3 @@
-
 import { test as base } from '@playwright/test';
 import { getTestData } from '../steps/steps';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
@@ -14,14 +13,12 @@ interface TestData {
 
 
 interface TestDataWithAmended {
-
   checkInDatabaseAdd: any[];
   nhsNumbers: string[];
   parquetFile: string | undefined;
   inputParticipantRecord?: Record<string, any>;
   testFilesPath?: string;
   runTimeParquetFileAdd: string;
-
 
   checkInDatabaseAmend: any[];
   nhsNumberAmend: string[];
@@ -34,11 +31,9 @@ interface TestDataWithAmended {
 export const test = base.extend<{
   testData: TestData;
 }>({
-  testData: async ({ }, use, testInfo) => {
-
+  testData: async ({ request: _ }, use, testInfo) => {
     const [checkInDatabase, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
       await getTestData(testInfo.title, "ADD", true);
-
 
     let runTimeParquetFile: string = "";
     if (!parquetFile) {
@@ -51,7 +46,6 @@ export const test = base.extend<{
       );
     }
 
-
     const testData: TestData = {
       checkInDatabase,
       nhsNumbers,
@@ -59,7 +53,6 @@ export const test = base.extend<{
       inputParticipantRecord,
       testFilesPath
     };
-
 
     await use(testData);
   },
@@ -69,11 +62,9 @@ export const test = base.extend<{
 export const testWithAmended = base.extend<{
   testData: TestDataWithAmended;
 }>({
-  testData: async ({ }, use, testInfo) => {
-
+  testData: async ({ request: _ }, use, testInfo) => {
     const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
       await getTestData(testInfo.title, "ADD", true);
-
 
     let runTimeParquetFileAdd: string = "";
     if (!parquetFile) {
@@ -86,10 +77,8 @@ export const testWithAmended = base.extend<{
       );
     }
 
-
     const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend, inputParticipantRecordAmend, testFilesPathAmend] =
       await getTestData(testInfo.title, "AMENDED", true);
-
 
     let runTimeParquetFileAmend: string = "";
     if (!parquetFileAmend) {
@@ -102,16 +91,13 @@ export const testWithAmended = base.extend<{
       );
     }
 
-
     const testDataWithAmended: TestDataWithAmended = {
-
       checkInDatabaseAdd,
       nhsNumbers,
       parquetFile,
       inputParticipantRecord,
       testFilesPath,
       runTimeParquetFileAdd,
-
 
       checkInDatabaseAmend,
       nhsNumberAmend,
@@ -120,7 +106,6 @@ export const testWithAmended = base.extend<{
       testFilesPathAmend,
       runTimeParquetFileAmend
     };
-
 
     await use(testDataWithAmended);
   },

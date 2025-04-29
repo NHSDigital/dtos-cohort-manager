@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
@@ -15,10 +16,9 @@ using Model;
 public class DurableDemographicFunction
 {
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
-
     private readonly ILogger<DurableDemographicFunction> _logger;
-
     private readonly ICreateResponse _createResponse;
+
 
     public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
     {
@@ -46,6 +46,11 @@ public class DurableDemographicFunction
             {
                 var demographicJsonData = context.GetInput<string>();
 
+                if (string.IsNullOrEmpty(demographicJsonData))
+                {
+                    throw new InvalidDataException("demographicJsonData was null or empty in Orchestration function");
+                }
+
                 var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
                     maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
                     firstRetryInterval: TimeSpan.FromSeconds(100))
@@ -69,12 +74,19 @@ public class DurableDemographicFunction
                 }
 
                 cts.Cancel();
-                return await task;
+                var recordsInserted = await task;
+
+                if (!recordsInserted)
+                {
+                    throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
+                }
+                return true;
+
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Orchestration failed with exception.");
-                return false;
+                _logger.LogError(ex, "Orchestration failed with exception. {exception}", ex.Message);
+                throw;
             }
         }
     }
@@ -91,9 +103,7 @@ public class DurableDemographicFunction
         try
         {
             var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
-            var res = await _participantDemographic.AddRange(participantData);
-            return res;
-
+            return await _participantDemographic.AddRange(participantData);
         }
         catch (Exception ex)
         {
