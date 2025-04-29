@@ -23,28 +23,27 @@ let response: APIResponse;
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
+  let endpoint = "";
 
   for (let attempt = 1; attempt <= apiRetry; attempt++) {
     if (status) break;
 
     try {
       for (const apiValidation of validationJson) {
-        const endpoint = apiValidation.validations.apiEndpoint;
+        endpoint = apiValidation.validations.apiEndpoint;
         response = await fetchApiResponse(endpoint, request);
 
         expect(response.ok()).toBeTruthy();
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
-
-        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
-        status = await validateFields(apiValidation, matchingObject, nhsNumber);
-
+        const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
       }
     } catch (error) {
     }
 
     if (attempt < apiRetry && !status) {
-      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
+      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${Math.round(waitTime / 1000)} seconds...`);
       await delayRetry();
     }
   }
@@ -59,7 +58,7 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)) {
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
-  } else if(endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+  } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
@@ -74,12 +73,12 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
     ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
     : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
-    ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-    : endpoint.includes("participantmanagementdataservice")
-    ? "NHSNumber"
-    : endpoint.includes("CohortDistributionDataService")
-    ? "NHSNumber"
-    : NHS_NUMBER_KEY;
+      ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
+      : endpoint.includes("participantmanagementdataservice")
+        ? "NHSNumber"
+        : endpoint.includes("CohortDistributionDataService")
+          ? "NHSNumber"
+          : NHS_NUMBER_KEY;
 
 
   nhsNumber = apiValidation.validations[nhsNumberKey];
@@ -105,7 +104,7 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
 
 
   if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
-      (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
+    (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
 
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
@@ -123,18 +122,25 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
     }
   }
 
-  return { matchingObject, nhsNumber };
+  return { matchingObject, nhsNumber, matchingObjects };
 }
 
 
-async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
+async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  try{
+  try {
     for (const [fieldName, expectedValue] of fieldsToValidate) {
-      console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-      expect(matchingObject).toHaveProperty(fieldName);
-      expect(matchingObject[fieldName]).toBe(expectedValue);
-      console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+      if (fieldName === "expectedCount") {
+        console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+        const actualCount = matchingObjects.length;
+        expect(actualCount).toBe(expectedValue);
+        console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+      } else {
+        console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+        expect(matchingObject).toHaveProperty(fieldName);
+        expect(matchingObject[fieldName]).toBe(expectedValue);
+        console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+      }
     }
     return true;
   } catch (error) {
