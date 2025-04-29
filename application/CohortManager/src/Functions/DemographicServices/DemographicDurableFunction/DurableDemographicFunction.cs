@@ -153,8 +153,7 @@ public class DurableDemographicFunction
     [Function("GetOrchestrationStatus")]
     public async Task<HttpResponseData> GetOrchestrationStatus(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-    [DurableClient] DurableTaskClient client,
-    FunctionContext executionContext)
+    [DurableClient] DurableTaskClient client)
     {
         var instanceId = "";
         var status = "";
@@ -166,7 +165,7 @@ public class DurableDemographicFunction
 
         if (!string.IsNullOrWhiteSpace(instanceId))
         {
-            var instance = await client.GetInstanceAsync(instanceId);
+            var instance = await client.GetInstanceAsync(instanceId, default);
             if (instance != null)
             {
                 status = instance.RuntimeStatus.ToString();
@@ -178,7 +177,7 @@ public class DurableDemographicFunction
             }
         }
 
-        if (status == null)
+        if (string.IsNullOrEmpty(status))
         {
             _logger.LogWarning("No instance found with ID = {InstanceId}", instanceId);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

@@ -32,9 +32,8 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
         _handleException.Object,
         _config.Object))
     {
-        TestInitialize();
-        Environment.SetEnvironmentVariable("LookupValidationURL", "LookupValidationURL");
         CreateHttpResponseMock();
+        TestInitialize();
     }
 
     [TestInitialize]
