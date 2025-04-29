@@ -231,6 +231,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionsTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceDataTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\GetParticipantReferenceDataTests\GetParticipantReferenceDataTests.csproj", "{BF97136A-59AA-4468-9F10-B1F91140EE62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpClientFunctionTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpClientFunctionTests\HttpClientFunctionTests.csproj", "{D488875D-E001-4FAC-A877-E9E2E805F169}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveCaasFileHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\ReceiveCaasFileHelperTests\ReceiveCaasFileHelperTests.csproj", "{2142F03D-5994-42B1-994D-EB6A60E81DC1}"
 EndProject
 Global
@@ -959,6 +961,10 @@ Global
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
