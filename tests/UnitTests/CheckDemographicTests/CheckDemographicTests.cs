@@ -6,17 +6,15 @@ using Model;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-
 [TestClass]
 public class CheckDemographicTests
 {
-
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly CheckDemographic _checkDemographic;
 
     public CheckDemographicTests()
     {
-        _checkDemographic = new CheckDemographic(_callFunction.Object);
+        _checkDemographic = new CheckDemographic(_httpClientFunction.Object);
     }
 
     [TestMethod]
@@ -32,10 +30,8 @@ public class CheckDemographicTests
             NhsNumber = nhsNumber
         };
 
-        _callFunction.Setup(x => x.SendGet(It.IsAny<string>()))
-            .ReturnsAsync(JsonSerializer.Serialize(demographic))
-            .Verifiable();
-
+        _httpClientFunction.Setup(x => x.SendGet(It.IsAny<string>()))
+            .ReturnsAsync(JsonSerializer.Serialize(demographic));
 
         //Act
         var result = await _checkDemographic.GetDemographicAsync(nhsNumber, uri);

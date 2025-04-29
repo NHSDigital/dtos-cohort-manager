@@ -28,7 +28,6 @@ try
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-        services.AddTransient<ICallFunction, CallFunction>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -37,14 +36,6 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
-        services.AddTransient<IExceptionHandler, ExceptionHandler>();
-        services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
-        services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
-
-        services.AddHttpClient<ICallDurableDemographicFunc, CallDurableDemographicFunc>(client =>
-        {
-            client.BaseAddress = new Uri(config.DemographicURI);
-        });
         services.AddScoped<IValidateDates, ValidateDates>();
         services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
@@ -53,6 +44,7 @@ try
     .AddAzureQueues()
     .AddExceptionHandler()
     .AddDatabaseConnection()
+    .AddHttpClient()
     .Build();
 
     await host.RunAsync();
