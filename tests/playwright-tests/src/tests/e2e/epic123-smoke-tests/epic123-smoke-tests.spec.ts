@@ -1,29 +1,21 @@
 import { test, testWithAmended, expect } from '../../fixtures/test-fixtures';
 import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
-
-test('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @Implement Validation for Eligibility Flag for Add', async ({ request, testData }) => {
-  await test.step(`Given database does not contain record that will be processed`, async () => {
+test('@DTOSS-6256-01 @smoke @e2e @ds Verify file upload and cohort distribution process for ADD', async ({ request, testData }) => {
+  await test.step(`Given database does not contain records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
 
-  await test.step(`When ADD participant is processed via storage`, async () => {
+  await test.step(`When participants are processed via storage`, async () => {
     await processFileViaStorage(testData.runTimeParquetFile);
   });
 
   await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
   });
-
-  await test.step(`Then validate eligibility flag is always set to true for ADD`, async () => {
-    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-  });
 });
 
-
-
-testWithAmended('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-8086 @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
-
+testWithAmended('@DTOSS-6257-01 @smoke @e2e @ds Verify file upload and cohort distribution process for ADD followed by AMENDED records', async ({ request, testData }) => {
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -36,18 +28,16 @@ testWithAmended('@DTOSS-8544-01 @regression @e2e @epic2-high-priority @DTOSS-808
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
   });
 
-
-  await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+  await test.step(`When same ADD participant record is AMENDED via storage`, async () => {
     await processFileViaStorage(testData.runTimeParquetFileAmend);
   });
 
-  await test.step(`Then validate eligibility flag is always set to true for AMENDED`, async () => {
+  await test.step(`Then AMENDED record should be updated in the cohort`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
   });
 });
 
-testWithAmended('@DTOSS-8592-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag value for Amended', async ({ request, testData }) => {
-
+testWithAmended('@DTOSS-6407-01 @smoke @e2e @ds Verify file upload handles EmptyDOB Exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -56,21 +46,21 @@ testWithAmended('@DTOSS-8592-01 @regression @e2e @epic2-high-priority @Implement
     await processFileViaStorage(testData.runTimeParquetFileAdd);
   });
 
-  await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
+  await test.step(`Then ADD record should be updated in the cohort`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
   });
 
-
-  await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+  await test.step(`When same ADD participant record is AMENDED via storage`, async () => {
     await processFileViaStorage(testData.runTimeParquetFileAmend);
   });
 
-  await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
+  await test.step(`Then the Exception table should contain the details for the NHS Number`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
   });
 });
 
-test('@DTOSS-8535-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to false for ADD', async ({ request, testData }) => {
+test.describe.parallel('Exception Tests', () => {
+test('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
@@ -79,22 +69,22 @@ test('@DTOSS-8535-01 @regression @e2e @epic2-high-priority @Implement validate i
     await processFileViaStorage(testData.runTimeParquetFile);
   });
 
-  await test.step(`Then validate invalid flag is set to false for ADD`, async () => {
+  await test.step(`Then the Exception table should contain the details for the NHS Number`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
   });
 });
 
-
-test('@DTOSS-8593-01 @regression @e2e @epic2-high-priority @Implement validate invalid flag set to true for ADD', async ({ request, testData }) => {
-  await test.step(`Given database does not contain record that will be processed`, async () => {
+test('@DTOSS-7960-01 @smoke @e2e @ds Verify GP Practice Code Exception flag in participant management set to 1', async ({ request, testData }) => {
+  await test.step(`Given database does not contain records that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
   });
 
-  await test.step(`When ADD participant is processed via storage`, async () => {
+  await test.step(`When participants are processed via storage`, async () => {
     await processFileViaStorage(testData.runTimeParquetFile);
   });
 
-  await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
+  await test.step(`Then records should be updated in the cohort`, async () => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
   });
+});
 });
