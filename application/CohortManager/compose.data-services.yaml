@@ -144,8 +144,6 @@ services:
     ports:
       - 7993:7993
     networks: [cohman-network]
-    ports:
-      - 7993:7993
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
