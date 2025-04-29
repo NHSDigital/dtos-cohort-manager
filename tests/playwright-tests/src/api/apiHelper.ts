@@ -37,6 +37,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
         const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        console.info(`Validating fields using 🅰️\t🅿️\tℹ️\t ${endpoint}`);
         status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
       }
     } catch (error) {
