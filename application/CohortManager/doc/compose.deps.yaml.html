@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>compose.deps.yaml</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "";
+    var thisFile = "compose.deps.yaml";
+    var defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>compose.deps.yaml</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="yaml"><span class="hljs-attr">name:</span> <span class="hljs-string">cohort-manager-deps</span>
+
+<span class="hljs-attr">services:</span>
+  <span class="hljs-attr">azurite:</span>
+    <span class="hljs-attr">image:</span> <span class="hljs-string">mcr.microsoft.com/azure-storage/azurite</span>
+    <span class="hljs-attr">container_name:</span> <span class="hljs-string">azurite</span>
+    <span class="hljs-attr">networks:</span> <span class="hljs-string">[cohman-network]</span>
+    <span class="hljs-attr">command:</span> <span class="hljs-string">azurite</span> <span class="hljs-string">--silent</span> <span class="hljs-string">--skipApiVersionCheck</span> <span class="hljs-string">--blobHost</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> <span class="hljs-string">--queueHost</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> <span class="hljs-string">--tableHost</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>
+    <span class="hljs-attr">restart:</span> <span class="hljs-string">always</span>
+    <span class="hljs-attr">ports:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">"10000:10000"</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">"10001:10001"</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">"10002:10002"</span>
+
+  <span class="hljs-attr">azurite-setup:</span>
+    <span class="hljs-attr">container_name:</span> <span class="hljs-string">azurite-setup</span>
+    <span class="hljs-attr">build:</span>
+      <span class="hljs-attr">context:</span> <span class="hljs-string">./</span>
+      <span class="hljs-attr">dockerfile:</span> <span class="hljs-string">./Set-up/azurite/Dockerfile</span>
+    <span class="hljs-attr">networks:</span> <span class="hljs-string">[cohman-network]</span>
+    <span class="hljs-attr">depends_on:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">azurite</span>
+    <span class="hljs-attr">environment:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}</span>
+
+  <span class="hljs-attr">mssql:</span>
+    <span class="hljs-attr">container_name:</span> <span class="hljs-string">db</span>
+    <span class="hljs-attr">image:</span> <span class="hljs-string">mcr.microsoft.com/mssql/server:2022-latest</span>
+    <span class="hljs-attr">networks:</span> <span class="hljs-string">[cohman-network]</span>
+    <span class="hljs-attr">environment:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">ACCEPT_EULA=Y</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">MSSQL_SA_PASSWORD=${PASSWORD}</span>
+    <span class="hljs-attr">cap_add:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">SYS_PTRACE</span>
+    <span class="hljs-attr">ports:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">"1433:1433"</span>
+    <span class="hljs-attr">healthcheck:</span>
+      <span class="hljs-attr">test:</span> <span class="hljs-string">/opt/mssql-tools18/bin/sqlcmd</span> <span class="hljs-string">-C</span> <span class="hljs-string">-S</span> <span class="hljs-string">localhost</span> <span class="hljs-string">-U</span> <span class="hljs-string">sa</span> <span class="hljs-string">-P</span> <span class="hljs-string">"${PASSWORD}"</span> <span class="hljs-string">-Q</span> <span class="hljs-string">"SELECT 1"</span> <span class="hljs-string">||</span> <span class="hljs-string">exit</span> <span class="hljs-number">1</span>
+      <span class="hljs-attr">interval:</span> <span class="hljs-string">10s</span>
+      <span class="hljs-attr">timeout:</span> <span class="hljs-string">3s</span>
+      <span class="hljs-attr">retries:</span> <span class="hljs-number">10</span>
+      <span class="hljs-attr">start_period:</span> <span class="hljs-string">10s</span>
+
+  <span class="hljs-attr">db-setup:</span>
+    <span class="hljs-attr">container_name:</span> <span class="hljs-string">db-setup</span>
+    <span class="hljs-attr">build:</span> <span class="hljs-string">./Set-up/database</span>
+    <span class="hljs-attr">networks:</span> <span class="hljs-string">[cohman-network]</span>
+    <span class="hljs-attr">depends_on:</span>
+      <span class="hljs-attr">mssql:</span>
+        <span class="hljs-attr">condition:</span> <span class="hljs-string">service_healthy</span>
+    <span class="hljs-attr">environment:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">PASSWORD=${PASSWORD}</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">DB_NAME=${DB_NAME}</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">HOSTNAME=db</span>
+
+<span class="hljs-attr">networks:</span>
+  <span class="hljs-attr">cohman-network:</span>
+    <span class="hljs-attr">name:</span> <span class="hljs-string">cohman-network</span>
+    <span class="hljs-attr">driver:</span> <span class="hljs-string">bridge</span>
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>
