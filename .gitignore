@@ -94,8 +94,7 @@ application/CohortManager/.vscode/
 *.crt
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 
-application/CohortManager/src/Functions/
-*.json
+application/CohortManager/src/Functions/*.json
 
 # Playwright
 # Ignore
