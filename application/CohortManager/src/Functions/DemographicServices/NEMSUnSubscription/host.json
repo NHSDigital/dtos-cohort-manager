@@ -8,16 +8,5 @@
         "isEnabled": true
       }
     }
-  },
-  "extensions": {
-    "durableTask": {
-      "storageProvider": {
-        "type": "AzureStorage",
-        "maxDurableActivityFunctionTimeout": "30:00:00",
-        "maxOrchestrationFunctionTimeout": "24:00:00",
-        "extendedSessionsEnabled": true,
-        "historyRetentionInDays": 90
-      }
-    }
   }
 }

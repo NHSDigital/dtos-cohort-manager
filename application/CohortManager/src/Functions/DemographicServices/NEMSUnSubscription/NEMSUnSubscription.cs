@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.DemographicServices.NEMSUnSubscription;
 
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -9,9 +10,6 @@ using System.Text.Json;
 using Azure.Data.Tables;
 using Azure;
 using Model;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Hl7.Fhir.Rest;
 using Common;
 
 public class NEMSUnSubscription
@@ -21,11 +19,11 @@ public class NEMSUnSubscription
     protected readonly HttpClient _httpClient;
 
     private readonly ILogger<NEMSUnSubscription> _logger;
-    private readonly FhirJsonSerializer _fhirSerializer;
-    private readonly FhirJsonParser _fhirParser;
+
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-    private readonly ICallFunction _callFunction;
+     private readonly IConfiguration _configuration;
+
 
     public interface IExceptionHandler
     {
@@ -45,15 +43,14 @@ public class NEMSUnSubscription
     IHttpClientFactory httpClientFactory,
     IExceptionHandler handleException,
     ICreateResponse createResponse ,
+    IConfiguration configuration,
     ICallFunction callFunction)
     {
         _logger = logger;
-        _fhirSerializer = new FhirJsonSerializer();
-        _fhirParser = new FhirJsonParser();
         _httpClient = httpClientFactory.CreateClient();
         _handleException = handleException;
         _createResponse = createResponse;
-        _callFunction = callFunction;
+        _configuration = configuration;
 
     }
     // Constructor for dependency injection (testability)
@@ -68,9 +65,9 @@ public class NEMSUnSubscription
         [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
         FunctionContext executionContext)
     {
-        var logger = executionContext.GetLogger("NEMSUnsubscribe");
+        _logger.LogInformation("Received unsubscribe request");
 
-        var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
         if (string.IsNullOrWhiteSpace(requestBody))
         {
@@ -89,13 +86,11 @@ public class NEMSUnSubscription
         }
 
         string nhsNumber = request.NhsNumber;
-        logger.LogInformation($"Received NHS Number: {nhsNumber}");
-
         string? subscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
 
         if (string.IsNullOrEmpty(subscriptionId))
         {
-            logger.LogWarning("No subscription record found.");
+            _logger.LogWarning("No subscription record found.");
             return await _handleException.HandleAsync(req, HttpStatusCode.NotFound, "No subscription record found.");
         }
 
@@ -103,12 +98,12 @@ public class NEMSUnSubscription
 
         if (!isDeletedFromNems)
         {
-            logger.LogError("Failed to delete subscription from NEMS.");
+            _logger.LogError("Failed to delete subscription from NEMS.");
             return await _handleException.HandleAsync(req, HttpStatusCode.BadGateway, "Failed to delete subscription from NEMS.");
         }
 
         await DeleteSubscriptionFromTableAsync(nhsNumber);
-        logger.LogInformation("Subscription deleted successfully.");
+        _logger.LogInformation("Subscription deleted successfully.");
 
         var successResponse = req.CreateResponse(HttpStatusCode.OK);
         await successResponse.WriteStringAsync("Successfully unsubscribed.");
@@ -140,7 +135,7 @@ public class NEMSUnSubscription
     {
         try
         {
-            string nemsEndpoint = Environment.GetEnvironmentVariable("NemsDeleteEndpoint");
+            string nemsEndpoint = _configuration["NemsDeleteEndpoint"];
             var response = await _httpClient.DeleteAsync($"{nemsEndpoint}/{subscriptionId}");
             return response.IsSuccessStatusCode;
         }
@@ -154,7 +149,7 @@ public class NEMSUnSubscription
     /// <summary>
     /// Deletes the subscription ID from the Azure Table.
     /// </summary>
-    protected virtual async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
+    public virtual async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
         try
         {

@@ -8,6 +8,7 @@ using System.Text.Json;
 using Azure.Data.Tables;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Model;
 using Common;
@@ -68,6 +69,7 @@ public class NEMSUnSubscriptionTests
             httpClientFactoryMock.Object,
             _exceptionHandlerMock.Object,
             new Mock<ICreateResponse>().Object,
+            new Mock<IConfiguration>().Object,
             new Mock<ICallFunction>().Object
         )
         {
@@ -98,6 +100,7 @@ public class NEMSUnSubscriptionTests
         new Mock<IHttpClientFactory>().Object,
         _exceptionHandlerMock.Object,
         new Mock<ICreateResponse>().Object,
+        new Mock<IConfiguration>().Object,
         new Mock<ICallFunction>().Object
         );
 
@@ -114,6 +117,7 @@ public class NEMSUnSubscriptionTests
         new Mock<IHttpClientFactory>().Object,
         _exceptionHandlerMock.Object,
         new Mock<ICreateResponse>().Object,
+        new Mock<IConfiguration>().Object,
         new Mock<ICallFunction>().Object
         )
         {
@@ -135,6 +139,7 @@ public class NEMSUnSubscriptionTests
         new Mock<IHttpClientFactory>().Object,
         _exceptionHandlerMock.Object,
         new Mock<ICreateResponse>().Object,
+        new Mock<IConfiguration>().Object,
         new Mock<ICallFunction>().Object
         )
         {
@@ -167,8 +172,9 @@ public class TestableNEMSUnSubscription : NEMSUnSubscription
             IHttpClientFactory httpClientFactory,
             IExceptionHandler handleException,
             ICreateResponse createResponse,
+            IConfiguration configuration,
             ICallFunction callFunction)
-            : base(logger, httpClientFactory, handleException, createResponse, callFunction)
+            : base(logger, httpClientFactory, handleException, createResponse,configuration, callFunction)
         {
         }
 
@@ -182,7 +188,7 @@ public class TestableNEMSUnSubscription : NEMSUnSubscription
         return await Task.FromResult(TestNemsDeleteResult);
     }
 
-   protected override Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
+   public override Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
         return Task.FromResult(TestNemsDeleteResult);
     }
