@@ -66,7 +66,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Never());
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
@@ -75,14 +75,14 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
-        _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PDSDemographic());
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Once());
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
@@ -92,13 +92,13 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
-        _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
     }
@@ -108,13 +108,13 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
-        _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
@@ -124,13 +124,13 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
-        _httpClientFunction.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).Throws(new Exception("There was an error"));
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).Throws(new Exception("There was an error"));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()), Times.Once());
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),

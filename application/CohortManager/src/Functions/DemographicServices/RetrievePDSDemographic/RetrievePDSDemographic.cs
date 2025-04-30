@@ -47,18 +47,11 @@ public class RetrievePdsDemographic
         {
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
 
-            var headers = new Dictionary<string, string>()
-            {
-                {"X-Request-ID", Guid.NewGuid().ToString() },
-                {"X-Correlation-ID", Guid.NewGuid().ToString() },
-                {"Accept", "application/fhir+json" },
-            };
-
-            var response = await _httpClientFunction.GetAsync(url, headers);
+            var response = await _httpClientFunction.SendPdsGet(url);
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+                var jsonResponse = await _httpClientFunction.GetResponseText(response);
                 var demographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
