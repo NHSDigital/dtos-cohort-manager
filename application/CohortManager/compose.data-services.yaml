@@ -180,6 +180,18 @@ services:
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AcceptableLatencyThresholdMs=500
 
+  nems-subscription-data-service:
+    container_name: nems-subscription-data-service
+    image: cohort-manager-nems-subscription-data-service
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/NemsSubscriptionDataService/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7990
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
+
 networks:
   cohman-network:
     external: true
