@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "DEVTEST"
+environment           = "SBX"
 
 features = {
   acr_enabled                          = false
@@ -186,8 +186,6 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name                      = "appi-devtest-uks-cohman"
-  app_insights_rg_name                   = "rg-cohman-devtest-uks-audit"
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 
@@ -250,8 +248,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://devtest-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://devtest-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://sandbox-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://sandbox-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
       }
@@ -1006,7 +1004,7 @@ function_apps = {
     }
 
     UpdateParticipantFromScreeningProvider = {
-      name_suffix            = "update-participant-from-screening-prov"
+      name_suffix            = "update-participant-from-screening-provider"
       function_endpoint_name = "UpdateParticipantFromScreeningProvider"
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
@@ -1083,7 +1081,7 @@ function_apps = {
     }
 
     HigherRiskReferralReasonLkpDataService = {
-      name_suffix            = "higher-risk-referral-reason-lkp-ds"
+      name_suffix            = "higher-risk-referral-reason-lkp-data-service"
       function_endpoint_name = "HigherRiskReferralReasonLkpDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
@@ -1187,7 +1185,7 @@ key_vault = {
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
-  sql_admin_group_name                 = "sqlsvr_cohman_devtest_uks_admin"
+  sql_admin_group_name                 = "sqlsvr_cohman_sandbox_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30

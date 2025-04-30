@@ -27,17 +27,17 @@ parameters:
     default: 'Apply'
 
 variables:
-  - group: DEVTEST_core_backend
-  - group: DEVTEST_audit_backend_remote_state
+  - group: SANDBOX_core_backend
+  - group: SANDBOX_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.11.4
   - name: TF_PLAN_ARTIFACT
-    value: tf_plan_core_DEVTEST
+    value: tf_plan_core_SANDBOX
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: ENVIRONMENT
-    value: devtest
+    value: sandbox
 
 stages:
   - stage: terraform_plan

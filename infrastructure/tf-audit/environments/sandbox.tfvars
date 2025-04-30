@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "DEVTEST"
+environment           = "SBX"
 
 features = {
   private_endpoints_enabled              = true
