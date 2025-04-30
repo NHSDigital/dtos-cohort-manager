@@ -155,12 +155,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
+          capacity_max = "1"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
