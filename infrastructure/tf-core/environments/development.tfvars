@@ -91,30 +91,30 @@ app_service_plan = {
   vnet_integration_enabled = true
 
   autoscale = {
-    memory_percentage = {
-      metric = "MemoryPercentage"
+    scaling_rule = {
+      metric = "CpuPercentage"
 
       capacity_min = "1"
-      capacity_max = "5"
-      capacity_def = "1"
+      capacity_max = "12"
+      capacity_def = "2"
 
       time_grain       = "PT1M"
       statistic        = "Average"
-      time_window      = "PT10M"
+      time_window      = "PT1M"
       time_aggregation = "Average"
 
-      inc_operator        = "GreaterThan"
-      inc_threshold       = 70
+      inc_operator        = "GreaterThanOrEqual"
+      inc_threshold       = 20
       inc_scale_direction = "Increase"
-      inc_scale_type      = "ChangeCount"
-      inc_scale_value     = 1
-      inc_scale_cooldown  = "PT5M"
+      inc_scale_type      = "ExactCount"
+      inc_scale_value     = 12
+      inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
-      dec_threshold       = 25
+      dec_threshold       = 20
       dec_scale_direction = "Decrease"
-      dec_scale_type      = "ChangeCount"
-      dec_scale_value     = 1
+      dec_scale_type      = "ExactCount"
+      dec_scale_value     = 2
       dec_scale_cooldown  = "PT5M"
     }
   }
@@ -122,23 +122,48 @@ app_service_plan = {
   instances = {
     DefaultPlan = {
       autoscale_override = {
-        memory_percentage = {
-          metric = "MemoryPercentage"
+        scaling_rule = {
+          metric = "CpuPercentage"
 
-          capacity_min = "12"
+          capacity_min = "1"
           capacity_max = "12"
-          capacity_def = "12"
+          capacity_def = "2"
         }
       }
     }
     HighLoadFunctions = {
       autoscale_override = {
-        memory_percentage = {
-          metric = "MemoryPercentage"
+        scaling_rule = {
+          metric = "CpuPercentage"
 
-          capacity_min = "4"
+          capacity_min = "1"
           capacity_max = "4"
-          capacity_def = "4"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
+    RetrieveMeshFile = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "4"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
         }
       }
     }
@@ -222,6 +247,7 @@ function_apps = {
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
+        maxNumberOfChecks          = "50"
       }
 
     }
@@ -229,7 +255,7 @@ function_apps = {
     RetrieveMeshFile = {
       name_suffix                  = "retrieve-mesh-file"
       function_endpoint_name       = "RetrieveMeshFile"
-      app_service_plan_key         = "DefaultPlan"
+      app_service_plan_key         = "RetrieveMeshFile"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -242,6 +268,9 @@ function_apps = {
           function_app_key = "FileValidation"
         }
       ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
 
     AddParticipant = {
@@ -617,8 +646,8 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         },
         {
-          env_var_name     = "BsRequestAuditDataService"
-          function_app_key = "BsRequestAuditDataService"
+          env_var_name     = "BsSelectRequestAuditDataService"
+          function_app_key = "BsSelectRequestAuditDataService"
         }
       ]
       env_vars_static = {
@@ -803,8 +832,8 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         },
         {
-          env_var_name     = "BsRequestAuditDataService"
-          function_app_key = "BsRequestAuditDataService"
+          env_var_name     = "BsSelectRequestAuditDataService"
+          function_app_key = "BsSelectRequestAuditDataService"
         }
       ]
     }
@@ -1091,9 +1120,9 @@ function_apps = {
       ]
     }
 
-    BsRequestAuditDataService = {
+    BsSelectRequestAuditDataService = {
       name_suffix            = "bs-request-audit-data-service"
-      function_endpoint_name = "BsRequestAuditDataService"
+      function_endpoint_name = "BsSelectRequestAuditDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
@@ -1137,6 +1166,22 @@ function_apps = {
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+    }
+
+    NemsSubscriptionDataService = {
+      name_suffix            = "nems-subscription-data-service"
+      function_endpoint_name = "NemsSubscriptionDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
   }
 }

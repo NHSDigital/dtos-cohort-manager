@@ -1,8 +1,6 @@
 ﻿namespace DataServices.Database;
-
 using Model;
 using Microsoft.EntityFrameworkCore;
-
 public class DataServicesContext : DbContext
 {
     DbSet<BsSelectGpPractice> bsSelectGpPractices { get; set; }
@@ -21,6 +19,7 @@ public class DataServicesContext : DbContext
     DbSet<ScreeningLkp> screeningLkps {get;set;}
     DbSet<BsoOrganisation> bsoOrganisations {get;set;}
     DbSet<GenderMaster> genderMasters {get;set;}
+    DbSet<NemsSubscription> nemsSubscriptions {get;set;}
 
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
@@ -55,6 +54,7 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<HigherRiskReferralReasonLkp>()
             .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
+
 
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo")
