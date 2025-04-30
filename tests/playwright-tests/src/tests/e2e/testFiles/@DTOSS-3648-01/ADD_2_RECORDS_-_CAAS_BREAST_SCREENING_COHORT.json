@@ -3,57 +3,13 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9994722263,
-        "PrimaryCareProvider": "E85121",
-        "NamePrefix": "MR",
-        "GivenName": "NewTest 1",
-        "OtherGivenName": "Test",
-        "FamilyName": "Adani 1",
-        "PreviousFamilyName": "Tester 1",
-        "AddressLine5": "United Kingdom",
-        "PostCode": "AB43 8FJ",
-        "CurrentPosting": "CH",
-        "EmailAddressHome": "bturneux0@soup.io",
-        "PreferredLanguage": "en",
-        "InterpreterRequired": 0
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9994722263,
-        "PrimaryCareProvider": "E85121",
-        "NamePrefix": "MR",
-        "GivenName": "NewTest 1",
-        "OtherGivenName": "Test",
-        "FamilyName": "Adani 1",
-        "PreviousFamilyName": "Tester 1",
-        "AddressLine5": "United Kingdom",
-        "PostCode": "AB43 8FJ",
-        "CurrentPosting": "CH",
-        "EmailAddressHome": "bturneux0@soup.io",
-        "PreferredLanguage": "en",
-        "InterpreterRequired": 0
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9994787284
       }
     },
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9994787284,
-        "PrimaryCareProvider": "E85121"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9994787284,
-        "PrimaryCareProvider": "E85121"
+        "NhsNumber": 9994787284
       }
     }
   ],
