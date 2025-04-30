@@ -19,6 +19,7 @@ var host = new HostBuilder()
     })
     .AddAzureQueues()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
