@@ -1,12 +1,15 @@
 import { test as base } from '@playwright/test';
 import { getTestData } from '../steps/steps';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
+import path from 'path';
+import fs from 'fs';
 
 
 interface TestData {
   checkInDatabase: any[];
   nhsNumbers: string[];
   runTimeParquetFile: string;
+  runTimeParquetFileInvalid: string;
   inputParticipantRecord?: Record<string, any>;
   testFilesPath?: string;
 }
@@ -46,13 +49,24 @@ export const test = base.extend<{
       );
     }
 
+    const tempFileName = "Exception_1B8F53_-_CAAS_BREAST_screening_@.parquet";
+    const tempDir = path.join(__dirname, 'temp');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir);
+    }
+    const runTimeParquetFileInvalid = path.join(tempDir, tempFileName);
+    fs.writeFileSync(runTimeParquetFileInvalid, 'Dummy content for invalid file parquet file name validation.');
+
     const testData: TestData = {
       checkInDatabase,
       nhsNumbers,
       runTimeParquetFile,
+      runTimeParquetFileInvalid,
       inputParticipantRecord,
       testFilesPath
     };
+
+
 
     await use(testData);
   },
