@@ -69,12 +69,6 @@ public class DeleteParticipant
         {
             var longNhsNumber = long.Parse(requestBody.NhsNumber);
             var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == longNhsNumber && p.FamilyName == FamilyName);
-            if (participantData == null)
-            {
-                _logger.LogError("The participant data was null the {DeleteParticipant}  function", nameof(DeleteParticipant));
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, $"the participantData was null the {nameof(DeleteParticipant)}  function");
-            }
 
             var participantsToDelete = participantData.Where(p => p.DateOfBirth == DateOfBirth);
             if (!participantsToDelete.Any())
