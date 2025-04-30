@@ -13,7 +13,7 @@ public class CohortDistribution
     public Int64 ParticipantId { get; set; }
     [Column("NHS_NUMBER", TypeName = "bigint")]
     public Int64 NHSNumber { get; set; }
-    [Column("SUPERSEDED_NHS_NUMBER")]
+    [Column("SUPERSEDED_NHS_NUMBER", TypeName = "bigint")]
     public Int64? SupersededNHSNumber { get; set; }
     [MaxLength(10)]
     [Column("PRIMARY_CARE_PROVIDER")]
