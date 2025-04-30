@@ -1168,25 +1168,42 @@ function_apps = {
       ]
     }
 
-    NemsSubscribe = {
-      name_suffix            = "nems-subscribe"
-      function_endpoint_name = "NemsSubscribe"
+    NemsSubscriptionDataService = {
+      name_suffix            = "nems-subscription-data-service"
+      function_endpoint_name = "NemsSubscriptionDataService"
       app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        },
-        {
-          env_var_name     = "RetrievePdsDemographicURL"
-          function_app_key = "RetrievePDSDemographic"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
+
+  NemsSubscribe = {
+       name_suffix            = "nems-subscribe"
+       function_endpoint_name = "NemsSubscribe"
+       app_service_plan_key   = "DefaultPlan"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         },
+         {
+           env_var_name     = "ParticipantDemographicDataServiceURL"
+           function_app_key = "ParticipantDemographicDataService"
+         },
+         {
+           env_var_name     = "RetrievePdsDemographicURL"
+           function_app_key = "RetrievePDSDemographic"
+         }
+       ]
+     }
+
   }
 }
 
