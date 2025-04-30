@@ -37,9 +37,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
 
   test('@DTOSS-3662-01 Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution', async ({ request, testData }) => {
 
-    await test.step(`Then participants records should be 1 in both management and demographic
-                   AND  cohort should have 0 records
-                   AND  exception should have 1 record with Invalid primary care provider GP practice code and rule id 36`, async () => {
+    await test.step(`Then participants records should be 1 in both management and demographic tables, the cohort table should have 0 records, and the exception table should have 1 record with an invalid primary care provider GP practice code and rule ID 36`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
 
@@ -47,9 +45,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
 
   test('@DTOSS-3197-01 Verify ADD records is processed without any Exception', async ({ request, testData }) => {
 
-    await test.step(`Then NHS Numbers should be should be updated in the participants table
-                   AND 1 record in cohort table
-                   AND no records in exception table`, async () => {
+    await test.step(`Then NHS numbers should be updated in the participants table, 1 record in the cohort table, and 0 records in the exception table.`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
 
@@ -57,8 +53,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
 
   test('@DTOSS-3744-01 Verify a file is uploaded to storage successfully', async ({ request, testData }) => {
 
-    await test.step(`Then NHS Numbers should be should be updated in the participants table
-                   AND content should match`, async () => {
+    await test.step(`Then NHS numbers should be updated in the participants table, and the content should match.`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
 
@@ -66,9 +61,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
 
   test('@DTOSS-3660-01 Verify Successful Data Processing and Storage in Cohort Manager for Add', async ({ request, testData }) => {
 
-    await test.step(`Then NHS Numbers should be should be updated in the participants table
-                   AND 1 record in cohort table after data processing
-                   AND no records in exception table`, async () => {
+    await test.step(`"Then NHS numbers should be updated in the participants table, 1 record in the cohort table after data processing, and 0 records in the exception table.`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
 
@@ -117,9 +110,7 @@ test.describe('@regression @e2e @epic1-high-priority participant AMENDED process
 
   testWithAmended('@DTOSS-3662-02 Verify AMENDED records with non-fatal validation issues reach participant tables with partial Cohort distribution entries', async ({ request, testData }) => {
 
-    await test.step(`Then participants records should be 1 in both management and demographic
-                  AND cohort manager record count should be 1
-                  AND exception should have 1 record with Date of birth invalid and rule id 17`, async () => {
+    await test.step(`Then participants records should be 1 in both management and demographic tables, the cohort manager record count should be 1, and the exception table should have 1 record with an invalid date of birth and rule ID 17`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
 
@@ -128,9 +119,7 @@ test.describe('@regression @e2e @epic1-high-priority participant AMENDED process
 
   testWithAmended('@DTOSS-3217-02 Verify AMENDED records is processed without any Exception', async ({ request, testData }) => {
 
-    await test.step(`Then participants records should be 1 in both management and demographic
-                  AND cohort manager record count should be 2
-                  AND exception should have 0 record`, async () => {
+    await test.step(`Then participants records should be 1 in both management and demographic tables, the cohort manager record count should be 2, and the exception table should have 0 records`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
 
