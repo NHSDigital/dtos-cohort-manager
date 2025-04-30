@@ -165,7 +165,7 @@ test('@DTOSS-8694-01 @regression @e2e @epic2-high-priority @Implement Validation
   });
 });
 
-test.only('@DTOSS-8700-01 @regression @e2e @epic2-high-priority @Duplicate NHS ID Participants records', async ({ request, testData }) => {
+test('@DTOSS-8700-01 @regression @e2e @epic2-high-priority @Duplicate NHS ID Participants records', async ({ request, testData }) => {
   await test.step(`Given database does not contain record that will be processed`, async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
  });
