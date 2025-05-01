@@ -1,5 +1,6 @@
 namespace Common;
 
+using CohortManager.Functions.Shared.Common;
 using Common.Interfaces;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
@@ -12,16 +13,6 @@ using System.Linq;
 public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
     private readonly ILogger<FhirPatientDemographicMapper> _logger;
-
-    // URL constants for FHIR extensions
-    private static class FhirExtensionUrls
-    {
-        public const string UkCoreAddressKey = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey";
-        public const string UkCoreDeathNotificationStatus = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-DeathNotificationStatus";
-        public const string UkCoreNhsCommunication = "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSCommunication";
-        public const string PdsRemovalFromRegistration = "https://fhir.nhs.uk/StructureDefinition/Extension-PDS-RemovalFromRegistration";
-        public const string V3Confidentiality = "http://terminology.hl7.org/CodeSystem/v3-Confidentiality";
-    }
 
     public FhirPatientDemographicMapper(ILogger<FhirPatientDemographicMapper> logger)
     {
