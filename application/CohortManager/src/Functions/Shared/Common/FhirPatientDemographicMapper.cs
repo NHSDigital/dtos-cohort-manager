@@ -29,8 +29,9 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
         catch (FormatException ex)
         {
-            _logger.LogError(ex, "Failed to parse FHIR json");
-            throw;
+            var errorMessage = "Failed to parse FHIR json. Ensure the input is a valid FHIR Patient resource.";
+            _logger.LogError(ex, errorMessage);
+            throw new FormatException(errorMessage, ex);
         }
     }
 
