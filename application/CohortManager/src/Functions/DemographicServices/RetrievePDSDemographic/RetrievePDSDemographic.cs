@@ -33,6 +33,7 @@ public class RetrievePdsDemographic
         _config = retrievePDSDemographicConfig.Value;
     }
 
+    // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
     [Function("RetrievePdsDemographic")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
