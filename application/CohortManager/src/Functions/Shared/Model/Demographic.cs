@@ -1,6 +1,5 @@
 namespace Model;
 
-using System.Text.Json.Serialization;
 using Model.Enums;
 
 public class Demographic
