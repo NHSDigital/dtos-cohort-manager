@@ -46,7 +46,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 using var transaction = await _context.Database.BeginTransactionAsync();
 
                 await _context.AddRangeAsync(entities);
-                var rowsEffected = await _context.SaveChangesAsync();
+                rowsEffected = await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
             }
