@@ -68,19 +68,17 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
     private static void MapPrimaryCareProvider(Patient patient, Demographic demographic)
     {
-        if (patient.GeneralPractitioner != null && patient.GeneralPractitioner.Count > 0)
-        {
-            var gp = patient.GeneralPractitioner[0];
-            if (gp.Identifier != null)
-            {
-                demographic.PrimaryCareProvider = gp.Identifier.Value;
+        if (patient.GeneralPractitioner == null || patient.GeneralPractitioner.Count == 0)
+            return;
 
-                if (gp.Identifier.Period?.Start != null)
-                {
-                    demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
-                }
-            }
-        }
+        var gp = patient.GeneralPractitioner[0];
+        if (gp.Identifier == null)
+            return;
+
+        demographic.PrimaryCareProvider = gp.Identifier.Value;
+
+        if (gp.Identifier.Period?.Start != null)
+            demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
     }
 
     private static void MapNames(Patient patient, Demographic demographic)
@@ -110,7 +108,8 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapGender(Patient patient, Demographic demographic){
+    private static void MapGender(Patient patient, Demographic demographic)
+    {
         // Gender mapping to our enum
         if (patient.Gender.HasValue)
         {
