@@ -319,38 +319,38 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         var removalExtension = patient.Extension?.FirstOrDefault(e =>
             e.Url == FhirExtensionUrls.PdsRemovalFromRegistration);
 
-        if (removalExtension != null)
+        if (removalExtension == null)
+            return;
+
+        // Map the removal reason code
+        var removalCodeExtension = removalExtension.Extension?.FirstOrDefault(e =>
+            e.Url == "removalFromRegistrationCode");
+
+        if (removalCodeExtension?.Value is CodeableConcept removalConcept)
         {
-            // Map the removal reason code only
-            var removalCodeExtension = removalExtension.Extension?.FirstOrDefault(e =>
-                e.Url == "removalFromRegistrationCode");
-
-            if (removalCodeExtension?.Value is CodeableConcept removalConcept)
+            var removalCoding = removalConcept.Coding?.FirstOrDefault();
+            if (removalCoding != null)
             {
-                var removalCoding = removalConcept.Coding?.FirstOrDefault();
-                if (removalCoding != null)
-                {
-                    // Set the removal reason to the code value only, no fallback
-                    demographic.ReasonForRemoval = removalCoding.Code;
-                }
+                // Set the removal reason to the code value only, no fallback
+                demographic.ReasonForRemoval = removalCoding.Code;
             }
+        }
 
-            // Map the effective time period
-            var effectiveTimeExtension = removalExtension.Extension?.FirstOrDefault(e =>
-                e.Url == "effectiveTime");
+        // Map the effective time period
+        var effectiveTimeExtension = removalExtension.Extension?.FirstOrDefault(e =>
+            e.Url == "effectiveTime");
 
-            if (effectiveTimeExtension?.Value is Period effectivePeriod)
-            {
-                if (effectivePeriod.Start != null)
-                {
-                    demographic.EffectiveFromDate = effectivePeriod.Start.ToString();
-                }
+        if (effectiveTimeExtension?.Value is not Period effectivePeriod)
+            return;
 
-                if (effectivePeriod.End != null)
-                {
-                    demographic.EffectiveToDate = effectivePeriod.End.ToString();
-                }
-            }
+        if (effectivePeriod.Start != null)
+        {
+            demographic.EffectiveFromDate = effectivePeriod.Start.ToString();
+        }
+
+        if (effectivePeriod.End != null)
+        {
+            demographic.EffectiveToDate = effectivePeriod.End.ToString();
         }
     }
 
