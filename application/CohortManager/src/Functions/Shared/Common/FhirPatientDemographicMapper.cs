@@ -119,35 +119,25 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapGender(Patient patient, Demographic demographic)
-    {
-        if (!patient.Gender.HasValue)
+    private static void MapGender(Patient patient, Demographic demographic){
+        // Gender mapping to our enum
+        if (patient.Gender.HasValue)
         {
-            demographic.Gender = null;
-            return;
-        }
-
-        // Get the name of the FHIR gender value
-        string genderName = patient.Gender.Value.ToString();
-
-        // Special case for "Other" and "Unknown"
-        if (genderName == "Other")
-        {
-            demographic.Gender = Gender.NotSpecified;
-        }
-        else if (genderName == "Unknown")
-        {
-            demographic.Gender = Gender.NotKnown;
-        }
-        // Try to parse the name directly for matching names (Male, Female)
-        else if (Enum.TryParse<Gender>(genderName, out Gender result))
-        {
-            demographic.Gender = result;
-        }
-        // Default fallback
-        else
-        {
-            demographic.Gender = Gender.NotKnown;
+            switch (patient.Gender.Value)
+            {
+                case AdministrativeGender.Male:
+                    demographic.Gender = Gender.Male;
+                    break;
+                case AdministrativeGender.Female:
+                    demographic.Gender = Gender.Female;
+                    break;
+                case AdministrativeGender.Other:
+                    demographic.Gender = Gender.NotSpecified;
+                    break;
+                default:
+                    demographic.Gender = Gender.NotKnown;
+                    break;
+            }
         }
     }
 
