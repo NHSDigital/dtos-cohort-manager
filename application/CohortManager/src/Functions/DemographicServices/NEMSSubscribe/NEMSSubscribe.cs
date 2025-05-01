@@ -23,31 +23,31 @@ public class NEMSSubscribe
     private readonly ILogger<NEMSSubscribe> _logger;
     private readonly FhirJsonSerializer _fhirSerializer;
     private readonly FhirJsonParser _fhirParser;
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
     private readonly NEMSSubscribeConfig _config;
-
-    // private readonly IDataServiceClient<NemsSubscription> _nemsSubscriptionClient; /* To Do Later */
+    private readonly IDataServiceClient<NemsSubscription> _nemsSubscriptionClient;
+    private const string urlFormat = "{0}/{1}";
 
     public NEMSSubscribe(ILogger<NEMSSubscribe> logger,
-    //IDataServiceClient<NEMSSubscribe> nemsSubscriptionClient, /* To Do Later */
-    IHttpClientFactory httpClientFactory,
+    // IDataServiceClient<NEMSSubscribe> nemsSubscriptionClient, /* Uncomment after RetrievePdsDemographic PR is merged */
+    IHttpClientFunction httpClientFunction,
     IExceptionHandler handleException,
     ICreateResponse createResponse,
     ICallFunction callFunction,
     IOptions<NEMSSubscribeConfig> nemsSubscribeConfig)
     {
         _logger = logger;
-        _fhirSerializer = new FhirJsonSerializer();
-        _fhirParser = new FhirJsonParser();
-        _httpClient = httpClientFactory.CreateClient();
+        // _nemsSubscriptionClient = nemsSubscriptionClient;
+        _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _createResponse = createResponse;
         _callFunction = callFunction;
         _config = nemsSubscribeConfig.Value;
-        //_nemsSubscriptionClient = nemsSubscriptionClient; /* To Do Later */
+        _fhirSerializer = new FhirJsonSerializer();
+        _fhirParser = new FhirJsonParser();
     }
 
     /// <summary>
@@ -79,23 +79,14 @@ public class NEMSSubscribe
     {
         try
         {
-            // Parse NHS Number from request using System.Text.Json
-            var requestBody = await req.ReadFromJsonAsync<NemsSubscriptionRequest>();
-            string nhsNumber = requestBody?.NhsNumber;
-
-            // Validate NHS Number format
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
-            {
-                _logger.LogError("Invalid NHS Number {nhsNumber} was passed.", nhsNumber);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS Number was passed."); // skip subscription
-            }
+            var nhsNumber = req.Query["nhsNumber"];
 
             // 1. Validate against PDS, if it returns record with matching NHS number
             bool pdsValidationResult = await ValidateAgainstPds(nhsNumber);
             if (!pdsValidationResult)
             {
-                _logger.LogError("No matching patient found in PDS having NHS Number {nhsNumber}.", nhsNumber);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No matching patient found in PDS."); // skip subscription
+                _logger.LogError("No matching patient found in PDS.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req); // skip subscription
             }
 
             // 2. Create Subscription Resource
@@ -107,7 +98,7 @@ public class NEMSSubscribe
             if (string.IsNullOrEmpty(subscriptionId))
             {
                 _logger.LogError("Failed to create subscription in NEMS.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Failed to create subscription in NEMS.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
             // 4. Store in SQL Database
@@ -115,7 +106,7 @@ public class NEMSSubscribe
             if (!storageSuccess)
             {
                 _logger.LogError("Subscription created but failed to store locally.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Subscription created but failed to store locally.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Subscription created but failed to store locally.");
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, subscriptionId);
@@ -129,27 +120,20 @@ public class NEMSSubscribe
 
     private async Task<bool> ValidateAgainstPds(string nhsNumber)
     {
-        /* To Do Later - After Onboarding */
+        /* To Do Later - After RetrievePDSDemographic PR is merged */
         try
         {
-            /*
-             string pdsApiUrl = $"{Environment.GetEnvironmentVariable("PDS_FHIR_ENDPOINT")}/Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}";
-            var request = new HttpRequestMessage(HttpMethod.Get, pdsApiUrl);
-            request.Headers.Add("Authorization", $"Bearer {Environment.GetEnvironmentVariable("SPINE_ACCESS_TOKEN")}");
-            request.Headers.Add("fromASID", Environment.GetEnvironmentVariable("FROM_ASID"));
-            request.Headers.Add("toASID", Environment.GetEnvironmentVariable("PDS_ASID"));
+            _logger.LogInformation("Validating NHS number against PDS.");
+            /* Calling RetrievePDSDemographic function via ICallFunction */
+            var url = string.Format(urlFormat, _config.RetrievePdsDemographicURL, nhsNumber);
+            var response = await _httpClientFunction.SendPdsGet(url);
 
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
+            if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogWarning($"PDS lookup failed: {response.StatusCode}");
+                _logger.LogError($"Record not found in PDS");
                 return false;
             }
 
-            var content = await response.Content.ReadAsStringAsync();
-            var bundle = _fhirParser.Parse<Bundle>(content);
-            return bundle.Entry.Count > 0;
-            */
             return true;
         }
         catch (Exception ex)
@@ -161,22 +145,13 @@ public class NEMSSubscribe
 
     private async Task<string> PostSubscriptionToNems(string subscriptionJson)
     {
-        /* To Do Later - Modify and replace the place holder after onboarding */
-        string nemsFhirEndpoint = _config.NEMS_FHIR_ENDPOINT;
+        /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
 
         try
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, $"{nemsFhirEndpoint}/Subscription")
-            {
-                Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
-            };
+            var url = string.Format(urlFormat, _config.NEMS_FHIR_ENDPOINT, "Subscription");
+            var response = await _httpClientFunction.PostNemsGet(url, subscriptionJson, _config.SPINE_ACCESS_TOKEN, _config.FROM_ASID, _config.TO_ASID);
 
-            request.Headers.Add("Authorization", $"Bearer {_config.SPINE_ACCESS_TOKEN}");
-            request.Headers.Add("fromASID", _config.FROM_ASID);
-            request.Headers.Add("toASID", _config.TO_ASID);
-            request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
-
-            var response = await _httpClient.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError($"NEMS subscription failed: {response.StatusCode}");
@@ -196,34 +171,36 @@ public class NEMSSubscribe
 
     private async Task<bool> StoreSubscriptionInDatabase(string nhsNumber, string subscriptionId)
     {
-        /** To Do Later - Implement the data service to save subscription in database **/
+        /* Uncomment below code after RetrievePdsDemographic PR is merged */
+        /*
+         _logger.LogInformation("Start saving the SubscriptionId in the database.");
+         var subscriptionCreated = await _nemsSubscriptionClient.Add(subscriptionId);
 
-        try
-        {
-            /* To Do Later -  use _nemsSubscriptionClient to save subscription in DB after onboarding and code merge*/
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Database storage error: {Message}", ex.Message);
-            return false;
-        }
+         if (subscriptionCreated)
+         {
+             _logger.LogInformation("Successfully created the subscription");
+             return true;
+         }
+         _logger.LogError("Failed to create the subscription");
+         return false;
+         */
+        return true;
     }
 
     public Subscription CreateNemsSubscriptionResource(string nhsNumber)
     {
-        /* To Do Later - Modify the code and replace the placeholder with actual value */
+        /* To Do After Onboarding - Modify the code and replace the placeholder with actual value or endpoints */
         var subscription = new Subscription
         {
             Meta = new Meta
             {
-                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" },
+                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" }, // Will remove this after onboarding
                 Profile = new[] { _config.Subscription_Profile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = Subscription.SubscriptionStatus.Requested,
             Reason = "NEMS event notification subscription",
-            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}",
+            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}", // Will remove this after onboarding
             Criteria = $"Patient?identifier={_config.Subscription_Criteria}|{nhsNumber}",
             Channel = new Subscription.ChannelComponent
             {
@@ -245,13 +222,6 @@ public class NEMSSubscribe
             Start = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
             End = DateTimeOffset.UtcNow.AddYears(1).ToString("yyyy-MM-dd")
         });
-
-        /* If necessary - uncomment after on-boarding */
-        /* subscription.AddExtension(
-         "https://fhir.nhs.uk/StructureDefinition/Extension-NHSNumberVerificationStatus-1",
-         new CodeableConcept("https://fhir.nhs.uk/CodeSystem/NHSNumberVerificationStatus-1", "01", "Number present and verified")
-         );
-         */
 
         return subscription;
     }
