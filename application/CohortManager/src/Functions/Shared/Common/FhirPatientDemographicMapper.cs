@@ -201,47 +201,38 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         {
             return;
         }
-        
+
         demographic.PafKey = valueString.Value;
     }
 
     private static void MapDeathInformation(Patient patient, Demographic demographic)
     {
         // Death Date
-        if (patient.Deceased != null)
+        if (patient.Deceased != null && patient.Deceased is FhirDateTime deceasedDate)
         {
-            if (patient.Deceased is FhirDateTime deceasedDate)
-            {
-                demographic.DateOfDeath = deceasedDate.Value;
-            }
+            demographic.DateOfDeath = deceasedDate.Value;
         }
 
         // Death notification status
         var deathNotificationExtension = patient.Extension?.FirstOrDefault(e =>
             e.Url == FhirExtensionUrls.UkCoreDeathNotificationStatus);
 
-        if (deathNotificationExtension != null)
-        {
-            var statusExtension = deathNotificationExtension.Extension?
-                .FirstOrDefault(e => e.Url == "deathNotificationStatus");
+        if (deathNotificationExtension == null)
+            return;
 
-            if (statusExtension?.Value is CodeableConcept codeableConcept)
-            {
-                var coding = codeableConcept.Coding?.FirstOrDefault();
-                if (coding != null && short.TryParse(coding.Code, out short statusCode))
-                {
-                    // Directly parse the code to the Status enum if it's a valid value
-                    if (Enum.IsDefined(typeof(Status), statusCode))
-                    {
-                        demographic.DeathStatus = (Status)statusCode;
-                    }
-                    else
-                    {
-                        demographic.DeathStatus = null;
-                    }
-                }
-            }
-        }
+        var statusExtension = deathNotificationExtension.Extension?
+            .FirstOrDefault(e => e.Url == "deathNotificationStatus");
+
+        if (statusExtension?.Value is not CodeableConcept codeableConcept)
+            return;
+
+        var coding = codeableConcept.Coding?.FirstOrDefault();
+        if (coding == null || !short.TryParse(coding.Code, out short statusCode))
+            return;
+
+        demographic.DeathStatus = Enum.IsDefined(typeof(Status), statusCode)
+            ? (Status)statusCode
+            : null;
     }
 
     private static void MapContactInformation(Patient patient, Demographic demographic)
