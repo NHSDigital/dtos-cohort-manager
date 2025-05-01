@@ -180,21 +180,29 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
     private static void MapPafKeyFromExtensions(Address homeAddress, Demographic demographic)
     {
-        var pafExtension = homeAddress?.Extension?.FirstOrDefault(e =>
+        if (homeAddress?.Extension == null)
+            return;
+
+        var pafExtension = homeAddress.Extension.FirstOrDefault(e =>
             e.Url == FhirExtensionUrls.UkCoreAddressKey);
+        if (pafExtension == null || pafExtension.Extension == null)
+            return;
 
-        if (pafExtension != null)
+        var typeExtension = pafExtension.Extension.FirstOrDefault(e => e.Url == "type");
+        var valueExtension = pafExtension.Extension.FirstOrDefault(e => e.Url == "value");
+
+        // Verify that the address key extensions contain valid FHIR data:
+        // 1. Type extension must contain a Coding value with PAF code
+        // 2. Value extension must contain a FhirString value
+        // Both conditions must be met to extract a valid PAF (Postcode Address File) key
+        if (typeExtension?.Value is not Coding typeCoding ||
+            typeCoding.Code != AddressKeyTypes.Paf ||
+            valueExtension?.Value is not FhirString valueString)
         {
-            var typeExtension = pafExtension.Extension?.FirstOrDefault(e => e.Url == "type");
-            var valueExtension = pafExtension.Extension?.FirstOrDefault(e => e.Url == "value");
-
-            if (typeExtension?.Value is Coding typeCoding &&
-                typeCoding.Code == AddressKeyTypes.Paf &&
-                valueExtension?.Value is FhirString valueString)
-            {
-                demographic.PafKey = valueString.Value;
-            }
+            return;
         }
+        
+        demographic.PafKey = valueString.Value;
     }
 
     private static void MapDeathInformation(Patient patient, Demographic demographic)
