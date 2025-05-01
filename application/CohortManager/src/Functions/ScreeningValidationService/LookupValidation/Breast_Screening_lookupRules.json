@@ -9,6 +9,18 @@
     ],
     "Rules": [
       {
+        "RuleName": "11.BlockedParticipant.BSSelect.Fatal",
+        "Expression": "newParticipant.BlockedFlag != 1",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression":"\"Participant is blocked\""
+            }
+          }
+        }
+      },
+      {
         "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
         "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {

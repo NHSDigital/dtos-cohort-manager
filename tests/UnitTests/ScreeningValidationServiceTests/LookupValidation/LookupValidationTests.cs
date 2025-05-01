@@ -680,6 +680,26 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }
+
+    [TestMethod]
+    public async Task Run_BlockedParticipant_CreatesException()
+    {
+        // Arrange
+        SetupRules("LookupRules");
+        _requestBody.NewParticipant.BlockedFlag = "1";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.BlockedParticipant.BSSelect.Fatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
