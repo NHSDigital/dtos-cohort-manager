@@ -208,7 +208,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     private static void MapDeathInformation(Patient patient, Demographic demographic)
     {
         // Death Date
-        if (patient.Deceased != null && patient.Deceased is FhirDateTime deceasedDate)
+        if (patient.Deceased is FhirDateTime deceasedDate)
         {
             demographic.DateOfDeath = deceasedDate.Value;
         }
