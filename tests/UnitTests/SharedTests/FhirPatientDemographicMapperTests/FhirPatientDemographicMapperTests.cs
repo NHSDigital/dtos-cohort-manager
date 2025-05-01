@@ -96,7 +96,7 @@ public class FhirParserHelperTests
 
             // Removal Information
             ReasonForRemoval = "SCT",
-            EffectiveFromDate = "2020-01-01T00:00:00+00:00"
+            RemovalEffectiveFromDate = "2020-01-01T00:00:00+00:00"
         };
 
         // Act
@@ -157,7 +157,7 @@ public class FhirParserHelperTests
 
         // Removal Information
         Assert.AreEqual(expected.ReasonForRemoval, result.ReasonForRemoval);
-        Assert.AreEqual(expected.EffectiveFromDate, result.EffectiveFromDate);
+        Assert.AreEqual(expected.RemovalEffectiveFromDate, result.RemovalEffectiveFromDate);
     }
 
     [TestMethod]
@@ -244,8 +244,8 @@ public class FhirParserHelperTests
         Assert.IsNull(result.PrimaryCareProvider);
         Assert.IsNull(result.PrimaryCareProviderEffectiveFromDate);
         Assert.IsNull(result.ReasonForRemoval);
-        Assert.IsNull(result.EffectiveFromDate);
-        Assert.IsNull(result.EffectiveToDate);
+        Assert.IsNull(result.RemovalEffectiveFromDate);
+        Assert.IsNull(result.RemovalEffectiveToDate);
     }
 
     [TestMethod]
@@ -373,7 +373,8 @@ public class FhirParserHelperTests
         Assert.IsNull(result.EmailAddress);
         Assert.IsNull(result.PreferredLanguage);
         Assert.IsNull(result.ReasonForRemoval);
-        Assert.IsNull(result.EffectiveFromDate);
+        Assert.IsNull(result.RemovalEffectiveFromDate);
+        Assert.IsNull(result.RemovalEffectiveToDate);
 
         // Check that the ConfidentialityLevel is set to NotSpecified
         Assert.IsTrue(result.ConfidentialityCode == "");
@@ -426,8 +427,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
-        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
-        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.RemovalEffectiveFromDate);
+        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.RemovalEffectiveToDate);
     }
 
     [TestMethod]
@@ -442,8 +443,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
-        Assert.IsNull(result.EffectiveFromDate); // Missing effective date in the sample
-        Assert.IsNull(result.EffectiveToDate); // Missing effective date in the sample
+        Assert.IsNull(result.RemovalEffectiveFromDate); // Missing effective date in the sample
+        Assert.IsNull(result.RemovalEffectiveToDate); // Missing effective date in the sample
     }
 
     [TestMethod]
@@ -458,8 +459,8 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("SCT", result.ReasonForRemoval); // Using code only
-        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
-        Assert.IsNull(result.EffectiveToDate); // Missing end date but has start date
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.RemovalEffectiveFromDate);
+        Assert.IsNull(result.RemovalEffectiveToDate); // Missing end date but has start date
     }
 
     [TestMethod]
@@ -474,7 +475,7 @@ public class FhirParserHelperTests
         // Assert
         Assert.IsNotNull(result);
         Assert.IsNull(result.ReasonForRemoval); // No code available, should be null
-        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.EffectiveFromDate);
-        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.EffectiveToDate);
+        Assert.AreEqual("2020-01-01T00:00:00+00:00", result.RemovalEffectiveFromDate);
+        Assert.AreEqual("2021-12-31T00:00:00+00:00", result.RemovalEffectiveToDate);
     }
 }

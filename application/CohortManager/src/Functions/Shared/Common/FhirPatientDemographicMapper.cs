@@ -345,12 +345,12 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (effectivePeriod.Start != null)
         {
-            demographic.EffectiveFromDate = effectivePeriod.Start.ToString();
+            demographic.RemovalEffectiveFromDate = effectivePeriod.Start.ToString();
         }
 
         if (effectivePeriod.End != null)
         {
-            demographic.EffectiveToDate = effectivePeriod.End.ToString();
+            demographic.RemovalEffectiveToDate = effectivePeriod.End.ToString();
         }
     }
 
