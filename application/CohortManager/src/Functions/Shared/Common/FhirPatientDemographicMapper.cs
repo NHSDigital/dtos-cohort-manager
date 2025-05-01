@@ -83,29 +83,33 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
     private static void MapNames(Patient patient, Demographic demographic)
     {
-        var usualName = patient.Name?.FirstOrDefault(n => n.Use == HumanName.NameUse.Usual)
-            ?? patient.Name?.FirstOrDefault();
-
-        if (usualName != null)
-        {
-            demographic.NamePrefix = usualName.Prefix?.FirstOrDefault();
-            demographic.FirstName = usualName.Given?.FirstOrDefault();
-
-            // Other given names (if more than one given name exists)
-            if (usualName.Given != null && usualName.Given.Count() > 1)
-            {
-                demographic.OtherGivenNames = string.Join(" ", usualName.Given.Skip(1).ToArray());
-            }
-
-            demographic.FamilyName = usualName.Family;
-        }
-
-        // Previous family name (maiden or old)
+        // Look for a previous name (maiden name or old name) to populate previous family name
         var previousName = patient.Name?.FirstOrDefault(n => n.Use == HumanName.NameUse.Maiden || n.Use == HumanName.NameUse.Old);
         if (previousName != null)
         {
-            demographic.PreviousFamilyName = previousName.Family;
+            demographic.PreviousFamilyName = previousName.Family;  // Store previous surname
         }
+
+        // First try to get the "usual" name if available, otherwise take the first name in the list
+        var usualName = patient.Name?.FirstOrDefault(n => n.Use == HumanName.NameUse.Usual)
+            ?? patient.Name?.FirstOrDefault();
+
+        // If no name is found, return early
+        if (usualName == null)
+            return;
+
+        // Map individual name components from the usual name to the demographic object
+        demographic.NamePrefix = usualName.Prefix?.FirstOrDefault();  // Title/prefix (e.g., "Mr.", "Dr.")
+        demographic.FirstName = usualName.Given?.FirstOrDefault();    // Primary given name
+
+        // Handle middle names or additional given names if present
+        if (usualName.Given != null && usualName.Given.Count() > 1)
+        {
+            // Combine all given names other than their first one, separated with spaces
+            demographic.OtherGivenNames = string.Join(" ", usualName.Given.Skip(1).ToArray());
+        }
+
+        demographic.FamilyName = usualName.Family;  // Family/surname        
     }
 
     private static void MapGender(Patient patient, Demographic demographic)
