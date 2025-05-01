@@ -6,13 +6,11 @@ using Common;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 using NHS.Screening.DeleteParticipant;
-using System.Globalization;
 
 public class DeleteParticipant
 {
@@ -37,6 +35,7 @@ public class DeleteParticipant
     [Function("DeleteParticipant")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
+        long NhsNumber;
         string? FamilyName;
         DateTime? DateOfBirth;
         DeleteParticipantRequestBody requestBody;
@@ -49,14 +48,16 @@ public class DeleteParticipant
             }
 
             requestBody = JsonSerializer.Deserialize<DeleteParticipantRequestBody>(requestBodyJson);
+            NhsNumber= long.Parse(requestBody.NhsNumber);
             FamilyName = requestBody.FamilyName;
             DateOfBirth = requestBody.DateOfBirth;
 
-            if (string.IsNullOrEmpty(FamilyName) || !requestBody.DateOfBirth.HasValue)
+            if (string.IsNullOrEmpty(NhsNumber.ToString()) || string.IsNullOrEmpty(FamilyName) || !requestBody.DateOfBirth.HasValue)
             {
                 _logger.LogError("Invalid request body");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
+
 
         }
         catch (Exception ex)
@@ -67,14 +68,13 @@ public class DeleteParticipant
 
         try
         {
-            var longNhsNumber = long.Parse(requestBody.NhsNumber);
-            var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == longNhsNumber && p.FamilyName == FamilyName);
+            var participantData = await _cohortDistributionClient.GetByFilter(p => p.NHSNumber == NhsNumber && p.FamilyName == FamilyName);
 
             var participantsToDelete = participantData.Where(p => p.DateOfBirth == DateOfBirth);
             if (!participantsToDelete.Any())
             {
-                _logger.LogInformation("No participants found with the specified date of birth");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No participants found with the specified date of birth");
+                _logger.LogInformation("No participants found with the specified parameters");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No participants found with the specified parameters");
             }
 
             foreach (var participant in participantsToDelete)
@@ -82,7 +82,7 @@ public class DeleteParticipant
                 await _cohortDistributionClient.Delete(participant.CohortDistributionId.ToString());
             }
 
-            _logger.LogInformation("Deleted participant");
+            _logger.LogInformation("Deleted participants");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
@@ -93,4 +93,11 @@ public class DeleteParticipant
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+}
+
+public class DeleteParticipantRequestBody
+{
+    public string? NhsNumber { get; set; }
+    public string? FamilyName { get; set; }
+    public DateTime? DateOfBirth { get; set; }
 }

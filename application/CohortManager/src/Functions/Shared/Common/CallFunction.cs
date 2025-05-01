@@ -31,7 +31,6 @@ public class CallFunction : ICallFunction
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         url = QueryHelpers.AddQueryString(url, parameters);
-        _logger.LogInformation("Calling URL: {url}", url);
         return await GetAsync(url);
     }
 

@@ -111,7 +111,7 @@ public class DeleteParticipantTests
         x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No participants found with the specified date of birth")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No participants found with the specified parameters")),
             null,
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
