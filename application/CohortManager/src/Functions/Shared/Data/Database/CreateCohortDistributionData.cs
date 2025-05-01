@@ -186,7 +186,12 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             && x.StatusCode != errorCode
         );
 
-        var recordToReturn = res.OrderByDescending(x => x.CreatedDateTime).FirstOrDefault();
+        var recordToReturn = res.OrderBy(x => x.CreatedDateTime).FirstOrDefault();
+
+        if(recordToReturn == null)
+        {
+            return null;
+        }
 
         return new CohortRequestAudit()
         {
