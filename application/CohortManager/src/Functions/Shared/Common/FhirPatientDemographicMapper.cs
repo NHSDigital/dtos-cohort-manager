@@ -28,7 +28,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         _logger = logger;
     }
 
-    public PDSDemographic ParseFhirJson(string json)
+    public PdsDemographic ParseFhirJson(string json)
     {
         var parser = new FhirJsonParser();
         try
@@ -43,9 +43,9 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    public PDSDemographic MapPatientToPDSDemographic(Patient patient)
+    public PdsDemographic MapPatientToPDSDemographic(Patient patient)
     {
-        var demographic = new PDSDemographic();
+        var demographic = new PdsDemographic();
 
         if (patient == null)
         {
@@ -320,7 +320,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapRemovalInformation(Patient patient, PDSDemographic demographic)
+    private static void MapRemovalInformation(Patient patient, PdsDemographic demographic)
     {
         // Find the removal from registration extension
         var removalExtension = patient.Extension?.FirstOrDefault(e =>
@@ -361,7 +361,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapSecurityMetadata(Patient patient, PDSDemographic demographic)
+    private static void MapSecurityMetadata(Patient patient, PdsDemographic demographic)
     {
         // Check if the patient has security metadata
         if (patient.Meta?.Security != null && patient.Meta.Security.Any())

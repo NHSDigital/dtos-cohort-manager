@@ -45,7 +45,7 @@ public class FhirParserHelperTests
         // Arrange
         string json = LoadTestJson("complete-patient");
 
-        var expected = new PDSDemographic()
+        var expected = new PdsDemographic()
         {
             // Basic Identifiers
             NhsNumber = "9000000009",
@@ -103,7 +103,7 @@ public class FhirParserHelperTests
         var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
-        Assert.IsInstanceOfType(result, typeof(PDSDemographic));
+        Assert.IsInstanceOfType(result, typeof(PdsDemographic));
 
         // Check that the ConfidentialityLevel is set to Unrestricted
         Assert.IsTrue(result.ConfidentialityCode == "U");

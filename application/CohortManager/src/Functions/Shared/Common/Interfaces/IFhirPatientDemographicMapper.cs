@@ -10,12 +10,12 @@ public interface IFhirPatientDemographicMapper
     /// </summary>
     /// <param name="json">The FHIR JSON string</param>
     /// <returns>A Demographic model populated from FHIR data</returns>
-    PDSDemographic ParseFhirJson(string json);
+    PdsDemographic ParseFhirJson(string json);
 
     /// <summary>
     /// Maps a FHIR Patient object to a new Demographic object
     /// </summary>
     /// <param name="patient">The FHIR Patient object</param>
     /// <returns>A new Demographic model populated from FHIR data</returns>
-    PDSDemographic MapPatientToPDSDemographic(Patient patient);
+    PdsDemographic MapPatientToPDSDemographic(Patient patient);
 }
