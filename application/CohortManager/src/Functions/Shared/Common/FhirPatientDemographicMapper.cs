@@ -357,16 +357,21 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     private static void MapSecurityMetadata(Patient patient, PdsDemographic demographic)
     {
         // Check if the patient has security metadata
-        if (patient.Meta?.Security != null && patient.Meta.Security.Any())
+        if (patient.Meta?.Security == null || !patient.Meta.Security.Any())
         {
-            // Look for the confidentiality code
-            var confidentialityCoding = patient.Meta.Security.FirstOrDefault(s =>
-                s.System == FhirExtensionUrls.V3Confidentiality);
-
-            if (confidentialityCoding != null)
-            {
-                demographic.ConfidentialityCode = confidentialityCoding.Code;
-            }
+            return;
         }
+
+        // Look for the confidentiality code
+        var confidentialityCoding = patient.Meta.Security.FirstOrDefault(s =>
+            s.System == FhirExtensionUrls.V3Confidentiality);
+
+        // If no confidentiality code is found, return early
+        if (confidentialityCoding == null)
+        { 
+            return;
+        }
+
+        demographic.ConfidentialityCode = confidentialityCoding.Code;
     }
 }
