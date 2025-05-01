@@ -3,7 +3,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -18,23 +17,23 @@ public class ValidateCohortDistributionRecord
     private readonly ILogger<ValidateCohortDistributionRecord> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
     private readonly ValidateCohortDistributionRecordConfig _config;
 
 
     public ValidateCohortDistributionRecord(
-        ILogger<ValidateCohortDistributionRecord> logger, 
-        ICreateResponse createResponse, 
-        IExceptionHandler exceptionHandler, 
-        ICallFunction callFunction, 
+        ILogger<ValidateCohortDistributionRecord> logger,
+        ICreateResponse createResponse,
+        IExceptionHandler exceptionHandler,
+        IHttpClientFunction httpClientFunction,
         IDataServiceClient<CohortDistribution> cohortDistributionDataService,
         IOptions<ValidateCohortDistributionRecordConfig> validateCohortDistributionRecordConfig
     )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _logger = logger;
         _cohortDistributionDataService = cohortDistributionDataService;
         _config = validateCohortDistributionRecordConfig.Value;
@@ -96,7 +95,7 @@ public class ValidateCohortDistributionRecord
         {
             throw new FormatException("Unable to parse NHS Number");
         }
-        // using get by filter here because we can get more than one record from the database 
+        // using get by filter here because we can get more than one record from the database
         var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.NHSNumber == nhsNumber);
 
         // we do this because get by filter will return an empty array
@@ -128,10 +127,10 @@ public class ValidateCohortDistributionRecord
 
         _logger.LogInformation("Sending record to validation in ValidateCohortDistributionRecord");
 
-        var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
-        var responseBodyJson = await _callFunction.GetResponseText(response);
+        var response = await _httpClientFunction.SendPost(_config.LookupValidationURL, json);
+        var responseBodyJson = await _httpClientFunction.GetResponseText(response);
 
-        _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {response}", responseBodyJson);
+        _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {Response}", responseBodyJson);
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
         return responseBody;

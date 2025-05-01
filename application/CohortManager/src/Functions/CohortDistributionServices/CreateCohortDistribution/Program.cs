@@ -16,7 +16,6 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICohortDistributionHelper, CohortDistributionHelper>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
@@ -27,6 +26,7 @@ var host = new HostBuilder()
     .AddAzureQueues()
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
