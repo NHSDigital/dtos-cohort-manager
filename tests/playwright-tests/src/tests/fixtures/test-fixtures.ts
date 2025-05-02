@@ -14,7 +14,6 @@ interface TestData {
   testFilesPath?: string;
 }
 
-
 interface TestDataWithAmended {
   checkInDatabaseAdd: any[];
   nhsNumbers: string[];
@@ -29,6 +28,29 @@ interface TestDataWithAmended {
   inputParticipantRecordAmend?: Record<string, any>;
   testFilesPathAmend?: string;
   runTimeParquetFileAmend: string;
+}
+
+interface TestDataWithAmended2 {
+  checkInDatabaseAdd: any[];
+  nhsNumbers: string[];
+  parquetFile: string | undefined;
+  inputParticipantRecord?: Record<string, any>;
+  testFilesPath?: string;
+  runTimeParquetFileAdd: string;
+
+  checkInDatabaseAmend: any[];
+  nhsNumberAmend: string[];
+  parquetFileAmend: string | undefined;
+  inputParticipantRecordAmend?: Record<string, any>;
+  testFilesPathAmend?: string;
+  runTimeParquetFileAmend: string;
+
+  checkInDatabaseAmend2: any[];
+  nhsNumberAmend2: string[];
+  parquetFileAmend2: string | undefined;
+  inputParticipantRecordAmend2?: Record<string, any>;
+  testFilesPathAmend2?: string;
+  runTimeParquetFileAmend2: string;
 }
 
 export const test = base.extend<{
@@ -71,7 +93,6 @@ export const test = base.extend<{
     await use(testData);
   },
 });
-
 
 export const testWithAmended = base.extend<{
   testData: TestDataWithAmended;
@@ -125,5 +146,77 @@ export const testWithAmended = base.extend<{
   },
 });
 
+export const testWithAmended2 = base.extend<{
+  testData: TestDataWithAmended2;
+}>({
+  testData: async ({ request: _ }, use, testInfo) => {
+    const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
+      await getTestData(testInfo.title, "ADD", true);
+
+    let runTimeParquetFileAdd: string = "";
+    if (!parquetFile) {
+      runTimeParquetFileAdd = await createParquetFromJson(
+        nhsNumbers,
+        inputParticipantRecord!,
+        testFilesPath!,
+        "ADD",
+        false
+      );
+    }
+
+    const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend, inputParticipantRecordAmend, testFilesPathAmend] =
+      await getTestData(testInfo.title, "AMENDED", true);
+
+    let runTimeParquetFileAmend: string = "";
+    if (!parquetFileAmend) {
+      runTimeParquetFileAmend = await createParquetFromJson(
+        nhsNumberAmend,
+        inputParticipantRecordAmend!,
+        testFilesPathAmend!,
+        "AMENDED",
+        false
+      );
+    }
+
+    const [checkInDatabaseAmend2, nhsNumberAmend2, parquetFileAmend2, inputParticipantRecordAmend2, testFilesPathAmend2] =
+    await getTestData(testInfo.title, "AMENDED2", true);
+
+  let runTimeParquetFileAmend2: string = "";
+  if (!parquetFileAmend) {
+    runTimeParquetFileAmend2 = await createParquetFromJson(
+      nhsNumberAmend2,
+      inputParticipantRecordAmend2!,
+      testFilesPathAmend2!,
+      "AMENDED2",
+      false
+    );
+  }
+
+    const testDataWithAmended2: TestDataWithAmended2 = {
+      checkInDatabaseAdd,
+      nhsNumbers,
+      parquetFile,
+      inputParticipantRecord,
+      testFilesPath,
+      runTimeParquetFileAdd,
+
+      checkInDatabaseAmend,
+      nhsNumberAmend,
+      parquetFileAmend,
+      inputParticipantRecordAmend,
+      testFilesPathAmend,
+      runTimeParquetFileAmend,
+
+      checkInDatabaseAmend2,
+      nhsNumberAmend2,
+      parquetFileAmend2,
+      inputParticipantRecordAmend2,
+      testFilesPathAmend2,
+      runTimeParquetFileAmend2
+    };
+
+    await use(testDataWithAmended2);
+  },
+});
 
 export { expect } from '@playwright/test';

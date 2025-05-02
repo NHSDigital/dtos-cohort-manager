@@ -1,0 +1,56 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 4540904884,
+        "expectedCount": 1
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 232,
+      "nhs_number": 4540904884,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81018",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "LNB",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "LORD",
+      "given_name": "Rule4 RDR",
+      "other_given_name": "OtherGivenName 1",
+      "family_name": "FamiliyName 1",
+      "previous_family_name": "PreviousFamilyName 1",
+      "date_of_birth": "19700101",
+      "gender": 0,
+      "address_line_1": "113 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AL1 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01620000004",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "4540904884"
+  ]
+}
