@@ -13,7 +13,7 @@ testWithAmended2.describe('@regression @e2e @epic3-high-priority', () => {
     await processFileViaStorage(testData.runTimeParquetFileAmend2);
   });
 
-  testWithAmended2.fixme('@DTOSS-5410-01 Reason for removal Rule 4 - ParticipantNotRegisteredToGPWithReasonForRemoval', async ({ request, testData }) => {
+  testWithAmended2('@DTOSS-5410-01 Reason for removal Rule 4 - ParticipantNotRegisteredToGPWithReasonForRemoval', async ({ request, testData }) => {
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend2);
 
   });
