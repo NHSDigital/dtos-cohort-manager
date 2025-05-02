@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 [TestClass]
 public class CheckDemographicTests
 {
-    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly CheckDemographic _checkDemographic;
 
     public CheckDemographicTests()
     {
-        _checkDemographic = new CheckDemographic(_httpClientFunction.Object);
+        _checkDemographic = new CheckDemographic(_callFunction.Object);
     }
 
     [TestMethod]
@@ -30,7 +30,7 @@ public class CheckDemographicTests
             NhsNumber = nhsNumber
         };
 
-        _httpClientFunction.Setup(x => x.SendGet(It.IsAny<string>()))
+        _callFunction.Setup(x => x.SendGet(It.IsAny<string>()))
             .ReturnsAsync(JsonSerializer.Serialize(demographic));
 
         //Act

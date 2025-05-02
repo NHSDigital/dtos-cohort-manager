@@ -5,11 +5,11 @@ using Model;
 
 public class CheckDemographic : ICheckDemographic
 {
-    private readonly IHttpClientFunction _httpClientFunction;
+    private readonly ICallFunction _callFunction;
 
-    public CheckDemographic(IHttpClientFunction httpClientFunction)
+    public CheckDemographic(ICallFunction callFunction)
     {
-        _httpClientFunction = httpClientFunction;
+        _callFunction = callFunction;
     }
 
     /// <summary>
@@ -22,7 +22,7 @@ public class CheckDemographic : ICheckDemographic
     {
         var url = $"{DemographicFunctionURI}?Id={NhsNumber}";
 
-        var response = await _httpClientFunction.SendGet(url);
+        var response = await _callFunction.SendGet(url);
         var demographicData = JsonSerializer.Deserialize<Demographic>(response);
 
         return demographicData;
