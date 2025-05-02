@@ -326,7 +326,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
   nems-subscribe:
     container_name: nems-subscribe

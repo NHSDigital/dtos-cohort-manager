@@ -1165,6 +1165,9 @@ function_apps = {
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+      env_vars_static = {
+        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+      }
     }
 
     NemsSubscriptionDataService = {
