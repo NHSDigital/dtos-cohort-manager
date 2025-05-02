@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.DemographicServices.NEMSUnSubscription;
 
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
@@ -11,6 +10,8 @@ using Azure.Data.Tables;
 using Azure;
 using Model;
 using Common;
+using Microsoft.Extensions.Options;
+using NHS.Screening.NEMSUnSubscription;
 
 public class NEMSUnSubscription
 {
@@ -22,35 +23,33 @@ public class NEMSUnSubscription
 
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-     private readonly IConfiguration _configuration;
+     private readonly NEMSUnSubscriptionConfig _config;
+
+    private readonly INemsSubscriptionService _nemsSubscriptionService;
 
 
-    public interface IExceptionHandler
+    protected virtual async Task<HttpResponseData> HandleNotFoundAsync(HttpRequestData req, string message)
     {
-        Task<HttpResponseData> HandleAsync(HttpRequestData req, HttpStatusCode statusCode, string message);
+        var response = req.CreateResponse(HttpStatusCode.NotFound);
+        await response.WriteStringAsync(message);
+        return response;
     }
-
-    protected virtual Task<HttpResponseData> HandleNotFoundAsync(HttpRequestData req, string message)
-    {
-        return _handleException.HandleAsync(req, HttpStatusCode.NotFound, message);
-    }
-
-    // Default constructor (for runtime usage)
-
 
     public NEMSUnSubscription(ILogger<NEMSUnSubscription> logger,
     //IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* To Do Later */
     IHttpClientFactory httpClientFactory,
     IExceptionHandler handleException,
     ICreateResponse createResponse ,
-    IConfiguration configuration,
-    ICallFunction callFunction)
+    IOptions<NEMSUnSubscriptionConfig> nemsUnSubscriptionConfig,
+    ICallFunction callFunction,
+    INemsSubscriptionService nemsSubscriptionService)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient();
         _handleException = handleException;
         _createResponse = createResponse;
-        _configuration = configuration;
+        _config = nemsUnSubscriptionConfig.Value;
+        _nemsSubscriptionService = nemsSubscriptionService;
 
     }
     // Constructor for dependency injection (testability)
@@ -86,80 +85,31 @@ public class NEMSUnSubscription
         }
 
         string nhsNumber = request.NhsNumber;
-        string? subscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
+        string? subscriptionId = await _nemsSubscriptionService.LookupSubscriptionIdAsync(nhsNumber);
 
         if (string.IsNullOrEmpty(subscriptionId))
         {
             _logger.LogWarning("No subscription record found.");
-            return await _handleException.HandleAsync(req, HttpStatusCode.NotFound, "No subscription record found.");
+            var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+            await notFoundResponse.WriteStringAsync("No subscription record found.");
+            return notFoundResponse;
         }
 
-        bool isDeletedFromNems = await DeleteSubscriptionFromNems(subscriptionId);
+        bool isDeletedFromNems = await _nemsSubscriptionService.DeleteSubscriptionFromNems(subscriptionId);
 
         if (!isDeletedFromNems)
         {
             _logger.LogError("Failed to delete subscription from NEMS.");
-            return await _handleException.HandleAsync(req, HttpStatusCode.BadGateway, "Failed to delete subscription from NEMS.");
+            var badGatewayResponse = req.CreateResponse(HttpStatusCode.BadGateway);
+            await badGatewayResponse.WriteStringAsync("Failed to delete subscription from NEMS.");
+            return badGatewayResponse;
         }
 
-        await DeleteSubscriptionFromTableAsync(nhsNumber);
+        await _nemsSubscriptionService.DeleteSubscriptionFromTableAsync(nhsNumber);
         _logger.LogInformation("Subscription deleted successfully.");
 
         var successResponse = req.CreateResponse(HttpStatusCode.OK);
         await successResponse.WriteStringAsync("Successfully unsubscribed.");
         return successResponse;
-    }
-
-    /// <summary>
-    /// Looks up the subscription ID based on NHS number.
-    /// </summary>
-    protected virtual async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
-    {
-        try
-        {
-            Pageable<TableEntity> queryResults = _tableClient.Query<TableEntity>(e => e.RowKey == nhsNumber);
-            var entity = queryResults.FirstOrDefault();
-            return entity?.GetString("SubscriptionId");
-        }
-        catch (RequestFailedException ex)
-        {
-            Console.WriteLine($"Error querying table: {ex.Message}");
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Sends delete request to NEMS API.
-    /// </summary>
-    protected virtual async Task<bool> DeleteSubscriptionFromNems(string subscriptionId)
-    {
-        try
-        {
-            string nemsEndpoint = _configuration["NemsDeleteEndpoint"];
-            var response = await _httpClient.DeleteAsync($"{nemsEndpoint}/{subscriptionId}");
-            return response.IsSuccessStatusCode;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error calling NEMS API: {ex.Message}");
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Deletes the subscription ID from the Azure Table.
-    /// </summary>
-    public virtual async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
-    {
-        try
-        {
-            await _tableClient.DeleteEntityAsync("SubscriptionPartition", nhsNumber);
-            return true;
-        }
-        catch (RequestFailedException ex)
-        {
-            Console.WriteLine($"Error deleting from table: {ex.Message}");
-            return false;
-        }
     }
 }
