@@ -74,12 +74,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 rowsEffected =  await _context.SaveChangesAsync();
                 if(rowsEffected > 1)
                 {
-                    await _context.Database.RollbackTransactionAsync();
+                    await transaction.RollbackAsync();
                     return;
 
                 }
 
-                await _context.Database.CommitTransactionAsync();
+                await transaction.CommitAsync();
             }
         );
 
@@ -128,8 +128,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                     return null;
 
                 }
-
-                await _context.Database.CommitTransactionAsync();
+                await transaction.CommitAsync();
                 return entity;
 
             }
