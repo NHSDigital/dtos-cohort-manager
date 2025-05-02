@@ -32,7 +32,7 @@ public class NEMSSubscribe
     private const string urlFormat = "{0}/{1}";
 
     public NEMSSubscribe(ILogger<NEMSSubscribe> logger,
-    // IDataServiceClient<NEMSSubscribe> nemsSubscriptionClient, /* Uncomment after RetrievePdsDemographic PR is merged */
+    IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* Uncomment after RetrievePdsDemographic PR is merged */
     IHttpClientFunction httpClientFunction,
     IExceptionHandler handleException,
     ICreateResponse createResponse,
@@ -40,7 +40,7 @@ public class NEMSSubscribe
     IOptions<NEMSSubscribeConfig> nemsSubscribeConfig)
     {
         _logger = logger;
-        // _nemsSubscriptionClient = nemsSubscriptionClient;
+        _nemsSubscriptionClient = nemsSubscriptionClient;
         _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _createResponse = createResponse;
@@ -120,13 +120,17 @@ public class NEMSSubscribe
 
     private async Task<bool> ValidateAgainstPds(string nhsNumber)
     {
-        /* To Do Later - After RetrievePDSDemographic PR is merged */
         try
         {
             _logger.LogInformation("Validating NHS number against PDS.");
-            /* Calling RetrievePDSDemographic function via ICallFunction */
-            var url = string.Format(urlFormat, _config.RetrievePdsDemographicURL, nhsNumber);
-            var response = await _httpClientFunction.SendPdsGet(url);
+            /* Calling RetrievePDSDemographic function */
+            string url = _config.RetrievePdsDemographicURL;
+            var parameters = new Dictionary<string, string>
+            {
+                { "nhsNumber", nhsNumber }
+            };
+
+            var response = await _httpClientFunction.SendGetAsync(url, parameters);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -172,19 +176,23 @@ public class NEMSSubscribe
     private async Task<bool> StoreSubscriptionInDatabase(string nhsNumber, string subscriptionId)
     {
         /* Uncomment below code after RetrievePdsDemographic PR is merged */
-        /*
-         _logger.LogInformation("Start saving the SubscriptionId in the database.");
-         var subscriptionCreated = await _nemsSubscriptionClient.Add(subscriptionId);
 
-         if (subscriptionCreated)
-         {
-             _logger.LogInformation("Successfully created the subscription");
-             return true;
-         }
-         _logger.LogError("Failed to create the subscription");
-         return false;
-         */
-        return true;
+        _logger.LogInformation("Start saving the SubscriptionId in the database.");
+        var objNemsSubscription = new NemsSubscription
+        {
+            SubscriptionId = 0, //WIP
+            NhsNumber = 0, //WIP
+            RecordInsertDateTime = DateTime.UtcNow
+        };
+        var subscriptionCreated = await _nemsSubscriptionClient.Add(objNemsSubscription);
+
+        if (subscriptionCreated)
+        {
+            _logger.LogInformation("Successfully created the subscription");
+            return true;
+        }
+        _logger.LogError("Failed to create the subscription");
+        return false;
     }
 
     public Subscription CreateNemsSubscriptionResource(string nhsNumber)
