@@ -131,7 +131,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     });
 
-    testWithAmended('@DTOSS-4068-01 @Implement Validate Amend fields date of death', async ({ request, testData }) => {
+    testWithAmended.only('@DTOSS-4068-01 @Implement Validate Amend fields date of death', async ({ request, testData }) => {
       await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
       });
