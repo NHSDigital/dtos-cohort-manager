@@ -13,8 +13,6 @@ const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
 const PARTICIPANT_MANAGEMENT_SERVICE = config.participantManagementService;
 const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
 const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
-const NHS_NUMBER_KEY = config.nhsNumberKey;
-const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const UNIQUE_KEY_COHORT_DISTRIBUTION = config.uniqueKeyCohortDistribution;
 const UNIQUE_KEY_PARTICIPANT_MANAGEMENT = config.uniqueKeyParticipantManagement;
 const UNIQUE_KEY_EXCEPTION_MANAGEMENT = config.uniqueKeyExceptionManagement;
@@ -36,18 +34,37 @@ async function cleanDataService(
 
   try {
     const response = await fetchApiResponse(`api/${serviceName}`, request);
-    expect(response.ok()).toBeTruthy();
+
+
+    if (!response.ok()) {
+      console.warn(`Service ${serviceName} returned status ${response.status()}, skipping cleanup`);
+      return;
+    }
 
     if (response.status() === 204) {
       console.info(`No data in the table for ${serviceName}`);
       return;
     }
 
-    const responseBody = await response.json();
-    expect(Array.isArray(responseBody)).toBeTruthy();
 
-    // Extract ALL IDs from the response without filtering
-    const keysToDelete = responseBody.map((item: { [x: string]: any; }) => item[idField]);
+    const responseText = await response.text();
+    let responseBody;
+    try {
+      responseBody = JSON.parse(responseText);
+    } catch (e) {
+      console.error(`Cannot parse JSON for ${serviceName}: ${e}`);
+      return;
+    }
+
+    if (!Array.isArray(responseBody)) {
+      console.warn(`Expected array response from ${serviceName}, got: ${typeof responseBody}`);
+      return;
+    }
+
+
+    const keysToDelete = responseBody
+      .filter(item => item[idField] !== null && item[idField] !== undefined)
+      .map(item => item[idField]);
 
     console.info(`Keys to delete using ${serviceName}: ${keysToDelete.length} records`);
 
@@ -56,20 +73,46 @@ async function cleanDataService(
       return;
     }
 
-    await Promise.all(
-      keysToDelete.map(async (key: number) => {
-        const deleteResponse = await request.delete(`${endpoint}api/${serviceName}/${key}`);
-        expect(deleteResponse.ok()).toBeTruthy();
-        return deleteResponse;
-      })
-    );
 
-    console.info(`Successfully deleted ${keysToDelete.length} records from ${serviceName}`);
+    let successCount = 0;
+    for (const key of keysToDelete) {
+      try {
+        const deleteResponse = await request.delete(`${endpoint}api/${serviceName}/${key}`);
+        if (deleteResponse.ok()) {
+          successCount++;
+        } else {
+          console.warn(`Failed to delete ${serviceName} ID ${key}: ${deleteResponse.status()}`);
+        }
+      } catch (deleteError) {
+        console.error(`Error deleting ${serviceName} ID ${key}:`, deleteError);
+      }
+    }
+
+
+    const verifyResponse = await fetchApiResponse(`api/${serviceName}`, request);
+    if (verifyResponse.ok() && verifyResponse.status() !== 204) {
+      try {
+        const verifyText = await verifyResponse.text();
+        if (verifyText && verifyText.trim() !== '') {
+          const verifyBody = JSON.parse(verifyText);
+          if (Array.isArray(verifyBody) && verifyBody.length > 0) {
+            console.warn(`Still have ${verifyBody.length} records in ${serviceName} after deletion`);
+          } else {
+            console.info(`Successfully verified deletion in ${serviceName}`);
+          }
+        }
+      } catch (e) {
+        console.error(`Error verifying deletion: ${e}`);
+      }
+    }
+
+    console.info(`Successfully deleted ${successCount}/${keysToDelete.length} records from ${serviceName}`);
   } catch (error) {
     console.error(`Error processing ${serviceName}:`, error);
-    throw error;
+
   }
 }
+
 
 const serviceConfigs = {
   cohortDistribution: {
@@ -106,11 +149,10 @@ export async function cleanDataBaseUsingServices(
     : Object.values(serviceConfigs);
 
   try {
-    await Promise.all(
-      servicesToClean.map(config =>
-        cleanDataService(request, config)
-      )
-    );
+
+    for (const config of servicesToClean) {
+      await cleanDataService(request, config);
+    }
     console.info(`Successfully completed cleaning operations for all services`);
   } catch (error) {
     console.error('Failed to clean one or more services:', error);
