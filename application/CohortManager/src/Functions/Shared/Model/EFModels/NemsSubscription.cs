@@ -7,8 +7,8 @@ public class NemsSubscription
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    [Column("SUBSCRIPTION_ID", TypeName = "bigint")]
-    public long SubscriptionId { get; set; }
+    [Column("SUBSCRIPTION_ID", TypeName = "uniqueidentifier")]
+    public Guid SubscriptionId { get; set; }
 
     [Required]
     [Column("NHS_NUMBER", TypeName = "bigint")]
