@@ -107,7 +107,7 @@ public class NEMSUnSubscriptionTests
     return new NEMSUnSubscription(
         _loggerMock.Object,
         httpClientFactoryMock.Object,
-        new Mock<IExceptionHandler>().Object, // 👈 add this
+        new Mock<IExceptionHandler>().Object,
         new CreateResponse(),
         optionsMock.Object,
         new Mock<ICallFunction>().Object,
