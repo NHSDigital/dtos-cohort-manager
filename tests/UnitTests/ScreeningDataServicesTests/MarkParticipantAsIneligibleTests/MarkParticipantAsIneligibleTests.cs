@@ -18,7 +18,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
 {
     private static readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
     private static readonly Mock<IExceptionHandler> _handleException = new();
-    private static readonly Mock<ICallFunction> _callFunction = new();
+    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly ParticipantCsvRecord _participantCsvRecord = new();
     private static readonly Mock<IOptions<MarkParticipantAsIneligibleConfig>> _config = new();
     private ParticipantManagement _participantManagement = new();
@@ -28,7 +28,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
         logger,
         response,
         _participantManagementClient.Object,
-        _callFunction.Object,
+        _httpClientFunction.Object,
         _handleException.Object,
         _config.Object))
     {
@@ -39,13 +39,13 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
     [TestInitialize]
     public void TestInitialize()
     {
-        _callFunction.Reset();
+        _httpClientFunction.Reset();
         _participantManagementClient.Reset();
         _service = new MarkParticipantAsIneligible(
             _loggerMock.Object,
             _createResponseMock.Object,
             _participantManagementClient.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _handleException.Object,
             _config.Object);
         _participantCsvRecord.Participant = new Participant()
@@ -67,7 +67,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
         _config.Setup(c => c.Value).Returns(testConfig);
         _participantManagementClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new List<ParticipantManagement> { _participantManagement });
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult(
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).Returns(Task.FromResult(
             JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = false,
@@ -115,7 +115,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
     public async Task Run_FailedLookupValidation_ReturnsBadRequest()
     {
         // Arrange
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult(
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).Returns(Task.FromResult(
             JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = true,

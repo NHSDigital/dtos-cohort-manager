@@ -18,12 +18,12 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICallFunction, CallFunction>();
         // Register health checks
         services.AddDatabaseHealthCheck("markParticipantAsIneligible");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
