@@ -30,138 +30,61 @@ interface ServiceConfig {
 
 async function cleanDataService(
   request: any,
-  serviceConfig: ServiceConfig
+  serviceConfig: ServiceConfig,
+  numbers?: string[]
 ): Promise<void> {
   const { serviceName, idField, endpoint } = serviceConfig;
 
   try {
-    const response = await fetchApiResponse(`api/${serviceName}`, request);
 
-    if (!response.ok()) {
-      console.warn(`Service ${serviceName} returned status ${response.status()}, skipping cleanup`);
-      return;
-    }
+    if (numbers && numbers.length > 0) {
+      for (const nhsNumber of numbers) {
+        try {
+          const directDeleteUrl = `${endpoint}api/${serviceName}/byNhsNumber/${nhsNumber}`;
+          console.info(`Attempting direct deletion by NHS number: ${nhsNumber}`);
+          await request.delete(directDeleteUrl);
+        } catch (e) {
 
-    if (response.status() === 204) {
-      console.info(`No data in the table for ${serviceName}`);
-      return;
-    }
-
-    // Get response text first to debug JSON parsing issues
-    const responseText = await response.text();
-    let responseBody;
-    try {
-      responseBody = JSON.parse(responseText);
-    } catch (e) {
-      console.error(`Cannot parse JSON for ${serviceName}: ${e}`);
-      return;
-    }
-
-    if (!Array.isArray(responseBody)) {
-      console.warn(`Expected array response from ${serviceName}, got: ${typeof responseBody}`);
-      return;
-    }
-
-    // Determine which NHS number key to use based on the endpoint
-    let nhsNumberKey;
-    if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
-      nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
-    } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
-      nhsNumberKey = "NHSNumber";
-    } else {
-      nhsNumberKey = NHS_NUMBER_KEY;
-    }
-
-    // Extract primary keys for deletion
-    const keysToDelete = responseBody
-      .filter(item => item[idField] !== null && item[idField] !== undefined)
-      .map(item => item[idField]);
-
-    // Also extract NHS numbers for logging and verification
-    const nhsNumbers = responseBody
-      .filter(item => item[nhsNumberKey] !== null && item[nhsNumberKey] !== undefined)
-      .map(item => item[nhsNumberKey]);
-
-    console.info(`Keys to delete using ${serviceName}: ${keysToDelete.length} records`);
-    console.info(`NHS Numbers in response: ${nhsNumbers.join(', ')}`);
-
-    if (keysToDelete.length === 0) {
-      console.info(`No records found in ${serviceName} to delete`);
-      return;
-    }
-
-    // Delete sequentially to avoid race conditions
-    let successCount = 0;
-    for (const key of keysToDelete) {
-      try {
-        const deleteUrl = `${endpoint}api/${serviceName}/${key}`;
-        console.info(`Deleting ${serviceName} with ID ${key}`);
-        const deleteResponse = await request.delete(deleteUrl);
-
-        if (deleteResponse.ok()) {
-          successCount++;
-        } else {
-          console.warn(`Failed to delete ${serviceName} ID ${key}: ${deleteResponse.status()}`);
         }
-      } catch (deleteError) {
-        console.error(`Error deleting ${serviceName} ID ${key}:`, deleteError);
       }
     }
 
-    // Verify deletion - check if any NHS numbers still exist
-    const verifyResponse = await fetchApiResponse(`api/${serviceName}?nocache=${Date.now()}`, request);
-    if (verifyResponse.ok() && verifyResponse.status() !== 204) {
-      try {
-        const verifyText = await verifyResponse.text();
-        if (verifyText && verifyText.trim() !== '') {
-          const verifyBody = JSON.parse(verifyText);
-          if (Array.isArray(verifyBody) && verifyBody.length > 0) {
-            // Check if the same NHS numbers are still present
-            const remainingNhsNumbers = verifyBody
-              .filter(item => item[nhsNumberKey] !== null && item[nhsNumberKey] !== undefined)
-              .map(item => item[nhsNumberKey]);
 
-            if (remainingNhsNumbers.length > 0) {
-              console.warn(`❌ Still have ${remainingNhsNumbers.length} NHS numbers in ${serviceName}: ${remainingNhsNumbers.join(', ')}`);
-            }
-          } else {
-            console.info(`✅ Successfully verified deletion in ${serviceName}`);
-          }
-        }
-      } catch (e) {
-        console.error(`Error verifying deletion: ${e}`);
-      }
-    }
-
-    console.info(`Deleted ${successCount}/${keysToDelete.length} records from ${serviceName}`);
   } catch (error) {
-    console.error(`Error processing ${serviceName}:`, error);
-    // Don't throw to allow other services to continue
+    console.error(`Error in ${serviceName} cleanup:`, error);
   }
 }
+
+
 
 const serviceConfigs = {
   cohortDistribution: {
     serviceName: COHORT_DISTRIBUTION_SERVICE,
     idField: UNIQUE_KEY_COHORT_DISTRIBUTION,
-    endpoint: endpointCohortDistributionDataService
+    nhsNumberField: "NHS_NUMBER",
+    endpoint: endpointCohortDistributionDataService,
+
   },
   participantManagement: {
     serviceName: PARTICIPANT_MANAGEMENT_SERVICE,
     idField: UNIQUE_KEY_PARTICIPANT_MANAGEMENT,
-    endpoint: endpointParticipantManagementDataService
+    nhsNumberField: "NHS_NUMBER",
+    endpoint: endpointParticipantManagementDataService,
+
   },
   exceptionManagement: {
     serviceName: EXCEPTION_MANAGEMENT_SERVICE,
-    idField: UNIQUE_KEY_EXCEPTION_MANAGEMENT,
+    idField: "EXCEPTION_ID",
+    nhsNumberField: "NHS_NUMBER" ,
     endpoint: endpointExceptionManagementDataService
   },
   participantDemographic: {
     serviceName: PARTICIPANT_DEMOGRAPHIC_SERVICE,
     idField: UNIQUE_KEY_PARTICIPANT_DEMOGRAPHIC,
+    nhsNumberField: "NHS_NUMBER",
     endpoint: endpointParticipantDemographicDataService
   }
-  // Add more services as needed
+
 };
 
 
@@ -177,7 +100,7 @@ export async function cleanDataBaseUsingServices(
   try {
 
     for (const config of servicesToClean) {
-      await cleanDataService(request, config);
+      await cleanDataService(request, config, numbers);
     }
     console.info(`Successfully completed cleaning operations for all services`);
   } catch (error) {
