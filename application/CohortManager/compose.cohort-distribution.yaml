@@ -29,6 +29,7 @@ services:
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - BsSelectRequestAuditDataService=http://bs-select-request-audit-data-service:7956/api/BsSelectRequestAuditDataService/
       - AcceptableLatencyThresholdMs=500
+      - CohortDistributionDataServiceURL=http://localhost:7992/api/CohortDistributionDataService/
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit

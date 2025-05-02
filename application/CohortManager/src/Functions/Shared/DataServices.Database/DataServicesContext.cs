@@ -1,8 +1,6 @@
 ﻿namespace DataServices.Database;
-
 using Model;
 using Microsoft.EntityFrameworkCore;
-
 public class DataServicesContext : DbContext
 {
     DbSet<BsSelectGpPractice> bsSelectGpPractices { get; set; }
@@ -13,10 +11,11 @@ public class DataServicesContext : DbContext
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
     DbSet<GPPractice> gPPractices { get; set; }
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
-
+    DbSet<NemsSubscription> nemsSubscriptions {get;set;}
+    
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BsSelectGpPractice>()
@@ -45,6 +44,7 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<HigherRiskReferralReasonLkp>()
             .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
+
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo");
 
@@ -53,11 +53,14 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo");
-        
+
         modelBuilder.Entity<BsSelectRequestAudit>()
             .ToTable("BS_SELECT_REQUEST_AUDIT","dbo");
 
         modelBuilder.Entity<ScreeningLkp>()
             .ToTable("SCREENING_LKP", "dbo");
+            
+        modelBuilder.Entity<NemsSubscription>()
+            .ToTable("NEMS_SUBSCRIPTION", "dbo");
     }
 }

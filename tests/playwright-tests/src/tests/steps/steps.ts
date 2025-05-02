@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import path from "path";
 import { validateApiResponse } from "../../api/apiHelper";
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
+import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
 
 
 export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
@@ -44,9 +45,13 @@ export async function getTestData(scenarioFolderName: string
 
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
-    const nhsNumbers: string[] = parsedData.validations.map(item =>
+
+    const rawNhsNumbers: string[] = parsedData.validations.map(item =>
       String(item.validations.NHSNumber || item.validations.NhsNumber)
     );
+
+    const nhsNumbers = ensureNhsNumbersStartWith999(rawNhsNumbers);
+
     const uniqueNhsNumbers: string[] = Array.from(new Set(nhsNumbers));
     return [parsedData.validations, uniqueNhsNumbers, parquetFile, inputParticipantRecord, testFilesPath];
   });
@@ -60,7 +65,6 @@ export function getCheckInDataBaseValidations(scenarioFolderName: string
   return parsedData.validations;
 
 }
-
 
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
