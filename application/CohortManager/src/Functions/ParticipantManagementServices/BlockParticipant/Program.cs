@@ -11,6 +11,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
         .Build()
     .ConfigureServices(services => {
         // Register health checks

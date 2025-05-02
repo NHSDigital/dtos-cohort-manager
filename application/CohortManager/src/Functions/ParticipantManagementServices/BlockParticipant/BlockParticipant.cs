@@ -40,25 +40,27 @@ public class BlockParticipant
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
             _logger.LogInformation("Block Participant Called");
-            long nhsNumber;
-            string dateOfBirth, familyName;
+            long? nhsNumberLong;
+            string? nhsNumber, dateOfBirth, familyName;
             short screeningId;
+
+            nhsNumber = req.Query["NhsNumber"];
+            nhsNumberLong = long.Parse(nhsNumber);
+
+            screeningId = 1; //TODO Unhardcode this (Phase 2)
             
             try
             {
-                nhsNumber = long.Parse(req.Query["NhsNumber"]);
-                if (!ValidationHelper.ValidateNHSNumber(nhsNumber.ToString())) {throw new Exception("Invalid NHS Number");}
+                if (!ValidationHelper.ValidateNHSNumber(nhsNumber)) {throw new Exception("Invalid NHS Number");}
 
                 dateOfBirth = req.Query["DateOfBirth"];
                 familyName = req.Query["FamilyName"];
 
-                screeningId = 1; //TODO Unhardcode this from BSS. (Phase 2)
-
                 // Check participant exists in Participant Demographic table.
-                ParticipantDemographic participantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == nhsNumber && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
+                ParticipantDemographic participantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == nhsNumberLong && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
                 if (participantDemographic == null) {throw new NullReferenceException("Participant can't be found");}
 
-                ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == screeningId);
+                ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumberLong && i.ScreeningId == screeningId);
                 participantManagement.BlockedFlag = 1;
                 bool blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
                 
@@ -66,18 +68,14 @@ public class BlockParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "OK");
             }
             catch (NullReferenceException ex) {
-                nhsNumber = long.Parse(req.Query["NhsNumber"]);
-                screeningId = 1; //TODO Unhardcode this (Phase 2)
-
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber.ToString(), "", screeningId.ToString(), req.ToString());
+                _logger.LogError("Could not find participant");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber, "", screeningId.ToString(), req.ToString());
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
             catch (Exception ex) 
             {
-                nhsNumber = long.Parse(req.Query["NhsNumber"]);
-                screeningId = 1; //TODO Unhardcode this (Phase 2)
-
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber.ToString(), "", screeningId.ToString(), req.ToString());
+                _logger.LogError("Failed to block participant");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber, "", screeningId.ToString(), req.ToString());
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An unknown error has occured");
             }
             
