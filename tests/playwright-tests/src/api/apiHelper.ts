@@ -99,7 +99,7 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   matchingObject = matchingObjects[matchingObjects.length - 1];
 
   if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
-      (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
+    (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
 

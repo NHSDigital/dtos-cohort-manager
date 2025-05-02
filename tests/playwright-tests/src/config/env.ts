@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const env = process.env.NODE_ENV ?? 'dev';
-if(process.env.Is_CloudEnvironment){}else{
+if (process.env.Is_CloudEnvironment) { } else {
   dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
 }
 
@@ -32,8 +32,8 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
-  e2eTestFilesPath:'e2e/testFiles',
-  apiTestFilesPath:'api/testFiles',
+  e2eTestFilesPath: 'e2e/testFiles',
+  apiTestFilesPath: 'api/testFiles',
   apiRetry: 8,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',

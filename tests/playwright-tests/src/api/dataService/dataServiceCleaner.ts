@@ -17,6 +17,8 @@ const UNIQUE_KEY_COHORT_DISTRIBUTION = config.uniqueKeyCohortDistribution;
 const UNIQUE_KEY_PARTICIPANT_MANAGEMENT = config.uniqueKeyParticipantManagement;
 const UNIQUE_KEY_EXCEPTION_MANAGEMENT = config.uniqueKeyExceptionManagement;
 const UNIQUE_KEY_PARTICIPANT_DEMOGRAPHIC = config.uniqueKeyParticipantDemographic;
+const NHS_NUMBER_KEY = config.nhsNumberKey;
+const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 
 
 interface ServiceConfig {
@@ -35,7 +37,6 @@ async function cleanDataService(
   try {
     const response = await fetchApiResponse(`api/${serviceName}`, request);
 
-
     if (!response.ok()) {
       console.warn(`Service ${serviceName} returned status ${response.status()}, skipping cleanup`);
       return;
@@ -46,7 +47,7 @@ async function cleanDataService(
       return;
     }
 
-
+    // Get response text first to debug JSON parsing issues
     const responseText = await response.text();
     let responseBody;
     try {
@@ -61,23 +62,42 @@ async function cleanDataService(
       return;
     }
 
+    // Determine which NHS number key to use based on the endpoint
+    let nhsNumberKey;
+    if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+      nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
+    } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
+      nhsNumberKey = "NHSNumber";
+    } else {
+      nhsNumberKey = NHS_NUMBER_KEY;
+    }
 
+    // Extract primary keys for deletion
     const keysToDelete = responseBody
       .filter(item => item[idField] !== null && item[idField] !== undefined)
       .map(item => item[idField]);
 
+    // Also extract NHS numbers for logging and verification
+    const nhsNumbers = responseBody
+      .filter(item => item[nhsNumberKey] !== null && item[nhsNumberKey] !== undefined)
+      .map(item => item[nhsNumberKey]);
+
     console.info(`Keys to delete using ${serviceName}: ${keysToDelete.length} records`);
+    console.info(`NHS Numbers in response: ${nhsNumbers.join(', ')}`);
 
     if (keysToDelete.length === 0) {
       console.info(`No records found in ${serviceName} to delete`);
       return;
     }
 
-
+    // Delete sequentially to avoid race conditions
     let successCount = 0;
     for (const key of keysToDelete) {
       try {
-        const deleteResponse = await request.delete(`${endpoint}api/${serviceName}/${key}`);
+        const deleteUrl = `${endpoint}api/${serviceName}/${key}`;
+        console.info(`Deleting ${serviceName} with ID ${key}`);
+        const deleteResponse = await request.delete(deleteUrl);
+
         if (deleteResponse.ok()) {
           successCount++;
         } else {
@@ -88,17 +108,24 @@ async function cleanDataService(
       }
     }
 
-
-    const verifyResponse = await fetchApiResponse(`api/${serviceName}`, request);
+    // Verify deletion - check if any NHS numbers still exist
+    const verifyResponse = await fetchApiResponse(`api/${serviceName}?nocache=${Date.now()}`, request);
     if (verifyResponse.ok() && verifyResponse.status() !== 204) {
       try {
         const verifyText = await verifyResponse.text();
         if (verifyText && verifyText.trim() !== '') {
           const verifyBody = JSON.parse(verifyText);
           if (Array.isArray(verifyBody) && verifyBody.length > 0) {
-            console.warn(`Still have ${verifyBody.length} records in ${serviceName} after deletion`);
+            // Check if the same NHS numbers are still present
+            const remainingNhsNumbers = verifyBody
+              .filter(item => item[nhsNumberKey] !== null && item[nhsNumberKey] !== undefined)
+              .map(item => item[nhsNumberKey]);
+
+            if (remainingNhsNumbers.length > 0) {
+              console.warn(`❌ Still have ${remainingNhsNumbers.length} NHS numbers in ${serviceName}: ${remainingNhsNumbers.join(', ')}`);
+            }
           } else {
-            console.info(`Successfully verified deletion in ${serviceName}`);
+            console.info(`✅ Successfully verified deletion in ${serviceName}`);
           }
         }
       } catch (e) {
@@ -106,13 +133,12 @@ async function cleanDataService(
       }
     }
 
-    console.info(`Successfully deleted ${successCount}/${keysToDelete.length} records from ${serviceName}`);
+    console.info(`Deleted ${successCount}/${keysToDelete.length} records from ${serviceName}`);
   } catch (error) {
     console.error(`Error processing ${serviceName}:`, error);
-
+    // Don't throw to allow other services to continue
   }
 }
-
 
 const serviceConfigs = {
   cohortDistribution: {
