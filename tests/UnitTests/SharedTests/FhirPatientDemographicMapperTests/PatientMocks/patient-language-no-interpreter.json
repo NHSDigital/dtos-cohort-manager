@@ -1,0 +1,24 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "extension": [
+    {
+      "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSCommunication",
+      "extension": [
+        {
+          "url": "language",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-HumanLanguage",
+                "version": "1.0.0",
+                "code": "fr",
+                "display": "French"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
