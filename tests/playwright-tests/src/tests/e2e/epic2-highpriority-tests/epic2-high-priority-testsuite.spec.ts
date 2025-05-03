@@ -157,7 +157,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     });
 
-    testWithAmended('@DTOSS-4564-01 @Validate date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)', async ({ request, testData }) => {
+    testWithAmended.only('@DTOSS-4564-01 @Validate date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)', async ({ request, testData }) => {
 
       await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
