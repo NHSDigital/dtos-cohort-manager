@@ -3,8 +3,6 @@ import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromA
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
-
-
   test.describe('ADD Tests', () => {
 
     test.beforeEach(async ({ request, testData }) => {
@@ -74,14 +72,14 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     });
-  });
-
+  }); // End of ADD Tests
 
   test.describe('AMENDED Tests', () => {
 
     testWithAmended.beforeEach(async ({ request, testData }) => {
       await test.step(`Given database does not contain record that will be processed`, async () => {
         await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+        await cleanupDatabaseFromAPI(request, testData.nhsNumberAmend);
       });
 
       await test.step(`When ADD participant is processed via storage`, async () => {
@@ -131,7 +129,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     });
 
-    testWithAmended.only('@DTOSS-4068-01 @Implement Validate Amend fields date of death', async ({ request, testData }) => {
+    testWithAmended('@DTOSS-4068-01 @Implement Validate Amend fields date of death', async ({ request, testData }) => {
       await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
       });
@@ -158,5 +156,21 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
     });
+
+    testWithAmended('@DTOSS-4564-01 @Validate date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)', async ({ request, testData }) => {
+
+      await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then validate the values changed in AMENDED in Participant demographic`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+    });
   });
+
 });

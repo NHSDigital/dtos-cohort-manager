@@ -127,17 +127,98 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       const actualCount = matchingObjects.length;
       expect(actualCount).toBe(expectedValue);
       console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
-    } else {
+    }
+    // Special handling for timestamp fields
+    else if (fieldName === 'RecordInsertDateTime' || fieldName === 'RecordUpdateDateTime') {
+      console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+
+      expect(matchingObject).toHaveProperty(fieldName);
+      const actualValue = matchingObject[fieldName];
+
+
+      if (typeof expectedValue === 'string' && expectedValue.startsWith('PATTERN:')) {
+        const pattern = expectedValue.substring('PATTERN:'.length);
+        console.info(`Validating timestamp against pattern: ${pattern}`);
+
+
+        const formatMatch = validateTimestampFormat(actualValue, pattern);
+
+        if (formatMatch) {
+          console.info(`✅ Timestamp matches pattern for ${fieldName}`);
+        } else {
+          console.error(`❌ Timestamp doesn't match pattern for ${fieldName}`);
+          expect(formatMatch).toBe(true);
+        }
+      } else {
+
+        if (expectedValue === actualValue) {
+          console.info(`✅ Timestamp exact match for ${fieldName}`);
+        } else {
+          try {
+            const expectedDate = new Date(expectedValue as string);
+            const actualDate = new Date(actualValue);
+
+
+            const expectedTimeWithoutMs = new Date(expectedDate);
+            expectedTimeWithoutMs.setMilliseconds(0);
+            const actualTimeWithoutMs = new Date(actualDate);
+            actualTimeWithoutMs.setMilliseconds(0);
+
+
+            if (expectedTimeWithoutMs.getTime() === actualTimeWithoutMs.getTime()) {
+              console.info(`✅ Timestamp matches (ignoring milliseconds) for ${fieldName}`);
+            } else {
+
+              const timeDiff = Math.abs(expectedDate.getTime() - actualDate.getTime());
+              const oneMinute = 60 * 1000;
+
+
+              if (timeDiff <= oneMinute) {
+                console.info(`✅ Timestamp within acceptable range (±1 minute) for ${fieldName}`);
+              } else {
+
+                expect(actualValue).toBe(expectedValue);
+              }
+            }
+          } catch (e) {
+            console.error(`Error validating timestamp: ${e}`);
+            expect(actualValue).toBe(expectedValue);
+          }
+        }
+      }
+
+      console.info(`✅ Validation completed for timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+    }
+    else {
       console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+
       expect(matchingObject).toHaveProperty(fieldName);
       expect(matchingObject[fieldName]).toBe(expectedValue);
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
   }
   return true;
+}
+
+// Helper function to validate timestamp format
+function validateTimestampFormat(timestamp: string, pattern: string): boolean {
+  if (!timestamp) return false;
+
+  console.info(`Actual timestamp: ${timestamp}`);
 
 
+  if (pattern === 'yyyy-MM-ddTHH:mm:ss' || pattern === 'yyyy-MM-ddTHH:mm:ss.SSS') {
 
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(timestamp);
+  }
+  else if (pattern === 'yyyy-MM-dd') {
+
+    return /^\d{4}-\d{2}-\d{2}$/.test(timestamp);
+  }
+  else {
+
+    return !isNaN(new Date(timestamp).getTime());
+  }
 }
 
 async function delayRetry() {
