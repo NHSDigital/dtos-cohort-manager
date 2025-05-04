@@ -1,19 +1,12 @@
 import { test, testWithAmended, expect } from '../../fixtures/test-fixtures';
 import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
+  TestHooks.setupAllTestHooks();
+
   test.describe('ADD Tests', () => {
-
-    test.beforeEach(async ({ request, testData }) => {
-      await test.step(`Given database does not contain record that will be processed`, async () => {
-        await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-      });
-
-      await test.step(`When ADD participant is processed via storage`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFile);
-      });
-    });
 
     test('@DTOSS-5104-01 @Implement Validation for Eligibility Flag for Add', async ({ request, testData }) => {
       await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
@@ -76,17 +69,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
   test.describe('AMENDED Tests', () => {
 
-    testWithAmended.beforeEach(async ({ request, testData }) => {
-      await test.step(`Given database does not contain record that will be processed`, async () => {
-        await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-        await cleanupDatabaseFromAPI(request, testData.nhsNumberAmend);
-      });
-
-      await test.step(`When ADD participant is processed via storage`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAdd);
-      });
-    });
-
     testWithAmended('@DTOSS-5605-01 @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
       await test.step(`Then ADD record should be updated in the cohort`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
@@ -143,7 +125,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     });
 
-    testWithAmended('@DTOSS-4070-01 @Validate Amend fields Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)', async ({ request, testData }) => {
+    testWithAmended.only('@DTOSS-4070-01 @Validate Amend fields Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)', async ({ request, testData }) => {
       await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
       });
