@@ -4,6 +4,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
@@ -21,33 +22,28 @@ using NHS.Screening.NEMSSubscribe;
 public class NEMSSubscribe
 {
     private readonly ILogger<NEMSSubscribe> _logger;
-    private readonly FhirJsonSerializer _fhirSerializer;
-    private readonly FhirJsonParser _fhirParser;
+    private readonly FhirJsonSerializer _fhirSerializer = new();
+    private readonly FhirJsonParser _fhirParser = new();
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _handleException;
-    private readonly ICallFunction _callFunction;
     private readonly NEMSSubscribeConfig _config;
     private readonly IDataServiceClient<NemsSubscription> _nemsSubscriptionClient;
     private const string urlFormat = "{0}/{1}";
 
-    public NEMSSubscribe(ILogger<NEMSSubscribe> logger,
-    IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* Uncomment after RetrievePdsDemographic PR is merged */
-    IHttpClientFunction httpClientFunction,
-    IExceptionHandler handleException,
-    ICreateResponse createResponse,
-    ICallFunction callFunction,
-    IOptions<NEMSSubscribeConfig> nemsSubscribeConfig)
+    public NEMSSubscribe
+    (
+        ILogger<NEMSSubscribe> logger,
+        IDataServiceClient<NemsSubscription> nemsSubscriptionClient,
+        IHttpClientFunction httpClientFunction,
+        ICreateResponse createResponse,
+        IOptions<NEMSSubscribeConfig> nemsSubscribeConfig
+    )
     {
         _logger = logger;
         _nemsSubscriptionClient = nemsSubscriptionClient;
         _httpClientFunction = httpClientFunction;
-        _handleException = handleException;
         _createResponse = createResponse;
-        _callFunction = callFunction;
         _config = nemsSubscribeConfig.Value;
-        _fhirSerializer = new FhirJsonSerializer();
-        _fhirParser = new FhirJsonParser();
     }
 
     /// <summary>
@@ -131,7 +127,6 @@ public class NEMSSubscribe
             };
 
             var response = await _httpClientFunction.SendGetAsync(url, parameters);
-
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogError($"Record not found in PDS");
@@ -150,7 +145,6 @@ public class NEMSSubscribe
     private async Task<string> PostSubscriptionToNems(string subscriptionJson)
     {
         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
-
         try
         {
             var url = string.Format(urlFormat, _config.NEMS_FHIR_ENDPOINT, "Subscription");
@@ -175,13 +169,12 @@ public class NEMSSubscribe
 
     private async Task<bool> StoreSubscriptionInDatabase(string nhsNumber, string subscriptionId)
     {
-        /* Uncomment below code after RetrievePdsDemographic PR is merged */
-
+        /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         _logger.LogInformation("Start saving the SubscriptionId in the database.");
         var objNemsSubscription = new NemsSubscription
         {
-            SubscriptionId = 0, //WIP
-            NhsNumber = 0, //WIP
+            SubscriptionId = Guid.Parse(subscriptionId), //WIP , might change after onboarding as datatype might change
+            NhsNumber = Convert.ToInt64(nhsNumber), //WIP , might change after onboarding as datatype might change
             RecordInsertDateTime = DateTime.UtcNow
         };
         var subscriptionCreated = await _nemsSubscriptionClient.Add(objNemsSubscription);
@@ -197,18 +190,18 @@ public class NEMSSubscribe
 
     public Subscription CreateNemsSubscriptionResource(string nhsNumber)
     {
-        /* To Do After Onboarding - Modify the code and replace the placeholder with actual value or endpoints */
+         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         var subscription = new Subscription
         {
             Meta = new Meta
             {
-                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" }, // Will remove this after onboarding
+                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" }, // WIP, Will remove this after onboarding
                 Profile = new[] { _config.Subscription_Profile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = Subscription.SubscriptionStatus.Requested,
             Reason = "NEMS event notification subscription",
-            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}", // Will remove this after onboarding
+            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}", // WIP, Will remove this after onboarding
             Criteria = $"Patient?identifier={_config.Subscription_Criteria}|{nhsNumber}",
             Channel = new Subscription.ChannelComponent
             {
