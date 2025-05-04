@@ -125,7 +125,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     });
 
-    testWithAmended.only('@DTOSS-4070-01 @Validate Amend fields Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)', async ({ request, testData }) => {
+    testWithAmended('@DTOSS-4070-01 @Validate Amend fields Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)', async ({ request, testData }) => {
       await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
       });
