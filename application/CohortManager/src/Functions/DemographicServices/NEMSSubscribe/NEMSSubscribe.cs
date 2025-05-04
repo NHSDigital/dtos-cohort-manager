@@ -190,7 +190,7 @@ public class NEMSSubscribe
 
     public Subscription CreateNemsSubscriptionResource(string nhsNumber)
     {
-         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
+        /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         var subscription = new Subscription
         {
             Meta = new Meta
