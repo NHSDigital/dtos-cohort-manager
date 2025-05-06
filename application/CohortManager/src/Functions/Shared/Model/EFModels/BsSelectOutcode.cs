@@ -6,16 +6,16 @@ public class BsSelectOutCode
 {
     [Key]
     [Column("OUTCODE")]
-    public string Outcode {get;set;}
+    public string Outcode { get; set; }
     [Column("BSO")]
-    public string BSO {get;set;}
+    public string BSO { get; set; }
     [Column("AUDIT_ID")]
-    public decimal AuditId {get;set;}
-    [Column("AUDIT_CREATED_TIMESTAMP")]
-    public DateTime AuditCreatedTimeStamp {get;set;}
-    [Column("AUDIT_LAST_MODIFIED_TIMESTAMP")]
-    public DateTime AuditLastModifiedTimeStamp {get;set;}
+    public decimal AuditId { get; set; }
+    [Column("AUDIT_CREATED_TIMESTAMP", TypeName = "datetime")]
+    public DateTime AuditCreatedTimeStamp { get; set; }
+    [Column("AUDIT_LAST_MODIFIED_TIMESTAMP", TypeName = "datetime")]
+    public DateTime AuditLastModifiedTimeStamp { get; set; }
     [Column("AUDIT_TEXT")]
-    public string AuditText {get;set;}
+    public string AuditText { get; set; }
 
 }

@@ -29,17 +29,10 @@ interface ServiceConfig {
 }
 
 async function cleanDataService(
-  numbers: string[],
   request: any,
   serviceConfig: ServiceConfig
 ): Promise<void> {
   const { serviceName, idField, endpoint } = serviceConfig;
-const matchField =
-  serviceName === EXCEPTION_MANAGEMENT_SERVICE
-    ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-    : serviceName === PARTICIPANT_DEMOGRAPHIC_SERVICE
-    ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-    : NHS_NUMBER_KEY; // Default or fallback value
 
   try {
     const response = await fetchApiResponse(`api/${serviceName}`, request);
@@ -49,17 +42,17 @@ const matchField =
       console.info(`No data in the table for ${serviceName}`);
       return;
     }
+
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBeTruthy();
 
-    const keysToDelete = responseBody
-      .filter((item: { [x: string]: any; }) => numbers.includes(String(item[matchField])))
-      .map((item: { [x: string]: any; }) => item[idField]);
+    // Extract ALL IDs from the response without filtering
+    const keysToDelete = responseBody.map((item: { [x: string]: any; }) => item[idField]);
 
-    console.info(`Keys to delete using ${serviceName}: ${keysToDelete}`);
+    console.info(`Keys to delete using ${serviceName}: ${keysToDelete.length} records`);
 
     if (keysToDelete.length === 0) {
-      console.info(`No matching records found in ${serviceName} to delete`);
+      console.info(`No records found in ${serviceName} to delete`);
       return;
     }
 
@@ -115,7 +108,7 @@ export async function cleanDataBaseUsingServices(
   try {
     await Promise.all(
       servicesToClean.map(config =>
-        cleanDataService(numbers, request, config)
+        cleanDataService(request, config)
       )
     );
     console.info(`Successfully completed cleaning operations for all services`);

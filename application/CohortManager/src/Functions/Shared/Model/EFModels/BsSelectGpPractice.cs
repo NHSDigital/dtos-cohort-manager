@@ -14,11 +14,11 @@ public class BsSelectGpPractice
     public string CountryCategory { get; set; }
     [Column("AUDIT_ID")]
     public decimal AuditId { get; set; }
-    [Column("AUDIT_CREATED_TIMESTAMP")]
+    [Column("AUDIT_CREATED_TIMESTAMP", TypeName = "datetime")]
     public DateTime AuditCreatedTimeStamp { get; set; }
-    [Column("AUDIT_LAST_MODIFIED_TIMESTAMP")]
+    [Column("AUDIT_LAST_MODIFIED_TIMESTAMP", TypeName = "datetime")]
     public DateTime AuditLastUpdatedTimeStamp { get; set; }
     [Column("AUDIT_TEXT")]
-    public string AuditText {get;set;}
+    public string AuditText { get; set; }
 
 }

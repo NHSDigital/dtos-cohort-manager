@@ -30,6 +30,7 @@
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectOutCode\BsSelectOutCode.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
+    <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj" />
     <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 

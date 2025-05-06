@@ -1,4 +1,5 @@
 namespace Model;
+
 using Model.Enums;
 
 public class Demographic
@@ -38,4 +39,6 @@ public class Demographic
     public string? InvalidFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
+
+    public Demographic() { }
 }

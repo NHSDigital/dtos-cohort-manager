@@ -23,32 +23,32 @@ let response: APIResponse;
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
+  let endpoint = "";
 
   for (let attempt = 1; attempt <= apiRetry; attempt++) {
     if (status) break;
 
     try {
       for (const apiValidation of validationJson) {
-        const endpoint = apiValidation.validations.apiEndpoint;
+        endpoint = apiValidation.validations.apiEndpoint;
         response = await fetchApiResponse(endpoint, request);
 
         expect(response.ok()).toBeTruthy();
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
-
-        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
-        status = await validateFields(apiValidation, matchingObject, nhsNumber);
-
+        const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        console.info(`Validating fields using 🅰️\t🅿️\tℹ️\t ${endpoint}`);
+        status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
       }
     } catch (error) {
     }
 
     if (attempt < apiRetry && !status) {
-      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
+      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${Math.round(waitTime / 1000)} seconds...`);
       await delayRetry();
     }
   }
-  waitTime = Number(config.apiWaitTime); //Reset to original value on exit.
+  waitTime = Number(config.apiWaitTime);
   return status;
 }
 
@@ -59,7 +59,7 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)) {
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
-  } else if(endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+  } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
@@ -70,35 +70,72 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   let matchingObjects: any[] = [];
   let matchingObject: any;
 
-  const nhsNumberKey = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)
-  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-  : endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)
-  ? NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC
-  : NHS_NUMBER_KEY; // Default or fallback value
+
+  let nhsNumberKey;
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+    nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
+  } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
+    nhsNumberKey = "NHSNumber";
+  } else {
+    nhsNumberKey = NHS_NUMBER_KEY;
+  }
+
   nhsNumber = apiValidation.validations[nhsNumberKey];
 
-  matchingObjects = responseBody.filter((item: Record<string, any>) => item[nhsNumberKey] == nhsNumber);
+  if (!nhsNumber) {
+    if (apiValidation.validations.NhsNumber) {
+      nhsNumber = apiValidation.validations.NhsNumber;
+    } else if (apiValidation.validations.NHSNumber) {
+      nhsNumber = apiValidation.validations.NHSNumber;
+    }
+  }
 
-  matchingObject = endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE && PARTICIPANT_DEMOGRAPHIC_SERVICE)
-  ? matchingObjects[0]
-  : matchingObjects[matchingObjects.length - 1];
+  matchingObjects = responseBody.filter((item: Record<string, any>) =>
+    item[nhsNumberKey] == nhsNumber ||
+    item.NhsNumber == nhsNumber ||
+    item.NHSNumber == nhsNumber
+  );
 
-  return { matchingObject, nhsNumber };
+  matchingObject = matchingObjects[matchingObjects.length - 1];
+
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
+      (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
+    const ruleIdToFind = apiValidation.validations.RuleId;
+    const ruleDescToFind = apiValidation.validations.RuleDescription;
+
+    const betterMatches = matchingObjects.filter(record =>
+      (ruleIdToFind === undefined || record.RuleId === ruleIdToFind) &&
+      (ruleDescToFind === undefined || record.RuleDescription === ruleDescToFind)
+    );
+
+    if (betterMatches.length > 0) {
+      matchingObject = betterMatches[0];
+      console.log(`Found better matching record with NHS Number ${nhsNumber} and RuleId ${ruleIdToFind || 'any'}`);
+    }
+  }
+
+  return { matchingObject, nhsNumber, matchingObjects };
 }
 
-async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
+
+async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  try{
-    for (const [fieldName, expectedValue] of fieldsToValidate) {
+
+  for (const [fieldName, expectedValue] of fieldsToValidate) {
+    if (fieldName === "expectedCount") {
+      console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      const actualCount = matchingObjects.length;
+      expect(actualCount).toBe(expectedValue);
+      console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+    } else {
       console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
       expect(matchingObject).toHaveProperty(fieldName);
       expect(matchingObject[fieldName]).toBe(expectedValue);
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
-    return true;
-  } catch (error) {
-    return false;
   }
+  return true;
+
 
 
 }
