@@ -14,7 +14,6 @@ namespace NHS.CohortManager.Tests.TestUtils
     using Data.Database;
     using Microsoft.Extensions.Logging;
     using System.Reflection;
-    using Common.Interfaces;
 
     public abstract class DatabaseTestBaseSetup<TService> where TService : class
     {
@@ -25,7 +24,6 @@ namespace NHS.CohortManager.Tests.TestUtils
         protected readonly Mock<IDbDataParameter> _mockParameter = new();
         protected readonly Mock<IDbTransaction> _mockTransaction = new();
         protected readonly Mock<IValidationExceptionData> _validationDataMock = new();
-        protected readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
         protected Mock<HttpRequestData> _request;
         protected Mock<IDataReader> _mockDataReader = new();
         protected Mock<FunctionContext> _context = new();
