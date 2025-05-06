@@ -9,8 +9,8 @@
     ],
     "Rules": [
       {
-        "RuleName": "11.BlockedParticipant.BSSelect.Fatal",
-        "Expression": "newParticipant.BlockedFlag != 1",
+        "RuleName": "12.BlockedParticipant.BSSelect.Fatal",
+        "Expression": "newParticipant.BlockedFlag != \"1\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
