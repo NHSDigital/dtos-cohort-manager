@@ -114,7 +114,7 @@ public class NEMSSubscribe
         }
     }
 
-    private async Task<bool> ValidateAgainstPds(string nhsNumber)
+    public async Task<bool> ValidateAgainstPds(string nhsNumber)
     {
         try
         {
@@ -167,7 +167,7 @@ public class NEMSSubscribe
         }
     }
 
-    private async Task<bool> StoreSubscriptionInDatabase(string nhsNumber, string subscriptionId)
+    public async Task<bool> StoreSubscriptionInDatabase(string nhsNumber, string subscriptionId)
     {
         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         _logger.LogInformation("Start saving the SubscriptionId in the database.");
