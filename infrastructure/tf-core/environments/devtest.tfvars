@@ -1206,7 +1206,6 @@ function_apps = {
         MeshCertName = "MeshCert"
       }
     }
-  }
 }
 
 function_app_slots = []
