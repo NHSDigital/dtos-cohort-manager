@@ -1,13 +1,19 @@
-using Microsoft.Azure.Functions.Worker.Builder;
+using Common;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NHS.Screening.DemographicDurableFunction;
 
-var builder = FunctionsApplication.CreateBuilder(args);
+var host = new HostBuilder()
+    .AddConfiguration<DurableAddFunctionConfig>(out DurableAddFunctionConfig config)
+    .ConfigureFunctionsWebApplication()
+    .ConfigureServices(services =>
+    {
+        services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+        services.AddSingleton<IQueueClientFactory, QueueClientFactory>();
+        // Register health checks
+    })
+    .AddAzureQueues()
+    .AddExceptionHandler()
+    .Build();
 
-builder.ConfigureFunctionsWebApplication();
-
-// Application Insights isn't enabled by default. See https://aka.ms/AAt8mw4.
-// builder.Services
-//     .AddApplicationInsightsTelemetryWorkerService()
-//     .ConfigureFunctionsApplicationInsights();
-
-builder.Build().Run();
+await host.RunAsync();

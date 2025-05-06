@@ -2,7 +2,7 @@
   "profiles": {
     "AddBatchFromQueue": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7033",
+      "commandLineArgs": "--port 7115",
       "launchBrowser": false
     }
   }

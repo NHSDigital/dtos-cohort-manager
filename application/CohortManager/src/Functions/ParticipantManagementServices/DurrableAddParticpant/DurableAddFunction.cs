@@ -1,11 +1,10 @@
 namespace addParticipant;
 
-using System.ComponentModel;
-using System.IO.Pipelines;
 using Azure.Messaging.ServiceBus;
 using Common;
-using DurableTask.Core;
+
 using Microsoft.Azure.Functions.Worker;
+
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
