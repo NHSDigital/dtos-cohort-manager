@@ -201,7 +201,7 @@ function_apps = {
   ftps_state                    = "Disabled"
   https_only                    = true
   remote_debugging_enabled      = false
-  storage_uses_managed_identity = true
+  storage_uses_managed_identity = null
   worker_32bit                  = false
   health_check_path             = "/api/health"
 
@@ -248,10 +248,11 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://sandbox-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://sandbox-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
+        maxNumberOfChecks          = "50"
       }
 
     }
@@ -1164,10 +1165,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
@@ -1237,7 +1234,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = true
+    public_network_access_enabled           = false
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}

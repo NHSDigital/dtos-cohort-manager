@@ -73,7 +73,7 @@ module "managed-identity" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
 
-  uai_name            = "mi-cohort-manager-db-management-${lower(var.environment)}-${each.key}"
+  uai_name            = "mi-cohort-manager-db-management-${lower(var.environment)}-${module.regions_config[each.key].names.location_code}"
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
