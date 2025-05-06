@@ -42,6 +42,7 @@ public class NemsSubscriptionService : INemsSubscriptionService
         _nemsSubscriptionClient = nemsSubscriptionClient;
     }
 
+    //WIP as there would be changes in the method after we gets proper NEMS API endpoints
     public async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
     {
         try
@@ -57,6 +58,7 @@ public class NemsSubscriptionService : INemsSubscriptionService
         }
     }
 
+    //WIP as there would be changes in the method after we gets proper NEMS API endpoints
     public async Task<bool> DeleteSubscriptionFromNems(string subscriptionId)
     {
         try
@@ -72,28 +74,28 @@ public class NemsSubscriptionService : INemsSubscriptionService
         }
     }
 
-public async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
-{
-    try
+    public async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
     {
-        _logger.LogInformation("Attempting to delete subscription for NHS number {NhsNumber}", nhsNumber);
-
-        var deleted = await _nemsSubscriptionClient.Delete(nhsNumber);
-
-        if (deleted)
+        try
         {
-            _logger.LogInformation("Successfully deleted the subscription");
-            return true;
-        }
+            _logger.LogInformation("Attempting to delete subscription for NHS number {NhsNumber}", nhsNumber);
 
-        _logger.LogError("Failed to delete the subscription");
-        return false;
+            var deleted = await _nemsSubscriptionClient.Delete(nhsNumber);
+
+            if (deleted)
+            {
+                _logger.LogInformation("Successfully deleted the subscription");
+                return true;
+            }
+
+            _logger.LogError("Failed to delete the subscription");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Exception occurred while deleting the subscription for NHS number {NhsNumber}", nhsNumber);
+            return false;
+        }
     }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Exception occurred while deleting the subscription for NHS number {NhsNumber}", nhsNumber);
-        return false;
-    }
-}
 
 }
