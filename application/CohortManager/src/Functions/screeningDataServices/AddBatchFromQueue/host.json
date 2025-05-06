@@ -1,0 +1,25 @@
+{
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      },
+      "enableLiveMetricsFilters": true
+    }
+  },
+  "concurrency": {
+    "dynamicConcurrencyEnabled": true,
+    "snapshotPersistenceEnabled": true
+  },
+  "extensions": {
+    "serviceBus": {
+      "prefetchCount": 10,
+      "messageHandlerOptions": {
+        "maxConcurrentCalls": 16,
+        "autoComplete": true
+      }
+    }
+  }
+}
