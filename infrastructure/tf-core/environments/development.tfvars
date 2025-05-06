@@ -167,6 +167,24 @@ app_service_plan = {
         }
       }
     }
+    NemsMeshRetrieval = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "4"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
   }
 }
 
@@ -1184,9 +1202,9 @@ function_apps = {
     }
 
     NemsMeshRetrieval = {
-      name_suffix            = "nems-mesh-retrieval"
-      function_endpoint_name = "NemsMeshRetrieval"
-      app_service_plan_key         = "RetrieveMeshFile"
+      name_suffix                  = "nems-mesh-retrieval"
+      function_endpoint_name       = "NemsMeshRetrieval"
+      app_service_plan_key         = "NemsMeshRetrieval"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
