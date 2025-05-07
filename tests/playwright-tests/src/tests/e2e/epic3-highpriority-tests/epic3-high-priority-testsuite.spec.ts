@@ -6,7 +6,7 @@ function getToday(): string {
   return today.toISOString().split("T")[0];
 }
 
-test.describe('@DTOSS-5396-01 - Transformation - Invalid Flag triggers Reason for Removal logic', () => {
+test.describe('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic', () => {
   test('should apply correct transformations when invalidFlag is true', async ({ request, testData }) => {
     const validations = testData.checkInDatabase;
     const nhsNumbers = testData.nhsNumbers;
