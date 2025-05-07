@@ -2,7 +2,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4018168594,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4018168594,
     RuleId: 36,
     RuleDescription: Invalid primary care provider GP practice code,
     Category: 5,
@@ -13,7 +22,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4018168594,
-    DateResolved: Date_MaxValue,
     RuleId: 3645,
     RuleDescription: CurrentPostingAndPrimaryProvider,
     Category: 5,
@@ -22,20 +30,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4018168594,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 249. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 4045341528,
-    DateResolved: Date_MaxValue,
     RuleId: 10,
     RuleDescription: Participant was transformed as transform rule: TruncateAddressLine5ExceedsMaximumLength was executed,
     Category: 11,
@@ -46,7 +42,6 @@
   {
     FileName: ,
     NhsNumber: 4053135788,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -57,7 +52,6 @@
   {
     FileName: ,
     NhsNumber: 4102851291,
-    DateResolved: Date_MaxValue,
     RuleId: 2,
     RuleDescription: Participant was transformed as transform rule: TruncateFirstNameExceedsMaximumLength was executed,
     Category: 11,
@@ -68,7 +62,6 @@
   {
     FileName: ,
     NhsNumber: 4103970448,
-    DateResolved: Date_MaxValue,
     RuleId: 61,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Major was executed,
     Category: 11,
@@ -79,7 +72,6 @@
   {
     FileName: ,
     NhsNumber: 4115645180,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -90,7 +82,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4144498484,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -101,7 +92,6 @@
   {
     FileName: ,
     NhsNumber: 4162446997,
-    DateResolved: Date_MaxValue,
     RuleId: 52,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Honourable was executed,
     Category: 11,
@@ -112,7 +102,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4181226069,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4181226069,
     RuleId: 58,
     RuleDescription: Missing or invalid Posting,
     Category: 5,
@@ -121,20 +120,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4181226069,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 229. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 4200225247,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -145,7 +132,6 @@
   {
     FileName: ,
     NhsNumber: 4201983315,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -156,7 +142,6 @@
   {
     FileName: ,
     NhsNumber: 4222079391,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -167,18 +152,16 @@
   {
     FileName: ,
     NhsNumber: 4245190701,
-    DateResolved: Date_MaxValue,
     RuleId: -2147024809,
     RuleDescription: Participant contains illegal characters,
     Category: 5,
-    ScreeningName: ,
+    ScreeningName: Breast Screening,
     CohortName: ,
     IsFatal: 1
   },
   {
     FileName: ,
     NhsNumber: 4246633585,
-    DateResolved: Date_MaxValue,
     RuleId: 37,
     RuleDescription: Participant was transformed as transform rule: Name Prefix AirMarshal was executed,
     Category: 11,
@@ -189,7 +172,6 @@
   {
     FileName: ,
     NhsNumber: 4279798001,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -200,7 +182,6 @@
   {
     FileName: ,
     NhsNumber: 4317838877,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -211,7 +192,6 @@
   {
     FileName: ,
     NhsNumber: 4317838877,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -222,7 +202,6 @@
   {
     FileName: ,
     NhsNumber: 4349978402,
-    DateResolved: Date_MaxValue,
     RuleId: 49,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Father was executed,
     Category: 11,
@@ -233,7 +212,6 @@
   {
     FileName: ,
     NhsNumber: 4358031722,
-    DateResolved: Date_MaxValue,
     RuleId: 42,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Captain was executed,
     Category: 11,
@@ -244,7 +222,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4371718892,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4371718892,
     RuleId: 58,
     RuleDescription: Missing or invalid Posting,
     Category: 5,
@@ -253,20 +240,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4371718892,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 250. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 4376931209,
-    DateResolved: Date_MaxValue,
     RuleId: 48,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Doctor was executed,
     Category: 11,
@@ -277,9 +252,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4439916619,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 152. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -288,7 +262,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4439916619,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Address is missing,
     Category: 5,
@@ -299,7 +272,6 @@
   {
     FileName: ,
     NhsNumber: 4441859783,
-    DateResolved: Date_MaxValue,
     RuleId: 0,
     RuleDescription: Participant was transformed as transform rule: OtherGenderNot-0-1-2-or-9 was executed,
     Category: 11,
@@ -310,7 +282,6 @@
   {
     FileName: ,
     NhsNumber: 4480073698,
-    DateResolved: Date_MaxValue,
     RuleId: 5,
     RuleDescription: Participant was transformed as transform rule: TruncatePreviousFamilyNameExceedsMaximumLength was executed,
     Category: 11,
@@ -321,7 +292,6 @@
   {
     FileName: ,
     NhsNumber: 4485286320,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -332,7 +302,6 @@
   {
     FileName: ,
     NhsNumber: 4519218543,
-    DateResolved: Date_MaxValue,
     RuleId: 6,
     RuleDescription: Participant was transformed as transform rule: TruncateAddressLine1ExceedsMaximumLength was executed,
     Category: 11,
@@ -343,7 +312,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4527563688,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -352,9 +320,48 @@
     IsFatal: 1
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4540245953,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4540245953,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4540904884,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4540904884,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 4565317079,
-    DateResolved: Date_MaxValue,
     RuleId: 0,
     RuleDescription: Participant was transformed as transform rule: OtherGenderNot-0-1-2-or-9 was executed,
     Category: 11,
@@ -365,7 +372,6 @@
   {
     FileName: ,
     NhsNumber: 4588262750,
-    DateResolved: Date_MaxValue,
     RuleId: 15,
     RuleDescription: Participant was transformed as transform rule: TruncateMobileNumberExceedsMaximumLength was executed,
     Category: 11,
@@ -376,7 +382,6 @@
   {
     FileName: ,
     NhsNumber: 4590839105,
-    DateResolved: Date_MaxValue,
     RuleId: 54,
     RuleDescription: Participant was transformed as transform rule: Name Prefix HisRoyalHighness was executed,
     Category: 11,
@@ -387,7 +392,6 @@
   {
     FileName: ,
     NhsNumber: 4626656854,
-    DateResolved: Date_MaxValue,
     RuleId: 55,
     RuleDescription: Participant was transformed as transform rule: Name Prefix HerRoyalHighness was executed,
     Category: 11,
@@ -398,7 +402,6 @@
   {
     FileName: ,
     NhsNumber: 4634132869,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -409,9 +412,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4640483686,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 74. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -420,7 +422,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4640483686,
-    DateResolved: Date_MaxValue,
     RuleId: 57,
     RuleDescription: Superseded by NHS ID invalid,
     Category: 5,
@@ -429,9 +430,28 @@
     IsFatal: 0
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4641948828,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4641948828,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 4654133208,
-    DateResolved: Date_MaxValue,
     RuleId: 47,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Dr was executed,
     Category: 11,
@@ -442,7 +462,6 @@
   {
     FileName: ,
     NhsNumber: 4713799432,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -453,7 +472,6 @@
   {
     FileName: ,
     NhsNumber: 4721088957,
-    DateResolved: Date_MaxValue,
     RuleId: 77,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Pastor was executed,
     Category: 11,
@@ -464,7 +482,6 @@
   {
     FileName: ,
     NhsNumber: 4754428811,
-    DateResolved: Date_MaxValue,
     RuleId: 9,
     RuleDescription: Participant was transformed as transform rule: TruncateAddressLine4ExceedsMaximumLength was executed,
     Category: 11,
@@ -475,7 +492,6 @@
   {
     FileName: ,
     NhsNumber: 4756201555,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -486,7 +502,6 @@
   {
     FileName: ,
     NhsNumber: 4762369489,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -497,7 +512,6 @@
   {
     FileName: ,
     NhsNumber: 4763152084,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -508,7 +522,6 @@
   {
     FileName: ,
     NhsNumber: 4785346248,
-    DateResolved: Date_MaxValue,
     RuleId: 16,
     RuleDescription: Participant was transformed as transform rule: TruncateEmailAddressExceedsMaximumLength was executed,
     Category: 11,
@@ -519,7 +532,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4785733349,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -530,7 +542,6 @@
   {
     FileName: ,
     NhsNumber: 4788893312,
-    DateResolved: Date_MaxValue,
     RuleId: 46,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Colonel was executed,
     Category: 11,
@@ -541,7 +552,6 @@
   {
     FileName: ,
     NhsNumber: 4795432104,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -552,7 +562,6 @@
   {
     FileName: ,
     NhsNumber: 4817777346,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -563,7 +572,6 @@
   {
     FileName: ,
     NhsNumber: 4824847850,
-    DateResolved: Date_MaxValue,
     RuleId: 68,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Countess was executed,
     Category: 11,
@@ -574,7 +582,6 @@
   {
     FileName: ,
     NhsNumber: 4830473762,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -585,7 +592,6 @@
   {
     FileName: ,
     NhsNumber: 4833653737,
-    DateResolved: Date_MaxValue,
     RuleId: 80,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Sister was executed,
     Category: 11,
@@ -596,9 +602,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4846613461,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 153. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -607,7 +612,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4846613461,
-    DateResolved: Date_MaxValue,
     RuleId: 42,
     RuleDescription: GP practice code invalid,
     Category: 5,
@@ -618,7 +622,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4846613461,
-    DateResolved: Date_MaxValue,
     RuleId: 47,
     RuleDescription: Removal fields incompatible with record type,
     Category: 5,
@@ -629,7 +632,6 @@
   {
     FileName: ,
     NhsNumber: 4849619002,
-    DateResolved: Date_MaxValue,
     RuleId: 72,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Bishop was executed,
     Category: 11,
@@ -640,9 +642,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4859728068,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 238. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -651,7 +652,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4859728068,
-    DateResolved: Date_MaxValue,
     RuleId: 3,
     RuleDescription: GP practice code and Reason for Removal fields contain incompatible values,
     Category: 5,
@@ -662,7 +662,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4859728068,
-    DateResolved: Date_MaxValue,
     RuleId: 42,
     RuleDescription: GP practice code invalid,
     Category: 5,
@@ -673,7 +672,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4894857472,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4894857472,
     RuleId: 58,
     RuleDescription: Missing or invalid Posting,
     Category: 5,
@@ -682,20 +690,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4894857472,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 72. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 4915676684,
-    DateResolved: Date_MaxValue,
     RuleId: 64,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Mister was executed,
     Category: 11,
@@ -706,7 +702,6 @@
   {
     FileName: ,
     NhsNumber: 4916844009,
-    DateResolved: Date_MaxValue,
     RuleId: 74,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Canon was executed,
     Category: 11,
@@ -717,7 +712,6 @@
   {
     FileName: ,
     NhsNumber: 4919286376,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -728,7 +722,6 @@
   {
     FileName: ,
     NhsNumber: 4928685415,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -739,9 +732,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4953508122,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 208. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -750,7 +742,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4953508122,
-    DateResolved: Date_MaxValue,
     RuleId: 42,
     RuleDescription: GP practice code invalid,
     Category: 5,
@@ -761,7 +752,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4953508122,
-    DateResolved: Date_MaxValue,
     RuleId: 47,
     RuleDescription: Removal fields incompatible with record type,
     Category: 5,
@@ -772,7 +762,6 @@
   {
     FileName: ,
     NhsNumber: 4966405114,
-    DateResolved: Date_MaxValue,
     RuleId: 62,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Master was executed,
     Category: 11,
@@ -783,18 +772,36 @@
   {
     FileName: ,
     NhsNumber: 4973178802,
-    DateResolved: Date_MaxValue,
     RuleId: -2147024809,
     RuleDescription: Participant contains illegal characters,
     Category: 5,
-    ScreeningName: ,
+    ScreeningName: Breast Screening,
     CohortName: ,
     IsFatal: 1
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4973180149,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4973180149,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 4983062823,
-    DateResolved: Date_MaxValue,
     RuleId: 40,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Brother was executed,
     Category: 11,
@@ -805,7 +812,6 @@
   {
     FileName: ,
     NhsNumber: 4993678193,
-    DateResolved: Date_MaxValue,
     RuleId: 45,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Cdr was executed,
     Category: 11,
@@ -816,9 +822,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4996223197,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 230. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -827,18 +832,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4996223197,
-    DateResolved: Date_MaxValue,
-    RuleId: 39,
-    RuleDescription: Family Name value missing,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4996223197,
-    DateResolved: Date_MaxValue,
     RuleId: 17,
     RuleDescription: Date of birth invalid,
     Category: 5,
@@ -847,9 +840,18 @@
     IsFatal: 0
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4996223197,
+    RuleId: 39,
+    RuleDescription: Family Name value missing,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 6008255208,
-    DateResolved: Date_MaxValue,
     RuleId: 73,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Rev was executed,
     Category: 11,
@@ -860,9 +862,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 6024256035,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 102. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -871,7 +872,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 6024256035,
-    DateResolved: Date_MaxValue,
     RuleId: 0,
     RuleDescription: Invalid preferred language code,
     Category: 5,
@@ -882,7 +882,6 @@
   {
     FileName: ,
     NhsNumber: 6068896641,
-    DateResolved: Date_MaxValue,
     RuleId: 53,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Judge was executed,
     Category: 11,
@@ -893,7 +892,6 @@
   {
     FileName: ,
     NhsNumber: 6071486483,
-    DateResolved: Date_MaxValue,
     RuleId: 82,
     RuleDescription: Participant was transformed as transform rule: Name Prefix WingCommander was executed,
     Category: 11,
@@ -904,7 +902,6 @@
   {
     FileName: ,
     NhsNumber: 6117641362,
-    DateResolved: Date_MaxValue,
     RuleId: 73,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Viscount was executed,
     Category: 11,
@@ -915,7 +912,6 @@
   {
     FileName: ,
     NhsNumber: 6172960024,
-    DateResolved: Date_MaxValue,
     RuleId: 56,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Baroness was executed,
     Category: 11,
@@ -926,7 +922,6 @@
   {
     FileName: ,
     NhsNumber: 6173409003,
-    DateResolved: Date_MaxValue,
     RuleId: 41,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Br was executed,
     Category: 11,
@@ -937,7 +932,6 @@
   {
     FileName: ,
     NhsNumber: 6311260034,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -948,7 +942,6 @@
   {
     FileName: ,
     NhsNumber: 6408352715,
-    DateResolved: Date_MaxValue,
     RuleId: 50,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Fath was executed,
     Category: 11,
@@ -959,7 +952,6 @@
   {
     FileName: ,
     NhsNumber: 6454675483,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -970,7 +962,6 @@
   {
     FileName: ,
     NhsNumber: 6517100997,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -981,7 +972,6 @@
   {
     FileName: ,
     NhsNumber: 6576181736,
-    DateResolved: Date_MaxValue,
     RuleId: 78,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Rev was executed,
     Category: 11,
@@ -992,7 +982,6 @@
   {
     FileName: ,
     NhsNumber: 6603613638,
-    DateResolved: Date_MaxValue,
     RuleId: 44,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Commander was executed,
     Category: 11,
@@ -1003,7 +992,6 @@
   {
     FileName: ,
     NhsNumber: 6660596933,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -1014,7 +1002,6 @@
   {
     FileName: ,
     NhsNumber: 6670962940,
-    DateResolved: Date_MaxValue,
     RuleId: 69,
     RuleDescription: Participant was transformed as transform rule: Name Prefix RtHon was executed,
     Category: 11,
@@ -1025,7 +1012,6 @@
   {
     FileName: ,
     NhsNumber: 6686015199,
-    DateResolved: Date_MaxValue,
     RuleId: 43,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Capt was executed,
     Category: 11,
@@ -1034,9 +1020,28 @@
     IsFatal: 0
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 6698104361,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 6698104361,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 6731026794,
-    DateResolved: Date_MaxValue,
     RuleId: 4,
     RuleDescription: Participant was transformed as transform rule: TruncateFamilyNameExceedsMaximumLength was executed,
     Category: 11,
@@ -1047,7 +1052,6 @@
   {
     FileName: ,
     NhsNumber: 6766273305,
-    DateResolved: Date_MaxValue,
     RuleId: 60,
     RuleDescription: Participant was transformed as transform rule: Name Prefix LieutenantColonel was executed,
     Category: 11,
@@ -1058,7 +1062,6 @@
   {
     FileName: ,
     NhsNumber: 6780366366,
-    DateResolved: Date_MaxValue,
     RuleId: 75,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Deacon was executed,
     Category: 11,
@@ -1069,7 +1072,6 @@
   {
     FileName: ,
     NhsNumber: 6807750900,
-    DateResolved: Date_MaxValue,
     RuleId: 39,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Brigadier was executed,
     Category: 11,
@@ -1080,9 +1082,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 6827746127,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 237. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -1091,7 +1092,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 6827746127,
-    DateResolved: Date_MaxValue,
     RuleId: 30,
     RuleDescription: Postcode invalid,
     Category: 5,
@@ -1102,7 +1102,6 @@
   {
     FileName: ,
     NhsNumber: 6888699692,
-    DateResolved: Date_MaxValue,
     RuleId: 14,
     RuleDescription: Participant was transformed as transform rule: TruncateTelephoneNumberExceedsMaximumLength was executed,
     Category: 11,
@@ -1113,7 +1112,6 @@
   {
     FileName: ,
     NhsNumber: 6925222785,
-    DateResolved: Date_MaxValue,
     RuleId: 70,
     RuleDescription: Participant was transformed as transform rule: Name Prefix RightRev was executed,
     Category: 11,
@@ -1124,7 +1122,6 @@
   {
     FileName: ,
     NhsNumber: 6958088816,
-    DateResolved: Date_MaxValue,
     RuleId: 59,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Duke was executed,
     Category: 11,
@@ -1135,7 +1132,6 @@
   {
     FileName: ,
     NhsNumber: 6965572868,
-    DateResolved: Date_MaxValue,
     RuleId: 7,
     RuleDescription: Participant was transformed as transform rule: TruncateAddressLine2ExceedsMaximumLength was executed,
     Category: 11,
@@ -1146,7 +1142,6 @@
   {
     FileName: ,
     NhsNumber: 6977828404,
-    DateResolved: Date_MaxValue,
     RuleId: 65,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Mstr was executed,
     Category: 11,
@@ -1157,7 +1152,6 @@
   {
     FileName: ,
     NhsNumber: 6992953516,
-    DateResolved: Date_MaxValue,
     RuleId: 63,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Mast was executed,
     Category: 11,
@@ -1168,7 +1162,6 @@
   {
     FileName: ,
     NhsNumber: 7023256555,
-    DateResolved: Date_MaxValue,
     RuleId: 0,
     RuleDescription: Participant was transformed as transform rule: OtherInvalidFlagTrueAndNoPrimaryCareProvider was executed,
     Category: 11,
@@ -1179,7 +1172,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7093375219,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -1190,7 +1182,6 @@
   {
     FileName: ,
     NhsNumber: 7157970317,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: Name Prefix RtRev was executed,
     Category: 11,
@@ -1201,9 +1192,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7218241239,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 171. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -1212,7 +1202,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7218241239,
-    DateResolved: Date_MaxValue,
     RuleId: 40,
     RuleDescription: First Name value missing,
     Category: 5,
@@ -1223,7 +1212,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7250974637,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7250974637,
     RuleId: 94,
     RuleDescription: Invalid eligibility flag.,
     Category: 5,
@@ -1232,20 +1230,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7250974637,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 141. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 7261316709,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -1256,9 +1242,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7277090411,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 183. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -1267,7 +1252,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7277090411,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Address is missing,
     Category: 5,
@@ -1278,7 +1262,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7290320794,
-    DateResolved: Date_MaxValue,
     RuleId: 0,
     RuleDescription: RecordType was not set to an expected value,
     Category: 10,
@@ -1289,7 +1272,6 @@
   {
     FileName: ,
     NhsNumber: 7322271416,
-    DateResolved: Date_MaxValue,
     RuleId: 76,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Mosignor was executed,
     Category: 11,
@@ -1299,8 +1281,27 @@
   },
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7334425197,
+    RuleId: 0,
+    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7334425197,
+    RuleId: 54,
+    RuleDescription: ValidateBsoCode,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7335805996,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -1311,7 +1312,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7341694319,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7341694319,
     RuleId: 17,
     RuleDescription: Date of birth invalid,
     Category: 5,
@@ -1321,19 +1331,27 @@
   },
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7341694319,
-    DateResolved: Date_MaxValue,
+    NhsNumber: 7352230343,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 105. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
     IsFatal: 1
   },
   {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7352230343,
+    RuleId: 53,
+    RuleDescription: Current posting and Primary Care provider contain incompatible values,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
     FileName: ,
     NhsNumber: 7407937982,
-    DateResolved: Date_MaxValue,
     RuleId: 57,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Baron was executed,
     Category: 11,
@@ -1344,9 +1362,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7435645613,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 137. Has an Exception against it,
+    RuleDescription: ,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -1355,7 +1372,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7435645613,
-    DateResolved: Date_MaxValue,
     RuleId: 39,
     RuleDescription: Family Name value missing,
     Category: 5,
@@ -1366,7 +1382,6 @@
   {
     FileName: ,
     NhsNumber: 7565570672,
-    DateResolved: Date_MaxValue,
     RuleId: 58,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Duchess was executed,
     Category: 11,
@@ -1377,7 +1392,6 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7635643460,
-    DateResolved: Date_MaxValue,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     Category: 5,
@@ -1388,7 +1402,6 @@
   {
     FileName: ,
     NhsNumber: 7700521131,
-    DateResolved: Date_MaxValue,
     RuleId: 79,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Sqn was executed,
     Category: 11,
@@ -1399,7 +1412,6 @@
   {
     FileName: ,
     NhsNumber: 7725558284,
-    DateResolved: Date_MaxValue,
     RuleId: 67,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Count was executed,
     Category: 11,
@@ -1410,7 +1422,6 @@
   {
     FileName: ,
     NhsNumber: 7739357464,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -1421,7 +1432,6 @@
   {
     FileName: ,
     NhsNumber: 7742678500,
-    DateResolved: Date_MaxValue,
     RuleId: 8,
     RuleDescription: Participant was transformed as transform rule: TruncateAddressLine3ExceedsMaximumLength was executed,
     Category: 11,
@@ -1432,7 +1442,6 @@
   {
     FileName: ,
     NhsNumber: 7743886263,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -1443,7 +1452,6 @@
   {
     FileName: ,
     NhsNumber: 7753031732,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -1454,7 +1462,6 @@
   {
     FileName: ,
     NhsNumber: 7757247756,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -1465,7 +1472,6 @@
   {
     FileName: ,
     NhsNumber: 7786827242,
-    DateResolved: Date_MaxValue,
     RuleId: 38,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Admiral was executed,
     Category: 11,
@@ -1476,7 +1482,6 @@
   {
     FileName: ,
     NhsNumber: 7830066019,
-    DateResolved: Date_MaxValue,
     RuleId: 83,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
     Category: 11,
@@ -1487,7 +1492,6 @@
   {
     FileName: ,
     NhsNumber: 7962691417,
-    DateResolved: Date_MaxValue,
     RuleId: 71,
     RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
     Category: 11,
@@ -1498,7 +1502,16 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7983060459,
-    DateResolved: Date_MaxValue,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7983060459,
     RuleId: 57,
     RuleDescription: Superseded by NHS ID invalid,
     Category: 5,
@@ -1507,20 +1520,8 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7983060459,
-    DateResolved: Date_MaxValue,
-    RuleId: -2146233088,
-    RuleDescription: Unable to add to cohort distribution. As participant with ParticipantId: 77. Has an Exception against it,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
     FileName: ,
     NhsNumber: 7987052582,
-    DateResolved: Date_MaxValue,
     RuleId: 66,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Prof was executed,
     Category: 11,
@@ -1531,7 +1532,6 @@
   {
     FileName: ,
     NhsNumber: 7998836458,
-    DateResolved: Date_MaxValue,
     RuleId: 51,
     RuleDescription: Participant was transformed as transform rule: Name Prefix General was executed,
     Category: 11,

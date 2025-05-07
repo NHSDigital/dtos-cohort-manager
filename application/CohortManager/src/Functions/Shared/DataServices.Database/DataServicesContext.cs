@@ -15,6 +15,7 @@ public class DataServicesContext : DbContext
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
     public DbSet<ParticipantManagement> ParticipantManagements {get;set;}
     public DbSet<CohortDistribution> CohortDistributions {get;set;}
+    public DbSet<ParticipantDemographic> ParticipantDemographics {get; set;}
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
