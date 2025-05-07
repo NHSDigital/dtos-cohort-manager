@@ -98,6 +98,13 @@ public class BlockParticipantTests
         var response = await _sut.Run(request.Object);
         
         // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<NullReferenceException>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once);
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -124,6 +131,13 @@ public class BlockParticipantTests
         var response = await _sut.Run(request.Object);
         
         // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<Exception>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
@@ -151,6 +165,13 @@ public class BlockParticipantTests
         var response = await _sut.Run(request.Object);
 
         // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<Exception>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
@@ -176,6 +197,13 @@ public class BlockParticipantTests
         var response = await _sut.Run(request.Object);
 
         // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<NullReferenceException>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once);
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -198,6 +226,13 @@ public class BlockParticipantTests
         var response = await _sut.Run(request.Object);
 
         // Assert
+        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
+            It.IsAny<Exception>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<string>()),
+            Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 }
