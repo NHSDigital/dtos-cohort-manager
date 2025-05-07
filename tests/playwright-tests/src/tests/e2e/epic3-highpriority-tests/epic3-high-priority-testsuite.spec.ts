@@ -7,7 +7,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   TestHooks.setupAddTestHooks();
 
-  test.only('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
+  test('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
