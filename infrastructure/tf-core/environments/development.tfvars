@@ -173,7 +173,7 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
+          capacity_max = "1"
           capacity_def = "2"
 
           inc_threshold   = 5
