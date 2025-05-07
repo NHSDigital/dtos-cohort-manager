@@ -7,7 +7,12 @@ function getToday(): string {
 }
 
 test.describe('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic', () => {
-  test('should apply correct transformations when invalidFlag is true', async ({ request, testData }) => {
+  test('should apply correct transformations when invalidFlag is true', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
+    },
+  }, async ({ request, testData }) => {
     const validations = testData.checkInDatabase;
     const nhsNumbers = testData.nhsNumbers;
 
