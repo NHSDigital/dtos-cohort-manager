@@ -42,7 +42,7 @@ note: when running in azure these values will be stored in key vault.
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
         "MeshApiBaseUrl" : "https://localhost:8700/messageexchange",
         "BSSMailBox": "X26ABC1",
-        "caasfolder_STORAGE":"UseDevelopmentStorage=true",
+        "nemsmeshfolder_STORAGE":"UseDevelopmentStorage=true",
         "MeshPassword": "password",
         "MeshSharedKey": "TestKey",
         "MeshKeyPassphrase":"test123"

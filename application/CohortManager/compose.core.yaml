@@ -23,6 +23,25 @@ services:
       - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7059
 
+  nems-mesh-retrieval:
+    container_name: nems-mesh-retrieval
+    image: cohort-manager-nems-mesh-retrieval
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - BSSMailBox=X26ABC1
+      - MeshPassword=${MESHPASSWORD}
+      - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyName=meshpfx.pfx
+      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - ASPNETCORE_URLS=http://*:7058
+
   receive-caas-file:
     container_name: receive-caas-file
     image: cohort-manager-receive-caas-file

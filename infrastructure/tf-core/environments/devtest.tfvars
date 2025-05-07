@@ -1209,7 +1209,7 @@ function_apps = {
       function_endpoint_name       = "NemsMeshRetrieval"
       app_service_plan_key         = "NemsMeshRetrieval"
       key_vault_url                = "KeyVaultConnectionString"
-      storage_account_env_var_name = "caasfolder_STORAGE"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"

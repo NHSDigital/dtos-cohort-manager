@@ -33,7 +33,7 @@ public class NemsMeshRetrieval
         _blobStorageHelper = blobStorageHelper;
         _mailboxId = options.Value.BSSMailBox;
         _config = options.Value;
-        _blobConnectionString = _config.caasfolder_STORAGE;
+        _blobConnectionString = _config.nemsmeshfolder_STORAGE;
     }
     /// <summary>
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.

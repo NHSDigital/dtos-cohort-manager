@@ -32,7 +32,7 @@ public class NemsMeshRetrievalTests
         var testConfig = new NemsMeshRetrievalConfig
         {
             BSSMailBox = mailboxId,
-            caasfolder_STORAGE = "BlobStorage_ConnectionString",
+            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
             MeshPassword = "MeshPassword",
             MeshSharedKey = "MeshSharedKey",
             MeshKeyPassphrase = "MeshKeyPassphrase",
