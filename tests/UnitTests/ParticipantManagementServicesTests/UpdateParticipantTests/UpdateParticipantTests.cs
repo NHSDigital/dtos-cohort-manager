@@ -1,16 +1,12 @@
 namespace NHS.CohortManager.Tests.UnitTests.ParticipantManagementServiceTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using NHS.CohortManager.Tests.TestUtils;
 using updateParticipant;
-using RulesEngine.Models;
 using Microsoft.Extensions.Options;
 using NHS.Screening.UpdateParticipant;
 
@@ -18,21 +14,14 @@ using NHS.Screening.UpdateParticipant;
 public class UpdateParticipantTests
 {
     private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
-    private readonly Mock<ILogger<CohortDistributionHandler>> _cohortDistributionLogger = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<HttpWebResponse> _webResponse = new();
-    private readonly Mock<HttpWebResponse> _webResponseSuccess = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
-    private readonly CreateParticipant _createParticipant = new();
-    private readonly Mock<HttpWebResponse> _validationWebResponse = new();
-    private readonly Mock<HttpWebResponse> _updateParticipantWebResponse = new();
+    private readonly Mock<CreateParticipant> _createParticipant = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private readonly ICohortDistributionHandler _cohortDistributionHandler;
-    private readonly SetupRequest _setupRequest = new();
+    private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
-    private Mock<HttpRequestData> _request;
-    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
     private readonly Mock<IOptions<UpdateParticipantConfig>> _config = new();
+    private readonly UpdateParticipantFunction _sut;
 
     public UpdateParticipantTests()
     {
@@ -47,15 +36,6 @@ public class UpdateParticipantTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _cohortDistributionHandler = new CohortDistributionHandler(_cohortDistributionLogger.Object, _azureQueueStorageHelper.Object);
-
-        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(new ValidationExceptionLog()
-            {
-                IsFatal = true,
-                CreatedException = true
-            })).Verifiable();
-
         _participantCsvRecord = new ParticipantCsvRecord
         {
             FileName = "test.csv",
@@ -64,343 +44,164 @@ public class UpdateParticipantTests
                 NhsNumber = "1",
             }
         };
+
+        _sut = new UpdateParticipantFunction(
+            _logger.Object,
+            _httpClientFunction.Object,
+            _checkDemographic.Object,
+            _createParticipant.Object,
+            _handleException.Object,
+            _cohortDistributionHandler.Object,
+            _config.Object
+        );
+
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .ReturnsAsync(new Demographic());
+
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
+            .ReturnsAsync(JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
     }
 
     [TestMethod]
     public async Task Run_ParticipantValidationFails_LogsExceptionRaised()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        _request = _setupRequest.Setup(json);
-
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
-        _webResponseSuccess.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
-
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-                .Returns(Task.FromResult<HttpWebResponse>(_webResponseSuccess.Object));
-
-        _checkDemographic.Setup(call => call.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-                        .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        })));
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
         // Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("The participant has been updated but a validation Exception was raised")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant has been updated but a validation Exception was raised")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
 
-        _callFunction.Verify(call => call.SendPost(It.Is<string>(s => s == "UpdateParticipant"), It.IsAny<string>()), Times.Once());
+        _httpClientFunction.Verify(x => x.SendPost(
+            It.Is<string>(s => s == "UpdateParticipant"),
+            It.IsAny<string>()),
+        Times.Once());
     }
 
     [TestMethod]
     public async Task Run_ParticipantIneligibleAndUpdateSuccessful_ParticipantUpdated()
     {
-        // Arrange
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(json));
-
-        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-            .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        })));
-
-        _request = _setupRequest.Setup(json);
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
-
         // Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-
-
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Participant updated.")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant updated.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.AtLeastOnce);
     }
 
     [TestMethod]
     public async Task Run_ParticipantUpdateFails_LogsParticipantFailed()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
-        _request = _setupRequest.Setup(json);
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _updateParticipantWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.BadRequest);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
             .ThrowsAsync(new Exception("some new exception"));
 
-
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        })));
-
-        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-        .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
-
         // Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Error,
-                0,
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ), Times.AtLeastOnce(), "Unsuccessfully updated records");
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Unsuccessfully updated records")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
     }
 
     [TestMethod]
     public async Task Run_ParticipantUpdateThrowsException_ParticipantFailed()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        _request = _setupRequest.Setup(json);
-
-        _validationWebResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s == "StaticValidationURL"), json))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        _updateParticipantWebResponse.Setup(x => x.StatusCode).Throws(new Exception("an error occurred"));
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-                        .Returns(Task.FromResult<HttpWebResponse>(_updateParticipantWebResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_validationWebResponse.Object));
-
-        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-                        .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("some new exception"));
 
         // Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.IsAny<It.IsAnyType>(),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ), Times.AtLeastOnce(), "Update participant failed");
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Update participant failed")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.AtLeastOnce);
     }
 
     [TestMethod]
     public async Task Run_DemographicDataIsNull_DemographicFunctionFailed()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        _request = _setupRequest.Setup(json);
+        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
+            .Returns(Task.FromResult<Demographic>(null));
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
-                                                
         //Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("demographic function failed")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("demographic function failed")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
     }
 
     [TestMethod]
     public async Task Run_ParticipantEligibleAndUpdateSuccessful_ParticipantUpdated()
     {
+        // Arrange
         _participantCsvRecord.Participant.NhsNumber = "9727890016";
         _participantCsvRecord.Participant.ScreeningName = "BSS";
-        // Arrange
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
 
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("UpdateParticipant")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("StaticValidationURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("CohortDistributionServiceURL")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("DSmarkParticipantAsEligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(call => call.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .Returns(Task.FromResult<HttpWebResponse>(_webResponse.Object));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(json));
-
-        _checkDemographic.Setup(x => x.GetDemographicAsync(It.IsAny<string>(), It.Is<string>(s => s.Contains("DemographicURIGet"))))
-            .Returns(Task.FromResult<Demographic>(new Demographic()));
-
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
-        JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        })));
-
-        _request = _setupRequest.Setup(json);
-
-        var sut = new UpdateParticipantFunction(_logger.Object, 
-                                                _callFunction.Object, 
-                                                _checkDemographic.Object, 
-                                                _createParticipant, 
-                                                _handleException.Object, 
-                                                _cohortDistributionHandler,
-                                                _config.Object);
-                                                
         // Act
-        await sut.Run(json);
+        await _sut.Run(JsonSerializer.Serialize(_participantCsvRecord));
 
         // Assert
-
-        _logger.Verify(log =>
-            log.Log(
-                LogLevel.Information,
-                0,
-                It.Is<It.IsAnyType>((state, type) => state.ToString().Contains("Participant updated.")),
-                null,
-                (Func<object, Exception, string>)It.IsAny<object>()
-            ));
+        _logger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant updated.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.AtLeastOnce);
     }
 }
