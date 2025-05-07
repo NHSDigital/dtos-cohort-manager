@@ -5,113 +5,117 @@ using Moq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Azure.Data.Tables;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Logging;
 using Model;
 using Common;
 using System.IO;
 using System.Threading.Tasks;
 using NHS.Screening.NEMSUnSubscription;
+using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Options;
-using TestUtils;
 
 [TestClass]
-public class NEMSUnSubscriptionTests
-{
-    private Mock<ILogger<NEMSUnSubscription>> _loggerMock;
-    private FunctionContext _context;
-    private UnsubscriptionRequest _mockRequest;
-    private HttpResponseData _response;
-    private HttpRequestData _request;
-
-    [TestInitialize]
-    public void Setup()
+    public class NEMSUnSubscriptionTests : DatabaseTestBaseSetup<NEMSUnSubscription>
     {
-        _loggerMock = new Mock<ILogger<NEMSUnSubscription>>();
-        _context = CreateMockFunctionContext(_loggerMock.Object);
+        private Mock<INemsSubscriptionService> _nemsSubscriptionServiceMock;
+        private Mock<ICreateResponse> _createResponseMock;
+        private Mock<ICallFunction> _callFunctionMock;
 
-        _mockRequest = new UnsubscriptionRequest { NhsNumber = "1234567890" };
-        string json = JsonSerializer.Serialize(_mockRequest);
-        var bodyStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        private HttpRequestData _request;
+        private HttpResponseData _response;
+        private static IHttpClientFactory CreateHttpClientFactory()
+        {
+            var mockFactory = new Mock<IHttpClientFactory>();
+            mockFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
+            return mockFactory.Object;
+        }
 
-        _response = new MockNEMSHttpResponseData(_context, HttpStatusCode.OK);
-        _request = new MockNEMSHttpRequestData(_context, bodyStream, _response);
-    }
-
-    private FunctionContext CreateMockFunctionContext(ILogger logger)
-    {
-        var loggerFactory = new Mock<ILoggerFactory>();
-        loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger);
-
-        var services = new Mock<IServiceProvider>();
-        services.Setup(x => x.GetService(typeof(ILoggerFactory))).Returns(loggerFactory.Object);
-
-        var context = new Mock<FunctionContext>();
-        context.Setup(x => x.InstanceServices).Returns(services.Object);
-        return context.Object;
-    }
-
-    [TestMethod]
-    public async Task Run_ReturnsBadRequest_WhenRequestIsEmpty()
-    {
-        var emptyRequest = new MockNEMSHttpRequestData(
-            _context,
-            new MemoryStream(),
-            new MockNEMSHttpResponseData(_context, HttpStatusCode.BadRequest));
-
-        var func = CreateFunction();
-
-        var result = await func.Run(emptyRequest, _context);
-
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_ReturnsNotFound_WhenSubscriptionIdIsNull()
-    {
-        var nemsSubscriptionServiceMock = new Mock<INemsSubscriptionService>();
-        nemsSubscriptionServiceMock
-            .Setup(s => s.LookupSubscriptionIdAsync(It.IsAny<string>()))
-            .ReturnsAsync((string?)null);
-
-        var func = CreateFunction(nemsSubscriptionServiceMock.Object);
-
-        var result = await func.Run(_request, _context);
-
-        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_ReturnsOk_WhenUnsubscribedSuccessfully()
-    {
-        var nemsSubscriptionServiceMock = new Mock<INemsSubscriptionService>();
-        nemsSubscriptionServiceMock.Setup(s => s.LookupSubscriptionIdAsync(It.IsAny<string>())).ReturnsAsync("abc-123");
-        nemsSubscriptionServiceMock.Setup(s => s.DeleteSubscriptionFromNems("abc-123")).ReturnsAsync(true);
-        nemsSubscriptionServiceMock.Setup(s => s.DeleteSubscriptionFromTableAsync(It.IsAny<string>())).ReturnsAsync(true);
-
-        var func = CreateFunction(nemsSubscriptionServiceMock.Object);
-
-        var result = await func.Run(_request, _context);
-
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
-
- private NEMSUnSubscription CreateFunction(INemsSubscriptionService? nemsService = null)
-{
-    var optionsMock = new Mock<IOptions<NEMSUnSubscriptionConfig>>();
-    var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-    httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient());
-
-    return new NEMSUnSubscription(
-        _loggerMock.Object,
-        httpClientFactoryMock.Object,
-        new Mock<IExceptionHandler>().Object,
-        new CreateResponse(),
-        optionsMock.Object,
-        new Mock<ICallFunction>().Object,
-        nemsService ?? new Mock<INemsSubscriptionService>().Object
-    );
+        private NEMSUnSubscription CreateFunction(INemsSubscriptionService nemsService)
+        {
+            return new NEMSUnSubscription(
+                _loggerMock.Object,
+                CreateHttpClientFactory(),
+                new Mock<IExceptionHandler>().Object,
+                _createResponseMock.Object,
+                Options.Create(new NEMSUnSubscriptionConfig
+                {
+                    NemsDeleteEndpoint = "http://localhost/delete"
+                }),
+                _callFunctionMock.Object,
+                nemsService
+            );
 }
-}
+
+        public NEMSUnSubscriptionTests() : base(
+            (connection,  logger, transaction, command, createResponse) =>
+                new NEMSUnSubscription(
+                    logger, // ✅ Correct type: ILogger<NEMSUnSubscription>
+                    CreateHttpClientFactory(),
+                    new Mock<IExceptionHandler>().Object,
+                    createResponse, // ✅ Correct type: ICreateResponse
+                    Options.Create(new NEMSUnSubscriptionConfig
+                    {
+                        NemsDeleteEndpoint = "http://localhost/delete"
+                    }),
+                    new Mock<ICallFunction>().Object,
+                    new Mock<INemsSubscriptionService>().Object
+                )
+        )
+        { }
+
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _nemsSubscriptionServiceMock = new Mock<INemsSubscriptionService>();
+            _createResponseMock = CreateHttpResponseMock();
+            _callFunctionMock = new Mock<ICallFunction>();
+
+            var requestBody = JsonSerializer.Serialize(new UnsubscriptionRequest { NhsNumber = "1234567890" });
+            _request = SetupRequest(requestBody).Object;
+        }
+
+        [TestMethod]
+        public async Task Run_ReturnsBadRequest_WhenRequestIsEmpty()
+        {
+            var request = SetupRequest(string.Empty).Object;
+
+            var func = CreateFunction(_nemsSubscriptionServiceMock.Object);
+
+            var result = await func.Run(request, _context.Object);
+
+            Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task Run_ReturnsNotFound_WhenSubscriptionIdIsNull()
+        {
+            _nemsSubscriptionServiceMock.Setup(s => s.LookupSubscriptionIdAsync(It.IsAny<string>()))
+                .ReturnsAsync((string?)null);
+
+            var func = CreateFunction(_nemsSubscriptionServiceMock.Object);
+
+            var result = await func.Run(_request, _context.Object);
+
+            Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        }
+
+        [TestMethod]
+        public async Task Run_ReturnsOk_WhenUnsubscribedSuccessfully()
+        {
+            _nemsSubscriptionServiceMock.Setup(s => s.LookupSubscriptionIdAsync(It.IsAny<string>()))
+                .ReturnsAsync("abc-123");
+
+            _nemsSubscriptionServiceMock.Setup(s => s.DeleteSubscriptionFromNems("abc-123"))
+                .ReturnsAsync(true);
+
+            _nemsSubscriptionServiceMock.Setup(s => s.DeleteSubscriptionFromTableAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            var func = CreateFunction(_nemsSubscriptionServiceMock.Object);
+
+            var result = await func.Run(_request, _context.Object);
+
+            Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        }
+    }
