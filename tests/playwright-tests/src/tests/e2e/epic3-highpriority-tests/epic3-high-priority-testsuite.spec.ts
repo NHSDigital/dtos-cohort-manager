@@ -1,33 +1,29 @@
-import { test, expect } from '../../fixtures/test-fixtures';
-import { cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from "../../steps/steps";
+import { test } from '../../fixtures/test-fixtures';
+import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 
-function getToday(): string {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
-}
 
-test.describe('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic', () => {
-  test('should apply correct transformations when invalidFlag is true', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
-    },
-  }, async ({ request, testData }) => {
-    const validations = testData.checkInDatabase;
-    const nhsNumbers = testData.nhsNumbers;
+test.only('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
+  tag: ['@regression @e2e', '@epic3-high-priority'],
+  annotation: {
+    type: 'Requirement',
+    description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
+  },
+}, async ({ request, testData }) => {
 
-    await cleanupDatabaseFromAPI(request, nhsNumbers);
+  await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+  await processFileViaStorage(testData.runTimeParquetFile);
 
-    await validateSqlDatabaseFromAPI(request, validations);
+  let checkInDatabaseRunTime = testData.checkInDatabase;
 
-    const record = validations.find((v: { validations: { NHSNumber: string } }) =>
-      v.validations.NHSNumber === "9991234567"
-    )?.validations;
-
-    expect(record).toBeTruthy();
-
-    expect(record!.PrimaryCareProvider).toBeNull();
-    expect(record!.ReasonForRemoval).toBe("ORR");
-    expect(record!.ReasonForRemovalBusinessEffectiveDate).toBe(getToday());
+  checkInDatabaseRunTime = checkInDatabaseRunTime.map((record: any) => {
+    if (record.validations.ReasonForRemovalDate ) {
+      record.validations.ReasonForRemovalDate  = new Date().toISOString().split("T")[0] + "T00:00:00";
+    }
+    return record;
   });
+
+  await validateSqlDatabaseFromAPI(request, checkInDatabaseRunTime);
+
+
 });
+
