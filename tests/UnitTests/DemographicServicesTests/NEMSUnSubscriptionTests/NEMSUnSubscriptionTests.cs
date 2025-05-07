@@ -39,7 +39,7 @@ using Microsoft.Extensions.Options;
                 _createResponseMock.Object,
                 Options.Create(new NEMSUnSubscriptionConfig
                 {
-                    NemsDeleteEndpoint = "http://localhost/delete"
+                    NemsDeleteEndpoint = "http://localhost/delete"  //WIP , would change once we get the actual endpoints
                 }),
                 _callFunctionMock.Object,
                 nemsService
@@ -49,13 +49,13 @@ using Microsoft.Extensions.Options;
         public NEMSUnSubscriptionTests() : base(
             (connection,  logger, transaction, command, createResponse) =>
                 new NEMSUnSubscription(
-                    logger, // ✅ Correct type: ILogger<NEMSUnSubscription>
+                    logger,
                     CreateHttpClientFactory(),
                     new Mock<IExceptionHandler>().Object,
-                    createResponse, // ✅ Correct type: ICreateResponse
+                    createResponse,
                     Options.Create(new NEMSUnSubscriptionConfig
                     {
-                        NemsDeleteEndpoint = "http://localhost/delete"
+                        NemsDeleteEndpoint = "http://localhost/delete" //WIP , would change once we get the actual endpoints
                     }),
                     new Mock<ICallFunction>().Object,
                     new Mock<INemsSubscriptionService>().Object
