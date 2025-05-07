@@ -2,7 +2,13 @@ import { test, expect } from '../../fixtures/test-fixtures'
 import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { filterUsing3PointCheck, getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
-test.fail('@DTOSS-7689-01 @insprint @epic4b Test to Verify that the participant should be deleted data from Cohort Manager when that participant has been marked as blocked and there is a request to delete their data by locating their breast screening specific records in cohort distribution using their NHS ID, Date of Birth and last name (3 point check).', async ({ request, testData }) => {
+test('@DTOSS-7689-01 @insprint @epic4b Test to Verify that the participant should be deleted data from Cohort Manager when that participant has been marked as blocked and there is a request to delete their data by locating their breast screening specific records in cohort distribution using their NHS ID, Date of Birth and last name (3 point check).', {
+  tag: ['@Req-DTOSS-3890', '@Risk-DTOSS-8301'],
+  annotation: [
+    { type: 'Requirement', description: 'Tests - Delete Historical Breast Screening Data for Blocked Participants - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3890' },
+    { type: 'Risk', description: 'Assures - Risk of Deleting Incorrect Participant - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-8301' },
+  ],
+}, async ({ request, testData }) => {
 
   await test.step('Given I have a participant that has been marked as blocked AND I have a request to delete their data', async () => {
     await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
@@ -28,6 +34,8 @@ test.fail('@DTOSS-7689-01 @insprint @epic4b Test to Verify that the participant 
     const records = await getRecordsFromCohortDistributionService(request);
     const filteredRecords = await filterUsing3PointCheck(records, testData.inputParticipantRecord);
     expect(filteredRecords).toHaveLength(0);
+    console.info(`Fail this test on purpose to demo traceability of user story to test execution in JIRA`)
+    expect(100).toBe(99);
 
 
   });
@@ -35,7 +43,9 @@ test.fail('@DTOSS-7689-01 @insprint @epic4b Test to Verify that the participant 
 });
 
 
-test('@DTOSS-7689-02 @insprint @epic4b Test to Verify that the participant should be deleted data from Cohort Manager when that participant has been marked as blocked and there is a request to delete their data by locating their breast screening specific records in cohort distribution using their NHS ID, Date of Birth and last name (3 point check).', async ({ request, testData }) => {
+test('@DTOSS-7689-02 @insprint @epic4b Test to Verify that the participant should be deleted data from Cohort Manager when that participant has been marked as blocked and there is a request to delete their data by locating their breast screening specific records in cohort distribution using their NHS ID, Date of Birth and last name (3 point check).', {
+  tag: ['@Req-DTOSS-3890', '@Risk-DTOSS-8301'],
+}, async ({ request, testData }) => {
 
   await test.step('Given that I am deleting a participants data from Cohort distribution', async () => {
     // ... Add steps; check existing or add new
