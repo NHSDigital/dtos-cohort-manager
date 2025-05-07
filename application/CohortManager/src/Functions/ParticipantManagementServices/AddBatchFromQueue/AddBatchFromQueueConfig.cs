@@ -1,9 +1,21 @@
-namespace NHS.Screening.DemographicDurableFunction;
+namespace AddBatchFromQueue;
 
 using System.ComponentModel.DataAnnotations;
 
-public class DurableAddFunctionConfig
+public class AddBatchFromQueueConfig
 {
+    [Required]
+    public string DtOsDatabaseConnectionString { get; set; }
+
+    [Required]
+    public string LookupValidationURL { get; set; }
+
+    [Required]
+    public string ExceptionFunctionURL { get; set; }
+
+    [Required]
+    public string ParticipantManagementUrl { get; set; }
+
     [Required]
     public string QueueName { get; set; }
 

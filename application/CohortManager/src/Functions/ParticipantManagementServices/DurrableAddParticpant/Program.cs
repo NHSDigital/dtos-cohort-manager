@@ -1,4 +1,5 @@
 using Common;
+using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NHS.Screening.DemographicDurableFunction;
@@ -10,6 +11,10 @@ var host = new HostBuilder()
     {
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
         services.AddSingleton<IQueueClientFactory, QueueClientFactory>();
+        services.AddSingleton<ICheckDemographic, CheckDemographic>();
+        services.AddSingleton<ICreateParticipant, ICreateParticipant>();
+        services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
+        services.AddSingleton<IExceptionHandler, ExceptionHandler>();
         // Register health checks
     })
     .AddAzureQueues()

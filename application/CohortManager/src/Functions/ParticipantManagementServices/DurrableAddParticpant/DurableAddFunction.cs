@@ -20,7 +20,11 @@ public class DurableAddFunction
 
     private readonly ILogger<DurableAddFunction> _logger;
 
-    public DurableAddFunction(IOptions<DurableAddFunctionConfig> config, IAzureQueueStorageHelper azureQueueStorageHelper, ILogger<DurableAddFunction> logger)
+    public DurableAddFunction(
+        IOptions<DurableAddFunctionConfig> config,
+        IAzureQueueStorageHelper azureQueueStorageHelper,
+        ILogger<DurableAddFunction> logger
+        )
     {
         _azureQueueStorageHelper = azureQueueStorageHelper;
         _config = config.Value;

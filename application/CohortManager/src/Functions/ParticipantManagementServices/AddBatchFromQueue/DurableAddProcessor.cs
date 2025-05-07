@@ -1,57 +1,47 @@
-/// <summary>
-/// Takes a participant from the queue, gets data from the demographic service,
-/// validates the participant, then calls create participant, mark as eligible, and create cohort distribution
-/// </summary>
-
-namespace addParticipant;
+namespace AddBatchFromQueue;
 
 using System.Net;
 using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using Common;
-using Model;
-using NHS.Screening.AddParticipant;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Model;
 
-public class AddParticipantFunction
+public class DurableAddProcessor : IDurableAddProcessor
 {
-    private readonly ILogger<AddParticipantFunction> _logger;
-    private readonly ICallFunction _callFunction;
-    private readonly ICreateResponse _createResponse;
-    private readonly ICheckDemographic _getDemographicData; 
+    private readonly ILogger<DurableAddProcessor> _logger;
+    private readonly ICheckDemographic _getDemographicData;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
-    private readonly ICohortDistributionHandler _cohortDistributionHandler;
-    private readonly AddParticipantConfig _config;
+    private readonly ICallFunction _callFunction;
+    private readonly AddBatchFromQueueConfig _config;
 
-    public AddParticipantFunction(
-        ILogger<AddParticipantFunction> logger, 
-        ICallFunction callFunction, 
-        ICreateResponse createResponse, 
-        ICheckDemographic checkDemographic, 
-        ICreateParticipant createParticipant, 
-        IExceptionHandler handleException, 
-        ICohortDistributionHandler cohortDistributionHandler,
-        IOptions<AddParticipantConfig> addParticipantConfig
+
+    public DurableAddProcessor(
+      IOptions<AddBatchFromQueueConfig> config,
+        ILogger<DurableAddProcessor> logger,
+        ICheckDemographic checkDemographic,
+        ICreateParticipant createParticipant,
+        IExceptionHandler handleException,
+        ICallFunction callFunction
         )
     {
         _logger = logger;
-        _callFunction = callFunction;
-        _createResponse = createResponse;
         _getDemographicData = checkDemographic;
         _createParticipant = createParticipant;
         _handleException = handleException;
-        _cohortDistributionHandler = cohortDistributionHandler;
-        _config = addParticipantConfig.Value;
+        _callFunction = callFunction;
+        _config = config.Value;
     }
 
-    [Function(nameof(AddParticipantFunction))]
-    public async Task Run([QueueTrigger("%AddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
+    /// <summary>
+    /// process a single record 
+    /// </summary>
+    /// <param name="jsonFromQueue"></param>
+    /// <returns></returns>
+    public async Task<ParticipantCsvRecord?> ProcessAddRecord(string jsonFromQueue)
     {
-        _logger.LogInformation("C# addParticipant called.");
-        HttpWebResponse createResponse, eligibleResponse;
-
+        HttpWebResponse createResponse;
         var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
 
         try
@@ -62,7 +52,7 @@ public class AddParticipantFunction
             {
                 _logger.LogInformation("demographic function failed");
                 await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
+                return null;
             }
 
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
@@ -80,7 +70,7 @@ public class AddParticipantFunction
             {
                 _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
                 await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
+                return null;
             }
 
             if (response.CreatedException)
@@ -97,36 +87,22 @@ public class AddParticipantFunction
             {
                 _logger.LogError("There was problem posting the participant to the database");
                 await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
+                return null;
 
             }
-            _logger.LogInformation("Participant created");
-
-            // Mark participant as eligible
+            participant.EligibilityFlag = "1";
             var participantJson = JsonSerializer.Serialize(participant);
-            eligibleResponse = await _callFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
 
-            if (eligibleResponse.StatusCode != HttpStatusCode.OK)
-            {
-                await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
-            }
-            _logger.LogInformation("Participant created, marked as eligible at {Datetime}", DateTime.UtcNow);
+            participantCsvRecord.Participant = participant;
 
-            // Send to cohort distribution
-            var cohortDistResponse = await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant);
-            if (!cohortDistResponse)
-            {
-                _logger.LogError("Participant failed to send to Cohort Distribution Service");
-                await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
-            }
-
+            _logger.LogInformation("Participant ready for creation");
+            return participantCsvRecord;
         }
         catch (Exception ex)
         {
             _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            return null;
         }
     }
 
@@ -154,3 +130,4 @@ public class AddParticipantFunction
 
     }
 }
+
