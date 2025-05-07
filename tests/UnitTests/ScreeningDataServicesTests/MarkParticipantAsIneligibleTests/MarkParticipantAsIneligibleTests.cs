@@ -34,6 +34,7 @@ public class MarkParticipantAsIneligibleTests : DatabaseTestBaseSetup<MarkPartic
     {
         TestInitialize();
         CreateHttpResponseMock();
+        TestInitialize();
     }
 
     [TestInitialize]
