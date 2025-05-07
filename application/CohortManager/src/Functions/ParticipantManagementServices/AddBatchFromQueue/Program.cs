@@ -25,7 +25,7 @@ var host = new HostBuilder()
         services.AddSingleton<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
         services.AddSingleton<IQueueClientFactory, QueueClientFactory>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
-        services.AddSingleton<ICreateParticipant, ICreateParticipant>();
+        services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<IDurableAddProcessor, DurableAddProcessor>();
     })
