@@ -158,7 +158,7 @@ public class ProcessCaasFileTests
 
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
-            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>()),
+            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Once);
     }
 
@@ -188,7 +188,7 @@ public class ProcessCaasFileTests
 
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
-            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>()),
+            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.AtLeastOnce);
     }
 
