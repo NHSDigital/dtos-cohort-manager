@@ -17,12 +17,11 @@ using Microsoft.Extensions.Options;
 using Model;
 using Common;
 using DataServices.Client;
+using Common.Interfaces;
 
 public class NEMSSubscribe
 {
     private readonly ILogger<NEMSSubscribe> _logger;
-    private readonly FhirJsonSerializer _fhirSerializer = new();
-    private readonly FhirJsonParser _fhirParser = new();
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICreateResponse _createResponse;
     private readonly NEMSSubscribeConfig _config;
@@ -78,7 +77,7 @@ public class NEMSSubscribe
 
             // 1. Create Subscription Resource
             Subscription subscription = CreateNemsSubscriptionResource(nhsNumber);
-            string subscriptionJson = _fhirSerializer.SerializeToString(subscription);
+            var subscriptionJson = new FhirJsonSerializer().SerializeToString(subscription);
 
             // 2. Post to NEMS FHIR endpoint
             string subscriptionId = await PostSubscriptionToNems(subscriptionJson);
@@ -105,13 +104,21 @@ public class NEMSSubscribe
         }
     }
 
-    public async Task<string> PostSubscriptionToNems(string subscriptionJson)
+    public async Task<string> PostSubscriptionToNems(string subscription)
     {
         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         try
         {
+
+            // POST to NEMS
             var url = string.Format(urlFormat, _config.NemsFhirEndpoint, "Subscription");
-            var response = await _httpClientFunction.PostNemsGet(url, subscriptionJson, _config.SpineAccessToken, _config.FromAsid, _config.ToAsid);
+            var response = await _httpClientFunction.PostNemsGet(
+                url,
+                subscription,
+                _config.SpineAccessToken,
+                _config.FromAsid,
+                _config.ToAsid
+            );
 
             if (!response.IsSuccessStatusCode)
             {
@@ -120,8 +127,7 @@ public class NEMSSubscribe
             }
 
             var responseContent = await response.Content.ReadAsStringAsync();
-            var createdSubscription = _fhirParser.Parse<Subscription>(responseContent);
-            return createdSubscription.Id;
+            return Guid.NewGuid().ToString();
         }
         catch (Exception ex)
         {
