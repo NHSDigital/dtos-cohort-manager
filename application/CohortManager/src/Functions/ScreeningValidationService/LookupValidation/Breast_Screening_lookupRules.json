@@ -9,7 +9,19 @@
     ],
     "Rules": [
       {
-        "RuleName": "36.ValidatePrimaryCareProvider.NonFatal",
+        "RuleName": "12.BlockedParticipant.BSSelect.Fatal",
+        "Expression": "newParticipant.BlockedFlag != \"1\"",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression":"\"Participant is blocked\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "36.ValidatePrimaryCareProvider.BSSelect.NonFatal",
         "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
         "Actions": {
           "OnFailure": {
@@ -21,7 +33,7 @@
         }
       },
       {
-        "RuleName": "3645.CurrentPostingAndPrimaryProvider.NonFatal",
+        "RuleName": "3645.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal",
         "LocalParams": [
           {
             "Name": "ValidPostingCategory",
@@ -35,7 +47,7 @@
         "Expression": "!(ValidPostingCategory AND InvalidPrimaryCareProvider)"
       },
       {
-        "RuleName": "58.CurrentPosting.NonFatal",
+        "RuleName": "58.CurrentPosting.NBO.NonFatal",
         "Expression": "ValidCurrentPosting",
         "Actions": {
           "OnFailure": {
@@ -47,7 +59,7 @@
         }
       },
       {
-        "RuleName": "00.ValidateLanguageCode.NonFatal",
+        "RuleName": "00.ValidateLanguageCode.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "languageCode",
@@ -65,7 +77,7 @@
         }
       },
       {
-        "RuleName": "11.ValidateReasonForRemoval.NonFatal",
+        "RuleName": "11.ValidateReasonForRemoval.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "newRecordType",
@@ -84,7 +96,7 @@
     "WorkflowName": "ADD",
     "Rules": [
       {
-        "RuleName": "47.ParticipantMustNotExist.Fatal",
+        "RuleName": "47.ParticipantMustNotExist.CaaS.Fatal",
         "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
@@ -93,7 +105,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "22.ParticipantMustExist.Fatal",
+        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
@@ -102,7 +114,7 @@
     "WorkflowName": "DEL",
     "Rules": [
       {
-        "RuleName": "22.ParticipantMustExist.Fatal",
+        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
         "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
