@@ -76,6 +76,20 @@ services:
       - CohortQueueName=cohort-distribution-queue
       - AddQueueName=add-participant-queue
 
+  unblock-participant:
+      container_name: unblock-participant
+      image: cohort-manager-unblock-participant
+      networks: [cohman-network]
+      build:
+        context: ./src/Functions/
+        dockerfile: ParticipantManagementServices/UnblockParticipant/Dockerfile
+      environment: 
+        - ASPNETCORE_URLS=http://*:7027
+        - AzureWebJobsStorage=UseDevelopmentStorage=true
+        - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+        - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
+        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+
   remove-participant:
     container_name: remove-participant
     image: cohort-manager-remove-participant
