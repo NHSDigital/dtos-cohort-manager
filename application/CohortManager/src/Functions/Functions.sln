@@ -241,6 +241,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveCaasFileHelperTests"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnblockParticipant", "ParticipantManagementServices\UnblockParticipant\UnblockParticipant.csproj", "{075D3144-2AC7-42E5-8404-38CF1935CF61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnblockParticipantTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\UnblockParticipantTests\UnblockParticipantTests.csproj", "{FAC67053-9F10-4F6F-8452-06CDBDF47349}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -987,6 +989,18 @@ Global
 		{075D3144-2AC7-42E5-8404-38CF1935CF61}.Release|x64.Build.0 = Release|Any CPU
 		{075D3144-2AC7-42E5-8404-38CF1935CF61}.Release|x86.ActiveCfg = Release|Any CPU
 		{075D3144-2AC7-42E5-8404-38CF1935CF61}.Release|x86.Build.0 = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|x64.Build.0 = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Debug|x86.Build.0 = Debug|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|x64.ActiveCfg = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|x64.Build.0 = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|x86.ActiveCfg = Release|Any CPU
+		{FAC67053-9F10-4F6F-8452-06CDBDF47349}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
