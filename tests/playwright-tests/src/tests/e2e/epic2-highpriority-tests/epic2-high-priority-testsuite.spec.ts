@@ -84,7 +84,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-    test.only('@DTOSS-4141-01 @Validate NHS number as null', async ({ request, testData }) => {
+    test('@DTOSS-4141-01 @Validate NHS number as null', async ({ request, testData }) => {
       await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
