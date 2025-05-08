@@ -1217,7 +1217,6 @@ function_apps = {
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
-
     }
 
   }
