@@ -64,7 +64,32 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       await test.step(`Then NHS Numbers should be updated in the participant table after second run`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
-    });
+    })
+
+    test('@DTOSS-4136-01 @Validate NHS number 10 digits', async ({ request, testData }) => {
+      await test.step(`Then NHS Numbers should be updated in the participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+    test('@DTOSS-4139-01 @Validate NHS number 11 digits', async ({ request, testData }) => {
+      await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+    test('@DTOSS-4140-01 @Validate NHS number 9 digits', async ({ request, testData }) => {
+      await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+    test.only('@DTOSS-4141-01 @Validate NHS number as null', async ({ request, testData }) => {
+      await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
   }); // End of ADD Tests
 
   test.describe('AMENDED Tests', () => {
