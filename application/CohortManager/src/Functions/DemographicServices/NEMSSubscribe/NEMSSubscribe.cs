@@ -184,15 +184,6 @@ public class NEMSSubscribe
             }
         };
 
-        // Add NHS Digital extensions
-        var parameters = new Parameters();
-        parameters.Add("allowedEventType", new FhirString("new-event"));
-        parameters.Add("subscriptionPeriod", new Period
-        {
-            Start = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd"),
-            End = DateTimeOffset.UtcNow.AddYears(1).ToString("yyyy-MM-dd")
-        });
-
         return subscription;
     }
 }
