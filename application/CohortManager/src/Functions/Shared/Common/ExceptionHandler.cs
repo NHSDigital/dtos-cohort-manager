@@ -11,7 +11,7 @@ using RulesEngine.Models;
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly ILogger<ExceptionHandler> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private static readonly int DefaultRuleId = 0;
     private readonly string _createExceptionUrl;
     private const string DefaultCohortName = "";
@@ -20,11 +20,11 @@ public class ExceptionHandler : IExceptionHandler
     private const string DefaultFileName = "";
     private const string DefaultNhsNumber = "";
 
-    public ExceptionHandler(ILogger<ExceptionHandler> logger, ICallFunction callFunction)
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction httpClientFunction)
     {
 
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
 
         if (_createExceptionUrl == null)
@@ -46,7 +46,7 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
-        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
@@ -55,14 +55,14 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
-        await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
     }
 
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
@@ -84,7 +84,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
+        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -112,7 +112,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
+        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -145,7 +145,7 @@ public class ExceptionHandler : IExceptionHandler
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);
-            var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
+            var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
@@ -195,7 +195,7 @@ public class ExceptionHandler : IExceptionHandler
             };
 
             var exceptionJson = JsonSerializer.Serialize(exception);
-            var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
+            var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
 
             if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
             {
@@ -216,7 +216,7 @@ public class ExceptionHandler : IExceptionHandler
         };
     }
 
-    private int GetCategory(string category)
+    private static int GetCategory(string category)
     {
         return (int)Enum.Parse(typeof(ExceptionCategory), category, ignoreCase: true);
     }
@@ -226,7 +226,7 @@ public class ExceptionHandler : IExceptionHandler
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
 
-        var response = await _callFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("There was an error while logging an exception to the database.");
@@ -254,7 +254,7 @@ public class ExceptionHandler : IExceptionHandler
         };
 
         var exceptionJson = JsonSerializer.Serialize(exception);
-        var response = await _callFunction.SendPost(_createExceptionUrl, exceptionJson);
+        var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
 
         if (response.StatusCode != HttpStatusCode.OK)
         {

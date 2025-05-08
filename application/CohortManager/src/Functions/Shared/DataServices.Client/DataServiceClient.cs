@@ -9,32 +9,29 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Reflection;
 
-
 public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEntity : class
 {
     private readonly string _baseUrl;
     private readonly ILogger<DataServiceClient<TEntity>> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly PropertyInfo _keyInfo;
-    public DataServiceClient(ILogger<DataServiceClient<TEntity>> logger, DataServiceResolver dataServiceResolver, ICallFunction callFunction)
+    public DataServiceClient(ILogger<DataServiceClient<TEntity>> logger, DataServiceResolver dataServiceResolver, IHttpClientFunction httpClientFunction)
     {
-
         _baseUrl = dataServiceResolver.GetDataServiceUrl(typeof(TEntity));
 
         if (string.IsNullOrEmpty(_baseUrl))
         {
             throw new InvalidDataException($"Unable to resolve DataServiceUrl for Data Service of type: {typeof(TEntity).FullName}");
         }
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _logger = logger;
 
         _keyInfo = ReflectionUtilities.GetKey<TEntity>();
-
     }
 
     public async Task<IEnumerable<TEntity>> GetAll()
     {
-        var jsonString = await _callFunction.SendGet(_baseUrl);
+        var jsonString = await _httpClientFunction.SendGet(_baseUrl);
         if (string.IsNullOrEmpty(jsonString)) return [];
 
         return JsonSerializer.Deserialize<IEnumerable<TEntity>>(jsonString);
@@ -56,7 +53,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         try
         {
 
-            var jsonString = await _callFunction.SendGet(UrlBuilder(_baseUrl, id));
+            var jsonString = await _httpClientFunction.SendGet(UrlBuilder(_baseUrl, id));
 
             if (string.IsNullOrEmpty(jsonString))
             {
@@ -83,9 +80,9 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             throw;
         }
     }
+
     public async Task<TEntity> GetSingleByFilter(Expression<Func<TEntity, bool>> predicate)
     {
-
         var jsonString = await GetJsonStringByFilter(predicate, true);
         if (string.IsNullOrEmpty(jsonString))
         {
@@ -93,14 +90,14 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         }
         TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
         return result;
-
     }
 
     public async Task<bool> Delete(string id)
     {
-        var result = await _callFunction.SendDelete(UrlBuilder(_baseUrl, id));
+        var result = await _httpClientFunction.SendDelete(UrlBuilder(_baseUrl, id));
         return result;
     }
+
     public async Task<bool> AddRange(IEnumerable<TEntity> entities)
     {
         var jsonString = JsonSerializer.Serialize<IEnumerable<TEntity>>(entities);
@@ -111,7 +108,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl, jsonString);
+        var result = await _httpClientFunction.SendPost(_baseUrl, jsonString);
 
         if (result.StatusCode != HttpStatusCode.OK)
         {
@@ -130,7 +127,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             return false;
         }
 
-        var result = await _callFunction.SendPost(_baseUrl, jsonString);
+        var result = await _httpClientFunction.SendPost(_baseUrl, jsonString);
 
         if (result.StatusCode != HttpStatusCode.OK)
         {
@@ -150,7 +147,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             return false;
         }
 
-        var result = await _callFunction.SendPut(UrlBuilder(_baseUrl, key), jsonString);
+        var result = await _httpClientFunction.SendPut(UrlBuilder(_baseUrl, key), jsonString);
 
         if (result.StatusCode != HttpStatusCode.OK)
         {
@@ -163,7 +160,6 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     {
         try
         {
-
             //Resolves the constants
             var expr = new ClosureResolver().Visit(predicate);
 
@@ -174,7 +170,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
                 queryItems.Add("single", "true");
             }
 
-            var jsonString = await _callFunction.SendGet(_baseUrl, queryItems);
+            var jsonString = await _httpClientFunction.SendGet(_baseUrl, queryItems);
             return jsonString;
         }
         catch (WebException wex)
@@ -188,7 +184,6 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
             _logger.LogError(wex, "An Exception Happened while calling data service API");
             throw;
         }
-
     }
 
     private static string UrlBuilder(string baseUrl, string argument)
@@ -197,6 +192,4 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         argument = argument.TrimStart('/');
         return string.Format("{0}/{1}", baseUrl, argument);
     }
-
-
 }

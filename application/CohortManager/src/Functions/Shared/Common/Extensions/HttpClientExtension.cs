@@ -2,15 +2,14 @@ namespace Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-public static class ExceptionHandlerServiceExtension
+public static class HttpClientExtension
 {
-    public static IHostBuilder AddExceptionHandler(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddHttpClient(this IHostBuilder hostBuilder)
     {
         return hostBuilder.ConfigureServices(_ =>
         {
-            _.AddSingleton<IExceptionHandler, ExceptionHandler>();
+            _.AddHttpClient();
             _.AddTransient<IHttpClientFunction, HttpClientFunction>();
         });
     }
-
 }
