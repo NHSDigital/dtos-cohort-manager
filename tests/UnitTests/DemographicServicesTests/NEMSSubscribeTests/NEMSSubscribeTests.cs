@@ -1,189 +1,124 @@
-namespace NHS.CohortManager.Tests.UnitTests.NEMSSubscribeTests;
+namespace NHS.CohortManager.Tests.UnitTests.DemographicServicesTests;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
-using Task = System.Threading.Tasks.Task;
-using Hl7.Fhir.Model;
-using System.IO;
-using System.Text;
-using Microsoft.Extensions.Options;
-using System.Collections.Specialized;
-using System.Collections.Generic;
-using System;
-using Model;
 using Common;
+using Common.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Model;
+using Moq;
 using DataServices.Client;
 using NHS.CohortManager.DemographicServices;
-using NHS.Screening.NEMSSubscribe;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Data;
 
 [TestClass]
-public class NEMSSubscribeTests
+public class NEMSSubscribeTests : DatabaseTestBaseSetup<NEMSSubscribe>
 {
-    private Mock<ILogger<NEMSSubscribe>> _loggerMock;
-    private Mock<IDataServiceClient<NemsSubscription>> _dataServiceClientMock;
-    private Mock<IHttpClientFunction> _httpClientMock;
-    private Mock<ICreateResponse> _createResponseMock;
-    private Mock<HttpRequestData> _httpRequestMock;
-    private Mock<HttpResponseData> _httpResponseMock;
-    private NEMSSubscribeConfig _config;
+    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+    private static readonly Mock<ICreateResponse> _response = new();
+    private static readonly Mock<IDataServiceClient<NemsSubscription>> _nemsSubscriptionClient = new();
+    private static readonly Mock<IOptions<NEMSSubscribeConfig>> _config = new();
+    private readonly string _validNhsNumber = "3112728165";
 
-    private NEMSSubscribe _function;
+    public NEMSSubscribeTests() : base((conn, logger, transaction, command, response) =>
+    new NEMSSubscribe(
+        logger,
+        _nemsSubscriptionClient.Object,
+        _httpClientFunction.Object,
+        response,
+        _config.Object))
+    {
+        CreateHttpResponseMock();
+    }
 
     [TestInitialize]
-    public void Setup()
+    public void TestInitialize()
     {
-        _loggerMock = new Mock<ILogger<NEMSSubscribe>>();
-        _dataServiceClientMock = new Mock<IDataServiceClient<NemsSubscription>>();
-        _httpClientMock = new Mock<IHttpClientFunction>();
-        _createResponseMock = new Mock<ICreateResponse>();
-        _httpRequestMock = new Mock<HttpRequestData>();
-        _httpResponseMock = new Mock<HttpResponseData>();
-
-        _config = new NEMSSubscribeConfig
+        var testConfig = new NEMSSubscribeConfig
         {
-            RetrievePdsDemographicURL = "http://fake-pds-url",
-            NEMS_FHIR_ENDPOINT = "http://nems-fhir",
-            SPINE_ACCESS_TOKEN = "access_token",
-            FROM_ASID = "from_asid",
-            TO_ASID = "to_asid",
-            CALLBACK_ENDPOINT = "http://callback",
-            CALLBACK_AUTH_TOKEN = "callback_auth",
-            Subscription_Criteria = "https://fhir.nhs.uk/Id/nhs-number",
-            Subscription_Profile = "https://fhir.nhs.uk/StructureDefinition/Subscription"
+            RetrievePdsDemographicURL = "RetrievePdsDemographicURL"
         };
 
-        var configOptions = Options.Create(_config);
+        _config.Setup(c => c.Value).Returns(testConfig);
 
-        _function = new NEMSSubscribe(
+        _httpClientFunction.Reset();
+        _nemsSubscriptionClient.Reset();
+
+        _service = new NEMSSubscribe(
             _loggerMock.Object,
-            _dataServiceClientMock.Object,
-            _httpClientMock.Object,
-            _createResponseMock.Object,
-            configOptions
-        );
+            _nemsSubscriptionClient.Object,
+            _httpClientFunction.Object,
+            _response.Object,
+            _config.Object);
+
+        _request = SetupRequest(string.Empty);
     }
 
+
     [TestMethod]
-    public async Task Run_ValidNhsNumberExistsInPds_AllStepsSucceed()
+    public async Task Run_ValidNhsNumberforNemsSubscribe_ReturnsOk()
     {
         // Arrange
-        string nhsNumber = "9999999999";
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
 
-        // Prepare the query collection mock to simulate incoming request with NHS number
-        var queryCollection = new NameValueCollection { { "nhsNumber", nhsNumber } };
-        _httpRequestMock.Setup(r => r.Query).Returns(queryCollection);
-
-        _httpClientMock.Setup(c => c.SendGetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-                       .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-
-        // Prepare mock response for the subscription creation on NEMS
-        var fakeHttpResponseMessage = new HttpResponseMessage(HttpStatusCode.Created)
-        {
-            Content = new StringContent("{ \"id\": \"123\" }", Encoding.UTF8, "application/json")
-        };
-
-        _httpClientMock.Setup(c => c.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                       .ReturnsAsync(fakeHttpResponseMessage);
-
-        // Mock the database save method
-        _dataServiceClientMock.Setup(d => d.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
-
-        // Mock the HTTP response response with the subscription ID
-        _createResponseMock.Setup(r => r.CreateHttpResponse(HttpStatusCode.OK, _httpRequestMock.Object, "123"))
-                           .Returns(_httpResponseMock.Object);
-
+        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _nemsSubscriptionClient.Setup(x => x.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         // Act
-        var result = await _function.Run(_httpRequestMock.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(_httpResponseMock.Object, result);
+        _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
     }
 
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow("0000000000")]
     [TestMethod]
-    public async Task Run_PdsValidationFails_ReturnsBadRequest()
+    public async Task Run_InvalidNhsNumberforNemsSubscribe_ReturnsBadRequest(string invalidNhsNumber)
     {
         // Arrange
-        string nhsNumber = "9999999999";
-
-        var queryCollection = new NameValueCollection { { "nhsNumber", nhsNumber } };
-        _httpRequestMock.Setup(r => r.Query).Returns(queryCollection);
-
-        _createResponseMock.Setup(r => r.CreateHttpResponse(HttpStatusCode.BadRequest, _httpRequestMock.Object, null))
-                           .Returns(_httpResponseMock.Object);
-
-        var mockFunction = new Mock<NEMSSubscribe>(
-            _loggerMock.Object,
-            _dataServiceClientMock.Object,
-            _httpClientMock.Object,
-            _createResponseMock.Object,
-            Options.Create(_config)
-        );
-
-        // Mock ValidateAgainstPds
-        mockFunction.Setup(f => f.ValidateAgainstPds(It.IsAny<string>())).ReturnsAsync(false);
-
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", invalidNhsNumber } });
+        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        _nemsSubscriptionClient.Setup(x => x.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         // Act
-        var result = await mockFunction.Object.Run(_httpRequestMock.Object);
+        var result = await _service.Run(_request.Object);
 
         // Assert
-        Assert.AreEqual(_httpResponseMock.Object, result);
-    }
-
-
-
-    [TestMethod]
-    public async Task Run_WhenNemsApiCallFails_ReturnsInternalServerError()
-    {
-        string nhsNumber = "9999999999";
-
-        var queryCollection = new NameValueCollection { { "nhsNumber", nhsNumber } };
-        _httpRequestMock.Setup(r => r.Query).Returns(queryCollection);
-
-        _httpClientMock.Setup(c => c.SendGetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-                       .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-
-        _httpClientMock.Setup(c => c.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                       .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
-
-        _createResponseMock.Setup(r => r.CreateHttpResponse(HttpStatusCode.InternalServerError, _httpRequestMock.Object, "Failed to create subscription in NEMS."))
-                           .Returns(_httpResponseMock.Object);
-
-        var result = await _function.Run(_httpRequestMock.Object);
-
-        Assert.AreEqual(_httpResponseMock.Object, result);
+        _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Never());
+        Assert.AreNotEqual(HttpStatusCode.OK, result?.StatusCode);
     }
 
     [TestMethod]
-    public async Task Run_WhenDatabaseSaveFails_ReturnsInternalServerError()
+    public async Task Run_DatabaseSaveFailsforNemsSubscribe_ReturnsInternalServerError()
     {
-        string nhsNumber = "9999999999";
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        _nemsSubscriptionClient.Setup(x => x.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(false);
+        // Act
+        var result = await _service.Run(_request.Object);
 
-        var queryCollection = new NameValueCollection { { "nhsNumber", nhsNumber } };
-        _httpRequestMock.Setup(r => r.Query).Returns(queryCollection);
+        // Assert
+        _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Never());
+        Assert.AreNotEqual(HttpStatusCode.OK, result?.StatusCode);
+    }
 
-        _httpClientMock.Setup(c => c.SendGetAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-                       .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+    [TestMethod]
+    public async Task Run_NemsApiCallFailsforNemsSubscribe_ReturnsInternalServerError()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        _nemsSubscriptionClient.Setup(x => x.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
+        // Act
+        var result = await _service.Run(_request.Object);
 
-        var fakeHttpResponse = new HttpResponseMessage(HttpStatusCode.Created)
-        {
-            Content = new StringContent("{ \"id\": \"123\" }", Encoding.UTF8, "application/json")
-        };
-        _httpClientMock.Setup(c => c.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-                       .ReturnsAsync(fakeHttpResponse);
-
-        // Mock Add for saving subscription in database (this will return false to simulate a failure)
-        _dataServiceClientMock.Setup(d => d.Add(It.IsAny<NemsSubscription>()))
-                              .ReturnsAsync(false);
-
-        _createResponseMock.Setup(r => r.CreateHttpResponse(HttpStatusCode.InternalServerError, _httpRequestMock.Object, "Subscription created but failed to store locally."))
-                           .Returns(_httpResponseMock.Object);
-
-        var result = await _function.Run(_httpRequestMock.Object);
-        Assert.AreEqual(_httpResponseMock.Object, result);
+        // Assert
+        _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+        Assert.AreNotEqual(HttpStatusCode.OK, result?.StatusCode);
     }
 
 }

@@ -17,7 +17,6 @@ using Microsoft.Extensions.Options;
 using Model;
 using Common;
 using DataServices.Client;
-using NHS.Screening.NEMSSubscribe;
 
 public class NEMSSubscribe
 {
@@ -71,25 +70,17 @@ public class NEMSSubscribe
     /// </exception>
 
     [Function("NEMSSubscribe")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "subscriptions/nems")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "subscriptions/nems")] HttpRequestData req)
     {
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
 
-            // 1. Validate against PDS, if it returns record with matching NHS number
-            bool pdsValidationResult = await ValidateAgainstPds(nhsNumber);
-            if (!pdsValidationResult)
-            {
-                _logger.LogError("No matching patient found in PDS.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req); // skip subscription
-            }
-
-            // 2. Create Subscription Resource
+            // 1. Create Subscription Resource
             Subscription subscription = CreateNemsSubscriptionResource(nhsNumber);
             string subscriptionJson = _fhirSerializer.SerializeToString(subscription);
 
-            // 3. Post to NEMS FHIR endpoint
+            // 2. Post to NEMS FHIR endpoint
             string subscriptionId = await PostSubscriptionToNems(subscriptionJson);
             if (string.IsNullOrEmpty(subscriptionId))
             {
@@ -97,7 +88,7 @@ public class NEMSSubscribe
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
-            // 4. Store in SQL Database
+            // 3. Store in SQL Database
             bool storageSuccess = await StoreSubscriptionInDatabase(nhsNumber, subscriptionId);
             if (!storageSuccess)
             {
@@ -114,41 +105,13 @@ public class NEMSSubscribe
         }
     }
 
-    public async Task<bool> ValidateAgainstPds(string nhsNumber)
-    {
-        try
-        {
-            _logger.LogInformation("Validating NHS number against PDS.");
-            /* Calling RetrievePDSDemographic function */
-            string url = _config.RetrievePdsDemographicURL;
-            var parameters = new Dictionary<string, string>
-            {
-                { "nhsNumber", nhsNumber }
-            };
-
-            var response = await _httpClientFunction.SendGetAsync(url, parameters);
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                _logger.LogError($"Record not found in PDS");
-                return false;
-            }
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "PDS validation error: {Message}", ex.Message);
-            return false;
-        }
-    }
-
-    private async Task<string> PostSubscriptionToNems(string subscriptionJson)
+    public async Task<string> PostSubscriptionToNems(string subscriptionJson)
     {
         /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
         try
         {
-            var url = string.Format(urlFormat, _config.NEMS_FHIR_ENDPOINT, "Subscription");
-            var response = await _httpClientFunction.PostNemsGet(url, subscriptionJson, _config.SPINE_ACCESS_TOKEN, _config.FROM_ASID, _config.TO_ASID);
+            var url = string.Format(urlFormat, _config.NemsFhirEndpoint, "Subscription");
+            var response = await _httpClientFunction.PostNemsGet(url, subscriptionJson, _config.SpineAccessToken, _config.FromAsid, _config.ToAsid);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -196,20 +159,20 @@ public class NEMSSubscribe
             Meta = new Meta
             {
                 //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" }, // WIP, Will remove this after onboarding
-                Profile = new[] { _config.Subscription_Profile },
+                Profile = new[] { _config.SubscriptionProfile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = Subscription.SubscriptionStatus.Requested,
             Reason = "NEMS event notification subscription",
             //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}", // WIP, Will remove this after onboarding
-            Criteria = $"Patient?identifier={_config.Subscription_Criteria}|{nhsNumber}",
+            Criteria = $"Patient?identifier={_config.SubscriptionCriteria}|{nhsNumber}",
             Channel = new Subscription.ChannelComponent
             {
                 Type = Subscription.SubscriptionChannelType.RestHook,
-                Endpoint = _config.CALLBACK_ENDPOINT,
+                Endpoint = _config.CallbackEndpoint,
                 Payload = "application/fhir+json",
                 Header = new[] {
-                    $"Authorization: Bearer {_config.CALLBACK_AUTH_TOKEN}",
+                    $"Authorization: Bearer {_config.CallAuthToken}",
                     "X-Correlation-ID: " + Guid.NewGuid().ToString()
                 }
             }
