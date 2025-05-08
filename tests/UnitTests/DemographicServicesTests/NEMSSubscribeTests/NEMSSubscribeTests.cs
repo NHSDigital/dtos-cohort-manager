@@ -49,7 +49,7 @@ public class NEMSSubscribeTests : DatabaseTestBaseSetup<NEMSSubscribe>
             _loggerMock.Object,
             _nemsSubscriptionClient.Object,
             _httpClientFunction.Object,
-            _response.Object,
+            _createResponseMock.Object,
             _config.Object);
 
         _request = SetupRequest(string.Empty);
@@ -78,19 +78,18 @@ public class NEMSSubscribeTests : DatabaseTestBaseSetup<NEMSSubscribe>
     [DataRow(null)]
     [DataRow("0000000000")]
     [TestMethod]
-    public async Task Run_InvalidNhsNumberforNemsSubscribe_ReturnsBadRequest(string invalidNhsNumber)
+    public async Task Run_InvalidNhsNumberforNemsSubscribe_ReturnsInternalServerError(string invalidNhsNumber)
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", invalidNhsNumber } });
-        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+        _httpClientFunction.Setup(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.InternalServerError));
         _nemsSubscriptionClient.Setup(x => x.Add(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
         _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
-        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Once());
-        Assert.AreNotEqual(HttpStatusCode.BadRequest, result?.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result?.StatusCode);
     }
 
     [TestMethod]
@@ -105,8 +104,8 @@ public class NEMSSubscribeTests : DatabaseTestBaseSetup<NEMSSubscribe>
 
         // Assert
         _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
-        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Once());
-        Assert.AreNotEqual(HttpStatusCode.InternalServerError, result?.StatusCode);
+        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result?.StatusCode);
     }
 
     [TestMethod]
@@ -121,8 +120,7 @@ public class NEMSSubscribeTests : DatabaseTestBaseSetup<NEMSSubscribe>
 
         // Assert
         _httpClientFunction.Verify(x => x.PostNemsGet(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
-        _nemsSubscriptionClient.Verify(x => x.Add(It.IsAny<NemsSubscription>()), Times.Once());
-        Assert.AreNotEqual(HttpStatusCode.InternalServerError, result?.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result?.StatusCode);
     }
 
 }
