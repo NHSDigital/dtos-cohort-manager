@@ -21,22 +21,22 @@ public class StaticValidation
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
     private readonly IReadRules _readRules;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly StaticValidationConfig _config;
 
     public StaticValidation(
-        ILogger<StaticValidation> logger, 
-        IExceptionHandler handleException, 
-        ICreateResponse createResponse, 
+        ILogger<StaticValidation> logger,
+        IExceptionHandler handleException,
+        ICreateResponse createResponse,
         IReadRules readRules,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         IOptions<StaticValidationConfig> staticValidationConfig)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRules = readRules;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _config = staticValidationConfig.Value;
     }
 
@@ -72,7 +72,7 @@ public class StaticValidation
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
             {
                 _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
@@ -108,6 +108,6 @@ public class StaticValidation
             NhsNumber = nhsNumber,
             ScreeningName = screeningName
         });
-        await _callFunction.SendPost(_config.RemoveOldValidationRecord, OldExceptionRecordJson);
+        await _httpClientFunction.SendPost(_config.RemoveOldValidationRecord, OldExceptionRecordJson);
     }
 }
