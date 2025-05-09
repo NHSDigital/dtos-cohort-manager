@@ -35,6 +35,17 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 3
       }
+      webapps = {
+        cidr_newbits               = 8
+        cidr_offset                = 4
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep-dmz = {
+        cidr_newbits = 8
+        cidr_offset  = 5
+      }
     }
   }
 }
@@ -1195,6 +1206,72 @@ function_apps = {
 }
 
 function_app_slots = []
+
+
+linux_web_app = {
+  acr_mi_name = "dtos-cohort-manager-acr-push"
+  acr_name    = "acrukshubprodcohman"
+  acr_rg_name = "rg-hub-prod-uks-cohman"
+
+  app_insights_name    = "appi-pre-uks-cohman"
+  app_insights_rg_name = "rg-cohman-pre-uks-audit"
+
+  always_on = true
+
+  cont_registry_use_mi = true
+
+  docker_CI_enable  = "true"
+  docker_env_tag    = "integration"
+  docker_img_prefix = "cohort-manager"
+
+  enable_appsrv_storage    = "false"
+  ftps_state               = "Disabled"
+  https_only               = true
+  remote_debugging_enabled = false
+  worker_32bit             = false
+  # storage_name             = "webappstor"
+  # storage_type             = "AzureBlob"
+  # share_name               = "webapp"
+
+  linux_web_app_config = {
+
+    FrontEndUi = {
+      name_suffix          = "web"
+      app_service_plan_key = "DefaultPlan"
+      env_vars_static = {
+        AUTH_CIS2_ISSUER_URL = ""
+        AUTH_CIS2_CLIENT_ID  = ""
+        AUTH_TRUST_HOST      = true
+        SERVICE_NAME         = "Cohort Manager"
+      }
+      env_vars_from_key_vault = [
+        {
+          env_var_name          = "AUTH_CIS2_CLIENT_SECRET"
+          key_vault_secret_name = "auth-cis2-client-secret"
+        },
+        {
+          env_var_name          = "NEXTAUTH_SECRET"
+          key_vault_secret_name = "nextauth-secret"
+        },
+        {
+          env_var_name          = "COHORT_MANAGER_USERS"
+          key_vault_secret_name = "cohort-manager-users"
+        }
+      ]
+      local_urls = {
+        EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
+        NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
+      }
+    }
+  }
+}
+
+linux_web_app_slots = [
+  {
+    linux_web_app_slots_name    = "staging"
+    linux_web_app_slots_enabled = true
+  }
+]
 
 key_vault = {
   disk_encryption   = true
