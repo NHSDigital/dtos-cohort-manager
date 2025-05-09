@@ -82,10 +82,10 @@ public class MarkParticipantAsEligibleTests
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _mockCreateResponse.VerifyNoOtherCalls();
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
+        _handleException.Verify(static i => i.CreateSystemExceptionLog(
             It.Is<Exception>((v, t) => v.ToString().Contains("Could not parse NhsNumber")),
             It.IsAny<Participant>(),
-            It.IsAny<string>()), Times.Once);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -104,7 +104,7 @@ public class MarkParticipantAsEligibleTests
         _handleException.Verify(i => i.CreateSystemExceptionLog(
             It.Is<Exception>((v, t) => v.ToString().Contains("Could not parse ScreeningId")),
             It.IsAny<Participant>(),
-            It.IsAny<string>()), Times.Once);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
     private static HttpRequestData SetupRequest(Participant participant)

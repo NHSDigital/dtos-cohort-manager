@@ -16,7 +16,7 @@ public class ExceptionHandlerTests
     private readonly ExceptionHandler _function;
 
     public ExceptionHandlerTests()
-    { 
+    {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
         _function = new ExceptionHandler(_logger.Object, _callFunction.Object);
     }
@@ -471,7 +471,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "51.Message.0"; // non-fatal rule
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "51.Message.0.0"; // non-fatal rule
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "NonFatalError";
         ruleResult.ExceptionMessage = "";
@@ -523,7 +524,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "1.Message.1";
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
         ruleResult.ExceptionMessage = "Actual exception occurred";
@@ -555,7 +557,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "1.Message.1";
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
         ruleResult.ExceptionMessage = "";
@@ -650,7 +653,7 @@ public class ExceptionHandlerTests
     {
         var rule = new Rule
         {
-            RuleName = "1.Message.1",
+            RuleName = "1.Message.1.1",
             Properties = new Dictionary<string, object>
             {
                 { "Property1", "Value1" },
