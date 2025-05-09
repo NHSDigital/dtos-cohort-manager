@@ -6,7 +6,7 @@ This function is designed to download all files from a given [MESH](https://digi
 
 This function depends on an external class library [dotnet-mesh-client](https://github.com/NHSDigital/dotnet-mesh-client). Currently this is referenced from within the Common library and is pulled down via a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules).
 
-This function is a copy of RetrieveMeshFile function, as it needs to function the same way and follow the same guidelines. 
+This function is a copy of RetrieveMeshFile function, as it needs to function the same way and follow the same guidelines.
 
 ## Build requirements
 
