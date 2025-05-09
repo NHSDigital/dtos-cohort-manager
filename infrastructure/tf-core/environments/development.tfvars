@@ -1202,25 +1202,24 @@ function_apps = {
     }
 
     NemsSubscribe = {
-      name_suffix            = "nems-subscribe"
-      function_endpoint_name = "NemsSubscribe"
-      app_service_plan_key   = "DefaultPlan"
-
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
-        }
-      ]
-      env_vars_static = {
-        MeshCertName = "MeshCert"
-      }
-    }
+       name_suffix            = "nems-subscribe"
+       function_endpoint_name = "NemsSubscribe"
+       app_service_plan_key   = "DefaultPlan"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         },
+         {
+           env_var_name     = "ParticipantDemographicDataServiceURL"
+           function_app_key = "ParticipantDemographicDataService"
+         },
+         {
+           env_var_name     = "RetrievePdsDemographicURL"
+           function_app_key = "RetrievePDSDemographic"
+         }
+       ]
+     }
 
     NemsUnsubscribe = {
       name_suffix            = "nems-unsubscribe"
