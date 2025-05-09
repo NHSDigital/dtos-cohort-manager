@@ -208,7 +208,7 @@ public class BlockParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_InvlaidNHSNumber_ReturnInternalServerError()
+    public async Task Run_InvalidNHSNumber_ReturnInternalServerError()
     {
         // Arrange
         var request = _setupRequest.Setup("");
