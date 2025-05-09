@@ -1,12 +1,6 @@
-using System;
 using System.Net;
-using System.Reflection;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Common;
 using Model;
 using Model.Enums;
 using NHS.Screening.ReceiveCaasFile;
@@ -16,121 +10,109 @@ namespace Common.Tests
     [TestClass]
     public class ReceiveCaasFileHelperTests
     {
-        private Mock<ILogger<ReceiveCaasFileHelper>> _mockLogger;
-        private Mock<ICallFunction> _mockCallFunction;
-        private ReceiveCaasFileHelper _helper;
+        private readonly Mock<ILogger<ReceiveCaasFileHelper>> _logger = new();
+        private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+        private readonly ReceiveCaasFileHelper _sut;
 
-        [TestInitialize]
-        public void Setup()
+        public ReceiveCaasFileHelperTests()
         {
-            _mockLogger = new Mock<ILogger<ReceiveCaasFileHelper>>();
-            _mockCallFunction = new Mock<ICallFunction>();
-            _helper = new ReceiveCaasFileHelper(_mockLogger.Object, _mockCallFunction.Object);
+            _sut = new ReceiveCaasFileHelper(_logger.Object, _httpClientFunction.Object);
         }
 
-    [TestMethod]
-    public async Task MapParticipant_ReturnsValidParticipant()
-    {
-        // Arrange
-        var rec = new ParticipantsParquetMap
+        [TestMethod]
+        public async Task MapParticipant_ReturnsValidParticipant()
         {
-            Gender = (int)Gender.Female,
-            EligibilityFlag = true
-        };
+            // Arrange
+            var rec = new ParticipantsParquetMap
+            {
+                Gender = (int)Gender.Female,
+                EligibilityFlag = true
+            };
 
-        // Act
-        var result = await _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
+            // Act
+            var result = await _sut.MapParticipant(rec, "scr123", "SCRName", "file.txt");
 
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("scr123", result.ScreeningId);
-        Assert.AreEqual("1", result.EligibilityFlag);
-        Assert.AreEqual(Gender.Female, result.Gender);
-    }
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("scr123", result.ScreeningId);
+            Assert.AreEqual("1", result.EligibilityFlag);
+            Assert.AreEqual(Gender.Female, result.Gender);
+        }
 
+        [TestMethod]
+        public async Task InsertValidationErrorIntoDatabase_LogsFailureProperly()
+        {
+            // Arrange
+            Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
 
-    [TestMethod]
-    public async Task InsertValidationErrorIntoDatabase_LogsFailureProperly()
-    {
-        // Arrange
-        Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
+            _httpClientFunction
+                .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
-        var webResponseMock = new Mock<HttpWebResponse>();
-        var mockResponse = webResponseMock.Object;
-        _mockCallFunction
-            .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(mockResponse);
+            // Act
+            await _sut.InsertValidationErrorIntoDatabase("fail.txt", "record");
 
-        // Act
-        await _helper.InsertValidationErrorIntoDatabase("fail.txt", "record");
+            // Assert
+            _logger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("fail.txt")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
 
-        // Assert: verify log captured the filename
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("fail.txt")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
-    }
+        [TestMethod]
+        public void GetUrlFromEnvironment_ReturnsUrl()
+        {
+            // Arrange
+            Environment.SetEnvironmentVariable("TestKey", "http://url");
 
+            // Act
+            var result = _sut.GetUrlFromEnvironment("TestKey");
 
-    [TestMethod]
-    public void GetUrlFromEnvironment_ReturnsUrl()
-    {
-        // Arrange
-        Environment.SetEnvironmentVariable("TestKey", "http://url");
+            // Assert
+            Assert.AreEqual("http://url", result);
+        }
 
-        // Act
-        var result = _helper.GetUrlFromEnvironment("TestKey");
+        [TestMethod]
+        public void GetUrlFromEnvironment_ThrowsIfMissing()
+        {
+            // Arrange
+            Environment.SetEnvironmentVariable("MissingKey", null);
 
-        // Assert
-        Assert.AreEqual("http://url", result);
-    }
+            // Act + Assert
+            Assert.ThrowsException<InvalidOperationException>(() =>
+                _sut.GetUrlFromEnvironment("MissingKey"));
 
-    [TestMethod]
-    public void GetUrlFromEnvironment_ThrowsIfMissing()
-    {
-        // Arrange
-        Environment.SetEnvironmentVariable("MissingKey", null);
+            _logger.Verify(
+                x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Environment variable is not set.")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
 
-        // Act + Assert
-        Assert.ThrowsException<InvalidOperationException>(() =>
-            _helper.GetUrlFromEnvironment("MissingKey"));
+        [TestMethod]
+        public async Task CheckFileName_ReturnsFalse_IfInvalid()
+        {
+            // Arrange
+            var parser = new FileNameParser("testname");
+            Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
 
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) =>
-                    v.ToString().Contains("Environment variable is not set.")
-                ),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
-    }
+            _httpClientFunction
+                .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
+            // Act
+            var result = await _sut.CheckFileName("badfile", parser, "error happened");
 
-    [TestMethod]
-    public async Task CheckFileName_ReturnsFalse_IfInvalid()
-    {
-        // Arrange
-        var parser = new FileNameParser("testname");
-
-        Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
-        var mockResponse = new Mock<HttpWebResponse>();
-
-        _mockCallFunction
-            .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(mockResponse.Object);
-
-        // Act
-        var result = await _helper.CheckFileName("badfile", parser, "error happened");
-
-        // Assert
-        Assert.IsFalse(result);
-        _mockCallFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-    }
+            // Assert
+            Assert.IsFalse(result);
+            _httpClientFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
     }
 }
