@@ -167,6 +167,24 @@ app_service_plan = {
         }
       }
     }
+    NemsMeshRetrieval = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "1"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
   }
 }
 
@@ -1217,6 +1235,27 @@ function_apps = {
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+    }
+
+    NemsMeshRetrieval = {
+      name_suffix                  = "nems-mesh-retrieval"
+      function_endpoint_name       = "NemsMeshRetrieval"
+      app_service_plan_key         = "NemsMeshRetrieval"
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "FileValidationURL"
+          function_app_key = "FileValidation"
+        }
+      ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
   }
 }
