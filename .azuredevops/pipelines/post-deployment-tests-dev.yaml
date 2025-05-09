@@ -37,9 +37,9 @@ stages:
       name: private-pool-dev-uks
 
     steps:
-    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-      parameters:
-        serviceConnection: sc-cohort-manager-dev
-        testProjectDirectory: 'tests/playwright-tests'
-        testfileDirectory: 'src/tests/e2e/testFiles'
-        testProjectName: 'tests'
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
