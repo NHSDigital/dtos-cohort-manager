@@ -37,12 +37,6 @@ stages:
       name: private-pool-dev-uks
 
     steps:
-      - checkout: self
-        path: source
-
-      - checkout: dtos-devops-templates
-        path: templates
-
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
         parameters:
           serviceConnection: sc-cohort-manager-dev
