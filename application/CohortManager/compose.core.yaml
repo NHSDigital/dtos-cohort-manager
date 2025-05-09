@@ -3,7 +3,6 @@ name: cohort-manager
 services:
   # CaaS Integration Service
 
-
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
@@ -329,6 +328,20 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
+  nems-subscribe:
+    container_name: nems-subscribe
+    image: cohort-manager-nems-subscribe
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSSubscribe/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9081
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+
   nems-unsubscribe:
     container_name: nems-unsubscribe
     image: cohort-manager-nems-unsubscribe
@@ -357,7 +370,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-   # UI
+    # UI
   web:
     container_name: web
     build:
