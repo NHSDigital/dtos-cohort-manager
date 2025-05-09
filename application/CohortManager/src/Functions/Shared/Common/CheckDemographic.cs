@@ -29,6 +29,7 @@ public class CheckDemographic : ICheckDemographic
         var url = $"{DemographicFunctionURI}?Id={NhsNumber}";
 
         var response = await _callFunction.SendGet(url);
+
         var demographicData = JsonSerializer.Deserialize<Demographic>(response);
 
         return demographicData;
