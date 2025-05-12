@@ -850,46 +850,6 @@
     IsFatal: 0
   },
   {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4540245953,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4540245953,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4540904884,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4540904884,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
     FileName: ,
     NhsNumber: 4541268663,
     RuleId: 50,
@@ -1074,26 +1034,6 @@
     NhsNumber: 4640483686,
     RuleId: 57,
     RuleDescription: Superseded by NHS ID invalid,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4641948828,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4641948828,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
@@ -1721,26 +1661,6 @@
   },
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4973180149,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 4973180149,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 4975906791,
     RuleId: -2146233088,
     RuleDescription: ,
@@ -2255,26 +2175,6 @@
     RuleId: 43,
     RuleDescription: Participant was transformed as transform rule: Name Prefix Capt was executed,
     Category: 11,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 6698104361,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 6698104361,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
-    Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,
     IsFatal: 0
@@ -2821,26 +2721,6 @@
   },
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7334425197,
-    RuleId: 0,
-    RuleDescription: Participant IGNORED triggered a validation rule, so will not be added to cohort distribution,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7334425197,
-    RuleId: 54,
-    RuleDescription: ValidateBsoCode,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7335805996,
     RuleId: -2146233088,
     RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
@@ -2892,28 +2772,8 @@
   {
     FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
     NhsNumber: 7352230343,
-    RuleId: -2146233088,
-    RuleDescription: ,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 1
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7352230343,
     RuleId: 14,
     RuleDescription: Reason for removal is invalid,
-    Category: 5,
-    ScreeningName: Breast Screening,
-    CohortName: ,
-    IsFatal: 0
-  },
-  {
-    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
-    NhsNumber: 7352230343,
-    RuleId: 53,
-    RuleDescription: Current posting and Primary Care provider contain incompatible values,
     Category: 5,
     ScreeningName: Breast Screening,
     CohortName: ,

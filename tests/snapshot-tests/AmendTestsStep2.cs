@@ -8,7 +8,7 @@ using VerifyMSTest;
 
 
 [TestClass]
-public class AmendStep1Tests : VerifyBase
+public class AmendStep2Tests : VerifyBase
 {
     private static DataServicesContext _dbContext;
     private static VerifySettings verifySettings;
@@ -19,7 +19,7 @@ public class AmendStep1Tests : VerifyBase
     [ClassInitialize]
     public static void ClassInitialize(TestContext context)
     {
-        verifySettings = SnapshotTestHelper.ConfigureVerify("AmendStep1");
+        verifySettings = SnapshotTestHelper.ConfigureVerify("AmendStep2");
 
         List<string> configFiles = ["appsettings.json"];
         _config = ConfigurationExtension.GetConfiguration<SnapshotTestsConfig>(null, configFiles);
@@ -33,7 +33,7 @@ public class AmendStep1Tests : VerifyBase
         _testHelper = new SnapshotTestHelper(_config);
         _nhsNumbers = _testHelper.GetNhsNumbersFromFile();
 
-        _testHelper.UploadFileToStorage(_config.AmendFile1Name);
+        _testHelper.UploadFileToStorage(_config.AmendFile2Name);
 
         Task.Delay(_config.StartDelay).GetAwaiter().GetResult();
     }
@@ -64,6 +64,11 @@ public class AmendStep1Tests : VerifyBase
                 .Where(i => _nhsNumbers.Contains(i.NHSNumber))
                 .OrderBy(i => i.NHSNumber)
                 .ThenBy(i => i.RecordType)
+                .ThenBy(i => i.EligibilityFlag)
+                .ThenBy(i => i.ExceptionFlag)
+                .ThenBy(i => i.ReasonForRemovalDate)
+                .ThenBy(i => i.ReasonForRemoval)
+                .ThenBy(i => i.ScreeningId)
                 .ToListAsync();
             await Verify(participants, verifySettings);
         });
@@ -94,15 +99,18 @@ public class AmendStep1Tests : VerifyBase
                 .OrderBy(i => i.NHSNumber)
                 .ThenBy(i => i.NamePrefix)
                 .ThenBy(i => i.PreviousFamilyName)
+                .ThenBy(i => i.AddressLine1)
                 .ThenBy(i => i.AddressLine2)
                 .ThenBy(i => i.AddressLine3)
                 .ThenBy(i => i.AddressLine4)
+                .ThenBy(i => i.AddressLine5)
                 .ThenBy(i => i.OtherGivenName)
                 .ThenBy(i => i.Gender)
                 .ThenBy(i => i.GivenName)
                 .ThenBy(i => i.PrimaryCareProvider)
                 .ThenBy(i => i.DateOfDeath)
                 .ThenBy(i => i.EmailAddressHome)
+                .ThenBy(i => i.TelephoneNumberMob)
                 .ThenBy(i => i.TelephoneNumberHome)
                 .ThenBy(i => i.ReasonForRemoval)
                 .ThenBy(i => i.FamilyName)
