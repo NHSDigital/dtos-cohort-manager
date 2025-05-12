@@ -81,6 +81,28 @@ testWithAmended('@DTOSS-5801-01 @smoke @e2e @ds @Implement Validate Amend fields
   });
 });
 
+testWithAmended.only('@DTOSS-5589-01 @smoke @e2e @ds @Implement Validate Amend fields reason for removal as null and date of death present', async ({ request, testData }) => {
+  await test.step(`Given database does not contain record that will be processed`, async () => {
+    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+  });
+
+  await test.step(`When ADD participant is processed via storage`, async () => {
+    await processFileViaStorage(testData.runTimeParquetFileAdd);
+  });
+
+  await test.step(`Then ADD record should be updated in the cohort`, async () => {
+    await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+  });
+
+  await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+    await processFileViaStorage(testData.runTimeParquetFileAmend);
+  });
+
+  await test.step(`Then the record should end up in exception management`, async () => {
+    await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+  });
+});
+
 test.describe.parallel('Exception Tests', () => {
   test('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
     await test.step(`Given database does not contain record that will be processed`, async () => {
