@@ -43,3 +43,4 @@ stages:
           testProjectDirectory: 'tests/playwright-tests'
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
+
