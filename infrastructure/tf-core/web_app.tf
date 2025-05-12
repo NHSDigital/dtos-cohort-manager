@@ -98,12 +98,12 @@ locals {
         {
           app_settings = merge(
             local.app_settings_common_web_app,
-            config.env_vars_static,
+            config.env_vars.static,
             {
-              for obj in config.env_vars_from_key_vault : obj.env_var_name => "@Microsoft.KeyVault(SecretUri=${module.key_vault[region].key_vault_url}secrets/${obj.key_vault_secret_name})"
+              for k, v in config.env_vars.from_key_vault : k => "@Microsoft.KeyVault(SecretUri=${module.key_vault[region].key_vault_url}secrets/${v})"
             },
             {
-              for k, v in config.local_urls : k => format(v, module.regions_config[region].names["linux-web-app"]) # Function App and Web App have the same naming prefix
+              for k, v in config.env_vars.local_urls : k => format(v, module.regions_config[region].names["function-app"]) # Function App and Web App have the same naming prefix
             },
             length(config.db_connection_string) > 0 ? {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
@@ -112,7 +112,7 @@ locals {
 
           # These RBAC assignments are for the Linux Web Apps only
           rbac_role_assignments = flatten([
-            var.key_vault != {} && length(config.env_vars_from_key_vault) > 0 ? [
+            var.key_vault != {} && length(config.env_vars.from_key_vault) > 0 ? [
               for role in local.rbac_roles_key_vault : {
                 role_definition_name = role
                 scope                = module.key_vault[region].key_vault_id

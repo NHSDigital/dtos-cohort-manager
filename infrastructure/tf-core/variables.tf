@@ -251,20 +251,14 @@ variable "linux_web_app" {
     linux_web_app_config = map(object({
       name_suffix          = string
       app_service_plan_key = string
-      app_urls = optional(list(object({
-        env_var_name     = string
-        function_app_key = string
-        endpoint_name    = optional(string, "")
-      })), [])
       custom_domains       = optional(list(string), [])
       db_connection_string = optional(string, "")
-      env_vars_from_key_vault = optional(list(object({
-        env_var_name          = string
-        key_vault_secret_name = string
-      })), [])
-      env_vars_static              = optional(map(string), {})
+      env_vars = optional(object({
+        static         = optional(map(string), {})
+        from_key_vault = optional(map(string), {})
+        local_urls     = optional(map(string), {})
+      }), {})
       key_vault_url                = optional(string, "")
-      local_urls                   = optional(map(string), {})
       storage_account_env_var_name = optional(string, "")
       storage_containers = optional(list(object
         ({
