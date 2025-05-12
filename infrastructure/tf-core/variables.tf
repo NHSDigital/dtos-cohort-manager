@@ -151,6 +151,7 @@ variable "app_service_plan" {
           dec_scale_cooldown  = optional(string)
         })
       }))
+      wildcard_ssl_cert_key = optional(string, null)
     }))
   })
 }
@@ -248,27 +249,28 @@ variable "linux_web_app" {
       slot_enabled = optional(bool, false)
     })))
     linux_web_app_config = map(object({
-      name_suffix                  = string
-      app_service_plan_key         = string
+      name_suffix          = string
+      app_service_plan_key = string
+      app_urls = optional(list(object({
+        env_var_name     = string
+        function_app_key = string
+        endpoint_name    = optional(string, "")
+      })), [])
+      custom_domains       = optional(list(string), [])
+      db_connection_string = optional(string, "")
+      env_vars_from_key_vault = optional(list(object({
+        env_var_name          = string
+        key_vault_secret_name = string
+      })), [])
+      env_vars_static              = optional(map(string), {})
+      key_vault_url                = optional(string, "")
+      local_urls                   = optional(map(string), {})
       storage_account_env_var_name = optional(string, "")
       storage_containers = optional(list(object
         ({
           env_var_name   = string
           container_name = string
       })), [])
-      db_connection_string = optional(string, "")
-      key_vault_url        = optional(string, "")
-      app_urls = optional(list(object({
-        env_var_name     = string
-        function_app_key = string
-        endpoint_name    = optional(string, "")
-      })), [])
-      env_vars_from_key_vault = optional(list(object({
-        env_var_name          = string
-        key_vault_secret_name = string
-      })), [])
-      env_vars_static = optional(map(string), {})
-      local_urls      = optional(map(string), {})
     }))
   })
 }
@@ -320,6 +322,11 @@ variable "network_security_group_rules" {
     },
 */
 
+variable "public_dns_zone_rg_name" {
+  type        = string
+  description = "Name of the Resource Group containing the public DNS zones in the Hub subscription, for App Service Custom Domains DNS challenges."
+  default     = null
+}
 
 variable "routes" {
   description = "Routes configuration for different regions"

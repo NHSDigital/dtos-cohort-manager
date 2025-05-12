@@ -1248,6 +1248,8 @@ key_vault = {
   sku_name          = "standard"
 }
 
+public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
+
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"

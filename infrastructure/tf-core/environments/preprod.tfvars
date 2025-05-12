@@ -1207,7 +1207,6 @@ function_apps = {
 
 function_app_slots = []
 
-
 linux_web_app = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
   acr_name    = "acrukshubprodcohman"
@@ -1279,6 +1278,8 @@ key_vault = {
   purge_prot        = true
   sku_name          = "standard"
 }
+
+public_dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
