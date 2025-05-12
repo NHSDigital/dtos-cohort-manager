@@ -5,7 +5,7 @@ test('@dummy test should pass', async () => {
 });
 
 test('@dummy test should fail', async () => {
-  expect(1 + 1).toBe(3); // Dummy assertion to ensure the test fails
+  expect.soft(1 + 1).toBe(3); // Dummy assertion to ensure the test fails
 });
 
 test('@dummy test should skip', async () => {
