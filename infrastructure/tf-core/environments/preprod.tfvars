@@ -215,8 +215,6 @@ function_apps = {
   acr_name    = "acrukshubprodcohman"
   acr_rg_name = "rg-hub-prod-uks-cohman"
 
-  app_insights_name                      = "appi-pre-uks-cohman"
-  app_insights_rg_name                   = "rg-cohman-pre-uks-audit"
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 
@@ -1212,9 +1210,6 @@ linux_web_app = {
   acr_name    = "acrukshubprodcohman"
   acr_rg_name = "rg-hub-prod-uks-cohman"
 
-  app_insights_name    = "appi-pre-uks-cohman"
-  app_insights_rg_name = "rg-cohman-pre-uks-audit"
-
   always_on = true
 
   cont_registry_use_mi = true
@@ -1278,8 +1273,6 @@ key_vault = {
   purge_prot        = true
   sku_name          = "standard"
 }
-
-public_dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"

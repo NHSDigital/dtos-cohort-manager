@@ -322,12 +322,6 @@ variable "network_security_group_rules" {
     },
 */
 
-variable "public_dns_zone_rg_name" {
-  type        = string
-  description = "Name of the Resource Group containing the public DNS zones in the Hub subscription, for App Service Custom Domains DNS challenges."
-  default     = null
-}
-
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({

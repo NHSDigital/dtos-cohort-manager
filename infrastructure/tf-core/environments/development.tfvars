@@ -1258,9 +1258,6 @@ linux_web_app = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name    = "appi-dev-uks-cohman"
-  app_insights_rg_name = "rg-cohman-dev-uks-audit"
-
   always_on = true
 
   cont_registry_use_mi = true
@@ -1319,8 +1316,6 @@ key_vault = {
   purge_prot        = false
   sku_name          = "standard"
 }
-
-public_dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"

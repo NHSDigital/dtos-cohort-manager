@@ -35,7 +35,7 @@ module "linux_web_app" {
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  # public_dns_zone_rg_name       = var.public_dns_zone_rg_name
+  # public_dns_zone_rg_name       = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
   public_network_access_enabled = var.features.public_network_access_enabled
   rbac_role_assignments         = each.value.rbac_role_assignments
   # share_name                 = var.linux_web_app.share_name
@@ -103,7 +103,7 @@ locals {
               for obj in config.env_vars_from_key_vault : obj.env_var_name => "@Microsoft.KeyVault(SecretUri=${module.key_vault[region].key_vault_url}secrets/${obj.key_vault_secret_name})"
             },
             {
-              for k, v in config.local_urls : k => format(v, module.regions_config[region].names["function-app"]) # Function App and Web App have the same naming prefix
+              for k, v in config.local_urls : k => format(v, module.regions_config[region].names["linux-web-app"]) # Function App and Web App have the same naming prefix
             },
             length(config.db_connection_string) > 0 ? {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}"
