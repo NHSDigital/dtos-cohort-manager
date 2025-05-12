@@ -6,9 +6,6 @@ using System.Text.Json;
 using Model;
 using System.Net;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
 using Model.Enums;
 using System.Threading.Tasks;
 using NHS.Screening.ReceiveCaasFile;
@@ -16,11 +13,11 @@ using NHS.Screening.ReceiveCaasFile;
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
     private readonly ILogger<ReceiveCaasFileHelper> _logger;
-    private readonly ICallFunction _callFunction;
-    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger, ICallFunction callFunction)
+    private readonly IHttpClientFunction _httpClientFunction;
+    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger, IHttpClientFunction httpClientFunction)
     {
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
     }
 
     public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
@@ -99,7 +96,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             Category = (int)ExceptionCategory.CaaS
         });
 
-        var result = await _callFunction.SendPost(fileValidationURL, json);
+        var result = await _httpClientFunction.SendPost(fileValidationURL, json);
         if (result.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError("An error occurred while saving or moving the failed file: {FileName}.", fileName);
@@ -121,7 +118,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 
     public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
     {
-        _logger.LogInformation("loading file from blob {name}", name);
+        _logger.LogInformation("loading file from blob {Name}", name);
 
         // make sure that that file name is valid
         if (!fileNameParser.IsValid)
