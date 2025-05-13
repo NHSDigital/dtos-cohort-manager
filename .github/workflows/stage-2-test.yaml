@@ -42,10 +42,36 @@ on:
         type: string
 
 jobs:
+  check-consolidated-tests:
+    name: Check for consolidated test project
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has-consolidated-tests: ${{ steps.check.outputs.has-consolidated-tests }}
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Check for ConsolidatedTests.csproj
+        id: check
+        run: |
+          if [ -f "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" ]; then
+            echo "Found ConsolidatedTests.csproj in root directory"
+            echo "has-consolidated-tests=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "No ConsolidatedTests.csproj found in root directory"
+            echo "has-consolidated-tests=false" >> "${GITHUB_OUTPUT}"
+          fi
+
   unit-test-scope:
     name: Get unit test scopes
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    needs: [check-consolidated-tests]
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'false'
     outputs:
       test-matrix: ${{ steps.matrix.outputs.test-matrix }}
     env:
@@ -64,15 +90,44 @@ jobs:
           echo "Unit test scopes: ${test_matrix_json}"
           echo "test-matrix=${test_matrix_json}" >> "${GITHUB_OUTPUT}"
 
+  test-consolidated:
+    name: Run consolidated tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [check-consolidated-tests]
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true'
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+      LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Run consolidated test suite
+        continue-on-error: true
+        run: |
+          set -eo pipefail
+          mkdir "TestResults"
+          echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
+          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage" --verbosity quiet
+      - name: Upload test results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-consolidated
+          path: |
+            TestResults/**/*.${{ inputs.unit_test_logger_format }}
+            TestResults/**/coverage.cobertura.xml
+
   test-unit:
     name: Unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [unit-test-scope]
+    needs: [unit-test-scope, check-consolidated-tests]
     strategy:
       matrix:
         scope: ${{ fromJSON(needs.unit-test-scope.outputs.test-matrix) }}
-    if: needs.unit-test-scope.outputs.test-matrix != '[]'
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'false' && needs.unit-test-scope.outputs.test-matrix != '[]'
     env:
       UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
       LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
@@ -102,7 +157,8 @@ jobs:
   aggregate-test-results:
     name: Aggregate results and report
     runs-on: ubuntu-latest
-    needs: [test-unit]
+    needs: [test-unit, test-consolidated, check-consolidated-tests]
+    if: always() && (needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true' || needs.unit-test-scope.outputs.test-matrix != '[]')
     permissions:
       pull-requests: write
     steps:
@@ -153,6 +209,7 @@ jobs:
   perform-static-analysis:
     name: Perform static analysis
     needs: [aggregate-test-results]
+    if: always() && needs.aggregate-test-results.result != 'skipped'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
