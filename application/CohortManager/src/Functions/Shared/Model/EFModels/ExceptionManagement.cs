@@ -50,14 +50,6 @@ public class ExceptionManagement
     [Column("IS_FATAL")]
     public short? IsFatal { get; set; }
 
-    /* WIP - below code will be uncommented once servicenow API is finished soon*/
-    /*[MaxLength(50)]
-    [Column("SERVICENOW_ID")]
-    public string? ServiceNowId { get; set; }
-
-    [Column("SERVICENOW_CREATED_DATE", TypeName = "datetime")]
-    public DateTime? ServiceNowCreatedDate { get; set; }*/
-
     public ValidationException ToValidationException()
     {
         return new ValidationException
