@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -21,7 +20,7 @@ public class ValidateCohortDistributionRecordTests
     private readonly Mock<ILogger<ValidateCohortDistributionRecord>> _logger = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly ValidateCohortDistributionRecord _function;
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
@@ -53,10 +52,10 @@ public class ValidateCohortDistributionRecordTests
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _function = new ValidateCohortDistributionRecord(
-            _logger.Object, 
-            _createResponse.Object, 
-            _exceptionHandler.Object, 
-            _callFunction.Object, 
+            _logger.Object,
+            _createResponse.Object,
+            _exceptionHandler.Object,
+            _httpClientFunction.Object,
             _cohortDistributionDataServiceMock.Object,
             _config.Object
         );
@@ -146,17 +145,16 @@ public class ValidateCohortDistributionRecordTests
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
-        var existingParticipant = new CohortDistributionParticipant();
 
         _cohortDistributionDataServiceMock.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
 
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
-            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).ReturnsAsync(
+            JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = true,
                 CreatedException = true
             })
-        ));
+        );
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -170,16 +168,16 @@ public class ValidateCohortDistributionRecordTests
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
-        var existingParticipant = new CohortDistributionParticipant();
+
         _cohortDistributionDataServiceMock.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
 
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(
-            Task.FromResult(JsonSerializer.Serialize(new ValidationExceptionLog()
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).ReturnsAsync(
+            JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = false,
                 CreatedException = false
             })
-        ));
+        );
 
         // Act
         var result = await _function.RunAsync(_request.Object);
@@ -193,10 +191,10 @@ public class ValidateCohortDistributionRecordTests
     {
         // Arrange
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
-        var existingParticipant = new CohortDistributionParticipant();
+
         _cohortDistributionDataServiceMock.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
 
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(x => x.Contains("LookupValidationURL")), It.IsAny<string>()))
         .Throws(new Exception("some new exception"));
 
         _exceptionHandler.Setup(x => x.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -217,8 +215,6 @@ public class ValidateCohortDistributionRecordTests
         var exception = new Exception("some new exception");
 
         SetUpRequestBody(JsonSerializer.Serialize(_requestBody));
-        var existingParticipant = new CohortDistributionParticipant();
-
 
         _cohortDistributionDataServiceMock.Setup(x => x.GetSingle(It.IsAny<string>())).Throws(new Exception("some new exception"));
 
