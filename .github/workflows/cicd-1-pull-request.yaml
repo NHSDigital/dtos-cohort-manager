@@ -102,7 +102,7 @@ jobs:
     secrets: inherit
   analysis-stage: # Recommended maximum execution time is 5 minutes
     name: "Analysis stage"
-    needs: [metadata, commit-stage]
+    needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-2-analyse.yaml
     with:
       unit_test_dir: tests/UnitTests
