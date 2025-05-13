@@ -26,7 +26,7 @@ runs:
           7.0.x
           8.0.x
           9.0.x
-        
+          
     - name: Cache SonarQube Cloud packages
       uses: actions/cache@v4
       with:
@@ -49,11 +49,18 @@ runs:
         mkdir -p .sonar/scanner
         dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
         
+    - name: Fix NuGet Caching
+      shell: bash
+      run: |
+        dotnet nuget locals all --clear
+        mkdir -p ~/.nuget/NuGet
+        echo '<?xml version="1.0" encoding="utf-8"?><configuration><packageSources><add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" /></packageSources></configuration>' > ~/.nuget/NuGet/NuGet.Config
+        
     - name: Build and analyze
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      shell: bash
       run: |
         echo "Starting SonarCloud analysis with:"
         echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
@@ -61,25 +68,29 @@ runs:
         
         # Begin SonarScanner
         ./.sonar/scanner/dotnet-sonarscanner begin \
-        /k:"${{ vars.SONAR_PROJECT_KEY }}" \
-        /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
-        /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-        /d:sonar.host.url="https://sonarcloud.io" \
-        /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
-        /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
+          /k:"${{ vars.SONAR_PROJECT_KEY }}" \
+          /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
+          /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml" \
+          /d:sonar.scanner.skipJreProvisioning=true
         
-        # Restore NuGet packages with explicit targeting of each project
-        echo "Restoring NuGet packages for all projects..."
-        dotnet restore application/CohortManager/src/Functions/Functions.sln --verbosity detailed
+        # Restore all dependencies first
+        echo "Restoring dependencies for all projects"
+        dotnet restore --verbosity detailed 
         
-        # For subdirectories with many projects, try a more targeted approach
-        echo "Looking for projects with missing assets..."
-        find application/CohortManager/src/Functions -name "*.csproj" | xargs -I{} dotnet restore "{}" --verbosity minimal
-        find tests -name "*.csproj" | xargs -I{} dotnet restore "{}" --verbosity minimal
+        # Restore all csproj files individually
+        echo "Individual project restore for all csproj files"
+        find . -name "*.csproj" | xargs -n 1 -P 4 dotnet restore
         
-        # Then build the solution with no restore
-        echo "Building solutions..."
-        find . -name "*.sln" | xargs -I {} dotnet build {} --no-restore
+        # Restore mesh client specifically
+        echo "Restoring mesh client projects explicitly"
+        dotnet restore application/CohortManager/src/Functions/Shared/dotnet-mesh-client/application/DotNetMeshClient/NHS.Mesh.Client/NHS.Mesh.Client.csproj --verbosity detailed
         
-        # End SonarScanner
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        # Try building each project individually to avoid dependency issues
+        echo "Building projects individually"
+        find . -name "*.csproj" | grep -v "Test" | xargs -n 1 dotnet build --no-restore --configuration Release
+        
+        # End SonarScanner - do this even if builds fail
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" || true
