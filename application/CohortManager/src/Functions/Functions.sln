@@ -245,6 +245,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscribe", "Demographi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscribeTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\NEMSSubscribeTests\NEMSSubscribeTests.csproj", "{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsolidatedTests", "..\..\..\..\tests\UnitTests\ConsolidatedTests.csproj", "{F849E687-D198-46ED-9697-EB051FD8CBDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1011,6 +1013,18 @@ Global
 		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x64.Build.0 = Release|Any CPU
 		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x86.ActiveCfg = Release|Any CPU
 		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x86.Build.0 = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|x64.Build.0 = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Debug|x86.Build.0 = Debug|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|x64.ActiveCfg = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|x64.Build.0 = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|x86.ActiveCfg = Release|Any CPU
+		{F849E687-D198-46ED-9697-EB051FD8CBDA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
