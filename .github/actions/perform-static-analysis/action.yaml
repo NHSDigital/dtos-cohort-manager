@@ -17,39 +17,53 @@ runs:
       uses: actions/setup-java@v4
       with:
         java-version: 17
-        distribution: "zulu" # Alternative distribution options are available.
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-        fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
-    - name: Install .NET SDK 8
+        distribution: "zulu"
+        
+    - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x # C
+        dotnet-version: 7.0.x  # Adjust this version to match your project requirements
+        
     - name: Cache SonarQube Cloud packages
       uses: actions/cache@v4
       with:
-        path: ~\sonar\cache
+        path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
+        
     - name: Cache SonarQube Cloud scanner
       id: cache-sonar-scanner
       uses: actions/cache@v4
       with:
-        path: .\.sonar\scanner
+        path: ./.sonar/scanner
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
+        
     - name: Install SonarQube Cloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: bash # Change from powershell to bash
+      shell: bash
       run: |
         mkdir -p .sonar/scanner
         dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
-        dotnet tool install dotnet-coverage --tool-path ./.sonar/scanner
+        
     - name: Build and analyze
       shell: bash
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /o:"${{ inputs.sonar_organisation_key }}" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io" /d:project.settings="./scripts/config/sonar-scanner.properties" /d:sonar.cs.vscoveragexml.reportsPaths=**/vscoverage.xml /d:sonar.lang.patterns.ts=**/*.ts,**/*.tsx,**/*.cts,**/*.mts /d:sonar.lang.patterns.js=**/*.js,**/*.jsx,**/*.cjs,**/*.mjs,**/*.vue /d:sonar.javascript.enabled=false
-        dotnet build application/CohortManager/src/Functions/Functions.sln
+        echo "Starting SonarCloud analysis with:"
+        echo "Project key: ${{ inputs.sonar_project_key }}"
+        echo "Organization key: ${{ inputs.sonar_organisation_key }}"
+        
+        # Begin SonarScanner
+        ./.sonar/scanner/dotnet-sonarscanner begin \
+          /k:"${{ inputs.sonar_project_key }}" \
+          /o:"${{ inputs.sonar_organisation_key }}" \
+          /d:sonar.token="${{ inputs.sonar_token }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
+          /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
+        
+        # Build the solution without running tests
+        find . -name "*.sln" | xargs -I {} dotnet build {} --no-restore
+        
+        # End SonarScanner
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
