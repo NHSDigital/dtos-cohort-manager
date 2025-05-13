@@ -266,8 +266,15 @@ jobs:
           dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
       - name: Restore NuGet packages
         run: |
-          dotnet restore
-          find . -name "*.csproj" | xargs -n 1 dotnet restore
+          # Find all solution files and restore them
+          find . -name "*.sln" | xargs -I {} dotnet restore {} || echo "No solution files found"
+          
+          # Find all project files and restore them individually
+          find . -name "*.csproj" | xargs -I {} dotnet restore {} || echo "No project files found"
+          
+          # Show directory structure for debugging
+          echo "Directory structure:"
+          find . -name "*.csproj" -o -name "*.sln" | sort
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
