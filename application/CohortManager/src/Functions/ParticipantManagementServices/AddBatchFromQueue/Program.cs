@@ -28,6 +28,9 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
         services.AddSingleton<IDurableAddProcessor, DurableAddProcessor>();
+        services.AddSingleton<IValidateRecord, ValidateRecord>();
+        services.AddSingleton<IMessageHandling, MessageHandling>();
+        services.AddSingleton<IAddBatchFromQueueProcessHelper, AddBatchFromQueueProcessHelper>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

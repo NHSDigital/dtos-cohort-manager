@@ -11,7 +11,7 @@
   }, 
   "extensions": {
     "durableTask": {
-      "hubName": "MyTaskHub",
+      "hubName": "DurableDemographicTaskHub",
       "storageProvider": {
         "type": "AzureStorage",
         "maxDurableActivityFunctionTimeout": "30:00:00", 

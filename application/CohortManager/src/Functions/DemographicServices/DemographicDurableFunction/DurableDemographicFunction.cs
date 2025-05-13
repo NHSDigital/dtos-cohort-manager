@@ -122,7 +122,7 @@ public class DurableDemographicFunction
     [Function("DurableDemographicFunction_HttpStart")]
     public async Task<HttpResponseData> HttpStart(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-        [DurableClient] DurableTaskClient client,
+        [DurableClient(TaskHub = "DurableDemographicTaskHub")] DurableTaskClient client,
         FunctionContext executionContext)
     {
         try
@@ -152,7 +152,7 @@ public class DurableDemographicFunction
     [Function("GetOrchestrationStatus")]
     public async Task<HttpResponseData> GetOrchestrationStatus(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-    [DurableClient(TaskHub = "%MyTaskHub%")] DurableTaskClient client)
+    [DurableClient()] DurableTaskClient client)
     {
         var instanceId = "";
         var status = "";

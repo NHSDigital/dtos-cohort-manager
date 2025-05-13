@@ -33,4 +33,6 @@ public class AddBatchFromQueueConfig
     public string DSmarkParticipantAsEligible { get; set; }
     [Required]
     public string StaticValidationURL { get; set; }
+    [Required]
+    public string AddBatchSize { get; set; }
 }

@@ -3,6 +3,7 @@ namespace AddBatchFromQueue;
 using System.Net;
 using System.Text.Json;
 using Common;
+using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -13,25 +14,28 @@ public class DurableAddProcessor : IDurableAddProcessor
     private readonly ICheckDemographic _getDemographicData;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
-    private readonly ICallFunction _callFunction;
     private readonly AddBatchFromQueueConfig _config;
+    private readonly IValidateRecord _validateRecord;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
 
     public DurableAddProcessor(
-      IOptions<AddBatchFromQueueConfig> config,
+        IOptions<AddBatchFromQueueConfig> config,
         ILogger<DurableAddProcessor> logger,
         ICheckDemographic checkDemographic,
         ICreateParticipant createParticipant,
         IExceptionHandler handleException,
-        ICallFunction callFunction
-        )
+        IValidateRecord validateRecord,
+        IDataServiceClient<ParticipantManagement> participantManagementClient
+    )
     {
         _logger = logger;
         _getDemographicData = checkDemographic;
         _createParticipant = createParticipant;
         _handleException = handleException;
-        _callFunction = callFunction;
         _config = config.Value;
+        _validateRecord = validateRecord;
+        _participantManagementClient = participantManagementClient;
     }
 
     /// <summary>
@@ -62,34 +66,13 @@ public class DurableAddProcessor : IDurableAddProcessor
                 FileName = basicParticipantCsvRecord.FileName,
             };
 
-            // Validation
-            participantCsvRecord.Participant.ExceptionFlag = "N";
-            participant.ExceptionFlag = "N";
-            var response = await ValidateData(participantCsvRecord);
-            if (response.IsFatal)
+            //validate record and set EligibilityFlag 
+            (participantCsvRecord, participant) = await ValidateData(participantCsvRecord, participant);
+            if (participantCsvRecord == null || participant == null)
             {
-                _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
-                await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
                 return null;
             }
 
-            if (response.CreatedException)
-            {
-                participantCsvRecord.Participant.ExceptionFlag = "Y";
-                participant.ExceptionFlag = "Y";
-            }
-
-            // Add participant to database
-            var json = JsonSerializer.Serialize(participantCsvRecord);
-            createResponse = await _callFunction.SendPost(_config.DSaddParticipant, json);
-
-            if (createResponse.StatusCode != HttpStatusCode.OK)
-            {
-                _logger.LogError("There was problem posting the participant to the database");
-                await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return null;
-
-            }
             participant.EligibilityFlag = "1";
             var participantJson = JsonSerializer.Serialize(participant);
 
@@ -106,28 +89,26 @@ public class DurableAddProcessor : IDurableAddProcessor
         }
     }
 
-    private async Task<ValidationExceptionLog> ValidateData(ParticipantCsvRecord participantCsvRecord)
+    private async Task<(ParticipantCsvRecord participantCsvRecord, Participant participant)> ValidateData(ParticipantCsvRecord participantCsvRecord, Participant participant)
     {
-        var json = JsonSerializer.Serialize(participantCsvRecord);
-
-        if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
+        var response = await _validateRecord.ValidateData(participantCsvRecord, participant);
+        if (response.ValidationExceptionLog.IsFatal)
         {
-            var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
-            await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
-
-            return new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = true
-            };
+            return (null, null)!;
         }
+        participant = response.Participant;
 
-        var response = await _callFunction.SendPost(_config.StaticValidationURL, json);
-        var responseBodyJson = await _callFunction.GetResponseText(response);
-        var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+        var validateLookUpResult = await _validateRecord.ValidateLookUpData(participantCsvRecord, participantCsvRecord.FileName);
+        if (validateLookUpResult == null)
+        {
+            _logger.LogError("The validateLookUpResult was null");
+            return (null, null)!;
+        }
+        participantCsvRecord = validateLookUpResult;
 
-        return responseBody;
-
+        return (participantCsvRecord, participant);
     }
+
+
 }
 
