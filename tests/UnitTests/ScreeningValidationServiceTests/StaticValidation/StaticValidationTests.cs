@@ -29,7 +29,7 @@ public class StaticValidationTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
     private readonly Mock<IReadRules> _readRules = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<IOptions<StaticValidationConfig>> _config = new();
 
     public StaticValidationTests()
@@ -64,7 +64,7 @@ public class StaticValidationTests
             _handleException.Object,
             _createResponse,
             _readRules.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _config.Object
         );
 
@@ -435,7 +435,7 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        await _function.RunAsync(_request.Object);
 
         // Assert
         _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
