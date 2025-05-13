@@ -52,58 +52,9 @@ jobs:
           name: test-coverage-report
           path: coverage
           
-  setup-dependencies:
-    name: Setup dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: "zulu"
-      - name: Install .NET SDKs
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            7.0.x
-            8.0.x
-            9.0.x
-      - name: Install SonarQube Cloud scanner
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-      - name: Setup NuGet cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-      - name: Cache SonarQube Cloud packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-sonar-
-      - name: Restore NuGet packages
-        run: |
-          find . -name "*.sln" -exec dotnet restore {} \;
-      - name: Cache dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.nuget/packages
-            ~/.sonar/cache
-            ~/.dotnet/tools
-          key: ${{ runner.os }}-deps-${{ github.sha }}
-          
   perform-static-analysis:
     name: Perform static analysis
-    needs: [download-test-coverage, setup-dependencies]
+    needs: [download-test-coverage]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -132,16 +83,26 @@ jobs:
         with:
           name: test-coverage-report
           path: coverage
-      - name: Restore cached dependencies
+      - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.nuget/packages
-            ~/.sonar/cache
-            ~/.dotnet/tools
-          key: ${{ runner.os }}-deps-${{ github.sha }}
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
-            ${{ runner.os }}-deps-
+            ${{ runner.os }}-sonar-
+      - name: Install SonarQube Cloud scanner
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+      - name: Setup NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Restore NuGet packages
+        run: |
+          find . -name "*.sln" -exec dotnet restore {} \;
       - name: Begin SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -151,20 +112,14 @@ jobs:
           echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
           echo "Organization key: ${{ vars.SONAR_ORGANISATION_KEY }}"
           
-          # List coverage files to verify they exist
-          echo "Available coverage files:"
-          ls -la coverage/
-          
-          # Begin SonarScanner with improved coverage configuration
+          # Begin SonarScanner
           dotnet sonarscanner begin \
             /k:"${{ vars.SONAR_PROJECT_KEY }}" \
             /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
-            /d:sonar.cs.cobertura.reportsPaths="coverage/cobertura.xml" \
-            /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
-            /d:sonar.verbose=true
+            /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
+            /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
       - name: Build solution
         run: |
           find . -name "*.sln" -exec dotnet build {} --no-restore \;
