@@ -1,0 +1,46 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "identifier": [
+    {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9000000009"
+    }
+  ],
+  "name": [
+    {
+      "use": "usual",
+      "given": [
+        "Jane"
+      ],
+      "family": "Smith"
+    }
+  ],
+  "gender": "female",
+  "birthDate": "1990-01-01",
+  "extension": [
+    {
+      "url": "https://fhir.nhs.uk/StructureDefinition/Extension-PDS-RemovalFromRegistration",
+      "extension": [
+        {
+          "url": "removalFromRegistrationCode",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.nhs.uk/CodeSystem/PDS-RemovalReasonExitCode",
+                "code": "SCT"
+              }
+            ]
+          }
+        },
+        {
+          "url": "effectiveTime",
+          "valuePeriod": {
+            "start": "2020-01-01T00:00:00+00:00",
+            "end": "2021-12-31T00:00:00+00:00"
+          }
+        }
+      ]
+    }
+  ]
+}
