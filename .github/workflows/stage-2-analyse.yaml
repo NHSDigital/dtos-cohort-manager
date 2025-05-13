@@ -1,65 +1,95 @@
-name: Static Analysis
+name: Analysis stage
 
 on:
-  workflow_run:
-    workflows: ["Test stage"]  # Name of your test workflow
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      unit_test_dir:
+        description: Directory containing the unit tests
+        required: true
+        type: string
+      build_datetime:
+        description: Build datetime, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      build_timestamp:
+        description: Build timestamp, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      build_epoch:
+        description: Build epoch, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      nodejs_version:
+        description: Node.js version, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      python_version:
+        description: Python version, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      terraform_version:
+        description: Terraform version, set by the CI/CD pipeline workflow
+        required: true
+        type: string
+      version:
+        description: Version of the software, set by the CI/CD pipeline workflow
+        required: true
+        type: string
 
 jobs:
+  download-test-coverage:
+    name: Download test coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-report
+          path: coverage
+          
   perform-static-analysis:
     name: Perform static analysis
-    # Only run if the test workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs: [download-test-coverage]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-      actions: read  # To access artifacts from previous workflows
     timeout-minutes: 15  # Increased timeout
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0  # Full history for SonarCloud
-          
+          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: "zulu"
-          cache: 'maven'  # Cache Maven dependencies
-          
-      # Only install the .NET SDK versions you actually need
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Use only the version you need
-          
-      # Download the artifacts from the previous workflow run
-      - name: Download workflow artifact
-        uses: dawidd6/action-download-artifact@v2
+          dotnet-version: '8.0.x'  # Only install the version you actually need
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
         with:
-          workflow: "Test stage"
-          workflow_conclusion: success
           name: test-coverage-report
           path: coverage
-            
-      # Improve caching for SonarCloud scanner
-      - name: Cache SonarQube packages
+      - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
           restore-keys: |
             ${{ runner.os }}-sonar-
-            
       - name: Install SonarQube Cloud scanner
         run: |
           dotnet tool install --global dotnet-sonarscanner
-            
-      # Optimize NuGet cache with better keys
       - name: Setup NuGet cache
         uses: actions/cache@v4
         with:
@@ -67,14 +97,19 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
           restore-keys: |
             ${{ runner.os }}-nuget-
-            
       - name: Restore NuGet packages
         run: |
           find . -name "*.sln" -exec dotnet restore {} \;
-          
-      # Split the analysis into multiple steps for better visibility
       - name: Begin SonarCloud analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          echo "Starting SonarCloud analysis with:"
+          echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
+          echo "Organization key: ${{ vars.SONAR_ORGANISATION_KEY }}"
+          
+          # Begin SonarScanner
           dotnet sonarscanner begin \
             /k:"${{ vars.SONAR_PROJECT_KEY }}" \
             /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
@@ -82,17 +117,12 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
             /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            
       - name: Build solution
         run: |
           find . -name "*.sln" -exec dotnet build {} --no-restore \;
-            
-      - name: Complete SonarCloud analysis
-        run: |
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      - name: End SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
