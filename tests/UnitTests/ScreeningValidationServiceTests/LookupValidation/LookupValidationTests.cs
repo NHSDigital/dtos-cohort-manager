@@ -86,24 +86,80 @@ public class LookupValidationTests
 
     private void SetupRules(string ruleType)
     {
-        string json;
+        string filename;
         switch (ruleType)
         {
             case "LookupRules":
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                filename = "Breast_Screening_lookupRules.json";
                 break;
             case "CohortRules":
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_cohortRules.json");
+                filename = "Breast_Screening_cohortRules.json";
                 break;
             default:
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                filename = "Breast_Screening_lookupRules.json";
                 break;
         }
+
+        // Try various paths for the rules files
+        string[] possiblePaths = new[]
+        {
+        // Original paths with different nesting depths
+        Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        
+        // Try paths relative to project root
+        Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        
+        // Try absolute path to handle any directory structure
+        Path.Combine("/Users/sam/git/nhs/dtos-cohort-manager/application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+        
+        // Try with the ScreeningValidationService root directory
+        Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
+        Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
+    };
+
+        // Try to find the file in any of the possible locations
+        string jsonContent = null;
+        foreach (string relativePath in possiblePaths)
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(relativePath);
+                if (File.Exists(fullPath))
+                {
+                    jsonContent = File.ReadAllText(fullPath);
+                    Console.WriteLine($"Found rules file at: {fullPath}");
+                    break;
+                }
+            }
+            catch
+            {
+                // Ignore any errors and try the next path
+            }
+        }
+
+        // If file wasn't found, check for an embedded resource
+        if (jsonContent == null)
+        {
+            // Get the directory of the currently executing assembly
+            string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
+
+            // Try to find in a TestData directory
+            string testDataPath = Path.Combine(assemblyDirectory, "TestData", filename);
+            if (File.Exists(testDataPath))
+            {
+                jsonContent = File.ReadAllText(testDataPath);
+                Console.WriteLine($"Found rules file in TestData directory: {testDataPath}");
+            }
+        }
+
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
-        .Returns(Task.FromResult<string>(json));
+            .Returns(Task.FromResult(jsonContent));
+
         _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object, _lookupValidation.Object, _readRules.Object);
-
-
     }
 
     [TestMethod]
