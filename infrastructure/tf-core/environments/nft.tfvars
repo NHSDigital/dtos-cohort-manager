@@ -248,6 +248,7 @@ function_apps = {
         GetOrchestrationStatusURL  = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
+        maxNumberOfChecks          = "50"
       }
 
     }

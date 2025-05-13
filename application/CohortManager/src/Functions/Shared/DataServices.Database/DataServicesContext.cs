@@ -1,8 +1,6 @@
 ﻿namespace DataServices.Database;
-
 using Model;
 using Microsoft.EntityFrameworkCore;
-
 public class DataServicesContext : DbContext
 {
     DbSet<BsSelectGpPractice> bsSelectGpPractices { get; set; }
@@ -16,9 +14,11 @@ public class DataServicesContext : DbContext
     public DbSet<ParticipantManagement> ParticipantManagements {get;set;}
     public DbSet<CohortDistribution> CohortDistributions {get;set;}
     public DbSet<ParticipantDemographic> ParticipantDemographics {get; set;}
+    DbSet<NemsSubscription> nemsSubscriptions {get;set;}
+    
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BsSelectGpPractice>()
@@ -47,6 +47,7 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<HigherRiskReferralReasonLkp>()
             .ToTable("HIGHER_RISK_REFERRAL_REASON_LKP", "dbo");
+
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo");
 
@@ -61,5 +62,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ScreeningLkp>()
             .ToTable("SCREENING_LKP", "dbo");
+            
+        modelBuilder.Entity<NemsSubscription>()
+            .ToTable("NEMS_SUBSCRIPTION", "dbo");
     }
 }
