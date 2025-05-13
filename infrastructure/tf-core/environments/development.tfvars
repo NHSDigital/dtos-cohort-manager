@@ -155,30 +155,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 4
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
-    NemsMeshRetrieval = {
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "1"
           capacity_max = "1"
-          capacity_def = "2"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -1238,7 +1220,7 @@ function_apps = {
     NemsMeshRetrieval = {
       name_suffix                  = "nems-mesh-retrieval"
       function_endpoint_name       = "NemsMeshRetrieval"
-      app_service_plan_key         = "NemsMeshRetrieval"
+      app_service_plan_key         = "RetrieveMeshFile"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "nemsmeshfolder_STORAGE"
       app_urls = [
