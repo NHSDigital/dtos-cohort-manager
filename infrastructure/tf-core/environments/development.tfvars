@@ -167,6 +167,24 @@ app_service_plan = {
         }
       }
     }
+    NemsMeshRetrieval = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "1"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
   }
 }
 
@@ -1160,12 +1178,84 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+      }
+    }
+
+    NemsSubscriptionDataService = {
+      name_suffix            = "nems-subscription-data-service"
+      function_endpoint_name = "NemsSubscriptionDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    NemsSubscribe = {
+      name_suffix            = "nems-subscribe"
+      function_endpoint_name = "NemsSubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        }
+      ]
+    }
+
+    NemsUnsubscribe = {
+      name_suffix            = "nems-unsubscribe"
+      function_endpoint_name = "NemsUnsubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         },
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+    }
+
+    NemsMeshRetrieval = {
+      name_suffix                  = "nems-mesh-retrieval"
+      function_endpoint_name       = "NemsMeshRetrieval"
+      app_service_plan_key         = "NemsMeshRetrieval"
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "FileValidationURL"
+          function_app_key = "FileValidation"
+        }
+      ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
   }
 }

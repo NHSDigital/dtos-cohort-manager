@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsEligible",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "markParticipantAsIneligible", "screeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj", "{323B466B-D2DB-4774-993A-61B2A66715E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateParticipant", "screeningDataServices\createParticipant\createParticipant.csproj", "{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemsSubscriptionDataService", "screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj", "{2F0F1457-27B4-4EBC-92CF-8FBA5252515E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateParticipant", "screeningDataServices\createParticipant\CreateParticipant.csproj", "{AD400B3E-073B-4BBD-AF0F-EFAAF48A3E58}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParticipantManagementServices", "ParticipantManagementServices", "{E1ADFCCC-1FF7-40E6-8D82-301F3FA909A7}"
 EndProject
@@ -219,6 +221,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadRulesTests", "..\..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpParserTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpParserTests\HttpParserTests.csproj", "{C86FDA63-AA51-4B5F-A69B-DEF0266E268F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FhirParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FhirParserTests\FhirParserTests.csproj", "{C80C7A73-72D6-4C48-8FDD-72B0C1B3072C}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{0A68E48A-8249-4A74-B5B7-5921017D07BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{5D5C7C1C-37FE-4671-8BA2-138447049EE3}"
@@ -231,7 +235,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetValidationExceptionsTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceDataTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\GetParticipantReferenceDataTests\GetParticipantReferenceDataTests.csproj", "{BF97136A-59AA-4468-9F10-B1F91140EE62}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpClientFunctionTests", "..\..\..\..\tests\UnitTests\SharedTests\HttpClientFunctionTests\HttpClientFunctionTests.csproj", "{D488875D-E001-4FAC-A877-E9E2E805F169}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveCaasFileHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\ReceiveCaasFileHelperTests\ReceiveCaasFileHelperTests.csproj", "{2142F03D-5994-42B1-994D-EB6A60E81DC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSUnSubscription", "DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj", "{EF2F725D-4C2A-40AE-BC78-54A4067D2028}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSUnSubscriptionTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\NEMSUnSubscriptionTests\NEMSUnSubscriptionTests.csproj", "{AE654CE5-0B64-4502-9E73-633CD446CB7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscribe", "DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj", "{170D3A52-BE53-45DB-BE9E-7667C3F68308}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSSubscribeTests", "..\..\..\..\tests\UnitTests\DemographicServicesTests\NEMSSubscribeTests\NEMSSubscribeTests.csproj", "{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -959,10 +973,46 @@ Global
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF97136A-59AA-4468-9F10-B1F91140EE62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D488875D-E001-4FAC-A877-E9E2E805F169}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2142F03D-5994-42B1-994D-EB6A60E81DC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF2F725D-4C2A-40AE-BC78-54A4067D2028}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF2F725D-4C2A-40AE-BC78-54A4067D2028}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF2F725D-4C2A-40AE-BC78-54A4067D2028}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF2F725D-4C2A-40AE-BC78-54A4067D2028}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE654CE5-0B64-4502-9E73-633CD446CB7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE654CE5-0B64-4502-9E73-633CD446CB7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE654CE5-0B64-4502-9E73-633CD446CB7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE654CE5-0B64-4502-9E73-633CD446CB7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|x64.Build.0 = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Debug|x86.Build.0 = Debug|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|Any CPU.Build.0 = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|x64.ActiveCfg = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|x64.Build.0 = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|x86.ActiveCfg = Release|Any CPU
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308}.Release|x86.Build.0 = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|x64.Build.0 = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Debug|x86.Build.0 = Debug|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x64.ActiveCfg = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x64.Build.0 = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x86.ActiveCfg = Release|Any CPU
+		{30BB1ACB-E604-4C46-81BF-49B007E4EB7F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1011,6 +1061,8 @@ Global
 		{5AEBC8F8-3920-4A64-B9A5-A1898859C746} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
 		{3E51D76F-4A90-4EC2-AF80-74E6EE94C257} = {3CB19D2E-0BAE-4AC3-9D8D-32D9D265FCBF}
 		{EA290B1D-C07B-4B10-B7D1-F87E2629D069} = {198995B8-A14C-4890-BF05-10C65C1E790F}
+		{EF2F725D-4C2A-40AE-BC78-54A4067D2028} = {8546F1DA-6055-4224-8A2B-36CDE94CBD07}
+		{170D3A52-BE53-45DB-BE9E-7667C3F68308} = {8546F1DA-6055-4224-8A2B-36CDE94CBD07}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6EACF2AC-4BC4-46CE-B6EB-1556257C4C21}

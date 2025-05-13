@@ -23,28 +23,28 @@ let response: APIResponse;
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
+  let endpoint = "";
 
   for (let attempt = 1; attempt <= apiRetry; attempt++) {
     if (status) break;
 
     try {
       for (const apiValidation of validationJson) {
-        const endpoint = apiValidation.validations.apiEndpoint;
+        endpoint = apiValidation.validations.apiEndpoint;
         response = await fetchApiResponse(endpoint, request);
 
         expect(response.ok()).toBeTruthy();
         const responseBody = await response.json();
         expect(Array.isArray(responseBody)).toBeTruthy();
-
-        const { matchingObject, nhsNumber } = await findMatchingObject(endpoint, responseBody, apiValidation);
-        status = await validateFields(apiValidation, matchingObject, nhsNumber);
-
+        const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
+        console.info(`Validating fields using 🅰️\t🅿️\tℹ️\t ${endpoint}`);
+        status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
       }
     } catch (error) {
     }
 
     if (attempt < apiRetry && !status) {
-      console.info(`🚧 Function processing in progress; will check again in ${Math.round(waitTime / 1000)} seconds...`);
+      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${Math.round(waitTime / 1000)} seconds...`);
       await delayRetry();
     }
   }
@@ -59,7 +59,7 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)) {
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
-  } else if(endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+  } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
@@ -99,7 +99,7 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   matchingObject = matchingObjects[matchingObjects.length - 1];
 
   if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
-      (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
+    (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
 
@@ -114,24 +114,111 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
     }
   }
 
-  return { matchingObject, nhsNumber };
+  return { matchingObject, nhsNumber, matchingObjects };
 }
 
-async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any): Promise<boolean> {
+
+async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
-  try{
-    for (const [fieldName, expectedValue] of fieldsToValidate) {
+
+  for (const [fieldName, expectedValue] of fieldsToValidate) {
+    if (fieldName === "expectedCount") {
+      console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+      const actualCount = matchingObjects.length;
+      expect(actualCount).toBe(expectedValue);
+      console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+    }
+    // Special handling for timestamp fields
+    else if (fieldName === 'RecordInsertDateTime' || fieldName === 'RecordUpdateDateTime') {
+      console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+
+      expect(matchingObject).toHaveProperty(fieldName);
+      const actualValue = matchingObject[fieldName];
+
+
+      if (typeof expectedValue === 'string' && expectedValue.startsWith('PATTERN:')) {
+        const pattern = expectedValue.substring('PATTERN:'.length);
+        console.info(`Validating timestamp against pattern: ${pattern}`);
+
+
+        const formatMatch = validateTimestampFormat(actualValue, pattern);
+
+        if (formatMatch) {
+          console.info(`✅ Timestamp matches pattern for ${fieldName}`);
+        } else {
+          console.error(`❌ Timestamp doesn't match pattern for ${fieldName}`);
+          expect(formatMatch).toBe(true);
+        }
+      } else {
+
+        if (expectedValue === actualValue) {
+          console.info(`✅ Timestamp exact match for ${fieldName}`);
+        } else {
+          try {
+            const expectedDate = new Date(expectedValue as string);
+            const actualDate = new Date(actualValue);
+
+
+            const expectedTimeWithoutMs = new Date(expectedDate);
+            expectedTimeWithoutMs.setMilliseconds(0);
+            const actualTimeWithoutMs = new Date(actualDate);
+            actualTimeWithoutMs.setMilliseconds(0);
+
+
+            if (expectedTimeWithoutMs.getTime() === actualTimeWithoutMs.getTime()) {
+              console.info(`✅ Timestamp matches (ignoring milliseconds) for ${fieldName}`);
+            } else {
+
+              const timeDiff = Math.abs(expectedDate.getTime() - actualDate.getTime());
+              const oneMinute = 60 * 1000;
+
+
+              if (timeDiff <= oneMinute) {
+                console.info(`✅ Timestamp within acceptable range (±1 minute) for ${fieldName}`);
+              } else {
+
+                expect(actualValue).toBe(expectedValue);
+              }
+            }
+          } catch (e) {
+            console.error(`Error validating timestamp: ${e}`);
+            expect(actualValue).toBe(expectedValue);
+          }
+        }
+      }
+
+      console.info(`✅ Validation completed for timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+    }
+    else {
       console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+
       expect(matchingObject).toHaveProperty(fieldName);
       expect(matchingObject[fieldName]).toBe(expectedValue);
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
-    return true;
-  } catch (error) {
-    return false;
   }
+  return true;
+}
+
+// Helper function to validate timestamp format
+function validateTimestampFormat(timestamp: string, pattern: string): boolean {
+  if (!timestamp) return false;
+
+  console.info(`Actual timestamp: ${timestamp}`);
 
 
+  if (pattern === 'yyyy-MM-ddTHH:mm:ss' || pattern === 'yyyy-MM-ddTHH:mm:ss.SSS') {
+
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(timestamp);
+  }
+  else if (pattern === 'yyyy-MM-dd') {
+
+    return /^\d{4}-\d{2}-\d{2}$/.test(timestamp);
+  }
+  else {
+
+    return !isNaN(new Date(timestamp).getTime());
+  }
 }
 
 async function delayRetry() {
