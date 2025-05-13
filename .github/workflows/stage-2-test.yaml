@@ -264,6 +264,10 @@ jobs:
         run: |
           mkdir -p .sonar/scanner
           dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+      - name: Restore NuGet packages
+        run: |
+          dotnet restore
+          find . -name "*.csproj" | xargs -n 1 dotnet restore
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -283,7 +287,7 @@ jobs:
             /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
           
           # Build the solution without running tests
-          find . -name "*.sln" | xargs -I {} dotnet build {} --no-restore
+          find . -name "*.sln" | xargs -I {} dotnet build {}
           
           # End SonarScanner
           ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
