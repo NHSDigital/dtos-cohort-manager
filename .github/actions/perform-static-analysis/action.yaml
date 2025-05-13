@@ -50,26 +50,28 @@ runs:
         dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
         
     - name: Build and analyze
-      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
         echo "Starting SonarCloud analysis with:"
-        echo "Project key: ${{ inputs.sonar_project_key }}"
-        echo "Organization key: ${{ inputs.sonar_organisation_key }}"
+        echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
+        echo "Organization key: ${{ vars.SONAR_ORGANISATION_KEY }}"
         
         # Begin SonarScanner
         ./.sonar/scanner/dotnet-sonarscanner begin \
-        /k:"${{ inputs.sonar_project_key }}" \
-        /o:"${{ inputs.sonar_organisation_key }}" \
-        /d:sonar.token="${{ inputs.sonar_token }}" \
-        /d:sonar.host.url="https://sonarcloud.io" \
-        /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
-        /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
+          /k:"${{ vars.SONAR_PROJECT_KEY }}" \
+          /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
+          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
+          /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
         
-        # First restore packages
-        find . -name "*.sln" | xargs -I {} dotnet restore {}
+        # First restore NuGet packages with verbosity to see any issues
+        find . -name "*.sln" | xargs -I {} dotnet restore {} --verbosity normal
         
         # Then build the solution
-        find . -name "*.sln" | xargs -I {} dotnet build {}
+        find . -name "*.sln" | xargs -I {} dotnet build {} --no-restore
         
         # End SonarScanner
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
