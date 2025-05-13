@@ -170,13 +170,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: aggregated-results
-      - name: Collate coverage reports
+      - name: Process coverage reports
         continue-on-error: true
         run: |
           mkdir coverage
-          dotnet tool install --global dotnet-coverage
-          dotnet coverage merge *.cobertura.xml --recursive -o coverage/vscoverage.xml -f xml
-          dotnet coverage merge *.cobertura.xml --recursive -o coverage/cobertura.xml -f cobertura
+          if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
+            echo "Using consolidated test coverage report"
+            # Find the consolidated coverage report and copy it directly
+            find aggregated-results -name "coverage.cobertura.xml" -exec cp {} coverage/cobertura.xml \;
+            cp coverage/cobertura.xml coverage/vscoverage.xml
+          else
+            echo "Collating multiple coverage reports"
+            dotnet tool install --global dotnet-coverage
+            dotnet coverage merge *.cobertura.xml --recursive -o coverage/vscoverage.xml -f xml
+            dotnet coverage merge *.cobertura.xml --recursive -o coverage/cobertura.xml -f cobertura
+          fi
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
