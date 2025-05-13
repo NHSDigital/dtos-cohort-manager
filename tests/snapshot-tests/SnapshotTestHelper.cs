@@ -72,7 +72,8 @@ public class SnapshotTestHelper
         verifySettings.IgnoreMembers<ParticipantDemographic>(i => i.ParticipantId, i => i.RecordInsertDateTime, i => i.RecordInsertDateTime);
         verifySettings.IgnoreMembers<CohortDistribution>(i => i.CohortDistributionId, i => i.ParticipantId, i => i.RecordInsertDateTime, i => i.RecordUpdateDateTime, i => i.ReasonForRemovalDate);
 
-        VerifierSettings.ScrubLinesWithReplace(line =>
+        verifySettings.ScrubLinesContaining("07888888888");
+        verifySettings.ScrubLinesWithReplace(line =>
         {
             var regex = new Regex(@"Participant \d+");
             line = regex.Replace(line, "Participant IGNORED");
