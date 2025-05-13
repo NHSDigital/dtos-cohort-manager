@@ -53,6 +53,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: bash
       run: |
         echo "Starting SonarCloud analysis with:"
         echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
@@ -60,17 +61,24 @@ runs:
         
         # Begin SonarScanner
         ./.sonar/scanner/dotnet-sonarscanner begin \
-          /k:"${{ vars.SONAR_PROJECT_KEY }}" \
-          /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
-          /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
+        /k:"${{ vars.SONAR_PROJECT_KEY }}" \
+        /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
+        /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+        /d:sonar.host.url="https://sonarcloud.io" \
+        /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
+        /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
         
-        # First restore NuGet packages with verbosity to see any issues
-        find . -name "*.sln" | xargs -I {} dotnet restore {} --verbosity normal
+        # Restore NuGet packages with explicit targeting of each project
+        echo "Restoring NuGet packages for all projects..."
+        dotnet restore application/CohortManager/src/Functions/Functions.sln --verbosity detailed
         
-        # Then build the solution
+        # For subdirectories with many projects, try a more targeted approach
+        echo "Looking for projects with missing assets..."
+        find application/CohortManager/src/Functions -name "*.csproj" | xargs -I{} dotnet restore "{}" --verbosity minimal
+        find tests -name "*.csproj" | xargs -I{} dotnet restore "{}" --verbosity minimal
+        
+        # Then build the solution with no restore
+        echo "Building solutions..."
         find . -name "*.sln" | xargs -I {} dotnet build {} --no-restore
         
         # End SonarScanner
