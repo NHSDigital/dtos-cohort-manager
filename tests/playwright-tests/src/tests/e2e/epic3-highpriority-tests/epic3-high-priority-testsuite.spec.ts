@@ -1,8 +1,10 @@
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
+import { getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
-import { test, testWithAmended } from '../../fixtures/test-fixtures';
+import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
+import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
@@ -63,6 +65,29 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       );
       await genericValidations(records);
 
+    });
+  });
+
+  test('@DTOSS-5560-01 - BS Select - Records are received where Is Extracted is set to 0 with correct nhs number, name and date of birth', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('Then processed ADD participant should be received using bs select get request where is extracted = 0', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      const ExpectedRowCount = 1;
+
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10, screeningServiceId: 1 });
+      expect(response.data.length).toBe(ExpectedRowCount);
+
+    });
+
+    await test.step('And Is Extracted flag is set to 1', async () => {
+      const response = await getRecordsFromCohortDistributionService(request);
+      const firstRecord = response.data.find(() => true);
+      expect(firstRecord?.IsExtracted).toBe(1);
     });
   });
 });
