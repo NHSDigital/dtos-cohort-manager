@@ -26,6 +26,7 @@ module "storage" {
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
     private_dns_zone_ids_blob            = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region_key}-storage_blob"].id]
+    private_dns_zone_ids_table           = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region_key}-storage_table"].id]
     private_dns_zone_ids_queue           = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.value.region_key}-storage_queue"].id]
     private_endpoint_enabled             = var.features.private_endpoints_enabled
     private_endpoint_subnet_id           = module.subnets["${module.regions_config[each.value.region_key].names.subnet}-pep"].id

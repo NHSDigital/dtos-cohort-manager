@@ -2,6 +2,7 @@ name: cohort-manager
 
 services:
   # CaaS Integration Service
+
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
@@ -14,11 +15,31 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
       - MeshApiBaseUrl=https://localhost:8700/messageexchange
-      - BSSMailBox="X26ABC1"
+      - BSSMailBox=X26ABC1
       - MeshPassword=${MESHPASSWORD}
       - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyName=meshpfx.pfx
       - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7059
+
+  nems-mesh-retrieval:
+    container_name: nems-mesh-retrieval
+    image: cohort-manager-nems-mesh-retrieval
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - BSSMailBox=X26ABC1
+      - MeshPassword=${MESHPASSWORD}
+      - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyName=meshpfx.pfx
+      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - ASPNETCORE_URLS=http://*:7058
 
   receive-caas-file:
     container_name: receive-caas-file
@@ -324,8 +345,34 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
+  nems-subscribe:
+    container_name: nems-subscribe
+    image: cohort-manager-nems-subscribe
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSSubscribe/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9081
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+
+  nems-unsubscribe:
+    container_name: nems-unsubscribe
+    image: cohort-manager-nems-unsubscribe
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9082
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
@@ -342,7 +389,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-   # UI
+    # UI
   web:
     container_name: web
     build:

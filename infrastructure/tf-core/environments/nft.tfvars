@@ -149,6 +149,24 @@ app_service_plan = {
         }
       }
     }
+    RetrieveMeshFile = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "1"
+          capacity_max = "4"
+          capacity_def = "2"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 4
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
   }
 }
 
@@ -230,6 +248,7 @@ function_apps = {
         GetOrchestrationStatusURL  = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
+        maxNumberOfChecks          = "50"
       }
 
     }
@@ -237,7 +256,7 @@ function_apps = {
     RetrieveMeshFile = {
       name_suffix                  = "retrieve-mesh-file"
       function_endpoint_name       = "RetrieveMeshFile"
-      app_service_plan_key         = "DefaultPlan"
+      app_service_plan_key         = "RetrieveMeshFile"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -250,6 +269,9 @@ function_apps = {
           function_app_key = "FileValidation"
         }
       ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
 
     AddParticipant = {

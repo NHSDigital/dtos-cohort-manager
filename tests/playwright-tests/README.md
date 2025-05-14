@@ -66,7 +66,7 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 - Submit pull requests with your improvements
 - Document any new test utilities or approaches
 
-## Reusable Components
+## Reusable Components (Steps)
 
 ### File Processor
 
@@ -83,44 +83,94 @@ All test files should be placed under `playwright-tests/tests/e2e/testfiles`
 
 ### Validation Engine
 
-The validation engine accepts a JSON configuration to build dynamic, SQL-injection-protected queries
-
 ```ts
 
 // Example usage
-      const checkInDatabase = {
-        "validations": [{
-          "validations": {
-            "tableName": "BS_COHORT_DISTRIBUTION",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[0]
-          }
-        }, {
-          "validations": {
-            "tableName": "BS_COHORT_DISTRIBUTION",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[1]
-          }
-        },
-        {
-          "validations": {
-            "tableName": "PARTICIPANT_MANAGEMENT",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[0],
-            "columnName2": "EXCEPTION_FLAG",
-            "columnValue2": "0"
-          }
-        }, {
-          "validations": {
-            "tableName": "PARTICIPANT_MANAGEMENT",
-            "columnName": "NHS_Number",
-            "columnValue": nhsNumbers[1],
-            "columnName2": "EXCEPTION_FLAG",
-            "columnValue2": "0"
-          }
-        }
-        ]
+async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any);
+
+```
+
+The validation engine accepts a JSON configuration to validate from API response; below are some examples of currently supported formats, more complex scenarios will be added in future
+
+- Example Usage 1
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 1111110662,
+        "PrimaryCareProvider": "E85121",
+        "NamePrefix": "MR",
+        "GivenName": "NewTest 1",
+        "OtherGivenName": "Test",
+        "FamilyName": "Adani 1",
+        "PreviousFamilyName": "Tester 1",
+        "AddressLine5": "United Kingdom",
+        "PostCode": "AB43 8FJ",
+        "CurrentPosting": "CH",
+        "EmailAddressHome": "bturneux0@soup.io",
+        "PreferredLanguage": "en",
+        "InterpreterRequired": 0
       }
-      await validateSqlDatabase(checkInDatabase.validations);
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 2222211794,
+        "PrimaryCareProvider": "E85121"
+      }
+    }
+  ]
+}
+
+
+```
+
+- Example Usage 2
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "2612314172",
+        "RuleId": 36,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      }
+    }
+  ]
+}
+
+
+
+```
+
+- Example Usage 3
+
+```json
+
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 2612314172,
+        "ExceptionFlag":1
+      }
+    }
+  ]
+}
+
 
 ```

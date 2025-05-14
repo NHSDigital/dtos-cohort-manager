@@ -94,6 +94,8 @@ application/CohortManager/.vscode/
 *.crt
 tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 
+application/CohortManager/src/Functions/*.json
+
 # Playwright
 # Ignore
 **/node_modules/
@@ -104,6 +106,9 @@ tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 **/playwright-tests/.env
 **/playwright-tests/.env.*
 **/playwright-tests/.vscode/settings.json
+**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
 # Allow
 !**/playwright-tests/.env.dev.example
-!**/playwright-tests/src/tests/e2e/testfiles/**/*.parquet
+!**/playwright-tests/src/parquet/*.parquet
+# Explicitly include test JSON files
+!**/playwright-tests/src/tests/e2e/testFiles/**/*.json
