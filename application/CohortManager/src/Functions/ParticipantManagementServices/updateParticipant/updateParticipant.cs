@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 public class UpdateParticipantFunction
 {
     private readonly ILogger<UpdateParticipantFunction> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
@@ -22,7 +22,7 @@ public class UpdateParticipantFunction
 
     public UpdateParticipantFunction(
         ILogger<UpdateParticipantFunction> logger,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         ICheckDemographic checkDemographic,
         ICreateParticipant createParticipant,
         IExceptionHandler handleException,
@@ -30,7 +30,7 @@ public class UpdateParticipantFunction
         IOptions<UpdateParticipantConfig> updateParticipantConfig)
     {
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
         _handleException = handleException;
@@ -138,7 +138,7 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var createResponse = await _callFunction.SendPost(_config.UpdateParticipant, json);
+        var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
@@ -149,17 +149,17 @@ public class UpdateParticipantFunction
 
     private async Task<bool> MarkParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
     {
-        HttpWebResponse eligibilityResponse;
+        HttpResponseMessage eligibilityResponse;
 
         if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibilityResponse = await _callFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
+            eligibilityResponse = await _httpClientFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
         }
         else
         {
             var participantJson = JsonSerializer.Serialize(participantCsvRecord);
-            eligibilityResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, participantJson);
+            eligibilityResponse = await _httpClientFunction.SendPost(_config.markParticipantAsIneligible, participantJson);
         }
 
         if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
@@ -188,8 +188,8 @@ public class UpdateParticipantFunction
                 };
             }
 
-            var response = await _callFunction.SendPost(_config.StaticValidationURL, json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var response = await _httpClientFunction.SendPost(_config.StaticValidationURL, json);
+            var responseBodyJson = await _httpClientFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
             return responseBody;
