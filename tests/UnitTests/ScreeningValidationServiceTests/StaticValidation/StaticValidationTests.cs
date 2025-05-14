@@ -14,6 +14,8 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using NHS.CohortManager.Tests.TestUtils;
+using NHS.Screening.StaticValidation;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class StaticValidationTests
@@ -28,6 +30,7 @@ public class StaticValidationTests
     private readonly StaticValidation _function;
     private readonly Mock<IReadRules> _readRules = new();
     private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IOptions<StaticValidationConfig>> _config = new();
 
     public StaticValidationTests()
     {
@@ -49,7 +52,21 @@ public class StaticValidationTests
         var json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/Breast_Screening_staticRules.json");
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(json));
 
-        _function = new StaticValidation(_logger.Object, _handleException.Object, _createResponse, _readRules.Object, _callFunction.Object);
+        var testConfig = new StaticValidationConfig
+        {
+            RemoveOldValidationRecord = "test"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _function = new StaticValidation(
+            _logger.Object, 
+            _handleException.Object, 
+            _createResponse, 
+            _readRules.Object, 
+            _callFunction.Object,
+            _config.Object
+        );
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -307,6 +324,10 @@ public class StaticValidationTests
     [DataRow("GIR0AA")]
     [DataRow("")]
     [DataRow(null)]
+    // Dummy Postcodes
+    [DataRow("ZZ99 9FZ")]
+    [DataRow("ZZ999FZ")]
+    [DataRow("ZZ99 3WZ")]
     public async Task Run_ValidPostcode_PostcodeRulePasses(string postcode)
     {
         // Arrange
@@ -330,6 +351,9 @@ public class StaticValidationTests
     [DataRow("AA 12345")]
     [DataRow("A1B 1CDE")]
     [DataRow("A1A@1AA")]
+    [DataRow("ZZ9 4LZ")]
+    [DataRow("Z99 4")]
+    [DataRow("ZzZ99 LZ")]
     public async Task Run_InvalidPostcode_PostcodeRuleFailsAndExceptionCreated(string postcode)
     {
         // Arrange

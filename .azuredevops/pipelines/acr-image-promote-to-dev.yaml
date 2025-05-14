@@ -9,11 +9,15 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: ce0f49a28a90aa60ac579db350dbd18971b0d5ed
+      ref: dbb933e78adea035c494a4d6c081c39787533a30
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
+  - name: sourceRegistry
+    value: acrukshubdevcohman
+  - name: selectImageTag
+    value: development
   - name: destEnvironmentShortName
     value: dev
 
@@ -25,11 +29,22 @@ stages:
     pool:
       name: private-pool-dev-uks
     displayName: Apply database changes
+    variables:
+      - group: DEV_core_backend
     steps:
       - checkout: self
+      - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: $(SERVICE_CONNECTION)
+          resourceGroupSQL: rg-cohman-$(destEnvironmentShortName)-uks
+          miNameACR: dtos-cohort-manager-acr-push
+          miNameSQL: mi-cohort-manager-db-management-dev
+          acrServerName: '$(sourceRegistry).azurecr.io'
+          containerGroupName: 'acigrp-cohman-$(destEnvironmentShortName)-uks-db-migration'
+          containerName: 'cohort-manager-db-migration'
+          containerImageName: 'cohort-manager-database-db-migration:$(selectImageTag)'
+          sqlConnectionString: '$(DTOS_DATABASE_CONNECTION_STRING)'
 
 - stage: deploy_image_stage
   displayName: Deploy images
@@ -47,7 +62,7 @@ stages:
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-dev
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
@@ -66,4 +81,6 @@ stages:
     steps:
     - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-dev
+        serviceConnection: $(SERVICE_CONNECTION)
+        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
+        testProjectName: 'NHS.CohortManager.SmokeTests'

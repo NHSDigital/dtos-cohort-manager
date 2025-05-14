@@ -8,8 +8,10 @@ using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
+using NHS.Screening.ValidateCohortDistributionRecord;
 
 public class ValidateCohortDistributionRecord
 {
@@ -17,17 +19,25 @@ public class ValidateCohortDistributionRecord
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ICallFunction _callFunction;
-
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
+    private readonly ValidateCohortDistributionRecordConfig _config;
 
 
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, ICallFunction callFunction, IDataServiceClient<CohortDistribution> cohortDistributionDataService)
+    public ValidateCohortDistributionRecord(
+        ILogger<ValidateCohortDistributionRecord> logger, 
+        ICreateResponse createResponse, 
+        IExceptionHandler exceptionHandler, 
+        ICallFunction callFunction, 
+        IDataServiceClient<CohortDistribution> cohortDistributionDataService,
+        IOptions<ValidateCohortDistributionRecordConfig> validateCohortDistributionRecordConfig
+    )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
         _logger = logger;
         _cohortDistributionDataService = cohortDistributionDataService;
+        _config = validateCohortDistributionRecordConfig.Value;
     }
     /// <summary>
     /// Deserializes a ValidateCohortDistributionRecordBody object.
@@ -63,11 +73,7 @@ public class ValidateCohortDistributionRecord
             var newParticipant = requestBody.CohortDistributionParticipant;
 
             var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
-            if (validationResult.CreatedException)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationResult));
-            }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(validationResult));
 
         }
         catch (Exception ex)
@@ -122,7 +128,7 @@ public class ValidateCohortDistributionRecord
 
         _logger.LogInformation("Sending record to validation in ValidateCohortDistributionRecord");
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+        var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
         var responseBodyJson = await _callFunction.GetResponseText(response);
 
         _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {response}", responseBodyJson);

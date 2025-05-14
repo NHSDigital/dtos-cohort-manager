@@ -1,4 +1,6 @@
 import { ExceptionDetails } from "@/app/types";
+import Link from "next/link";
+import { formatNhsNumber, formatDate } from "@/app/lib/utils";
 
 interface ExceptionsTableProps {
   readonly exceptions: readonly ExceptionDetails[];
@@ -79,6 +81,5 @@ export default function ExceptionsTable({
         ))}
       </tbody>
     </table>
-    </>
   );
 }

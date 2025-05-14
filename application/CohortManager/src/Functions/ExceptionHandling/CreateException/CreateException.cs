@@ -49,7 +49,7 @@ public class CreateException
         if (await _validationData.Create(exception))
         {
             _logger.LogInformation("The exception record has been created successfully");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 
         _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
