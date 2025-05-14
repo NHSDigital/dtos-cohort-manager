@@ -1,5 +1,5 @@
 name: "Perform static analysis"
-description: "Perform static analysis"
+description: "Perform static analysis with SonarCloud for .NET projects"
 inputs:
   sonar_organisation_key:
     description: "Sonar organisation key, used to identify the project"
@@ -26,15 +26,15 @@ runs:
           7.0.x
           8.0.x
           9.0.x
-          
-    - name: Cache SonarQube Cloud packages
+
+    - name: Cache SonarQube packages
       uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
         
-    - name: Cache SonarQube Cloud scanner
+    - name: Cache SonarScanner
       id: cache-sonar-scanner
       uses: actions/cache@v4
       with:
@@ -42,19 +42,12 @@ runs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
         
-    - name: Install SonarQube Cloud scanner
+    - name: Install SonarScanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: bash
       run: |
         mkdir -p .sonar/scanner
         dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
-        
-    - name: Fix NuGet Caching
-      shell: bash
-      run: |
-        dotnet nuget locals all --clear
-        mkdir -p ~/.nuget/NuGet
-        echo '<?xml version="1.0" encoding="utf-8"?><configuration><packageSources><add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" /></packageSources></configuration>' > ~/.nuget/NuGet/NuGet.Config
         
     - name: Build and analyze
       shell: bash
@@ -62,10 +55,6 @@ runs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        echo "Starting SonarCloud analysis with:"
-        echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
-        echo "Organization key: ${{ vars.SONAR_ORGANISATION_KEY }}"
-        
         # Begin SonarScanner
         ./.sonar/scanner/dotnet-sonarscanner begin \
           /k:"${{ vars.SONAR_PROJECT_KEY }}" \
@@ -76,21 +65,12 @@ runs:
           /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml" \
           /d:sonar.scanner.skipJreProvisioning=true
         
-        # Restore all dependencies first
-        echo "Restoring dependencies for all projects"
-        dotnet restore --verbosity detailed 
+        # Find and restore solution files
+        find . -name "*.sln" -exec dotnet restore {} \;
         
-        # Restore all csproj files individually
-        echo "Individual project restore for all csproj files"
-        find . -name "*.csproj" | xargs -n 1 -P 4 dotnet restore
+        # Build all solutions
+        find . -name "*.sln" -exec dotnet build {} --no-restore --configuration Release \;
         
-        # Restore mesh client specifically
-        echo "Restoring mesh client projects explicitly"
-        dotnet restore application/CohortManager/src/Functions/Shared/dotnet-mesh-client/application/DotNetMeshClient/NHS.Mesh.Client/NHS.Mesh.Client.csproj --verbosity detailed
-        
-        # Try building each project individually to avoid dependency issues
-        echo "Building projects individually"
-        find . -name "*.csproj" | grep -v "Test" | xargs -n 1 dotnet build --no-restore --configuration Release
-        
-        # End SonarScanner - do this even if builds fail
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}" || true
+        # End SonarScanner
+        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      continue-on-error: true
