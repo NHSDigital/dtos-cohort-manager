@@ -131,7 +131,7 @@ app_service_plan = {
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 20
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -149,7 +149,7 @@ app_service_plan = {
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -167,7 +167,7 @@ app_service_plan = {
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 4
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
