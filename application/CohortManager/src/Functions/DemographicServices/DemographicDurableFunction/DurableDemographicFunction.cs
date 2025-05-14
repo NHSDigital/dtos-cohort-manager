@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.DemographicServices;
 
-using System.ComponentModel;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -10,11 +9,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
-using RulesEngine.Models;
 
 public class DurableDemographicFunction
 {
@@ -122,23 +118,23 @@ public class DurableDemographicFunction
     {
         try
         {
-            // Function input comes from the request content.   
+            // Function input comes from the request content.
             var requestBody = "";
             using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
-            {
+               {
                 requestBody = await reader.ReadToEndAsync();
             }
             var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
                 nameof(DurableDemographicFunction), requestBody, CancellationToken.None);
 
-            _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+            _logger.LogInformation("Started orchestration with ID = '{InstanceId}'.", instanceId);
 
-            // Returns an HTTP 202 response the response status 
+            // Returns an HTTP 202 response the response status
             return await client.CreateCheckStatusResponseAsync(req, instanceId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There has been an error executing the durable demographic function");
+             _logger.LogError(ex, "There has been an error executing the durable demographic function");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
         }
     }
@@ -167,14 +163,14 @@ public class DurableDemographicFunction
             }
             else
             {
-                // if the Orchestration is null then it means it means it's probably completed 
+                // if the Orchestration is null then it means it means it's probably completed
                 status = OrchestrationRuntimeStatus.Completed.ToString();
             }
         }
 
         if (status == null)
         {
-            _logger.LogWarning("No instance found with ID = {instanceId}", instanceId);
+            _logger.LogWarning("No instance found with ID = {InstanceId}", instanceId);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
 

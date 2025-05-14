@@ -52,7 +52,7 @@
       },
       {
         "RuleName": "30.Postcode.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR Regex.IsMatch(participant.Postcode, \"^([A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][A-Z]{2})$\", RegexOptions.IgnoreCase)",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -76,7 +76,7 @@
       },
       {
         "RuleName": "17.DateOfBirth.NonFatal",
-        "Expression": "ValidationHelper.ValidatePastDate(participant.DateOfBirth)",
+        "Expression": "!(string.IsNullOrEmpty(participant.DateOfBirth) || !ValidationHelper.ValidatePastDate(participant.DateOfBirth))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -281,19 +281,19 @@
     ]
   },
   {
-    "WorkflowName": "ADD",
-    "Rules": [
-      {
-        "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
-        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+  "WorkflowName": "ADD",
+  "Rules": [
+    {
+      "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
+      "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Address is missing\""
+              "Context": {
+                "Expression": "\"Address is missing\""
             }
           }
-        }
+        } 
       }
     ]
   },

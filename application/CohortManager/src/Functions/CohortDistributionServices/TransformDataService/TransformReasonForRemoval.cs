@@ -4,16 +4,16 @@ using Model;
 using Common;
 using Data.Database;
 using System.Text.Json;
+using Apache.Arrow.Types;
 
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IBsTransformationLookups _transformationLookups;
     private readonly ITransformDataLookupFacade _dataLookup;
-    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, IBsTransformationLookups transformationLookups, ITransformDataLookupFacade dataLookup)
+    private const int ruleId = 1;
+    public TransformReasonForRemoval(IExceptionHandler exceptionHandler, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
-        _transformationLookups = transformationLookups;
         _dataLookup = dataLookup;
     }
 
@@ -24,11 +24,11 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     /// </summary>
     /// <param name="participant">The participant</param>
     /// <returns>Either a number of transformations if rules 1 or 2 are triggered, or raises an exception if rules 3 or 4 are triggered</returns>
-    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant)
+    public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
     {
         var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
         var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
-        var existingPrimaryCareProvider = _transformationLookups.GetPrimaryCareProvider(participant.NhsNumber);
+        var existingPrimaryCareProvider = existingParticipant == null ? null : existingParticipant.PrimaryCareProvider;
 
         var rule1 = participantNotRegisteredToGP && validOutcode && !string.IsNullOrEmpty(participant.Postcode);
         var rule2 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && !existingPrimaryCareProvider.StartsWith("ZZZ");
@@ -41,19 +41,24 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
             participant.ReasonForRemovalEffectiveFromDate = null;
             participant.ReasonForRemoval = null;
             participant.PrimaryCareProvider = GetDummyPrimaryCareProvider(participant.Postcode ?? "", existingPrimaryCareProvider, validOutcode);
+
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant,"ReasonForRemovalRule",ruleId);
+
             return participant;
         }
         else if (rule3)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
-            throw new TransformationException("Chained rule 3.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
         else if (rule4)
         {
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "4.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
-            throw new TransformationException("Chained rule 4.ParticipantNotRegisteredToGPWithReasonForRemoval raised an exception");
         }
-        else return participant;
+        else
+        {
+            return participant;
+        }
+        return new CohortDistributionParticipant();
     }
 
     /// <summary>
@@ -75,7 +80,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
         }
         else
         {
-            return dummyPrimaryCareProvider + _transformationLookups.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
+            return dummyPrimaryCareProvider + _dataLookup.GetBsoCodeUsingPCP(existingPrimaryCareProvider);
         }
     }
 }

@@ -51,5 +51,4 @@ public interface IDataServiceClient<TEntity>
     /// <param name="entity">the object that is being updated/param>
     /// <returns>a boolean representing if the record was updated successfully</returns>
     Task<bool> Update(TEntity entity);
-
 }

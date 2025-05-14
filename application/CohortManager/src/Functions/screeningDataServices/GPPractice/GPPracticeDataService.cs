@@ -28,7 +28,7 @@ public class GPPracticeDataService
     {
         try
         {
-            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {dataType} ", req.Method, typeof(GPPractice));
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(GPPractice));
             var result = await _requestHandler.HandleRequest(req, key);
             return result;
         }

@@ -4,7 +4,6 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -36,26 +35,36 @@ public class MarkParticipantAsEligible
         }
 
         var participant = JsonSerializer.Deserialize<Participant>(postData);
-        var participantId = participant?.ParticipantId;
+        long nhsNumber;
+        long screeningId;
 
         try
         {
             var updated = false;
             if (participant != null)
             {
-                var updtParticipantManagement = _participantManagementClient.GetSingle(participantId).Result;
-                updtParticipantManagement.EligibilityFlag = 1;
+                if (!long.TryParse(participant.NhsNumber, out nhsNumber))
+                {
+                    throw new FormatException("Could not parse NhsNumber");
+                }
+                if (!long.TryParse(participant.ScreeningId, out screeningId))
+                {
+                    throw new FormatException("Could not parse ScreeningId");
+                }
 
-                updated = _participantManagementClient.Update(updtParticipantManagement).Result;
+                var updatedParticipantManagement = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
+                updatedParticipantManagement.EligibilityFlag = 1;
+
+                updated = await _participantManagementClient.Update(updatedParticipantManagement);
             }
 
             if (updated)
             {
-                _logger.LogInformation("Record updated for participant {NhsNumber}", participant.NhsNumber);
+                _logger.LogInformation("Record updated for participant for NHS Number: REDACTED}");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
 
-            _logger.LogError("An error occurred while updating data for {NhsNumber}", participant?.NhsNumber);
+            _logger.LogError("An error occurred while updating data for NHS Number: REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)

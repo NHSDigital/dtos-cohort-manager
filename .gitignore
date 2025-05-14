@@ -18,6 +18,16 @@
 *.pem
 *.key
 
+# User-specific files
+*.suo
+*.user
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# Visual Studio 2017 auto generated files
+Generated\ Files/
+
 # Text Editors
 .vscode/*
 !.vscode/tasks.json
@@ -51,6 +61,8 @@ application/CohortManager/SampleData/
 *.csv
 *.parquet
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
+!tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles/**/*.parquet
+!tests/e2e-tests/NHS.CohortManager.EndToEndTests/TestFiles/**/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
@@ -69,3 +81,30 @@ infrastructure/.terraform.lock.hcl
 infrastructure/tf-core/.terraform.lock.hcl
 infrastructure/tf-audit/.terraform.lock.hcl
 application/CohortManager/.vscode/
+
+# Ignore generated feature bindings
+*.feature.cs
+# Ignore all appsettings.json files
+**/appsettings.json
+
+# Ignore all appsettings-local.json files
+**/appsettings-local.json
+
+# Ignore all .crt files
+*.crt
+tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
+
+# Playwright
+# Ignore
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+**/playwright-tests/.env
+**/playwright-tests/.env.*
+**/playwright-tests/.vscode/settings.json
+# Allow
+!**/playwright-tests/.env.dev.example
+!**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
+!**/playwright-tests/src/parquet/*.parquet

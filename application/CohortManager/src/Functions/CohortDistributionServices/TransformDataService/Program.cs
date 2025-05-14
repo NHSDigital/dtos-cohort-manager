@@ -1,10 +1,9 @@
-
-
 using Common;
 using Data.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
+using HealthChecks.Extensions;
 using Model;
 using NHS.CohortManager.CohortDistribution;
 
@@ -14,14 +13,17 @@ hostBuilder.AddConfiguration<TransformDataServiceConfig>(out TransformDataServic
 
 var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddCachedDataService<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
+        .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
         .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddScoped<IBsTransformationLookups, BsTransformationLookups>();
         services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
         services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
+        // Register health checks
+        services.AddDatabaseHealthCheck("TransformDataService");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

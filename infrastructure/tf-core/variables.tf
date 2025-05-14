@@ -102,7 +102,7 @@ variable "app_service_plan" {
     vnet_integration_enabled = optional(bool, false)
 
     autoscale = object({
-      memory_percentage = object({
+      scaling_rule = object({
         metric              = optional(string)
         capacity_min        = optional(string)
         capacity_max        = optional(string)
@@ -128,7 +128,7 @@ variable "app_service_plan" {
 
     instances = map(object({
       autoscale_override = optional(object({
-        memory_percentage = object({
+        scaling_rule = object({
           metric              = optional(string)
           capacity_min        = optional(string)
           capacity_max        = optional(string)
@@ -181,6 +181,7 @@ variable "function_apps" {
     ftps_state                             = string
     health_check_path                      = optional(string, "")
     https_only                             = bool
+    pull_image_over_vnet                   = optional(bool, true)
     remote_debugging_enabled               = bool
     storage_uses_managed_identity          = bool
     worker_32bit                           = bool
@@ -341,6 +342,13 @@ variable "sqlserver" {
       storage_account_type = optional(string, "Local")
       zone_redundant       = optional(bool, false)
 
+      short_term_retention_policy = optional(number, null)
+      long_term_retention_policy = optional(object({
+        weekly_retention  = optional(string, null)
+        monthly_retention = optional(string, null)
+        yearly_retention  = optional(string, null)
+        week_of_year      = optional(number, null)
+      }), {})
     })), {})
 
     # FW Rules
@@ -355,10 +363,12 @@ variable "sqlserver" {
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
   type = map(object({
-    name_suffix                   = string
-    account_tier                  = optional(string, "Standard")
-    replication_type              = optional(string, "LRS")
-    public_network_access_enabled = optional(bool, false)
+    name_suffix                             = string
+    account_tier                            = optional(string, "Standard")
+    blob_properties_delete_retention_policy = optional(number, 7)
+    blob_properties_versioning_enabled      = optional(bool, false)
+    replication_type                        = optional(string, "LRS")
+    public_network_access_enabled           = optional(bool, false)
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")

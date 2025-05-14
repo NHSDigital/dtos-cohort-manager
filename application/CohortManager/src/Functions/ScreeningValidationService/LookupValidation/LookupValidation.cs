@@ -68,7 +68,8 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions)]
+                CustomTypes = [typeof(Actions)],
+                UseFastExpressionCompiler = false
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
@@ -80,7 +81,12 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-            var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+            var resultList = new List<RuleResultTree>();
+
+            if (newParticipant.RecordType != Actions.Removed)
+            {
+                resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+            }
 
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {

@@ -4,28 +4,40 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
+using NHS.Screening.ValidateCohortDistributionRecord;
 
 public class ValidateCohortDistributionRecord
 {
     private readonly ILogger<ValidateCohortDistributionRecord> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ICallFunction _callFunction;
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
+    private readonly ValidateCohortDistributionRecordConfig _config;
 
 
-    public ValidateCohortDistributionRecord(ILogger<ValidateCohortDistributionRecord> logger, ICreateResponse createResponse, ICreateCohortDistributionData createCohortDistributionData, IExceptionHandler exceptionHandler, ICallFunction callFunction)
+    public ValidateCohortDistributionRecord(
+        ILogger<ValidateCohortDistributionRecord> logger, 
+        ICreateResponse createResponse, 
+        IExceptionHandler exceptionHandler, 
+        ICallFunction callFunction, 
+        IDataServiceClient<CohortDistribution> cohortDistributionDataService,
+        IOptions<ValidateCohortDistributionRecordConfig> validateCohortDistributionRecordConfig
+    )
     {
         _createResponse = createResponse;
-        _createCohortDistributionData = createCohortDistributionData;
         _exceptionHandler = exceptionHandler;
         _callFunction = callFunction;
         _logger = logger;
+        _cohortDistributionDataService = cohortDistributionDataService;
+        _config = validateCohortDistributionRecordConfig.Value;
     }
     /// <summary>
     /// Deserializes a ValidateCohortDistributionRecordBody object.
@@ -57,15 +69,11 @@ public class ValidateCohortDistributionRecord
 
         try
         {
-            var existingParticipant = _createCohortDistributionData.GetLastCohortDistributionParticipant(requestBody.NhsNumber);
+            var existingParticipant = await GetLastCohortDistributionParticipantAsync(requestBody.NhsNumber);
             var newParticipant = requestBody.CohortDistributionParticipant;
 
             var validationResult = await ValidateDataAsync(existingParticipant, newParticipant, requestBody.FileName);
-            if (validationResult.CreatedException)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(validationResult));
-            }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(validationResult));
 
         }
         catch (Exception ex)
@@ -74,6 +82,34 @@ public class ValidateCohortDistributionRecord
             _logger.LogError(ex, "There was an error validating the cohort distribution records {Message}", ex.Message);
             return req.CreateResponse(HttpStatusCode.InternalServerError);
         }
+    }
+
+
+    private async Task<CohortDistributionParticipant> GetLastCohortDistributionParticipantAsync(string existingNhsNumber)
+    {
+
+        long nhsNumber;
+
+        _logger.LogInformation("Getting last cohort distribution record in ValidateCohortDistributionRecord");
+
+        if (!long.TryParse(existingNhsNumber, out nhsNumber))
+        {
+            throw new FormatException("Unable to parse NHS Number");
+        }
+        // using get by filter here because we can get more than one record from the database 
+        var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.NHSNumber == nhsNumber);
+
+        // we do this because get by filter will return an empty array
+        if (cohortDistributionRecords.Any())
+        {
+            CohortDistribution latestParticipant = cohortDistributionRecords
+                                                    .OrderByDescending(x => x.CohortDistributionId)
+                                                    .FirstOrDefault();
+
+            _logger.LogInformation("last cohort distribution record in ValidateCohortDistributionRecord was got with result {record}", latestParticipant);
+            return new CohortDistributionParticipant(latestParticipant);
+        }
+        return new CohortDistributionParticipant();
     }
 
     private async Task<ValidationExceptionLog> ValidateDataAsync(CohortDistributionParticipant existingParticipant, CohortDistributionParticipant newParticipant, string fileName)
@@ -90,11 +126,16 @@ public class ValidateCohortDistributionRecord
             RulesType.CohortDistribution
         ));
 
+        _logger.LogInformation("Sending record to validation in ValidateCohortDistributionRecord");
 
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+        var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
         var responseBodyJson = await _callFunction.GetResponseText(response);
+
+        _logger.LogInformation("validation response in ValidateCohortDistributionRecord was {response}", responseBodyJson);
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
         return responseBody;
+
+
     }
 }

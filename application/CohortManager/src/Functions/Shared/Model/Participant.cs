@@ -1,6 +1,9 @@
 namespace Model;
 
 using Model.Enums;
+using System;
+using System.Globalization;
+using NHS.CohortManager.Shared.Utilities;
 
 public class Participant
 {
@@ -72,7 +75,7 @@ public class Participant
     {
         return new ParticipantDemographic
         {
-            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? long.Parse(NhsNumber) : null,
+            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? long.Parse(NhsNumber) : throw new FormatException("Cannot parse nhs number to Long"),
             SupersededByNhsNumber = !string.IsNullOrEmpty(SupersededByNhsNumber) ? long.Parse(SupersededByNhsNumber) : null,
             PrimaryCareProvider = PrimaryCareProvider,
             PrimaryCareProviderFromDate = PrimaryCareProviderEffectiveFromDate,
@@ -107,6 +110,28 @@ public class Participant
             RecordInsertDateTime = DateTime.Now,
             RecordUpdateDateTime = null,
         };
+    }
+
+    public ParticipantManagement ToParticipantManagement()
+    {
+        var participantManagement = new ParticipantManagement
+        {
+            ScreeningId = long.Parse(ScreeningId),
+            NHSNumber = long.Parse(NhsNumber),
+            RecordType = RecordType,
+            EligibilityFlag = MappingUtilities.ParseStringFlag(EligibilityFlag ?? "1"),
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
+            BusinessRuleVersion = BusinessRuleVersion,
+            ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
+            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
+        };
+
+        if (ParticipantId != null)
+            participantManagement.ParticipantId = long.Parse(ParticipantId);
+
+        return participantManagement;
     }
 
     private int GetInvalidFlag()

@@ -47,11 +47,11 @@ public class RemoveValidationExceptionData
             //we want to return ok here because an error has not actually occurred
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
             await _handleException.CreateSystemExceptionLogFromNhsNumber(ex, removeOldException.NhsNumber, "", removeOldException.ScreeningName, "N/A");
 
-            _logger.LogError(ex, "There was exception while removing an old ValidationExceptionRecord for NHS number: {NhsNumber}. StackTrace: {Ex}", removeOldException.NhsNumber, ex);
+            _logger.LogError(ex, "There was exception while removing an old ValidationExceptionRecord for NHS Number: REDACTED. StackTrace: {Ex}", ex);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

@@ -1,8 +1,6 @@
 namespace Common;
 
-using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -14,7 +12,6 @@ public class CheckDemographic : ICheckDemographic
     private readonly ICallFunction _callFunction;
     private readonly ILogger<CheckDemographic> _logger;
     private readonly HttpClient _httpClient;
-
     private const int _maxNumberOfChecks = 50;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
@@ -69,7 +66,7 @@ public class CheckDemographic : ICheckDemographic
         try
         {
             using var memoryStream = new MemoryStream();
-            // this seems to be better for memory management 
+            // this seems to be better for memory management
             await JsonSerializer.SerializeAsync(memoryStream, participants);
             memoryStream.Position = 0;
 
@@ -79,13 +76,13 @@ public class CheckDemographic : ICheckDemographic
 
             responseContent = response.Headers.Location.ToString();
 
-            // this is not retrying the function if it fails but checking if it has done yet. 
+            // this is not retrying the function if it fails but checking if it has done yet.
             var retryPolicy = Policy
                 .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed)
                 .WaitAndRetryAsync(_maxNumberOfChecks, check => _delayBetweenChecks,
                     (result, timeSpan, checkCount, context) =>
                     {
-                        _logger.LogWarning("Status: {result}, checking status: ({checkCount} / {maxNumberOfChecks})...", result.Result, checkCount, _maxNumberOfChecks);
+                        _logger.LogWarning("Status: {Result}, checking status: ({CheckCount} / {MaxNumberOfChecks})...", result.Result, checkCount, _maxNumberOfChecks);
                     });
 
             var finalStatus = await retryPolicy.ExecuteAsync(async () =>
@@ -95,18 +92,18 @@ public class CheckDemographic : ICheckDemographic
 
             if (finalStatus == WorkFlowStatus.Completed)
             {
-                _logger.LogWarning("durable function completed", finalStatus);
+                _logger.LogWarning("Durable function completed", finalStatus);
                 return true;
             }
             else
             {
-                _logger.LogWarning("check limit reached", finalStatus);
+                _logger.LogWarning("Check limit reached", finalStatus);
                 return false;
             }
         }
         catch (Exception ex)
         {
-            // we want to do this as we don't want to lose records 
+            // we want to do this as we don't want to lose records
             _logger.LogWarning(ex, "An error occurred: {Message} still sending records to queue", ex.Message);
             return true;
         }
@@ -152,7 +149,7 @@ public class CheckDemographic : ICheckDemographic
             }
 
             var instanceId = getInstanceId(statusRequestGetUri);
-            _logger.LogWarning(ex, "There has been error getting the status for instanceId {instanceId}", instanceId);
+            _logger.LogWarning(ex, "There has been error getting the status for instanceId {InstanceId}", instanceId);
 
             var json = JsonSerializer.Serialize(instanceId);
             var response = await _callFunction.SendPost(getOrchestrationStatusURL, json);
@@ -160,7 +157,7 @@ public class CheckDemographic : ICheckDemographic
 
             if (Enum.TryParse<WorkFlowStatus>(responseBody, out var result))
             {
-                _logger.LogWarning("Recovered from an error while getting the status for a Orchestration. Status was: {status}", result);
+                _logger.LogWarning("Recovered from an error while getting the status for a Orchestration. Status was: {Status}", result);
                 return result;
             }
         }

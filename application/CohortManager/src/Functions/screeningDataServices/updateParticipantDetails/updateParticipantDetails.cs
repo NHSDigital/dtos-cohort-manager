@@ -4,28 +4,34 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
-using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using DataServices.Client;
+using NHS.Screening.UpdateParticipantDetails;
+using Microsoft.Extensions.Options;
 
 public class UpdateParticipantDetails
 {
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly UpdateParticipantDetailsConfig _config;
 
-    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse, IParticipantManagerData participantManagerData, IExceptionHandler handleException, ICallFunction callFunction)
+    public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse,
+                                    IExceptionHandler handleException, ICallFunction callFunction,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IOptions<UpdateParticipantDetailsConfig> updateParticipantDetailsConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _participantManagerData = participantManagerData;
         _handleException = handleException;
         _callFunction = callFunction;
+        _participantManagementClient = participantManagementClient;
+        _config = updateParticipantDetailsConfig.Value;
     }
 
     [Function("updateParticipantDetails")]
@@ -42,27 +48,43 @@ public class UpdateParticipantDetails
                 participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBody);
             }
 
-            var existingParticipantData = _participantManagerData.GetParticipant(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningId);
+            Participant reqParticipant = participantCsvRecord.Participant;
 
-            var response = await ValidateData(existingParticipantData, participantCsvRecord.Participant, participantCsvRecord.FileName);
+
+            long nhsNumberLong;
+            if (!long.TryParse(reqParticipant.NhsNumber, out nhsNumberLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            long ScreeningIdLong;
+            if (!long.TryParse(reqParticipant.ScreeningId, out ScreeningIdLong))
+            {
+                throw new FormatException("Could not parse Long in update participant details");
+            }
+
+            var existingParticipantData = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumberLong
+                                                                                        && p.ScreeningId == ScreeningIdLong);
+
+            var response = await ValidateData(new Participant(existingParticipantData), participantCsvRecord.Participant, participantCsvRecord.FileName);
             if (response.IsFatal)
             {
-                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
+                _logger.LogError("Validation Error: A fatal Rule was violated and therefore the record cannot be added to the database with Nhs number: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req);
             }
 
             if (response.CreatedException)
             {
-                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Nhs number: {NhsNumber}", participantCsvRecord.Participant.NhsNumber);
-                participantCsvRecord.Participant.ExceptionFlag = "Y";
+                _logger.LogInformation("Validation Error: A Rule was violated but it was not Fatal for record with Participant Id: {ParticipantId}", participantCsvRecord.Participant.ParticipantId);
+                reqParticipant.ExceptionFlag = "1";
             }
 
-            var isAdded = _participantManagerData.UpdateParticipantDetails(participantCsvRecord);
+            reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
+            reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString();
+            var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
 
             if (isAdded)
-            {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
-            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -79,7 +101,7 @@ public class UpdateParticipantDetails
 
         try
         {
-            var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("LookupValidationURL"), json);
+            var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
             var responseBodyJson = await _callFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
@@ -87,7 +109,7 @@ public class UpdateParticipantDetails
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: {NewParticipant}", ex.Message, newParticipant);
+            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
             return null;
         }
     }

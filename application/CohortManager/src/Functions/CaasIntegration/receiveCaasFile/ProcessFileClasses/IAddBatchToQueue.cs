@@ -5,5 +5,5 @@ using Model;
 
 public interface IAddBatchToQueue
 {
-    Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch);
+    Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName);
 }

@@ -1,40 +1,45 @@
 ---
-
 name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
 resources:
   repositories:
-    - repository: dtos-devops-templates
-      type: github
-      name: NHSDigital/dtos-devops-templates
-      ref: 7dd6e83de82475570a27e172b95be8d30f488695
-      endpoint: NHSDigital
-
-parameters:
-  - name: destEnvironmentShortName
-    displayName: Destination Environment Short Name
-    type: string
-    values:
-      - dev
-    default: dev
+  - repository: dtos-devops-templates
+    type: github
+    name: NHSDigital/dtos-devops-templates
+    ref: 9ebaa0958ce826d44bdba77c25bf0a697e1f441c
+    endpoint: NHSDigital
 
 variables:
-  - group: DEV_hub_backend_remote_state
+- group: DEV_automation_testing_pipeline
+
+parameters:
+- name: destEnvironmentShortName
+  displayName: Destination Environment Short Name
+  type: string
+  values:
+  - dev
+  default: dev
 
 stages:
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
+
+  variables:
+  - name: TARGET_ENVIRONMENT
+    value: ${{ parameters.destEnvironmentShortName }}
+
   jobs:
-  - job: post_deployment_tests
+  - job: post_deployment_tests_smoke
+    displayName: Run post-deployment smoke tests
     pool:
-      name: private-pool-prod-uks
-    displayName: Run post-deployment tests
-    variables:
-      TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+      name: private-pool-dev-uks
+
     steps:
-      - checkout: self
-      - template: ../templates/steps/run-post-deployment-tests.yaml
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
+    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: sc-cohort-manager-dev
+        testProjectDirectory: 'tests/playwright-tests'
+        testfileDirectory: 'src/tests/e2e/testFiles'
+        testProjectName: 'tests'

@@ -11,7 +11,11 @@ using Common.Interfaces;
 using NHS.Screening.ReceiveCaasFile;
 using Data.Database;
 using Model;
+using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -24,16 +28,31 @@ public class ReceiveCaasFileTests
     private readonly ParticipantsParquetMap _participantsParquetMap;
     private readonly string _blobName;
     private readonly Mock<IProcessCaasFile> _mockProcessCaasFile = new();
-    private readonly Mock<IScreeningServiceData> _mockScreeningServiceData = new();
+    private readonly Mock<IDataServiceClient<ScreeningLkp>> _mockScreeningLkpClient = new();
+    private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
 
     public ReceiveCaasFileTests()
     {
         _mockLogger = new Mock<ILogger<ReceiveCaasFile>>();
         _mockICallFunction = new Mock<ICallFunction>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
-        Environment.SetEnvironmentVariable("BatchSize", "2000");
 
-        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningServiceData.Object);
+        var testConfig = new ReceiveCaasFileConfig
+        {
+            DemographicDataServiceURL = "DemographicDataServiceURL",
+            ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
+            DemographicURI  = "DemographicURI",
+            BatchSize = 2000,
+            AddQueueName = "AddQueueName",
+            UpdateQueueName = "UpdateQueueName",
+            PMSRemoveParticipant = "PMSRemoveParticipant",
+            AllowDeleteRecords = true
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
+
+        _receiveCaasFileInstance = new ReceiveCaasFile(_mockLogger.Object, _mockIReceiveCaasFileHelper.Object, _mockProcessCaasFile.Object, _mockScreeningLkpClient.Object,
+                                        _config.Object);
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
 
         _participant = new Participant()
@@ -59,16 +78,16 @@ public class ReceiveCaasFileTests
 
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
+        var screeningLkp = new ScreeningLkp
+        {
+            ScreeningName = "test screening name",
+            ScreeningId = 1,
+            ScreeningWorkflowId = "TestWorkflow"
+        };
         _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(It.IsAny<string>(), It.IsAny<FileNameParser>(), It.IsAny<string>()))
             .Returns(Task.FromResult(true));
-
+        _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(new ScreeningService()
-        {
-            ScreeningId = "1",
-            ScreeningName = "test screening name",
-        });
-
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
@@ -90,7 +109,6 @@ public class ReceiveCaasFileTests
     [DataRow("F9B292BSS_20241201121212_n1.parquet")]
     public async Task Run_FileNameIsIncorrect_LogFileNameIsInvalid(string blobName)
     {
-
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
 
@@ -111,12 +129,11 @@ public class ReceiveCaasFileTests
     [TestMethod]
     public async Task Run_fileNameChecksTrowsError_ErrorIsThrown()
     {
-
         await using var fileSteam = File.OpenRead(_blobName);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
 
         _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
-        .Throws(new Exception("there was a problem checking file name"));
+        .Throws(new Exception("There was a problem checking file name"));
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
@@ -131,10 +148,10 @@ public class ReceiveCaasFileTests
     }
 
     [TestMethod]
-    [DataRow("", "")]
-    [DataRow(" ", " ")]
+    [DataRow(0, "")]
+    [DataRow(0, " ")]
     [DataRow(null, null)]
-    public async Task Run_cannotGetScreeningId_LogsError(string screeningId, string screeningName)
+    public async Task Run_cannotGetScreeningId_LogsError(Int64 screeningId, string screeningName)
     {
         // Arrange
 
@@ -143,20 +160,22 @@ public class ReceiveCaasFileTests
         _mockIReceiveCaasFileHelper.Setup(x => x.CheckFileName(_blobName, It.IsAny<FileNameParser>(), It.IsAny<string>()))
         .Returns(Task.FromResult(true));
 
+        var screeningLkp = new ScreeningLkp
+        {
+            ScreeningName = screeningName,
+            ScreeningId = screeningId,
+            ScreeningWorkflowId = "TestWorkflow"
+        };
+        _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
+
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        var screeningService = new ScreeningService();
-
-        screeningService.ScreeningId = screeningId;
-        screeningService.ScreeningName = screeningName;
-
-        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(screeningService);
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("the Screening id or screening name was null or empty")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The Screening id or screening name was null or empty")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
         Times.Once);
@@ -172,12 +191,15 @@ public class ReceiveCaasFileTests
             .Returns(Task.FromResult(true));
 
         _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-        _mockScreeningServiceData.Setup(x => x.GetScreeningServiceByWorkflowId(It.IsAny<string>())).Returns(new ScreeningService()
-        {
-            ScreeningId = "1",
-            ScreeningName = "test screening name",
-        });
 
+        var screeningLkp = new ScreeningLkp
+        {
+            ScreeningName = "test screening name",
+            ScreeningId = 1,
+            ScreeningWorkflowId = "TestWorkflow"
+        };
+
+        _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
 
         var batchSize = 1;

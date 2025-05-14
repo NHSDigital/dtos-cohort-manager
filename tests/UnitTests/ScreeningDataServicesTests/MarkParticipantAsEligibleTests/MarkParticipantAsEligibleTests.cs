@@ -10,7 +10,7 @@ using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Text.Json;
-
+using System.Linq.Expressions;
 
 [TestClass]
 public class MarkParticipantAsEligibleTests
@@ -19,26 +19,32 @@ public class MarkParticipantAsEligibleTests
     private readonly Mock<ICreateResponse> _mockCreateResponse = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly Participant _requestBody;
+    private readonly MarkParticipantAsEligible _sut;
+
+    public MarkParticipantAsEligibleTests()
+    {
+        _requestBody = new Participant
+        {
+            NhsNumber = "1234567890",
+            ParticipantId = "123",
+            ScreeningId = "1"
+        };
+        _sut = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
+    }
 
     [TestMethod]
     public async Task Run_MarkParticipantAsEligible_ValidRequest_ReturnsSuccess()
     {
         // Arrange
-        var requestBody = new Participant
-        {
-            NhsNumber = "NHS1234567",
-            ParticipantId = "123"
-        };
-        var json = JsonSerializer.Serialize(requestBody);
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
+        var mockRequest = SetupRequest(_requestBody);
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
-        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, EligibilityFlag = 0, ScreeningId = 1 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
         // Act
-        await markParticipantAsEligible.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.OK, It.IsAny<HttpRequestData>(), ""), Times.Once);
@@ -49,24 +55,61 @@ public class MarkParticipantAsEligibleTests
     public async Task Run_MarkParticipantAsEligible_InvalidRequest_ReturnsBadRequest()
     {
         // Arrange
-        var requestBody = new Participant
-        {
-            NhsNumber = "NHS1234567",
-            ParticipantId = "123"
-        };
-        var json = JsonSerializer.Serialize(requestBody);
-        var mockRequest = MockHelpers.CreateMockHttpRequestData(json);
-        var markParticipantAsEligible = new MarkParticipantAsEligible(_mockLogger.Object, _mockCreateResponse.Object, _mockParticipantManagementClient.Object, _handleException.Object);
+        var mockRequest = SetupRequest(_requestBody);
 
-        var mockParticipantManagement = new ParticipantManagement { ParticipantId = 123, EligibilityFlag = 0 };
-        _mockParticipantManagementClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(mockParticipantManagement);
+        var mockParticipantManagement = new ParticipantManagement { NHSNumber = 1234567890, EligibilityFlag = 0, ScreeningId = 1 };
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(mockParticipantManagement);
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);
 
         // Act
-        await markParticipantAsEligible.Run(mockRequest);
+        await _sut.Run(mockRequest);
 
         // Assert
         _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
         _mockCreateResponse.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task Run_MarkParticipantAsEligible_InvalidNhsNumber_ReturnsBadRequestAndCreatesException()
+    {
+        // Arrange
+        _requestBody.NhsNumber = string.Empty;
+        var mockRequest = SetupRequest(_requestBody);
+
+        // Act
+        await _sut.Run(mockRequest);
+
+        // Assert
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _mockCreateResponse.VerifyNoOtherCalls();
+        _handleException.Verify(i => i.CreateSystemExceptionLog(
+            It.Is<Exception>((v, t) => v.ToString().Contains("Could not parse NhsNumber")),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_MarkParticipantAsEligible_InvalidScreeningId_ReturnsBadRequestAndCreatesException()
+    {
+        // Arrange
+        _requestBody.ScreeningId = string.Empty;
+        var mockRequest = SetupRequest(_requestBody);
+
+        // Act
+        await _sut.Run(mockRequest);
+
+        // Assert
+        _mockCreateResponse.Verify(response => response.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), ""), Times.Once);
+        _mockCreateResponse.VerifyNoOtherCalls();
+        _handleException.Verify(i => i.CreateSystemExceptionLog(
+            It.Is<Exception>((v, t) => v.ToString().Contains("Could not parse ScreeningId")),
+            It.IsAny<Participant>(),
+            It.IsAny<string>()), Times.Once);
+    }
+
+    private static HttpRequestData SetupRequest(Participant participant)
+    {
+        var json = JsonSerializer.Serialize(participant);
+        return MockHelpers.CreateMockHttpRequestData(json);
     }
 }

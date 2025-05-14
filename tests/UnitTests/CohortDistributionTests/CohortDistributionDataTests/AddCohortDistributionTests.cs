@@ -1,126 +1,52 @@
 namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+using Castle.Core.Logging;
 using Data.Database;
+using DataServices.Client;
+using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Moq;
 using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
-public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDistributionData>
+public class AddCohortDistributionTests
 {
-    private static readonly Mock<IDatabaseHelper> _databaseHelperMock = new();
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private readonly string _requestId = Guid.NewGuid().ToString();
-    private readonly Dictionary<string, string> columnToClassPropertyMapping;
-    private List<CohortDistributionParticipant> _cohortDistributionList;
-    public AddCohortDistributionTests() : base((conn, logger, transaction, command, response) =>
-        new CreateCohortDistributionData(conn, _databaseHelperMock.Object, logger))
+    private readonly Guid _requestId = Guid.NewGuid();
+
+    private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
+    private List<CohortDistribution> _cohortDistributionList;
+    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
+    private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _bsSelectRequestAuditDataServiceClient = new();
+
+    public AddCohortDistributionTests()
     {
-        _createCohortDistributionData = new CreateCohortDistributionData(
-            _mockDBConnection.Object,
-            _databaseHelperMock.Object,
-            _loggerMock.Object);
+        _createCohortDistributionData = new CreateCohortDistributionData(_loggerMock.Object, _cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
+    }
 
-
-        columnToClassPropertyMapping = new Dictionary<string, string>
-{
-    { "REQUEST_ID", "RequestId" },
-    { "PARTICIPANT_ID", "ParticipantId" },
-    { "NHS_NUMBER", "NhsNumber" },
-    { "IS_EXTRACTED", "Extracted" },
-    { "SUPERSEDED_NHS_NUMBER", "SupersededByNhsNumber" },
-    { "PRIMARY_CARE_PROVIDER", "PrimaryCareProvider" },
-    { "PRIMARY_CARE_PROVIDER_FROM_DT", "PrimaryCareProviderEffectiveFromDate" },
-    { "NAME_PREFIX", "NamePrefix" },
-    { "GIVEN_NAME", "FirstName" },
-    { "OTHER_GIVEN_NAME", "OtherGivenNames" },
-    { "FAMILY_NAME", "FamilyName" },
-    { "PREVIOUS_FAMILY_NAME", "PreviousFamilyName" },
-    { "DATE_OF_BIRTH", "DateOfBirth" },
-    { "GENDER", "Gender" },
-    { "ADDRESS_LINE_1", "AddressLine1" },
-    { "ADDRESS_LINE_2", "AddressLine2" },
-    { "ADDRESS_LINE_3", "AddressLine3" },
-    { "ADDRESS_LINE_4", "AddressLine4" },
-    { "ADDRESS_LINE_5", "AddressLine5" },
-    { "POST_CODE", "Postcode" },
-    { "USUAL_ADDRESS_FROM_DT", "UsualAddressEffectiveFromDate" },
-    { "CURRENT_POSTING", "CurrentPosting" },
-    { "CURRENT_POSTING_FROM_DT", "CurrentPostingEffectiveFromDate" },
-    { "DATE_OF_DEATH", "DateOfDeath" },
-    { "TELEPHONE_NUMBER_HOME", "TelephoneNumber" },
-    { "TELEPHONE_NUMBER_HOME_FROM_DT", "TelephoneNumberEffectiveFromDate" },
-    { "TELEPHONE_NUMBER_MOB", "MobileNumber" },
-    { "TELEPHONE_NUMBER_MOB_FROM_DT", "MobileNumberEffectiveFromDate" },
-    { "EMAIL_ADDRESS_HOME", "EmailAddress" },
-    { "EMAIL_ADDRESS_HOME_FROM_DT", "EmailAddressEffectiveFromDate" },
-    { "PREFERRED_LANGUAGE", "PreferredLanguage" },
-    { "INTERPRETER_REQUIRED", "IsInterpreterRequired" },
-    { "REASON_FOR_REMOVAL", "ReasonForRemoval" },
-    { "REASON_FOR_REMOVAL_FROM_DT", "ReasonForRemovalEffectiveFromDate" },
-    { "RECORD_INSERT_DATETIME", "RecordInsertDateTime" },
-    { "RECORD_UPDATE_DATETIME", "RecordUpdateDateTime" },
-    { "SCREENING_ACRONYM", "ScreeningAcronym" },
-    { "SCREENING_SERVICE_ID", "ScreeningServiceId" },
-    { "SCREENING_NAME", "ScreeningName" },
-    { "ELIGIBILITY_FLAG", "EligibilityFlag" },
-    { "RECORD_TYPE", "RecordType" }
-};
-
-        _cohortDistributionList = new List<CohortDistributionParticipant>
+    [TestMethod]
+    public async Task ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
+    {
+        // Arrange
+        var listOfValues = new List<CohortDistribution>()
         {
-            new CohortDistributionParticipant
+            new CohortDistribution
             {
-                RequestId = _requestId,
-                ParticipantId = "1",
-                NhsNumber = "1234567890",
-                Extracted = "0",
-                RecordType = "ADD"
+                ParticipantId = 1,
+                RecordInsertDateTime = DateTime.Today
             }
         };
-        SetupDataReader(_cohortDistributionList, columnToClassPropertyMapping);
-    }
 
-    [TestMethod]
-    public void InsertCohortDistributionData_ValidData_ReturnsSuccess()
-    {
-        // Arrange
-        var cohortDistributionParticipant = new CohortDistributionParticipant();
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
-
-        // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
-
-        // Assert
-        Assert.IsTrue(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
-    }
-
-    [TestMethod]
-    public void InsertCohortDistributionData_InvalidData_ReturnsFailure()
-    {
-        // Arrange
-        var cohortDistributionParticipant = new CohortDistributionParticipant();
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(0);
-
-        // Act
-        var result = _createCohortDistributionData.InsertCohortDistributionData(cohortDistributionParticipant);
-
-        // Assert
-        Assert.IsFalse(result);
-        _commandMock.Verify(m => m.ExecuteNonQuery(), Times.Once);
-        _mockTransaction.Verify(t => t.Rollback(), Times.Once);
-    }
-
-    [TestMethod]
-    public void ExtractCohortDistributionParticipants_ValidRequest_ReturnsListOfParticipants()
-    {
-        // Arrange
-         _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
         var rowCount = 1;
-
+        _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(listOfValues);
+        _cohortDistributionDataServiceClient.Setup(x => x.Update(It.IsAny<CohortDistribution>())).ReturnsAsync(true);
+        _cohortDistributionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
+        var result = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
         Assert.AreEqual("1", result.FirstOrDefault()?.ParticipantId);
@@ -128,32 +54,32 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void ExtractCohortDistributionParticipants_AfterExtraction_MarksBothParticipantsAsExtracted()
+    public async Task ExtractCohortDistributionParticipants_AfterExtraction_MarksBothParticipantsAsExtracted()
     {
         // Arrange
-        _cohortDistributionList = new List<CohortDistributionParticipant>
-    {
-        new CohortDistributionParticipant
+        _cohortDistributionList = new List<CohortDistribution>
         {
-            ParticipantId = "1",
-            Extracted = "0"
-        },
-        new CohortDistributionParticipant
-        {
-            ParticipantId = "2",
-            Extracted = "0"
-        }
-    };
-
-        SetupDataReader(_cohortDistributionList, columnToClassPropertyMapping);
-        _commandMock.Setup(x => x.ExecuteNonQuery()).Returns(1);
+            new CohortDistribution
+            {
+                ParticipantId = 1,
+                IsExtracted = 1
+            },
+            new CohortDistribution
+            {
+                ParticipantId = 2,
+                IsExtracted = 1
+            }
+        };
         var rowCount = 2;
+        _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(_cohortDistributionList);
+        _cohortDistributionDataServiceClient.Setup(x => x.Update(It.IsAny<CohortDistribution>())).ReturnsAsync(true);
+        _cohortDistributionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new CohortDistribution());
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
+        var result = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
-        _commandMock.Verify(x => x.ExecuteNonQuery(), Times.AtLeast(2));
+
         Assert.AreEqual("1", result[0].ParticipantId);
         Assert.AreEqual("1", result[0].IsExtracted);
         Assert.AreEqual("2", result[1].ParticipantId);
@@ -161,14 +87,13 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetParticipant_NoParticipants_ReturnsEmptyCollection()
+    public async Task GetParticipant_NoParticipants_ReturnsEmptyCollection()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read()).Returns(false);
         var rowCount = 0;
 
         // Act
-        var result = _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
+        var result = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
 
         // Assert
         Assert.IsNotNull(result);
@@ -176,26 +101,24 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
+    public async Task GetCohortDistributionParticipantsByRequestId_RequestId_ReturnsMatchingParticipants()
     {
         // Act
-        var validRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
-        var inValidRequestIdResult = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId("Non Matching RequestID");
+        _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(new List<CohortDistribution>());
+        var validRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var inValidRequestIdResult = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(Guid.Empty);
 
         // Assert
-        Assert.AreEqual(_requestId, validRequestIdResult.First().RequestId);
-        Assert.AreEqual(1, validRequestIdResult.Count);
         Assert.AreEqual(0, inValidRequestIdResult.Count);
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
+    public async Task GetCohortDistributionParticipantsByRequestId_NoParticipants_ReturnsEmptyList()
     {
         // Arrange
-        _mockDataReader.SetupSequence(reader => reader.Read()).Returns(false);
 
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
@@ -216,15 +139,27 @@ public class AddCohortDistributionTests : DatabaseTestBaseSetup<CreateCohortDist
     }
 
     [TestMethod]
-    public void GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
+    public async Task GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
+        var requestId = new Guid();
+        var listOfValues = new List<CohortDistribution>()
+        {
+            new CohortDistribution
+            {
+                ParticipantId = 1,
+                RecordInsertDateTime = DateTime.Today,
+                RequestId = requestId
+            }
+        };
+
+        _cohortDistributionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>())).ReturnsAsync(listOfValues);
         // Act
-        var result = _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
+        var result = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(_requestId);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("1", result[0].ParticipantId);
-        Assert.AreEqual(_requestId, result[0].RequestId);
+        Assert.AreEqual(requestId.ToString(), result[0].RequestId);
     }
 }

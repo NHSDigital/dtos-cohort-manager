@@ -8,9 +8,8 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
-using receiveCaasFile;
-using Microsoft.Extensions.Azure;
-using Azure.Identity;
+using HealthChecks.Extensions;
+
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("program.cs");
@@ -18,8 +17,10 @@ var logger = loggerFactory.CreateLogger("program.cs");
 try
 {
     var host = new HostBuilder()
+        .AddConfiguration<ReceiveCaasFileConfig>(out ReceiveCaasFileConfig config)
         .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(Environment.GetEnvironmentVariable("DemographicDataServiceURL"))
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .AddCachedDataService<ScreeningLkp>(config.ScreeningLkpDataServiceURL)
         .Build()
     .ConfigureFunctionsWebApplication()
 
@@ -28,19 +29,21 @@ try
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddTransient<ICallFunction, CallFunction>();
-        services.AddTransient<IScreeningServiceData, ScreeningServiceData>();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddScoped<ICheckDemographic, CheckDemographic>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddScoped<IRecordsProcessedTracker,  RecordsProcessedTracker>(); //Do not change the lifetime of this.
+        services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
         services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
         {
-            client.BaseAddress = new Uri(Environment.GetEnvironmentVariable("DemographicURI"));
+            client.BaseAddress = new Uri(config.DemographicURI);
         });
         services.AddScoped<IValidateDates, ValidateDates>();
+        services.AddScoped<IQueueClientFactory, QueueClientFactory>();
+        // Register health checks
+        services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
     .AddAzureQueues()
     .AddExceptionHandler()

@@ -9,6 +9,9 @@ using NHS.CohortManager.CohortDistribution;
 using Model;
 using Model.Enums;
 using Data.Database;
+using DataServices.Client;
+using NHS.Screening.CreateCohortDistribution;
+using Microsoft.Extensions.Options;
 
 public class CreateCohortDistribution
 {
@@ -16,22 +19,25 @@ public class CreateCohortDistribution
     private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IParticipantManagerData _participantManagerData;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly CreateCohortDistributionConfig _config;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
-           ICallFunction callFunction,
-           ICohortDistributionHelper CohortDistributionHelper,
-           IExceptionHandler exceptionHandler,
-           IParticipantManagerData participantManagerData,
-           IAzureQueueStorageHelper azureQueueStorageHelper)
+                                    ICallFunction callFunction,
+                                    ICohortDistributionHelper CohortDistributionHelper,
+                                    IExceptionHandler exceptionHandler,
+                                    IAzureQueueStorageHelper azureQueueStorageHelper,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
         _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
-        _participantManagerData = participantManagerData;
         _azureQueueStorageHelper = azureQueueStorageHelper;
+        _participantManagementClient = participantManagementClient;
+        _config = createCohortDistributionConfig.Value;
     }
 
     [Function(nameof(CreateCohortDistribution))]
@@ -39,9 +45,7 @@ public class CreateCohortDistribution
     {
         if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
-            string logMessage = $"One or more of the required parameters is missing.";
-            _logger.LogError(logMessage);
-            await HandleErrorResponseAsync(logMessage, null, basicParticipantCsvRecord.FileName);
+            await HandleErrorResponseAsync("One or more of the required parameters is missing.", null, basicParticipantCsvRecord.FileName);
             return;
         }
 
@@ -49,21 +53,11 @@ public class CreateCohortDistribution
         {
             // Retrieve participant data
             var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(basicParticipantCsvRecord);
-            if (participantData == null)
+            if (participantData == null || string.IsNullOrEmpty(participantData.ScreeningServiceId))
             {
-                _logger.LogInformation("Participant data in cohort distribution was null");
-                await HandleErrorResponseAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                await HandleErrorResponseAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
-
-            if (string.IsNullOrEmpty(participantData.ScreeningServiceId))
-            {
-                _logger.LogInformation("Participant data was missing ScreeningServiceId");
-                await HandleErrorResponseAsync("There was a problem getting participant data in cohort distribution", participantData, basicParticipantCsvRecord.FileName);
-                return;
-            }
-
-            _logger.LogInformation("Participant data Screening Id: {participantData}", participantData.ScreeningServiceId);
 
             // Allocate service provider
             var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
@@ -77,50 +71,56 @@ public class CreateCohortDistribution
                 }
             }
 
-            var ignoreParticipantExceptions = (bool)DatabaseHelper.ConvertBoolStringToBoolByType("IgnoreParticipantExceptions", DataTypes.Boolean);
+            // Check if participant has exceptions
+            bool ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
+            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
 
-            if (ParticipantHasException(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningServiceId) && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
+            bool participantHasException = participantData.ExceptionFlag == 1;
+            if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
-                var ParticipantExceptionErrorMessage = $"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it";
-                _logger.LogInformation(ParticipantExceptionErrorMessage, participantData.ParticipantId);
-                await HandleErrorResponseAsync(ParticipantExceptionErrorMessage, participantData, basicParticipantCsvRecord.FileName);
+                await HandleErrorResponseAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
+                                                participantData, basicParticipantCsvRecord.FileName);
                 return;
             }
-            else
-            {
-                _logger.LogInformation("Ignore Participant Exceptions is enabled, Record will be processed");
-            }
 
-            // Validate cohort distribution record & transform data service
+            // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
-            var validationRecordCreated = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
-            if (!validationRecordCreated || ignoreParticipantExceptions)
-            {
-                _logger.LogInformation("Validation has passed the record with NHS number: {NhsNumber} will be added to the database", participantData.NhsNumber);
-                var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
-                if (transformedParticipant == null)
-                {
-                    _logger.LogError("The transform participant returned null in cohort distribution");
-                    await HandleErrorResponseAsync("the transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
-                    return;
-                }
+            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, participantData);
 
-                var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
-                if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
-                {
-                    await HandleErrorResponseAsync("The transformed participant returned null from the transform participant function", transformedParticipant, basicParticipantCsvRecord.FileName);
-                    return;
-                }
-                _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
+            // Update participant exception flag
+            if (validationResponse.CreatedException)
+            {
+                var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
+                _logger.LogInformation(errorMessage);
+                await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, participantData.ScreeningName, JsonSerializer.Serialize(participantData));
+
+                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+                participantMangement.ExceptionFlag = 1;
+
+                bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+                if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
+
+                if (!ignoreParticipantExceptions) return;
+            }
+            _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
+
+            // Transformation
+            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData);
+            if (transformedParticipant == null)
+                return;
+
+            // Add to cohort distribution table
+            var cohortAddResponse = await AddCohortDistribution(transformedParticipant);
+            if (cohortAddResponse.StatusCode != HttpStatusCode.OK)
+            {
+                await HandleErrorResponseAsync("Failed to add the participant to the Cohort Distribution table", transformedParticipant, basicParticipantCsvRecord.FileName);
                 return;
             }
-            var errorMessage = $"Validation error: A rule triggered a fatal error, preventing the cohort distribution record with participant Id {participantData.ParticipantId} from being added to the database";
-            _logger.LogInformation(errorMessage);
-            await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, serviceProvider, JsonSerializer.Serialize(participantData));
+            _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
         }
         catch (Exception ex)
         {
-            var errorMessage = $"Failed during TransformParticipant or AddCohortDistribution Function.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             _logger.LogError(ex, errorMessage);
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, "", JsonSerializer.Serialize(basicParticipantCsvRecord.ErrorRecord) ?? "N/A");
             throw;
@@ -129,6 +129,7 @@ public class CreateCohortDistribution
 
     private async Task HandleErrorResponseAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
     {
+        _logger.LogError(errorMessage);
         var participant = new Participant();
         if (cohortDistributionParticipant != null)
         {
@@ -136,23 +137,16 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, Environment.GetEnvironmentVariable("CohortQueueNamePoison"));
+        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
     private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = DatabaseHelper.ConvertBoolStringToBoolByType("IsExtractedToBSSelect", DataTypes.Integer).ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
-        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("AddCohortDistributionURL"), json);
+        var response = await _callFunction.SendPost(_config.AddCohortDistributionURL, json);
 
         _logger.LogInformation("Called {AddCohortDistribution} function", nameof(AddCohortDistribution));
         return response;
-    }
-
-    private bool ParticipantHasException(string nhsNumber, string screeningId)
-    {
-        var participant = _participantManagerData.GetParticipant(nhsNumber, screeningId);
-        var exceptionFlag = Enum.TryParse(participant.ExceptionFlag, out Exists value) ? value : Exists.No;
-        return exceptionFlag == Exists.Yes;
     }
 }

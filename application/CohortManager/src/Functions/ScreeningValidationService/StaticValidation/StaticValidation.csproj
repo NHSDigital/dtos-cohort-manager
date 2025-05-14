@@ -10,7 +10,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
-    <PackageReference Include="RulesEngine" Version="5.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
+    <PackageReference Include="RulesEngine" Version="5.0.5" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -30,5 +31,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
   </ItemGroup>
 </Project>
