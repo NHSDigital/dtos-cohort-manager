@@ -5,6 +5,7 @@ import { ApiResponse, ResponseValidator } from '../api/core/types';
 export const expectStatus = <T>(expectedStatus: number): ResponseValidator<ApiResponse<T>> =>
   async (response: ApiResponse<T>): Promise<void> => {
     expect(response.status).toBe(expectedStatus);
+    console.info(`✅\t Verified Status code to be : ${response.status}`);
   };
 
 export const validateResponseByStatus = <T>(): ResponseValidator<ApiResponse<T>> =>
