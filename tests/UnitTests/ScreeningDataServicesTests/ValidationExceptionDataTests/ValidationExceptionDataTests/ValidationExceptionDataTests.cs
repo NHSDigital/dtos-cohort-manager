@@ -52,6 +52,7 @@ public class ValidationExceptionDataTests
                 .Including(x => x.ExceptionId)
                 .Including(x => x.CohortName)
                 .Including(x => x.DateCreated)
+                .Including(x => x.Category)
         );
     }
 
@@ -118,7 +119,8 @@ public class ValidationExceptionDataTests
         result.Should().BeEquivalentTo(filteredList, options => options
             .Including(x => x.ExceptionId)
             .Including(x => x.CohortName)
-            .Including(x => x.DateCreated));
+            .Including(x => x.DateCreated)
+            .Including(x => x.Category));
     }
 
     [DataRow(ExceptionCategory.BSSelect)]
@@ -139,7 +141,8 @@ public class ValidationExceptionDataTests
         result.Should().BeEquivalentTo(filteredList, options => options
             .Including(x => x.ExceptionId)
             .Including(x => x.CohortName)
-            .Including(x => x.DateCreated));
+            .Including(x => x.DateCreated)
+            .Including(x => x.Category));
     }
     #endregion
 
