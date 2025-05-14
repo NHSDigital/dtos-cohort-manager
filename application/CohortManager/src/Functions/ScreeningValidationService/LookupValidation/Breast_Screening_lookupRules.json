@@ -28,15 +28,11 @@
         "RuleName": "3602.CurrentPostingAndPrimaryProvider.NonFatal",
         "LocalParams": [
           {
-            "Name": "ValidCurrentPosting",
-            "Expression": "new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)"
-          },
-          {
             "Name": "EnglishPostingCategory",
-            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting)"
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
           }
         ],
-        "Expression": "!((EnglishPostingCategory || ValidCurrentPosting) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
+        "Expression": "!((EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
