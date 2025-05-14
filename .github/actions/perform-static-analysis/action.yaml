@@ -10,6 +10,10 @@ inputs:
   sonar_token:
     description: "Sonar token, the API key"
     required: true
+  coverage_path:
+    description: "Path to coverage reports"
+    required: false
+    default: "coverage"
 runs:
   using: "composite"
   steps:
@@ -26,51 +30,49 @@ runs:
           7.0.x
           8.0.x
           9.0.x
-
+        
     - name: Cache SonarQube packages
       uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-        
-    - name: Cache SonarScanner
-      id: cache-sonar-scanner
+        key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-sonar-
+          
+    - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
-        path: ./.sonar/scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
-        
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+          
     - name: Install SonarScanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: bash
-      run: |
-        mkdir -p .sonar/scanner
-        dotnet tool install dotnet-sonarscanner --tool-path ./.sonar/scanner
+      run: dotnet tool install --global dotnet-sonarscanner
         
-    - name: Build and analyze
+    - name: SonarCloud analysis
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ github.token }}
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
       run: |
-        # Begin SonarScanner
-        ./.sonar/scanner/dotnet-sonarscanner begin \
-          /k:"${{ vars.SONAR_PROJECT_KEY }}" \
-          /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
-          /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-          /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
-          /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml" \
-          /d:sonar.scanner.skipJreProvisioning=true
-        
-        # Find and restore solution files
+        # Restore solution dependencies
         find . -name "*.sln" -exec dotnet restore {} \;
         
+        # Begin SonarScanner with coverage configuration
+        dotnet sonarscanner begin \
+          /k:"${{ inputs.sonar_project_key }}" \
+          /o:"${{ inputs.sonar_organisation_key }}" \
+          /d:sonar.token="${{ inputs.sonar_token }}" \
+          /d:sonar.host.url="https://sonarcloud.io" \
+          /d:sonar.cs.opencover.reportsPaths="${{ inputs.coverage_path }}/*.xml" \
+          /d:sonar.cs.cobertura.reportsPaths="${{ inputs.coverage_path }}/cobertura.xml" \
+          /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
+          /d:sonar.verbose=true
+        
         # Build all solutions
-        find . -name "*.sln" -exec dotnet build {} --no-restore --configuration Release \;
+        find . -name "*.sln" -exec dotnet build {} --no-restore \;
         
         # End SonarScanner
-        ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-      continue-on-error: true
+        dotnet sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
